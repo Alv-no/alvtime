@@ -1,0 +1,14 @@
+version: '3.7'
+
+services:
+  dev:
+    build: .
+    container_name: alvtime-vue
+    tty: true
+    image: alvtime-vue
+    volumes:
+      - .:/usr/src/app:delegated
+      - /usr/src/app/node_modules/
+    ports:
+      - 8080:8080
+    command: sh
