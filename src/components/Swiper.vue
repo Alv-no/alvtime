@@ -3,7 +3,6 @@
     <swiper-slide v-for="(slide, index) in swiperSlides" :key="index">
       <activity-list :number="slide"></activity-list>
     </swiper-slide>
-    <div class="swiper-pagination" slot="pagination"></div>
     <div class="swiper-button-prev" slot="button-prev"></div>
     <div class="swiper-button-next" slot="button-next"></div>
   </swiper>
