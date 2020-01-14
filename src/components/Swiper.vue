@@ -1,7 +1,7 @@
 <template>
   <swiper :options="swiperOption" ref="mySwiper">
     <swiper-slide v-for="(slide, index) in swiperSlides" :key="index">
-      <activity-list :number="slide"></activity-list>
+      <time-entrie-list :number="slide"></time-entrie-list>
     </swiper-slide>
     <div class="swiper-button-prev" slot="button-prev"></div>
     <div class="swiper-button-next" slot="button-next"></div>
@@ -18,7 +18,7 @@ export default {
   components: {
     swiper,
     "swiper-slide": swiperSlide,
-    "activity-list": TimeEntrieList
+    "time-entrie-list": TimeEntrieList
   },
 
   data() {
