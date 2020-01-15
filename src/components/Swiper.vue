@@ -1,8 +1,8 @@
 <template>
   <swiper :options="swiperOption" ref="mySwiper">
-    <swiper-slide v-for="(slide, index) in swiperSlides" :key="index">
-      <time-entrie-list :number="slide"></time-entrie-list>
-    </swiper-slide>
+    <swiperSlide v-for="(slide, index) in swiperSlides" :key="index">
+      <TimeEntrieDayList :number="slide"></TimeEntrieDayList>
+    </swiperSlide>
     <div class="swiper-button-prev" slot="button-prev"></div>
     <div class="swiper-button-next" slot="button-next"></div>
   </swiper>
@@ -12,13 +12,13 @@
 import "swiper/dist/css/swiper.css";
 
 import { swiper, swiperSlide } from "vue-awesome-swiper";
-import TimeEntrieList from "./TimeEntrieList";
+import TimeEntrieDayList from "./TimeEntrieList";
 
 export default {
   components: {
     swiper,
-    "swiper-slide": swiperSlide,
-    "time-entrie-list": TimeEntrieList
+    swiperSlide,
+    TimeEntrieDayList,
   },
 
   data() {
@@ -26,17 +26,17 @@ export default {
       swiperOption: {
         navigation: {
           nextEl: ".swiper-button-next",
-          prevEl: ".swiper-button-prev"
-        }
+          prevEl: ".swiper-button-prev",
+        },
       },
-      swiperSlides: []
+      swiperSlides: [],
     };
   },
 
   computed: {
     swiper() {
       return this.$refs.mySwiper.swiper;
-    }
+    },
   },
 
   mounted() {
@@ -49,6 +49,6 @@ export default {
         this.swiper.slideTo(2, 1000, false);
       }
     }, 200);
-  }
+  },
 };
 </script>
