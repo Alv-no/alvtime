@@ -1,7 +1,7 @@
 <template>
   <div class="grid">
-    <TimeEntrieText :timeEntrie="timeEntrie" />
-    <HourInput :value="timeEntrie.value" />
+    <TimeEntrieText :activity="task.name" :customer="task.customerName" />
+    <HourInput :timeEntrie="task.timeEntrie" />
   </div>
 </template>
 
@@ -13,7 +13,7 @@ export default {
     TimeEntrieText,
     HourInput,
   },
-  props: ["timeEntrie"],
+  props: ["task"],
 };
 </script>
 

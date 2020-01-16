@@ -4,6 +4,7 @@ import Vuex from "vuex";
 Vue.use(Vuex);
 
 export default new Vuex.Store({
+  strict: true,
   state: {
     tasks: [
       {
@@ -51,39 +52,56 @@ export default new Vuex.Store({
         customerId: 2,
         customerName: "Kunde AS",
         hourRate: 0,
-        favorite: true,
+        favorite: false,
         locked: false,
       },
     ],
     timeEntries: [
       {
         id: 1,
-        date: "2020-01-03",
+        date: "2020-01-15",
         value: 7.5,
         taskId: 4,
       },
       {
         id: 2,
-        date: "2020-01-04",
+        date: "2020-01-16",
         value: 7.5,
         taskId: 4,
       },
       {
         id: 3,
-        date: "2020-01-05",
+        date: "2020-01-17",
         value: 7.5,
         taskId: 4,
       },
       {
         id: 4,
-        date: "2020-01-06",
+        date: "2020-01-18",
         value: 7.5,
         taskId: 4,
       },
     ],
   },
-  getters: {},
-  mutations: {},
+  getters: {
+    favoriteTasks: state => {
+      return state.tasks.filter(task => task.favorite);
+    },
+    notFavoriteTasks: state => {
+      return state.tasks.filter(task => !task.favorite);
+    },
+  },
+  mutations: {
+    updateTimeEntrie(store, { timeEntrie }) {
+      const index = store.timeEntries.findIndex(
+        entrie => entrie.id === timeEntrie.id && entrie.date === timeEntrie.date
+      );
+
+      if (index !== -1) {
+        store.timeEntries[index] = timeEntrie;
+      }
+    },
+  },
   actions: {},
   modules: {},
 });

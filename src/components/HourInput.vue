@@ -1,12 +1,12 @@
 <template>
   <form novalidate>
-    <input type="number" novalidate />
+    <input type="number" v-on:input="onInput" :value="timeEntrie.value" />
   </form>
 </template>
 
 <script>
 export default {
-  props: ["value"],
+  props: ["timeEntrie"],
 };
 </script>
 

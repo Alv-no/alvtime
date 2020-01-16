@@ -1,18 +1,19 @@
 <template>
   <div class="text">
-    <p class="customer_text">{{ timeEntrie.customer }}</p>
-    <p class="activity_name_text">{{ timeEntrie.activityName }}</p>
+    <p class="customer_text">{{ customer }}</p>
+    <p class="activity_name_text">{{ activity }}</p>
   </div>
 </template>
 
 <script>
 export default {
-  props: ["timeEntrie"],
+  props: ["customer", "activity"],
 };
 </script>
 
 <style scoped>
 .text {
+  display: block;
   line-height: 0.3rem;
   text-align: left;
   white-space: nowrap;
