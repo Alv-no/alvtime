@@ -1,62 +1,96 @@
 <template>
   <div>
     <p>{{ day }}</p>
-    <TimeEntrieDay
-      v-for="task in daysTasks"
-      :key="task.timeEntrie.value + task.name"
-      :task="task"
-    />
+    <div
+      v-for="row in rows"
+      v-bind:key="row.task.id + row.timeEntrie.value"
+      class="grid"
+    >
+      <TimeEntrieText
+        :activity="row.task.name"
+        :customer="row.task.customerName"
+      />
+      <HourInput :timeEntrie="row.timeEntrie" />
+    </div>
   </div>
 </template>
 
 <script>
-import TimeEntrieDay from "./TimeEntrieDay";
+import TimeEntrieText from "./TimeEntrieText";
+import HourInput from "./HourInput";
 import moment from "moment";
+import config from "@/config";
 
 export default {
   components: {
-    TimeEntrieDay,
+    TimeEntrieText,
+    HourInput,
   },
   props: ["date"],
 
   computed: {
     day() {
-      const d = this.date.format("dddd");
+      const d = this.date.format("dddd DD. MMMM");
       return d.charAt(0).toUpperCase() + d.slice(1);
     },
 
-    daysTasks() {
-      const timeEntries = this.$store.state.timeEntries.filter(
-        entrie => entrie.date === this.date.format("YYYY-MM-DD")
+    rows() {
+      return [...this.rowsWithHours, ...this.rowsWithoutHours].sort(
+        (a, b) => a.task.customerName > b.task.customerName
       );
+    },
 
-      const tasksWithHours = timeEntries.map(entrie => {
-        const { customerName, name } = this.$store.state.tasks.find(
-          task => task.id === entrie.taskId
-        );
-
-        return {
-          customerName,
-          name,
-          timeEntrie: entrie,
-        };
+    rowsWithHours() {
+      return this.daysTimeEntries.map(entrie => {
+        const task = this.$store.getters.getTask(entrie.taskId);
+        return this.createRow(task, entrie);
       });
+    },
 
-      const tasksWithoutHours = this.$store.getters.favoriteTasks
-        .filter(task => !timeEntries.some(entrie => entrie.taskId === task.id))
-        .map(({ customerName, name, id }) => ({
-          customerName,
-          name,
-          timeEntrie: {
-            id: 0,
-            date: "",
-            value: 0,
-            taskId: id,
-          },
-        }));
+    rowsWithoutHours() {
+      return this.$store.getters.favoriteTasks
+        .filter(task => !this.isTaskInEntries(task))
+        .map(task => this.createRow(task));
+    },
 
-      return [...tasksWithHours, ...tasksWithoutHours];
+    daysTimeEntries() {
+      return this.$store.state.timeEntries.filter(entrie =>
+        this.isThisDate(entrie.date)
+      );
+    },
+  },
+
+  methods: {
+    isTaskInEntries(task) {
+      return this.daysTimeEntries.some(entrie => entrie.taskId === task.id);
+    },
+
+    isThisDate(date) {
+      return date === this.date.format(config.DATE_FORMAT);
+    },
+
+    createRow(task, timeEntrie) {
+      if (!timeEntrie) {
+        timeEntrie = {
+          id: 0,
+          date: this.date.format(config.DATE_FORMAT),
+          value: 0,
+          taskId: task.id,
+        };
+      }
+
+      return { task, timeEntrie };
     },
   },
 };
 </script>
+
+<style scoped>
+.grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  color: #000;
+  padding: 0 1rem;
+}
+</style>
