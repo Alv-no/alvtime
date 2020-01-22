@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p>{{ day }}</p>
+    <h2>{{ day }}</h2>
     <div
       v-for="row in rows"
       v-bind:key="row.task.id + row.timeEntrie.value"

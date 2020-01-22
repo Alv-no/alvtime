@@ -1,26 +1,40 @@
 <template>
   <form novalidate>
-    <input type="text" pattern="\d*" v-model="value" novalidate />
+    <input :type="type" v-model="value" @touchstart="onTouchStart" novalidate />
   </form>
 </template>
 
 <script>
 export default {
   props: ["timeEntrie"],
+  data() {
+    return {
+      type: "text",
+    };
+  },
 
   computed: {
     value: {
+      get() {
+        const { id, date } = this.timeEntrie;
+        const entrie = this.$store.state.timeEntries.find(
+          entrie => entrie.id === id && entrie.date === date
+        );
+        return entrie ? entrie.value : 0;
+      },
       set(str) {
         const payload = {
           timeEntrie: { ...this.timeEntrie, value: Number(str) },
         };
         this.$store.commit("UPDATE_TIME_ENTRIE", payload);
       },
-      get() {
-        const { id, date } = this.timeEntrie;
-        const entrie = this.$store.getters.getTimeEntrie(id, date);
-        return entrie ? entrie.value : 0;
-      },
+    },
+  },
+
+  methods: {
+    onTouchStart() {
+      this.type = "number";
+      setTimeout(() => (this.type = "text"), 200);
     },
   },
 };
@@ -30,8 +44,9 @@ export default {
 input {
   appearance: none;
   -moz-appearance: textfield;
-  width: 1.5rem;
-  height: 1rem;
-  padding: 5px;
+  width: 2.1rem;
+  padding: 0.4rem;
+  font-size: 0.8rem;
+  border-radius: 0;
 }
 </style>
