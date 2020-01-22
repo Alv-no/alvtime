@@ -1,7 +1,7 @@
 version: '3.7'
 
 services:
-  dev:
+  alvtime-vue:
     build: .
     container_name: alvtime-vue
     tty: true
@@ -12,3 +12,33 @@ services:
     ports:
       - 8080:8080
     command: sh
+  nginx-reverse-proxy:
+    container_name: nginx-reverse-proxy
+    image: nginx-reverse-proxy
+    command: nginx -g 'daemon off;'
+    ports:
+      - "80:80"
+    links:
+      - alvtime-vue
+      - dotnet-backend
+  dotnet-backend:
+    container_name: dotnet-backend
+    image: dotnet-backend
+    links:
+      - mssql-db
+    expose:
+      - "80"
+    ports:
+      - "8000:80"
+  mssql-db:
+    container_name: mssql-db
+    image: mssql-db
+    environment: 
+      - SA_PASSWORD=AlvTimeTestErMoro32
+      - ACCEPT_EULA=Y
+    expose:
+      - "1433"
+    command:
+      - /bin/bash
+      - -c 
+      - /opt/mssql/bin/sqlservr & sleep infinity
