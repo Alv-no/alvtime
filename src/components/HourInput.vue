@@ -1,12 +1,28 @@
 <template>
   <form novalidate>
-    <input type="number" v-on:input="onInput" :value="timeEntrie.value" />
+    <input type="text" pattern="\d*" v-model="value" novalidate />
   </form>
 </template>
 
 <script>
 export default {
   props: ["timeEntrie"],
+
+  computed: {
+    value: {
+      set(str) {
+        const payload = {
+          timeEntrie: { ...this.timeEntrie, value: Number(str) },
+        };
+        this.$store.commit("UPDATE_TIME_ENTRIE", payload);
+      },
+      get() {
+        const { id, date } = this.timeEntrie;
+        const entrie = this.$store.getters.getTimeEntrie(id, date);
+        return entrie ? entrie.value : 0;
+      },
+    },
+  },
 };
 </script>
 
