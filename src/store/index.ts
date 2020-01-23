@@ -28,7 +28,7 @@ export interface Task {
 export interface State {
   tasks: Task[];
   timeEntries: TimeEntrie[];
-  activeSlide: number;
+  activeSlideIndex: number;
 }
 
 export default new Vuex.Store({
