@@ -1,10 +1,6 @@
 <template>
   <div>
-    <div
-      v-for="row in rows"
-      v-bind:key="row.task.id + row.timeEntrie.value"
-      class="grid"
-    >
+    <div v-for="row in rows" :key="row.task.id" class="grid">
       <TimeEntrieText
         :activity="row.task.name"
         :customer="row.task.customerName"
@@ -29,9 +25,7 @@ export default {
 
   computed: {
     rows() {
-      return [...this.rowsWithHours, ...this.rowsWithoutHours].sort(
-        (a, b) => a.task.customerName > b.task.customerName
-      );
+      return [...this.rowsWithHours, ...this.rowsWithoutHours].sort(sortList);
     },
 
     rowsWithHours() {
@@ -77,6 +71,22 @@ export default {
     },
   },
 };
+
+function sortList(a, b) {
+  if (a.task.customerName > b.task.customerName) {
+    return 1;
+  } else if (a.task.customerName < b.task.customerName) {
+    return -1;
+  }
+
+  if (a.task.name > b.task.name) {
+    return 1;
+  } else if (a.task.name < b.task.name) {
+    return -1;
+  } else {
+    return 0;
+  }
+}
 </script>
 
 <style scoped>

@@ -1,5 +1,6 @@
 import moment from "moment";
 import { State, TimeEntrie } from "./index";
+import { ActionContext } from "vuex";
 
 export default {
   state: {
@@ -42,18 +43,37 @@ export default {
       );
     },
   },
+
   mutations: {
-    UPDATE_TIME_ENTRIE(
-      state: State,
-      { timeEntrie }: { timeEntrie: TimeEntrie }
-    ) {
+    UPDATE_TIME_ENTRIE(state: State, timeEntrie: TimeEntrie) {
       const index = state.timeEntries.findIndex(
         entrie => entrie.id === timeEntrie.id && entrie.date === timeEntrie.date
       );
 
       if (index !== -1) {
-        state.timeEntries[index] = timeEntrie;
+        state.timeEntries = [
+          ...state.timeEntries.map(entrie =>
+            entrie.id !== timeEntrie.id ? entrie : timeEntrie
+          ),
+        ];
+      } else {
+        state.timeEntries = [
+          ...state.timeEntries,
+          {
+            ...timeEntrie,
+            id: Math.max(...state.timeEntries.map(entrie => entrie.id)) + 1,
+          },
+        ];
       }
+    },
+  },
+
+  actions: {
+    UPDATE_TIME_ENTRIE(
+      { commit }: ActionContext<State, State>,
+      timeEntrie: TimeEntrie
+    ) {
+      commit("UPDATE_TIME_ENTRIE", timeEntrie);
     },
   },
 };

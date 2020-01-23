@@ -50,6 +50,8 @@ export default new Vuex.Store({
       state.activeSlideIndex = activeSlideIndex;
     },
   },
-  actions: {},
+  actions: {
+    ...timeEntrieHandlers.actions,
+  },
   modules: {},
 });
