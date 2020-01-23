@@ -10,7 +10,7 @@ namespace AlvTimeApi.Controllers.Tasks
 {
     [Route("api/user")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = "EasyAuth")]
+    //[Authorize(AuthenticationSchemes = "EasyAuth")]
     public class TasksController : Controller
     {
         private readonly ApplicationDbContext _database;
@@ -20,6 +20,11 @@ namespace AlvTimeApi.Controllers.Tasks
             _database = database;
         }
 
+        /// <summary>
+        /// Retrieves tasks
+        /// </summary>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
         [HttpGet("Tasks")]
         public ActionResult<IEnumerable<Task>> FetchTasks()
         {
@@ -39,6 +44,11 @@ namespace AlvTimeApi.Controllers.Tasks
             return Ok(tasks);
         }
 
+        /// <summary>
+        /// Changes favorite state of task
+        /// </summary>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
         [HttpPost("Tasks")]
         public ActionResult<Task> UpdateTask([FromBody] UpdateTasksDto taskDto)
         {

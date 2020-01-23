@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AlvTimeWebApi2</name>
+    </assembly>
+    <members>
+        <member name="M:AlvTimeApi.Controllers.Tasks.TasksController.FetchTasks">
+            <summary>
+            Retrieves tasks
+            </summary>
+            <remarks></remarks>
+            <response code="200">OK</response>
+        </member>
+        <member name="M:AlvTimeApi.Controllers.Tasks.TasksController.UpdateTask(AlvTimeApi.Dto.UpdateTasksDto)">
+            <summary>
+            Changes favorite state of task
+            </summary>
+            <remarks></remarks>
+            <response code="200">OK</response>
+        </member>
+        <member name="M:TimeTracker1.Controllers.TimeEntriesController.FetchTimeEntries(System.DateTime,System.DateTime)">
+            <summary>
+            Retrieves time entries for the dates entered
+            </summary>
+            <remarks>Enter date in format yyyy-mm-dd</remarks>
+            <response code="200">OK</response>
+        </member>
+        <member name="M:TimeTracker1.Controllers.TimeEntriesController.UpsertTimeEntry(AlvTimeApi.Dto.SaveHoursDto)">
+            <summary>
+            Updates existing or creates new time entry
+            </summary>
+            <remarks>Enter date in format yyyy-mm-dd</remarks>
+            <response code="200">OK</response>
+        </member>
+    </members>
+</doc>

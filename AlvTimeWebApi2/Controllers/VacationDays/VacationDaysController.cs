@@ -8,7 +8,7 @@ namespace AlvTimeApi.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = "EasyAuth")]
+    //[Authorize(AuthenticationSchemes = "EasyAuth")]
     public class VacationDaysController : Controller
     {
         private readonly ApplicationDbContext _database;

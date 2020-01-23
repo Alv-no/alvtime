@@ -11,7 +11,7 @@ namespace TimeTracker1.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = "EasyAuth")]
+    //[Authorize(AuthenticationSchemes = "EasyAuth")]
     public class TimeEntriesController : Controller
     {
         private readonly ApplicationDbContext _database;
@@ -21,6 +21,11 @@ namespace TimeTracker1.Controllers
             _database = database;
         }
 
+        /// <summary>
+        /// Retrieves time entries for the dates entered
+        /// </summary>
+        /// <remarks>Enter date in format yyyy-mm-dd</remarks>
+        /// <response code="200">OK</response>
         [HttpGet("TimeEntries")]
         public ActionResult<IEnumerable<TimeEntriesResponseDto>> FetchTimeEntries(DateTime fromDateInclusive, DateTime toDateInclusive)
         {
@@ -48,6 +53,11 @@ namespace TimeTracker1.Controllers
             }
         }
 
+        /// <summary>
+        /// Updates existing or creates new time entry
+        /// </summary>
+        /// <remarks>Enter date in format yyyy-mm-dd</remarks>
+        /// <response code="200">OK</response>
         [HttpPost("TimeEntries")]
         public ActionResult<TimeEntriesResponseDto> UpsertTimeEntry([FromBody] SaveHoursDto request)
         {
