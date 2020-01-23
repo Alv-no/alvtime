@@ -85,9 +85,11 @@ function createDays() {
 function createWeeks() {
   return [-3, -2, -1, 0, 1, 2, 3]
     .map(n => moment().add(n, "week"))
-    .map(day => {
-      const monday = day.startOf("week");
-      return [0, 1, 2, 3, 4, 5, 6].map(n => monday.clone().add(n, "day"));
-    });
+    .map(createWeek);
+}
+
+function createWeek(day) {
+  const monday = day.startOf("week");
+  return [0, 1, 2, 3, 4, 5, 6].map(n => monday.clone().add(n, "day"));
 }
 </script>
