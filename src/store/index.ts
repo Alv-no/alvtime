@@ -28,13 +28,16 @@ export interface Task {
 export interface State {
   tasks: Task[];
   timeEntries: TimeEntrie[];
+  activeSlide: number;
 }
 
 export default new Vuex.Store({
-  strict: true,
+  strict: process.env.NODE_ENV !== "production",
   state: {
     ...timeEntrieHandlers.state,
     ...taskHandlers.state,
+
+    activeSlideIndex: 3,
   },
   getters: {
     ...timeEntrieHandlers.getters,
@@ -42,6 +45,10 @@ export default new Vuex.Store({
   },
   mutations: {
     ...timeEntrieHandlers.mutations,
+
+    UPDATE_ACTVIE_SLIDE(state: State, activeSlideIndex: number) {
+      state.activeSlideIndex = activeSlideIndex;
+    },
   },
   actions: {},
   modules: {},

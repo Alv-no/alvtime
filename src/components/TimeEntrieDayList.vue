@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h2>{{ day }}</h2>
     <div
       v-for="row in rows"
       v-bind:key="row.task.id + row.timeEntrie.value"
@@ -29,11 +28,6 @@ export default {
   props: ["date"],
 
   computed: {
-    day() {
-      const d = this.date.format("dddd DD. MMMM");
-      return d.charAt(0).toUpperCase() + d.slice(1);
-    },
-
     rows() {
       return [...this.rowsWithHours, ...this.rowsWithoutHours].sort(
         (a, b) => a.task.customerName > b.task.customerName

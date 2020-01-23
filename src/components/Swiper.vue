@@ -1,6 +1,7 @@
-<template
-  ><div>
+<template>
+  <div>
     <mq-layout mq="sm">
+      <h2>{{ day }}</h2>
       <swiper :options="swiperOption" ref="mySwiper">
         <swiperSlide v-for="(date, index) in dates" :key="index">
           <TimeEntrieDayList :date="date" />
@@ -36,11 +37,17 @@ export default {
   },
 
   data() {
+    const vueComponent = this;
     return {
       swiperOption: {
         navigation: {
           nextEl: ".swiper-button-next",
           prevEl: ".swiper-button-prev",
+        },
+        on: {
+          slideChange(event) {
+            vueComponent.$store.commit("UPDATE_ACTVIE_SLIDE", this.activeIndex);
+          },
         },
       },
       dates: [],
@@ -51,6 +58,16 @@ export default {
   computed: {
     swiper() {
       return this.$refs.mySwiper.swiper;
+    },
+
+    day() {
+      if (this.dates.length) {
+        const d = this.dates[this.$store.state.activeSlideIndex].format(
+          "dddd DD. MMMM"
+        );
+        return d.charAt(0).toUpperCase() + d.slice(1);
+      }
+      return "";
     },
   },
 
