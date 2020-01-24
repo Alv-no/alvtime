@@ -58,7 +58,7 @@ export default {
     valueSet(str) {
       this.rawValue = str;
       str = str.replace(/,/, ".");
-      if (!isValidInput(str)) {
+      if (!this.isValidInput(str)) {
         this.hasError = true;
         return;
       }
@@ -70,7 +70,11 @@ export default {
     },
 
     isValidInput(str) {
-      return str.match(/[^0-9.,]/g) || str.split(".").length > 2;
+      const isMaxOneComma = str.match(/[.,]/g)
+        ? str.match(/[.,]/g).length <= 1
+        : true;
+      const isOnlyDigitsAndComma = !str.match(/[^0-9.,]/g);
+      return isOnlyDigitsAndComma && isMaxOneComma;
     },
 
     onTouchStart() {
