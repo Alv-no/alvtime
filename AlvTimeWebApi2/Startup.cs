@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System;
 using System.IO;
 
 namespace AlvTimeWebApi2
@@ -40,13 +41,18 @@ namespace AlvTimeWebApi2
             services.AddAuthentication(AzureADDefaults.AuthenticationScheme)
                 .AddAzureAD(options => Configuration.Bind("AzureAd", options));
 
-            services.AddControllersWithViews(options =>
+            Console.WriteLine(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
+
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Development")
             {
-                var policy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-                options.Filters.Add(new AuthorizeFilter(policy));
-            });
+                //services.AddControllersWithViews(options =>
+                //{
+                //    var policy = new AuthorizationPolicyBuilder()
+                //        .RequireAuthenticatedUser()
+                //        .Build();
+                //    options.Filters.Add(new AuthorizeFilter(policy));
+                //});
+            }
             services.AddRazorPages();
         }
 
