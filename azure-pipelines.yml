@@ -30,14 +30,14 @@ steps:
 
 - task: CopyFiles@2
   inputs:
-    SourceFolder: '.'
+    SourceFolder: './AlvTimeWebApi2'
     Contents: '**'
     TargetFolder: '$(build.artifactStagingDirectory)'
     flattenFolders: true
 
 - task: CopyFiles@2
   inputs:
-    SourceFolder: './Database'
+    SourceFolder: './AlvTimeWebApi2/Database'
     Contents: '**'
     TargetFolder: '$(build.artifactStagingDirectory)/Database'
     flattenFolders: true
