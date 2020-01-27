@@ -30,8 +30,16 @@ steps:
 
 - task: CopyFiles@2
   inputs:
+    SourceFolder: '.'
     Contents: '**'
     TargetFolder: '$(build.artifactStagingDirectory)'
+    flattenFolders: true
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: './Database'
+    Contents: '**'
+    TargetFolder: '$(build.artifactStagingDirectory)/Database'
     flattenFolders: true
 
 - task: ArchiveFiles@2
@@ -40,7 +48,13 @@ steps:
     rootFolderOrFile: "$(build.artifactStagingDirectory)"
     includeRootFolder: true
     archiveFile: "$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip"
+
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(build.artifactStagingDirectory)'
-    ArtifactName: 'drop'
+    ArtifactName: 'backend'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(build.artifactStagingDirectory)/Database'
+    ArtifactName: 'database'
