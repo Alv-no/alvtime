@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/mssql/server:2017-latest
 
 ENV ACCEPT_EULA=Y
-ENV SA_PASSWORD=heisann
+ENV SA_PASSWORD=$(SA_PASSWORD)
 ENV MSSQL_PID=Developer
 ENV MSSQL_TCP_PORT=1433 
 

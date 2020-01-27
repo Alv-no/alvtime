@@ -16,6 +16,6 @@ COPY --from=build-env /app/out .
 
 EXPOSE 80
 
-ENV ASPNETCORE_ENVIRONMENT Development
+ENV $(ASPNETCORE_ENVIRONMENT)
 
 ENTRYPOINT ["dotnet", "AlvTimeWebApi2.dll"]
