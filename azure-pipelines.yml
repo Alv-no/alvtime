@@ -35,12 +35,7 @@ steps:
     TargetFolder: '$(build.artifactStagingDirectory)'
     flattenFolders: true
     
-- task: CopyFiles@2
-  inputs:
-    SourceFolder: './AlvTimeWebApi2/Database'
-    Contents: '**'
-    TargetFolder: '$(build.artifactStagingDirectory)/Database'
-    flattenFolders: true
+
 
 - task: ArchiveFiles@2
   displayName: "Archive files"
