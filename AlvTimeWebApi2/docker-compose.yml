@@ -3,6 +3,8 @@ services:
   dotnet-backend:
     container_name: dotnet-backend
     build: .
+    environment:
+      - ASPNETCORE_ENVIRONMENT=$(ASPNETCORE_ENVIRONMENT)
    #expose:
     #  - "80"
     links:
