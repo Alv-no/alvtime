@@ -21,7 +21,6 @@ namespace AlvTimeApi.DataBaseModels
         public virtual DbSet<Task> Task { get; set; }
         public virtual DbSet<TaskFavorites> TaskFavorites { get; set; }
         public virtual DbSet<User> User { get; set; }
-        public virtual DbSet<VacationDays> VacationDays { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

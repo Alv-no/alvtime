@@ -38,20 +38,19 @@ namespace AlvTimeWebApi2
                 var filePath = Path.Combine(System.AppContext.BaseDirectory, "AlvTimeWebApi2.xml");
                 c.IncludeXmlComments(filePath);
             });
+
             services.AddAuthentication(AzureADDefaults.AuthenticationScheme)
                 .AddAzureAD(options => Configuration.Bind("AzureAd", options));
 
-            Console.WriteLine(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
-
             if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Development")
             {
-                //services.AddControllersWithViews(options =>
-                //{
-                //    var policy = new AuthorizationPolicyBuilder()
-                //        .RequireAuthenticatedUser()
-                //        .Build();
-                //    options.Filters.Add(new AuthorizeFilter(policy));
-                //});
+                services.AddControllersWithViews(options =>
+                {
+                    var policy = new AuthorizationPolicyBuilder()
+                        .RequireAuthenticatedUser()
+                        .Build();
+                    options.Filters.Add(new AuthorizeFilter(policy));
+                });
             }
             services.AddRazorPages();
         }

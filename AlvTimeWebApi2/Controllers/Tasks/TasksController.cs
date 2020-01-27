@@ -10,7 +10,6 @@ namespace AlvTimeApi.Controllers.Tasks
 {
     [Route("api/user")]
     [ApiController]
-    //[Authorize(AuthenticationSchemes = "EasyAuth")]
     public class TasksController : Controller
     {
         private readonly ApplicationDbContext _database;
@@ -60,8 +59,9 @@ namespace AlvTimeApi.Controllers.Tasks
 
         private User RetrieveUser()
         {
-            var username = HttpContext.User.Identity.Name ?? "NameNotFound";
-            var user = _database.User.FirstOrDefault(x => x.Email.Trim() == username.Trim());
+            //var username = HttpContext.User.Identity.Name ?? "NameNotFound";
+            //var user = _database.User.FirstOrDefault(x => x.Email.Trim() == username.Trim());
+            var user = _database.User.FirstOrDefault();
             return user;
         }
     }

@@ -47,13 +47,6 @@ CREATE TABLE [dbo].[TaskFavorites](
 	[TaskId] [int] NOT NULL,
 )
 GO
-CREATE TABLE [dbo].[VacationDays](
-	[Id] [int] IDENTITY(1,1) PRIMARY KEY NOT NULL,
-	[UserId] [int] NOT NULL,
-	[AvailableDays] [int](3,0) NULL,
-	[UsedDays] [int](3,0) NULL
-)
-GO
 /****** Object:  Table [dbo].[User] ******/
 CREATE TABLE [dbo].[User](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY NOT NULL,

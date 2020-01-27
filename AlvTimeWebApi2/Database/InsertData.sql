@@ -3,16 +3,16 @@ GO
 
 insert into [dbo].[User]
 values
-('Ansatt En  ', 'ansatten@alv.no', 90, 4),
-('Ansatt To  ', 'ansatto@alv.no', 42, 53),
-('Ansatt Tre  ', 'ansattre@alv.no', 5, 53),
-('Ansatt Fire  ', 'ansattfire@alv.no', 10, 10),
-('Ansatt Fem  ', 'ansattfem@alv.no', 100, 34),
-('Ansatt Seks  ', 'ansattseks@alv.no', 4, 31),
-('Ansatt Syv  ', 'ansattsyv@alv.no', 49, 23),
-('Ansatt Atte  ', 'ansattatte@alv.no', 75, 23),
-('Ansatt Ni  ', 'ansattni@alv.no', 76, 12),
-('Ansatt Ti  ', 'ansatti@alv.no', 85, 26)
+('Ansatt En  ', 'ansatten@alv.no'),
+('Ansatt To  ', 'ansatto@alv.no'),
+('Ansatt Tre  ', 'ansattre@alv.no'),
+('Ansatt Fire  ', 'ansattfire@alv.no'),
+('Ansatt Fem  ', 'ansattfem@alv.no'),
+('Ansatt Seks  ', 'ansattseks@alv.no'),
+('Ansatt Syv  ', 'ansattsyv@alv.no'),
+('Ansatt Atte  ', 'ansattatte@alv.no'),
+('Ansatt Ni  ', 'ansattni@alv.no'),
+('Ansatt Ti  ', 'ansatti@alv.no')
 
 insert into TaskFavorites
 select id as UserId, 12 as TaskId

@@ -1,7 +1,6 @@
 using AlvTimeApi.Controllers.Tasks;
 using AlvTimeApi.DataBaseModels;
 using AlvTimeApi.Dto;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,7 +10,6 @@ namespace TimeTracker1.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    //[Authorize(AuthenticationSchemes = "EasyAuth")]
     public class TimeEntriesController : Controller
     {
         private readonly ApplicationDbContext _database;
@@ -86,8 +84,9 @@ namespace TimeTracker1.Controllers
 
         private User RetrieveUser()
         {
-            var username = HttpContext.User.Identity.Name ?? "NameNotFound";
-            var user = _database.User.FirstOrDefault(x => x.Email.Trim() == username.Trim());
+            //var username = HttpContext.User.Identity.Name ?? "NameNotFound";
+            //var user = _database.User.FirstOrDefault(x => x.Email.Trim() == username.Trim());
+            var user = _database.User.FirstOrDefault();
             return user;
         }
 

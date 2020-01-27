@@ -27,7 +27,7 @@ services:
     #image: mcr.microsoft.com/mssql/server:2019-latest
     build: ./Database
     environment: 
-      - SA_PASSWORD=foo
+      - SA_PASSWORD=heisann
       - ACCEPT_EULA=Y
     volumes:
      - ./Database/:/scripts/
