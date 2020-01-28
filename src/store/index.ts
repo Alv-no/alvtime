@@ -8,7 +8,7 @@ Vue.use(Vuex);
 export interface TimeEntrie {
   id: number;
   date: string;
-  value: number;
+  value: string;
   taskId: number;
 }
 
@@ -29,6 +29,7 @@ export interface State {
   tasks: Task[];
   timeEntries: TimeEntrie[];
   activeSlideIndex: number;
+  pushQueue: TimeEntrie[];
 }
 
 export default new Vuex.Store({

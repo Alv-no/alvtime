@@ -2,10 +2,9 @@
   <form novalidate>
     <button @click="onSevenFiveClick" v-if="showHelperButtons">7,5</button>
     <input
-      :class="{ error: hasError }"
+      :class="{ error }"
       type="text"
-      :value="value"
-      @input="debouncedValueSet"
+      v-model="value"
       @touchstart="onTouchStart"
       @blur="onBlur"
       novalidate
@@ -17,16 +16,14 @@
 
 <script>
 import { defer } from "lodash";
+import { isValidInput } from "@/store/timeEntries";
 
 export default {
   props: ["timeEntrie"],
   data() {
     return {
-      hasError: false,
-      rawVaue: 0,
       showHelperButtons: false,
       enableBlur: true,
-      valueSetTimeout: 0,
     };
   },
 
@@ -35,48 +32,23 @@ export default {
       return this.$refs.inputRef;
     },
 
-    value() {
-      if (this.hasError) {
-        return this.rawValue;
-      }
-      const { id, date } = this.timeEntrie;
-      const entrie = this.$store.getters.getTimeEntrie(id, date);
-      return entrie ? entrie.value.toString().replace(".", ",") : 0;
+    value: {
+      get() {
+        const entrie = this.$store.getters.getTimeEntrie(this.timeEntrie);
+        return entrie ? entrie.value.toString().replace(".", ",") : "0";
+      },
+      set(str) {
+        const timeEntrie = { ...this.timeEntrie, value: str };
+        this.$store.dispatch("UPDATE_TIME_ENTRIE", timeEntrie);
+      },
+    },
+
+    error() {
+      return !isValidInput(this.value);
     },
   },
 
   methods: {
-    debouncedValueSet({ target: { value: str } }) {
-      if (this.valueSetTimeout) {
-        clearTimeout(this.valueSetTimeout);
-      }
-      this.valueSetTimeout = setTimeout(() => {
-        this.valueSet(str);
-      }, 2000);
-    },
-
-    valueSet(str) {
-      this.rawValue = str;
-      str = str.replace(/,/, ".");
-      if (!this.isValidInput(str)) {
-        this.hasError = true;
-        return;
-      }
-      this.hasError = false;
-
-      const value = Number(str);
-      const timeEntrie = { ...this.timeEntrie, value };
-      this.$store.dispatch("UPDATE_TIME_ENTRIE", timeEntrie);
-    },
-
-    isValidInput(str) {
-      const isMaxOneComma = str.match(/[.,]/g)
-        ? str.match(/[.,]/g).length <= 1
-        : true;
-      const isOnlyDigitsAndComma = !str.match(/[^0-9.,]/g);
-      return isOnlyDigitsAndComma && isMaxOneComma;
-    },
-
     onTouchStart() {
       setTimeout(() => {
         this.showHelperButtons = true;
@@ -86,7 +58,7 @@ export default {
 
     onBlur() {
       defer(() => {
-        if (this.enableBlur) {
+        if (this.enableBlur && this.showHelperButtons) {
           this.showHelperButtons = false;
         }
         this.enableBlur = true;

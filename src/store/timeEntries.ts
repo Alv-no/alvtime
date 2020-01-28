@@ -1,6 +1,7 @@
 import moment from "moment";
 import { State, TimeEntrie } from "./index";
 import { ActionContext } from "vuex";
+import { debounce } from "lodash";
 
 export default {
   state: {
@@ -33,47 +34,101 @@ export default {
         value: 7.5,
         taskId: 4,
       },
-    ],
+    ].map(createTimeEntrie),
+
+    pushQueue: [],
   },
 
   getters: {
-    getTimeEntrie: (state: State) => (id: number, date: string) => {
-      return state.timeEntries.find(
-        (entrie: TimeEntrie) => entrie.id === id && entrie.date === date
+    getTimeEntrie: (state: State) => (entrieA: TimeEntrie) => {
+      return state.timeEntries.find((entrieB: TimeEntrie) =>
+        isMatchingEntrie(entrieA, entrieB)
       );
     },
   },
 
   mutations: {
-    UPDATE_TIME_ENTRIE(state: State, timeEntrie: TimeEntrie) {
-      const index = state.timeEntries.findIndex(
-        entrie => entrie.id === timeEntrie.id && entrie.date === timeEntrie.date
-      );
-
-      if (index !== -1) {
-        state.timeEntries = [
-          ...state.timeEntries.map(entrie =>
-            entrie.id !== timeEntrie.id ? entrie : timeEntrie
-          ),
-        ];
-      } else {
-        state.timeEntries = [
-          ...state.timeEntries,
-          {
-            ...timeEntrie,
-            id: Math.max(...state.timeEntries.map(entrie => entrie.id)) + 1,
-          },
-        ];
+    UPDATE_TIME_ENTRIES(state: State, paramEntries: TimeEntrie[]) {
+      for (const paramEntrie of paramEntries) {
+        state.timeEntries = updateArrayWith(state.timeEntries, paramEntrie);
       }
+    },
+
+    ADD_TO_PUSH_QUEUE(state: State, paramEntrie: TimeEntrie) {
+      state.pushQueue = updateArrayWith(state.pushQueue, paramEntrie);
+    },
+
+    FLUSH_PUSH_QUEUE(state: State) {
+      state.pushQueue = [];
     },
   },
 
   actions: {
     UPDATE_TIME_ENTRIE(
-      { commit }: ActionContext<State, State>,
-      timeEntrie: TimeEntrie
+      { commit, dispatch }: ActionContext<State, State>,
+      paramEntrie: TimeEntrie
     ) {
-      commit("UPDATE_TIME_ENTRIE", timeEntrie);
+      commit("UPDATE_TIME_ENTRIES", [paramEntrie]);
+      commit("ADD_TO_PUSH_QUEUE", paramEntrie);
+      dispatch("DEBOUNCED_PUSH_TIME_ENTRIES");
     },
+
+    DEBOUNCED_PUSH_TIME_ENTRIES: debounce(
+      async ({ state, commit }: ActionContext<State, State>) => {
+        const timeEntriesToPush = [...state.pushQueue]
+          .filter(entrie => isValidInput(entrie.value))
+          .map(createServerSideTimeEntrie) as any;
+
+        if (!timeEntriesToPush.length) return;
+
+        commit("FLUSH_PUSH_QUEUE");
+        try {
+          const timeEntries = await mockPost(timeEntriesToPush);
+          commit("UPDATE_TIME_ENTRIES", timeEntries);
+        } catch (e) {
+          console.error(e);
+        }
+      },
+      2000
+    ),
   },
 };
+
+function updateArrayWith(arr: TimeEntrie[], paramEntrie: TimeEntrie) {
+  const index = arr.findIndex(entrie => isMatchingEntrie(paramEntrie, entrie));
+
+  if (index !== -1) {
+    return [
+      ...arr.map(entrie =>
+        isMatchingEntrie(paramEntrie, entrie) ? paramEntrie : entrie
+      ),
+    ];
+  } else {
+    return [...arr, paramEntrie];
+  }
+}
+
+const mockPost = (timeEntries: TimeEntrie[]) =>
+  new Promise(resolve => setTimeout(() => resolve(timeEntries), 200));
+
+function isMatchingEntrie(entrieA: TimeEntrie, entrieB: TimeEntrie) {
+  return entrieA.date === entrieB.date && entrieA.taskId === entrieB.taskId;
+}
+
+function createTimeEntrie(data: any): TimeEntrie {
+  return { ...data, value: data.value.toString() };
+}
+
+function createServerSideTimeEntrie(timeEntrie: TimeEntrie) {
+  return {
+    ...timeEntrie,
+    value: Number(timeEntrie.value.replace(",", ".")),
+  };
+}
+
+export function isValidInput(str: string) {
+  const isMoreThanOneComma =
+    str.match(/[.,]/g) && str.match(/[.,]/g).length > 1;
+  const isOnlyDigitsAndComma = !str.match(/[^0-9.,]/g);
+  return isOnlyDigitsAndComma && !isMoreThanOneComma;
+}

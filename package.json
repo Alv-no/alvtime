@@ -11,6 +11,7 @@
     "down": "docker-compose down --volumes"
   },
   "dependencies": {
+    "@types/lodash": "^4.14.149",
     "core-js": "^3.4.3",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
