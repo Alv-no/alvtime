@@ -26,7 +26,7 @@ namespace AlvTimeApi.Controllers.Tasks
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         [HttpGet("Tasks")]
-        public ActionResult<IEnumerable<Task>> FetchTasks()
+        public ActionResult<IEnumerable<TaskResponseDto>> FetchTasks()
         {
             var user = RetrieveUser();
 
@@ -50,7 +50,7 @@ namespace AlvTimeApi.Controllers.Tasks
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         [HttpPost("Tasks")]
-        public ActionResult<Task> UpdateTask([FromBody] UpdateTasksDto taskDto)
+        public ActionResult<TaskResponseDto> UpdateTask([FromBody] UpdateTasksDto taskDto)
         {
             var user = RetrieveUser();
 
