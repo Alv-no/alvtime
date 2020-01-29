@@ -7,6 +7,6 @@ namespace AlvTimeApi.DataBaseModels
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public int? Customer { get; set; }
+        public Customer Customer { get; set; }
     }
 }

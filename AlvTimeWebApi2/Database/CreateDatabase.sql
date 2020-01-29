@@ -25,7 +25,7 @@ GO
 CREATE TABLE [dbo].[Project](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY NOT NULL,
 	[Name] [nvarchar](100) NOT NULL,
-	[Customer] [int] NULL,
+	[Customer] [int] NULL
  )
 GO 
 /****** Object:  Table [dbo].[Task]    ******/

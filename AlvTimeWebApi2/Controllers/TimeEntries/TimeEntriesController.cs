@@ -29,15 +29,16 @@ namespace TimeTracker1.Controllers
         {
             try
             {
-                var username = HttpContext.User.Identity.Name ?? "NameNotFound";
                 var user = RetrieveUser();
 
                 var hours = _database.Hours
                     .Where(x => x.Date >= fromDateInclusive && x.Date <= toDateInclusive && x.User == user.Id)
-                    .Select(x => new TimeEntriesResponseDto { 
-                        Value = x.Value, 
-                        Date = x.Date, 
-                        TaskId = x.TaskId })
+                    .Select(x => new TimeEntriesResponseDto
+                    {
+                        Value = x.Value,
+                        Date = x.Date,
+                        TaskId = x.TaskId
+                    })
                     .ToList();
 
                 return Ok(hours);
@@ -61,7 +62,7 @@ namespace TimeTracker1.Controllers
         {
             try
             {
-                User user = RetrieveUser();
+                var user = RetrieveUser();
                 Hours timeEntry = RetrieveExistingTimeEntry(request, user);
                 if (timeEntry == null)
                 {
@@ -84,9 +85,10 @@ namespace TimeTracker1.Controllers
 
         private User RetrieveUser()
         {
-            //var username = HttpContext.User.Identity.Name ?? "NameNotFound";
-            //var user = _database.User.FirstOrDefault(x => x.Email.Trim() == username.Trim());
-            var user = _database.User.FirstOrDefault();
+
+            var username = HttpContext.User.Identity.Name ?? "NameNotFound";
+            var user = _database.User.FirstOrDefault(x => x.Email.Trim() == username.Trim());
+
             return user;
         }
 
