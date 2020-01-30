@@ -1,11 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AlvTimeApi.DataBaseModels
+namespace AlvTimeWebApi2.DataBaseModels
 {
     public partial class Customer
     {
+        public Customer()
+        {
+            Project = new HashSet<Project>();
+        }
+
         public int Id { get; set; }
         public string Name { get; set; }
+
+        public virtual ICollection<Project> Project { get; set; }
     }
 }

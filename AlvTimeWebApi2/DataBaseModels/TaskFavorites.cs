@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AlvTimeApi.DataBaseModels
+namespace AlvTimeWebApi2.DataBaseModels
 {
     public partial class TaskFavorites
     {

@@ -25,7 +25,7 @@
             <remarks>Enter date in format yyyy-mm-dd</remarks>
             <response code="200">OK</response>
         </member>
-        <member name="M:TimeTracker1.Controllers.TimeEntriesController.UpsertTimeEntry(AlvTimeApi.Dto.SaveHoursDto)">
+        <member name="M:TimeTracker1.Controllers.TimeEntriesController.UpsertTimeEntry(System.Collections.Generic.List{AlvTimeApi.Dto.SaveHoursDto})">
             <summary>
             Updates existing or creates new time entry
             </summary>

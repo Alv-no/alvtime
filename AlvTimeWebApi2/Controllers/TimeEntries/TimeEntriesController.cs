@@ -1,6 +1,6 @@
 using AlvTimeApi.Controllers.Tasks;
-using AlvTimeApi.DataBaseModels;
 using AlvTimeApi.Dto;
+using AlvTimeWebApi2.DataBaseModels;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -12,9 +12,9 @@ namespace TimeTracker1.Controllers
     [ApiController]
     public class TimeEntriesController : Controller
     {
-        private readonly ApplicationDbContext _database;
+        private readonly AlvTimeDBContext _database;
 
-        public TimeEntriesController(ApplicationDbContext database)
+        public TimeEntriesController(AlvTimeDBContext database)
         {
             _database = database;
         }
@@ -58,29 +58,43 @@ namespace TimeTracker1.Controllers
         /// <remarks>Enter date in format yyyy-mm-dd</remarks>
         /// <response code="200">OK</response>
         [HttpPost("TimeEntries")]
-        public ActionResult<TimeEntriesResponseDto> UpsertTimeEntry([FromBody] SaveHoursDto request)
+        public ActionResult<List<TimeEntriesResponseDto>> UpsertTimeEntry([FromBody] List<SaveHoursDto> requests)
         {
-            try
+            List<TimeEntriesResponseDto> response = new List<TimeEntriesResponseDto>();
+
+            foreach (var request in requests)
             {
-                var user = RetrieveUser();
-                Hours timeEntry = RetrieveExistingTimeEntry(request, user);
-                if (timeEntry == null)
+                try
                 {
-                    timeEntry = CreateNewTimeEntry(request, user);
+                    var user = RetrieveUser();
+                    Hours timeEntry = RetrieveExistingTimeEntry(request, user);
+                    if (timeEntry == null)
+                    {
+                        timeEntry = CreateNewTimeEntry(request, user);
+                    }
+
+                    timeEntry.Value = request.Value;
+                    _database.SaveChanges();
+
+                    var responseDto = new TimeEntriesResponseDto
+                    {
+                        Date = timeEntry.Date,
+                        Value = timeEntry.Value,
+                        TaskId = timeEntry.TaskId
+                    };
+
+                    response.Add(responseDto);
                 }
-
-                timeEntry.Value = request.Value;
-                _database.SaveChanges();
-
-                return Ok(_database.Hours.FirstOrDefault(h => h.Id == timeEntry.Id));
-            }
-            catch (Exception e)
-            {
-                return BadRequest(new
+                catch (Exception e)
                 {
-                    Message = e.ToString()
-                });
+                    return BadRequest(new
+                    {
+                        Message = e.ToString()
+                    });
+                } 
             }
+
+            return Ok(response);
         }
 
         private User RetrieveUser()

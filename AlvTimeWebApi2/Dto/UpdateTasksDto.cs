@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using TimeTracker1.Models;
-
-namespace AlvTimeApi.Dto
+﻿namespace AlvTimeApi.Dto
 {
     public class UpdateTasksDto
     {

@@ -1,11 +1,8 @@
-﻿using AlvTimeApi.DataBaseModels;
-using AlvTimeApi.Dto;
-using Microsoft.AspNetCore.Authorization;
+﻿using AlvTimeApi.Dto;
+using AlvTimeWebApi2.DataBaseModels;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Task = TimeTracker1.Models.Task;
 
 namespace AlvTimeApi.Controllers.Tasks
 {
@@ -13,9 +10,9 @@ namespace AlvTimeApi.Controllers.Tasks
     [ApiController]
     public class TasksController : Controller
     {
-        private readonly ApplicationDbContext _database;
+        private readonly AlvTimeDBContext _database;
 
-        public TasksController(ApplicationDbContext database)
+        public TasksController(AlvTimeDBContext database)
         {
             _database = database;
         }
@@ -38,7 +35,8 @@ namespace AlvTimeApi.Controllers.Tasks
                     Id = x.Id,
                     Locked = x.Locked,
                     Name = x.Name,
-                    Project = x.Project
+                    ProjectNavigation = x.ProjectNavigation,
+                    HourRate = x.HourRate,
                 })
                 .ToList();
             return Ok(tasks);
@@ -60,8 +58,9 @@ namespace AlvTimeApi.Controllers.Tasks
         private User RetrieveUser()
         {
 
-            var username = HttpContext.User.Identity.Name ?? "NameNotFound";
-            var user = _database.User.FirstOrDefault(x => x.Email.Trim() == username.Trim());
+            //var username = HttpContext.User.Identity.Name ?? "NameNotFound";
+            //var user = _database.User.FirstOrDefault(x => x.Email.Trim() == username.Trim());
+            var user = _database.User.FirstOrDefault();
 
             return user;
         }

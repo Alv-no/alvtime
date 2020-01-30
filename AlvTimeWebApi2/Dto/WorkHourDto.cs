@@ -1,4 +1,4 @@
-﻿using AlvTimeApi.DataBaseModels;
+﻿using AlvTimeWebApi2.DataBaseModels;
 
 namespace TimeTracker1.Dto
 {
