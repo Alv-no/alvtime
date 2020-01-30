@@ -29,7 +29,7 @@ services:
     #image: mcr.microsoft.com/mssql/server:2019-latest
     build: ./Database
     environment: 
-      - SA_PASSWORD=AlvTimeTestErMoro32
+      - SA_PASSWORD=$(SA_PASSWORD)
       - ACCEPT_EULA=Y
     volumes:
      - ./Database/:/scripts/
