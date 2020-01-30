@@ -35,10 +35,12 @@ namespace AlvTimeApi.Controllers.Tasks
                     Description = x.Description,
                     Id = x.Id,
                     Name = x.Name,
-                    Project = new ProjectDto { 
+                    Project = new ProjectDto
+                    {
                         Id = x.ProjectNavigation.Id,
                         Name = x.ProjectNavigation.Name,
-                        Customer = new CustomerDto{
+                        Customer = new CustomerDto
+                        {
                             Id = x.ProjectNavigation.CustomerNavigation.Id,
                             Name = x.ProjectNavigation.CustomerNavigation.Name
                         }
@@ -50,16 +52,47 @@ namespace AlvTimeApi.Controllers.Tasks
         }
 
         /// <summary>
-        /// Changes favorite state of task
+        /// Retrieves favorite tasks for user
         /// </summary>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
-        [HttpPost("Tasks")]
-        public ActionResult<TaskResponseDto> UpdateTask([FromBody] UpdateTasksDto taskDto)
+        [HttpGet("FavoriteTasks")]
+        public ActionResult<IEnumerable<FavoriteTasksDto>> FetchFavoriteTasks()
         {
             var user = RetrieveUser();
 
-            return Ok(_database.TaskFavorites.FirstOrDefault(t => t.Id == taskDto.Id && t.UserId == user.Id));
+            var favorites = _database.TaskFavorites
+                .Where(x => x.UserId == user.Id)
+                .Select(x => new FavoriteTasksDto
+                {
+                    Id = x.Id,
+                    TaskId = x.TaskId,
+                    UserId = x.UserId
+                })
+                .ToList();
+            return Ok(favorites);
+        }
+
+        /// <summary>
+        /// Changes favorite state of task for user
+        /// </summary>
+        /// <remarks></remarks>
+        /// <response code="200">OK</response>
+        [HttpPost("FavoriteTasks")]
+        public ActionResult<TaskResponseDto> UpdateFavoriteTasks([FromBody] UpdateTasksDto taskDto)
+        {
+            var user = RetrieveUser();
+
+            TaskFavorites favoriteEntry = RetrieveExistingFavorite(taskDto, user);
+            if (favoriteEntry == null)
+            {
+                favoriteEntry = CreateNewFavorite(taskDto, user);
+            }
+
+            return Ok(new TaskResponseDto
+            {
+                Favorite = RetrieveExistingFavorite(taskDto, user) == null ? false : true
+            });
         }
 
         private User RetrieveUser()
@@ -70,6 +103,24 @@ namespace AlvTimeApi.Controllers.Tasks
             var user = _database.User.FirstOrDefault();
 
             return user;
+        }
+
+        private TaskFavorites CreateNewFavorite(UpdateTasksDto taskDto, User user)
+        {
+            TaskFavorites favorite = new TaskFavorites
+            {
+                TaskId = taskDto.Id,
+                UserId = user.Id
+            };
+            _database.Add(favorite);
+            return favorite;
+        }
+
+        private TaskFavorites RetrieveExistingFavorite(UpdateTasksDto taskDto, User user)
+        {
+            return _database.TaskFavorites.FirstOrDefault(h =>
+                h.TaskId == taskDto.Id &&
+                h.UserId == user.Id);
         }
     }
 }

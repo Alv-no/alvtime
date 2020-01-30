@@ -59,23 +59,23 @@ from [dbo].[User]
 
 insert into [dbo].[Task]
 values
-('Testleder              ','',	2,	1000.00),
-('Funksjonell arkitekt   ','',	2,	1000.00),
-('Teamleder              ','',	6,	1000.00),
-('Prosjektstotte         ','',	6,	1000.00),
-('Testleder              ','',	3,	1000.00),
-('Testradgiver           ','',	3,	1000.00),
-('Cost controller        ','',	8,	1000.00),
-('Utvikler               ','',	7,	1000.00),
-('Seniorutvikler         ','',	1,	1000.00),
-('Juniorutvikler         ','',	1,	1000.00),
-('Sikkerhetstester       ','',	2,	1000.00),
-('Interntid              ','',	8,	0.00),
-('Ferie                  ','',	8,	0.00),
-('Syk                    ','',	8,	0.00),
-('Sykt barn              ','',	8,	0.00),
-('Youtube serie          ','',	8,	0.00),
-('AlvTimeUtvikling       ','',	8,	0.00)
+('Testleder              ','',	2,	1000.00, 0),
+('Funksjonell arkitekt   ','',	2,	1000.00, 0),
+('Teamleder              ','',	6,	1000.00, 0),
+('Prosjektstotte         ','',	6,	1000.00, 0),
+('Testleder              ','',	3,	1000.00, 0),
+('Testradgiver           ','',	3,	1000.00, 0),
+('Cost controller        ','',	8,	1000.00, 0),
+('Utvikler               ','',	7,	1000.00, 0),
+('Seniorutvikler         ','',	1,	1000.00, 0),
+('Juniorutvikler         ','',	1,	1000.00, 0),
+('Sikkerhetstester       ','',	2,	1000.00, 0),
+('Interntid              ','',	8,	0.00, 0),
+('Ferie                  ','',	8,	0.00, 0),
+('Syk                    ','',	8,	0.00, 0),
+('Sykt barn              ','',	8,	0.00, 0),
+('Youtube serie          ','',	8,	0.00, 0),
+('AlvTimeUtvikling       ','',	8,	0.00, 0)
 
 insert into [dbo].[Hours]
 values
