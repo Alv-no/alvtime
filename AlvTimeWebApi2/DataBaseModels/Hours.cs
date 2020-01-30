@@ -12,5 +12,6 @@ namespace AlvTimeWebApi2.DataBaseModels
         public short DayNumber { get; set; }
         public short Year { get; set; }
         public int TaskId { get; set; }
+        public bool Locked { get; set; }
     }
 }

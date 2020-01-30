@@ -10,8 +10,6 @@ namespace AlvTimeWebApi2.DataBaseModels
         public string Description { get; set; }
         public int Project { get; set; }
         public decimal? HourRate { get; set; }
-        public bool Favorite { get; set; }
-        public bool Locked { get; set; }
 
         public virtual Project ProjectNavigation { get; set; }
     }

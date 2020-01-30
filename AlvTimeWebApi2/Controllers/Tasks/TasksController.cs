@@ -1,5 +1,6 @@
 ﻿using AlvTimeApi.Dto;
 using AlvTimeWebApi2.DataBaseModels;
+using AlvTimeWebApi2.Dto;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ namespace AlvTimeApi.Controllers.Tasks
 {
     [Route("api/user")]
     [ApiController]
+    //[Authorize(AuthenticationSchemes = "AzureAd")]
     public class TasksController : Controller
     {
         private readonly AlvTimeDBContext _database;
@@ -31,11 +33,16 @@ namespace AlvTimeApi.Controllers.Tasks
                 .Select(x => new TaskResponseDto
                 {
                     Description = x.Description,
-                    Favorite = x.Favorite,
                     Id = x.Id,
-                    Locked = x.Locked,
                     Name = x.Name,
-                    ProjectNavigation = x.ProjectNavigation,
+                    Project = new ProjectDto { 
+                        Id = x.ProjectNavigation.Id,
+                        Name = x.ProjectNavigation.Name,
+                        Customer = new CustomerDto{
+                            Id = x.ProjectNavigation.CustomerNavigation.Id,
+                            Name = x.ProjectNavigation.CustomerNavigation.Name
+                        }
+                    },
                     HourRate = x.HourRate,
                 })
                 .ToList();
