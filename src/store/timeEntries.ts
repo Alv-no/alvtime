@@ -99,7 +99,7 @@ export default {
           console.error(e);
         }
       },
-      2000
+      1000
     ),
   },
 };
