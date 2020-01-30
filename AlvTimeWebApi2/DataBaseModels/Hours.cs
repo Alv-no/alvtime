@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AlvTimeApi.DataBaseModels
+namespace AlvTimeWebApi2.DataBaseModels
 {
     public partial class Hours
     {
@@ -12,5 +12,6 @@ namespace AlvTimeApi.DataBaseModels
         public short DayNumber { get; set; }
         public short Year { get; set; }
         public int TaskId { get; set; }
+        public bool Locked { get; set; }
     }
 }

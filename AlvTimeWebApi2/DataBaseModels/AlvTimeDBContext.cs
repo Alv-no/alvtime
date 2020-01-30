@@ -1,17 +1,18 @@
-﻿using Microsoft.EntityFrameworkCore;
-using TimeTracker1.Models;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace AlvTimeApi.DataBaseModels
+namespace AlvTimeWebApi2.DataBaseModels
 {
-    public partial class ApplicationDbContext : DbContext
+    public partial class AlvTimeDBContext : DbContext
     {
-        public ApplicationDbContext()
+        public AlvTimeDBContext()
         {
         }
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        public AlvTimeDBContext(DbContextOptions<AlvTimeDBContext> options)
             : base(options)
-        {   
+        {
         }
 
         public virtual DbSet<Comment> Comment { get; set; }
@@ -34,14 +35,11 @@ namespace AlvTimeApi.DataBaseModels
             {
                 entity.Property(e => e.CommentText)
                     .IsRequired()
-                    .HasColumnName("commentText")
                     .HasMaxLength(100);
             });
 
             modelBuilder.Entity<Customer>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(100);
@@ -49,8 +47,6 @@ namespace AlvTimeApi.DataBaseModels
 
             modelBuilder.Entity<Hours>(entity =>
             {
-                entity.ToTable("hours");
-
                 entity.Property(e => e.Date).HasColumnType("datetime");
 
                 entity.Property(e => e.Value).HasColumnType("decimal(6, 2)");
@@ -58,11 +54,14 @@ namespace AlvTimeApi.DataBaseModels
 
             modelBuilder.Entity<Project>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(100);
+
+                entity.HasOne(d => d.CustomerNavigation)
+                    .WithMany(p => p.Project)
+                    .HasForeignKey(d => d.Customer)
+                    .HasConstraintName("FK_Project_Customer");
             });
 
             modelBuilder.Entity<Task>(entity =>
@@ -71,27 +70,24 @@ namespace AlvTimeApi.DataBaseModels
                     .IsRequired()
                     .HasMaxLength(300);
 
+                entity.Property(e => e.HourRate).HasColumnType("decimal(7, 2)");
+
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(100);
-            });
 
-            modelBuilder.Entity<TaskFavorites>(entity =>
-            {
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.HasOne(d => d.ProjectNavigation)
+                    .WithMany(p => p.Task)
+                    .HasForeignKey(d => d.Project)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Task_Project");
             });
 
             modelBuilder.Entity<User>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.Email).HasMaxLength(100);
 
-                entity.Property(e => e.Email)
-                    .HasColumnName("email")
-                    .HasMaxLength(100);
-
-                entity.Property(e => e.Name)
-                    .HasColumnName("name")
-                    .HasMaxLength(100);
+                entity.Property(e => e.Name).HasMaxLength(100);
             });
         }
     }

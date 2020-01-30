@@ -19,6 +19,7 @@ CREATE TABLE [dbo].[Hours](
 	[DayNumber] [smallint] NOT NULL,
 	[Year] [smallint] NOT NULL,
 	[TaskId] [int] NOT NULL,
+	[Locked] [bit] NOT NULL DEFAULT 0
  )
 GO
 /****** Object:  Table [dbo].[Project]  ******/
@@ -35,9 +36,6 @@ CREATE TABLE [dbo].[Task](
 	[Description] [nvarchar](300) NOT NULL,
 	[Project] [int] NOT NULL,
 	[HourRate] [decimal](7, 2) NULL,
-	[Favorite] [bit] NOT NULL DEFAULT 0,
-	[Locked] [bit] NOT NULL DEFAULT 0,
-	[Customer] [nvarchar](100) NOT NULL
 )
 GO
 /****** Object:  Table [dbo].[TaskFavorites]    ******/
@@ -60,3 +58,9 @@ CREATE TABLE [dbo].[Comment](
 	[CommentText] [nvarchar](100) NOT NULL,
 )
 GO 
+ALTER TABLE [dbo].[Task]  WITH CHECK ADD  CONSTRAINT [FK_Task_Project] FOREIGN KEY([Project])
+REFERENCES [dbo].[Project] ([Id])
+GO
+ALTER TABLE [dbo].[Project]  WITH CHECK ADD  CONSTRAINT [FK_Project_Customer] FOREIGN KEY([Customer])
+REFERENCES [dbo].[Customer] ([Id])
+GO

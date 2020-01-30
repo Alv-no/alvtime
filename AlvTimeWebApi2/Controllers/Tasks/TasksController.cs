@@ -1,21 +1,20 @@
-﻿using AlvTimeApi.DataBaseModels;
-using AlvTimeApi.Dto;
-using Microsoft.AspNetCore.Authorization;
+﻿using AlvTimeApi.Dto;
+using AlvTimeWebApi2.DataBaseModels;
+using AlvTimeWebApi2.Dto;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Task = TimeTracker1.Models.Task;
 
 namespace AlvTimeApi.Controllers.Tasks
 {
     [Route("api/user")]
     [ApiController]
+    //[Authorize(AuthenticationSchemes = "AzureAd")]
     public class TasksController : Controller
     {
-        private readonly ApplicationDbContext _database;
+        private readonly AlvTimeDBContext _database;
 
-        public TasksController(ApplicationDbContext database)
+        public TasksController(AlvTimeDBContext database)
         {
             _database = database;
         }
@@ -34,11 +33,17 @@ namespace AlvTimeApi.Controllers.Tasks
                 .Select(x => new TaskResponseDto
                 {
                     Description = x.Description,
-                    Favorite = x.Favorite,
                     Id = x.Id,
-                    Locked = x.Locked,
                     Name = x.Name,
-                    Project = x.Project
+                    Project = new ProjectDto { 
+                        Id = x.ProjectNavigation.Id,
+                        Name = x.ProjectNavigation.Name,
+                        Customer = new CustomerDto{
+                            Id = x.ProjectNavigation.CustomerNavigation.Id,
+                            Name = x.ProjectNavigation.CustomerNavigation.Name
+                        }
+                    },
+                    HourRate = x.HourRate,
                 })
                 .ToList();
             return Ok(tasks);
@@ -60,8 +65,9 @@ namespace AlvTimeApi.Controllers.Tasks
         private User RetrieveUser()
         {
 
-            var username = HttpContext.User.Identity.Name ?? "NameNotFound";
-            var user = _database.User.FirstOrDefault(x => x.Email.Trim() == username.Trim());
+            //var username = HttpContext.User.Identity.Name ?? "NameNotFound";
+            //var user = _database.User.FirstOrDefault(x => x.Email.Trim() == username.Trim());
+            var user = _database.User.FirstOrDefault();
 
             return user;
         }

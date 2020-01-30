@@ -1,4 +1,5 @@
-﻿using AlvTimeApi.DataBaseModels;
+﻿using AlvTimeWebApi2.DataBaseModels;
+using AlvTimeWebApi2.Dto;
 
 namespace AlvTimeApi.Controllers.Tasks
 {
@@ -7,9 +8,8 @@ namespace AlvTimeApi.Controllers.Tasks
         public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public Project Project { get; set; }
-        public bool Favorite { get; set; }
-        public bool Locked { get; set; }
-        public double HourRate { get; set; }
+        public decimal? HourRate { get; set; }
+
+        public ProjectDto Project { get; set; }
     }
 }
