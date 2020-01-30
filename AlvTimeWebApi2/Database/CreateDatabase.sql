@@ -19,6 +19,7 @@ CREATE TABLE [dbo].[Hours](
 	[DayNumber] [smallint] NOT NULL,
 	[Year] [smallint] NOT NULL,
 	[TaskId] [int] NOT NULL,
+	[Locked] [bit] NOT NULL DEFAULT 0
  )
 GO
 /****** Object:  Table [dbo].[Project]  ******/
@@ -35,8 +36,6 @@ CREATE TABLE [dbo].[Task](
 	[Description] [nvarchar](300) NOT NULL,
 	[Project] [int] NOT NULL,
 	[HourRate] [decimal](7, 2) NULL,
-	[Favorite] [bit] NOT NULL DEFAULT 0,
-	[Locked] [bit] NOT NULL DEFAULT 0
 )
 GO
 /****** Object:  Table [dbo].[TaskFavorites]    ******/
