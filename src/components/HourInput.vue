@@ -7,6 +7,7 @@
       v-model="value"
       @touchstart="onTouchStart"
       @blur="onBlur"
+      @focus="onFocus"
       novalidate
       inputmode="decimal"
       ref="inputRef"
@@ -16,7 +17,7 @@
 
 <script>
 import { defer } from "lodash";
-import { isValidInput } from "@/store/timeEntries";
+import { isFloat } from "@/store/timeEntries";
 
 export default {
   props: ["timeEntrie"],
@@ -24,6 +25,8 @@ export default {
     return {
       showHelperButtons: false,
       enableBlur: true,
+      localValue: "0",
+      editing: false,
     };
   },
 
@@ -34,17 +37,19 @@ export default {
 
     value: {
       get() {
+        if (this.editing) return this.localValue;
         const entrie = this.$store.getters.getTimeEntrie(this.timeEntrie);
         return entrie ? entrie.value.toString().replace(".", ",") : "0";
       },
       set(str) {
+        this.localValue = str.replace(".", ",");
         const timeEntrie = { ...this.timeEntrie, value: str };
         this.$store.dispatch("UPDATE_TIME_ENTRIE", timeEntrie);
       },
     },
 
     error() {
-      return !isValidInput(this.value);
+      return !isFloat(this.value);
     },
   },
 
@@ -57,12 +62,18 @@ export default {
     },
 
     onBlur() {
+      this.editing = false;
       defer(() => {
         if (this.enableBlur && this.showHelperButtons) {
           this.showHelperButtons = false;
         }
         this.enableBlur = true;
       });
+    },
+
+    onFocus() {
+      this.localValue = this.value;
+      this.editing = true;
     },
 
     onSevenFiveClick() {

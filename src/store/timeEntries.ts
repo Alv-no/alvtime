@@ -3,6 +3,13 @@ import { State, TimeEntrie } from "./index";
 import { ActionContext } from "vuex";
 import { debounce } from "lodash";
 
+export interface ServerSideTimeEntrie {
+  id: number;
+  date: string;
+  value: number;
+  taskId: number;
+}
+
 export default {
   state: {
     timeEntries: [
@@ -75,9 +82,12 @@ export default {
 
     DEBOUNCED_PUSH_TIME_ENTRIES: debounce(
       async ({ state, commit }: ActionContext<State, State>) => {
-        const timeEntriesToPush = [...state.pushQueue]
-          .filter(entrie => isValidInput(entrie.value))
-          .map(createServerSideTimeEntrie) as any;
+        const timeEntriesToPush = ([...state.pushQueue]
+          .filter(entrie => isFloat(entrie.value))
+          .map(createServerSideTimeEntrie)
+          .filter(
+            shouldBeStoredServerSide
+          ) as unknown) as ServerSideTimeEntrie[];
 
         if (!timeEntriesToPush.length) return;
 
@@ -108,7 +118,7 @@ function updateArrayWith(arr: TimeEntrie[], paramEntrie: TimeEntrie) {
   }
 }
 
-const mockPost = (timeEntries: TimeEntrie[]) =>
+const mockPost = (timeEntries: ServerSideTimeEntrie[]) =>
   new Promise(resolve => setTimeout(() => resolve(timeEntries), 200));
 
 function isMatchingEntrie(entrieA: TimeEntrie, entrieB: TimeEntrie) {
@@ -126,9 +136,18 @@ function createServerSideTimeEntrie(timeEntrie: TimeEntrie) {
   };
 }
 
-export function isValidInput(str: string) {
+export function isFloat(str: string) {
   const isMoreThanOneComma =
+    // @ts-ignore
     str.match(/[.,]/g) && str.match(/[.,]/g).length > 1;
   const isOnlyDigitsAndComma = !str.match(/[^0-9.,]/g);
   return isOnlyDigitsAndComma && !isMoreThanOneComma;
+}
+
+function shouldBeStoredServerSide(paramEntrie: ServerSideTimeEntrie) {
+  return !isNonEntrieSetToZero(paramEntrie);
+}
+
+function isNonEntrieSetToZero(paramEntrie: ServerSideTimeEntrie) {
+  return paramEntrie.value === 0 && paramEntrie.id === 0;
 }
