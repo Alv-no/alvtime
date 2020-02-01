@@ -17,15 +17,6 @@
         <div class="swiper-button-next" slot="button-next"></div>
       </swiper>
     </mq-layout>
-    <md-snackbar
-      :md-position="position"
-      :md-duration="duration"
-      :md-active.sync="updateExists"
-      md-persistent
-    >
-      <span>New version available! Click to update</span>
-      <md-button class="md-primary" @click="refreshApp">Retry</md-button>
-    </md-snackbar>
   </div>
 </template>
 
@@ -48,11 +39,6 @@ export default {
   data() {
     const vueComponent = this;
     return {
-      duration: 60000,
-      position: "center",
-      refreshing: false,
-      registration: null,
-      updateExists: false,
       swiperOption: {
         navigation: {
           nextEl: ".swiper-button-next",
@@ -85,34 +71,10 @@ export default {
     },
   },
 
-  created() {
-    document.addEventListener("swUpdated", this.showRefreshUI, { once: true });
-    navigator.serviceWorker.addEventListener("controllerchange", () => {
-      if (this.refreshing) return;
-      this.refreshing = true;
-      window.location.reload();
-    });
-  },
-
   mounted() {
     this.dates = createDays();
     this.weeks = createWeeks();
     this.swiper.slideTo(3, 1000, false);
-  },
-
-  methods: {
-    showRefreshUI(e) {
-      this.registration = e.detail;
-      this.updateExists = true;
-    },
-
-    refreshApp() {
-      this.updateExists = false;
-      if (!this.registration || !this.registration.waiting) {
-        return;
-      }
-      this.registration.waiting.postMessage("skipWaiting");
-    },
   },
 };
 
