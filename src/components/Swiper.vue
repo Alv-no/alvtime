@@ -40,6 +40,15 @@ export default {
     const vueComponent = this;
     return {
       swiperOption: {
+        shortSwipes: false,
+        simulateTouch: false,
+        noSwipingSelector: "input, button",
+        longSwipesRatio: 0.3,
+        longSwipesMs: 200,
+        keyboard: {
+          enabled: true,
+          onlyInViewport: false,
+        },
         navigation: {
           nextEl: ".swiper-button-next",
           prevEl: ".swiper-button-prev",
