@@ -12,6 +12,21 @@ export default {
   components: {
     Snackbar,
   },
+
+  mounted() {
+    this.fetchTasks();
+    this.fetchTimeEntries();
+  },
+
+  methods: {
+    fetchTasks() {
+      return this.$store.dispatch("FETCH_TASKS");
+    },
+
+    fetchTimeEntries() {
+      return this.$store.dispatch("FETCH_TIME_ENTRIES");
+    },
+  },
 };
 </script>
 

@@ -77,4 +77,13 @@ export default {
       return state.tasks.filter(task => !task.favorite);
     },
   },
+
+  actions: {
+    FETCH_TASKS: async () => {
+      const url = new URL("http://localhost/api/user/tasks").toString();
+      const res = await fetch(url);
+      const tasks = await res.json();
+      console.log("tasks: ", tasks);
+    },
+  },
 };

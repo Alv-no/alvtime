@@ -9,8 +9,17 @@ services:
     volumes:
       - .:/usr/src/app:delegated
       - /usr/src/app/node_modules/
+    expose:
+      - 8080
+  nginx-reverse-proxy:
+    container_name: nginx-reverse-proxy
+    build: ./nginx/
+    command: nginx -g 'daemon off;'
     ports:
-      - 8080:8080
+      - "80:80"
+    links:
+      - dotnet-backend
+      - alvtime-vue
   dotnet-backend:
     container_name: dotnet-backend
     image: alvnoas/alvtime-web-api:latest

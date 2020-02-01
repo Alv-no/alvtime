@@ -101,6 +101,18 @@ export default {
       },
       1000
     ),
+
+    FETCH_TIME_ENTRIES: async () => {
+      const url = new URL("http://localhost/api/user/TimeEntries");
+      const params = {
+        fromDateInclusive: "2019-01-09",
+        toDateInclusive: "2020-01-09",
+      };
+      url.search = new URLSearchParams(params).toString();
+      const res = await fetch(url.toString());
+      const timeEntries = await res.json();
+      console.log("tasks: ", timeEntries);
+    },
   },
 };
 

@@ -53,6 +53,7 @@ export default new Vuex.Store({
   },
   actions: {
     ...timeEntrieHandlers.actions,
+    ...taskHandlers.actions,
   },
   modules: {},
 });
