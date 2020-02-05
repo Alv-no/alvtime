@@ -16,11 +16,15 @@ export interface Task {
   id: number;
   name: string;
   description: string;
-  projectId: number;
-  projectName: string;
-  customerId: number;
-  customerName: string;
   hourRate: number;
+  project: {
+    id: number;
+    name: string;
+    customer: {
+      id: number;
+      name: string;
+    };
+  };
   favorite: boolean;
   locked: boolean;
 }
@@ -46,6 +50,7 @@ export default new Vuex.Store({
   },
   mutations: {
     ...timeEntrieHandlers.mutations,
+    ...taskHandlers.mutations,
 
     UPDATE_ACTVIE_SLIDE(state: State, activeSlideIndex: number) {
       state.activeSlideIndex = activeSlideIndex;

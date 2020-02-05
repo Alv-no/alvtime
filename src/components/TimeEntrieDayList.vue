@@ -1,10 +1,7 @@
 <template>
   <div>
     <div v-for="row in rows" :key="row.task.id" class="grid">
-      <TimeEntrieText
-        :activity="row.task.name"
-        :customer="row.task.customerName"
-      />
+      <TimeEntrieText :task="row.task" />
       <HourInput :timeEntrie="row.timeEntrie" />
     </div>
   </div>

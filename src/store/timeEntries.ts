@@ -2,6 +2,7 @@ import moment from "moment";
 import { State, TimeEntrie } from "./index";
 import { ActionContext } from "vuex";
 import { debounce } from "lodash";
+import config from "@/config";
 
 export interface ServerSideTimeEntrie {
   id: number;
@@ -12,37 +13,7 @@ export interface ServerSideTimeEntrie {
 
 export default {
   state: {
-    timeEntries: [
-      {
-        id: 1,
-        date: moment()
-          .add(-1, "day")
-          .format("YYYY-MM-DD"),
-        value: 7.5,
-        taskId: 4,
-      },
-      {
-        id: 2,
-        date: moment().format("YYYY-MM-DD"),
-        value: 7.5,
-        taskId: 4,
-      },
-      {
-        id: 3,
-        date: moment()
-          .add(1, "day")
-          .format("YYYY-MM-DD"),
-        value: 7.5,
-        taskId: 4,
-      },
-      {
-        id: 4,
-        date: "2020-01-18",
-        value: 7.5,
-        taskId: 4,
-      },
-    ].map(createTimeEntrie),
-
+    timeEntries: [],
     pushQueue: [],
   },
 
@@ -55,6 +26,10 @@ export default {
   },
 
   mutations: {
+    SET_TIME_ENTRIES(state: State, paramEntries: TimeEntrie[]) {
+      state.timeEntries = paramEntries;
+    },
+
     UPDATE_TIME_ENTRIES(state: State, paramEntries: TimeEntrie[]) {
       for (const paramEntrie of paramEntries) {
         state.timeEntries = updateArrayWith(state.timeEntries, paramEntrie);
@@ -102,16 +77,27 @@ export default {
       1000
     ),
 
-    FETCH_TIME_ENTRIES: async () => {
+    FETCH_TIME_ENTRIES: async ({ commit }: ActionContext<State, State>) => {
       const url = new URL("http://localhost/api/user/TimeEntries");
       const params = {
-        fromDateInclusive: "2019-01-09",
-        toDateInclusive: "2020-01-09",
+        fromDateInclusive: moment()
+          .add(-2, "week")
+          .startOf("week")
+          .format(config.DATE_FORMAT),
+        toDateInclusive: moment()
+          .add(2, "week")
+          .endOf("week")
+          .format(config.DATE_FORMAT),
       };
       url.search = new URLSearchParams(params).toString();
-      const res = await fetch(url.toString());
-      const timeEntries = await res.json();
-      console.log("tasks: ", timeEntries);
+
+      try {
+        const res = await fetch(url.toString());
+        const timeEntries = await res.json();
+        commit("SET_TIME_ENTRIES", timeEntries.map(createTimeEntrie));
+      } catch (e) {
+        console.error(e);
+      }
     },
   },
 };

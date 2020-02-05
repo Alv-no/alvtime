@@ -1,13 +1,13 @@
 <template>
   <div class="text">
-    <p class="customer_text">{{ customer }}</p>
-    <p class="activity_name_text">{{ activity }}</p>
+    <p class="customer_text">{{ task.project.customer.name }}</p>
+    <p class="activity_name_text">{{ task.name }}</p>
   </div>
 </template>
 
 <script>
 export default {
-  props: ["customer", "activity"],
+  props: ["task"],
 };
 </script>
 

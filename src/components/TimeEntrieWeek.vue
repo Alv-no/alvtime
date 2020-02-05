@@ -1,6 +1,6 @@
 <template>
   <div>
-    <TimeEntrieText :activity="task.name" :customer="task.customerName" />
+    <TimeEntrieText :task="task" />
     <HourInput
       v-for="timeEntrie in timeEntries"
       :key="timeEntrie.date"
