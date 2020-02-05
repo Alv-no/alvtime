@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "up": "docker-compose up --detach",
-    "start": "docker-compose up --detach && docker-compose exec alvtime-vue npx vue-cli-service serve",
-    "build": "docker-compose up --detach && docker-compose exec alvtime-vue npx vue-cli-service build",
-    "test": "docker-compose up --detach && docker-compose exec alvtime-vue npx vue-cli-service test:unit",
-    "lint": "docker-compose up --detach && docker-compose exec alvtime-vue npx vue-cli-service lint",
+    "start": "docker-compose up --detach && docker-compose exec alvtime-vue-dev npx vue-cli-service serve",
+    "build": "docker-compose up --detach && docker-compose exec alvtime-vue-dev npx vue-cli-service build",
+    "test": "docker-compose up --detach && docker-compose exec alvtime-vue-dev npx vue-cli-service test:unit",
+    "lint": "docker-compose up --detach && docker-compose exec alvtime-vue-dev npx vue-cli-service lint",
     "down": "docker-compose down --volumes"
   },
   "dependencies": {

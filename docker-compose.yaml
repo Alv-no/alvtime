@@ -1,11 +1,14 @@
 version: '3.7'
 
 services:
-  alvtime-vue:
+  alvtime-vue-dev:
     build: .
-    container_name: alvtime-vue
+    container_name: alvtime-vue-dev
     tty: true
-    image: alvtime-vue
+    image: alvtime-vue-dev
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
     volumes:
       - .:/usr/src/app:delegated
       - /usr/src/app/node_modules/
@@ -19,7 +22,7 @@ services:
       - "80:80"
     links:
       - dotnet-backend
-      - alvtime-vue
+      - alvtime-vue-dev
   dotnet-backend:
     container_name: dotnet-backend
     image: alvnoas/alvtime-web-api:latest
