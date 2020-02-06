@@ -19,7 +19,7 @@ services:
     build: ./nginx/
     command: nginx -g 'daemon off;'
     ports:
-      - "80:80"
+      - "3000:80"
     links:
       - dotnet-backend
       - alvtime-vue-dev
@@ -28,8 +28,8 @@ services:
     image: alvnoas/alvtime-web-api:latest
     links:
       - mssql-db
-    ports:
-      - "8000:80"
+    expose:
+      - "80"
   mssql-db:
     container_name: mssql-db
     image: alvnoas/alvtime-database:latest
