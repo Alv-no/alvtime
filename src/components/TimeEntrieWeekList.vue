@@ -1,14 +1,9 @@
 <template>
   <div>
+    <h2>{{ month }}</h2>
     <div class="grid">
-      <TimeEntrieText />
-      <p>{{ daysOfWeek[0] }}</p>
-      <p>{{ daysOfWeek[1] }}</p>
-      <p>{{ daysOfWeek[2] }}</p>
-      <p>{{ daysOfWeek[3] }}</p>
-      <p>{{ daysOfWeek[4] }}</p>
-      <p>{{ daysOfWeek[5] }}</p>
-      <p>{{ daysOfWeek[6] }}</p>
+      <div />
+      <p v-for="day in daysOfWeek" :key="day">{{ day }}</p>
     </div>
     <TimeEntrieWeek
       v-for="task in tasks"
@@ -21,14 +16,12 @@
 
 <script>
 import TimeEntrieWeek from "./TimeEntrieWeek";
-import TimeEntrieText from "./TimeEntrieText";
 import TimeEntrie from "./TimeEntrie";
 import config from "@/config";
 
 export default {
   components: {
     TimeEntrieWeek,
-    TimeEntrieText,
   },
   props: ["week"],
 
@@ -68,6 +61,18 @@ export default {
         const d = day.format("ddd DD");
         return d.charAt(0).toUpperCase() + d.slice(1);
       });
+    },
+
+    month() {
+      let months = [];
+      for (const day of this.week) {
+        const month = day.format("MMMM");
+        const upperCasedMonth = month.charAt(0).toUpperCase() + month.slice(1);
+        if (!months.includes(upperCasedMonth)) {
+          months = [...months, upperCasedMonth];
+        }
+      }
+      return months.join(" - ");
     },
   },
 
