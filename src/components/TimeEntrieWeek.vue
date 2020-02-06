@@ -47,7 +47,7 @@ export default {
 div {
   display: grid;
   grid-template-columns: 1fr auto auto auto auto auto auto auto;
-  gap: 2rem;
+  gap: 1.51rem;
   align-items: center;
   color: #000;
   padding: 0 1rem;
