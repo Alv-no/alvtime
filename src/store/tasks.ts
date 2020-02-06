@@ -26,7 +26,7 @@ export default {
 
   actions: {
     FETCH_TASKS: async ({ commit }: ActionContext<State, State>) => {
-      const url = new URL("http://localhost/api/user/tasks").toString();
+      const url = new URL("http://localhost:3000/api/user/tasks").toString();
       const res = await fetch(url);
       const tasks = await res.json();
       commit("SET_TASKS", tasks);

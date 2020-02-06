@@ -78,7 +78,7 @@ export default {
     ),
 
     FETCH_TIME_ENTRIES: async ({ commit }: ActionContext<State, State>) => {
-      const url = new URL("http://localhost/api/user/TimeEntries");
+      const url = new URL("http://localhost:3000/api/user/TimeEntries");
       const params = {
         fromDateInclusive: moment()
           .add(-2, "week")

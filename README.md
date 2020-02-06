@@ -1,29 +1,47 @@
 # alvtime-vue
 
-## Project setup
+## Development
+
+The first time this command is ran it will download and start the local developmment environment. As well as start the development server in the alvtime-vue-dev container. The development server recompiles and refreshes the browser on every detected chang to the source code.
+
 ```
-npm install
+docker-compose up --detach && docker-compose exec alvtime-vue-dev npx vue-cli-service serve run serve
 ```
 
-### Compiles and hot-reloads for development
+- The web app is available on `localhost:3000`
+- Swagger documentation is available on `localhost:3000/swagger`
+- The api is available on `localhost:3000/api`
+
+To view the backend logs run.
+
 ```
-npm run serve
+docker-compose logs -f
 ```
 
-### Compiles and minifies for production
+### Compile and minifie
+
+Up 
 ```
-npm run build
+docker-compose -f docker-compose.localBuild.yaml up --build
 ```
+Down
+```
+docker-compose -f docker-compose.localBuild.yaml down
+```
+
 
 ### Run your unit tests
+
 ```
-npm run test:unit
+docker-compose exec alvtime-vue-dev npx vue-cli-service test:unit
 ```
 
 ### Lints and fixes files
+
 ```
-npm run lint
+docker-compose exec alvtime-vue-dev npx vue-cli-service lint run lint
 ```
 
 ### Customize configuration
+
 See [Configuration Reference](https://cli.vuejs.org/config/).

@@ -1,27 +1,29 @@
 version: '3.7'
 
 services:
-  alvtime-vue-dev:
-    container_name: alvtime-vue-dev
+  alvtime-vue-local-build:
+    container_name: alvtime-vue-local-build
     tty: true
-    image: alvtime-vue-dev
+    image: alvtime-vue-local-build
     build:
       context: .
-      dockerfile: Dockerfile-dev
+      dockerfile: ./Dockerfile
     volumes:
       - .:/usr/src/app:delegated
       - /usr/src/app/node_modules/
     expose:
-      - 8080
-  nginx-reverse-proxy:
-    container_name: nginx-reverse-proxy
-    build: ./nginx/
+      - 80
+  nginx-reverse-proxy-local-build:
+    container_name: nginx-reverse-proxy-local-build
+    build:
+      context: ./nginx
+      dockerfile: ./Dockerfile-local-build
     command: nginx -g 'daemon off;'
     ports:
       - "3000:80"
     links:
       - dotnet-backend
-      - alvtime-vue-dev
+      - alvtime-vue-local-build
   dotnet-backend:
     container_name: dotnet-backend
     image: alvnoas/alvtime-web-api:latest
