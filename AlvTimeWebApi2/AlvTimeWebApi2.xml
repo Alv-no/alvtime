@@ -11,16 +11,16 @@
             <remarks></remarks>
             <response code="200">OK</response>
         </member>
-        <member name="M:AlvTimeApi.Controllers.Tasks.TasksController.UpdateFavoriteTasks(AlvTimeApi.Dto.UpdateTasksDto)">
+        <member name="M:AlvTimeApi.Controllers.Tasks.TasksController.FetchFavoriteTasks">
             <summary>
-            Changes favorite state of task for user
+            Retrieves favorite tasks for user
             </summary>
             <remarks></remarks>
             <response code="200">OK</response>
         </member>
-        <member name="M:AlvTimeApi.Controllers.Tasks.TasksController.FetchFavoriteTasks">
+        <member name="M:AlvTimeApi.Controllers.Tasks.TasksController.UpdateFavoriteTasks(AlvTimeApi.Dto.UpdateTasksDto)">
             <summary>
-            Retrieves favorite tasks for user
+            Changes favorite state of task for user
             </summary>
             <remarks></remarks>
             <response code="200">OK</response>

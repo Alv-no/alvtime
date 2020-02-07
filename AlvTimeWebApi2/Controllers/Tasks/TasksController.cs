@@ -35,6 +35,9 @@ namespace AlvTimeApi.Controllers.Tasks
                     Description = x.Description,
                     Id = x.Id,
                     Name = x.Name,
+                    Locked = x.Locked,
+                    Favorite = _database.TaskFavorites
+                    .Where(y => y.UserId == user.Id && y.TaskId == x.Id) == null ? false : true,
                     Project = new ProjectDto
                     {
                         Id = x.ProjectNavigation.Id,
@@ -49,28 +52,6 @@ namespace AlvTimeApi.Controllers.Tasks
                 })
                 .ToList();
             return Ok(tasks);
-        }
-
-        /// <summary>
-        /// Retrieves favorite tasks for user
-        /// </summary>
-        /// <remarks></remarks>
-        /// <response code="200">OK</response>
-        [HttpGet("FavoriteTasks")]
-        public ActionResult<IEnumerable<FavoriteTasksDto>> FetchFavoriteTasks()
-        {
-            var user = RetrieveUser();
-
-            var favorites = _database.TaskFavorites
-                .Where(x => x.UserId == user.Id)
-                .Select(x => new FavoriteTasksDto
-                {
-                    Id = x.Id,
-                    TaskId = x.TaskId,
-                    UserId = x.UserId
-                })
-                .ToList();
-            return Ok(favorites);
         }
 
         /// <summary>
