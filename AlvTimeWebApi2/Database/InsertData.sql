@@ -1,4 +1,4 @@
-USE AlvTimeDB
+USE AlvDevDB
 GO
 
 insert into [dbo].[Customer]
