@@ -39,7 +39,7 @@ namespace TimeTracker1.Controllers
                     {
                         Id = x.Id,
                         Value = x.Value,
-                        Date = x.Date,
+                        Date = x.Date.Date,
                         TaskId = x.TaskId
                     })
                     .ToList();
@@ -82,7 +82,7 @@ namespace TimeTracker1.Controllers
                     var responseDto = new TimeEntriesResponseDto
                     {
                         Id = timeEntry.Id,
-                        Date = timeEntry.Date,
+                        Date = timeEntry.Date.Date,
                         Value = timeEntry.Value,
                         TaskId = timeEntry.TaskId
                     };
