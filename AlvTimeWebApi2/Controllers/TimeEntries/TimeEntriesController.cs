@@ -82,7 +82,7 @@ namespace TimeTracker1.Controllers
                     var responseDto = new TimeEntriesResponseDto
                     {
                         Id = timeEntry.Id,
-                        Date = timeEntry.Date.Date,
+                        Date = timeEntry.Date,
                         Value = timeEntry.Value,
                         TaskId = timeEntry.TaskId
                     };

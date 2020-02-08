@@ -29,7 +29,7 @@ namespace AlvTimeApi.Controllers.Tasks
         {
             var user = RetrieveUser();
 
-            var favoriteList = _database.TaskFavorites.Select(x => x.TaskId).ToList();
+            var favoriteList = _database.TaskFavorites.Where(x => x.UserId == user.Id).Select(x => x.TaskId).ToList();
 
             var tasks = _database.Task
                 .Select(x => new TaskResponseDto
