@@ -29,6 +29,8 @@ namespace AlvTimeApi.Controllers.Tasks
         {
             var user = RetrieveUser();
 
+            var favoriteList = _database.TaskFavorites.Select(x => x.TaskId).ToList();
+
             var tasks = _database.Task
                 .Select(x => new TaskResponseDto
                 {
@@ -36,8 +38,7 @@ namespace AlvTimeApi.Controllers.Tasks
                     Id = x.Id,
                     Name = x.Name,
                     Locked = x.Locked,
-                    Favorite = _database.TaskFavorites
-                    .Where(y => y.UserId == user.Id && y.TaskId == x.Id) == null ? false : true,
+                    Favorite = favoriteList.Contains(x.Id) ? true : false,
                     Project = new ProjectDto
                     {
                         Id = x.ProjectNavigation.Id,
