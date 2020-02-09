@@ -68,8 +68,22 @@ export default {
 
         commit("FLUSH_PUSH_QUEUE");
         try {
-          const timeEntries = await mockPost(timeEntriesToPush);
-          commit("UPDATE_TIME_ENTRIES", timeEntries);
+          const response = await fetch(config.HOST + "/api/user/TimeEntries", {
+            method: "post",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(timeEntriesToPush),
+          });
+          const timeEntries = await response.json();
+          console.log("timeEntries: ", timeEntries);
+          console.log("response: ", response);
+          if (response.status !== 200) {
+            throw Error(`${response.statusText}
+${timeEntries.title}`);
+          }
+          console.log("timeEntries: ", timeEntries);
+          commit("UPDATE_TIME_ENTRIES", timeEntries.map(createTimeEntrie));
         } catch (e) {
           console.error(e);
         }
@@ -116,15 +130,16 @@ function updateArrayWith(arr: TimeEntrie[], paramEntrie: TimeEntrie) {
   }
 }
 
-const mockPost = (timeEntries: ServerSideTimeEntrie[]) =>
-  new Promise(resolve => setTimeout(() => resolve(timeEntries), 200));
-
 function isMatchingEntrie(entrieA: TimeEntrie, entrieB: TimeEntrie) {
   return entrieA.date === entrieB.date && entrieA.taskId === entrieB.taskId;
 }
 
 function createTimeEntrie(data: any): TimeEntrie {
-  return { ...data, value: data.value.toString() };
+  return {
+    ...data,
+    date: data.date.split("T")[0],
+    value: data.value.toString(),
+  };
 }
 
 function createServerSideTimeEntrie(timeEntrie: TimeEntrie) {
