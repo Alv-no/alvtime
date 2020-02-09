@@ -13,6 +13,8 @@ services:
       - /usr/src/app/node_modules/
     expose:
       - 8080
+    environment:
+      - VUE_APP_HOST=http://localhost:3000
   nginx-reverse-proxy:
     container_name: nginx-reverse-proxy
     build: ./nginx/

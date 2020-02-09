@@ -4,6 +4,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
+
+ARG VUE_APP_HOST
 RUN npx vue-cli-service build
 
 # production stage
