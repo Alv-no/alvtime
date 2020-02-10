@@ -34,6 +34,7 @@ export interface State {
   timeEntries: TimeEntrie[];
   activeSlideIndex: number;
   pushQueue: TimeEntrie[];
+  selectFavorites: boolean;
 }
 
 export default new Vuex.Store({
@@ -43,6 +44,7 @@ export default new Vuex.Store({
     ...taskHandlers.state,
 
     activeSlideIndex: 3,
+    selectFavorites: false,
   },
   getters: {
     ...timeEntrieHandlers.getters,
@@ -54,6 +56,10 @@ export default new Vuex.Store({
 
     UPDATE_ACTVIE_SLIDE(state: State, activeSlideIndex: number) {
       state.activeSlideIndex = activeSlideIndex;
+    },
+
+    TOGGLE_SELECTFAVORITES(state: State) {
+      state.selectFavorites = !state.selectFavorites;
     },
   },
   actions: {

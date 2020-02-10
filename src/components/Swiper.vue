@@ -1,7 +1,7 @@
 <template>
   <div>
     <mq-layout mq="sm">
-      <h2>{{ day }}</h2>
+      <MobileHeader :day="day" />
       <swiper :options="swiperOption" ref="mySwiper">
         <swiperSlide v-for="(date, index) in dates" :key="index">
           <TimeEntrieDayList :date="date" />
@@ -27,6 +27,7 @@ import moment from "moment";
 import { swiper, swiperSlide } from "vue-awesome-swiper";
 import TimeEntrieDayList from "./TimeEntrieDayList";
 import TimeEntrieWeekList from "./TimeEntrieWeekList";
+import MobileHeader from "./MobileHeader";
 
 export default {
   components: {
@@ -34,6 +35,7 @@ export default {
     swiperSlide,
     TimeEntrieDayList,
     TimeEntrieWeekList,
+    MobileHeader,
   },
 
   data() {
