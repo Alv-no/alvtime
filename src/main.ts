@@ -5,7 +5,7 @@ import router from "./router";
 import store from "./store";
 import "vue-material/dist/vue-material.min.css";
 import "vue-material/dist/theme/default.css";
-import { MdButton, MdSnackbar } from "vue-material/dist/components";
+import { MdButton, MdSnackbar, MdIcon } from "vue-material/dist/components";
 import VueMq from "vue-mq";
 import moment from "moment";
 moment.locale("nb");
@@ -13,6 +13,7 @@ moment.locale("nb");
 Vue.use(VueMq);
 Vue.use(MdButton);
 Vue.use(MdSnackbar);
+Vue.use(MdIcon);
 
 Vue.config.productionTip = false;
 
