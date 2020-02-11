@@ -37,6 +37,7 @@ namespace TimeTracker1.Controllers
                     .Where(x => x.Date >= fromDateInclusive && x.Date <= toDateInclusive && x.User == user.Id)
                     .Select(x => new TimeEntriesResponseDto
                     {
+                        Id = x.Id,
                         Value = x.Value,
                         Date = x.Date.ToShortDateString(),
                         TaskId = x.TaskId
