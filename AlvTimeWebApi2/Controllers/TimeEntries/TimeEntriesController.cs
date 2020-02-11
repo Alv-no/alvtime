@@ -38,7 +38,7 @@ namespace TimeTracker1.Controllers
                     .Select(x => new TimeEntriesResponseDto
                     {
                         Value = x.Value,
-                        Date = x.Date,
+                        Date = x.Date.ToShortDateString(),
                         TaskId = x.TaskId
                     })
                     .ToList();
@@ -80,7 +80,7 @@ namespace TimeTracker1.Controllers
 
                     var responseDto = new TimeEntriesResponseDto
                     {
-                        Date = timeEntry.Date,
+                        Date = timeEntry.Date.ToShortDateString(),
                         Value = timeEntry.Value,
                         TaskId = timeEntry.TaskId
                     };
