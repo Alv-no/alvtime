@@ -29,6 +29,8 @@ namespace AlvTimeApi.Controllers.Tasks
         {
             var user = RetrieveUser();
 
+            var favoriteList = _database.TaskFavorites.Where(x => x.UserId == user.Id).Select(x => x.TaskId).ToList();
+
             var tasks = _database.Task
                 .Select(x => new TaskResponseDto
                 {
@@ -36,8 +38,7 @@ namespace AlvTimeApi.Controllers.Tasks
                     Id = x.Id,
                     Name = x.Name,
                     Locked = x.Locked,
-                    Favorite = _database.TaskFavorites
-                    .Where(y => y.UserId == user.Id && y.TaskId == x.Id) == null ? false : true,
+                    Favorite = favoriteList.Contains(x.Id) ? true : false,
                     Project = new ProjectDto
                     {
                         Id = x.ProjectNavigation.Id,
@@ -60,60 +61,62 @@ namespace AlvTimeApi.Controllers.Tasks
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         [HttpPost("Tasks")]
-        public ActionResult<List<TaskResponseDto>> UpdateFavoriteTasks([FromBody] List<UpdateTasksDto> requests)
+        public ActionResult<List<TaskResponseDto>> UpdateFavoriteTasks([FromBody] List<UpdateTasksDto> tasksToBeUpdated)
         {
             var user = RetrieveUser();
 
             List<TaskResponseDto> response = new List<TaskResponseDto>();
 
-            foreach (var request in requests)
+            foreach (var task in tasksToBeUpdated)
             {
-                TaskFavorites favoriteEntry = RetrieveExistingFavorite(request, user);
+                TaskFavorites favoriteEntry = RetrieveExistingFavorite(task, user);
 
-                if (request.Favorite == true)
+                if (task.Favorite == true)
                 {
                     if (favoriteEntry == null)
                     {
-                        favoriteEntry = CreateNewFavorite(request, user);
-                        response.Add(ReturnTask(user, favoriteEntry));
+                        CreateNewFavorite(task, user);
                     }
                 }
-                else if (request.Favorite == false)
+                else if (task.Favorite == false)
                 {
                     if (favoriteEntry != null)
                     {
-                        _database.Remove(favoriteEntry);
-                        response.Add(ReturnTask(user, favoriteEntry));
+                        _database.TaskFavorites.Remove(favoriteEntry);
+                        _database.SaveChanges();
                     }
                 }
+                response.Add(ReturnTask(user, task));
             }
             return Ok(response);
         }
 
-        private TaskResponseDto ReturnTask(User user, TaskFavorites favoriteEntry)
+        private TaskResponseDto ReturnTask(User user, UpdateTasksDto task)
         {
-            var task = _database.Task.First(x => x.Id == favoriteEntry.TaskId);
+            var userHasFavorite = _database.TaskFavorites.FirstOrDefault(x => x.TaskId == task.Id && x.UserId == user.Id);
 
-            var taskResponseDto = new TaskResponseDto
-            {
-                Description = task.Description,
-                Id = task.Id,
-                Name = task.Name,
-                Locked = task.Locked,
-                Favorite = _database.TaskFavorites
-                .Where(y => y.UserId == user.Id && y.TaskId == task.Id) == null ? false : true,
-                Project = new ProjectDto
+            var taskResponseDto = _database.Task
+                .Where(x => x.Id == task.Id)
+                .Select(x => new TaskResponseDto
                 {
-                    Id = task.ProjectNavigation.Id,
-                    Name = task.ProjectNavigation.Name,
-                    Customer = new CustomerDto
+                    Description = x.Description,
+                    Id = x.Id,
+                    Name = x.Name,
+                    Locked = x.Locked,
+                    Favorite = userHasFavorite == null ? false : true,
+                    Project = new ProjectDto
                     {
-                        Id = task.ProjectNavigation.CustomerNavigation.Id,
-                        Name = task.ProjectNavigation.CustomerNavigation.Name
-                    }
-                },
-                HourRate = task.HourRate,
-            };
+                        Id = x.ProjectNavigation.Id,
+                        Name = x.ProjectNavigation.Name,
+                        Customer = new CustomerDto
+                        {
+                            Id = x.ProjectNavigation.CustomerNavigation.Id,
+                            Name = x.ProjectNavigation.CustomerNavigation.Name
+                        }
+                    },
+                    HourRate = x.HourRate,
+                })
+                .Single();
 
             return taskResponseDto;
         }
@@ -135,7 +138,8 @@ namespace AlvTimeApi.Controllers.Tasks
                 TaskId = taskDto.Id,
                 UserId = user.Id
             };
-            _database.Add(favorite);
+            _database.TaskFavorites.Add(favorite);
+            _database.SaveChanges();
             return favorite;
         }
 
