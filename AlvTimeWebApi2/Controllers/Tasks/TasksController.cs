@@ -61,7 +61,7 @@ namespace AlvTimeApi.Controllers.Tasks
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         [HttpPost("Tasks")]
-        public ActionResult<List<TaskResponseDto>> UpdateFavoriteTasks([FromBody] List<UpdateTasksDto> tasksToBeUpdated)
+        public ActionResult<IEnumerable<TaskResponseDto>> UpdateFavoriteTasks([FromBody] IEnumerable<UpdateTasksDto> tasksToBeUpdated)
         {
             var user = RetrieveUser();
 
