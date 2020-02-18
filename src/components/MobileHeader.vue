@@ -33,8 +33,4 @@ export default Vue.extend({
   grid-template-columns: 0px auto;
   align-items: center;
 }
-
-.icon {
-  /* padding-left: 1rem; */
-}
 </style>

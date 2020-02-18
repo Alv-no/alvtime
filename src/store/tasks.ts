@@ -23,6 +23,16 @@ export default {
     SET_TASKS(state: State, paramTasks: Task[]) {
       state.tasks = paramTasks;
     },
+
+    UPDATE_TASKS(state: State, paramTasks: Task[]) {
+      for (const paramTask of paramTasks) {
+        state.tasks = [
+          ...state.tasks.map((task: Task) =>
+            task.id === paramTask.id ? paramTask : task
+          ),
+        ];
+      }
+    },
   },
 
   actions: {
@@ -31,6 +41,28 @@ export default {
       const res = await fetch(url);
       const tasks = await res.json();
       commit("SET_TASKS", tasks);
+    },
+
+    PUSH_TASKS: async (
+      { state, commit }: ActionContext<State, State>,
+      paramTasks: Task[]
+    ) => {
+      try {
+        const method = "post";
+        const headers = { "Content-Type": "application/json" };
+        const body = JSON.stringify(paramTasks);
+        const options = { method, headers, body };
+
+        const response = await fetch(config.HOST + "/api/user/Tasks", options);
+        const updatedTasks = await response.json();
+        if (response.status !== 200) {
+          throw Error(`${response.statusText}
+            ${updatedTasks.title}`);
+        }
+        commit("UPDATE_TASKS", updatedTasks);
+      } catch (e) {
+        console.error(e);
+      }
     },
   },
 };

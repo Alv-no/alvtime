@@ -2,7 +2,8 @@
   <div>
     <mq-layout mq="sm">
       <MobileHeader :day="day" />
-      <swiper :options="swiperOption" ref="mySwiper">
+      <FavoriteSelector v-if="selectFavorites" />
+      <swiper v-if="!selectFavorites" :options="swiperOption" ref="mySwiper">
         <swiperSlide v-for="(date, index) in dates" :key="index">
           <TimeEntrieDayList :date="date" />
         </swiperSlide>
@@ -28,6 +29,7 @@ import { swiper, swiperSlide } from "vue-awesome-swiper";
 import TimeEntrieDayList from "./TimeEntrieDayList";
 import TimeEntrieWeekList from "./TimeEntrieWeekList";
 import MobileHeader from "./MobileHeader";
+import FavoriteSelector from "./FavoriteSelector";
 
 export default {
   components: {
@@ -36,6 +38,7 @@ export default {
     TimeEntrieDayList,
     TimeEntrieWeekList,
     MobileHeader,
+    FavoriteSelector,
   },
 
   data() {
@@ -79,6 +82,10 @@ export default {
         return d.charAt(0).toUpperCase() + d.slice(1);
       }
       return "";
+    },
+
+    selectFavorites() {
+      return this.$store.state.selectFavorites;
     },
   },
 
