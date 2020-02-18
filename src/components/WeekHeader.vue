@@ -1,7 +1,7 @@
 <template>
   <div class="grid">
     <EditFavoritesButton />
-    <h2>{{ day }}</h2>
+    <h2>{{ month }}</h2>
   </div>
 </template>
 
@@ -13,18 +13,19 @@ export default Vue.extend({
   components: {
     EditFavoritesButton,
   },
-
-  props: ["day"],
+  props: ["week"],
 
   computed: {
-    selectFavorites() {
-      return this.$store.state.selectFavorites;
-    },
-  },
-
-  methods: {
-    editFavorites() {
-      this.$store.commit("TOGGLE_SELECTFAVORITES");
+    month() {
+      let months: string[] = [];
+      for (const day of this.week) {
+        const month = day.format("MMMM");
+        const upperCasedMonth = month.charAt(0).toUpperCase() + month.slice(1);
+        if (!months.includes(upperCasedMonth)) {
+          months = [...months, upperCasedMonth];
+        }
+      }
+      return months.join(" - ");
     },
   },
 });

@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h2>{{ month }}</h2>
     <div class="grid">
       <div />
       <p v-for="day in daysOfWeek" :key="day">{{ day }}</p>

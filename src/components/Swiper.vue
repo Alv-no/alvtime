@@ -10,7 +10,9 @@
       </swiper>
     </mq-layout>
     <mq-layout mq="md+">
-      <swiper :options="swiperOption" ref="mySwiper">
+      <WeekHeader :week="week" />
+      <FavoriteSelector v-if="selectFavorites" />
+      <swiper v-if="!selectFavorites" :options="swiperOption" ref="mySwiper">
         <swiperSlide v-for="(week, index) in weeks" :key="index">
           <TimeEntrieWeekList :week="week" />
         </swiperSlide>
@@ -30,6 +32,7 @@ import TimeEntrieDayList from "./TimeEntrieDayList";
 import TimeEntrieWeekList from "./TimeEntrieWeekList";
 import MobileHeader from "./MobileHeader";
 import FavoriteSelector from "./FavoriteSelector";
+import WeekHeader from "./WeekHeader";
 
 export default {
   components: {
@@ -39,6 +42,7 @@ export default {
     TimeEntrieWeekList,
     MobileHeader,
     FavoriteSelector,
+    WeekHeader,
   },
 
   data() {
@@ -72,6 +76,13 @@ export default {
   computed: {
     swiper() {
       return this.$refs.mySwiper.swiper;
+    },
+
+    week() {
+      if (this.weeks.length) {
+        return this.weeks[this.$store.state.activeSlideIndex];
+      }
+      return "";
     },
 
     day() {
