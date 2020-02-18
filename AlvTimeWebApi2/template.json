@@ -6,8 +6,8 @@
       "defaultValue": "alvtime-api-dev",
       "type": "String"
     },
-    "serverfarms_AlvTime_api_dev_name": {
-      "defaultValue": "AlvTime-api-dev",
+    "serverfarms_AlvTime_api_dev_externalid": {
+      "defaultValue": "/subscriptions/f9b4e4d2-39a5-4c35-876c-303dc3de03d2/resourceGroups/AlvTime-api-dev/providers/Microsoft.Web/serverfarms/AlvTime-api-dev",
       "type": "String"
     },
     "ConnectionStrings__AlvTime_db": {
@@ -22,40 +22,10 @@
   "variables": {},
   "resources": [
     {
-      "type": "Microsoft.Web/serverfarms",
-      "apiVersion": "2018-02-01",
-      "name": "[parameters('serverfarms_AlvTime_api_dev_name')]",
-      "location": "West Europe",
-      "tags": {
-        "Environment": "Dev"
-      },
-      "sku": {
-        "name": "F1",
-        "tier": "Free",
-        "size": "F1",
-        "family": "F",
-        "capacity": 1
-      },
-      "kind": "linux",
-      "properties": {
-        "perSiteScaling": false,
-        "maximumElasticWorkerCount": 1,
-        "isSpot": false,
-        "reserved": true,
-        "isXenon": false,
-        "hyperV": false,
-        "targetWorkerCount": 0,
-        "targetWorkerSizeId": 0
-      }
-    },
-    {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2018-11-01",
       "name": "[parameters('sites_alvtime_api_dev_name')]",
       "location": "West Europe",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_AlvTime_api_dev_name'))]"
-      ],
       "tags": {
         "Environment": "Dev"
       },
@@ -74,7 +44,7 @@
             "hostType": "Repository"
           }
         ],
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_AlvTime_api_dev_name'))]",
+        "serverFarmId": "[parameters('serverfarms_AlvTime_api_dev_externalid')]",
         "reserved": true,
         "isXenon": false,
         "hyperV": false,
