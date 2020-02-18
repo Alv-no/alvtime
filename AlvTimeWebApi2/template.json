@@ -5,23 +5,24 @@
     "vulnerabilityAssessments_Default_storageContainerPath": {
       "type": "SecureString"
     },
-    "sites_AlvTimePal_name": {
-      "defaultValue": "AlvTimePal",
+    "servers_alvtime_dev_name": {
+      "defaultValue": "alvtime-dev",
       "type": "String"
     },
-    "servers_alvtimedbservertest_name": {
-      "defaultValue": "alvtimedbservertest",
+    "sites_alvtime_api_dev_name": {
+      "defaultValue": "alvtime-api-dev",
       "type": "String"
     },
-    "serverfarms_ASP_AlvTimePal_aa7c_name": {
-      "defaultValue": "ASP-AlvTimePal-aa7c",
+    "serverfarms_AlvTime_api_dev_name": {
+      "defaultValue": "AlvTime-api-dev",
       "type": "String"
     },
-    "storageAccounts_alvtimestorage_name": {
-      "defaultValue": "alvtimestorage",
+    "ConnectionStrings__AlvTime_db": {
+      "defaultValue": "AlvTime_db",
       "type": "String"
     },
-    "Alvtime_db": {
+    "ASPNETCORE_ENVIRONMENT": {
+      "defaultValue": "ASPNETCORE_ENVIRONMENT",
       "type": "String"
     }
   },
@@ -30,61 +31,24 @@
     {
       "type": "Microsoft.Sql/servers",
       "apiVersion": "2015-05-01-preview",
-      "name": "[parameters('servers_alvtimedbservertest_name')]",
+      "name": "[parameters('servers_alvtime_dev_name')]",
       "location": "westeurope",
       "tags": {
-        "Environment": "Test"
+        "Environment": "Dev"
       },
       "kind": "v12.0",
       "properties": {
-        "administratorLogin": "alvadmin",
+        "administratorLogin": "KjellRusti",
         "version": "12.0"
-      }
-    },
-    {
-      "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2019-06-01",
-      "name": "[parameters('storageAccounts_alvtimestorage_name')]",
-      "location": "westeurope",
-      "tags": {
-        "Environment": "Test"
-      },
-      "sku": {
-        "name": "Standard_RAGRS",
-        "tier": "Standard"
-      },
-      "kind": "StorageV2",
-      "properties": {
-        "networkAcls": {
-          "bypass": "AzureServices",
-          "virtualNetworkRules": [],
-          "ipRules": [],
-          "defaultAction": "Allow"
-        },
-        "supportsHttpsTrafficOnly": true,
-        "encryption": {
-          "services": {
-            "file": {
-              "keyType": "Account",
-              "enabled": true
-            },
-            "blob": {
-              "keyType": "Account",
-              "enabled": true
-            }
-          },
-          "keySource": "Microsoft.Storage"
-        },
-        "accessTier": "Hot"
       }
     },
     {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2018-02-01",
-      "name": "[parameters('serverfarms_ASP_AlvTimePal_aa7c_name')]",
+      "name": "[parameters('serverfarms_AlvTime_api_dev_name')]",
       "location": "West Europe",
       "tags": {
-        "Environment": "Test"
+        "Environment": "Dev"
       },
       "sku": {
         "name": "F1",
@@ -108,9 +72,9 @@
     {
       "type": "Microsoft.Sql/servers/advisors",
       "apiVersion": "2014-04-01",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/CreateIndex')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/CreateIndex')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "autoExecuteValue": "Disabled"
@@ -119,9 +83,9 @@
     {
       "type": "Microsoft.Sql/servers/advisors",
       "apiVersion": "2014-04-01",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/DbParameterization')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/DbParameterization')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "autoExecuteValue": "Disabled"
@@ -130,9 +94,9 @@
     {
       "type": "Microsoft.Sql/servers/advisors",
       "apiVersion": "2014-04-01",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/DefragmentIndex')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/DefragmentIndex')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "autoExecuteValue": "Disabled"
@@ -141,9 +105,9 @@
     {
       "type": "Microsoft.Sql/servers/advisors",
       "apiVersion": "2014-04-01",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/DropIndex')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/DropIndex')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "autoExecuteValue": "Disabled"
@@ -152,9 +116,9 @@
     {
       "type": "Microsoft.Sql/servers/advisors",
       "apiVersion": "2014-04-01",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/ForceLastGoodPlan')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/ForceLastGoodPlan')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "autoExecuteValue": "Enabled"
@@ -163,10 +127,10 @@
     {
       "type": "Microsoft.Sql/servers/auditingPolicies",
       "apiVersion": "2014-04-01",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/Default')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/Default')]",
       "location": "West Europe",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "auditingState": "Disabled"
@@ -175,9 +139,9 @@
     {
       "type": "Microsoft.Sql/servers/auditingSettings",
       "apiVersion": "2017-03-01-preview",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/Default')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/Default')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "state": "Disabled",
@@ -191,13 +155,13 @@
     {
       "type": "Microsoft.Sql/servers/databases",
       "apiVersion": "2019-06-01-preview",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/AlvTimePal')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/AlvTime-db-dev')]",
       "location": "westeurope",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "tags": {
-        "Environment": "Test"
+        "Environment": "Dev"
       },
       "sku": {
         "name": "Basic",
@@ -218,10 +182,10 @@
     {
       "type": "Microsoft.Sql/servers/databases/auditingPolicies",
       "apiVersion": "2014-04-01",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/master/Default')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/master/Default')]",
       "location": "West Europe",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "auditingState": "Disabled"
@@ -230,14 +194,13 @@
     {
       "type": "Microsoft.Sql/servers/databases/auditingSettings",
       "apiVersion": "2017-03-01-preview",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/master/Default')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/master/Default')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "state": "Disabled",
         "retentionDays": 0,
-        "auditActionsAndGroups": [],
         "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000",
         "isStorageSecondaryKeyInUse": false,
         "isAzureMonitorTargetEnabled": false
@@ -246,14 +209,13 @@
     {
       "type": "Microsoft.Sql/servers/databases/extendedAuditingSettings",
       "apiVersion": "2017-03-01-preview",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/master/Default')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/master/Default')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "state": "Disabled",
         "retentionDays": 0,
-        "auditActionsAndGroups": [],
         "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000",
         "isStorageSecondaryKeyInUse": false,
         "isAzureMonitorTargetEnabled": false
@@ -262,10 +224,10 @@
     {
       "type": "Microsoft.Sql/servers/databases/geoBackupPolicies",
       "apiVersion": "2014-04-01",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/master/Default')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/master/Default')]",
       "location": "West Europe",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "state": "Enabled"
@@ -274,9 +236,9 @@
     {
       "type": "Microsoft.Sql/servers/databases/securityAlertPolicies",
       "apiVersion": "2018-06-01-preview",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/master/Default')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/master/Default')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "state": "Disabled",
@@ -293,10 +255,10 @@
     {
       "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
       "apiVersion": "2014-04-01",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/master/current')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/master/current')]",
       "location": "West Europe",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "status": "Disabled"
@@ -305,9 +267,9 @@
     {
       "type": "Microsoft.Sql/servers/databases/vulnerabilityAssessments",
       "apiVersion": "2017-03-01-preview",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/master/Default')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/master/Default')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "recurringScans": {
@@ -319,9 +281,9 @@
     {
       "type": "Microsoft.Sql/servers/encryptionProtector",
       "apiVersion": "2015-05-01-preview",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/current')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/current')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "kind": "servicemanaged",
       "properties": {
@@ -332,9 +294,9 @@
     {
       "type": "Microsoft.Sql/servers/extendedAuditingSettings",
       "apiVersion": "2017-03-01-preview",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/Default')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/Default')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "state": "Disabled",
@@ -348,21 +310,21 @@
     {
       "type": "Microsoft.Sql/servers/firewallRules",
       "apiVersion": "2015-05-01-preview",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/AllowAllWindowsAzureIps')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/Alvtime-web-api')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
-        "startIpAddress": "0.0.0.0",
-        "endIpAddress": "0.0.0.0"
+        "startIpAddress": "23.97.183.204",
+        "endIpAddress": "23.97.183.204"
       }
     },
     {
       "type": "Microsoft.Sql/servers/firewallRules",
       "apiVersion": "2015-05-01-preview",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/ClientIp-2020-1-7_13-15-14')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/ClientIPAddress_2020-02-17_06:29:10')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "startIpAddress": "185.30.225.12",
@@ -372,9 +334,9 @@
     {
       "type": "Microsoft.Sql/servers/keys",
       "apiVersion": "2015-05-01-preview",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/ServiceManaged')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/ServiceManaged')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "kind": "servicemanaged",
       "properties": {
@@ -384,9 +346,9 @@
     {
       "type": "Microsoft.Sql/servers/securityAlertPolicies",
       "apiVersion": "2017-03-01-preview",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/Default')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/Default')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "state": "Disabled",
@@ -403,9 +365,9 @@
     {
       "type": "Microsoft.Sql/servers/vulnerabilityAssessments",
       "apiVersion": "2018-06-01-preview",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/Default')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/Default')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "recurringScans": {
@@ -416,64 +378,32 @@
       }
     },
     {
-      "type": "Microsoft.Storage/storageAccounts/blobServices",
-      "apiVersion": "2019-06-01",
-      "name": "[concat(parameters('storageAccounts_alvtimestorage_name'), '/default')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_alvtimestorage_name'))]"
-      ],
-      "sku": {
-        "name": "Standard_RAGRS"
-      },
-      "properties": {
-        "cors": {
-          "corsRules": []
-        },
-        "deleteRetentionPolicy": {
-          "enabled": false
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Storage/storageAccounts/fileServices",
-      "apiVersion": "2019-06-01",
-      "name": "[concat(parameters('storageAccounts_alvtimestorage_name'), '/default')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_alvtimestorage_name'))]"
-      ],
-      "sku": {
-        "name": "Standard_RAGRS"
-      },
-      "properties": {
-        "cors": {
-          "corsRules": []
-        }
-      }
-    },
-    {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2018-11-01",
-      "name": "[parameters('sites_AlvTimePal_name')]",
+      "name": "[parameters('sites_alvtime_api_dev_name')]",
       "location": "West Europe",
       "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_ASP_AlvTimePal_aa7c_name'))]"
+        "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_AlvTime_api_dev_name'))]"
       ],
+      "tags": {
+        "Environment": "Dev"
+      },
       "kind": "app,linux,container",
       "properties": {
         "enabled": true,
         "hostNameSslStates": [
           {
-            "name": "alvtimepal.azurewebsites.net",
+            "name": "[concat(parameters('sites_alvtime_api_dev_name'), '.azurewebsites.net')]",
             "sslState": "Disabled",
             "hostType": "Standard"
           },
           {
-            "name": "alvtimepal.scm.azurewebsites.net",
+            "name": "[concat(parameters('sites_alvtime_api_dev_name'), '.scm.azurewebsites.net')]",
             "sslState": "Disabled",
             "hostType": "Repository"
           }
         ],
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_ASP_AlvTimePal_aa7c_name'))]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_AlvTime_api_dev_name'))]",
         "reserved": true,
         "isXenon": false,
         "hyperV": false,
@@ -490,11 +420,14 @@
     {
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2018-11-01",
-      "name": "[concat(parameters('sites_AlvTimePal_name'), '/web')]",
+      "name": "[concat(parameters('sites_alvtime_api_dev_name'), '/web')]",
       "location": "West Europe",
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', parameters('sites_AlvTimePal_name'))]"
+        "[resourceId('Microsoft.Web/sites', parameters('sites_alvtime_api_dev_name'))]"
       ],
+      "tags": {
+        "Environment": "Dev"
+      },
       "properties": {
         "numberOfWorkers": 1,
         "defaultDocuments": [
@@ -509,14 +442,14 @@
           "hostingstart.html"
         ],
         "netFrameworkVersion": "v4.0",
-        "linuxFxVersion": "DOCKER|https://hub.docker.com/r/alvnoas/alvtime:64",
+        "linuxFxVersion": "DOCKER|alvnoas/alvtime-web-api:latest",
         "requestTracingEnabled": false,
         "remoteDebuggingEnabled": false,
         "remoteDebuggingVersion": "VS2019",
         "httpLoggingEnabled": false,
         "logsDirectorySizeLimit": 35,
         "detailedErrorLoggingEnabled": false,
-        "publishingUsername": "$AlvTimePal",
+        "publishingUsername": "$alvtime-api-dev",
         "scmType": "VSTSRM",
         "use32BitWorkerProcess": true,
         "webSocketsEnabled": false,
@@ -561,25 +494,187 @@
       }
     },
     {
-      "type": "Microsoft.Web/sites/hostNameBindings",
+      "type": "Microsoft.Web/sites/deployments",
       "apiVersion": "2018-11-01",
-      "name": "[concat(parameters('sites_AlvTimePal_name'), '/', parameters('sites_AlvTimePal_name'), '.azurewebsites.net')]",
+      "name": "[concat(parameters('sites_alvtime_api_dev_name'), '/1011582019566652')]",
       "location": "West Europe",
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', parameters('sites_AlvTimePal_name'))]"
+        "[resourceId('Microsoft.Web/sites', parameters('sites_alvtime_api_dev_name'))]"
       ],
       "properties": {
-        "siteName": "AlvTimePal",
+        "status": 4,
+        "author": "Hosted Agent",
+        "deployer": "VSTS",
+        "message": "{\"type\":\"Deployment\",\"buildId\":\"latest\",\"releaseId\":\"101\",\"buildNumber\":\"latest\",\"releaseName\":\"Release-10\",\"collectionUrl\":\"https://dev.azure.com/AlvAsDeops/\",\"teamProject\":\"ac119a8e-b53a-46aa-b9b7-dc2be9396337\",\"buildProjectUrl\":\"https://dev.azure.com/AlvAsDeops/ac119a8e-b53a-46aa-b9b7-dc2be9396337\",\"repositoryUrl\":\"\",\"teamProjectName\":\"AlvTime\",\"slotName\":\"production\"}",
+        "start_time": "2020-02-18T09:52:47.1724298Z",
+        "end_time": "2020-02-18T09:52:47.1724298Z",
+        "active": true
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/deployments",
+      "apiVersion": "2018-11-01",
+      "name": "[concat(parameters('sites_alvtime_api_dev_name'), '/901581964431894')]",
+      "location": "West Europe",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('sites_alvtime_api_dev_name'))]"
+      ],
+      "properties": {
+        "status": 4,
+        "author": "Hosted Agent",
+        "deployer": "VSTS",
+        "message": "{\"type\":\"Deployment\",\"buildId\":\"latest\",\"releaseId\":\"90\",\"buildNumber\":\"latest\",\"releaseName\":\"Release-2\",\"collectionUrl\":\"https://dev.azure.com/AlvAsDeops/\",\"teamProject\":\"ac119a8e-b53a-46aa-b9b7-dc2be9396337\",\"buildProjectUrl\":\"https://dev.azure.com/AlvAsDeops/ac119a8e-b53a-46aa-b9b7-dc2be9396337\",\"repositoryUrl\":\"\",\"teamProjectName\":\"AlvTime\",\"slotName\":\"production\"}",
+        "start_time": "2020-02-17T18:33:53.288048Z",
+        "end_time": "2020-02-17T18:33:53.288048Z",
+        "active": false
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/deployments",
+      "apiVersion": "2018-11-01",
+      "name": "[concat(parameters('sites_alvtime_api_dev_name'), '/911581965773812')]",
+      "location": "West Europe",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('sites_alvtime_api_dev_name'))]"
+      ],
+      "properties": {
+        "status": 4,
+        "author": "Hosted Agent",
+        "deployer": "VSTS",
+        "message": "{\"type\":\"Deployment\",\"buildId\":\"latest\",\"releaseId\":\"91\",\"buildNumber\":\"latest\",\"releaseName\":\"Release-3\",\"collectionUrl\":\"https://dev.azure.com/AlvAsDeops/\",\"teamProject\":\"ac119a8e-b53a-46aa-b9b7-dc2be9396337\",\"buildProjectUrl\":\"https://dev.azure.com/AlvAsDeops/ac119a8e-b53a-46aa-b9b7-dc2be9396337\",\"repositoryUrl\":\"\",\"teamProjectName\":\"AlvTime\",\"slotName\":\"production\"}",
+        "start_time": "2020-02-17T18:56:14.2843805Z",
+        "end_time": "2020-02-17T18:56:14.2843805Z",
+        "active": false
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/deployments",
+      "apiVersion": "2018-11-01",
+      "name": "[concat(parameters('sites_alvtime_api_dev_name'), '/921581966637636')]",
+      "location": "West Europe",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('sites_alvtime_api_dev_name'))]"
+      ],
+      "properties": {
+        "status": 4,
+        "author": "Hosted Agent",
+        "deployer": "VSTS",
+        "message": "{\"type\":\"Deployment\",\"buildId\":\"latest\",\"releaseId\":\"92\",\"buildNumber\":\"latest\",\"releaseName\":\"Release-4\",\"collectionUrl\":\"https://dev.azure.com/AlvAsDeops/\",\"teamProject\":\"ac119a8e-b53a-46aa-b9b7-dc2be9396337\",\"buildProjectUrl\":\"https://dev.azure.com/AlvAsDeops/ac119a8e-b53a-46aa-b9b7-dc2be9396337\",\"repositoryUrl\":\"\",\"teamProjectName\":\"AlvTime\",\"slotName\":\"production\"}",
+        "start_time": "2020-02-17T19:10:40.6390276Z",
+        "end_time": "2020-02-17T19:10:40.6390276Z",
+        "active": false
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/deployments",
+      "apiVersion": "2018-11-01",
+      "name": "[concat(parameters('sites_alvtime_api_dev_name'), '/931581967406998')]",
+      "location": "West Europe",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('sites_alvtime_api_dev_name'))]"
+      ],
+      "properties": {
+        "status": 4,
+        "author": "Hosted Agent",
+        "deployer": "VSTS",
+        "message": "{\"type\":\"Deployment\",\"buildId\":\"latest\",\"releaseId\":\"93\",\"buildNumber\":\"latest\",\"releaseName\":\"Release-5\",\"collectionUrl\":\"https://dev.azure.com/AlvAsDeops/\",\"teamProject\":\"ac119a8e-b53a-46aa-b9b7-dc2be9396337\",\"buildProjectUrl\":\"https://dev.azure.com/AlvAsDeops/ac119a8e-b53a-46aa-b9b7-dc2be9396337\",\"repositoryUrl\":\"\",\"teamProjectName\":\"AlvTime\",\"slotName\":\"production\"}",
+        "start_time": "2020-02-17T19:23:27.3631463Z",
+        "end_time": "2020-02-17T19:23:27.3631463Z",
+        "active": false
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/deployments",
+      "apiVersion": "2018-11-01",
+      "name": "[concat(parameters('sites_alvtime_api_dev_name'), '/941581967641694')]",
+      "location": "West Europe",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('sites_alvtime_api_dev_name'))]"
+      ],
+      "properties": {
+        "status": 3,
+        "author": "Hosted Agent",
+        "deployer": "VSTS",
+        "message": "{\"type\":\"Deployment\",\"buildId\":\"latest\",\"releaseId\":\"94\",\"buildNumber\":\"latest\",\"releaseName\":\"Release-6\",\"collectionUrl\":\"https://dev.azure.com/AlvAsDeops/\",\"teamProject\":\"ac119a8e-b53a-46aa-b9b7-dc2be9396337\",\"buildProjectUrl\":\"https://dev.azure.com/AlvAsDeops/ac119a8e-b53a-46aa-b9b7-dc2be9396337\",\"repositoryUrl\":\"\",\"teamProjectName\":\"AlvTime\",\"slotName\":\"production\"}",
+        "start_time": "2020-02-17T19:27:22.2326002Z",
+        "end_time": "2020-02-17T19:27:22.2326002Z",
+        "active": false
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/deployments",
+      "apiVersion": "2018-11-01",
+      "name": "[concat(parameters('sites_alvtime_api_dev_name'), '/951581967714801')]",
+      "location": "West Europe",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('sites_alvtime_api_dev_name'))]"
+      ],
+      "properties": {
+        "status": 3,
+        "author": "Hosted Agent",
+        "deployer": "VSTS",
+        "message": "{\"type\":\"Deployment\",\"buildId\":\"latest\",\"releaseId\":\"95\",\"buildNumber\":\"latest\",\"releaseName\":\"Release-7\",\"collectionUrl\":\"https://dev.azure.com/AlvAsDeops/\",\"teamProject\":\"ac119a8e-b53a-46aa-b9b7-dc2be9396337\",\"buildProjectUrl\":\"https://dev.azure.com/AlvAsDeops/ac119a8e-b53a-46aa-b9b7-dc2be9396337\",\"repositoryUrl\":\"\",\"teamProjectName\":\"AlvTime\",\"slotName\":\"production\"}",
+        "start_time": "2020-02-17T19:28:36.3639603Z",
+        "end_time": "2020-02-17T19:28:36.3639603Z",
+        "active": false
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/deployments",
+      "apiVersion": "2018-11-01",
+      "name": "[concat(parameters('sites_alvtime_api_dev_name'), '/961581968792837')]",
+      "location": "West Europe",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('sites_alvtime_api_dev_name'))]"
+      ],
+      "properties": {
+        "status": 4,
+        "author": "Hosted Agent",
+        "deployer": "VSTS",
+        "message": "{\"type\":\"Deployment\",\"buildId\":\"latest\",\"releaseId\":\"96\",\"buildNumber\":\"latest\",\"releaseName\":\"Release-8\",\"collectionUrl\":\"https://dev.azure.com/AlvAsDeops/\",\"teamProject\":\"ac119a8e-b53a-46aa-b9b7-dc2be9396337\",\"buildProjectUrl\":\"https://dev.azure.com/AlvAsDeops/ac119a8e-b53a-46aa-b9b7-dc2be9396337\",\"repositoryUrl\":\"\",\"teamProjectName\":\"AlvTime\",\"slotName\":\"production\"}",
+        "start_time": "2020-02-17T19:46:35.8805012Z",
+        "end_time": "2020-02-17T19:46:35.8805012Z",
+        "active": false
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/deployments",
+      "apiVersion": "2018-11-01",
+      "name": "[concat(parameters('sites_alvtime_api_dev_name'), '/991582017287139')]",
+      "location": "West Europe",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('sites_alvtime_api_dev_name'))]"
+      ],
+      "properties": {
+        "status": 4,
+        "author": "Hosted Agent",
+        "deployer": "VSTS",
+        "message": "{\"type\":\"Deployment\",\"buildId\":\"latest\",\"releaseId\":\"99\",\"buildNumber\":\"latest\",\"releaseName\":\"Release-9\",\"collectionUrl\":\"https://dev.azure.com/AlvAsDeops/\",\"teamProject\":\"ac119a8e-b53a-46aa-b9b7-dc2be9396337\",\"buildProjectUrl\":\"https://dev.azure.com/AlvAsDeops/ac119a8e-b53a-46aa-b9b7-dc2be9396337\",\"repositoryUrl\":\"\",\"teamProjectName\":\"AlvTime\",\"slotName\":\"production\"}",
+        "start_time": "2020-02-18T09:14:48.4048497Z",
+        "end_time": "2020-02-18T09:14:48.4048497Z",
+        "active": false
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/hostNameBindings",
+      "apiVersion": "2018-11-01",
+      "name": "[concat(parameters('sites_alvtime_api_dev_name'), '/', parameters('sites_alvtime_api_dev_name'), '.azurewebsites.net')]",
+      "location": "West Europe",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('sites_alvtime_api_dev_name'))]"
+      ],
+      "properties": {
+        "siteName": "alvtime-api-dev",
         "hostNameType": "Verified"
       }
     },
     {
       "type": "Microsoft.Sql/servers/databases/advisors",
       "apiVersion": "2014-04-01",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/AlvTimePal/CreateIndex')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/AlvTime-db-dev/CreateIndex')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtimedbservertest_name'), 'AlvTimePal')]",
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtime_dev_name'), 'AlvTime-db-dev')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "autoExecuteValue": "Disabled"
@@ -588,10 +683,10 @@
     {
       "type": "Microsoft.Sql/servers/databases/advisors",
       "apiVersion": "2014-04-01",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/AlvTimePal/DbParameterization')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/AlvTime-db-dev/DbParameterization')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtimedbservertest_name'), 'AlvTimePal')]",
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtime_dev_name'), 'AlvTime-db-dev')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "autoExecuteValue": "Disabled"
@@ -600,10 +695,10 @@
     {
       "type": "Microsoft.Sql/servers/databases/advisors",
       "apiVersion": "2014-04-01",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/AlvTimePal/DefragmentIndex')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/AlvTime-db-dev/DefragmentIndex')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtimedbservertest_name'), 'AlvTimePal')]",
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtime_dev_name'), 'AlvTime-db-dev')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "autoExecuteValue": "Disabled"
@@ -612,10 +707,10 @@
     {
       "type": "Microsoft.Sql/servers/databases/advisors",
       "apiVersion": "2014-04-01",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/AlvTimePal/DropIndex')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/AlvTime-db-dev/DropIndex')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtimedbservertest_name'), 'AlvTimePal')]",
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtime_dev_name'), 'AlvTime-db-dev')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "autoExecuteValue": "Disabled"
@@ -624,10 +719,10 @@
     {
       "type": "Microsoft.Sql/servers/databases/advisors",
       "apiVersion": "2014-04-01",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/AlvTimePal/ForceLastGoodPlan')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/AlvTime-db-dev/ForceLastGoodPlan')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtimedbservertest_name'), 'AlvTimePal')]",
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtime_dev_name'), 'AlvTime-db-dev')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "autoExecuteValue": "Enabled"
@@ -636,11 +731,11 @@
     {
       "type": "Microsoft.Sql/servers/databases/auditingPolicies",
       "apiVersion": "2014-04-01",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/AlvTimePal/Default')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/AlvTime-db-dev/Default')]",
       "location": "West Europe",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtimedbservertest_name'), 'AlvTimePal')]",
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtime_dev_name'), 'AlvTime-db-dev')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "auditingState": "Disabled"
@@ -649,15 +744,14 @@
     {
       "type": "Microsoft.Sql/servers/databases/auditingSettings",
       "apiVersion": "2017-03-01-preview",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/AlvTimePal/Default')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/AlvTime-db-dev/Default')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtimedbservertest_name'), 'AlvTimePal')]",
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtime_dev_name'), 'AlvTime-db-dev')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "state": "Disabled",
         "retentionDays": 0,
-        "auditActionsAndGroups": [],
         "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000",
         "isStorageSecondaryKeyInUse": false,
         "isAzureMonitorTargetEnabled": false
@@ -666,10 +760,10 @@
     {
       "type": "Microsoft.Sql/servers/databases/backupShortTermRetentionPolicies",
       "apiVersion": "2017-10-01-preview",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/AlvTimePal/default')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/AlvTime-db-dev/default')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtimedbservertest_name'), 'AlvTimePal')]",
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtime_dev_name'), 'AlvTime-db-dev')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "retentionDays": 7
@@ -678,15 +772,14 @@
     {
       "type": "Microsoft.Sql/servers/databases/extendedAuditingSettings",
       "apiVersion": "2017-03-01-preview",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/AlvTimePal/Default')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/AlvTime-db-dev/Default')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtimedbservertest_name'), 'AlvTimePal')]",
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtime_dev_name'), 'AlvTime-db-dev')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "state": "Disabled",
         "retentionDays": 0,
-        "auditActionsAndGroups": [],
         "storageAccountSubscriptionId": "00000000-0000-0000-0000-000000000000",
         "isStorageSecondaryKeyInUse": false,
         "isAzureMonitorTargetEnabled": false
@@ -695,11 +788,11 @@
     {
       "type": "Microsoft.Sql/servers/databases/geoBackupPolicies",
       "apiVersion": "2014-04-01",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/AlvTimePal/Default')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/AlvTime-db-dev/Default')]",
       "location": "West Europe",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtimedbservertest_name'), 'AlvTimePal')]",
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtime_dev_name'), 'AlvTime-db-dev')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "state": "Enabled"
@@ -708,10 +801,10 @@
     {
       "type": "Microsoft.Sql/servers/databases/securityAlertPolicies",
       "apiVersion": "2018-06-01-preview",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/AlvTimePal/Default')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/AlvTime-db-dev/Default')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtimedbservertest_name'), 'AlvTimePal')]",
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtime_dev_name'), 'AlvTime-db-dev')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "state": "Disabled",
@@ -728,11 +821,11 @@
     {
       "type": "Microsoft.Sql/servers/databases/transparentDataEncryption",
       "apiVersion": "2014-04-01",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/AlvTimePal/current')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/AlvTime-db-dev/current')]",
       "location": "West Europe",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtimedbservertest_name'), 'AlvTimePal')]",
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtime_dev_name'), 'AlvTime-db-dev')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "status": "Enabled"
@@ -741,10 +834,10 @@
     {
       "type": "Microsoft.Sql/servers/databases/vulnerabilityAssessments",
       "apiVersion": "2017-03-01-preview",
-      "name": "[concat(parameters('servers_alvtimedbservertest_name'), '/AlvTimePal/Default')]",
+      "name": "[concat(parameters('servers_alvtime_dev_name'), '/AlvTime-db-dev/Default')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtimedbservertest_name'), 'AlvTimePal')]",
-        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtimedbservertest_name'))]"
+        "[resourceId('Microsoft.Sql/servers/databases', parameters('servers_alvtime_dev_name'), 'AlvTime-db-dev')]",
+        "[resourceId('Microsoft.Sql/servers', parameters('servers_alvtime_dev_name'))]"
       ],
       "properties": {
         "recurringScans": {
