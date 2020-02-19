@@ -1,55 +1,124 @@
 <template>
-  <swiper :options="swiperOption" ref="mySwiper">
-    <swiper-slide v-for="(slide, index) in swiperSlides" :key="index">
-      <activity-list :number="slide"></activity-list>
-    </swiper-slide>
-    <div class="swiper-pagination" slot="pagination"></div>
-    <div class="swiper-button-prev" slot="button-prev"></div>
-    <div class="swiper-button-next" slot="button-next"></div>
-  </swiper>
+  <div>
+    <mq-layout mq="sm">
+      <MobileHeader :day="day" />
+      <FavoriteSelector v-if="selectFavorites" />
+      <swiper v-if="!selectFavorites" :options="swiperOption" ref="mySwiper">
+        <swiperSlide v-for="(date, index) in dates" :key="index">
+          <TimeEntrieDayList :date="date" />
+        </swiperSlide>
+      </swiper>
+    </mq-layout>
+    <mq-layout mq="md+">
+      <WeekHeader :week="week" />
+      <FavoriteSelector v-if="selectFavorites" />
+      <swiper v-if="!selectFavorites" :options="swiperOption" ref="mySwiper">
+        <swiperSlide v-for="(week, index) in weeks" :key="index">
+          <TimeEntrieWeekList :week="week" />
+        </swiperSlide>
+        <div class="swiper-button-prev" slot="button-prev"></div>
+        <div class="swiper-button-next" slot="button-next"></div>
+      </swiper>
+    </mq-layout>
+  </div>
 </template>
 
 <script>
 import "swiper/dist/css/swiper.css";
+import moment from "moment";
 
 import { swiper, swiperSlide } from "vue-awesome-swiper";
-import TimeEntrieList from "./TimeEntrieList";
+import TimeEntrieDayList from "./TimeEntrieDayList";
+import TimeEntrieWeekList from "./TimeEntrieWeekList";
+import MobileHeader from "./MobileHeader";
+import FavoriteSelector from "./FavoriteSelector";
+import WeekHeader from "./WeekHeader";
 
 export default {
   components: {
     swiper,
-    "swiper-slide": swiperSlide,
-    "activity-list": TimeEntrieList
+    swiperSlide,
+    TimeEntrieDayList,
+    TimeEntrieWeekList,
+    MobileHeader,
+    FavoriteSelector,
+    WeekHeader,
   },
 
   data() {
+    const vueComponent = this;
     return {
       swiperOption: {
+        shortSwipes: false,
+        simulateTouch: false,
+        noSwipingSelector: "input, button",
+        longSwipesRatio: 0.3,
+        longSwipesMs: 200,
+        keyboard: {
+          enabled: true,
+          onlyInViewport: false,
+        },
         navigation: {
           nextEl: ".swiper-button-next",
-          prevEl: ".swiper-button-prev"
-        }
+          prevEl: ".swiper-button-prev",
+        },
+        on: {
+          slideChange(event) {
+            vueComponent.$store.commit("UPDATE_ACTVIE_SLIDE", this.activeIndex);
+          },
+        },
       },
-      swiperSlides: []
+      dates: [],
+      weeks: [],
     };
   },
 
   computed: {
     swiper() {
       return this.$refs.mySwiper.swiper;
-    }
+    },
+
+    week() {
+      if (this.weeks.length) {
+        return this.weeks[this.$store.state.activeSlideIndex];
+      }
+      return "";
+    },
+
+    day() {
+      if (this.dates.length) {
+        const d = this.dates[this.$store.state.activeSlideIndex].format(
+          "dddd DD. MMMM"
+        );
+        return d.charAt(0).toUpperCase() + d.slice(1);
+      }
+      return "";
+    },
+
+    selectFavorites() {
+      return this.$store.state.selectFavorites;
+    },
   },
 
   mounted() {
-    setInterval(() => {
-      const length = this.swiperSlides.length;
-      if (length < 10) {
-        this.swiperSlides.push(length + 1);
-      }
-      if (length === 3) {
-        this.swiper.slideTo(2, 1000, false);
-      }
-    }, 200);
-  }
+    this.dates = createDays();
+    this.weeks = createWeeks();
+    this.swiper.slideTo(3, 1000, false);
+  },
 };
+
+function createDays() {
+  return [-3, -2, -1, 0, 1, 2, 3].map(n => moment().add(n, "day"));
+}
+
+function createWeeks() {
+  return [-3, -2, -1, 0, 1, 2, 3]
+    .map(n => moment().add(n, "week"))
+    .map(createWeek);
+}
+
+function createWeek(day) {
+  const monday = day.startOf("week");
+  return [0, 1, 2, 3, 4, 5, 6].map(n => monday.clone().add(n, "day"));
+}
 </script>

@@ -11,3 +11,5 @@ node_modules
 
 # Log files
 npm-debug.log*
+
+.DS_Store

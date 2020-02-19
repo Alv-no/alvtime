@@ -1,16 +1,19 @@
 <template>
   <div class="grid">
-    <div class="text">
-      <p class="customer_text">{{ timeEntrie.customer }}</p>
-      <p class="activity_name_text">{{ timeEntrie.activityName }}</p>
-    </div>
-    <form novalidate><input class="input" type="number" novalidate /></form>
+    <TimeEntrieText :timeEntrie="timeEntrie" />
+    <HourInput :value="timeEntrie.value" />
   </div>
 </template>
 
 <script>
+import TimeEntrieText from "./TimeEntrieText";
+import HourInput from "./HourInput";
 export default {
-  props: ["timeEntrie"]
+  components: {
+    TimeEntrieText,
+    HourInput,
+  },
+  props: ["timeEntrie"],
 };
 </script>
 
