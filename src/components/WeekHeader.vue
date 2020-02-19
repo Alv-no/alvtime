@@ -7,7 +7,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import EditFavoritesButton from "./EditFavoritesButton";
+import EditFavoritesButton from "./EditFavoritesButton.vue";
 
 export default Vue.extend({
   components: {

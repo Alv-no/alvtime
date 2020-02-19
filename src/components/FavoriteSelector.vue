@@ -14,7 +14,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Task } from "../store/index";
-import TimeEntrieText from "./TimeEntrieText";
+import TimeEntrieText from "./TimeEntrieText.vue";
 
 export default Vue.extend({
   components: {
