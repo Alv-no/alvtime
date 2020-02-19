@@ -63,18 +63,6 @@ export default {
         return d.charAt(0).toUpperCase() + d.slice(1);
       });
     },
-
-    month() {
-      let months = [];
-      for (const day of this.week) {
-        const month = day.format("MMMM");
-        const upperCasedMonth = month.charAt(0).toUpperCase() + month.slice(1);
-        if (!months.includes(upperCasedMonth)) {
-          months = [...months, upperCasedMonth];
-        }
-      }
-      return months.join(" - ");
-    },
   },
 
   methods: {

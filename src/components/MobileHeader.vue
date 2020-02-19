@@ -15,18 +15,6 @@ export default Vue.extend({
   },
 
   props: ["day"],
-
-  computed: {
-    selectFavorites() {
-      return this.$store.state.selectFavorites;
-    },
-  },
-
-  methods: {
-    editFavorites() {
-      this.$store.commit("TOGGLE_SELECTFAVORITES");
-    },
-  },
 });
 </script>
 
