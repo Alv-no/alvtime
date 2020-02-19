@@ -2,6 +2,7 @@
   <div class="grid">
     <EditFavoritesButton />
     <h2>{{ month }}</h2>
+    <div />
   </div>
 </template>
 
@@ -34,7 +35,8 @@ export default Vue.extend({
 <style scoped>
 .grid {
   display: grid;
-  grid-template-columns: 0px auto;
+  grid-template-columns: 107px minmax(16rem, 37rem) 107px;
   align-items: center;
+  justify-content: center;
 }
 </style>

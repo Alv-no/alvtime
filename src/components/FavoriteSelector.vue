@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div v-for="task in tasks" :key="task.id" class="grid">
+  <div class="container">
+    <div v-for="task in tasks" :key="task.id" class="row">
       <TimeEntrieText :task="task" />
       <md-checkbox
         :value="!task.favorite"
@@ -38,11 +38,22 @@ export default Vue.extend({
 </script>
 
 <style scoped>
-.grid {
+.row {
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
   color: #000;
   padding: 0 1rem;
+}
+
+@media only screen and (min-width: 450px) {
+  .container {
+    display: grid;
+    justify-content: center;
+  }
+
+  .row {
+    width: 48rem;
+  }
 }
 </style>
