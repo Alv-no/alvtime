@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    <TimeEntrieText :task="task" />
     <HourInput
       v-for="timeEntrie in timeEntries"
       :key="timeEntrie.date"
@@ -11,7 +10,6 @@
 
 <script lang="ts">
 import Vue from "vue";
-import TimeEntrieText from "./TimeEntrieText.vue";
 import HourInput from "./HourInput.vue";
 import config from "@/config";
 import moment from "moment";
@@ -19,7 +17,6 @@ import { TimeEntrie } from "@/store";
 
 export default Vue.extend({
   components: {
-    TimeEntrieText,
     HourInput,
   },
   props: ["task", "week"],
@@ -60,10 +57,9 @@ export default Vue.extend({
 <style scoped>
 .container {
   display: grid;
-  grid-template-columns: 1fr auto auto auto auto auto auto auto;
+  grid-template-columns: auto auto auto auto auto auto auto;
   gap: 1.51rem;
   align-items: center;
   color: #000;
-  padding: 0 1rem;
 }
 </style>
