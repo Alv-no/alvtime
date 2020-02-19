@@ -1,15 +1,17 @@
 <template>
   <div>
-    <div class="grid">
-      <div />
-      <p v-for="day in daysOfWeek" :key="day">{{ day }}</p>
+    <div class="container">
+      <div class="grid">
+        <div />
+        <p v-for="day in daysOfWeek" :key="day">{{ day }}</p>
+      </div>
+      <TimeEntrieWeek
+        v-for="task in tasks"
+        :key="task.id"
+        :task="task"
+        :week="week"
+      />
     </div>
-    <TimeEntrieWeek
-      v-for="task in tasks"
-      :key="task.id"
-      :task="task"
-      :week="week"
-    />
   </div>
 </template>
 
@@ -102,9 +104,14 @@ export function sortList(a, b) {
 <style scoped>
 .grid {
   display: grid;
-  grid-template-columns: 1fr auto auto auto auto auto auto auto;
+  grid-template-columns: minmax(8rem, 15rem) auto auto auto auto auto auto auto;
   gap: 2.6rem;
   padding: 0 2rem;
+}
+
+.container {
+  display: grid;
+  justify-content: center;
 }
 
 p {

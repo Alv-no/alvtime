@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container">
     <TimeEntrieText :task="task" />
     <HourInput
       v-for="timeEntrie in timeEntries"
@@ -44,7 +44,7 @@ export default {
 </script>
 
 <style scoped>
-div {
+.container {
   display: grid;
   grid-template-columns: 1fr auto auto auto auto auto auto auto;
   gap: 1.51rem;
