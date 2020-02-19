@@ -1,6 +1,8 @@
 <template>
   <form novalidate>
-    <button @click="onSevenFiveClick" v-if="showHelperButtons">7,5</button>
+    <button @click="onTimeLeftInDayClick" v-if="showHelperButtons">
+      {{ timeLeftInDay }}
+    </button>
     <input
       :class="{ error }"
       type="text"
@@ -18,6 +20,7 @@
 <script>
 import { defer } from "lodash";
 import { isFloat } from "@/store/timeEntries";
+import config from "@/config";
 
 export default {
   props: ["timeEntrie"],
@@ -51,6 +54,21 @@ export default {
     error() {
       return !isFloat(this.value);
     },
+
+    timeLeftInDay() {
+      let timeLeft = config.HOURS_IN_WORKDAY;
+      for (let entrie of this.$store.state.timeEntries) {
+        if (
+          entrie.date === this.timeEntrie.date &&
+          entrie.taskId !== this.timeEntrie.taskId
+        ) {
+          timeLeft = timeLeft - Number(entrie.value);
+        }
+      }
+
+      timeLeft = timeLeft > 0 ? timeLeft : config.HOURS_IN_WORKDAY;
+      return timeLeft.toString().replace(".", ",");
+    },
   },
 
   methods: {
@@ -76,8 +94,8 @@ export default {
       this.editing = true;
     },
 
-    onSevenFiveClick() {
-      const timeEntrie = { ...this.timeEntrie, value: 7.5 };
+    onTimeLeftInDayClick() {
+      const timeEntrie = { ...this.timeEntrie, value: this.timeLeftInDay };
       this.$store.dispatch("UPDATE_TIME_ENTRIE", timeEntrie);
       this.enableBlur = false;
       this.inputRef.focus();
