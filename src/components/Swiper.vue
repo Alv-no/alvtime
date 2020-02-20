@@ -1,25 +1,26 @@
 <template>
   <div>
-    <mq-layout mq="sm">
-      <MobileHeader :day="day" />
-      <FavoriteSelector v-if="selectFavorites" />
-      <swiper v-if="!selectFavorites" :options="swiperOption" ref="mySwiper">
-        <swiperSlide v-for="(date, index) in dates" :key="index">
-          <TimeEntrieDayList :date="date" />
-        </swiperSlide>
-      </swiper>
-    </mq-layout>
-    <mq-layout mq="md+">
-      <WeekHeader :week="week" />
-      <FavoriteSelector v-if="selectFavorites" />
-      <swiper v-if="!selectFavorites" :options="swiperOption" ref="mySwiper">
-        <swiperSlide v-for="(week, index) in weeks" :key="index">
-          <TimeEntrieWeekList :week="week" />
-        </swiperSlide>
-        <div class="swiper-button-prev" slot="button-prev"></div>
-        <div class="swiper-button-next" slot="button-next"></div>
-      </swiper>
-    </mq-layout>
+    <FavoriteSelector v-if="selectFavorites" />
+    <div v-if="!selectFavorites">
+      <mq-layout mq="sm">
+        <MobileHeader :day="day" />
+        <swiper :options="swiperOption" ref="mySwiper">
+          <swiperSlide v-for="(date, index) in dates" :key="index">
+            <TimeEntrieDayList :date="date" />
+          </swiperSlide>
+        </swiper>
+      </mq-layout>
+      <mq-layout mq="md+">
+        <WeekHeader :week="week" />
+        <swiper :options="swiperOption" ref="mySwiper">
+          <swiperSlide v-for="(week, index) in weeks" :key="index">
+            <TimeEntrieWeekList :week="week" />
+          </swiperSlide>
+          <div class="swiper-button-prev" slot="button-prev"></div>
+          <div class="swiper-button-next" slot="button-next"></div>
+        </swiper>
+      </mq-layout>
+    </div>
   </div>
 </template>
 
