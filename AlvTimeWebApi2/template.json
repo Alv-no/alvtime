@@ -3,23 +3,18 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "servers_alvtime_dev_name": {
-      "defaultValue": "alvtime-dev",
       "type": "String"
     },
     "sites_alvtime_api_dev_name": {
-      "defaultValue": "alvtime-api-dev",
       "type": "String"
     },
     "serverfarms_AlvTime_api_dev_name": {
-      "defaultValue": "AlvTime-api-dev",
       "type": "String"
     },
     "ConnectionStrings__AlvTime_db": {
-      "defaultValue": "AlvTime_db",
       "type": "String"
     },
     "ASPNETCORE_ENVIRONMENT": {
-      "defaultValue": "ASPNETCORE_ENVIRONMENT",
       "type": "String"
     }
   },
