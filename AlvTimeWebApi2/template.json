@@ -83,7 +83,15 @@
         "containerSize": 0,
         "dailyMemoryTimeQuota": 0,
         "httpsOnly": false,
-        "redundancyMode": "None"
+        "redundancyMode": "None",
+        "siteConfig": {
+          "connectionStrings": [
+            {
+              "name": "AlvTime_db",
+              "connectionString": "parameters('ConnectionStrings__AlvTime_db')"
+            }
+          ]
+        }
       }
     },
     {

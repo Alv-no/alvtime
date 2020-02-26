@@ -1,6 +1,4 @@
 using AlvTimeWebApi2.DataBaseModels;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -38,9 +36,6 @@ namespace AlvTimeWebApi2
                 var filePath = Path.Combine(System.AppContext.BaseDirectory, "AlvTimeWebApi2.xml");
                 c.IncludeXmlComments(filePath);
             });
-
-            services.AddAuthentication(AzureADDefaults.AuthenticationScheme)
-                .AddAzureAD(options => Configuration.Bind("AzureAd", options));
 
             if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Development")
             {
