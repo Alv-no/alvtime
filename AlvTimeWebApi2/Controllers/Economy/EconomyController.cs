@@ -28,6 +28,10 @@ namespace AlvTimeApi.Controllers.Tasks
         public ActionResult<IEnumerable<TaskResponseDto>> FetchSomething()
         {
             var user = RetrieveUser();
+
+            var returnValue = new List<TaskResponseDto>();
+
+            return returnValue;
         }
 
         private User RetrieveUser()
