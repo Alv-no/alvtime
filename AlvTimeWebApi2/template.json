@@ -88,7 +88,7 @@
           "connectionStrings": [
             {
               "name": "AlvTime_db",
-              "connectionString": "parameters('ConnectionStrings__AlvTime_db')"
+              "connectionString": "[parameters('ConnectionStrings__AlvTime_db')]"
             }
           ]
         }
