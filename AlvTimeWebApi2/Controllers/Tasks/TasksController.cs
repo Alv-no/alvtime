@@ -24,7 +24,7 @@ namespace AlvTimeApi.Controllers.Tasks
         /// </summary>
         /// <remarks></remarks>
         /// <response code="200">OK</response>
-        [HttpGet("Tasks")]
+        [HttpGet("Tasks")] 
         public ActionResult<IEnumerable<TaskResponseDto>> FetchTasks()
         {
             var user = RetrieveUser();
