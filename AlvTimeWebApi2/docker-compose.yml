@@ -3,56 +3,15 @@ services:
   dotnet-backend:
     container_name: dotnet-backend
     build: .
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-   #expose:
-    #  - "80"
+    env_file: .env
     links:
       - mssql-db
     ports:
       - "8000:80"
-  nginx-reverse-proxy:
-    container_name: nginx-reverse-proxy
-    build: ./nginx/
-    #command: tail -F /dev/null
-    command: nginx -g 'daemon off;'
-    ports:
-      - "80:80"
-    #  - "443:443"
-    expose: 
-      - "80"
-      - "443"
-    links:
-      - dotnet-backend
   mssql-db:
     container_name: mssql-db
-    #image: mcr.microsoft.com/mssql/server:2019-latest
     build: ./Database
-    environment: 
-      - SA_PASSWORD=AlvTimeTestErMoro32
-      - ACCEPT_EULA=Y
     volumes:
      - ./Database/:/scripts/
     ports:
       - "1433:1433"
-    expose:
-      - "1433"
-    command:
-      - /bin/bash
-      - -c 
-      - |
-        # Launch MSSQL and send to background
-        /opt/mssql/bin/sqlservr &
-        # Wait 30 seconds for it to be available
-        # (lame, I know, but there's no nc available to start prodding network ports)
-        #sleep 30
-        #ps aux
-        # Run every script in /scripts
-        # TODO set a flag so that this is only done once on creation, 
-        #      and not every time the container runs
-        #for foo in /scripts/*.sql
-          #do /opt/mssql-tools/bin/sqlcmd -U sa -P $$SA_PASSWORD -l 30 -e -i $$foo
-        #done
-        # So that the container doesn't shut down, sleep this thread
-        sleep infinity
-
