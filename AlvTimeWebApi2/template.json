@@ -73,6 +73,14 @@
           }
         ],
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_AlvTime_api_dev_name'))]",
+        "siteConfig": {
+          "connectionStrings": [
+            {
+              "name": "AlvTime_db",
+              "connectionString": "[parameters('ConnectionStrings__AlvTime_db')]"
+            }
+          ]
+        },
         "reserved": true,
         "isXenon": false,
         "hyperV": false,
