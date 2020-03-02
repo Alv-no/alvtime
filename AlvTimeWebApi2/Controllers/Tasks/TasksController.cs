@@ -49,7 +49,6 @@ namespace AlvTimeApi.Controllers.Tasks
                             Name = x.ProjectNavigation.CustomerNavigation.Name
                         }
                     },
-                    HourRate = x.HourRate,
                 })
                 .ToList();
             return Ok(tasks);
@@ -114,7 +113,6 @@ namespace AlvTimeApi.Controllers.Tasks
                             Name = x.ProjectNavigation.CustomerNavigation.Name
                         }
                     },
-                    HourRate = x.HourRate,
                 })
                 .Single();
 

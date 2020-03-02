@@ -11,7 +11,7 @@
             <remarks></remarks>
             <response code="200">OK</response>
         </member>
-        <member name="M:AlvTimeApi.Controllers.Tasks.TasksController.UpdateFavoriteTasks(System.Collections.Generic.List{AlvTimeApi.Dto.UpdateTasksDto})">
+        <member name="M:AlvTimeApi.Controllers.Tasks.TasksController.UpdateFavoriteTasks(System.Collections.Generic.IEnumerable{AlvTimeApi.Dto.UpdateTasksDto})">
             <summary>
             Changes favorite state of task for user
             </summary>
