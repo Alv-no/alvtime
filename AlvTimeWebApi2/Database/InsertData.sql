@@ -59,23 +59,23 @@ from [dbo].[User]
 
 insert into [dbo].[Task]
 values
-('Testleder', '', 2, 1000.00, 0, 0),
-('Funksjonell arkitekt', '', 2,	1000.00, 0, 0),
-('Teamleder', '', 6, 1000.00, 0, 0),
-('Prosjektstotte', '', 6, 1000.00, 0, 0),
-('Testleder', '', 3, 1000.00, 0, 0),
-('Testradgiver', '', 3, 1000.00, 0, 0),
-('Cost controller', '',	8, 1000.00, 0, 0),
-('Utvikler', '', 7,	1000.00, 0, 0),
-('Seniorutvikler', '', 1, 1000.00, 0, 0),
-('Juniorutvikler', '', 1, 1000.00, 0, 0),
-('Sikkerhetstester', '',2, 1000.00, 0, 0),
-('Interntid' ,'', 8, 0.00, 0, 0),
-('Ferie', '', 8, 0.00, 0, 0),
-('Syk', '',	8, 0.00, 0, 0),
-('Sykt barn', '', 8, 0.00, 0, 0),
-('Youtube serie', '', 8, 0.00, 0, 0),
-('AlvTimeUtvikling', '', 8,	0.00, 0, 0)
+('Testleder', '', 2, 0, 0),
+('Funksjonell arkitekt', '', 2, 0, 0),
+('Teamleder', '', 6, 0, 0),
+('Prosjektstotte', '', 6, 0, 0),
+('Testleder', '', 3, 0, 0),
+('Testradgiver', '', 3, 0, 0),
+('Cost controller', '',	8, 0, 0),
+('Utvikler', '', 7, 0, 0),
+('Seniorutvikler', '', 1, 0, 0),
+('Juniorutvikler', '', 1, 0, 0),
+('Sikkerhetstester', '',2, 0, 0),
+('Interntid' ,'', 8, 0, 0),
+('Ferie', '', 8, 0, 0),
+('Syk', '',	8, 0, 0),
+('Sykt barn', '', 8, 0, 0),
+('Youtube serie', '', 8, 0, 0),
+('AlvTimeUtvikling', '', 8, 0, 0)
 
 insert into [dbo].[Hours]
 values

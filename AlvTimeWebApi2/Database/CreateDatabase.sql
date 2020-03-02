@@ -4,37 +4,6 @@ GO
 USE AlvDevDB
 GO
 
-CREATE VIEW V_DataDump
-AS
-select
-Task.id as taskID,
-Task.name as taskName,
-Task.project as projectID,
-"hours".value,
-"hours"."user" as userID,
-"hours"."date",
-"user".name as userName,
-"user".email,
-project.name as projectName,
-customer.name as customerName,
-customer.id as customerId,
-HourR.rate as HourRate
-from Task
-inner join "hours" on taskid = task.id
-inner join "user" on "user".id = "hours"."user"
-inner join project on project.id = task.project
-inner join customer on customer.id = project.Customer
-inner join (select HourRate.taskid, HourRate.rate, "hours".id as hourId
-				from HourRate
-				inner join "hours" on "hours".taskid = HourRate.taskid and "hours".Date >= HourRate.FromDate
-				inner join (
-					select HourRate.taskId, max(FromDate) as FromDate, "hours".id as hourId
-					from HourRate
-					inner join "hours" on "hours".taskid = HourRate.taskid and "hours".Date >= HourRate.FromDate
-					group by HourRate.taskId, "hours".id
-				) maxHours on maxHours.taskid = HourRate.taskid and maxHours.FromDate = HourRate.FromDate and "hours".id = maxHours.hourId
-) HourR on HourR.taskid = task.id and "hours".id = HourR.hourId
-GO
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -110,4 +79,35 @@ REFERENCES [dbo].[Project] ([Id])
 GO
 ALTER TABLE [dbo].[Project]  WITH CHECK ADD  CONSTRAINT [FK_Project_Customer] FOREIGN KEY([Customer])
 REFERENCES [dbo].[Customer] ([Id])
+GO
+CREATE VIEW V_DataDump
+AS
+select
+Task.id as taskID,
+Task.name as taskName,
+Task.project as projectID,
+"hours".value,
+"hours"."user" as userID,
+"hours"."date",
+"user".name as userName,
+"user".email,
+project.name as projectName,
+customer.name as customerName,
+customer.id as customerId,
+HourR.rate as HourRate
+from Task
+inner join "hours" on taskid = task.id
+inner join "user" on "user".id = "hours"."user"
+inner join project on project.id = task.project
+inner join customer on customer.id = project.Customer
+inner join (select HourRate.taskid, HourRate.rate, "hours".id as hourId
+				from HourRate
+				inner join "hours" on "hours".taskid = HourRate.taskid and "hours".Date >= HourRate.FromDate
+				inner join (
+					select HourRate.taskId, max(FromDate) as FromDate, "hours".id as hourId
+					from HourRate
+					inner join "hours" on "hours".taskid = HourRate.taskid and "hours".Date >= HourRate.FromDate
+					group by HourRate.taskId, "hours".id
+				) maxHours on maxHours.taskid = HourRate.taskid and maxHours.FromDate = HourRate.FromDate and "hours".id = maxHours.hourId
+) HourR on HourR.taskid = task.id and "hours".id = HourR.hourId
 GO
