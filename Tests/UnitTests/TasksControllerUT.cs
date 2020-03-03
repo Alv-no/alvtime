@@ -31,7 +31,6 @@ namespace Tests.UnitTests
                 {
                     Description = "Test",
                     Favorite = true,
-                    HourRate = 1000,
                     Id = 1,
                     Locked = false,
                     Name = "Utvikler",
@@ -84,7 +83,6 @@ namespace Tests.UnitTests
                 {
                     Description = "Test",
                     Favorite = false,
-                    HourRate = 1000,
                     Id = 1,
                     Locked = false,
                     Name = "Utvikler",
@@ -136,7 +134,6 @@ namespace Tests.UnitTests
                 {
                     Description = "Test",
                     Favorite = false,
-                    HourRate = 1000,
                     Id = 1,
                     Locked = false,
                     Name = "Utvikler",
@@ -194,7 +191,6 @@ namespace Tests.UnitTests
                 {
                     Description = "Test",
                     Favorite = true,
-                    HourRate = 1000,
                     Id = 1,
                     Locked = false,
                     Name = "Utvikler",

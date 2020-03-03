@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AlvTimeWebApi2.DataBaseModels
@@ -13,7 +15,6 @@ namespace AlvTimeWebApi2.DataBaseModels
         [StringLength(300)]
         public string Description { get; set; }
         public int Project { get; set; }
-        [Column(TypeName = "decimal(7, 2)")]
         public bool Locked { get; set; }
         public bool Favorite { get; set; }
 
