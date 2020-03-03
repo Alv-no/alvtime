@@ -35,8 +35,6 @@ steps:
     Contents: '**/*'
     TargetFolder: '$(build.artifactStagingDirectory)'
     flattenFolders: false
-    
-
 
 - task: ArchiveFiles@2
   displayName: "Archive files"

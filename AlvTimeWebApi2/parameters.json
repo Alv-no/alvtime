@@ -1,22 +1,17 @@
+{
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "vulnerabilityAssessments_Default_storageContainerPath": {
+    "sites_alvtime_api_dev_name": {
       "value": null
     },
-    "sites_AlvTimePal_name": {
+    "serverfarms_AlvTime_api_dev_name": {
       "value": null
     },
-    "servers_alvtimedbservertest_name": {
+    "ConnectionStrings__AlvTime_db": {
       "value": null
     },
-    "serverfarms_ASP_AlvTimePal_aa7c_name": {
-      "value": null
-    },
-    "storageAccounts_alvtimestorage_name": {
-      "value": null
-    },
-    "Alvtime_db": {
+    "ASPNETCORE_ENVIRONMENT": {
       "value": null
     }
   }
