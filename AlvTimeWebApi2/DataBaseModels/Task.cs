@@ -7,6 +7,7 @@ namespace AlvTimeWebApi2.DataBaseModels
 {
     public partial class Task
     {
+        [Key]
         public int Id { get; set; }
         [Required]
         [StringLength(100)]
@@ -18,7 +19,7 @@ namespace AlvTimeWebApi2.DataBaseModels
         public bool Locked { get; set; }
         public bool Favorite { get; set; }
 
-        [ForeignKey("Project")]
+        [ForeignKey(nameof(Project))]
         [InverseProperty("Task")]
         public virtual Project ProjectNavigation { get; set; }
     }

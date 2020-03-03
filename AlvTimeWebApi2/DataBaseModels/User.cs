@@ -7,6 +7,7 @@ namespace AlvTimeWebApi2.DataBaseModels
 {
     public partial class User
     {
+        [Key]
         public int Id { get; set; }
         [StringLength(100)]
         public string Name { get; set; }

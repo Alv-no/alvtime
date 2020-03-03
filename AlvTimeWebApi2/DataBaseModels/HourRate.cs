@@ -11,6 +11,7 @@ namespace AlvTimeWebApi2.DataBaseModels
         [Column(TypeName = "decimal(10, 2)")]
         public decimal Rate { get; set; }
         public int TaskId { get; set; }
+        [Key]
         public int Id { get; set; }
     }
 }

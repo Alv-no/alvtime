@@ -12,13 +12,14 @@ namespace AlvTimeWebApi2.DataBaseModels
             Task = new HashSet<Task>();
         }
 
+        [Key]
         public int Id { get; set; }
         [Required]
         [StringLength(100)]
         public string Name { get; set; }
         public int? Customer { get; set; }
 
-        [ForeignKey("Customer")]
+        [ForeignKey(nameof(Customer))]
         [InverseProperty("Project")]
         public virtual Customer CustomerNavigation { get; set; }
         [InverseProperty("ProjectNavigation")]

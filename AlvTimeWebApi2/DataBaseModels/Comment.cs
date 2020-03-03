@@ -7,6 +7,7 @@ namespace AlvTimeWebApi2.DataBaseModels
 {
     public partial class Comment
     {
+        [Key]
         public int Id { get; set; }
         [Required]
         [StringLength(100)]

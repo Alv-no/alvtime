@@ -7,6 +7,7 @@ namespace AlvTimeWebApi2.DataBaseModels
 {
     public partial class Hours
     {
+        [Key]
         public int Id { get; set; }
         public int User { get; set; }
         [Column(TypeName = "decimal(6, 2)")]

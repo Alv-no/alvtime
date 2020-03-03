@@ -23,6 +23,7 @@ namespace AlvTimeWebApi2.DataBaseModels
         public virtual DbSet<Task> Task { get; set; }
         public virtual DbSet<TaskFavorites> TaskFavorites { get; set; }
         public virtual DbSet<User> User { get; set; }
+        public virtual DbSet<VDataDump> VDataDump { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -35,8 +36,6 @@ namespace AlvTimeWebApi2.DataBaseModels
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasAnnotation("ProductVersion", "2.2.6-servicing-10079");
-
             modelBuilder.Entity<Project>(entity =>
             {
                 entity.HasOne(d => d.CustomerNavigation)
@@ -53,6 +52,17 @@ namespace AlvTimeWebApi2.DataBaseModels
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Task_Project");
             });
+
+            modelBuilder.Entity<VDataDump>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("V_DataDump");
+            });
+
+            OnModelCreatingPartial(modelBuilder);
         }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }

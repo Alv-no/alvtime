@@ -12,6 +12,7 @@ namespace AlvTimeWebApi2.DataBaseModels
             Project = new HashSet<Project>();
         }
 
+        [Key]
         public int Id { get; set; }
         [Required]
         [StringLength(100)]
