@@ -113,14 +113,16 @@ namespace TimeTracker1.Controllers
 
         private Hours CreateNewTimeEntry(SaveHoursDto hoursDto, User user)
         {
-            Hours ha = new Hours
+            Hours hour = new Hours
             {
                 Date = hoursDto.Date,
                 TaskId = hoursDto.TaskId,
-                User = user.Id
+                User = user.Id,
+                Year = (short)hoursDto.Date.Year,
+                DayNumber = (short)hoursDto.Date.DayOfYear
             };
-            _database.Add(ha);
-            return ha;
+            _database.Add(hour);
+            return hour;
         }
 
         private Hours RetrieveExistingTimeEntry(SaveHoursDto hoursDto, User user)
