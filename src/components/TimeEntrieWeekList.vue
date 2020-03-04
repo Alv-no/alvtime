@@ -1,26 +1,28 @@
 <template>
-  <div>
-    <div class="grid">
+  <div class="center">
+    <div class="row">
       <div />
-      <p v-for="day in daysOfWeek" :key="day">{{ day }}</p>
+      <div class="days">
+        <div v-for="day in daysOfWeek" :key="day">{{ day }}</div>
+      </div>
     </div>
-    <TimeEntrieWeek
-      v-for="task in tasks"
-      :key="task.id"
-      :task="task"
-      :week="week"
-    />
+    <div class="row" v-for="task in tasks" :key="task.id">
+      <TimeEntrieText :task="task" />
+      <TimeEntrieWeek :task="task" :week="week" />
+    </div>
   </div>
 </template>
 
 <script>
 import TimeEntrieWeek from "./TimeEntrieWeek";
 import TimeEntrie from "./TimeEntrie";
+import TimeEntrieText from "./TimeEntrieText.vue";
 import config from "@/config";
 
 export default {
   components: {
     TimeEntrieWeek,
+    TimeEntrieText,
   },
   props: ["week"],
 
@@ -61,18 +63,6 @@ export default {
         return d.charAt(0).toUpperCase() + d.slice(1);
       });
     },
-
-    month() {
-      let months = [];
-      for (const day of this.week) {
-        const month = day.format("MMMM");
-        const upperCasedMonth = month.charAt(0).toUpperCase() + month.slice(1);
-        if (!months.includes(upperCasedMonth)) {
-          months = [...months, upperCasedMonth];
-        }
-      }
-      return months.join(" - ");
-    },
   },
 
   methods: {
@@ -100,16 +90,20 @@ export function sortList(a, b) {
 </script>
 
 <style scoped>
-.grid {
+.days {
   display: grid;
-  grid-template-columns: 1fr auto auto auto auto auto auto auto;
-  gap: 2.6rem;
-  padding: 0 2rem;
+  grid-template-columns: auto auto auto auto auto auto auto;
+  gap: 1.51rem;
 }
 
-p {
-  width: 1.85rem;
-  height: 1rem;
-  white-space: nowrap;
+.center {
+  display: grid;
+  justify-content: center;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(8rem, 16rem) 30rem;
+  margin: 0 1rem;
 }
 </style>

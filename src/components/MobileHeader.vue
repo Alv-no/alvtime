@@ -7,7 +7,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import EditFavoritesButton from "./EditFavoritesButton";
+import EditFavoritesButton from "./EditFavoritesButton.vue";
 
 export default Vue.extend({
   components: {
@@ -15,18 +15,6 @@ export default Vue.extend({
   },
 
   props: ["day"],
-
-  computed: {
-    selectFavorites() {
-      return this.$store.state.selectFavorites;
-    },
-  },
-
-  methods: {
-    editFavorites() {
-      this.$store.commit("TOGGLE_SELECTFAVORITES");
-    },
-  },
 });
 </script>
 

@@ -18,8 +18,6 @@ export default {
   text-align: left;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
-  margin-right: 1rem;
 }
 
 .customer_text {

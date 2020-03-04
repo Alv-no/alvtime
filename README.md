@@ -57,7 +57,7 @@ docker-compose -f docker-compose.localBuild.yaml logs -f
 Download the latest backend api and database images
 
 ```
-docker-compose pull
+docker-compose -f docker-compose.localBuild.yaml pull
 ```
 
 ### Run unit tests
