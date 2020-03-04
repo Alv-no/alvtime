@@ -6,9 +6,6 @@ on:
     branches:
       - release/**
 
-  # Run tests for any PRs.
-  pull_request:
-
 env:
   # TODO: Change variable to your image's name.
   IMAGE_NAME: alvnoas/alvtime-vue-pwa
@@ -49,4 +46,4 @@ jobs:
           echo IMAGE_NAME=$IMAGE_NAME
 
           docker tag image $IMAGE_NAME:latest
-          docker push $IMAGE_ID:$VERSION
+          docker push $IMAGE_NAME:latest
