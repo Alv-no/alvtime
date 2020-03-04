@@ -46,9 +46,6 @@ jobs:
       - name: Push image
         run: |
 
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')    
-
           echo IMAGE_NAME=$IMAGE_NAME
 
           docker tag image $IMAGE_NAME:latest
