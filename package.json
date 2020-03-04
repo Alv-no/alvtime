@@ -15,6 +15,7 @@
     "core-js": "^3.4.3",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
+    "msal": "^1.2.1",
     "register-service-worker": "^1.6.2",
     "vue": "^2.6.10",
     "vue-awesome-swiper": "^3.1.3",
