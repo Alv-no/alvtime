@@ -50,6 +50,7 @@ export default {
     const vueComponent = this;
     return {
       swiperOption: {
+        initialSlide: 3,
         shortSwipes: false,
         simulateTouch: false,
         noSwipingSelector: "input, button",
@@ -104,7 +105,6 @@ export default {
   mounted() {
     this.dates = createDays();
     this.weeks = createWeeks();
-    this.swiper.slideTo(3, 1000, false);
   },
 };
 
