@@ -7,9 +7,9 @@ on:
       - '.gitignore'
       - 'LICENCE'
       - 'CODEOWNERS'
-    # Publish `release` branch as Docker `latest` image.
+    # Publish `master` branch as Docker `latest` image.
     branches:
-      - release/**
+      - master
 
   pull_request:
     paths-ignore:
@@ -38,7 +38,7 @@ jobs:
     needs: test
 
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/heads/release')
+    if: startsWith(github.ref, 'refs/heads/master')
 
     steps:
       - uses: actions/checkout@v2
