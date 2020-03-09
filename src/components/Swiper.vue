@@ -54,8 +54,8 @@ export default {
         shortSwipes: false,
         simulateTouch: false,
         noSwipingSelector: "input, button",
-        longSwipesRatio: 0.3,
-        longSwipesMs: 200,
+        longSwipesRatio: 0.15,
+        longSwipesMs: 100,
         keyboard: {
           enabled: true,
           onlyInViewport: false,
