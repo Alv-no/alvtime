@@ -2,11 +2,21 @@ name: Docker
 
 on:
   push:
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - 'LICENCE'
+      - 'CODEOWNERS'
     # Publish `release` branch as Docker `latest` image.
     branches:
       - release/**
 
   pull_request:
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - 'LICENCE'
+      - 'CODEOWNERS'
 
 env:
   IMAGE_NAME: alvnoas/alvtime-vue-pwa
