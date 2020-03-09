@@ -1,12 +1,12 @@
 name: Docker
 
 on:
-  merge:
-    # Publish `master` as Docker `latest` image.
+  push:
+    # Publish `release` branch as Docker `latest` image.
     branches:
       - release/**
 
-  pull-request:
+  pull_request:
 
 env:
   IMAGE_NAME: alvnoas/alvtime-vue-pwa
@@ -28,7 +28,7 @@ jobs:
     needs: test
 
     runs-on: ubuntu-latest
-    if: github.event_name == 'merge'
+    if: startsWith(github.ref, 'refs/heads/release')
 
     steps:
       - uses: actions/checkout@v2
