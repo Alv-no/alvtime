@@ -70,6 +70,7 @@ export default Vue.extend({
   .header {
     grid-template-columns: 107px minmax(16rem, 37rem) 107px;
     justify-content: center;
+    text-align: center;
   }
 
   .row {

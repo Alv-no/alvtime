@@ -23,5 +23,6 @@ export default Vue.extend({
   display: grid;
   grid-template-columns: 0px auto;
   align-items: center;
+  text-align: center;
 }
 </style>

@@ -1,15 +1,15 @@
 <template>
-  <Swiper />
+  <AuthProvider />
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import Swiper from "@/components/Swiper.vue";
+import AuthProvider from "@/components/AuthProvider.vue";
 
 export default Vue.extend({
-  name: "home",
+  name: "login",
   components: {
-    Swiper,
+    AuthProvider,
   },
 });
 </script>

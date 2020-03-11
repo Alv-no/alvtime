@@ -2,6 +2,8 @@ import Vue from "vue";
 import Vuex from "vuex";
 import timeEntrieHandlers from "./timeEntries";
 import taskHandlers from "./tasks";
+import auth from "./auth";
+import { Account, AuthResponse } from "msal";
 
 Vue.use(Vuex);
 
@@ -35,6 +37,7 @@ export interface State {
   activeSlideIndex: number;
   pushQueue: TimeEntrie[];
   selectFavorites: boolean;
+  account: Account | null;
 }
 
 export default new Vuex.Store({
@@ -42,6 +45,7 @@ export default new Vuex.Store({
   state: {
     ...timeEntrieHandlers.state,
     ...taskHandlers.state,
+    ...auth.state,
 
     activeSlideIndex: 3,
     selectFavorites: false,
@@ -53,6 +57,7 @@ export default new Vuex.Store({
   mutations: {
     ...timeEntrieHandlers.mutations,
     ...taskHandlers.mutations,
+    ...auth.mutations,
 
     UPDATE_ACTVIE_SLIDE(state: State, activeSlideIndex: number) {
       state.activeSlideIndex = activeSlideIndex;
@@ -65,6 +70,7 @@ export default new Vuex.Store({
   actions: {
     ...timeEntrieHandlers.actions,
     ...taskHandlers.actions,
+    ...auth.actions,
   },
   modules: {},
 });

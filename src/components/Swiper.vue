@@ -1,7 +1,9 @@
 <template>
   <div>
+    <button @click="logout">Logout</button>
+    <span>{{ name }}</span>
     <FavoriteSelector v-if="selectFavorites" />
-    <div v-if="!selectFavorites">
+    <div v-if="!selectFavorites && isTasks">
       <mq-layout mq="sm">
         <MobileHeader :day="day" />
         <swiper :options="swiperOption" ref="mySwiper">
@@ -70,8 +72,8 @@ export default {
           },
         },
       },
-      dates: [],
-      weeks: [],
+      dates: createDays(),
+      weeks: createWeeks(),
     };
   },
 
@@ -100,11 +102,21 @@ export default {
     selectFavorites() {
       return this.$store.state.selectFavorites;
     },
+
+    isTasks() {
+      return !!this.$store.state.tasks.length;
+    },
+
+    name() {
+      const account = this.$store.state.account;
+      return account ? account.name : "";
+    },
   },
 
-  mounted() {
-    this.dates = createDays();
-    this.weeks = createWeeks();
+  methods: {
+    logout() {
+      this.$store.commit("LOGOUT");
+    },
   },
 };
 
