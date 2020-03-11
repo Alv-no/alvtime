@@ -1,7 +1,7 @@
 <template>
   <div>
     <FavoriteSelector v-if="selectFavorites" />
-    <div v-if="!selectFavorites">
+    <div v-if="!selectFavorites && isTasks">
       <mq-layout mq="sm">
         <MobileHeader :day="day" />
         <swiper :options="swiperOption" ref="mySwiper">
@@ -99,6 +99,10 @@ export default {
 
     selectFavorites() {
       return this.$store.state.selectFavorites;
+    },
+
+    isTasks() {
+      return !!this.$store.state.tasks.length;
     },
   },
 
