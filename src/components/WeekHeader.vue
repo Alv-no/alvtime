@@ -38,5 +38,6 @@ export default Vue.extend({
   grid-template-columns: 107px minmax(16rem, 37rem) 107px;
   align-items: center;
   justify-content: center;
+  text-align: center;
 }
 </style>
