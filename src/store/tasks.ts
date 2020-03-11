@@ -1,6 +1,7 @@
 import { State, Task } from "./index";
 import { ActionContext } from "vuex";
 import config from "@/config";
+import { adAuthenticatedFetch } from "@/services/auth";
 
 export default {
   state: {
@@ -38,7 +39,7 @@ export default {
   actions: {
     FETCH_TASKS: async ({ commit }: ActionContext<State, State>) => {
       const url = new URL(config.HOST + "/api/user/tasks").toString();
-      const res = await fetch(url);
+      const res = await adAuthenticatedFetch(url);
       const tasks = await res.json();
       commit("SET_TASKS", tasks);
     },
@@ -53,7 +54,10 @@ export default {
         const body = JSON.stringify(paramTasks);
         const options = { method, headers, body };
 
-        const response = await fetch(config.HOST + "/api/user/Tasks", options);
+        const response = await adAuthenticatedFetch(
+          config.HOST + "/api/user/Tasks",
+          options
+        );
         const updatedTasks = await response.json();
         if (response.status !== 200) {
           throw Error(`${response.statusText}
