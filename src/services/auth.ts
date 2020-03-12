@@ -10,8 +10,8 @@ const msalApp = new UserAgentApplication({
   auth: {
     clientId: config.CLIENT_ID,
     authority: config.AUTHORITY + config.TENANT_ID,
-    redirectUri: config.HOST,
-    postLogoutRedirectUri: config.HOST,
+    redirectUri: window.location.host,
+    postLogoutRedirectUri: window.location.host,
   },
   cache: {
     storeAuthStateInCookie: false,
