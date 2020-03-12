@@ -11,7 +11,6 @@ namespace TimeTracker1.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    //[Authorize(AuthenticationSchemes = "AzureAd")]
     public class TimeEntriesController : Controller
     {
         private readonly AlvTimeDBContext _database;
@@ -27,6 +26,7 @@ namespace TimeTracker1.Controllers
         /// <remarks>Enter date in format yyyy-mm-dd</remarks>
         /// <response code="200">OK</response>
         [HttpGet("TimeEntries")]
+        [Authorize]
         public ActionResult<IEnumerable<TimeEntriesResponseDto>> FetchTimeEntries(DateTime fromDateInclusive, DateTime toDateInclusive)
         {
             try
@@ -61,6 +61,7 @@ namespace TimeTracker1.Controllers
         /// <remarks>Enter date in format yyyy-mm-dd</remarks>
         /// <response code="200">OK</response>
         [HttpPost("TimeEntries")]
+        [Authorize]
         public ActionResult<List<TimeEntriesResponseDto>> UpsertTimeEntry([FromBody] List<SaveHoursDto> requests)
         {
             List<TimeEntriesResponseDto> response = new List<TimeEntriesResponseDto>();

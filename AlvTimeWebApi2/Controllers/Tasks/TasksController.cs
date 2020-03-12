@@ -1,6 +1,7 @@
 ﻿using AlvTimeApi.Dto;
 using AlvTimeWebApi2.DataBaseModels;
 using AlvTimeWebApi2.Dto;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,6 @@ namespace AlvTimeApi.Controllers.Tasks
 {
     [Route("api/user")]
     [ApiController]
-    //[Authorize(AuthenticationSchemes = "AzureAd")]
     public class TasksController : Controller
     {
         private readonly AlvTimeDBContext _database;
@@ -25,6 +25,7 @@ namespace AlvTimeApi.Controllers.Tasks
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         [HttpGet("Tasks")] 
+        [Authorize]
         public ActionResult<IEnumerable<TaskResponseDto>> FetchTasks()
         {
             var user = RetrieveUser();
@@ -61,6 +62,7 @@ namespace AlvTimeApi.Controllers.Tasks
         /// <remarks></remarks>
         /// <response code="200">OK</response>
         [HttpPost("Tasks")]
+        [Authorize]
         public ActionResult<IEnumerable<TaskResponseDto>> UpdateFavoriteTasks([FromBody] IEnumerable<UpdateTasksDto> tasksToBeUpdated)
         {
             var user = RetrieveUser();
