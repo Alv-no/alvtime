@@ -1,51 +1,17 @@
 // https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-js-initializing-client-applications
-import { UserAgentApplication } from "msal";
+import { UserAgentApplication, AuthenticationParameters } from "msal";
+import config from "@/config";
 
-export const requiresInteraction = (errorMessage: string[]) => {
-  if (!errorMessage || !errorMessage.length) {
-    return false;
-  }
-
-  return (
-    errorMessage.indexOf("consent_required") > -1 ||
-    errorMessage.indexOf("interaction_required") > -1 ||
-    errorMessage.indexOf("login_required") > -1
-  );
+const SCOPES: AuthenticationParameters = {
+  scopes: ["openid"],
 };
 
-export const adAuthenticatedFetch = async (
-  url: string,
-  paramOptions: RequestInit = { headers: {} }
-) => {
-  try {
-    const accessTokenResponse = await acquireToken(GRAPH_REQUESTS.LOGIN);
-    const authHeaders =
-      accessTokenResponse && accessTokenResponse.accessToken
-        ? { Authorization: `Bearer ${accessTokenResponse.accessToken}` }
-        : { Authorization: "" };
-
-    var options = {
-      ...paramOptions,
-      headers: {
-        ...paramOptions.headers,
-        ...authHeaders,
-      },
-    };
-
-    return fetch(url, options);
-  } catch (error) {
-    console.error("Non-interactive error:", error.errorCode);
-    throw error;
-  }
-};
-
-export const msalApp = new UserAgentApplication({
+const msalApp = new UserAgentApplication({
   auth: {
-    clientId: "e53a094c-d524-4e2b-8e03-c2f168924fd7",
-    authority:
-      "https://login.microsoftonline.com/76749190-4427-4b08-a3e4-161767dd1b73",
-    redirectUri: window.location.origin,
-    postLogoutRedirectUri: window.location.origin,
+    clientId: config.CLIENT_ID,
+    authority: config.AUTHORITY + config.TENANT_ID,
+    redirectUri: config.HOST,
+    postLogoutRedirectUri: config.HOST,
   },
   cache: {
     storeAuthStateInCookie: false,
@@ -56,35 +22,70 @@ export const msalApp = new UserAgentApplication({
   },
 });
 
-export const GRAPH_SCOPES = {
-  OPENID: "openid",
-  PROFILE: "profile",
-  USER_READ: "User.Read",
-};
+msalApp.handleRedirectCallback(error => {
+  if (error) {
+    const errorMessage = error.errorMessage
+      ? error.errorMessage
+      : "Unable to acquire access token.";
+    console.error(errorMessage);
+  }
+});
 
-export interface Scopes {
-  scopes: string[];
+export function login() {
+  msalApp.loginRedirect(SCOPES);
 }
 
-export const GRAPH_REQUESTS = {
-  LOGIN: {
-    scopes: [GRAPH_SCOPES.OPENID, GRAPH_SCOPES.PROFILE, GRAPH_SCOPES.USER_READ],
-  },
-};
+export function logout() {
+  return msalApp.logout();
+}
 
-export const acquireToken = async (request: Scopes) => {
+export function getAccount() {
+  return msalApp.getAccount();
+}
+
+export async function adAuthenticatedFetch(
+  url: string,
+  paramOptions: RequestInit = { headers: {} }
+) {
+  const accessTokenResponse = await acquireToken();
+  const authHeaders =
+    accessTokenResponse && accessTokenResponse.accessToken
+      ? { Authorization: `Bearer ${accessTokenResponse.accessToken}` }
+      : { Authorization: "" };
+
+  var options = {
+    ...paramOptions,
+    headers: {
+      ...paramOptions.headers,
+      ...authHeaders,
+    },
+  };
+
+  return fetch(url, options);
+}
+
+function acquireToken() {
   try {
     // Call acquireTokenPopup (popup window) in case of acquireTokenSilent failure
     // due to consent or interaction required ONLY
-    if (msalApp.getAccount()) {
-      const accessToken = await msalApp.acquireTokenSilent(request);
-      return accessToken;
-    }
+    return msalApp.acquireTokenSilent(SCOPES);
   } catch (error) {
     if (requiresInteraction(error.errorCode)) {
-      return msalApp.acquireTokenPopup(request);
+      return msalApp.acquireTokenRedirect(SCOPES);
     } else {
       throw error;
     }
   }
-};
+}
+
+function requiresInteraction(errorMessage: string[]) {
+  if (!errorMessage || !errorMessage.length) {
+    return false;
+  }
+
+  return (
+    errorMessage.indexOf("consent_required") > -1 ||
+    errorMessage.indexOf("interaction_required") > -1 ||
+    errorMessage.indexOf("login_required") > -1
+  );
+}
