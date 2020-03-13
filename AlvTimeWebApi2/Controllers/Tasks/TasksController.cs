@@ -19,11 +19,6 @@ namespace AlvTimeApi.Controllers.Tasks
             _database = database;
         }
 
-        /// <summary>
-        /// Retrieves tasks
-        /// </summary>
-        /// <remarks></remarks>
-        /// <response code="200">OK</response>
         [HttpGet("Tasks")] 
         [Authorize]
         public ActionResult<IEnumerable<TaskResponseDto>> FetchTasks()
@@ -56,11 +51,6 @@ namespace AlvTimeApi.Controllers.Tasks
             return Ok(tasks);
         }
 
-        /// <summary>
-        /// Changes favorite state of task for user
-        /// </summary>
-        /// <remarks></remarks>
-        /// <response code="200">OK</response>
         [HttpPost("Tasks")]
         [Authorize]
         public ActionResult<IEnumerable<TaskResponseDto>> UpdateFavoriteTasks([FromBody] IEnumerable<UpdateTasksDto> tasksToBeUpdated)

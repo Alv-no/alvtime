@@ -20,11 +20,6 @@ namespace TimeTracker1.Controllers
             _database = database;
         }
 
-        /// <summary>
-        /// Retrieves time entries for the dates entered
-        /// </summary>
-        /// <remarks>Enter date in format yyyy-mm-dd</remarks>
-        /// <response code="200">OK</response>
         [HttpGet("TimeEntries")]
         [Authorize]
         public ActionResult<IEnumerable<TimeEntriesResponseDto>> FetchTimeEntries(DateTime fromDateInclusive, DateTime toDateInclusive)
@@ -55,11 +50,6 @@ namespace TimeTracker1.Controllers
             }
         }
 
-        /// <summary>
-        /// Updates existing or creates new time entry
-        /// </summary>
-        /// <remarks>Enter date in format yyyy-mm-dd</remarks>
-        /// <response code="200">OK</response>
         [HttpPost("TimeEntries")]
         [Authorize]
         public ActionResult<List<TimeEntriesResponseDto>> UpsertTimeEntry([FromBody] List<SaveHoursDto> requests)

@@ -1,9 +1,7 @@
 using AlvTimeWebApi2.DataBaseModels;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +9,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
 using Microsoft.OpenApi.Models;
-using System;
 using System.IO;
 
 namespace AlvTimeWebApi2
@@ -37,9 +34,6 @@ namespace AlvTimeWebApi2
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Example API", Version = "v1" });
-
-                var filePath = Path.Combine(System.AppContext.BaseDirectory, "AlvTimeWebApi2.xml");
-                c.IncludeXmlComments(filePath);
             });
 
             services.AddRazorPages();

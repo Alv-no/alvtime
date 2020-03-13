@@ -19,11 +19,6 @@ namespace AlvTimeApi.Controllers.Tasks
             _database = database;
         }
 
-        /// <summary>
-        /// Retrieves tasks
-        /// </summary>
-        /// <remarks></remarks>
-        /// <response code="200">OK</response>
         [HttpGet("Something")]
         [Authorize]
         public ActionResult<IEnumerable<TaskResponseDto>> FetchSomething()
