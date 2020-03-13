@@ -2,7 +2,7 @@
 import { UserAgentApplication, AuthenticationParameters } from "msal";
 import config from "@/config";
 
-const SCOPES: AuthenticationParameters = {
+const authParams: AuthenticationParameters = {
   scopes: ["openid"],
 };
 
@@ -23,6 +23,12 @@ const msalApp = new UserAgentApplication({
 });
 
 msalApp.handleRedirectCallback(error => {
+  // https://github.com/AzureAD/microsoft-authentication-library-for-js/wiki/Known-issue-on-Safari
+  const isSafari = navigator.userAgent.toLowerCase().indexOf("safari") > -1;
+  if (isSafari) {
+    msalApp.acquireTokenRedirect(authParams);
+  }
+
   if (error) {
     const errorMessage = error.errorMessage
       ? error.errorMessage
@@ -32,7 +38,7 @@ msalApp.handleRedirectCallback(error => {
 });
 
 export function login() {
-  msalApp.loginRedirect(SCOPES);
+  msalApp.loginRedirect(authParams);
 }
 
 export function logout() {
@@ -68,10 +74,10 @@ function acquireToken() {
   try {
     // Call acquireTokenPopup (popup window) in case of acquireTokenSilent failure
     // due to consent or interaction required ONLY
-    return msalApp.acquireTokenSilent(SCOPES);
+    return msalApp.acquireTokenSilent(authParams);
   } catch (error) {
     if (requiresInteraction(error.errorCode)) {
-      return msalApp.acquireTokenRedirect(SCOPES);
+      return msalApp.acquireTokenRedirect(authParams);
     } else {
       throw error;
     }
