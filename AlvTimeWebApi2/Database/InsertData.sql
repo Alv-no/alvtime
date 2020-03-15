@@ -31,7 +31,8 @@ values
 ('Ansatt Syv', 'ansattsyv@alv.no'),
 ('Ansatt Atte', 'ansattatte@alv.no'),
 ('Ansatt Ni', 'ansattni@alv.no'),
-('Ansatt Ti', 'ansatti@alv.no')
+('Ansatt Ti', 'ansatti@alv.no'),
+('Ahre Ketil Lillehagen', 'ahre-ketil.lillehagen@alvno.onmicrosoft.com')
 
 insert into [dbo].[TaskFavorites]
 select id as UserId, 12 as TaskId
