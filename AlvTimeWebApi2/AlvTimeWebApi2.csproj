@@ -14,13 +14,13 @@
 
   <ItemGroup>
     <None Remove=".env" />
+    <None Remove="Authentication\NewFile.txt" />
     <None Remove="docker-compose.yml" />
     <None Remove="Dockerfile.original" />
   </ItemGroup>
 
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.AzureAD.UI" Version="3.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.6" />
@@ -31,11 +31,6 @@
     <PackageReference Include="Microsoft.Owin.Security.OpenIdConnect" Version="4.1.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.9.5" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Identity.Web\Microsoft.Identity.Web.csproj" />
   </ItemGroup>
 
 </Project>

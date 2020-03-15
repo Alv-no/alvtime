@@ -1,6 +1,5 @@
+using AlvTimeWebApi2.Authentication;
 using AlvTimeWebApi2.DataBaseModels;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -28,25 +27,7 @@ namespace AlvTimeWebApi2
         {
             services.AddDbContext<AlvTimeDBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("AlvTime_db")), contextLifetime: ServiceLifetime.Scoped, optionsLifetime: ServiceLifetime.Scoped);
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
-
-            IdentityModelEventSource.ShowPII = true;
-
-            services.AddAuthentication(AzureADDefaults.JwtBearerAuthenticationScheme)
-                .AddAzureADBearer(options => Configuration.Bind("AzureAd", options));
-
-            services.AddAuthentication(options => { options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; })
-    .AddJwtBearer(options =>
-    {
-        var azureadoptions = new AzureADOptions(); Configuration.Bind("AzureAd", azureadoptions);
-        options.Authority = $"{azureadoptions.Instance}{azureadoptions.TenantId}";
-        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-        {
-            ValidAudience = $"{azureadoptions.ClientId}",
-            ValidIssuer = $"{azureadoptions.Instance}{azureadoptions.TenantId}/v2.0"
-        };
-
-    });
-
+            services.AddAlvtimeAuthentication(Configuration);
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Example API", Version = "v1" });

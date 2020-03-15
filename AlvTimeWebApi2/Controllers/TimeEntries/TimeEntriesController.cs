@@ -96,6 +96,11 @@ namespace TimeTracker1.Controllers
         [Authorize]
         public ActionResult<DateTime> Time()
         {
+            return Ok(new
+            {
+                Navn = User.Claims.FirstOrDefault()
+            });
+
             return Ok(new { 
                 Navn = User.Identity.Name
             });
