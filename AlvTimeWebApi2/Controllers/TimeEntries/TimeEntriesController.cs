@@ -92,6 +92,15 @@ namespace TimeTracker1.Controllers
             return Ok(response);
         }
 
+        [HttpGet("Time")]
+        [Authorize]
+        public ActionResult<DateTime> Time()
+        {
+            return Ok(new { 
+                Navn = User.Identity.Name
+            });
+        }
+
         private User RetrieveUser()
         {
 

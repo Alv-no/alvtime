@@ -1,4 +1,7 @@
 using AlvTimeWebApi2.DataBaseModels;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.AzureAD.UI;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -6,10 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Identity.Web;
-using Microsoft.Identity.Web.TokenCacheProviders.InMemory;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
-using System.IO;
 
 namespace AlvTimeWebApi2
 {
@@ -28,8 +29,23 @@ namespace AlvTimeWebApi2
             services.AddDbContext<AlvTimeDBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("AlvTime_db")), contextLifetime: ServiceLifetime.Scoped, optionsLifetime: ServiceLifetime.Scoped);
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
-            services.AddProtectedWebApi(Configuration)
-            .AddInMemoryTokenCaches();
+            IdentityModelEventSource.ShowPII = true;
+
+            services.AddAuthentication(AzureADDefaults.JwtBearerAuthenticationScheme)
+                .AddAzureADBearer(options => Configuration.Bind("AzureAd", options));
+
+            services.AddAuthentication(options => { options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; })
+    .AddJwtBearer(options =>
+    {
+        var azureadoptions = new AzureADOptions(); Configuration.Bind("AzureAd", azureadoptions);
+        options.Authority = $"{azureadoptions.Instance}{azureadoptions.TenantId}";
+        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidAudience = $"{azureadoptions.ClientId}",
+            ValidIssuer = $"{azureadoptions.Instance}{azureadoptions.TenantId}/v2.0"
+        };
+
+    });
 
             services.AddSwaggerGen(c =>
             {
