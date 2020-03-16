@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AlvTimeWebApi2</name>
+    </assembly>
+    <members>
+        <member name="M:AlvTimeWebApi2.Controllers.Economy.EconomyController.FetchEconomyInfo">
+            <summary>
+            Retrieves info about customer and users
+            </summary>
+            <remarks></remarks>
+            <response code="200">OK</response>
+        </member>
+    </members>
+</doc>
