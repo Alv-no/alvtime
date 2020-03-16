@@ -67,7 +67,7 @@ CREATE TABLE [dbo].[User](
 	[Name] [nvarchar](100) NULL,
 	[Email] [nvarchar](100) NULL,
 )
-GO 
+GO
 /****** Object:  Table [dbo].[Comment] ******/
 CREATE TABLE [dbo].[Comment](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY NOT NULL,
