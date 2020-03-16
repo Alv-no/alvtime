@@ -6,7 +6,7 @@
     md-persistent
   >
     <span>New version available! Click to update</span>
-    <md-button class="md-primary" @click="refreshApp">Retry</md-button>
+    <md-button class="md-primary" @click="refreshApp">Reload</md-button>
   </md-snackbar>
 </template>
 
@@ -15,8 +15,8 @@ export default {
   data() {
     const vueComponent = this;
     return {
-      duration: 60000,
-      position: "center",
+      duration: Infinity,
+      position: "left",
       refreshing: false,
       registration: null,
       updateExists: false,

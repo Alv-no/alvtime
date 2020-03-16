@@ -41,15 +41,17 @@ export interface State {
   pushQueue: TimeEntrie[];
   selectFavorites: boolean;
   account: Account | null;
+  isOnline: boolean;
 }
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
   strict: process.env.NODE_ENV !== "production",
   state: {
     ...timeEntrieHandlers.state,
     ...taskHandlers.state,
     ...auth.state,
 
+    isOnline: true,
     activeSlideIndex: 3,
     selectFavorites: false,
   },
@@ -68,6 +70,17 @@ export default new Vuex.Store({
     TOGGLE_SELECTFAVORITES(state: State) {
       state.selectFavorites = !state.selectFavorites;
     },
+
+    UPDATE_ONLINE_STATUS(state: State) {
+      if (typeof window.navigator.onLine === "undefined") {
+        // If the browser doesn't support connection status reports
+        // assume that we are online because most apps' only react
+        // when they now that the connection has been interrupted
+        state.isOnline = true;
+      } else {
+        state.isOnline = window.navigator.onLine;
+      }
+    },
   },
   actions: {
     ...timeEntrieHandlers.actions,
@@ -75,3 +88,9 @@ export default new Vuex.Store({
   },
   modules: {},
 });
+
+store.commit("UPDATE_ONLINE_STATUS");
+window.addEventListener("online", () => store.commit("UPDATE_ONLINE_STATUS"));
+window.addEventListener("offline", () => store.commit("UPDATE_ONLINE_STATUS"));
+
+export default store;

@@ -25,9 +25,9 @@ jobs:
       - name: Build image
         run: |
           docker build . --file Dockerfile --tag image \
-          --build-arg VUE_APP_HOST=https://alvtime-api-dev.azurewebsites.net \
-          --build-arg VUE_APP_ACCESS_SCOPE=api://a7dc07ae-c976-4161-9069-3685e091eec0/access_as_user \
-          --build-arg VUE_APP_CLIENT_ID=373a7768-6d2a-4b20-b671-bc1089104a3a
+          --build-arg VUE_APP_HOST=https://alvtime-api-prod.azurewebsites.net \
+          --build-arg VUE_APP_ACCESS_SCOPE=api://3644a03b-f801-4b67-b487-3353684fe7fc/access_as_user \
+          --build-arg VUE_APP_CLIENT_ID=3644a03b-f801-4b67-b487-3353684fe7fc
 
       - name: Log into registry
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
