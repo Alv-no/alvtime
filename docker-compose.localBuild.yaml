@@ -31,6 +31,8 @@ services:
     image: alvnoas/alvtime-web-api:latest
     links:
       - mssql-db
+    environment:
+      - ConnectionStrings__AlvTime_db=Data Source=tcp:mssql-db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32
     expose:
       - "80"
   mssql-db:
