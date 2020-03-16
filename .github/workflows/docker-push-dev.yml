@@ -23,10 +23,11 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build image
-        run: docker build . --file Dockerfile --tag image \
-        --build-arg VUE_APP_HOST=https://alvtime-api-dev.azurewebsites.net \
-        --build-arg VUE_APP_ACCESS_SCOPE=https://d8aedd.alvtime-ap-alvtime-api-dev-f9b4e4.westeurope.cloudapp.azure.com/access_as_user \
-        --build-arg VUE_APP_CLIENT_ID=373a7768-6d2a-4b20-b671-bc1089104a3a
+        run: |
+          docker build . --file Dockerfile --tag image \
+          --build-arg VUE_APP_HOST=https://alvtime-api-dev.azurewebsites.net \
+          --build-arg VUE_APP_ACCESS_SCOPE=https://d8aedd.alvtime-ap-alvtime-api-dev-f9b4e4.westeurope.cloudapp.azure.com/access_as_user \
+          --build-arg VUE_APP_CLIENT_ID=373a7768-6d2a-4b20-b671-bc1089104a3a
 
       - name: Log into registry
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
