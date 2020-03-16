@@ -10,7 +10,7 @@ services:
       - "8000:80"
   mssql-db:
     container_name: mssql-db
-    build: ./AlvTimeWebApi2/Database
+    build: ./Database
     volumes:
      - ./Database/:/scripts/
     ports:
