@@ -1,8 +1,10 @@
 <template>
   <div>
-    <button v-if="!isAuthenticated" @click="login">Login</button>
+    <button :disabled="!isOnline" v-if="!isAuthenticated" @click="login">
+      Login
+    </button>
     <div v-if="isAuthenticated">
-      <button @click="logout">Logout</button>
+      <button :disabled="!isOnline" @click="logout">Logout</button>
       <span>{{ name }}</span>
     </div>
   </div>
@@ -21,6 +23,10 @@ export default Vue.extend({
 
     isAuthenticated() {
       return !!this.$store.state.account;
+    },
+
+    isOnline() {
+      return this.$store.state.isOnline;
     },
   },
 

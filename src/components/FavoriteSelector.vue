@@ -11,6 +11,7 @@
         <md-checkbox
           :value="!task.favorite"
           type="checkbox"
+          :disabled="!isOnline"
           @change="toggleFavorite(task)"
         />
       </div>
@@ -41,6 +42,10 @@ export default Vue.extend({
   computed: {
     tasks() {
       return this.$store.state.tasks;
+    },
+
+    isOnline() {
+      return this.$store.state.isOnline;
     },
   },
 });
