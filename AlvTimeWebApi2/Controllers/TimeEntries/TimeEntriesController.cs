@@ -11,7 +11,6 @@ namespace TimeTracker1.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    //[Authorize(AuthenticationSchemes = "AzureAd")]
     public class TimeEntriesController : Controller
     {
         private readonly AlvTimeDBContext _database;
@@ -21,12 +20,8 @@ namespace TimeTracker1.Controllers
             _database = database;
         }
 
-        /// <summary>
-        /// Retrieves time entries for the dates entered
-        /// </summary>
-        /// <remarks>Enter date in format yyyy-mm-dd</remarks>
-        /// <response code="200">OK</response>
         [HttpGet("TimeEntries")]
+        [Authorize]
         public ActionResult<IEnumerable<TimeEntriesResponseDto>> FetchTimeEntries(DateTime fromDateInclusive, DateTime toDateInclusive)
         {
             try
@@ -55,12 +50,8 @@ namespace TimeTracker1.Controllers
             }
         }
 
-        /// <summary>
-        /// Updates existing or creates new time entry
-        /// </summary>
-        /// <remarks>Enter date in format yyyy-mm-dd</remarks>
-        /// <response code="200">OK</response>
         [HttpPost("TimeEntries")]
+        [Authorize]
         public ActionResult<List<TimeEntriesResponseDto>> UpsertTimeEntry([FromBody] List<SaveHoursDto> requests)
         {
             List<TimeEntriesResponseDto> response = new List<TimeEntriesResponseDto>();
@@ -103,24 +94,25 @@ namespace TimeTracker1.Controllers
 
         private User RetrieveUser()
         {
+            var username = User.Claims.FirstOrDefault(x => x.Type == "name").Value;
+            var user = User.Claims.FirstOrDefault(x => x.Type == "preferred_username").Value;
+            var alvUser = _database.User.FirstOrDefault(x => x.Email.Equals(user));
 
-            //var username = HttpContext.User.Identity.Name ?? "NameNotFound";
-            //var user = _database.User.FirstOrDefault(x => x.Email.Trim() == username.Trim());
-            var user = _database.User.FirstOrDefault();
-
-            return user;
+            return alvUser;
         }
 
         private Hours CreateNewTimeEntry(SaveHoursDto hoursDto, User user)
         {
-            Hours ha = new Hours
+            Hours hour = new Hours
             {
                 Date = hoursDto.Date,
                 TaskId = hoursDto.TaskId,
-                User = user.Id
+                User = user.Id,
+                Year = (short)hoursDto.Date.Year,
+                DayNumber = (short)hoursDto.Date.DayOfYear
             };
-            _database.Add(ha);
-            return ha;
+            _database.Add(hour);
+            return hour;
         }
 
         private Hours RetrieveExistingTimeEntry(SaveHoursDto hoursDto, User user)

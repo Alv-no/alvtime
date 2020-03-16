@@ -2,7 +2,7 @@ version: "3.7"
 services:
   dotnet-backend:
     container_name: dotnet-backend
-    build: .
+    build: ./
     env_file: .env
     links:
       - mssql-db
@@ -15,5 +15,3 @@ services:
      - ./Database/:/scripts/
     ports:
       - "1433:1433"
-    expose:
-      - "1433"
