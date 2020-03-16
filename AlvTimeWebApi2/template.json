@@ -22,9 +22,6 @@
     },
     "EnvironmentShortHand": {
       "type": "String"
-    },
-    "dockerpath": {
-      "type": "String"
     }
   },
   "variables": {},
@@ -210,7 +207,7 @@
         "autoHealEnabled": false,
         "cors": {
           "allowedOrigins": [
-            "[concat('https://', parameters('sites_alvtime_vue_pwa_name'), '-', parameters('EnvironmentShortHand'), '.azurewebsites.net')]"
+            "[concat('https://', parameters('sites_alvtime_vue_pwa_name'), '.azurewebsites.net')]"
           ],
           "supportCredentials": false
         },
