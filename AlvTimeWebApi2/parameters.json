@@ -2,10 +2,10 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "sites_alvtime_api_dev_name": {
+    "sites_alvtime_api_name": {
       "value": null
     },
-    "serverfarms_AlvTime_api_dev_name": {
+    "serverfarms_AlvTime_api_name": {
       "value": null
     },
     "ConnectionStrings__AlvTime_db": {
@@ -13,6 +13,15 @@
     },
     "ASPNETCORE_ENVIRONMENT": {
       "value": null
+    },
+    "Environment": {
+      "value": null
+    },
+    "EnvironmentShortHand": {
+      "value": null
+    },
+    "sites_alvtime_vue_pwa_name": {
+      "value": null 
     }
   }
 }

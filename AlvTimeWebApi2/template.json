@@ -2,18 +2,25 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "sites_alvtime_api_dev_name": {
-      "defaultValue": "alvtime-api-dev",
+    "sites_alvtime_api_name": {
       "type": "String"
     },
-    "serverfarms_AlvTime_api_dev_name": {
-      "defaultValue": "AlvTime-api-dev",
+    "serverfarms_AlvTime_api_name": {
+      "type": "String"
+    },
+    "sites_alvtime_vue_pwa_name": {
       "type": "String"
     },
     "ConnectionStrings__AlvTime_db": {
       "type": "String"
     },
     "ASPNETCORE_ENVIRONMENT": {
+      "type": "String"
+    },
+    "Environment": {
+      "type": "String"
+    },
+    "EnvironmentShortHand": {
       "type": "String"
     }
   },
@@ -22,10 +29,10 @@
     {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2018-02-01",
-      "name": "[parameters('serverfarms_AlvTime_api_dev_name')]",
+      "name": "[parameters('serverfarms_AlvTime_api_name')]",
       "location": "West Europe",
       "tags": {
-        "Environment": "Dev"
+        "Environment": "[parameters('Environment')]"
       },
       "sku": {
         "name": "B1",
@@ -49,38 +56,70 @@
     {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2018-11-01",
-      "name": "[parameters('sites_alvtime_api_dev_name')]",
+      "name": "[parameters('sites_alvtime_api_name')]",
       "location": "West Europe",
       "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_AlvTime_api_dev_name'))]"
+        "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_AlvTime_api_name'))]"
       ],
       "tags": {
-        "Environment": "Dev"
+        "Environment": "[parameters('Environment')]"
       },
       "kind": "app,linux,container",
       "properties": {
         "enabled": true,
         "hostNameSslStates": [
           {
-            "name": "[concat(parameters('sites_alvtime_api_dev_name'), '.azurewebsites.net')]",
+            "name": "[concat(parameters('sites_alvtime_api_name'), '.azurewebsites.net')]",
             "sslState": "Disabled",
             "hostType": "Standard"
           },
           {
-            "name": "[concat(parameters('sites_alvtime_api_dev_name'), '.scm.azurewebsites.net')]",
+            "name": "[concat(parameters('sites_alvtime_api_name'), '.scm.azurewebsites.net')]",
             "sslState": "Disabled",
             "hostType": "Repository"
           }
         ],
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_AlvTime_api_dev_name'))]",
-        "siteConfig": {
-          "connectionStrings": [
-            {
-              "name": "AlvTime_db",
-              "connectionString": "[parameters('ConnectionStrings__AlvTime_db')]"
-            }
-          ]
-        },
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_AlvTime_api_name'))]",
+        "reserved": true,
+        "isXenon": false,
+        "hyperV": false,
+        "scmSiteAlsoStopped": false,
+        "clientAffinityEnabled": false,
+        "clientCertEnabled": false,
+        "hostNamesDisabled": false,
+        "containerSize": 0,
+        "dailyMemoryTimeQuota": 0,
+        "httpsOnly": false,
+        "redundancyMode": "None"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2018-11-01",
+      "name": "[parameters('sites_alvtime_vue_pwa_name')]",
+      "location": "West Europe",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_AlvTime_api_name'))]"
+      ],
+      "tags": {
+        "Environment": "[parameters('Environment')]"
+      },
+      "kind": "app,linux,container",
+      "properties": {
+        "enabled": true,
+        "hostNameSslStates": [
+          {
+            "name": "[concat(parameters('sites_alvtime_vue_pwa_name'), '.azurewebsites.net')]",
+            "sslState": "Disabled",
+            "hostType": "Standard"
+          },
+          {
+            "name": "[concat(parameters('sites_alvtime_vue_pwa_name'), '.scm.azurewebsites.net')]",
+            "sslState": "Disabled",
+            "hostType": "Repository"
+          }
+        ],
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_AlvTime_api_name'))]",
         "reserved": true,
         "isXenon": false,
         "hyperV": false,
@@ -97,13 +136,13 @@
     {
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2018-11-01",
-      "name": "[concat(parameters('sites_alvtime_api_dev_name'), '/web')]",
+      "name": "[concat(parameters('sites_alvtime_api_name'), '/web')]",
       "location": "West Europe",
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', parameters('sites_alvtime_api_dev_name'))]"
+        "[resourceId('Microsoft.Web/sites', parameters('sites_alvtime_api_name'))]"
       ],
       "tags": {
-        "Environment": "Dev"
+        "Environment": "[parameters('Environment')]"
       },
       "properties": {
         "numberOfWorkers": 1,
@@ -126,7 +165,7 @@
         "httpLoggingEnabled": false,
         "logsDirectorySizeLimit": 35,
         "detailedErrorLoggingEnabled": false,
-        "publishingUsername": "$alvtime-api-dev",
+        "publishingUsername": "$alvtime-api-[parameters('EnvironmentShortHand')]",
         "scmType": "VSTSRM",
         "use32BitWorkerProcess": true,
         "webSocketsEnabled": false,
@@ -144,6 +183,94 @@
           "rampUpRules": []
         },
         "autoHealEnabled": false,
+        "cors": {
+          "allowedOrigins": [
+            "https://alvtime-vue-pwa.azurewebsites.net"
+          ],
+          "supportCredentials": false
+        },
+        "localMySqlEnabled": false,
+        "ipSecurityRestrictions": [
+          {
+            "ipAddress": "Any",
+            "action": "Allow",
+            "priority": 1,
+            "name": "Allow all",
+            "description": "Allow all access"
+          }
+        ],
+        "scmIpSecurityRestrictions": [
+          {
+            "ipAddress": "Any",
+            "action": "Allow",
+            "priority": 1,
+            "name": "Allow all",
+            "description": "Allow all access"
+          }
+        ],
+        "scmIpSecurityRestrictionsUseMain": false,
+        "http20Enabled": false,
+        "minTlsVersion": "1.2",
+        "ftpsState": "AllAllowed",
+        "reservedInstanceCount": 0
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2018-11-01",
+      "name": "[concat(parameters('sites_alvtime_vue_pwa_name'), '/web')]",
+      "location": "West Europe",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('sites_alvtime_vue_pwa_name'))]"
+      ],
+      "tags": {
+        "Environment": "[parameters('Environment')]"
+      },
+      "properties": {
+        "numberOfWorkers": 1,
+        "defaultDocuments": [
+          "Default.htm",
+          "Default.html",
+          "Default.asp",
+          "index.htm",
+          "index.html",
+          "iisstart.htm",
+          "default.aspx",
+          "index.php",
+          "hostingstart.html"
+        ],
+        "netFrameworkVersion": "v4.0",
+        "linuxFxVersion": "DOCKER|alvnoas/alvtime-vue-pwa:latest",
+        "requestTracingEnabled": false,
+        "remoteDebuggingEnabled": false,
+        "remoteDebuggingVersion": "VS2019",
+        "httpLoggingEnabled": false,
+        "logsDirectorySizeLimit": 35,
+        "detailedErrorLoggingEnabled": false,
+        "publishingUsername": "$alvtime-vue-pwa",
+        "scmType": "VSTSRM",
+        "use32BitWorkerProcess": true,
+        "webSocketsEnabled": false,
+        "alwaysOn": false,
+        "managedPipelineMode": "Integrated",
+        "virtualApplications": [
+          {
+            "virtualPath": "/",
+            "physicalPath": "site\\wwwroot",
+            "preloadEnabled": false
+          }
+        ],
+        "loadBalancing": "LeastRequests",
+        "experiments": {
+          "rampUpRules": []
+        },
+        "autoHealEnabled": false,
+        "cors": {
+          "allowedOrigins": [
+            "https://alvtime-api-dev.azurewebsites.net"
+          ],
+          "supportCredentials": false
+        },
         "localMySqlEnabled": false,
         "ipSecurityRestrictions": [
           {
@@ -173,13 +300,26 @@
     {
       "type": "Microsoft.Web/sites/hostNameBindings",
       "apiVersion": "2018-11-01",
-      "name": "[concat(parameters('sites_alvtime_api_dev_name'), '/', parameters('sites_alvtime_api_dev_name'), '.azurewebsites.net')]",
+      "name": "[concat(parameters('sites_alvtime_api_name'), '/', parameters('sites_alvtime_api_name'), '.azurewebsites.net')]",
       "location": "West Europe",
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', parameters('sites_alvtime_api_dev_name'))]"
+        "[resourceId('Microsoft.Web/sites', parameters('sites_alvtime_api_name'))]"
       ],
       "properties": {
         "siteName": "alvtime-api-dev",
+        "hostNameType": "Verified"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/hostNameBindings",
+      "apiVersion": "2018-11-01",
+      "name": "[concat(parameters('sites_alvtime_vue_pwa_name'), '/', parameters('sites_alvtime_vue_pwa_name'), '.azurewebsites.net')]",
+      "location": "West Europe",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('sites_alvtime_vue_pwa_name'))]"
+      ],
+      "properties": {
+        "siteName": "alvtime-vue-pwa",
         "hostNameType": "Verified"
       }
     }
