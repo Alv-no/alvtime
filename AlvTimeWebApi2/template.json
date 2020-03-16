@@ -90,7 +90,29 @@
         "containerSize": 0,
         "dailyMemoryTimeQuota": 0,
         "httpsOnly": false,
-        "redundancyMode": "None"
+        "redundancyMode": "None",
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "ASPNETCORE_ENVIRONMENT",
+              "value": "[parameters('ASPNETCORE_ENVIRONMENT')]"
+            },
+            {
+              "name": "Environment",
+              "value": "[parameters('Environment')]"
+            },
+            {
+              "name": "EnvironmentShortHand",
+              "value": "[parameters('EnvironmentShortHand')]"
+            }
+          ],
+          "connectionStrings": [
+            {
+              "name": "Alvtime_db",
+              "connectionString": "[parameters('ConnectionStrings__AlvTime_db')]"
+            }
+          ]
+        }
       }
     },
     {
@@ -185,7 +207,7 @@
         "autoHealEnabled": false,
         "cors": {
           "allowedOrigins": [
-            "https://alvtime-vue-pwa.azurewebsites.net"
+            "[concat('https://', parameters('sites_alvtime_vue_pwa_name'), '-', parameters('EnvironmentShortHand'), '.azurewebsites.net')]"
           ],
           "supportCredentials": false
         },
@@ -267,7 +289,7 @@
         "autoHealEnabled": false,
         "cors": {
           "allowedOrigins": [
-            "https://alvtime-api-dev.azurewebsites.net"
+            "[concat('https://', parameters('sites_alvtime_api_name'), '-', parameters('EnvironmentShortHand'), '.azurewebsites.net')]"
           ],
           "supportCredentials": false
         },
