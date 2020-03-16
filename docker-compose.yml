@@ -2,7 +2,7 @@ version: "3.7"
 services:
   dotnet-backend:
     container_name: dotnet-backend
-    build: .
+    build: ./
     env_file: .env
     links:
       - mssql-db
@@ -10,7 +10,7 @@ services:
       - "8000:80"
   mssql-db:
     container_name: mssql-db
-    build: ./Database
+    build: ./AlvTimeWebApi2/Database
     volumes:
      - ./Database/:/scripts/
     ports:

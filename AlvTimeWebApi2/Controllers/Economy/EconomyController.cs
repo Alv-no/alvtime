@@ -1,6 +1,5 @@
-﻿using AlvTimeApi.Dto;
-using AlvTimeWebApi2.DataBaseModels;
-using AlvTimeWebApi2.Dto;
+﻿using AlvTimeWebApi2.DataBaseModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +8,6 @@ namespace AlvTimeApi.Controllers.Tasks
 {
     [Route("api/admin")]
     [ApiController]
-    //[Authorize(AuthenticationSchemes = "AzureAd")]
     public class EconomyController : Controller
     {
         private readonly AlvTimeDBContext _database;
@@ -19,12 +17,8 @@ namespace AlvTimeApi.Controllers.Tasks
             _database = database;
         }
 
-        /// <summary>
-        /// Retrieves tasks
-        /// </summary>
-        /// <remarks></remarks>
-        /// <response code="200">OK</response>
         [HttpGet("Something")]
+        [Authorize]
         public ActionResult<IEnumerable<TaskResponseDto>> FetchSomething()
         {
             var user = RetrieveUser();
