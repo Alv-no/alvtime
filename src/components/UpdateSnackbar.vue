@@ -6,7 +6,7 @@
     md-persistent
   >
     <span>New version available! Click to update</span>
-    <md-button class="md-primary" @click="refreshApp">Reload</md-button>
+    <md-button class="md-primary" @click="refreshApp">Update</md-button>
   </md-snackbar>
 </template>
 
