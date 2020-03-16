@@ -7,44 +7,27 @@ on:
       - '.gitignore'
       - 'LICENCE'
       - 'CODEOWNERS'
-    # Publish `master` branch as Docker `latest` image.
+
     branches:
       - master
-
-  pull_request:
-    paths-ignore:
-      - '**.md'
-      - '.gitignore'
-      - 'LICENCE'
-      - 'CODEOWNERS'
 
 env:
   IMAGE_NAME: alvnoas/alvtime-vue-pwa
 
 jobs:
-  # Run tests.
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Run tests
-        run: docker build . --file Dockerfile
-
   # Push image to Docker Hub
   push_to_docker_hub:
-    # Ensure test job passes before pushing image.
-    needs: test
-
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/heads/master')
 
     steps:
       - uses: actions/checkout@v2
 
       - name: Build image
-        run: docker build . --file Dockerfile --tag image --build-arg VUE_APP_HOST=https://alvtime-api-dev.azurewebsites.net
+        run: |
+          docker build . --file Dockerfile --tag image \
+          --build-arg VUE_APP_HOST=https://alvtime-api-prod.azurewebsites.net \
+          --build-arg VUE_APP_ACCESS_SCOPE=api://3644a03b-f801-4b67-b487-3353684fe7fc/access_as_user \
+          --build-arg VUE_APP_CLIENT_ID=3644a03b-f801-4b67-b487-3353684fe7fc
 
       - name: Log into registry
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin

@@ -1,0 +1,20 @@
+name: Test
+
+on:
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - 'LICENCE'
+      - 'CODEOWNERS'
+
+jobs:
+  # Run tests.
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run tests
+        run: docker build . --file Dockerfile

@@ -15,6 +15,8 @@ services:
       - 8080
     environment:
       - VUE_APP_HOST=http://localhost:3000
+      - VUE_APP_ACCESS_SCOPE=https://d8aedd.alvtime-ap-alvtime-api-dev-f9b4e4.westeurope.cloudapp.azure.com/access_as_user
+      - VUE_APP_CLIENT_ID=373a7768-6d2a-4b20-b671-bc1089104a3a
   nginx-reverse-proxy:
     container_name: nginx-reverse-proxy
     build: ./nginx/
