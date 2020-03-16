@@ -92,28 +92,13 @@ namespace TimeTracker1.Controllers
             return Ok(response);
         }
 
-        [HttpGet("Time")]
-        [Authorize]
-        public ActionResult<DateTime> Time()
-        {
-            return Ok(new
-            {
-                Navn = User.Claims.FirstOrDefault()
-            });
-
-            return Ok(new { 
-                Navn = User.Identity.Name
-            });
-        }
-
         private User RetrieveUser()
         {
+            var username = User.Claims.FirstOrDefault(x => x.Type == "name").Value;
+            var user = User.Claims.FirstOrDefault(x => x.Type == "preferred_username").Value;
+            var alvUser = _database.User.FirstOrDefault(x => x.Email.Equals(user));
 
-            //var username = HttpContext.User.Identity.Name ?? "NameNotFound";
-            //var user = _database.User.FirstOrDefault(x => x.Email.Trim() == username.Trim());
-            var user = _database.User.FirstOrDefault();
-
-            return user;
+            return alvUser;
         }
 
         private Hours CreateNewTimeEntry(SaveHoursDto hoursDto, User user)

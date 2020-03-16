@@ -31,7 +31,8 @@ values
 ('Ansatt Syv', 'ansattsyv@alv.no'),
 ('Ansatt Atte', 'ansattatte@alv.no'),
 ('Ansatt Ni', 'ansattni@alv.no'),
-('Ansatt Ti', 'ansatti@alv.no')
+('Ansatt Ti', 'ansatti@alv.no'),
+('Ahre Ketil Lillehagen', 'ahre-ketil.lillehagen@alvno.onmicrosoft.com')
 
 insert into [dbo].[TaskFavorites]
 select id as UserId, 12 as TaskId
@@ -92,4 +93,7 @@ values
 (10, 4, '01/12/2019 00:00:00', 335, 2019, 12, 0),
 (5, 4,  '01/12/2019 00:00:00', 335, 2019, 12, 0),
 (3, 4,  '01/12/2019 00:00:00', 335, 2019, 12, 0),
-(8, 4,  '01/12/2019 00:00:00', 335, 2019, 12, 0)                                                                            
+(11, 4,  '01/12/2019 00:00:00', 335, 2019, 12, 0),
+(11, 7.5,  '01/12/2019 00:00:00', 335, 2019, 12, 0),                                                                        
+(11, 5,  '01/12/2019 00:00:00', 335, 2019, 12, 0),                                                                        
+(11, 10,  '01/12/2019 00:00:00', 335, 2019, 12, 0)
