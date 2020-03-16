@@ -4,7 +4,6 @@ WORKDIR /app
 # Copy csproj and restore as distinct layers
 COPY *.sln ./
 COPY ./AlvTimeWebApi2/*.csproj ./AlvTimeWebApi2/
-COPY ./Microsoft.Identity.Web/*.csproj ./Microsoft.Identity.Web/
 RUN dotnet restore
 
 # Copy everything else and build
