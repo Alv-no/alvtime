@@ -22,10 +22,11 @@ const msalApp = new UserAgentApplication({
   },
 });
 
-msalApp.handleRedirectCallback(error => {
+msalApp.handleRedirectCallback((error, response) => {
   // https://github.com/AzureAD/microsoft-authentication-library-for-js/wiki/Known-issue-on-Safari
   const isSafari = navigator.userAgent.toLowerCase().indexOf("safari") > -1;
-  if (isSafari) {
+  const isIdToken = response && response.tokenType == "id_token";
+  if (isSafari && !error && isIdToken) {
     msalApp.acquireTokenRedirect(authParams);
   }
 
