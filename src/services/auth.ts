@@ -3,9 +3,7 @@ import { UserAgentApplication, AuthenticationParameters } from "msal";
 import config from "@/config";
 
 const authParams: AuthenticationParameters = {
-  scopes: [
-    "https://d8aedd.alvtime-ap-alvtime-api-dev-f9b4e4.westeurope.cloudapp.azure.com/access_as_user",
-  ],
+  scopes: [config.ACCESS_SCOPE],
 };
 
 const msalApp = new UserAgentApplication({
