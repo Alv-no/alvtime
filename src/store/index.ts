@@ -89,8 +89,4 @@ const store = new Vuex.Store({
   modules: {},
 });
 
-store.commit("UPDATE_ONLINE_STATUS");
-window.addEventListener("online", () => store.commit("UPDATE_ONLINE_STATUS"));
-window.addEventListener("offline", () => store.commit("UPDATE_ONLINE_STATUS"));
-
 export default store;
