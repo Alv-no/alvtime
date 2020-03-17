@@ -90,7 +90,29 @@
         "containerSize": 0,
         "dailyMemoryTimeQuota": 0,
         "httpsOnly": false,
-        "redundancyMode": "None"
+        "redundancyMode": "None",
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "ASPNETCORE_ENVIRONMENT",
+              "value": "[parameters('ASPNETCORE_ENVIRONMENT')]"
+            },
+            {
+              "name": "Environment",
+              "value": "[parameters('Environment')]"
+            },
+            {
+              "name": "EnvironmentShortHand",
+              "value": "[parameters('EnvironmentShortHand')]"
+            }
+          ],
+          "connectionStrings": [
+            {
+              "name": "Alvtime_db",
+              "connectionString": "[parameters('ConnectionStrings__AlvTime_db')]"
+            }
+          ]
+        }
       }
     },
     {
@@ -185,89 +207,7 @@
         "autoHealEnabled": false,
         "cors": {
           "allowedOrigins": [
-            "https://alvtime-vue-pwa.azurewebsites.net"
-          ],
-          "supportCredentials": false
-        },
-        "localMySqlEnabled": false,
-        "ipSecurityRestrictions": [
-          {
-            "ipAddress": "Any",
-            "action": "Allow",
-            "priority": 1,
-            "name": "Allow all",
-            "description": "Allow all access"
-          }
-        ],
-        "scmIpSecurityRestrictions": [
-          {
-            "ipAddress": "Any",
-            "action": "Allow",
-            "priority": 1,
-            "name": "Allow all",
-            "description": "Allow all access"
-          }
-        ],
-        "scmIpSecurityRestrictionsUseMain": false,
-        "http20Enabled": false,
-        "minTlsVersion": "1.2",
-        "ftpsState": "AllAllowed",
-        "reservedInstanceCount": 0
-      }
-    },
-    {
-      "type": "Microsoft.Web/sites/config",
-      "apiVersion": "2018-11-01",
-      "name": "[concat(parameters('sites_alvtime_vue_pwa_name'), '/web')]",
-      "location": "West Europe",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', parameters('sites_alvtime_vue_pwa_name'))]"
-      ],
-      "tags": {
-        "Environment": "[parameters('Environment')]"
-      },
-      "properties": {
-        "numberOfWorkers": 1,
-        "defaultDocuments": [
-          "Default.htm",
-          "Default.html",
-          "Default.asp",
-          "index.htm",
-          "index.html",
-          "iisstart.htm",
-          "default.aspx",
-          "index.php",
-          "hostingstart.html"
-        ],
-        "netFrameworkVersion": "v4.0",
-        "linuxFxVersion": "DOCKER|alvnoas/alvtime-vue-pwa:latest",
-        "requestTracingEnabled": false,
-        "remoteDebuggingEnabled": false,
-        "remoteDebuggingVersion": "VS2019",
-        "httpLoggingEnabled": false,
-        "logsDirectorySizeLimit": 35,
-        "detailedErrorLoggingEnabled": false,
-        "publishingUsername": "$alvtime-vue-pwa",
-        "scmType": "VSTSRM",
-        "use32BitWorkerProcess": true,
-        "webSocketsEnabled": false,
-        "alwaysOn": false,
-        "managedPipelineMode": "Integrated",
-        "virtualApplications": [
-          {
-            "virtualPath": "/",
-            "physicalPath": "site\\wwwroot",
-            "preloadEnabled": false
-          }
-        ],
-        "loadBalancing": "LeastRequests",
-        "experiments": {
-          "rampUpRules": []
-        },
-        "autoHealEnabled": false,
-        "cors": {
-          "allowedOrigins": [
-            "https://alvtime-api-dev.azurewebsites.net"
+            "[concat('https://', parameters('sites_alvtime_vue_pwa_name'), '.azurewebsites.net')]"
           ],
           "supportCredentials": false
         },
@@ -307,19 +247,6 @@
       ],
       "properties": {
         "siteName": "alvtime-api-dev",
-        "hostNameType": "Verified"
-      }
-    },
-    {
-      "type": "Microsoft.Web/sites/hostNameBindings",
-      "apiVersion": "2018-11-01",
-      "name": "[concat(parameters('sites_alvtime_vue_pwa_name'), '/', parameters('sites_alvtime_vue_pwa_name'), '.azurewebsites.net')]",
-      "location": "West Europe",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', parameters('sites_alvtime_vue_pwa_name'))]"
-      ],
-      "properties": {
-        "siteName": "alvtime-vue-pwa",
         "hostNameType": "Verified"
       }
     }
