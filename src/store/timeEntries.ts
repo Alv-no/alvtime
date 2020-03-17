@@ -90,6 +90,7 @@ ${timeEntries.title}`);
           commit("UPDATE_TIME_ENTRIES", timeEntries.map(createTimeEntrie));
         } catch (e) {
           console.error(e);
+          commit("ADD_TO_ERROR_LIST", e);
         }
       },
       1000
@@ -115,6 +116,7 @@ ${timeEntries.title}`);
         commit("SET_TIME_ENTRIES", timeEntries.map(createTimeEntrie));
       } catch (e) {
         console.error(e);
+        commit("ADD_TO_ERROR_LIST", e);
       }
     },
   },

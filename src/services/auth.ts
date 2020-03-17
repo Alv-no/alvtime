@@ -1,5 +1,10 @@
 // https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-js-initializing-client-applications
-import { UserAgentApplication, AuthenticationParameters } from "msal";
+import {
+  AuthResponse,
+  AuthError,
+  UserAgentApplication,
+  AuthenticationParameters,
+} from "msal";
 import config from "@/config";
 
 const authParams: AuthenticationParameters = {
@@ -22,20 +27,32 @@ const msalApp = new UserAgentApplication({
   },
 });
 
-msalApp.handleRedirectCallback(error => {
-  // https://github.com/AzureAD/microsoft-authentication-library-for-js/wiki/Known-issue-on-Safari
-  const isSafari = navigator.userAgent.toLowerCase().indexOf("safari") > -1;
-  if (isSafari) {
-    msalApp.acquireTokenRedirect(authParams);
+function createRedirectCallback(cb?: (error: Error) => void) {
+  function redirectCallback(error: any, response: any) {
+    // https://github.com/AzureAD/microsoft-authentication-library-for-js/wiki/Known-issue-on-Safari
+    const isSafari = navigator.userAgent.toLowerCase().indexOf("safari") > -1;
+    const isIdToken = response && response.tokenType == "id_token";
+    if (isSafari && !error && isIdToken) {
+      msalApp.acquireTokenRedirect(authParams);
+    }
+
+    if (error) {
+      const errorMessage = error.errorMessage
+        ? error.errorMessage
+        : "Unable to acquire access token.";
+      console.error(errorMessage);
+      if (cb) cb(Error(errorMessage));
+    }
   }
 
-  if (error) {
-    const errorMessage = error.errorMessage
-      ? error.errorMessage
-      : "Unable to acquire access token.";
-    console.error(errorMessage);
-  }
-});
+  return redirectCallback;
+}
+
+msalApp.handleRedirectCallback(createRedirectCallback());
+
+export function setRedirectCallback(cb: (error: Error) => void) {
+  msalApp.handleRedirectCallback(createRedirectCallback(cb));
+}
 
 export function login() {
   msalApp.loginRedirect(authParams);

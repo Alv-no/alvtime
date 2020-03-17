@@ -6,14 +6,18 @@
     md-persistent
   >
     <span>New version available! Click to update</span>
-    <md-button class="md-primary" @click="refreshApp">Reload</md-button>
+    <md-button class="md-primary" @click="refreshApp">
+      Update
+      <md-tooltip>Oppdater til siste versjon av appen</md-tooltip>
+    </md-button>
   </md-snackbar>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from "vue";
+
+export default Vue.extend({
   data() {
-    const vueComponent = this;
     return {
       duration: Infinity,
       position: "left",
@@ -33,18 +37,20 @@ export default {
   },
 
   methods: {
-    showRefreshUI(e) {
+    showRefreshUI(e: any) {
       this.registration = e.detail;
       this.updateExists = true;
     },
 
     refreshApp() {
       this.updateExists = false;
-      if (!this.registration || !this.registration.waiting) {
-        return;
+      // @ts-ignore
+      if (!!this.registration && !!this.registration.waiting) {
+        // @ts-ignore
+        this.registration.waiting.postMessage("skipWaiting");
       }
-      this.registration.waiting.postMessage("skipWaiting");
+      // @ts-ignore
     },
   },
-};
+});
 </script>

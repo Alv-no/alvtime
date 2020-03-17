@@ -1,17 +1,20 @@
 <template>
   <div>
     <router-view />
-    <Snackbar />
+    <UpdateSnackbar />
+    <ErrorSnackbar />
   </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import Snackbar from "@/components/Snackbar.vue";
+import ErrorSnackbar from "@/components/ErrorSnackbar.vue";
+import UpdateSnackbar from "@/components/UpdateSnackbar.vue";
 
 export default Vue.extend({
   components: {
-    Snackbar,
+    ErrorSnackbar,
+    UpdateSnackbar,
   },
 });
 </script>
