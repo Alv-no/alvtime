@@ -6,6 +6,8 @@ RUN npm install
 COPY . .
 
 ARG VUE_APP_HOST
+ARG VUE_APP_ACCESS_SCOPE
+ARG VUE_APP_CLIENT_ID
 RUN npx vue-cli-service build
 
 # production stage
