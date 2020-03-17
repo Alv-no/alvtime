@@ -9,6 +9,7 @@
     <SlackButton @click="close" />
     <md-button class="icon_button" @click="close">
       <md-icon class="icon">close</md-icon>
+      <md-tooltip>Lukk</md-tooltip>
     </md-button>
   </md-snackbar>
 </template>

@@ -1,6 +1,7 @@
 <template>
   <md-button class="icon_button" @click="onClick">
     <md-icon md-src="/img/icons/slack.svg" />
+    <md-tooltip>Gi tilbakemelding i Slack</md-tooltip>
   </md-button>
 </template>
 

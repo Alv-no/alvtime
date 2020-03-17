@@ -11,6 +11,7 @@ import {
   MdSnackbar,
   MdIcon,
   MdCheckbox,
+  MdTooltip,
 } from "vue-material/dist/components";
 import VueMq from "vue-mq";
 import moment from "moment";
@@ -22,6 +23,7 @@ Vue.use(MdButton);
 Vue.use(MdSnackbar);
 Vue.use(MdIcon);
 Vue.use(MdCheckbox);
+Vue.use(MdTooltip);
 
 Vue.config.productionTip = false;
 
