@@ -22,6 +22,21 @@
     },
     "sites_alvtime_vue_pwa_name": {
       "value": null
+    },
+    "AzureAd__Instance": {
+      "value": null
+    },
+    "AzureAd__Domain": {
+      "value": null
+
+    "AzureAd__TenantId": {
+      "value": null
+    },
+    "AzureAd__IssuerId": {
+      "value": null
+    },
+    "AzureAd__ClientId": {
+      "value": null
     }
   }
 }

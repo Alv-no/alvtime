@@ -22,6 +22,21 @@
     },
     "EnvironmentShortHand": {
       "type": "String"
+    },
+    "AzureAd__Instance": {
+      "type": "String"
+    },
+    "AzureAd__Domain": {
+      "type": "String"
+    },
+    "AzureAd__TenantId": {
+      "type": "String"
+    },
+    "AzureAd__IssuerId": {
+      "type": "String"
+    },
+    "AzureAd__ClientId": {
+      "type": "String"
     }
   },
   "variables": {},
@@ -104,6 +119,26 @@
             {
               "name": "EnvironmentShortHand",
               "value": "[parameters('EnvironmentShortHand')]"
+            },
+            {
+              "name": "AzureAd__Instance",
+              "value": "[parameters('AzureAd__Instance')]"
+            },
+            {
+              "name": "AzureAd__Domain",
+              "value": "[parameters('AzureAd__Domain')]"
+            },
+            {
+              "name": "AzureAd__TenantId",
+              "value": "[parameters('AzureAd__TenantId')]"
+            },
+            {
+              "name": "AzureAd__ClientId",
+              "value": "[parameters('AzureAd__ClientId')]"
+            },
+            {
+              "name": "AzureAd__IssuerId",
+              "value": "[parameters('AzureAd__IssuerId')]"
             }
           ],
           "connectionStrings": [
