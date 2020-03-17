@@ -6,4 +6,6 @@ export default Object.freeze({
   TENANT_ID: "76749190-4427-4b08-a3e4-161767dd1b73",
   CLIENT_ID: process.env.VUE_APP_CLIENT_ID,
   ACCESS_SCOPE: process.env.VUE_APP_ACCESS_SCOPE,
+  SLACK_TEAM_ID: "TJ70QLJRL",
+  SLACK_CHANNEL_ID: "CNEHG527J",
 });

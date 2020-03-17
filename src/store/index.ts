@@ -3,6 +3,7 @@ import Vuex from "vuex";
 import timeEntrieHandlers from "./timeEntries";
 import taskHandlers from "./tasks";
 import auth from "./auth";
+import error from "./error";
 
 Vue.use(Vuex);
 
@@ -42,6 +43,7 @@ export interface State {
   selectFavorites: boolean;
   account: Account | null;
   isOnline: boolean;
+  errorTexts: string[];
 }
 
 const store = new Vuex.Store({
@@ -50,6 +52,7 @@ const store = new Vuex.Store({
     ...timeEntrieHandlers.state,
     ...taskHandlers.state,
     ...auth.state,
+    ...error.state,
 
     isOnline: true,
     activeSlideIndex: 3,
@@ -62,6 +65,7 @@ const store = new Vuex.Store({
   mutations: {
     ...timeEntrieHandlers.mutations,
     ...taskHandlers.mutations,
+    ...error.mutations,
 
     UPDATE_ACTVIE_SLIDE(state: State, activeSlideIndex: number) {
       state.activeSlideIndex = activeSlideIndex;
