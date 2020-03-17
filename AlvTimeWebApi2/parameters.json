@@ -28,7 +28,7 @@
     },
     "AzureAd__Domain": {
       "value": null
-
+    },
     "AzureAd__TenantId": {
       "value": null
     },
