@@ -34,7 +34,6 @@ namespace AlvTimeApi.Controllers.Tasks
                     Id = x.Id,
                     Name = x.Name,
                     Locked = x.Locked,
-                    Favorite = favoriteList.Contains(x.Id) ? true : false,
                     Project = new ProjectDto
                     {
                         Id = x.ProjectNavigation.Id,
@@ -47,6 +46,9 @@ namespace AlvTimeApi.Controllers.Tasks
                     },
                 })
                 .ToList();
+
+            tasks.ForEach(x => x.Favorite = favoriteList.Contains(x.Id) ? true : false);
+
             return Ok(tasks);
         }
 
