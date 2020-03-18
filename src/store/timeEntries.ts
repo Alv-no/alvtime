@@ -86,8 +86,12 @@ export default {
             throw Error(`${response.statusText}
 ${timeEntries.title}`);
           }
-          console.log("timeEntries: ", timeEntries);
-          commit("UPDATE_TIME_ENTRIES", timeEntries.map(createTimeEntrie));
+          if (!Array.isArray(timeEntries) && timeEntries.message) {
+            throw Error(timeEntries.message);
+          }
+          if (Array.isArray(timeEntries)) {
+            commit("UPDATE_TIME_ENTRIES", timeEntries.map(createTimeEntrie));
+          }
         } catch (e) {
           console.error(e);
           commit("ADD_TO_ERROR_LIST", e);
@@ -113,8 +117,10 @@ ${timeEntries.title}`);
       try {
         const res = await adAuthenticatedFetch(url.toString());
         const timeEntries = await res.json();
-        console.log("timeEntries: ", timeEntries);
-        commit("SET_TIME_ENTRIES", timeEntries.map(createTimeEntrie));
+        if (!Array.isArray(timeEntries) && timeEntries.message) {
+          throw Error(timeEntries.message);
+        }
+        commit("UPDATE_TIME_ENTRIES", timeEntries.map(createTimeEntrie));
       } catch (e) {
         console.error(e);
         commit("ADD_TO_ERROR_LIST", e);
