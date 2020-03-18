@@ -1,5 +1,5 @@
 <template>
-  <form novalidate>
+  <div>
     <button @click="onTimeLeftInDayClick" v-if="showHelperButtons">
       {{ timeLeftInDay }}
     </button>
@@ -15,7 +15,7 @@
       ref="inputRef"
       :disabled="!isOnline"
     />
-  </form>
+  </div>
 </template>
 
 <script>
