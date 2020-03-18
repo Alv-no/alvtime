@@ -115,12 +115,11 @@ namespace AlvTimeApi.Controllers.Tasks
 
         private User RetrieveUser()
         {
+            var username = User.Claims.FirstOrDefault(x => x.Type == "name").Value;
+            var email = User.Claims.FirstOrDefault(x => x.Type == "preferred_username").Value;
+            var alvUser = _database.User.FirstOrDefault(x => x.Email.Equals(email));
 
-            //var username = HttpContext.User.Identity.Name ?? "NameNotFound";
-            //var user = _database.User.FirstOrDefault(x => x.Email.Trim() == username.Trim());
-            var user = _database.User.FirstOrDefault();
-
-            return user;
+            return alvUser;
         }
 
         private TaskFavorites CreateNewFavorite(UpdateTasksDto taskDto, User user)

@@ -55,7 +55,7 @@ namespace TimeTracker1.Controllers
         public ActionResult<List<TimeEntriesResponseDto>> UpsertTimeEntry([FromBody] List<SaveHoursDto> requests)
         {
             List<TimeEntriesResponseDto> response = new List<TimeEntriesResponseDto>();
-
+            
             foreach (var request in requests)
             {
                 try
@@ -95,8 +95,8 @@ namespace TimeTracker1.Controllers
         private User RetrieveUser()
         {
             var username = User.Claims.FirstOrDefault(x => x.Type == "name").Value;
-            var user = User.Claims.FirstOrDefault(x => x.Type == "preferred_username").Value;
-            var alvUser = _database.User.FirstOrDefault(x => x.Email.Equals(user));
+            var email = User.Claims.FirstOrDefault(x => x.Type == "preferred_username").Value;
+            var alvUser = _database.User.FirstOrDefault(x => x.Email.Equals(email));
 
             return alvUser;
         }
@@ -105,7 +105,7 @@ namespace TimeTracker1.Controllers
         {
             Hours hour = new Hours
             {
-                Date = hoursDto.Date,
+                Date = hoursDto.Date.Date,
                 TaskId = hoursDto.TaskId,
                 User = user.Id,
                 Year = (short)hoursDto.Date.Year,
