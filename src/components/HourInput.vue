@@ -1,5 +1,5 @@
 <template>
-  <form novalidate>
+  <div>
     <button @click="onTimeLeftInDayClick" v-if="showHelperButtons">
       {{ timeLeftInDay }}
     </button>
@@ -15,7 +15,7 @@
       ref="inputRef"
       :disabled="!isOnline"
     />
-  </form>
+  </div>
 </template>
 
 <script>
@@ -77,10 +77,13 @@ export default {
   },
 
   methods: {
-    onTouchStart() {
+    onTouchStart(e) {
       setTimeout(() => {
-        this.showHelperButtons = true;
-        this.inputRef.focus();
+        const isValueChanged = this.value !== this.timeLeftInDay;
+        if (isValueChanged) {
+          this.showHelperButtons = true;
+          e.target.focus();
+        }
       }, 200);
     },
 

@@ -13,7 +13,7 @@ import Vue from "vue";
 import HourInput from "./HourInput.vue";
 import config from "@/config";
 import moment from "moment";
-import { TimeEntrie } from "@/store";
+import { FrontendTimentrie } from "@/store";
 
 export default Vue.extend({
   components: {
@@ -22,7 +22,7 @@ export default Vue.extend({
   props: ["task", "week"],
 
   computed: {
-    timeEntries(): TimeEntrie[] {
+    timeEntries(): FrontendTimentrie[] {
       return this.week.map((day: moment.Moment) => {
         const timeEntrie = this.findEntrieInState(day);
         if (!timeEntrie) {
@@ -34,15 +34,15 @@ export default Vue.extend({
   },
 
   methods: {
-    findEntrieInState(day: moment.Moment): TimeEntrie {
+    findEntrieInState(day: moment.Moment): FrontendTimentrie {
       return this.$store.state.timeEntries.find(
-        (entrie: TimeEntrie) =>
+        (entrie: FrontendTimentrie) =>
           entrie.date === day.format(config.DATE_FORMAT) &&
           entrie.taskId === this.task.id
       );
     },
 
-    zeroEntrie(day: moment.Moment): TimeEntrie {
+    zeroEntrie(day: moment.Moment): FrontendTimentrie {
       return {
         id: 0,
         date: day.format(config.DATE_FORMAT),
