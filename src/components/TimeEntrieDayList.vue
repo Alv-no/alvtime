@@ -7,13 +7,20 @@
   </div>
 </template>
 
-<script>
-import TimeEntrieText from "./TimeEntrieText";
-import HourInput from "./HourInput";
+<script lang="ts">
+import Vue from "vue";
+import TimeEntrieText from "./TimeEntrieText.vue";
+import HourInput from "./HourInput.vue";
 import moment from "moment";
 import config from "@/config";
+import { Task, FrontendTimentrie } from "@/store";
 
-export default {
+interface Row {
+  task: Task;
+  timeEntrie: FrontendTimentrie;
+}
+
+export default Vue.extend({
   components: {
     TimeEntrieText,
     HourInput,
@@ -22,44 +29,55 @@ export default {
 
   computed: {
     rows() {
+      // @ts-ignore
       return [...this.rowsWithHours, ...this.rowsWithoutHours].sort(sortList);
     },
 
-    rowsWithHours() {
-      return this.daysTimeEntries.map(entrie => {
+    rowsWithHours(): Row[] {
+      // @ts-ignore
+      return this.daysTimeEntries.map((entrie: FrontendTimentrie) => {
         const task = this.$store.getters.getTask(entrie.taskId);
+        // @ts-ignore
         return this.createRow(task, entrie);
       });
     },
 
     rowsWithoutHours() {
-      return this.$store.getters.favoriteTasks
-        .filter(task => !this.isTaskInEntries(task))
-        .map(task => this.createRow(task));
+      return (
+        this.$store.getters.favoriteTasks
+          // @ts-ignore
+          .filter((task: Task) => !this.isTaskInEntries(task))
+          // @ts-ignore
+          .map((task: Task) => this.createRow(task))
+      );
     },
 
-    daysTimeEntries() {
-      return this.$store.state.timeEntries.filter(entrie =>
+    daysTimeEntries(): FrontendTimentrie[] {
+      return this.$store.state.timeEntries.filter((entrie: FrontendTimentrie) =>
+        // @ts-ignore
         this.isThisDate(entrie.date)
       );
     },
   },
 
   methods: {
-    isTaskInEntries(task) {
-      return this.daysTimeEntries.some(entrie => entrie.taskId === task.id);
+    isTaskInEntries(task: Task): boolean {
+      // @ts-ignore
+      return this.daysTimeEntries.some(
+        (entrie: FrontendTimentrie) => entrie.taskId === task.id
+      );
     },
 
-    isThisDate(date) {
+    isThisDate(date: string): boolean {
       return date === this.date.format(config.DATE_FORMAT);
     },
 
-    createRow(task, timeEntrie) {
+    createRow(task: Task, timeEntrie: FrontendTimentrie): Row {
       if (!timeEntrie) {
         timeEntrie = {
           id: 0,
           date: this.date.format(config.DATE_FORMAT),
-          value: 0,
+          value: "0",
           taskId: task.id,
         };
       }
@@ -67,12 +85,14 @@ export default {
       return { task, timeEntrie };
     },
   },
-};
+});
 
-function sortList(a, b) {
-  if (a.task.customerName > b.task.customerName) {
+function sortList(a: Row, b: Row) {
+  const A = a.task.project.customer.name;
+  const B = b.task.project.customer.name;
+  if (A > B) {
     return 1;
-  } else if (a.task.customerName < b.task.customerName) {
+  } else if (A < B) {
     return -1;
   }
 
