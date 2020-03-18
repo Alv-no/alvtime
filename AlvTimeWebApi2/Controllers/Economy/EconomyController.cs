@@ -1,4 +1,4 @@
-﻿using AlvTimeWebApi2.DataBaseModels;
+﻿using AlvTimeWebApi2.DatabaseModels;
 using AlvTimeWebApi2.Dto;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -10,18 +10,13 @@ namespace AlvTimeWebApi2.Controllers.Economy
     [ApiController]
     public class EconomyController : Controller
     {
-        private readonly AlvTimeDBContext _database;
+        private readonly AlvTime_dbContext _database;
 
-        public EconomyController(AlvTimeDBContext database)
+        public EconomyController(AlvTime_dbContext database)
         {
             _database = database;
         }
 
-        /// <summary>
-        /// Retrieves info about customer and users
-        /// </summary>
-        /// <remarks></remarks>
-        /// <response code="200">OK</response>
         [HttpGet("EconomyInfo")]
         //[Authorize]
         public ActionResult<IEnumerable<EconomyDto>> FetchEconomyInfo()

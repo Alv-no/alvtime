@@ -1,17 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AlvTimeWebApi2.DataBaseModels
+namespace AlvTimeWebApi2.DatabaseModels
 {
     public partial class User
     {
-        [Key]
+        public User()
+        {
+            Hours = new HashSet<Hours>();
+            TaskFavorites = new HashSet<TaskFavorites>();
+        }
+
         public int Id { get; set; }
-        [StringLength(100)]
         public string Name { get; set; }
-        [StringLength(100)]
         public string Email { get; set; }
+
+        public virtual ICollection<Hours> Hours { get; set; }
+        public virtual ICollection<TaskFavorites> TaskFavorites { get; set; }
     }
 }

@@ -1,5 +1,4 @@
-﻿using AlvTimeWebApi2.DataBaseModels;
-using AlvTimeWebApi2.Dto;
+﻿using AlvTimeWebApi2.Dto;
 
 namespace AlvTimeApi.Controllers.Tasks
 {

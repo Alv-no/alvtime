@@ -1,6 +1,6 @@
 using AlvTimeApi.Controllers.Tasks;
 using AlvTimeApi.Dto;
-using AlvTimeWebApi2.DataBaseModels;
+using AlvTimeWebApi2.DatabaseModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -13,9 +13,9 @@ namespace TimeTracker1.Controllers
     [ApiController]
     public class TimeEntriesController : Controller
     {
-        private readonly AlvTimeDBContext _database;
+        private readonly AlvTime_dbContext _database;
 
-        public TimeEntriesController(AlvTimeDBContext database)
+        public TimeEntriesController(AlvTime_dbContext database)
         {
             _database = database;
         }

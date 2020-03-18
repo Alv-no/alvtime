@@ -1,5 +1,5 @@
 ﻿using AlvTimeApi.Dto;
-using AlvTimeWebApi2.DataBaseModels;
+using AlvTimeWebApi2.DatabaseModels;
 using AlvTimeWebApi2.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,9 +12,9 @@ namespace AlvTimeApi.Controllers.Tasks
     [ApiController]
     public class TasksController : Controller
     {
-        private readonly AlvTimeDBContext _database;
+        private readonly AlvTime_dbContext _database;
 
-        public TasksController(AlvTimeDBContext database)
+        public TasksController(AlvTime_dbContext database)
         {
             _database = database;
         }

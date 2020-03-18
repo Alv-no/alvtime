@@ -1,24 +1,27 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace AlvTimeWebApi2.DataBaseModels
+namespace AlvTimeWebApi2.DatabaseModels
 {
     public partial class Task
     {
-        [Key]
+        public Task()
+        {
+            HourRate = new HashSet<HourRate>();
+            Hours = new HashSet<Hours>();
+            TaskFavorites = new HashSet<TaskFavorites>();
+        }
+
         public int Id { get; set; }
-        [Required]
-        [StringLength(100)]
         public string Name { get; set; }
-        [Required]
-        [StringLength(300)]
         public string Description { get; set; }
         public int Project { get; set; }
         public bool Locked { get; set; }
         public bool Favorite { get; set; }
 
-        [ForeignKey(nameof(Project))]
-        [InverseProperty("Task")]
         public virtual Project ProjectNavigation { get; set; }
+        public virtual ICollection<HourRate> HourRate { get; set; }
+        public virtual ICollection<Hours> Hours { get; set; }
+        public virtual ICollection<TaskFavorites> TaskFavorites { get; set; }
     }
 }

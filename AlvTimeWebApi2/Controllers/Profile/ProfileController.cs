@@ -1,4 +1,4 @@
-﻿using AlvTimeWebApi2.DataBaseModels;
+﻿using AlvTimeWebApi2.DatabaseModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
@@ -9,9 +9,9 @@ namespace AlvTimeWebApi2.Controllers.Profile
     [ApiController]
     public class ProfileController:Controller
     {
-        private readonly AlvTimeDBContext _database;
+        private readonly AlvTime_dbContext _database;
 
-        public ProfileController(AlvTimeDBContext database)
+        public ProfileController(AlvTime_dbContext database)
         {
             _database = database;
         }
