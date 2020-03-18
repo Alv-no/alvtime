@@ -101,9 +101,18 @@ export function sortList(a, b) {
   justify-content: center;
 }
 
+@media only screen and (max-width: 1000px) {
+  .center {
+    display: grid;
+    justify-content: left;
+    overflow: auto;
+  }
+}
+
 .row {
   display: grid;
   grid-template-columns: minmax(8rem, 16rem) 30rem;
   margin: 0 1rem;
+  padding-right: 1rem;
 }
 </style>
