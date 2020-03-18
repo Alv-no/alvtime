@@ -87,11 +87,11 @@ export async function adAuthenticatedFetch(
   return fetch(url, options);
 }
 
-function acquireToken() {
+async function acquireToken() {
   try {
     // Call acquireTokenPopup (popup window) in case of acquireTokenSilent failure
     // due to consent or interaction required ONLY
-    return msalApp.acquireTokenSilent(authParams);
+    return await msalApp.acquireTokenSilent(authParams);
   } catch (error) {
     if (requiresInteraction(error.errorCode)) {
       return msalApp.acquireTokenRedirect(authParams);
