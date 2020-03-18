@@ -100,11 +100,11 @@ ${timeEntries.title}`);
       const url = new URL(config.HOST + "/api/user/TimeEntries");
       const params = {
         fromDateInclusive: moment()
-          .add(-2, "week")
+          .add(-3, "week")
           .startOf("week")
           .format(config.DATE_FORMAT),
         toDateInclusive: moment()
-          .add(2, "week")
+          .add(3, "week")
           .endOf("week")
           .format(config.DATE_FORMAT),
       };
