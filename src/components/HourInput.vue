@@ -74,6 +74,16 @@ export default {
     isOnline() {
       return this.$store.state.isOnline;
     },
+
+    activeSlideIndex() {
+      return this.$store.state.activeSlideIndex;
+    },
+  },
+
+  watch: {
+    activeSlideIndex() {
+      this.inputRef.blur();
+    },
   },
 
   methods: {
