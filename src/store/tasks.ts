@@ -38,10 +38,15 @@ export default {
 
   actions: {
     FETCH_TASKS: async ({ commit }: ActionContext<State, State>) => {
-      const url = new URL(config.HOST + "/api/user/tasks").toString();
-      const res = await adAuthenticatedFetch(url);
-      const tasks = await res.json();
-      commit("SET_TASKS", tasks);
+      try {
+        const url = new URL(config.HOST + "/api/user/tasks").toString();
+        const res = await adAuthenticatedFetch(url);
+        const tasks = await res.json();
+        commit("SET_TASKS", tasks);
+      } catch (e) {
+        console.error(e);
+        commit("ADD_TO_ERROR_LIST", e);
+      }
     },
 
     PUSH_TASKS: async (
@@ -66,6 +71,7 @@ export default {
         commit("UPDATE_TASKS", updatedTasks);
       } catch (e) {
         console.error(e);
+        commit("ADD_TO_ERROR_LIST", e);
       }
     },
   },

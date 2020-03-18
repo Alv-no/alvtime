@@ -13,6 +13,7 @@
       novalidate
       inputmode="decimal"
       ref="inputRef"
+      :disabled="!isOnline"
     />
   </form>
 </template>
@@ -68,6 +69,10 @@ export default {
 
       timeLeft = timeLeft > 0 ? timeLeft : config.HOURS_IN_WORKDAY;
       return timeLeft.toString().replace(".", ",");
+    },
+
+    isOnline() {
+      return this.$store.state.isOnline;
     },
   },
 
