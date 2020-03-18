@@ -5,11 +5,14 @@
     :md-active.sync="show"
     md-persistent
   >
-    <span>{{ text }}</span>
-    <SlackButton @click="close" />
+    <span id="error_text_element" class="issues">{{ issues }}</span>
+    <SlackButton
+      tooltip="Kopier feilteksten og åpne Slack"
+      @click="onSlackClick"
+    />
     <md-button class="icon_button" @click="close">
       <md-icon class="icon">close</md-icon>
-      <md-tooltip>Lukk</md-tooltip>
+      <md-tooltip class="tooltip">Lukk</md-tooltip>
     </md-button>
   </md-snackbar>
 </template>
@@ -47,33 +50,43 @@ export default Vue.extend({
     },
 
     issues() {
-      return this.$store.state.errorTexts.join(" - ");
-    },
-
-    text() {
-      // @ts-ignore
-      const maxLength = this.$mq === "sm" ? 70 : 180;
-      const isLong = this.issues.length > maxLength;
-      if (isLong)
-        return (
-          // @ts-ignore
-          this.issues
-            .split("")
-            .splice(0, maxLength)
-            .join("") + "..."
-        );
-
-      // @ts-ignore
-      return this.issues;
+      return this.$store.state.errorTexts.join(" -> ");
     },
   },
 
   methods: {
+    onSlackClick() {
+      this.copy();
+      this.close();
+    },
+
     close() {
       this.$store.commit("CLEAR_ERROR_LIST");
     },
+
+    copy() {
+      copyToClipboard("error_text_element");
+    },
   },
 });
+
+function copyToClipboard(containerid: string) {
+  // @ts-ignore
+  if (document.selection) {
+    // @ts-ignore
+    const range = document.body.createTextRange();
+    range.moveToElementText(document.getElementById(containerid));
+    range.select().createTextRange();
+    document.execCommand("copy");
+  } else if (window.getSelection) {
+    const range = document.createRange();
+    // @ts-ignore
+    range.selectNode(document.getElementById(containerid));
+    // @ts-ignore
+    window.getSelection().addRange(range);
+    document.execCommand("copy");
+  }
+}
 </script>
 
 <style scoped>
@@ -96,5 +109,16 @@ export default Vue.extend({
 
 .icon_button {
   min-width: 1.5rem !important;
+}
+
+.issues {
+  display: block; /* or inline-block */
+  overflow: hidden;
+  max-height: 4.4em;
+  line-height: 1.5em;
+}
+
+.tooltip {
+  z-index: 15;
 }
 </style>
