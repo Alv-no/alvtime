@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="slide">
     <div v-for="row in rows" :key="row.task.id" class="grid">
       <TimeEntrieText :task="row.task" />
       <HourInput :timeEntrie="row.timeEntrie" />
@@ -107,6 +107,10 @@ function sortList(a: Row, b: Row) {
 </script>
 
 <style scoped>
+.slide {
+  min-height: calc(100vh - 75px);
+}
+
 .grid {
   display: grid;
   grid-template-columns: 1fr auto;
