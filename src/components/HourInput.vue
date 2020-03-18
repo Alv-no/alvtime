@@ -77,10 +77,13 @@ export default {
   },
 
   methods: {
-    onTouchStart() {
+    onTouchStart(e) {
       setTimeout(() => {
-        this.showHelperButtons = true;
-        this.inputRef.focus();
+        const isValueChanged = this.value !== this.timeLeftInDay;
+        if (isValueChanged) {
+          this.showHelperButtons = true;
+          e.target.focus();
+        }
       }, 200);
     },
 
