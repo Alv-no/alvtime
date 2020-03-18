@@ -24,4 +24,8 @@ export default Vue.extend({
   fill: #fff;
   fill: var(--md-theme-default-icon-on-background, #fff);
 }
+
+.tooltip {
+  z-index: 15;
+}
 </style>

@@ -97,4 +97,8 @@ export default Vue.extend({
 .icon_button {
   min-width: 1.5rem !important;
 }
+
+.tooltip {
+  z-index: 15;
+}
 </style>
