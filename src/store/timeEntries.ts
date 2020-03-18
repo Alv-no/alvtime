@@ -1,5 +1,5 @@
 import moment from "moment";
-import { State, TimeEntrie } from "./index";
+import { State, FrontendTimentrie } from "./index";
 import { ActionContext } from "vuex";
 import { debounce } from "lodash";
 import config from "@/config";
@@ -19,25 +19,25 @@ export default {
   },
 
   getters: {
-    getTimeEntrie: (state: State) => (entrieA: TimeEntrie) => {
-      return state.timeEntries.find((entrieB: TimeEntrie) =>
+    getTimeEntrie: (state: State) => (entrieA: FrontendTimentrie) => {
+      return state.timeEntries.find((entrieB: FrontendTimentrie) =>
         isMatchingEntrie(entrieA, entrieB)
       );
     },
   },
 
   mutations: {
-    SET_TIME_ENTRIES(state: State, paramEntries: TimeEntrie[]) {
+    SET_TIME_ENTRIES(state: State, paramEntries: FrontendTimentrie[]) {
       state.timeEntries = paramEntries;
     },
 
-    UPDATE_TIME_ENTRIES(state: State, paramEntries: TimeEntrie[]) {
+    UPDATE_TIME_ENTRIES(state: State, paramEntries: FrontendTimentrie[]) {
       for (const paramEntrie of paramEntries) {
         state.timeEntries = updateArrayWith(state.timeEntries, paramEntrie);
       }
     },
 
-    ADD_TO_PUSH_QUEUE(state: State, paramEntrie: TimeEntrie) {
+    ADD_TO_PUSH_QUEUE(state: State, paramEntrie: FrontendTimentrie) {
       state.pushQueue = updateArrayWith(state.pushQueue, paramEntrie);
     },
 
@@ -49,7 +49,7 @@ export default {
   actions: {
     UPDATE_TIME_ENTRIE(
       { commit, dispatch }: ActionContext<State, State>,
-      paramEntrie: TimeEntrie
+      paramEntrie: FrontendTimentrie
     ) {
       commit("UPDATE_TIME_ENTRIES", [paramEntrie]);
       commit("ADD_TO_PUSH_QUEUE", paramEntrie);
@@ -113,6 +113,7 @@ ${timeEntries.title}`);
       try {
         const res = await adAuthenticatedFetch(url.toString());
         const timeEntries = await res.json();
+        console.log("timeEntries: ", timeEntries);
         commit("SET_TIME_ENTRIES", timeEntries.map(createTimeEntrie));
       } catch (e) {
         console.error(e);
@@ -122,7 +123,10 @@ ${timeEntries.title}`);
   },
 };
 
-function updateArrayWith(arr: TimeEntrie[], paramEntrie: TimeEntrie) {
+function updateArrayWith(
+  arr: FrontendTimentrie[],
+  paramEntrie: FrontendTimentrie
+) {
   const index = arr.findIndex(entrie => isMatchingEntrie(paramEntrie, entrie));
 
   if (index !== -1) {
@@ -136,11 +140,14 @@ function updateArrayWith(arr: TimeEntrie[], paramEntrie: TimeEntrie) {
   }
 }
 
-function isMatchingEntrie(entrieA: TimeEntrie, entrieB: TimeEntrie) {
+function isMatchingEntrie(
+  entrieA: FrontendTimentrie,
+  entrieB: FrontendTimentrie
+) {
   return entrieA.date === entrieB.date && entrieA.taskId === entrieB.taskId;
 }
 
-function createTimeEntrie(data: any): TimeEntrie {
+function createTimeEntrie(data: any): FrontendTimentrie {
   return {
     ...data,
     date: data.date.split("T")[0],
@@ -148,7 +155,7 @@ function createTimeEntrie(data: any): TimeEntrie {
   };
 }
 
-function createServerSideTimeEntrie(timeEntrie: TimeEntrie) {
+function createServerSideTimeEntrie(timeEntrie: FrontendTimentrie) {
   return {
     ...timeEntrie,
     value: Number(timeEntrie.value.replace(",", ".")),

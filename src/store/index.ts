@@ -7,7 +7,7 @@ import error from "./error";
 
 Vue.use(Vuex);
 
-export interface TimeEntrie {
+export interface FrontendTimentrie {
   id: number;
   date: string;
   value: string;
@@ -37,9 +37,9 @@ interface Account {
 
 export interface State {
   tasks: Task[];
-  timeEntries: TimeEntrie[];
+  timeEntries: FrontendTimentrie[];
   activeSlideIndex: number;
-  pushQueue: TimeEntrie[];
+  pushQueue: FrontendTimentrie[];
   selectFavorites: boolean;
   account: Account | null;
   isOnline: boolean;
