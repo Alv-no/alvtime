@@ -1,12 +1,10 @@
 <template>
   <div>
-    <WeekHeader :week="week" />
-    <swiper :options="swiperOption" ref="mySwiper">
+    <WeekHeader @backClick="onPrev" @forwardClick="onNext" :week="week" />
+    <swiper @slideChange="onSlideChange" ref="mySwiper" :options="swiperOption">
       <swiperSlide v-for="(week, index) in weeks" :key="index">
         <TimeEntrieWeekList :week="week" />
       </swiperSlide>
-      <div class="swiper-button-prev" slot="button-prev"></div>
-      <div class="swiper-button-next" slot="button-next"></div>
     </swiper>
   </div>
 </template>
@@ -41,22 +39,25 @@ export default Vue.extend({
           enabled: true,
           onlyInViewport: false,
         },
-        navigation: {
-          nextEl: ".swiper-button-next",
-          prevEl: ".swiper-button-prev",
-        },
-        on: {
-          slideChange() {
-            currentComponent.$store.commit(
-              "UPDATE_ACTVIE_SLIDE",
-              // @ts-ignore
-              this.activeIndex
-            );
-          },
-        },
       },
       weeks: createWeeks(),
+      swiperObject: null,
     };
+  },
+
+  methods: {
+    onSlideChange() {
+      // @ts-ignore
+      this.$store.commit("UPDATE_ACTVIE_SLIDE", this.swiper.activeIndex);
+    },
+    onNext() {
+      // @ts-ignore
+      this.swiper.slideNext();
+    },
+    onPrev() {
+      // @ts-ignore
+      this.swiper.slidePrev();
+    },
   },
 
   computed: {
