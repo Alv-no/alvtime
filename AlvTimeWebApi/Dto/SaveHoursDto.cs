@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AlvTimeApi.Dto
+namespace AlvTimeWebApi.Dto
 {
     public class SaveHoursDto
     {

@@ -1,13 +1,12 @@
-using AlvTimeApi.Controllers.Tasks;
-using AlvTimeApi.Dto;
 using AlvTimeWebApi.DatabaseModels;
+using AlvTimeWebApi.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace TimeTracker1.Controllers
+namespace AlvTimeWebApi.Controllers.TimeEntries
 {
     [Route("api/user")]
     [ApiController]

@@ -1,12 +1,11 @@
-﻿using AlvTimeApi.Dto;
-using AlvTimeWebApi.DatabaseModels;
+﻿using AlvTimeWebApi.DatabaseModels;
 using AlvTimeWebApi.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AlvTimeApi.Controllers.Tasks
+namespace AlvTimeWebApi.Controllers.Tasks
 {
     [Route("api/user")]
     [ApiController]
@@ -96,7 +95,6 @@ namespace AlvTimeApi.Controllers.Tasks
                     Id = x.Id,
                     Name = x.Name,
                     Locked = x.Locked,
-                    Favorite = userHasFavorite == null ? false : true,
                     Project = new ProjectDto
                     {
                         Id = x.ProjectNavigation.Id,
@@ -109,6 +107,8 @@ namespace AlvTimeApi.Controllers.Tasks
                     },
                 })
                 .Single();
+
+            taskResponseDto.Favorite = userHasFavorite == null ? false : true;
 
             return taskResponseDto;
         }

@@ -1,6 +1,6 @@
 ﻿using AlvTimeWebApi.Dto;
 
-namespace AlvTimeApi.Controllers.Tasks
+namespace AlvTimeWebApi.Dto
 {
     public class TaskResponseDto
     {
