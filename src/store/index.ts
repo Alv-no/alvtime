@@ -4,6 +4,8 @@ import timeEntrieHandlers from "./timeEntries";
 import taskHandlers from "./tasks";
 import auth from "./auth";
 import error from "./error";
+// @ts-ignore
+import lifecycle from "@/services/lifecycle.es5.js";
 
 Vue.use(Vuex);
 
@@ -44,6 +46,7 @@ export interface State {
   account: Account | null;
   isOnline: boolean;
   errorTexts: string[];
+  appState: { oldState: string; newState: string };
 }
 
 const store = new Vuex.Store({
@@ -54,6 +57,7 @@ const store = new Vuex.Store({
     ...auth.state,
     ...error.state,
 
+    appState: { oldState: "", newState: "" },
     isOnline: true,
     activeSlideIndex: 3,
     selectFavorites: false,
@@ -85,12 +89,20 @@ const store = new Vuex.Store({
         state.isOnline = window.navigator.onLine;
       }
     },
+
+    UPDATE_APP_STATE(state: State, { oldState, newState }) {
+      state.appState = { oldState, newState };
+    },
   },
   actions: {
     ...timeEntrieHandlers.actions,
     ...taskHandlers.actions,
   },
   modules: {},
+});
+
+lifecycle.addEventListener("statechange", function(event: any) {
+  store.commit("UPDATE_APP_STATE", event);
 });
 
 export default store;
