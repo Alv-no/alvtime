@@ -1,6 +1,6 @@
 <template>
   <div>
-    <FavoriteSelector v-if="selectFavorites" />
+    <FavoriteSelector v-if="selectFavorites && isTasks" />
     <div v-if="!selectFavorites && isTasks">
       <mq-layout mq="sm">
         <MobileHeader :day="day" />
@@ -21,6 +21,7 @@
         </swiper>
       </mq-layout>
     </div>
+    <Spinner v-if="!isTasks" />
   </div>
 </template>
 
@@ -34,6 +35,7 @@ import TimeEntrieWeekList from "./TimeEntrieWeekList";
 import MobileHeader from "./MobileHeader";
 import FavoriteSelector from "./FavoriteSelector";
 import WeekHeader from "./WeekHeader";
+import Spinner from "./Spinner";
 
 export default {
   components: {
@@ -44,6 +46,7 @@ export default {
     MobileHeader,
     FavoriteSelector,
     WeekHeader,
+    Spinner,
   },
 
   created() {
