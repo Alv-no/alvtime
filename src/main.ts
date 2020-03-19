@@ -1,5 +1,6 @@
 import Vue from "vue";
 import App from "./App.vue";
+import "swiper/dist/css/swiper.css";
 import "./registerServiceWorker";
 import router from "./router";
 import store from "./store";

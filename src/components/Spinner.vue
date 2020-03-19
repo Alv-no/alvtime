@@ -20,12 +20,15 @@ export default {
   },
 
   created() {
+    // @ts-ignore
     this.timeout = setTimeout(() => {
+      // @ts-ignore
       this.show = true;
     }, 1000);
   },
 
   beforeDestroy() {
+    // @ts-ignore
     clearTimeout(this.timeout);
   },
 };
