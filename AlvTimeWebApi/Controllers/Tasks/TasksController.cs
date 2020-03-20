@@ -18,7 +18,7 @@ namespace AlvTimeWebApi.Controllers.Tasks
             _database = database;
         }
 
-        [HttpGet("Tasks")] 
+        [HttpGet("Tasks")]
         [Authorize]
         public ActionResult<IEnumerable<TaskResponseDto>> FetchTasks()
         {
@@ -63,20 +63,14 @@ namespace AlvTimeWebApi.Controllers.Tasks
             {
                 TaskFavorites favoriteEntry = RetrieveExistingFavorite(task, user);
 
-                if (task.Favorite == true)
+                if (task.Favorite == true && favoriteEntry == null)
                 {
-                    if (favoriteEntry == null)
-                    {
-                        CreateNewFavorite(task, user);
-                    }
+                    CreateNewFavorite(task, user);
                 }
-                else if (task.Favorite == false)
+                else if (task.Favorite == false && favoriteEntry != null)
                 {
-                    if (favoriteEntry != null)
-                    {
-                        _database.TaskFavorites.Remove(favoriteEntry);
-                        _database.SaveChanges();
-                    }
+                    _database.TaskFavorites.Remove(favoriteEntry);
+                    _database.SaveChanges();
                 }
                 response.Add(ReturnTask(user, task));
             }

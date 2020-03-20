@@ -42,22 +42,22 @@ namespace AlvTimeWebApi.Controllers.TasksAdmin
             return Ok(response);
         }
 
-        [HttpPost("DeleteTask")]
-        [Authorize]
-        public ActionResult<IEnumerable<CreateTaskDto>> DeleteExistingTask([FromBody] IEnumerable<DeleteTaskDto> tasksToBeDeleted)
+        [HttpPost("LockTask")]
+        //[Authorize]
+        public ActionResult<IEnumerable<CreateTaskDto>> UpdateLockTask([FromBody] IEnumerable<LockTaskDto> tasksToBeUpdated)
         {
             List<TaskResponseDto> response = new List<TaskResponseDto>();
 
-            foreach (var task in tasksToBeDeleted)
+            foreach (var task in tasksToBeUpdated)
             {
-                response.Add(ReturnDeletedTask(task));
-
-                var taskToBeDeleted = _database.Task
+                var taskToBeUpdated = _database.Task
                     .Where(x => x.Id == task.Id)
                     .Single();
 
-                _database.Remove(taskToBeDeleted);
+                taskToBeUpdated.Locked = task.Locked;
                 _database.SaveChanges();
+
+                response.Add(ReturnUpdatedTask(task));
             }
             return Ok(response);
         }
@@ -89,7 +89,7 @@ namespace AlvTimeWebApi.Controllers.TasksAdmin
             return taskResponseDto;
         }
 
-        private TaskResponseDto ReturnDeletedTask(DeleteTaskDto task)
+        private TaskResponseDto ReturnUpdatedTask(LockTaskDto task)
         {
             var taskResponseDto = _database.Task
                 .Where(x => x.Id == task.Id)
