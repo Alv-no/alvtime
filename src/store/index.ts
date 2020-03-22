@@ -44,6 +44,7 @@ export interface State {
   tasks: Task[];
   timeEntries: FrontendTimentrie[];
   activeDate: moment.Moment;
+  activeTaskId: number;
   pushQueue: FrontendTimentrie[];
   selectFavorites: boolean;
   account: Account | null;
@@ -63,6 +64,7 @@ const store = new Vuex.Store({
     appState: { oldState: "", newState: "" },
     isOnline: true,
     activeDate: moment(),
+    activeTaskId: -1,
     selectFavorites: false,
   },
   getters: {
@@ -75,8 +77,11 @@ const store = new Vuex.Store({
     ...error.mutations,
 
     UPDATE_ACTVIE_DATE(state: State, date: moment.Moment) {
-      console.log("state date.format('dddd'): ", date.format("dddd"));
       state.activeDate = date;
+    },
+
+    UPDATE_ACTVIE_TASK(state: State, taskId: number) {
+      state.activeTaskId = taskId;
     },
 
     TOGGLE_SELECTFAVORITES(state: State) {

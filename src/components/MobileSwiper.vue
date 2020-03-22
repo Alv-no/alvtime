@@ -3,7 +3,6 @@
     <MobileHeader />
     <swiper
       @slideChangeTransitionEnd="onSlideChangeTransitionEnd"
-      @slideChange="onSlideChange"
       :options="swiperOption"
       ref="mySwiper"
     >
@@ -77,15 +76,6 @@ export default Vue.extend({
   },
 
   methods: {
-    onSlideChange() {
-      // @ts-ignore
-      this.$store.commit(
-        "UPDATE_ACTVIE_DATE",
-        // @ts-ignore
-        this.dates[this.swiper.activeIndex]
-      );
-    },
-
     appendSlides() {
       // @ts-ignore
       const lastDate = this.dates[this.dates.length - 1];
@@ -123,11 +113,15 @@ export default Vue.extend({
         // @ts-ignore
         this.prependSlides();
       }
+      this.$store.commit(
+        "UPDATE_ACTVIE_DATE",
+        // @ts-ignore
+        this.dates[this.swiper.activeIndex]
+      );
     },
 
     create21Dates() {
       const date = this.$store.state.activeDate;
-      console.log("date.format('dddd'): ", date.format("dddd"));
       const future = Array.apply(null, Array(11)).map((n, i) => i);
       const past = Array.apply(null, Array(10))
         .map((n, i) => (i + 1) * -1)

@@ -3,7 +3,6 @@
     <WeekHeader @backClick="onPrev" @forwardClick="onNext" />
     <swiper
       @slideChangeTransitionEnd="onSlideChangeTransitionEnd"
-      @slideChange="onSlideChange"
       ref="mySwiper"
       :options="swiperOption"
     >
@@ -60,15 +59,6 @@ export default Vue.extend({
   },
 
   methods: {
-    onSlideChange() {
-      const dayOfWeek = this.$store.state.activeDate.weekday();
-      this.$store.commit(
-        "UPDATE_ACTVIE_DATE",
-        // @ts-ignore
-        this.weeks[this.swiper.activeIndex][dayOfWeek]
-      );
-    },
-
     onNext() {
       // @ts-ignore
       this.swiper.slideNext();
@@ -118,6 +108,13 @@ export default Vue.extend({
         // @ts-ignore
         this.prependSlides();
       }
+
+      const dayOfWeek = this.$store.state.activeDate.weekday();
+      this.$store.commit(
+        "UPDATE_ACTVIE_DATE",
+        // @ts-ignore
+        this.weeks[this.swiper.activeIndex][dayOfWeek]
+      );
     },
   },
 
