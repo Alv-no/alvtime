@@ -1,9 +1,8 @@
 <template>
   <div>
-    <WeekHeader @backClick="onPrev" @forwardClick="onNext" :week="week" />
+    <WeekHeader @backClick="onPrev" @forwardClick="onNext" />
     <swiper
       @slideChangeTransitionEnd="onSlideChangeTransitionEnd"
-      @slideChange="onSlideChange"
       ref="mySwiper"
       :options="swiperOption"
     >
@@ -21,6 +20,8 @@ import config from "@/config";
 import { swiper, swiperSlide } from "vue-awesome-swiper";
 import TimeEntrieWeekList from "./TimeEntrieWeekList.vue";
 import WeekHeader from "./WeekHeader.vue";
+import isInIframe from "@/mixins/isInIframe";
+import { createWeek } from "@/mixins/date";
 
 export default Vue.extend({
   components: {
@@ -33,7 +34,7 @@ export default Vue.extend({
   data() {
     return {
       swiperOption: {
-        initialSlide: 10,
+        initialSlide: 6,
         shortSwipes: false,
         simulateTouch: false,
         noSwipingSelector: "input, button",
@@ -44,26 +45,20 @@ export default Vue.extend({
           onlyInViewport: false,
         },
       },
-      weeks: createThreeMonths(),
+      weeks: createThreeMonths(this.$store.state.activeDate),
       swiperObject: null,
-      activeSlideIndex: 6,
     };
   },
 
   created() {
     // @ts-ignore
-    if (!this.isInIframe()) {
+    if (!isInIframe()) {
       // @ts-ignore
       this.$store.dispatch("FETCH_TIME_ENTRIES", this.dateRange);
     }
   },
 
   methods: {
-    onSlideChange() {
-      // @ts-ignore
-      this.$store.commit("UPDATE_ACTVIE_SLIDE", this.swiper.activeIndex);
-    },
-
     onNext() {
       // @ts-ignore
       this.swiper.slideNext();
@@ -113,10 +108,13 @@ export default Vue.extend({
         // @ts-ignore
         this.prependSlides();
       }
-    },
 
-    isInIframe() {
-      return window.parent !== window;
+      const dayOfWeek = this.$store.state.activeDate.weekday();
+      this.$store.commit(
+        "UPDATE_ACTVIE_DATE",
+        // @ts-ignore
+        this.weeks[this.swiper.activeIndex][dayOfWeek]
+      );
     },
   },
 
@@ -124,15 +122,6 @@ export default Vue.extend({
     swiper() {
       // @ts-ignore
       return this.$refs.mySwiper.swiper;
-    },
-
-    week() {
-      // @ts-ignore
-      if (this.weeks.length) {
-        // @ts-ignore
-        return this.weeks[this.activeSlideIndex];
-      }
-      return "";
     },
 
     dateRange() {
@@ -154,16 +143,13 @@ function createFourWeeksFromDate(date: moment.Moment) {
     .map(createWeek);
 }
 
-function createThreeMonths() {
+function createThreeMonths(date: moment.Moment) {
   const future = Array.apply(null, Array(6)).map((n, i) => i);
   const past = Array.apply(null, Array(6))
     .map((n, i) => (i + 1) * -1)
     .reverse();
-  return [...past, ...future].map(n => moment().add(n, "week")).map(createWeek);
-}
-
-function createWeek(day: moment.Moment) {
-  const monday = day.startOf("week");
-  return [0, 1, 2, 3, 4, 5, 6].map(n => monday.clone().add(n, "day"));
+  return [...past, ...future]
+    .map(n => date.clone().add(n, "week"))
+    .map(createWeek);
 }
 </script>

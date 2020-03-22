@@ -18,8 +18,6 @@ import {
 import VueMq from "vue-mq";
 import moment from "moment";
 
-moment.locale("nb");
-
 Vue.use(VueMq);
 Vue.use(MdButton);
 Vue.use(MdSnackbar);

@@ -17,14 +17,18 @@
 <script lang="ts">
 import Vue from "vue";
 import EditFavoritesButton from "./EditFavoritesButton.vue";
+import { createWeek } from "@/mixins/date";
 
 export default Vue.extend({
   components: {
     EditFavoritesButton,
   },
-  props: ["week"],
 
   computed: {
+    week() {
+      return createWeek(this.$store.state.activeDate);
+    },
+
     month() {
       let months: string[] = [];
       for (const day of this.week) {

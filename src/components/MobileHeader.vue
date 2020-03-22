@@ -14,7 +14,12 @@ export default Vue.extend({
     EditFavoritesButton,
   },
 
-  props: ["day"],
+  computed: {
+    day() {
+      const str = this.$store.state.activeDate.format("dddd D. MMMM");
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    },
+  },
 });
 </script>
 

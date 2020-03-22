@@ -1,9 +1,8 @@
 <template>
   <div>
-    <MobileHeader :day="day" />
+    <MobileHeader />
     <swiper
       @slideChangeTransitionEnd="onSlideChangeTransitionEnd"
-      @slideChange="onSlideChange"
       :options="swiperOption"
       ref="mySwiper"
     >
@@ -21,6 +20,7 @@ import config from "@/config";
 import { swiper, swiperSlide } from "vue-awesome-swiper";
 import TimeEntrieDayList from "./TimeEntrieDayList.vue";
 import MobileHeader from "./MobileHeader.vue";
+import isInIframe from "@/mixins/isInIframe";
 
 export default Vue.extend({
   components: {
@@ -44,14 +44,14 @@ export default Vue.extend({
           onlyInViewport: false,
         },
       },
-      dates: create21Dates(),
-      activeSlideIndex: 10,
+      // @ts-ignore
+      dates: this.create21Dates(),
     };
   },
 
   created() {
     // @ts-ignore
-    if (!this.isInIframe()) {
+    if (!isInIframe()) {
       // @ts-ignore
       this.$store.dispatch("FETCH_TIME_ENTRIES", this.dateRange);
     }
@@ -61,16 +61,6 @@ export default Vue.extend({
     swiper() {
       // @ts-ignore
       return this.$refs.mySwiper.swiper;
-    },
-
-    day() {
-      // @ts-ignore
-      if (this.dates.length) {
-        // @ts-ignore
-        const d = this.dates[this.activeSlideIndex].format("dddd D. MMMM");
-        return d.charAt(0).toUpperCase() + d.slice(1);
-      }
-      return "";
     },
 
     dateRange() {
@@ -86,11 +76,6 @@ export default Vue.extend({
   },
 
   methods: {
-    onSlideChange() {
-      // @ts-ignore
-      this.activeSlideIndex = this.swiper.activeIndex;
-    },
-
     appendSlides() {
       // @ts-ignore
       const lastDate = this.dates[this.dates.length - 1];
@@ -128,23 +113,25 @@ export default Vue.extend({
         // @ts-ignore
         this.prependSlides();
       }
+      this.$store.commit(
+        "UPDATE_ACTVIE_DATE",
+        // @ts-ignore
+        this.dates[this.swiper.activeIndex]
+      );
     },
 
-    isInIframe() {
-      return window.parent !== window;
+    create21Dates() {
+      const date = this.$store.state.activeDate;
+      const future = Array.apply(null, Array(11)).map((n, i) => i);
+      const past = Array.apply(null, Array(10))
+        .map((n, i) => (i + 1) * -1)
+        .reverse();
+      return [...past, ...future].map(n => date.clone().add(n, "day"));
     },
   },
 });
 
 function createSevenDates(date: moment.Moment) {
   return Array.apply(null, Array(7)).map((n, i) => date.clone().add(i, "day"));
-}
-
-function create21Dates() {
-  const future = Array.apply(null, Array(11)).map((n, i) => i);
-  const past = Array.apply(null, Array(10))
-    .map((n, i) => (i + 1) * -1)
-    .reverse();
-  return [...past, ...future].map(n => moment().add(n, "day"));
 }
 </script>
