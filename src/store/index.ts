@@ -1,11 +1,14 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import moment from "moment";
 import timeEntrieHandlers from "./timeEntries";
 import taskHandlers from "./tasks";
 import auth from "./auth";
 import error from "./error";
 // @ts-ignore
 import lifecycle from "@/services/lifecycle.es5.js";
+
+moment.locale("nb");
 
 Vue.use(Vuex);
 
@@ -40,8 +43,7 @@ interface Account {
 export interface State {
   tasks: Task[];
   timeEntries: FrontendTimentrie[];
-  dayActiveSlideIndex: number;
-  weekActiveSlideIndex: number;
+  activeDate: moment.Moment;
   pushQueue: FrontendTimentrie[];
   selectFavorites: boolean;
   account: Account | null;
@@ -60,8 +62,7 @@ const store = new Vuex.Store({
 
     appState: { oldState: "", newState: "" },
     isOnline: true,
-    dayActiveSlideIndex: 10,
-    weekActiveSlideIndex: 6,
+    activeDate: moment(),
     selectFavorites: false,
   },
   getters: {
@@ -73,9 +74,9 @@ const store = new Vuex.Store({
     ...taskHandlers.mutations,
     ...error.mutations,
 
-    UPDATE_ACTVIE_SLIDE_INDEX(state: State, activeSlideIndex: number) {
-      state.dayActiveSlideIndex = activeSlideIndex;
-      state.weekActiveSlideIndex = activeSlideIndex;
+    UPDATE_ACTVIE_DATE(state: State, date: moment.Moment) {
+      console.log("state date.format('dddd'): ", date.format("dddd"));
+      state.activeDate = date;
     },
 
     TOGGLE_SELECTFAVORITES(state: State) {

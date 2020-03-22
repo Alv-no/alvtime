@@ -1,6 +1,6 @@
 <template>
   <div>
-    <MobileHeader :day="day" />
+    <MobileHeader />
     <swiper
       @slideChangeTransitionEnd="onSlideChangeTransitionEnd"
       @slideChange="onSlideChange"
@@ -34,7 +34,7 @@ export default Vue.extend({
   data() {
     return {
       swiperOption: {
-        initialSlide: this.$store.state.dayActiveSlideIndex,
+        initialSlide: 10,
         shortSwipes: false,
         simulateTouch: false,
         noSwipingSelector: "input, button",
@@ -45,7 +45,8 @@ export default Vue.extend({
           onlyInViewport: false,
         },
       },
-      dates: create21Dates(),
+      // @ts-ignore
+      dates: this.create21Dates(),
     };
   },
 
@@ -63,18 +64,6 @@ export default Vue.extend({
       return this.$refs.mySwiper.swiper;
     },
 
-    day() {
-      // @ts-ignore
-      if (this.dates.length) {
-        // @ts-ignore
-        const d = this.dates[this.$store.state.dayActiveSlideIndex].format(
-          "dddd D. MMMM"
-        );
-        return d.charAt(0).toUpperCase() + d.slice(1);
-      }
-      return "";
-    },
-
     dateRange() {
       return {
         // @ts-ignore
@@ -90,7 +79,11 @@ export default Vue.extend({
   methods: {
     onSlideChange() {
       // @ts-ignore
-      this.$store.commit("UPDATE_ACTVIE_SLIDE_INDEX", this.swiper.activeIndex);
+      this.$store.commit(
+        "UPDATE_ACTVIE_DATE",
+        // @ts-ignore
+        this.dates[this.swiper.activeIndex]
+      );
     },
 
     appendSlides() {
@@ -131,18 +124,20 @@ export default Vue.extend({
         this.prependSlides();
       }
     },
+
+    create21Dates() {
+      const date = this.$store.state.activeDate;
+      console.log("date.format('dddd'): ", date.format("dddd"));
+      const future = Array.apply(null, Array(11)).map((n, i) => i);
+      const past = Array.apply(null, Array(10))
+        .map((n, i) => (i + 1) * -1)
+        .reverse();
+      return [...past, ...future].map(n => date.clone().add(n, "day"));
+    },
   },
 });
 
 function createSevenDates(date: moment.Moment) {
   return Array.apply(null, Array(7)).map((n, i) => date.clone().add(i, "day"));
-}
-
-function create21Dates() {
-  const future = Array.apply(null, Array(11)).map((n, i) => i);
-  const past = Array.apply(null, Array(10))
-    .map((n, i) => (i + 1) * -1)
-    .reverse();
-  return [...past, ...future].map(n => moment().add(n, "day"));
 }
 </script>

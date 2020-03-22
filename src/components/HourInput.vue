@@ -75,13 +75,13 @@ export default {
       return this.$store.state.isOnline;
     },
 
-    activeSlideIndex() {
-      return this.$store.state.activeSlideIndex;
+    activeDate() {
+      return this.$store.state.activeDate;
     },
   },
 
   watch: {
-    activeSlideIndex() {
+    activeDate() {
       this.inputRef.blur();
     },
   },
