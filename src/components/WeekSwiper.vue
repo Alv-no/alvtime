@@ -33,7 +33,7 @@ export default Vue.extend({
   data() {
     return {
       swiperOption: {
-        initialSlide: 10,
+        initialSlide: this.$store.state.weekActiveSlideIndex,
         shortSwipes: false,
         simulateTouch: false,
         noSwipingSelector: "input, button",
@@ -46,7 +46,6 @@ export default Vue.extend({
       },
       weeks: createThreeMonths(),
       swiperObject: null,
-      activeSlideIndex: 6,
     };
   },
 
@@ -61,7 +60,7 @@ export default Vue.extend({
   methods: {
     onSlideChange() {
       // @ts-ignore
-      this.$store.commit("UPDATE_ACTVIE_SLIDE", this.swiper.activeIndex);
+      this.$store.commit("UPDATE_ACTVIE_SLIDE_INDEX", this.swiper.activeIndex);
     },
 
     onNext() {
@@ -130,7 +129,7 @@ export default Vue.extend({
       // @ts-ignore
       if (this.weeks.length) {
         // @ts-ignore
-        return this.weeks[this.activeSlideIndex];
+        return this.weeks[this.$store.state.weekActiveSlideIndex];
       }
       return "";
     },

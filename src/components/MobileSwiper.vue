@@ -33,7 +33,7 @@ export default Vue.extend({
   data() {
     return {
       swiperOption: {
-        initialSlide: 10,
+        initialSlide: this.$store.state.dayActiveSlideIndex,
         shortSwipes: false,
         simulateTouch: false,
         noSwipingSelector: "input, button",
@@ -45,7 +45,6 @@ export default Vue.extend({
         },
       },
       dates: create21Dates(),
-      activeSlideIndex: 10,
     };
   },
 
@@ -67,7 +66,9 @@ export default Vue.extend({
       // @ts-ignore
       if (this.dates.length) {
         // @ts-ignore
-        const d = this.dates[this.activeSlideIndex].format("dddd D. MMMM");
+        const d = this.dates[this.$store.state.dayActiveSlideIndex].format(
+          "dddd D. MMMM"
+        );
         return d.charAt(0).toUpperCase() + d.slice(1);
       }
       return "";
@@ -88,7 +89,7 @@ export default Vue.extend({
   methods: {
     onSlideChange() {
       // @ts-ignore
-      this.activeSlideIndex = this.swiper.activeIndex;
+      this.$store.commit("UPDATE_ACTVIE_SLIDE_INDEX", this.swiper.activeIndex);
     },
 
     appendSlides() {
