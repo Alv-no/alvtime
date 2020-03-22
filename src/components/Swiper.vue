@@ -20,6 +20,7 @@ import MobileSwiper from "./MobileSwiper";
 import WeekSwiper from "./WeekSwiper";
 import FavoriteSelector from "./FavoriteSelector";
 import Spinner from "./Spinner";
+import isInIframe from "@/mixins/isInIframe";
 
 export default {
   components: {
@@ -30,7 +31,7 @@ export default {
   },
 
   created() {
-    if (!this.isInIframe()) {
+    if (!isInIframe()) {
       this.$store.dispatch("FETCH_TASKS");
     }
   },
@@ -42,12 +43,6 @@ export default {
 
     isTasks() {
       return !!this.$store.state.tasks.length;
-    },
-  },
-
-  methods: {
-    isInIframe() {
-      return window.parent !== window;
     },
   },
 };

@@ -21,6 +21,7 @@ import config from "@/config";
 import { swiper, swiperSlide } from "vue-awesome-swiper";
 import TimeEntrieDayList from "./TimeEntrieDayList.vue";
 import MobileHeader from "./MobileHeader.vue";
+import isInIframe from "@/mixins/isInIframe";
 
 export default Vue.extend({
   components: {
@@ -50,7 +51,7 @@ export default Vue.extend({
 
   created() {
     // @ts-ignore
-    if (!this.isInIframe()) {
+    if (!isInIframe()) {
       // @ts-ignore
       this.$store.dispatch("FETCH_TIME_ENTRIES", this.dateRange);
     }
@@ -129,10 +130,6 @@ export default Vue.extend({
         // @ts-ignore
         this.prependSlides();
       }
-    },
-
-    isInIframe() {
-      return window.parent !== window;
     },
   },
 });
