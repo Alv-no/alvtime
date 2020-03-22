@@ -40,7 +40,6 @@ interface Account {
 export interface State {
   tasks: Task[];
   timeEntries: FrontendTimentrie[];
-  activeSlideIndex: number;
   pushQueue: FrontendTimentrie[];
   selectFavorites: boolean;
   account: Account | null;
@@ -59,7 +58,6 @@ const store = new Vuex.Store({
 
     appState: { oldState: "", newState: "" },
     isOnline: true,
-    activeSlideIndex: 3,
     selectFavorites: false,
   },
   getters: {
@@ -70,10 +68,6 @@ const store = new Vuex.Store({
     ...timeEntrieHandlers.mutations,
     ...taskHandlers.mutations,
     ...error.mutations,
-
-    UPDATE_ACTVIE_SLIDE(state: State, activeSlideIndex: number) {
-      state.activeSlideIndex = activeSlideIndex;
-    },
 
     TOGGLE_SELECTFAVORITES(state: State) {
       state.selectFavorites = !state.selectFavorites;

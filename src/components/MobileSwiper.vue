@@ -1,7 +1,12 @@
 <template>
   <div>
     <MobileHeader :day="day" />
-    <swiper :options="swiperOption" ref="mySwiper">
+    <swiper
+      @slideChangeTransitionEnd="onSlideChangeTransitionEnd"
+      @slideChange="onSlideChange"
+      :options="swiperOption"
+      ref="mySwiper"
+    >
       <swiperSlide v-for="(date, index) in dates" :key="index">
         <TimeEntrieDayList :date="date" />
       </swiperSlide>
@@ -12,7 +17,7 @@
 <script lang="ts">
 import Vue from "vue";
 import moment from "moment";
-
+import config from "@/config";
 import { swiper, swiperSlide } from "vue-awesome-swiper";
 import TimeEntrieDayList from "./TimeEntrieDayList.vue";
 import MobileHeader from "./MobileHeader.vue";
@@ -26,27 +31,30 @@ export default Vue.extend({
   },
 
   data() {
-    const currentComponent = this;
     return {
       swiperOption: {
-        initialSlide: 3,
+        initialSlide: 10,
         shortSwipes: false,
         simulateTouch: false,
         noSwipingSelector: "input, button",
         longSwipesRatio: 0.15,
         longSwipesMs: 100,
-        on: {
-          slideChange() {
-            currentComponent.$store.commit(
-              "UPDATE_ACTVIE_SLIDE",
-              // @ts-ignore
-              this.activeIndex
-            );
-          },
+        keyboard: {
+          enabled: true,
+          onlyInViewport: false,
         },
       },
-      dates: createDays(),
+      dates: create21Dates(),
+      activeSlideIndex: 10,
     };
+  },
+
+  created() {
+    // @ts-ignore
+    if (!this.isInIframe()) {
+      // @ts-ignore
+      this.$store.dispatch("FETCH_TIME_ENTRIES", this.dateRange);
+    }
   },
 
   computed: {
@@ -59,17 +67,84 @@ export default Vue.extend({
       // @ts-ignore
       if (this.dates.length) {
         // @ts-ignore
-        const d = this.dates[this.$store.state.activeSlideIndex].format(
-          "dddd DD. MMMM"
-        );
+        const d = this.dates[this.activeSlideIndex].format("dddd D. MMMM");
         return d.charAt(0).toUpperCase() + d.slice(1);
       }
       return "";
     },
+
+    dateRange() {
+      return {
+        // @ts-ignore
+        fromDateInclusive: this.dates[0].format(config.DATE_FORMAT),
+        // @ts-ignore
+        toDateInclusive: this.dates[this.dates.length - 1].format(
+          config.DATE_FORMAT
+        ),
+      };
+    },
+  },
+
+  methods: {
+    onSlideChange() {
+      // @ts-ignore
+      this.activeSlideIndex = this.swiper.activeIndex;
+    },
+
+    appendSlides() {
+      // @ts-ignore
+      const lastDate = this.dates[this.dates.length - 1];
+      const nextDate = lastDate.clone().add(1, "day");
+      const nextDates = createSevenDates(nextDate);
+      // @ts-ignore
+      this.dates = [...this.dates.slice(7), ...nextDates];
+      // @ts-ignore
+      this.swiper.slideTo(this.swiper.realIndex - 7, 0);
+      // @ts-ignore
+      this.$store.dispatch("FETCH_TIME_ENTRIES", this.dateRange);
+    },
+
+    prependSlides() {
+      // @ts-ignore
+      const firstDate = this.dates[0];
+      const firstNewDate = firstDate.clone().add(-7, "day");
+      const newDates = createSevenDates(firstNewDate);
+      // @ts-ignore
+      this.dates = [...newDates, ...this.dates.slice(0, 14)];
+      // @ts-ignore
+      this.swiper.slideTo(this.swiper.realIndex + 7, 0);
+      // @ts-ignore
+      this.$store.dispatch("FETCH_TIME_ENTRIES", this.dateRange);
+    },
+
+    onSlideChangeTransitionEnd() {
+      // @ts-ignore
+      if (this.swiper.activeIndex > 16) {
+        // @ts-ignore
+        this.appendSlides();
+      }
+      // @ts-ignore
+      if (this.swiper.activeIndex < 5) {
+        // @ts-ignore
+        this.prependSlides();
+      }
+    },
+
+    isInIframe() {
+      return window.parent !== window;
+    },
   },
 });
 
-function createDays() {
-  return [-3, -2, -1, 0, 1, 2, 3].map(n => moment().add(n, "day"));
+function createSevenDates(date: moment.Moment) {
+  return Array.apply(null, Array(7)).map((n, i) => date.clone().add(i, "day"));
+}
+
+function create21Dates() {
+  const future = Array.apply(null, Array(11)).map((n, i) => i);
+  const past = Array.apply(null, Array(10))
+    .map((n, i) => (i + 1) * -1)
+    .reverse();
+  return [...past, ...future].map(n => moment().add(n, "day"));
 }
 </script>

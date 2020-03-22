@@ -32,7 +32,6 @@ export default {
   created() {
     if (!this.isInIframe()) {
       this.$store.dispatch("FETCH_TASKS");
-      this.$store.dispatch("FETCH_TIME_ENTRIES");
     }
   },
 
