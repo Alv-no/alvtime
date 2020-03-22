@@ -1,5 +1,6 @@
 import Vue from "vue";
 import App from "./App.vue";
+import "swiper/dist/css/swiper.css";
 import "./registerServiceWorker";
 import router from "./router";
 import store from "./store";
@@ -12,6 +13,7 @@ import {
   MdIcon,
   MdCheckbox,
   MdTooltip,
+  MdProgress,
 } from "vue-material/dist/components";
 import VueMq from "vue-mq";
 import moment from "moment";
@@ -24,6 +26,7 @@ Vue.use(MdSnackbar);
 Vue.use(MdIcon);
 Vue.use(MdCheckbox);
 Vue.use(MdTooltip);
+Vue.use(MdProgress);
 
 Vue.config.productionTip = false;
 

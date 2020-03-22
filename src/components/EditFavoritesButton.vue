@@ -1,5 +1,5 @@
 <template>
-  <md-button @click="editFavorites" class="md-icon-button">
+  <md-button v-if="isTasks" @click="editFavorites" class="md-icon-button">
     <md-icon class="icon" v-if="selectFavorites">star</md-icon>
     <md-icon class="icon" v-if="!selectFavorites">star_border</md-icon>
     <md-tooltip>Velg favoritt aktiviteter</md-tooltip>
@@ -12,6 +12,10 @@ export default Vue.extend({
   computed: {
     selectFavorites() {
       return this.$store.state.selectFavorites;
+    },
+
+    isTasks() {
+      return !!this.$store.state.tasks.length;
     },
   },
 
