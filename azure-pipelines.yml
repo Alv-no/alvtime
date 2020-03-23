@@ -44,7 +44,7 @@ steps:
     testSelector: 'testAssemblies'
     otherConsoleOptions: '/Framework:.NETCoreApp,Version=v3.0'
     testAssemblyVer2: |
-      **\*Test*.dll
+      **\*Tests.dll
       !**\*TestAdapter.dll
       !**\obj\**
     searchFolder: '$(System.DefaultWorkingDirectory)'
