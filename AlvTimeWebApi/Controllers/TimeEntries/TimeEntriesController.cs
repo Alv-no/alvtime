@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace TimeTracker1.Controllers
@@ -21,7 +22,7 @@ namespace TimeTracker1.Controllers
         }
 
         [HttpGet("TimeEntries")]
-        [Authorize]
+        //[Authorize]
         public ActionResult<IEnumerable<TimeEntriesResponseDto>> FetchTimeEntries(DateTime fromDateInclusive, DateTime toDateInclusive)
         {
             try
@@ -34,7 +35,7 @@ namespace TimeTracker1.Controllers
                     {
                         Id = x.Id,
                         Value = x.Value,
-                        Date = x.Date.Date,
+                        Date = x.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                         TaskId = x.TaskId
                     })
                     .ToList();
@@ -73,7 +74,7 @@ namespace TimeTracker1.Controllers
                     var responseDto = new TimeEntriesResponseDto
                     {
                         Id = timeEntry.Id,
-                        Date = timeEntry.Date,
+                        Date = timeEntry.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                         Value = timeEntry.Value,
                         TaskId = timeEntry.TaskId
                     };
