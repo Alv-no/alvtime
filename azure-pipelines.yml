@@ -48,7 +48,7 @@ steps:
       !**\*TestAdapter.dll
       !**\obj\**
     searchFolder: '$(System.DefaultWorkingDirectory)'
-    vsTestVersion: '16.5'
+    vsTestVersion: '16.0'
 
 - task: PublishTestResults@2
   inputs:
