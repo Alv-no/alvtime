@@ -47,7 +47,8 @@ steps:
       **\*test*.dll
       !**\*TestAdapter.dll
       !**\obj\**
-    searchFolder: '$(build.artifactStagingDirectoryy)'
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+    vsTestVersion: '16.5'
 
 - task: PublishTestResults@2
   inputs:
