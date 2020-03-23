@@ -179,7 +179,7 @@
         "requestTracingEnabled": false,
         "remoteDebuggingEnabled": false,
         "remoteDebuggingVersion": "VS2019",
-        "httpLoggingEnabled": false,
+        "httpLoggingEnabled": true,
         "logsDirectorySizeLimit": 35,
         "detailedErrorLoggingEnabled": false,
         "publishingUsername": "$alvtime-api-[parameters('EnvironmentShortHand')]",
