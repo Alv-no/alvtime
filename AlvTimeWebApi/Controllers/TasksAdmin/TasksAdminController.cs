@@ -43,7 +43,7 @@ namespace AlvTimeWebApi.Controllers.TasksAdmin
         }
 
         [HttpPost("LockTask")]
-        //[Authorize]
+        [Authorize]
         public ActionResult<IEnumerable<CreateTaskDto>> UpdateLockTask([FromBody] IEnumerable<LockTaskDto> tasksToBeUpdated)
         {
             List<TaskResponseDto> response = new List<TaskResponseDto>();

@@ -66,9 +66,16 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
                         timeEntry = CreateNewTimeEntry(request, user);
                     }
 
-                    timeEntry.Value = request.Value;
-                    _database.SaveChanges();
+                    var task = _database.Task
+                        .Where(x => x.Id == timeEntry.TaskId)
+                        .Single();
 
+                    if(timeEntry.Locked == false && task.Locked == false)
+                    {
+                        timeEntry.Value = request.Value;
+                        _database.SaveChanges();
+                    }
+                    
                     var responseDto = new TimeEntriesResponseDto
                     {
                         Id = timeEntry.Id,
