@@ -51,6 +51,7 @@ steps:
 - task: VSTest@2
   inputs:
     testSelector: 'testAssemblies'
+    arguments: '/Framework:.NETCoreApp,Version=3.0'
     testAssemblyVer2: |
       **\*test*.dll
       !**\*TestAdapter.dll
