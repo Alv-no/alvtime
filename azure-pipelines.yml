@@ -25,21 +25,6 @@ steps:
   inputs:
     restoreSolution: '$(solution)'
 
-- task: VSTest@2
-  inputs:
-    testSelector: 'testAssemblies'
-    arguments: '/Framework:.NETCoreApp,Version=3.0'
-    testAssemblyVer2: |
-      **\*test*.dll
-      !**\*TestAdapter.dll
-      !**\obj\**
-    searchFolder: '$(System.DefaultWorkingDirectory)'
-
-- task: PublishTestResults@2
-  inputs:
-    testResultsFormat: 'JUnit'
-    testResultsFiles: '**/TEST-*.xml'
-
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
@@ -53,6 +38,21 @@ steps:
     Contents: '**/*'
     TargetFolder: '$(build.artifactStagingDirectory)'
     flattenFolders: false
+
+- task: VSTest@2
+  inputs:
+    testSelector: 'testAssemblies'
+    arguments: '/Framework:.NETCoreApp,Version=3.0'
+    testAssemblyVer2: |
+      **\*test*.dll
+      !**\*TestAdapter.dll
+      !**\obj\**
+    searchFolder: '$(build.artifactStagingDirectoryy)'
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: '**/TEST-*.xml'
 
 - task: ArchiveFiles@2
   displayName: "Archive files"
