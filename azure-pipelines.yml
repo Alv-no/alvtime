@@ -49,11 +49,6 @@ steps:
       !**\obj\**
     searchFolder: '$(System.DefaultWorkingDirectory)'
 
-- task: PublishTestResults@2
-  inputs:
-    testResultsFormat: 'JUnit'
-    testResultsFiles: '**/TEST-*.xml'
-
 - task: ArchiveFiles@2
   displayName: "Archive files"
   inputs:
