@@ -36,6 +36,13 @@ steps:
     TargetFolder: '$(build.artifactStagingDirectory)'
     flattenFolders: false
 
+     task: CopyFiles@2
+  inputs:
+    SourceFolder: './Tests'
+    Contents: '**/*'
+    TargetFolder: '$(build.artifactStagingDirectory)'
+    flattenFolders: false
+
 - task: ArchiveFiles@2
   displayName: "Archive files"
   inputs:
