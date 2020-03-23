@@ -7,6 +7,9 @@ trigger:
 - master
 - development
 
+# no PR triggers
+pr: none
+
 pool:
   vmImage: 'windows-latest'
 
@@ -21,6 +24,21 @@ steps:
 - task: NuGetCommand@2
   inputs:
     restoreSolution: '$(solution)'
+
+- task: VSTest@2
+  inputs:
+    testSelector: 'testAssemblies'
+    arguments: '/Framework:.NETCoreApp,Version=3.0'
+    testAssemblyVer2: |
+      **\*test*.dll
+      !**\*TestAdapter.dll
+      !**\obj\**
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: '**/TEST-*.xml'
 
 - task: VSBuild@1
   inputs:
@@ -47,18 +65,3 @@ steps:
   inputs:
     PathtoPublish: '$(build.artifactStagingDirectory)'
     ArtifactName: 'backend'
-
-- task: VSTest@2
-  inputs:
-    testSelector: 'testAssemblies'
-    arguments: '/Framework:.NETCoreApp,Version=3.0'
-    testAssemblyVer2: |
-      **\*test*.dll
-      !**\*TestAdapter.dll
-      !**\obj\**
-    searchFolder: '$(System.DefaultWorkingDirectory)'
-
-- task: PublishTestResults@2
-  inputs:
-    testResultsFormat: 'JUnit'
-    testResultsFiles: '**/TEST-*.xml'
