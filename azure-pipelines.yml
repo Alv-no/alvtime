@@ -36,13 +36,6 @@ steps:
     TargetFolder: '$(build.artifactStagingDirectory)'
     flattenFolders: false
 
-- task: CopyFiles@2
-  inputs:
-    SourceFolder: './Tests'
-    Contents: '**/*'
-    TargetFolder: '$(build.artifactStagingDirectory)'
-    flattenFolders: false
-
 - task: ArchiveFiles@2
   displayName: "Archive files"
   inputs:
@@ -54,3 +47,17 @@ steps:
   inputs:
     PathtoPublish: '$(build.artifactStagingDirectory)'
     ArtifactName: 'backend'
+
+- task: VSTest@2
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: |
+      **\*test*.dll
+      !**\*TestAdapter.dll
+      !**\obj\**
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: '**/TEST-*.xml'
