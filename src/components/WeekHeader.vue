@@ -10,6 +10,9 @@
       <md-icon>arrow_forward</md-icon>
       <md-tooltip>Gå til neste uke</md-tooltip>
     </md-button>
+    <div class="sums">
+      <div>{{ weekSum }}/37.5</div>
+    </div>
     <div />
   </div>
 </template>
@@ -18,8 +21,10 @@
 import Vue from "vue";
 import EditFavoritesButton from "./EditFavoritesButton.vue";
 import { createWeek } from "@/mixins/date";
+import { weekSum } from "@/mixins/date";
 
 export default Vue.extend({
+  mixins: [weekSum],
   components: {
     EditFavoritesButton,
   },
@@ -31,6 +36,7 @@ export default Vue.extend({
 
     month() {
       let months: string[] = [];
+      // @ts-ignore
       for (const day of this.week) {
         const month = day.format("MMMM");
         const upperCasedMonth = month.charAt(0).toUpperCase() + month.slice(1);
