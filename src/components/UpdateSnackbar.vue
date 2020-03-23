@@ -8,7 +8,9 @@
     <span>New version available! Click to update</span>
     <md-button class="md-primary" @click="refreshApp">
       Update
-      <md-tooltip>Oppdater til siste versjon av appen</md-tooltip>
+      <md-tooltip class="tooltip"
+        >Oppdater til siste versjon av appen</md-tooltip
+      >
     </md-button>
   </md-snackbar>
 </template>
@@ -54,3 +56,9 @@ export default Vue.extend({
   },
 });
 </script>
+
+<style scoped>
+.tooltip {
+  z-index: 15;
+}
+</style>
