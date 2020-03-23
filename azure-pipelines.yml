@@ -44,11 +44,10 @@ steps:
     testSelector: 'testAssemblies'
     arguments: '/Framework:.NETCoreApp,Version=3.0'
     testAssemblyVer2: |
-      **\*test*.dll
+      **\*Test*.dll
       !**\*TestAdapter.dll
       !**\obj\**
     searchFolder: '$(System.DefaultWorkingDirectory)'
-    vsTestVersion: '16.0'
 
 - task: PublishTestResults@2
   inputs:
