@@ -80,8 +80,6 @@ export default {
             }
           );
           const timeEntries = await response.json();
-          console.log("timeEntries: ", timeEntries);
-          console.log("response: ", response);
           if (response.status !== 200) {
             throw Error(`${response.statusText}
 ${timeEntries.title}`);
@@ -100,18 +98,11 @@ ${timeEntries.title}`);
       1000
     ),
 
-    FETCH_TIME_ENTRIES: async ({ commit }: ActionContext<State, State>) => {
+    FETCH_TIME_ENTRIES: async (
+      { commit }: ActionContext<State, State>,
+      params: { fromDateInclusive: string; toDateInclusive: string }
+    ) => {
       const url = new URL(config.HOST + "/api/user/TimeEntries");
-      const params = {
-        fromDateInclusive: moment()
-          .add(-3, "week")
-          .startOf("week")
-          .format(config.DATE_FORMAT),
-        toDateInclusive: moment()
-          .add(3, "week")
-          .endOf("week")
-          .format(config.DATE_FORMAT),
-      };
       url.search = new URLSearchParams(params).toString();
 
       try {

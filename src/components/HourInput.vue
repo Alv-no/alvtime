@@ -75,14 +75,20 @@ export default {
       return this.$store.state.isOnline;
     },
 
-    activeSlideIndex() {
-      return this.$store.state.activeSlideIndex;
+    activeDate() {
+      return this.$store.state.activeDate;
     },
   },
 
   watch: {
-    activeSlideIndex() {
-      this.inputRef.blur();
+    activeDate() {
+      const isSameTask =
+        this.activeDate.format(config.DATE_FORMAT) === this.timeEntrie.date &&
+        this.$store.state.activeTaskId === this.timeEntrie.taskId;
+      if (isSameTask) {
+        this.inputRef.focus();
+        this.showHelperButtons = true;
+      }
     },
   },
 
@@ -92,6 +98,7 @@ export default {
         const isValueChanged = this.value !== this.timeLeftInDay;
         if (isValueChanged) {
           this.showHelperButtons = true;
+          this.$store.commit("UPDATE_ACTVIE_TASK", this.timeEntrie.taskId);
           e.target.focus();
         }
       }, 200);
@@ -102,6 +109,11 @@ export default {
       defer(() => {
         if (this.enableBlur && this.showHelperButtons) {
           this.showHelperButtons = false;
+          if (
+            this.activeDate.format(config.DATE_FORMAT) === this.timeEntrie.date
+          ) {
+            this.$store.commit("UPDATE_ACTVIE_TASK", -1);
+          }
         }
         this.enableBlur = true;
       });
