@@ -42,17 +42,12 @@ steps:
 - task: VSTest@2
   inputs:
     testSelector: 'testAssemblies'
-    arguments: '/Framework:.NETCoreApp,Version=3.0'
+    otherConsoleOptions: '/Framework:.NETCoreApp,Version=v3.0'
     testAssemblyVer2: |
-      **\*Test*.dll
+      **\*Tests.dll
       !**\*TestAdapter.dll
       !**\obj\**
     searchFolder: '$(System.DefaultWorkingDirectory)'
-
-- task: PublishTestResults@2
-  inputs:
-    testResultsFormat: 'JUnit'
-    testResultsFiles: '**/TEST-*.xml'
 
 - task: ArchiveFiles@2
   displayName: "Archive files"

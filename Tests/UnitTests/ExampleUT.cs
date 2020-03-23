@@ -1,4 +1,3 @@
-using System;
 using Xunit;
 
 namespace Tests
@@ -6,7 +5,7 @@ namespace Tests
     public class ExampleUT
     {
         [Fact]
-        public void Test1()
+        public void Test1_Passes()
         {
             string s1 = "hel";
             string s2 = "lo";
