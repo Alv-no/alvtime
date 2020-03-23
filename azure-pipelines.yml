@@ -7,6 +7,9 @@ trigger:
 - master
 - development
 
+# no PR triggers
+pr: none
+
 pool:
   vmImage: 'windows-latest'
 
@@ -35,6 +38,16 @@ steps:
     Contents: '**/*'
     TargetFolder: '$(build.artifactStagingDirectory)'
     flattenFolders: false
+
+- task: VSTest@2
+  inputs:
+    testSelector: 'testAssemblies'
+    otherConsoleOptions: '/Framework:.NETCoreApp,Version=v3.0'
+    testAssemblyVer2: |
+      **\*Tests.dll
+      !**\*TestAdapter.dll
+      !**\obj\**
+    searchFolder: '$(System.DefaultWorkingDirectory)'
 
 - task: ArchiveFiles@2
   displayName: "Archive files"
