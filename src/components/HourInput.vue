@@ -88,8 +88,6 @@ export default {
       if (isSameTask) {
         this.inputRef.focus();
         this.showHelperButtons = true;
-      } else if (this.inputRef === document.activeElement) {
-        this.inputRef.blur();
       }
     },
   },
@@ -108,12 +106,14 @@ export default {
 
     onBlur() {
       this.editing = false;
-      if (this.activeDate.format(config.DATE_FORMAT) === this.timeEntrie.date) {
-        this.$store.commit("UPDATE_ACTVIE_TASK", -1);
-      }
       defer(() => {
         if (this.enableBlur && this.showHelperButtons) {
           this.showHelperButtons = false;
+          if (
+            this.activeDate.format(config.DATE_FORMAT) === this.timeEntrie.date
+          ) {
+            this.$store.commit("UPDATE_ACTVIE_TASK", -1);
+          }
         }
         this.enableBlur = true;
       });
