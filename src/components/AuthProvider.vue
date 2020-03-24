@@ -30,6 +30,12 @@ export default Vue.extend({
     },
   },
 
+  created() {
+    if (!this.isAuthenticated) {
+      this.login();
+    }
+  },
+
   methods: {
     login() {
       login();
