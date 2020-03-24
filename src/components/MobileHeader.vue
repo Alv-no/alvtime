@@ -4,7 +4,7 @@
     <h2>{{ day }}</h2>
     <div class="sums">
       <div>{{ daySum }}/7,5</div>
-      <div>{{ weekSum }}/37.5</div>
+      <div>{{ weekSum }}/37,5</div>
     </div>
   </div>
 </template>
