@@ -11,7 +11,7 @@
       <md-tooltip>Gå til neste uke</md-tooltip>
     </md-button>
     <div class="sums">
-      <div>{{ weekSum }}/37.5</div>
+      <div>{{ weekSum }}/37,5</div>
     </div>
     <div />
   </div>

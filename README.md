@@ -32,7 +32,7 @@ docker-compose pull
 
 ### Run production build locally
 
-This is useful for testing real performance and off-line behaviour. The app installs a service worker on the host machine and uses this to serve cached css, js, an images.
+This is useful for testing real performance and off-line behaviour. The app installs a service worker on the host machine and uses this to serve cached css, js, and images.
 
 ```
 docker-compose -f docker-compose.localBuild.yaml up --build
