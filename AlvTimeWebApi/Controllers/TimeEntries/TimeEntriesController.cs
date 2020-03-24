@@ -22,7 +22,7 @@ namespace TimeTracker1.Controllers
         }
 
         [HttpGet("TimeEntries")]
-        //[Authorize]
+        [Authorize]
         public ActionResult<IEnumerable<TimeEntriesResponseDto>> FetchTimeEntries(DateTime fromDateInclusive, DateTime toDateInclusive)
         {
             try
