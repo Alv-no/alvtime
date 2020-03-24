@@ -37,6 +37,9 @@
     },
     "AzureAd__ClientId": {
       "value": null
+    },
+    "AdminGroup": {
+      "value": null
     }
   }
 }

@@ -32,8 +32,7 @@ values
 ('Ansatt Atte', 'ansattatte@alv.no'),
 ('Ansatt Ni', 'ansattni@alv.no'),
 ('Ansatt Ti', 'ansatti@alv.no'),
-('Ahre Ketil Lillehagen', 'ahre-ketil.lillehagen@alvno.onmicrosoft.com'),
-('Pål Bøckmann', 'pal@alv.no')
+('Ahre Ketil Lillehagen', 'ahre-ketil.lillehagen@alvno.onmicrosoft.com')
 
 insert into [dbo].[Task]
 values
@@ -101,9 +100,11 @@ values
 
 insert into [dbo].[HourRate]
 values
-('12/12/2019 00:00:00', 1000.00, 1),
-('12/12/2019 00:00:00', 800.00, 2),
-('12/12/2019 00:00:00', 700.00, 3),
-('12/12/2019 00:00:00', 0.00, 4),
-('12/12/2019 00:00:00', 500.00, 5),
-('12/12/2019 00:00:00', 1200.00, 6)
+('12/12/2018 00:00:00', 1000.00, 1),
+('12/12/2018 00:00:00', 800.00, 2),
+('12/12/2018 00:00:00', 700.00, 3),
+('12/12/2018 00:00:00', 0.00, 4),
+('12/12/2018 00:00:00', 500.00, 5),
+('12/12/2018 00:00:00', 1200.00, 6),
+('12/12/2018 00:00:00', 900.00, 12),
+('12/12/2018 00:00:00', 0.00, 15)

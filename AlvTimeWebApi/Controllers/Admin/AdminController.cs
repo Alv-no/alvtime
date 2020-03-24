@@ -21,10 +21,10 @@ namespace AlvTimeWebApi.Controllers.Economy
 
         [HttpGet("EconomyInfo")]
         [AuthorizeAdmin]
-        public ActionResult<IEnumerable<EconomyDto>> FetchEconomyInfo()
+        public ActionResult<IEnumerable<DataDumpDto>> FetchEconomyInfo()
         {
             var info = _database.VDataDump
-                .Select(x => new EconomyDto
+                .Select(x => new DataDumpDto
                 {
                     CustomerId = x.CustomerId,
                     CustomerName = x.CustomerName,
@@ -37,7 +37,9 @@ namespace AlvTimeWebApi.Controllers.Economy
                     TaskName = x.TaskName,
                     UserId = x.UserId,
                     UserName = x.UserName,
-                    Value = x.Value
+                    Value = x.Value,
+                    Earnings = x.Earnings,
+                    IsBillable = x.IsBillable
                 })
                 .ToList();
             return Ok(info);
@@ -126,6 +128,7 @@ namespace AlvTimeWebApi.Controllers.Economy
                     var newProject = new Project
                     {
                         Customer = project.Customer,
+                        Custumer = project.Customer,
                         Name = project.Name,
                     };
                     _database.Add(newProject);
@@ -163,15 +166,13 @@ namespace AlvTimeWebApi.Controllers.Economy
 
         [HttpPost("HourRate")]
         [AuthorizeAdmin]
-        public ActionResult<IEnumerable<HourRateResponseDto>> CreateOrUpdateHourRate([FromBody] IEnumerable<CreateHourRateDto> hourRatesToBeCreated)
+        public ActionResult<IEnumerable<HourRateResponseDto>> CreateHourRate([FromBody] IEnumerable<CreateHourRateDto> hourRatesToBeCreated)
         {
             List<HourRateResponseDto> response = new List<HourRateResponseDto>();
 
             foreach (var hourRate in hourRatesToBeCreated)
             {
-                var existingHourRate = RetrieveExistingHourRate(hourRate);
-
-                if (existingHourRate == null)
+                if (HourRateDoesNotExist(hourRate))
                 {
                     var newHourRate = new HourRate
                     {
@@ -181,14 +182,9 @@ namespace AlvTimeWebApi.Controllers.Economy
                     };
                     _database.Add(newHourRate);
                     _database.SaveChanges();
+
+                    response.Add(ReturnCreatedHourRate(hourRate));
                 }
-                else
-                {
-                    existingHourRate.FromDate = hourRate.FromDate;
-                    existingHourRate.Rate = hourRate.Rate;
-                    existingHourRate.TaskId = hourRate.TaskId;
-                }
-                response.Add(ReturnCreatedHourRate(hourRate));
             }
             return Ok(response);
         }
@@ -270,39 +266,38 @@ namespace AlvTimeWebApi.Controllers.Economy
 
         private HourRateResponseDto ReturnCreatedHourRate(CreateHourRateDto hourRate)
         {
-            var task = _database.Task
+            var taskResponseDto = _database.Task
                 .Where(x => x.Id == hourRate.TaskId)
-                .FirstOrDefault();
-
-            var hourRateResponseDto = _database.HourRate
-                .Where(x => x.FromDate == hourRate.FromDate && x.Rate == hourRate.Rate && x.TaskId == hourRate.TaskId)
-                .Select(x => new HourRateResponseDto
+                .Select(x => new TaskResponseDto
                 {
+                    Description = x.Description,
                     Id = x.Id,
-                    Rate = x.Rate,
-                    FromDate = x.FromDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                    Task = new TaskResponseDto
+                    Favorite = false,
+                    Locked = x.Locked,
+                    Name = x.Name,
+                    Project = new ProjectDto
                     {
-                        Description = task.Description,
-                        Id = task.Id,
-                        Favorite = false,
-                        Locked = task.Locked,
-                        Name = task.Name,
-                        Project = new ProjectDto
+                        Id = x.ProjectNavigation.Id,
+                        Name = x.ProjectNavigation.Name,
+                        Customer = new CustomerDto
                         {
-                            Id = task.ProjectNavigation.Id,
-                            Name = task.ProjectNavigation.Name,
-                            Customer = new CustomerDto
-                            {
-                                Id = task.ProjectNavigation.CustomerNavigation.Id,
-                                Name = task.ProjectNavigation.CustomerNavigation.Name
-                            }
+                            Id = x.ProjectNavigation.CustomerNavigation.Id,
+                            Name = x.ProjectNavigation.CustomerNavigation.Name
                         }
                     }
                 })
                 .FirstOrDefault();
 
-            return hourRateResponseDto;
+            return _database.HourRate
+                .Where(x => x.FromDate.Date == hourRate.FromDate.Date && x.Rate == hourRate.Rate && x.TaskId == hourRate.TaskId)
+                .Select(x => new HourRateResponseDto
+                {
+                    Id = x.Id,
+                    Rate = x.Rate,
+                    FromDate = x.FromDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                    Task = taskResponseDto
+                })
+                .FirstOrDefault();
         }
 
         private TaskResponseDto ReturnUpdatedTask(LockTaskDto task)
@@ -360,12 +355,12 @@ namespace AlvTimeWebApi.Controllers.Economy
                     .FirstOrDefault() == null ? true : false;
         }
 
-        private HourRate RetrieveExistingHourRate(CreateHourRateDto hourRate)
+        private bool HourRateDoesNotExist(CreateHourRateDto hourRate)
         {
             return _database.HourRate.FirstOrDefault(x =>
-                x.FromDate == hourRate.FromDate &&
+                x.FromDate.Date == hourRate.FromDate.Date &&
                 x.Rate == hourRate.Rate &&
-                x.TaskId == hourRate.TaskId);
+                x.TaskId == hourRate.TaskId) == null ? true : false;
         }
     }
 }

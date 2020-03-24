@@ -2,7 +2,7 @@
 
 namespace AlvTimeWebApi.Dto
 {
-    public class EconomyDto
+    public class DataDumpDto
     {
         public int TaskId { get; set; }
         public string TaskName { get; set; }
@@ -16,5 +16,7 @@ namespace AlvTimeWebApi.Dto
         public string CustomerName { get; set; }
         public int CustomerId { get; set; }
         public decimal HourRate { get; set; }
+        public decimal? Earnings { get; set; }
+        public bool? IsBillable { get; set; }
     }
 }

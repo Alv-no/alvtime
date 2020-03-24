@@ -4,7 +4,7 @@ GO
 USE AlvDevDB
 GO
 
-/****** Object:  Table [dbo].[HourRate]    Script Date: 18/03/2020 13:10:34 ******/
+/****** Object:  Table [dbo].[HourRate]    Script Date: 24/03/2020 14:21:08 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -20,7 +20,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Customer]    Script Date: 18/03/2020 13:10:34 ******/
+/****** Object:  Table [dbo].[Customer]    Script Date: 24/03/2020 14:21:08 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -34,7 +34,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Project]    Script Date: 18/03/2020 13:10:34 ******/
+/****** Object:  Table [dbo].[Project]    Script Date: 24/03/2020 14:21:08 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -50,7 +50,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Task]    Script Date: 18/03/2020 13:10:34 ******/
+/****** Object:  Table [dbo].[Task]    Script Date: 24/03/2020 14:21:08 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -68,13 +68,13 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[User]    Script Date: 18/03/2020 13:10:34 ******/
+/****** Object:  Table [dbo].[User]    Script Date: 24/03/2020 14:21:08 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[User](
-	[Id] [int] IDENTITY NOT NULL,
+	[Id] [int] IDENTITY  NOT NULL,
 	[name] [nvarchar](100) NOT NULL,
 	[email] [nvarchar](100) NOT NULL,
 PRIMARY KEY CLUSTERED 
@@ -83,7 +83,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[hours]    Script Date: 18/03/2020 13:10:34 ******/
+/****** Object:  Table [dbo].[hours]    Script Date: 24/03/2020 14:21:08 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -109,11 +109,12 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[V_DataDump]    Script Date: 18/03/2020 13:10:34 ******/
+/****** Object:  View [dbo].[V_DataDump]    Script Date: 24/03/2020 14:21:08 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 CREATE VIEW [dbo].[V_DataDump]
 AS 
@@ -130,12 +131,13 @@ project.name as projectName,
 customer.name as customerName,
 customer.id as customerId,
 HourR.rate as HourRate,
-HourR.rate * "hours".value as earnings
+HourR.rate * "hours".value as earnings,
+CAST(CASE WHEN HourR.rate > 0 THEN 1 ELSE 0 END AS BIT) as IsBillable
 from Task
 inner join "hours" on taskid = task.id
 inner join "user" on "user".id = "hours"."user"
 inner join project on project.id = task.project
-inner join customer on customer.id = project.Custumer
+inner join customer on customer.id = project.Customer
 inner join (select HourRate.taskid, HourRate.rate, "hours".id as hourId
 				from HourRate
 				inner join "hours" on "hours".taskid = HourRate.taskid and "hours".Date >= HourRate.FromDate
@@ -147,7 +149,7 @@ inner join (select HourRate.taskid, HourRate.rate, "hours".id as hourId
 				) maxHours on maxHours.taskid = HourRate.taskid and maxHours.FromDate = HourRate.FromDate and "hours".id = maxHours.hourId
 ) HourR on HourR.taskid = task.id and "hours".id = HourR.hourId
 GO
-/****** Object:  Table [dbo].[__RefactorLog]    Script Date: 18/03/2020 13:10:34 ******/
+/****** Object:  Table [dbo].[__RefactorLog]    Script Date: 24/03/2020 14:21:08 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -160,7 +162,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[sysdiagrams]    Script Date: 18/03/2020 13:10:34 ******/
+/****** Object:  Table [dbo].[sysdiagrams]    Script Date: 24/03/2020 14:21:08 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -182,7 +184,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[TaskFavorites]    Script Date: 18/03/2020 13:10:34 ******/
+/****** Object:  Table [dbo].[TaskFavorites]    Script Date: 24/03/2020 14:21:08 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -197,7 +199,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[TaskFavorits]    Script Date: 18/03/2020 13:10:34 ******/
+/****** Object:  Table [dbo].[TaskFavorits]    Script Date: 24/03/2020 14:21:08 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
