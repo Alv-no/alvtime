@@ -69,7 +69,8 @@ export default {
       }
 
       timeLeft = timeLeft > 0 ? timeLeft : config.HOURS_IN_WORKDAY;
-      return timeLeft.toString().replace(".", ",");
+      timeLeft = timeLeft.toString().replace(".", ",");
+      return timeLeft === this.value ? "0" : timeLeft;
     },
 
     isOnline() {
