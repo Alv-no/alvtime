@@ -6,6 +6,7 @@
     <input
       :class="{ error }"
       type="text"
+      @input="onInput"
       v-model="value"
       @touchstart="onTouchStart"
       @blur="onBlur"
@@ -94,14 +95,9 @@ export default {
 
   methods: {
     onTouchStart(e) {
-      setTimeout(() => {
-        const isValueChanged = this.value !== this.timeLeftInDay;
-        if (isValueChanged) {
-          this.showHelperButtons = true;
-          this.$store.commit("UPDATE_ACTVIE_TASK", this.timeEntrie.taskId);
-          e.target.focus();
-        }
-      }, 200);
+      this.showHelperButtons = true;
+      this.$store.commit("UPDATE_ACTVIE_TASK", this.timeEntrie.taskId);
+      e.target.focus();
     },
 
     onBlur() {
@@ -121,6 +117,9 @@ export default {
 
     onFocus() {
       this.localValue = this.value;
+    },
+
+    onInput() {
       this.editing = true;
     },
 
