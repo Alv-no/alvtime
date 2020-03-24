@@ -1,6 +1,6 @@
 <template>
   <div>
-    <MobileHeader />
+    <DayHeader />
     <div ref="mySwiper" class="swiper-container">
       <div class="swiper-wrapper">
         <div
@@ -20,7 +20,7 @@
 import Vue from "vue";
 import config from "@/config";
 import TimeEntrieDayList from "./TimeEntrieDayList.vue";
-import MobileHeader from "./MobileHeader.vue";
+import DayHeader from "./DayHeader.vue";
 import isInIframe from "@/mixins/isInIframe";
 
 import Swiper from "swiper";
@@ -28,7 +28,7 @@ import Swiper from "swiper";
 export default Vue.extend({
   components: {
     TimeEntrieDayList,
-    MobileHeader,
+    DayHeader,
   },
 
   data() {

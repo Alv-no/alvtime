@@ -3,7 +3,7 @@
     <FavoriteSelector v-if="selectFavorites && isTasks" />
     <div v-if="!selectFavorites && isTasks">
       <mq-layout mq="sm">
-        <MobileSwiper />
+        <DaySwiper />
       </mq-layout>
       <mq-layout mq="md+">
         <WeekSwiper />
@@ -16,7 +16,7 @@
 <script>
 import moment from "moment";
 
-import MobileSwiper from "./MobileSwiper";
+import DaySwiper from "./DaySwiper";
 import WeekSwiper from "./WeekSwiper";
 import FavoriteSelector from "./FavoriteSelector";
 import Spinner from "./Spinner";
@@ -24,7 +24,7 @@ import isInIframe from "@/mixins/isInIframe";
 
 export default {
   components: {
-    MobileSwiper,
+    DaySwiper,
     WeekSwiper,
     FavoriteSelector,
     Spinner,
