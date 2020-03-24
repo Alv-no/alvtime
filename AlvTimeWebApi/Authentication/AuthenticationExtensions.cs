@@ -12,7 +12,14 @@ namespace AlvTimeWebApi.Authentication
             configuration.Bind("AzureAd", authentication);
 
             services
-                .AddAuthentication(options => { options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; })
+                .AddAuthorization(options =>
+                {
+                    options.AddPolicy(AdminAuthorizationPolicy.Name, AdminAuthorizationPolicy.Build);
+                })
+                .AddAuthentication(options =>
+                {
+                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
                 .AddJwtBearer(options =>
                 {
                     options.Authority = $"{authentication.Instance}{authentication.TenantId}";

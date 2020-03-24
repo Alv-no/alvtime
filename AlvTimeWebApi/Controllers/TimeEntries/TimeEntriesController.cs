@@ -68,7 +68,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
 
                     var task = _database.Task
                         .Where(x => x.Id == timeEntry.TaskId)
-                        .Single();
+                        .FirstOrDefault();
 
                     if(timeEntry.Locked == false && task.Locked == false)
                     {

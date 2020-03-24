@@ -100,7 +100,7 @@ namespace AlvTimeWebApi.Controllers.Tasks
                         }
                     },
                 })
-                .Single();
+                .FirstOrDefault();
 
             taskResponseDto.Favorite = userHasFavorite == null ? false : true;
 
