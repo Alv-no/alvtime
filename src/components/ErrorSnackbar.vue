@@ -56,37 +56,15 @@ export default Vue.extend({
 
   methods: {
     onSlackClick() {
-      this.copy();
+      this.$copyText(this.issues);
       this.close();
     },
 
     close() {
       this.$store.commit("CLEAR_ERROR_LIST");
     },
-
-    copy() {
-      copyToClipboard("error_text_element");
-    },
   },
 });
-
-function copyToClipboard(containerid: string) {
-  // @ts-ignore
-  if (document.selection) {
-    // @ts-ignore
-    const range = document.body.createTextRange();
-    range.moveToElementText(document.getElementById(containerid));
-    range.select().createTextRange();
-    document.execCommand("copy");
-  } else if (window.getSelection) {
-    const range = document.createRange();
-    // @ts-ignore
-    range.selectNode(document.getElementById(containerid));
-    // @ts-ignore
-    window.getSelection().addRange(range);
-    document.execCommand("copy");
-  }
-}
 </script>
 
 <style scoped>

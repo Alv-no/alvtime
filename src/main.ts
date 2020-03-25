@@ -16,7 +16,7 @@ import {
   MdProgress,
 } from "vue-material/dist/components";
 import VueMq from "vue-mq";
-import moment from "moment";
+import VueClipboard from "vue-clipboard2";
 
 Vue.use(VueMq);
 Vue.use(MdButton);
@@ -25,6 +25,7 @@ Vue.use(MdIcon);
 Vue.use(MdCheckbox);
 Vue.use(MdTooltip);
 Vue.use(MdProgress);
+Vue.use(VueClipboard);
 
 Vue.config.productionTip = false;
 
