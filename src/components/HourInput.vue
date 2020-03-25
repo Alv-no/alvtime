@@ -31,7 +31,6 @@ export default {
       showHelperButtons: false,
       enableBlur: true,
       localValue: "0",
-      editing: false,
     };
   },
 
@@ -42,9 +41,12 @@ export default {
 
     value: {
       get() {
-        if (this.editing) return this.localValue;
+        if (this.$store.state.editing) return this.localValue;
         const entrie = this.$store.getters.getTimeEntrie(this.timeEntrie);
-        return entrie ? entrie.value.toString().replace(".", ",") : "0";
+        const entrieStr = entrie
+          ? entrie.value.toString().replace(".", ",")
+          : "0";
+        return entrieStr;
       },
       set(str) {
         this.localValue = str.replace(".", ",");
@@ -83,6 +85,10 @@ export default {
   },
 
   watch: {
+    value() {
+      this.localValue = this.value;
+    },
+
     activeDate() {
       const isSameTask =
         this.activeDate.format(config.DATE_FORMAT) === this.timeEntrie.date &&
@@ -102,7 +108,7 @@ export default {
     },
 
     onBlur() {
-      this.editing = false;
+      this.$store.commit("UPDATE_EDITING", false);
       defer(() => {
         if (this.enableBlur && this.showHelperButtons) {
           this.showHelperButtons = false;
@@ -121,7 +127,7 @@ export default {
     },
 
     onInput() {
-      this.editing = true;
+      this.$store.commit("UPDATE_EDITING", true);
     },
 
     onTimeLeftInDayClick() {

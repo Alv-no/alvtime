@@ -50,6 +50,7 @@ export interface State {
   isOnline: boolean;
   errorTexts: string[];
   appState: { oldState: string; newState: string };
+  editing: boolean;
 }
 
 const store = new Vuex.Store({
@@ -65,6 +66,7 @@ const store = new Vuex.Store({
     activeDate: moment(),
     activeTaskId: -1,
     selectFavorites: false,
+    editing: false,
   },
   getters: {
     ...timeEntrieHandlers.getters,
@@ -100,6 +102,11 @@ const store = new Vuex.Store({
 
     UPDATE_APP_STATE(state: State, { oldState, newState }) {
       state.appState = { oldState, newState };
+    },
+
+    UPDATE_EDITING(state: State, editing: boolean) {
+      console.log("editing: ", editing);
+      state.editing = editing;
     },
   },
   actions: {
