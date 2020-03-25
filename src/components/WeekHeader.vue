@@ -21,10 +21,9 @@
 import Vue from "vue";
 import EditFavoritesButton from "./EditFavoritesButton.vue";
 import { createWeek } from "@/mixins/date";
-import { weekSum } from "@/mixins/date";
+import { weekTimeEntrieSum } from "@/mixins/date";
 
 export default Vue.extend({
-  mixins: [weekSum],
   components: {
     EditFavoritesButton,
   },
@@ -34,9 +33,15 @@ export default Vue.extend({
       return createWeek(this.$store.state.activeDate);
     },
 
+    weekSum(): string {
+      return weekTimeEntrieSum(
+        this.$store.state.activeDate,
+        this.$store.state.timeEntries
+      );
+    },
+
     month() {
       let months: string[] = [];
-      // @ts-ignore
       for (const day of this.week) {
         const month = day.format("MMMM");
         const upperCasedMonth = month.charAt(0).toUpperCase() + month.slice(1);

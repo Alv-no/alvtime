@@ -35,16 +35,16 @@ export default Vue.extend({
 
   data() {
     return {
-      swiperOption: {},
-      // @ts-ignore
-      weeks: this.createManyWeeks(),
-      virtualData: [],
+      weeks: [[]] as moment.Moment[][],
+      virtualData: [[]] as moment.Moment[][],
+      swiper: {} as Swiper,
     };
   },
 
   mounted() {
+    this.weeks = this.createManyWeeks();
     const self = this;
-    const swiper = new Swiper(".swiper-container", {
+    this.swiper = new Swiper(".swiper-container", {
       initialSlide: 142,
       shortSwipes: false,
       simulateTouch: false,
@@ -56,14 +56,11 @@ export default Vue.extend({
         onlyInViewport: false,
       },
       on: {
-        // @ts-ignore
         slideChangeTransitionEnd: self.onSlideChangeTransitionEnd,
       },
       virtual: {
-        // @ts-ignore
         slides: self.weeks,
         renderExternal(data: any) {
-          // @ts-ignore
           self.virtualData = data;
         },
       },
@@ -71,34 +68,28 @@ export default Vue.extend({
   },
 
   created() {
-    // @ts-ignore
-    if (!isInIframe()) {
-      // @ts-ignore
+    if (!isInIframe() && this.dateRange) {
       this.$store.dispatch("FETCH_TIME_ENTRIES", this.dateRange);
     }
   },
 
   methods: {
     onNext() {
-      // @ts-ignore
       this.swiper.slideNext();
     },
 
     onPrev() {
-      // @ts-ignore
       this.swiper.slidePrev();
     },
 
     onSlideChangeTransitionEnd() {
       const dayOfWeek = this.$store.state.activeDate.weekday();
-      this.$store.commit(
-        "UPDATE_ACTVIE_DATE",
-        // @ts-ignore
-        this.weeks[this.swiper.activeIndex][dayOfWeek]
-      );
+      const week = this.weeks[this.swiper.activeIndex];
+      const date = week ? week[dayOfWeek] : moment();
+      this.$store.commit("UPDATE_ACTVIE_DATE", date);
     },
 
-    createManyWeeks() {
+    createManyWeeks(): moment.Moment[][] {
       const date = this.$store.state.activeDate;
       const future = Array.apply(null, Array(142)).map((n, i) => i);
       const past = Array.apply(null, Array(142))
@@ -111,16 +102,14 @@ export default Vue.extend({
   },
 
   computed: {
-    swiper() {
-      // @ts-ignore
-      return this.$refs.mySwiper.swiper;
-    },
-
-    dateRange() {
+    dateRange():
+      | { fromDateInclusive: string; toDateInclusive: string }
+      | undefined {
+      if (!this.weeks[0][0]) {
+        return;
+      }
       return {
-        // @ts-ignore
         fromDateInclusive: this.weeks[0][0].format(config.DATE_FORMAT),
-        // @ts-ignore
         toDateInclusive: this.weeks[this.weeks.length - 1][6].format(
           config.DATE_FORMAT
         ),

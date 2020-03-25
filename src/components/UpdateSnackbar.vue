@@ -24,7 +24,7 @@ export default Vue.extend({
       duration: Infinity,
       position: "left",
       refreshing: false,
-      registration: null,
+      registration: null as any,
       updateExists: false,
     };
   },
@@ -46,12 +46,9 @@ export default Vue.extend({
 
     refreshApp() {
       this.updateExists = false;
-      // @ts-ignore
       if (!!this.registration && !!this.registration.waiting) {
-        // @ts-ignore
         this.registration.waiting.postMessage("skipWaiting");
       }
-      // @ts-ignore
     },
   },
 });

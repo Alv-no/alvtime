@@ -21,6 +21,12 @@
 import Vue from "vue";
 import SlackButton from "@/components/SlackButton.vue";
 
+declare global {
+  interface Window {
+    addError: any;
+  }
+}
+
 export default Vue.extend({
   components: {
     SlackButton,
@@ -34,7 +40,6 @@ export default Vue.extend({
   },
 
   created() {
-    // @ts-ignore
     window.addError = (errorMessage: string) =>
       this.$store.commit("ADD_TO_ERROR_LIST", errorMessage);
   },

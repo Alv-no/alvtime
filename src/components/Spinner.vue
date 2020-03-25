@@ -11,27 +11,24 @@
 import Vue from "vue";
 import { debounce } from "lodash";
 
-export default {
+export default Vue.extend({
   data() {
     return {
-      show: false,
-      timeout: 0,
+      show: false as boolean,
+      timeout: 0 as number,
     };
   },
 
-  created() {
-    // @ts-ignore
+  created(): void {
     this.timeout = setTimeout(() => {
-      // @ts-ignore
       this.show = true;
     }, 1000);
   },
 
-  beforeDestroy() {
-    // @ts-ignore
+  beforeDestroy(): void {
     clearTimeout(this.timeout);
   },
-};
+});
 </script>
 
 <style scoped>

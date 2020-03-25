@@ -160,9 +160,8 @@ function createServerSideTimeEntrie(timeEntrie: FrontendTimentrie) {
 }
 
 export function isFloat(str: string) {
-  const isMoreThanOneComma =
-    // @ts-ignore
-    str.match(/[.,]/g) && str.match(/[.,]/g).length > 1;
+  const commaMatches = str.match(/[.,]/g);
+  const isMoreThanOneComma = commaMatches && commaMatches.length > 1;
   const isOnlyDigitsAndComma = !str.match(/[^0-9.,]/g);
   return isOnlyDigitsAndComma && !isMoreThanOneComma;
 }

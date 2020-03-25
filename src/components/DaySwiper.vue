@@ -22,6 +22,7 @@ import config from "@/config";
 import TimeEntrieDayList from "./TimeEntrieDayList.vue";
 import DayHeader from "./DayHeader.vue";
 import isInIframe from "@/mixins/isInIframe";
+import moment from "moment";
 
 import Swiper from "swiper";
 
@@ -33,15 +34,16 @@ export default Vue.extend({
 
   data() {
     return {
-      // @ts-ignore
-      dates: this.createManySlides(),
-      virtualData: [],
+      dates: [] as moment.Moment[],
+      virtualData: [] as moment.Moment[],
+      swiper: {} as Swiper,
     };
   },
 
   mounted() {
+    this.dates = this.createManySlides();
     const self = this;
-    const swiper = new Swiper(".swiper-container", {
+    this.swiper = new Swiper(".swiper-container", {
       initialSlide: 1000,
       shortSwipes: false,
       simulateTouch: false,
@@ -57,7 +59,7 @@ export default Vue.extend({
       },
       virtual: {
         slides: self.dates,
-        renderExternal(data: any) {
+        renderExternal(data: moment.Moment[]) {
           self.virtualData = data;
         },
       },
@@ -71,16 +73,9 @@ export default Vue.extend({
   },
 
   computed: {
-    swiper() {
-      // @ts-ignore
-      return this.$refs.mySwiper.swiper;
-    },
-
-    dateRange() {
+    dateRange(): { fromDateInclusive: string; toDateInclusive: string } {
       return {
-        // @ts-ignore
         fromDateInclusive: this.dates[0].format(config.DATE_FORMAT),
-        // @ts-ignore
         toDateInclusive: this.dates[this.dates.length - 1].format(
           config.DATE_FORMAT
         ),
@@ -92,12 +87,11 @@ export default Vue.extend({
     onSlideChangeTransitionEnd() {
       this.$store.commit(
         "UPDATE_ACTVIE_DATE",
-        // @ts-ignore
         this.dates[this.swiper.activeIndex]
       );
     },
 
-    createManySlides() {
+    createManySlides(): moment.Moment[] {
       const date = this.$store.state.activeDate;
       const future = Array.apply(null, Array(1001)).map((n, i) => i);
       const past = Array.apply(null, Array(1000))

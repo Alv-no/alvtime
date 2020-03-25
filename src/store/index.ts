@@ -5,7 +5,6 @@ import timeEntrieHandlers from "./timeEntries";
 import taskHandlers from "./tasks";
 import auth from "./auth";
 import error from "./error";
-// @ts-ignore
 import lifecycle from "@/services/lifecycle.es5.js";
 
 moment.locale("nb");
