@@ -42,7 +42,6 @@ GO
 CREATE TABLE [dbo].[Project](
 	[Id] [int] IDENTITY NOT NULL,
 	[Name] [nvarchar](100) NOT NULL,
-	[Custumer] [int] NOT NULL,
 	[Customer] [int] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
@@ -190,21 +189,6 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[TaskFavorites](
-	[Id] [int] IDENTITY(1,1) NOT NULL,
-	[UserId] [int] NOT NULL,
-	[TaskId] [int] NOT NULL,
-PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
-) ON [PRIMARY]
-GO
-/****** Object:  Table [dbo].[TaskFavorits]    Script Date: 24/03/2020 14:21:08 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [dbo].[TaskFavorits](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
 	[UserId] [int] NOT NULL,
 	[TaskId] [int] NOT NULL,

@@ -1,5 +1,6 @@
 using AlvTimeWebApi.DatabaseModels;
 using AlvTimeWebApi.Dto;
+using AlvTimeWebApi.HelperClasses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -13,10 +14,12 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
     public class TimeEntriesController : Controller
     {
         private readonly AlvTime_dbContext _database;
+        private ExistingObjectFinder checkExisting;
 
         public TimeEntriesController(AlvTime_dbContext database)
         {
             _database = database;
+            checkExisting = new ExistingObjectFinder(_database);
         }
 
         [HttpGet("TimeEntries")]
@@ -51,7 +54,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
 
         [HttpPost("TimeEntries")]
         [Authorize]
-        public ActionResult<List<TimeEntriesResponseDto>> UpsertTimeEntry([FromBody] List<SaveHoursDto> requests)
+        public ActionResult<List<TimeEntriesResponseDto>> UpsertTimeEntry([FromBody] List<CreateTimeEntryDto> requests)
         {
             List<TimeEntriesResponseDto> response = new List<TimeEntriesResponseDto>();
             
@@ -60,7 +63,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
                 try
                 {
                     var user = RetrieveUser();
-                    Hours timeEntry = RetrieveExistingTimeEntry(request, user);
+                    Hours timeEntry = checkExisting.RetrieveExistingTimeEntry(request, user);
                     if (timeEntry == null)
                     {
                         timeEntry = CreateNewTimeEntry(request, user);
@@ -94,7 +97,6 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
                     });
                 } 
             }
-
             return Ok(response);
         }
 
@@ -107,7 +109,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
             return alvUser;
         }
 
-        private Hours CreateNewTimeEntry(SaveHoursDto hoursDto, User user)
+        private Hours CreateNewTimeEntry(CreateTimeEntryDto hoursDto, User user)
         {
             Hours hour = new Hours
             {
@@ -117,16 +119,8 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
                 Year = (short)hoursDto.Date.Year,
                 DayNumber = (short)hoursDto.Date.DayOfYear
             };
-            _database.Add(hour);
+            _database.Hours.Add(hour);
             return hour;
-        }
-
-        private Hours RetrieveExistingTimeEntry(SaveHoursDto hoursDto, User user)
-        {
-            return _database.Hours.FirstOrDefault(h =>
-                h.Date.Date == hoursDto.Date.Date &&
-                h.TaskId == hoursDto.TaskId &&
-                h.User == user.Id);
         }
     }
 }

@@ -10,6 +10,6 @@ namespace AlvTimeWebApi.Dto
         public bool Favorite { get; set; }
         public bool Locked { get; set; }
 
-        public ProjectDto Project { get; set; }
+        public ProjectResponseDto Project { get; set; }
     }
 }

@@ -11,14 +11,14 @@ values
 
 insert into [dbo].[Project]
 values 
-('MatAppen' ,1, 1),
-('LeverMatTilMeg' ,1, 1),
+('MatAppen' ,1),
+('LeverMatTilMeg' ,1),
 ('Sklier' ,2, 2),
-('Luksussmellen' ,3, 3),
-('Paradise Motell' ,3, 3),
-('Disks n Chips' ,4, 4),
-('Hurramegrundt' ,2, 2),
-('Alv' ,5, 5)
+('Luksussmellen' ,3),
+('Paradise Motell' ,3),
+('Disks n Chips' ,4),
+('Hurramegrundt' ,2),
+('Alv' ,5)
 
 insert into [dbo].[User]
 values

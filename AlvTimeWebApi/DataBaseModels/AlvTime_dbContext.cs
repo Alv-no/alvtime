@@ -19,9 +19,10 @@ namespace AlvTimeWebApi.DatabaseModels
         public virtual DbSet<HourRate> HourRate { get; set; }
         public virtual DbSet<Hours> Hours { get; set; }
         public virtual DbSet<Project> Project { get; set; }
+        public virtual DbSet<RefactorLog> RefactorLog { get; set; }
+        public virtual DbSet<Sysdiagrams> Sysdiagrams { get; set; }
         public virtual DbSet<Task> Task { get; set; }
         public virtual DbSet<TaskFavorites> TaskFavorites { get; set; }
-        public virtual DbSet<TaskFavorits> TaskFavorits { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<VDataDump> VDataDump { get; set; }
 
@@ -36,8 +37,6 @@ namespace AlvTimeWebApi.DatabaseModels
         {
             modelBuilder.Entity<Customer>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(100);
@@ -81,8 +80,6 @@ namespace AlvTimeWebApi.DatabaseModels
 
             modelBuilder.Entity<Project>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(100);
@@ -92,6 +89,41 @@ namespace AlvTimeWebApi.DatabaseModels
                     .HasForeignKey(d => d.Customer)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Project_Customer");
+            });
+
+            modelBuilder.Entity<RefactorLog>(entity =>
+            {
+                entity.HasKey(e => e.OperationKey)
+                    .HasName("PK____Refact__D3AEFFDB95F6B6A9");
+
+                entity.ToTable("__RefactorLog");
+
+                entity.Property(e => e.OperationKey).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<Sysdiagrams>(entity =>
+            {
+                entity.HasKey(e => e.DiagramId)
+                    .HasName("PK__sysdiagr__C2B05B618E69ACA2");
+
+                entity.ToTable("sysdiagrams");
+
+                entity.HasIndex(e => new { e.PrincipalId, e.Name })
+                    .HasName("UK_principal_name")
+                    .IsUnique();
+
+                entity.Property(e => e.DiagramId).HasColumnName("diagram_id");
+
+                entity.Property(e => e.Definition).HasColumnName("definition");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasColumnName("name")
+                    .HasMaxLength(128);
+
+                entity.Property(e => e.PrincipalId).HasColumnName("principal_id");
+
+                entity.Property(e => e.Version).HasColumnName("version");
             });
 
             modelBuilder.Entity<Task>(entity =>
@@ -128,8 +160,6 @@ namespace AlvTimeWebApi.DatabaseModels
 
             modelBuilder.Entity<User>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.Property(e => e.Email)
                     .IsRequired()
                     .HasColumnName("email")

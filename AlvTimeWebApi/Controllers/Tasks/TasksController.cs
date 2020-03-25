@@ -1,5 +1,6 @@
 ﻿using AlvTimeWebApi.DatabaseModels;
 using AlvTimeWebApi.Dto;
+using AlvTimeWebApi.HelperClasses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -12,10 +13,14 @@ namespace AlvTimeWebApi.Controllers.Tasks
     public class TasksController : Controller
     {
         private readonly AlvTime_dbContext _database;
+        private CreatedObjectReturner returnObjects;
+        private ExistingObjectFinder checkExisting;
 
         public TasksController(AlvTime_dbContext database)
         {
             _database = database;
+            returnObjects = new CreatedObjectReturner(_database);
+            checkExisting = new ExistingObjectFinder(_database);
         }
 
         [HttpGet("Tasks")]
@@ -33,7 +38,7 @@ namespace AlvTimeWebApi.Controllers.Tasks
                     Id = x.Id,
                     Name = x.Name,
                     Locked = x.Locked,
-                    Project = new ProjectDto
+                    Project = new ProjectResponseDto
                     {
                         Id = x.ProjectNavigation.Id,
                         Name = x.ProjectNavigation.Name,
@@ -61,7 +66,7 @@ namespace AlvTimeWebApi.Controllers.Tasks
 
             foreach (var task in tasksToBeUpdated)
             {
-                TaskFavorites favoriteEntry = RetrieveExistingFavorite(task, user);
+                TaskFavorites favoriteEntry = checkExisting.RetrieveExistingFavorite(task, user);
 
                 if (task.Favorite == true && favoriteEntry == null)
                 {
@@ -72,39 +77,9 @@ namespace AlvTimeWebApi.Controllers.Tasks
                     _database.TaskFavorites.Remove(favoriteEntry);
                     _database.SaveChanges();
                 }
-                response.Add(ReturnTask(user, task));
+                response.Add(returnObjects.ReturnTask(user, task));
             }
             return Ok(response);
-        }
-
-        private TaskResponseDto ReturnTask(User user, UpdateTasksDto task)
-        {
-            var userHasFavorite = _database.TaskFavorites.FirstOrDefault(x => x.TaskId == task.Id && x.UserId == user.Id);
-
-            var taskResponseDto = _database.Task
-                .Where(x => x.Id == task.Id)
-                .Select(x => new TaskResponseDto
-                {
-                    Description = x.Description,
-                    Id = x.Id,
-                    Name = x.Name,
-                    Locked = x.Locked,
-                    Project = new ProjectDto
-                    {
-                        Id = x.ProjectNavigation.Id,
-                        Name = x.ProjectNavigation.Name,
-                        Customer = new CustomerDto
-                        {
-                            Id = x.ProjectNavigation.CustomerNavigation.Id,
-                            Name = x.ProjectNavigation.CustomerNavigation.Name
-                        }
-                    },
-                })
-                .FirstOrDefault();
-
-            taskResponseDto.Favorite = userHasFavorite == null ? false : true;
-
-            return taskResponseDto;
         }
 
         private User RetrieveUser()
@@ -126,13 +101,6 @@ namespace AlvTimeWebApi.Controllers.Tasks
             _database.TaskFavorites.Add(favorite);
             _database.SaveChanges();
             return favorite;
-        }
-
-        private TaskFavorites RetrieveExistingFavorite(UpdateTasksDto taskDto, User user)
-        {
-            return _database.TaskFavorites.FirstOrDefault(x =>
-                x.TaskId == taskDto.Id &&
-                x.UserId == user.Id);
         }
     }
 }

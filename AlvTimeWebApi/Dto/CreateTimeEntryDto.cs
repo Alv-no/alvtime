@@ -2,7 +2,7 @@
 
 namespace AlvTimeWebApi.Dto
 {
-    public class SaveHoursDto
+    public class CreateTimeEntryDto
     {
         public DateTime Date { get; set; }
         public decimal Value { get; set; }
