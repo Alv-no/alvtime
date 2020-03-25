@@ -64,9 +64,7 @@ export default Vue.extend({
         },
       },
     });
-  },
 
-  created() {
     if (!isInIframe()) {
       this.$store.dispatch("FETCH_TIME_ENTRIES", this.dateRange);
     }
@@ -85,9 +83,10 @@ export default Vue.extend({
 
   methods: {
     onSlideChangeTransitionEnd() {
+      const activeDate = this.dates[this.swiper.activeIndex];
       this.$store.commit(
         "UPDATE_ACTVIE_DATE",
-        this.dates[this.swiper.activeIndex]
+        activeDate ? activeDate : moment()
       );
     },
 

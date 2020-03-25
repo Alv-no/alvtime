@@ -65,9 +65,7 @@ export default Vue.extend({
         },
       },
     });
-  },
 
-  created() {
     if (!isInIframe() && this.dateRange) {
       this.$store.dispatch("FETCH_TIME_ENTRIES", this.dateRange);
     }
