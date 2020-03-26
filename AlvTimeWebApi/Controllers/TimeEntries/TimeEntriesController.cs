@@ -77,17 +77,17 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
                     {
                         timeEntry.Value = request.Value;
                         _database.SaveChanges();
-                    }
-                    
-                    var responseDto = new TimeEntriesResponseDto
-                    {
-                        Id = timeEntry.Id,
-                        Date = timeEntry.Date,
-                        Value = timeEntry.Value,
-                        TaskId = timeEntry.TaskId
-                    };
 
-                    response.Add(responseDto);
+                        var responseDto = new TimeEntriesResponseDto
+                        {
+                            Id = timeEntry.Id,
+                            Date = timeEntry.Date,
+                            Value = timeEntry.Value,
+                            TaskId = timeEntry.TaskId
+                        };
+
+                        response.Add(responseDto);
+                    }
                 }
                 catch (Exception e)
                 {

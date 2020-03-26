@@ -13,7 +13,7 @@ insert into [dbo].[Project]
 values 
 ('MatAppen' ,1),
 ('LeverMatTilMeg' ,1),
-('Sklier' ,2, 2),
+('Sklier' ,2),
 ('Luksussmellen' ,3),
 ('Paradise Motell' ,3),
 ('Disks n Chips' ,4),

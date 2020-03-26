@@ -14,33 +14,6 @@ namespace AlvTimeWebApi.HelperClasses
             _database = database;
         }
 
-        public TaskResponseDto ReturnCreatedTask(CreateTaskDto task)
-        {
-            var taskResponseDto = _database.Task
-                .Where(x => x.Name == task.Name && x.Project == task.Project)
-                .Select(x => new TaskResponseDto
-                {
-                    Description = x.Description,
-                    Id = x.Id,
-                    Name = x.Name,
-                    Locked = x.Locked,
-                    Favorite = false,
-                    Project = new ProjectResponseDto
-                    {
-                        Id = x.ProjectNavigation.Id,
-                        Name = x.ProjectNavigation.Name,
-                        Customer = new CustomerDto
-                        {
-                            Id = x.ProjectNavigation.CustomerNavigation.Id,
-                            Name = x.ProjectNavigation.CustomerNavigation.Name
-                        }
-                    }
-                })
-                .FirstOrDefault();
-
-            return taskResponseDto;
-        }
-
         public CustomerDto ReturnCreatedCustomer(CreateCustomerDto customer)
         {
             var customerResponseDto = _database.Customer
@@ -161,33 +134,6 @@ namespace AlvTimeWebApi.HelperClasses
                 .FirstOrDefault();
         }
 
-        public TaskResponseDto ReturnUpdatedTask(LockTaskDto task)
-        {
-            var taskResponseDto = _database.Task
-                .Where(x => x.Id == task.Id)
-                .Select(x => new TaskResponseDto
-                {
-                    Description = x.Description,
-                    Id = x.Id,
-                    Name = x.Name,
-                    Locked = x.Locked,
-                    Favorite = false,
-                    Project = new ProjectResponseDto
-                    {
-                        Id = x.ProjectNavigation.Id,
-                        Name = x.ProjectNavigation.Name,
-                        Customer = new CustomerDto
-                        {
-                            Id = x.ProjectNavigation.CustomerNavigation.Id,
-                            Name = x.ProjectNavigation.CustomerNavigation.Name
-                        }
-                    },
-                })
-                .FirstOrDefault();
-
-            return taskResponseDto;
-        }
-
         public TaskResponseDto ReturnTask(User user, UpdateTasksDto task)
         {
             var userHasFavorite = _database.TaskFavorites.FirstOrDefault(x => x.TaskId == task.Id && x.UserId == user.Id);
@@ -214,6 +160,33 @@ namespace AlvTimeWebApi.HelperClasses
                 .FirstOrDefault();
 
             taskResponseDto.Favorite = userHasFavorite == null ? false : true;
+
+            return taskResponseDto;
+        }
+
+        public TaskResponseDto ReturnCreatedTask(CreateTaskDto task)
+        {
+            var taskResponseDto = _database.Task
+                .Where(x => x.Name == task.Name && x.Project == task.Project)
+                .Select(x => new TaskResponseDto
+                {
+                    Description = x.Description,
+                    Id = x.Id,
+                    Name = x.Name,
+                    Locked = x.Locked,
+                    Favorite = false,
+                    Project = new ProjectResponseDto
+                    {
+                        Id = x.ProjectNavigation.Id,
+                        Name = x.ProjectNavigation.Name,
+                        Customer = new CustomerDto
+                        {
+                            Id = x.ProjectNavigation.CustomerNavigation.Id,
+                            Name = x.ProjectNavigation.CustomerNavigation.Name
+                        }
+                    }
+                })
+                .FirstOrDefault();
 
             return taskResponseDto;
         }

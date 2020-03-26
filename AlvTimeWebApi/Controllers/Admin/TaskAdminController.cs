@@ -54,8 +54,10 @@ namespace AlvTimeWebApi.Controllers.Admin
 
         [HttpPost("LockTask")]
         [AuthorizeAdmin]
-        public ActionResult<IEnumerable<CreateTaskDto>> UpdateLockTask([FromBody] IEnumerable<LockTaskDto> tasksToBeUpdated)
+        public ActionResult<IEnumerable<CreateTaskDto>> UpdateLockTask([FromBody] IEnumerable<UpdateTasksDto> tasksToBeUpdated)
         {
+            var user = RetrieveUser();
+
             List<TaskResponseDto> response = new List<TaskResponseDto>();
 
             foreach (var task in tasksToBeUpdated)
@@ -67,9 +69,18 @@ namespace AlvTimeWebApi.Controllers.Admin
                 taskToBeUpdated.Locked = task.Locked;
                 _database.SaveChanges();
 
-                response.Add(returnObjects.ReturnUpdatedTask(task));
+                response.Add(returnObjects.ReturnTask(user, task));
             }
             return Ok(response);
+        }
+
+        private User RetrieveUser()
+        {
+            var username = User.Claims.FirstOrDefault(x => x.Type == "name").Value;
+            var email = User.Claims.FirstOrDefault(x => x.Type == "preferred_username").Value;
+            var alvUser = _database.User.FirstOrDefault(x => x.Email.Equals(email));
+
+            return alvUser;
         }
     }
 }
