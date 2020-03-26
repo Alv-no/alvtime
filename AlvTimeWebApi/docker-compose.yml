@@ -3,7 +3,6 @@ services:
   dotnet-backend:
     container_name: dotnet-backend
     build: ./
-    env_file: .env
     links:
       - mssql-db
     ports:

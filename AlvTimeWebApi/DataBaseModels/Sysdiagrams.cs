@@ -1,4 +1,7 @@
-﻿namespace AlvTimeWebApi.DatabaseModels
+﻿using System;
+using System.Collections.Generic;
+
+namespace AlvTimeWebApi.DatabaseModels
 {
     public partial class Sysdiagrams
     {

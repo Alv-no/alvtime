@@ -1,6 +1,6 @@
-using AlvTimeApi.Controllers.Tasks;
-using AlvTimeApi.Dto;
 using AlvTimeWebApi.DatabaseModels;
+using AlvTimeWebApi.Dto;
+using AlvTimeWebApi.HelperClasses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -8,17 +8,19 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace TimeTracker1.Controllers
+namespace AlvTimeWebApi.Controllers.TimeEntries
 {
     [Route("api/user")]
     [ApiController]
     public class TimeEntriesController : Controller
     {
         private readonly AlvTime_dbContext _database;
+        private ExistingObjectFinder checkExisting;
 
         public TimeEntriesController(AlvTime_dbContext database)
         {
             _database = database;
+            checkExisting = new ExistingObjectFinder(_database);
         }
 
         [HttpGet("TimeEntries")]
@@ -53,7 +55,7 @@ namespace TimeTracker1.Controllers
 
         [HttpPost("TimeEntries")]
         [Authorize]
-        public ActionResult<List<TimeEntriesResponseDto>> UpsertTimeEntry([FromBody] List<SaveHoursDto> requests)
+        public ActionResult<List<TimeEntriesResponseDto>> UpsertTimeEntry([FromBody] List<CreateTimeEntryDto> requests)
         {
             List<TimeEntriesResponseDto> response = new List<TimeEntriesResponseDto>();
             
@@ -62,24 +64,31 @@ namespace TimeTracker1.Controllers
                 try
                 {
                     var user = RetrieveUser();
-                    Hours timeEntry = RetrieveExistingTimeEntry(request, user);
+                    Hours timeEntry = checkExisting.RetrieveExistingTimeEntry(request, user);
                     if (timeEntry == null)
                     {
                         timeEntry = CreateNewTimeEntry(request, user);
                     }
 
-                    timeEntry.Value = request.Value;
-                    _database.SaveChanges();
+                    var task = _database.Task
+                        .Where(x => x.Id == timeEntry.TaskId)
+                        .FirstOrDefault();
 
-                    var responseDto = new TimeEntriesResponseDto
+                    if(timeEntry.Locked == false && task.Locked == false)
                     {
-                        Id = timeEntry.Id,
-                        Date = timeEntry.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                        Value = timeEntry.Value,
-                        TaskId = timeEntry.TaskId
-                    };
+                        timeEntry.Value = request.Value;
+                        _database.SaveChanges();
+                        
+                        var responseDto = new TimeEntriesResponseDto
+                        {
+                            Id = timeEntry.Id,
+                            Date = timeEntry.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                            Value = timeEntry.Value,
+                            TaskId = timeEntry.TaskId
+                        };
 
-                    response.Add(responseDto);
+                        response.Add(responseDto);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -89,7 +98,6 @@ namespace TimeTracker1.Controllers
                     });
                 } 
             }
-
             return Ok(response);
         }
 
@@ -102,7 +110,7 @@ namespace TimeTracker1.Controllers
             return alvUser;
         }
 
-        private Hours CreateNewTimeEntry(SaveHoursDto hoursDto, User user)
+        private Hours CreateNewTimeEntry(CreateTimeEntryDto hoursDto, User user)
         {
             Hours hour = new Hours
             {
@@ -112,16 +120,8 @@ namespace TimeTracker1.Controllers
                 Year = (short)hoursDto.Date.Year,
                 DayNumber = (short)hoursDto.Date.DayOfYear
             };
-            _database.Add(hour);
+            _database.Hours.Add(hour);
             return hour;
-        }
-
-        private Hours RetrieveExistingTimeEntry(SaveHoursDto hoursDto, User user)
-        {
-            return _database.Hours.FirstOrDefault(h =>
-                h.Date.Date == hoursDto.Date.Date &&
-                h.TaskId == hoursDto.TaskId &&
-                h.User == user.Id);
         }
     }
 }

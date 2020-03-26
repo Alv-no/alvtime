@@ -1,6 +1,6 @@
 ﻿using AlvTimeWebApi.Dto;
 
-namespace AlvTimeApi.Controllers.Tasks
+namespace AlvTimeWebApi.Dto
 {
     public class TaskResponseDto
     {
@@ -10,6 +10,6 @@ namespace AlvTimeApi.Controllers.Tasks
         public bool Favorite { get; set; }
         public bool Locked { get; set; }
 
-        public ProjectDto Project { get; set; }
+        public ProjectResponseDto Project { get; set; }
     }
 }
