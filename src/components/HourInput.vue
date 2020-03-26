@@ -1,8 +1,11 @@
 <template>
   <div>
-    <button @click="onTimeLeftInDayClick" v-if="showHelperButtons">
-      {{ timeLeftInDay }}
-    </button>
+    <TimeLeftInDayButton
+      @click="onTimeLeftInDayClick"
+      :value="value"
+      :timeEntrie="timeEntrie"
+      v-if="showHelperButtons"
+    />
     <input
       :class="{ error }"
       type="text"
@@ -23,8 +26,13 @@
 import { defer } from "lodash";
 import { isFloat } from "@/store/timeEntries";
 import config from "@/config";
+import TimeLeftInDayButton from "@/components/TimeLeftInDayButton";
 
 export default {
+  components: {
+    TimeLeftInDayButton,
+  },
+
   props: ["timeEntrie"],
   data() {
     return {
@@ -56,22 +64,6 @@ export default {
 
     error() {
       return !isFloat(this.value);
-    },
-
-    timeLeftInDay() {
-      let timeLeft = config.HOURS_IN_WORKDAY;
-      for (let entrie of this.$store.state.timeEntries) {
-        if (
-          entrie.date === this.timeEntrie.date &&
-          entrie.taskId !== this.timeEntrie.taskId
-        ) {
-          timeLeft = timeLeft - Number(entrie.value);
-        }
-      }
-
-      timeLeft = timeLeft > 0 ? timeLeft : config.HOURS_IN_WORKDAY;
-      timeLeft = timeLeft.toString().replace(".", ",");
-      return timeLeft === this.value ? "0" : timeLeft;
     },
 
     isOnline() {
@@ -130,8 +122,6 @@ export default {
     },
 
     onTimeLeftInDayClick() {
-      const timeEntrie = { ...this.timeEntrie, value: this.timeLeftInDay };
-      this.$store.dispatch("UPDATE_TIME_ENTRIE", timeEntrie);
       this.enableBlur = false;
       this.inputRef.focus();
     },
@@ -156,16 +146,5 @@ input:focus {
 
 .error {
   border-color: red;
-}
-
-button {
-  background-color: #e8b925;
-  border: none;
-  padding: 0.3rem 0.4rem;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 0.8rem;
-  margin-right: 0.4rem;
 }
 </style>
