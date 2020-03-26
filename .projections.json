@@ -1,0 +1,8 @@
+{
+  "src/store/*.ts": {
+    "alternate": ["src/store/__tests__/{}.ts"]
+  },
+  "src/store/__tests__/*.ts": {
+    "alternate": ["src/store/{}.ts"]
+  }
+}
