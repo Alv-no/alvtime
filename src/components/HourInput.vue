@@ -42,11 +42,10 @@ export default {
     value: {
       get() {
         if (this.$store.state.editing) return this.localValue;
-        const entrie = this.$store.getters.getTimeEntrie(this.timeEntrie);
-        const entrieStr = entrie
-          ? entrie.value.toString().replace(".", ",")
-          : "0";
-        return entrieStr;
+        const date = this.$store.state.timeEntriesMap[this.timeEntrie.date];
+        const task = date && date[this.timeEntrie.taskId];
+        const value = task && task.value;
+        return value ? value.toString().replace(".", ",") : "0";
       },
       set(str) {
         this.localValue = str.replace(".", ",");

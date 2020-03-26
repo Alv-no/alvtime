@@ -39,9 +39,19 @@ interface Account {
   name: string;
 }
 
+export interface TimeEntrieObj {
+  value: string;
+  id: number;
+}
+
+export interface TimeEntrieMap {
+  [key: string]: { [key: number]: TimeEntrieObj };
+}
+
 export interface State {
   tasks: Task[];
   timeEntries: FrontendTimentrie[];
+  timeEntriesMap: TimeEntrieMap;
   activeDate: moment.Moment;
   activeTaskId: number;
   pushQueue: FrontendTimentrie[];

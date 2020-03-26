@@ -1,5 +1,9 @@
-import moment from "moment";
-import { State, FrontendTimentrie } from "./index";
+import {
+  State,
+  FrontendTimentrie,
+  TimeEntrieMap,
+  TimeEntrieObj,
+} from "./index";
 import { ActionContext } from "vuex";
 import { debounce } from "lodash";
 import config from "@/config";
@@ -16,6 +20,7 @@ export default {
   state: {
     timeEntries: [],
     pushQueue: [],
+    timeEntriesMap: {},
   },
 
   getters: {
@@ -27,14 +32,25 @@ export default {
   },
 
   mutations: {
-    SET_TIME_ENTRIES(state: State, paramEntries: FrontendTimentrie[]) {
-      state.timeEntries = paramEntries;
-    },
-
     UPDATE_TIME_ENTRIES(state: State, paramEntries: FrontendTimentrie[]) {
+      const newTimeEntriesMap = {} as TimeEntrieMap;
       for (const paramEntrie of paramEntries) {
-        state.timeEntries = updateArrayWith(state.timeEntries, paramEntrie);
+        let tasks = state.timeEntriesMap[paramEntrie.date];
+        tasks = tasks ? tasks : {};
+        const newTasks = {} as { [key: number]: TimeEntrieObj };
+        newTasks[paramEntrie.taskId] = {
+          value: paramEntrie.value,
+          id: paramEntrie.id,
+        };
+        newTimeEntriesMap[paramEntrie.date] = { ...tasks, ...newTasks };
       }
+      state.timeEntriesMap = { ...state.timeEntriesMap, ...newTimeEntriesMap };
+
+      let newTimeEntries = [...state.timeEntries];
+      for (const paramEntrie of paramEntries) {
+        newTimeEntries = updateArrayWith(newTimeEntries, paramEntrie);
+      }
+      state.timeEntries = newTimeEntries;
     },
 
     ADD_TO_PUSH_QUEUE(state: State, paramEntrie: FrontendTimentrie) {
