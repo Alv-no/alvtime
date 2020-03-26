@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace AlvTimeWebApi.Controllers.TimeEntries
@@ -36,7 +37,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
                     {
                         Id = x.Id,
                         Value = x.Value,
-                        Date = x.Date.Date,
+                        Date = x.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                         TaskId = x.TaskId
                     })
                     .ToList();
@@ -77,7 +78,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
                     {
                         timeEntry.Value = request.Value;
                         _database.SaveChanges();
-
+                        
                         var responseDto = new TimeEntriesResponseDto
                         {
                             Id = timeEntry.Id,
