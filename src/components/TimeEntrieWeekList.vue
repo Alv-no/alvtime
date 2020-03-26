@@ -34,7 +34,13 @@ export default Vue.extend({
       const rows = [...this.tasksWithHours, ...this.tasksWithoutHours].sort(
         sortList
       );
-      return rows;
+      if (rows.length <= 4) {
+        return rows;
+      }
+      const isSame = this.week.some((date: moment.Moment) =>
+        date.isSame(this.$store.state.activeDate, "day")
+      );
+      return isSame ? rows : rows.slice(0, 3);
     },
 
     tasksWithHours(): Task[] {
