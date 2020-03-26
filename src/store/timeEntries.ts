@@ -33,16 +33,9 @@ export default {
 
   mutations: {
     UPDATE_TIME_ENTRIES(state: State, paramEntries: FrontendTimentrie[]) {
-      const newTimeEntriesMap = {} as TimeEntrieMap;
+      let newTimeEntriesMap = { ...state.timeEntriesMap };
       for (const paramEntrie of paramEntries) {
-        let tasks = state.timeEntriesMap[paramEntrie.date];
-        tasks = tasks ? tasks : {};
-        const newTasks = {} as { [key: number]: TimeEntrieObj };
-        newTasks[paramEntrie.taskId] = {
-          value: paramEntrie.value,
-          id: paramEntrie.id,
-        };
-        newTimeEntriesMap[paramEntrie.date] = { ...tasks, ...newTasks };
+        newTimeEntriesMap = updateTimeEntrieMap(newTimeEntriesMap, paramEntrie);
       }
       state.timeEntriesMap = { ...state.timeEntriesMap, ...newTimeEntriesMap };
 
@@ -135,6 +128,21 @@ ${timeEntries.title}`);
     },
   },
 };
+
+function updateTimeEntrieMap(
+  timeEntrieMap: TimeEntrieMap,
+  paramEntrie: FrontendTimentrie
+): TimeEntrieMap {
+  let tasks = timeEntrieMap[paramEntrie.date];
+  tasks = tasks ? tasks : {};
+  const newTask = {} as { [key: number]: TimeEntrieObj };
+  newTask[paramEntrie.taskId] = {
+    value: paramEntrie.value,
+    id: paramEntrie.id,
+  };
+  timeEntrieMap[paramEntrie.date] = { ...tasks, ...newTask };
+  return timeEntrieMap;
+}
 
 function updateArrayWith(
   arr: FrontendTimentrie[],
