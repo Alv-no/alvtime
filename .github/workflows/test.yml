@@ -28,6 +28,5 @@ jobs:
       - name: Run tests
         run: |
           docker build . --file Dockerfile-dev
-          docker build -f Dockerfile-dev
           docker run image npx vue-cli-service lint
           docker run image npx vue-cli-service test:unit
