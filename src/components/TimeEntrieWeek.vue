@@ -13,7 +13,7 @@ import Vue from "vue";
 import HourInput from "./HourInput.vue";
 import config from "@/config";
 import moment from "moment";
-import { FrontendTimentrie } from "@/store";
+import { FrontendTimentrie, TimeEntrieObj } from "@/store";
 
 export default Vue.extend({
   components: {
@@ -34,12 +34,14 @@ export default Vue.extend({
   },
 
   methods: {
-    findEntrieInState(day: moment.Moment): FrontendTimentrie {
-      return this.$store.state.timeEntries.find(
-        (entrie: FrontendTimentrie) =>
-          entrie.date === day.format(config.DATE_FORMAT) &&
-          entrie.taskId === this.task.id
-      );
+    findEntrieInState(day: moment.Moment): FrontendTimentrie | undefined {
+      const date = day.format(config.DATE_FORMAT);
+      const dateObj = this.$store.state.timeEntriesMap[date];
+      const taskId = this.task.id;
+      const task = dateObj && dateObj[taskId];
+      return task
+        ? { id: task.id, value: task.value, taskId, date }
+        : undefined;
     },
 
     zeroEntrie(day: moment.Moment): FrontendTimentrie {
