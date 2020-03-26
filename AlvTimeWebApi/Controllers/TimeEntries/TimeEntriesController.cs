@@ -82,7 +82,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
                         var responseDto = new TimeEntriesResponseDto
                         {
                             Id = timeEntry.Id,
-                            Date = timeEntry.Date,
+                            Date = timeEntry.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                             Value = timeEntry.Value,
                             TaskId = timeEntry.TaskId
                         };
