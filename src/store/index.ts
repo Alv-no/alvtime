@@ -1,16 +1,10 @@
-import Vue from "vue";
-import Vuex from "vuex";
 import moment from "moment";
 import timeEntrieHandlers from "./timeEntries";
 import taskHandlers from "./tasks";
 import auth from "./auth";
 import error from "./error";
-// @ts-ignore
-import lifecycle from "@/services/lifecycle.es5.js";
 
 moment.locale("nb");
-
-Vue.use(Vuex);
 
 export interface FrontendTimentrie {
   id: number;
@@ -40,9 +34,24 @@ interface Account {
   name: string;
 }
 
+export interface TimeEntrieObj {
+  value: string;
+  id: number;
+}
+
+export interface TimeEntrieMap {
+  [key: string]: { [key: number]: TimeEntrieObj };
+}
+
+interface AppState {
+  oldState: string;
+  newState: string;
+}
+
 export interface State {
   tasks: Task[];
   timeEntries: FrontendTimentrie[];
+  timeEntriesMap: TimeEntrieMap;
   activeDate: moment.Moment;
   activeTaskId: number;
   pushQueue: FrontendTimentrie[];
@@ -50,68 +59,73 @@ export interface State {
   account: Account | null;
   isOnline: boolean;
   errorTexts: string[];
-  appState: { oldState: string; newState: string };
+  appState: AppState;
+  editing: boolean;
 }
 
-const store = new Vuex.Store({
-  strict: process.env.NODE_ENV !== "production",
-  state: {
-    ...timeEntrieHandlers.state,
-    ...taskHandlers.state,
-    ...auth.state,
-    ...error.state,
+export const mutations = {
+  ...timeEntrieHandlers.mutations,
+  ...taskHandlers.mutations,
+  ...error.mutations,
 
-    appState: { oldState: "", newState: "" },
-    isOnline: true,
-    activeDate: moment(),
-    activeTaskId: -1,
-    selectFavorites: false,
+  UPDATE_ACTVIE_DATE(state: State, date: moment.Moment) {
+    state.activeDate = date;
   },
+
+  UPDATE_ACTVIE_TASK(state: State, taskId: number) {
+    state.activeTaskId = taskId;
+  },
+
+  TOGGLE_SELECTFAVORITES(state: State) {
+    state.selectFavorites = !state.selectFavorites;
+  },
+
+  UPDATE_ONLINE_STATUS(state: State) {
+    if (typeof window.navigator.onLine === "undefined") {
+      // If the browser doesn't support connection status reports
+      // assume that we are online because most apps' only react
+      // when they now that the connection has been interrupted
+      state.isOnline = true;
+    } else {
+      state.isOnline = window.navigator.onLine;
+    }
+  },
+
+  UPDATE_APP_STATE(state: State, { oldState, newState }: AppState) {
+    state.appState = { oldState, newState };
+  },
+
+  UPDATE_EDITING(state: State, editing: boolean) {
+    console.log("editing: ", editing);
+    state.editing = editing;
+  },
+};
+
+export const state = {
+  ...timeEntrieHandlers.state,
+  ...taskHandlers.state,
+  ...auth.state,
+  ...error.state,
+
+  appState: { oldState: "", newState: "" },
+  isOnline: true,
+  activeDate: moment(),
+  activeTaskId: -1,
+  selectFavorites: false,
+  editing: false,
+};
+
+export default {
+  strict: process.env.NODE_ENV !== "production",
+  state,
   getters: {
     ...timeEntrieHandlers.getters,
     ...taskHandlers.getters,
   },
-  mutations: {
-    ...timeEntrieHandlers.mutations,
-    ...taskHandlers.mutations,
-    ...error.mutations,
-
-    UPDATE_ACTVIE_DATE(state: State, date: moment.Moment) {
-      state.activeDate = date;
-    },
-
-    UPDATE_ACTVIE_TASK(state: State, taskId: number) {
-      state.activeTaskId = taskId;
-    },
-
-    TOGGLE_SELECTFAVORITES(state: State) {
-      state.selectFavorites = !state.selectFavorites;
-    },
-
-    UPDATE_ONLINE_STATUS(state: State) {
-      if (typeof window.navigator.onLine === "undefined") {
-        // If the browser doesn't support connection status reports
-        // assume that we are online because most apps' only react
-        // when they now that the connection has been interrupted
-        state.isOnline = true;
-      } else {
-        state.isOnline = window.navigator.onLine;
-      }
-    },
-
-    UPDATE_APP_STATE(state: State, { oldState, newState }) {
-      state.appState = { oldState, newState };
-    },
-  },
+  mutations,
   actions: {
     ...timeEntrieHandlers.actions,
     ...taskHandlers.actions,
   },
   modules: {},
-});
-
-lifecycle.addEventListener("statechange", function(event: any) {
-  store.commit("UPDATE_APP_STATE", event);
-});
-
-export default store;
+};

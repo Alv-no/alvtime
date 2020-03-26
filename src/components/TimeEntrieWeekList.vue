@@ -13,13 +13,16 @@
   </div>
 </template>
 
-<script>
-import TimeEntrieWeek from "./TimeEntrieWeek";
-import TimeEntrie from "./TimeEntrie";
+<script lang="ts">
+import Vue from "vue";
+import TimeEntrieWeek from "./TimeEntrieWeek.vue";
+import TimeEntrie from "./TimeEntrie.vue";
 import TimeEntrieText from "./TimeEntrieText.vue";
+import { Task, FrontendTimentrie } from "@/store";
 import config from "@/config";
+import moment from "moment";
 
-export default {
+export default Vue.extend({
   components: {
     TimeEntrieWeek,
     TimeEntrieText,
@@ -27,15 +30,15 @@ export default {
   props: ["week"],
 
   computed: {
-    tasks() {
+    tasks(): Task[] {
       const rows = [...this.tasksWithHours, ...this.tasksWithoutHours].sort(
         sortList
       );
       return rows;
     },
 
-    tasksWithHours() {
-      const tasks = [];
+    tasksWithHours(): Task[] {
+      const tasks: Task[] = [];
       for (const entrie of this.weeksTimeEntries) {
         const task = this.$store.getters.getTask(entrie.taskId);
         if (!tasks.some(t => t.id === task.id)) {
@@ -45,20 +48,20 @@ export default {
       return tasks;
     },
 
-    tasksWithoutHours() {
+    tasksWithoutHours(): Task[] {
       return this.$store.getters.favoriteTasks.filter(
-        task => !this.tasksWithHours.some(t => t.id === task.id)
+        (task: Task) => !this.tasksWithHours.some(t => t.id === task.id)
       );
     },
 
-    weeksTimeEntries() {
-      return this.$store.state.timeEntries.filter(entrie =>
+    weeksTimeEntries(): FrontendTimentrie[] {
+      return this.$store.state.timeEntries.filter((entrie: FrontendTimentrie) =>
         this.isThisWeek(entrie.date)
       );
     },
 
-    daysOfWeek() {
-      return this.week.map(day => {
+    daysOfWeek(): string[] {
+      return this.week.map((day: moment.Moment) => {
         const d = day.format("ddd DD");
         return d.charAt(0).toUpperCase() + d.slice(1);
       });
@@ -66,16 +69,18 @@ export default {
   },
 
   methods: {
-    isThisWeek(d) {
-      return this.week.some(date => date.format(config.DATE_FORMAT) === d);
+    isThisWeek(d: string): boolean {
+      return this.week.some(
+        (date: moment.Moment) => date.format(config.DATE_FORMAT) === d
+      );
     },
   },
-};
+});
 
-export function sortList(a, b) {
-  if (a.customerName > b.customerName) {
+export function sortList(a: Task, b: Task) {
+  if (a.project.customer.name > b.project.customer.name) {
     return 1;
-  } else if (a.customerName < b.customerName) {
+  } else if (a.project.customer.name < b.project.customer.name) {
     return -1;
   }
 
