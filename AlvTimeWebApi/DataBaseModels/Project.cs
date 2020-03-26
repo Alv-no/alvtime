@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace AlvTimeWebApi.DatabaseModels
 {
@@ -12,7 +11,6 @@ namespace AlvTimeWebApi.DatabaseModels
 
         public int Id { get; set; }
         public string Name { get; set; }
-        public int Custumer { get; set; }
         public int Customer { get; set; }
 
         public virtual Customer CustomerNavigation { get; set; }

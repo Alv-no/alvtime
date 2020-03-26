@@ -37,6 +37,9 @@
     },
     "AzureAd__ClientId": {
       "type": "String"
+    },
+    "AdminGroup": {
+      "type": "String"
     }
   },
   "variables": {},
@@ -139,6 +142,10 @@
             {
               "name": "AzureAd__IssuerId",
               "value": "[parameters('AzureAd__IssuerId')]"
+            },
+            {
+              "name": "AdminGroup",
+              "value": "[parameters('AdminGroup')]"
             }
           ],
           "connectionStrings": [

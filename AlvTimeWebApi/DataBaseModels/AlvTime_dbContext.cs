@@ -23,7 +23,6 @@ namespace AlvTimeWebApi.DatabaseModels
         public virtual DbSet<Sysdiagrams> Sysdiagrams { get; set; }
         public virtual DbSet<Task> Task { get; set; }
         public virtual DbSet<TaskFavorites> TaskFavorites { get; set; }
-        public virtual DbSet<TaskFavorits> TaskFavorits { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<VDataDump> VDataDump { get; set; }
 
@@ -31,8 +30,6 @@ namespace AlvTimeWebApi.DatabaseModels
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=AlvTime_db;Integrated Security=True");
             }
         }
 
@@ -97,7 +94,7 @@ namespace AlvTimeWebApi.DatabaseModels
             modelBuilder.Entity<RefactorLog>(entity =>
             {
                 entity.HasKey(e => e.OperationKey)
-                    .HasName("PK____Refact__D3AEFFDB727C08F4");
+                    .HasName("PK____Refact__D3AEFFDB95F6B6A9");
 
                 entity.ToTable("__RefactorLog");
 
@@ -107,7 +104,7 @@ namespace AlvTimeWebApi.DatabaseModels
             modelBuilder.Entity<Sysdiagrams>(entity =>
             {
                 entity.HasKey(e => e.DiagramId)
-                    .HasName("PK__sysdiagr__C2B05B61A8B3699B");
+                    .HasName("PK__sysdiagr__C2B05B618E69ACA2");
 
                 entity.ToTable("sysdiagrams");
 

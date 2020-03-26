@@ -18,5 +18,6 @@ namespace AlvTimeWebApi.DatabaseModels
         public int CustomerId { get; set; }
         public decimal HourRate { get; set; }
         public decimal? Earnings { get; set; }
+        public bool? IsBillable { get; set; }
     }
 }

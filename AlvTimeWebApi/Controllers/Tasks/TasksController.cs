@@ -1,25 +1,29 @@
-﻿using AlvTimeApi.Dto;
-using AlvTimeWebApi.DatabaseModels;
+﻿using AlvTimeWebApi.DatabaseModels;
 using AlvTimeWebApi.Dto;
+using AlvTimeWebApi.HelperClasses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AlvTimeApi.Controllers.Tasks
+namespace AlvTimeWebApi.Controllers.Tasks
 {
     [Route("api/user")]
     [ApiController]
     public class TasksController : Controller
     {
         private readonly AlvTime_dbContext _database;
+        private CreatedObjectReturner returnObjects;
+        private ExistingObjectFinder checkExisting;
 
         public TasksController(AlvTime_dbContext database)
         {
             _database = database;
+            returnObjects = new CreatedObjectReturner(_database);
+            checkExisting = new ExistingObjectFinder(_database);
         }
 
-        [HttpGet("Tasks")] 
+        [HttpGet("Tasks")]
         [Authorize]
         public ActionResult<IEnumerable<TaskResponseDto>> FetchTasks()
         {
@@ -34,7 +38,7 @@ namespace AlvTimeApi.Controllers.Tasks
                     Id = x.Id,
                     Name = x.Name,
                     Locked = x.Locked,
-                    Project = new ProjectDto
+                    Project = new ProjectResponseDto
                     {
                         Id = x.ProjectNavigation.Id,
                         Name = x.ProjectNavigation.Name,
@@ -62,55 +66,20 @@ namespace AlvTimeApi.Controllers.Tasks
 
             foreach (var task in tasksToBeUpdated)
             {
-                TaskFavorites favoriteEntry = RetrieveExistingFavorite(task, user);
+                TaskFavorites favoriteEntry = checkExisting.RetrieveExistingFavorite(task, user);
 
-                if (task.Favorite == true)
+                if (task.Favorite == true && favoriteEntry == null)
                 {
-                    if (favoriteEntry == null)
-                    {
-                        CreateNewFavorite(task, user);
-                    }
+                    CreateNewFavorite(task, user);
                 }
-                else if (task.Favorite == false)
+                else if (task.Favorite == false && favoriteEntry != null)
                 {
-                    if (favoriteEntry != null)
-                    {
-                        _database.TaskFavorites.Remove(favoriteEntry);
-                        _database.SaveChanges();
-                    }
+                    _database.TaskFavorites.Remove(favoriteEntry);
+                    _database.SaveChanges();
                 }
-                response.Add(ReturnTask(user, task));
+                response.Add(returnObjects.ReturnTask(user, task));
             }
             return Ok(response);
-        }
-
-        private TaskResponseDto ReturnTask(User user, UpdateTasksDto task)
-        {
-            var userHasFavorite = _database.TaskFavorites.FirstOrDefault(x => x.TaskId == task.Id && x.UserId == user.Id);
-
-            var taskResponseDto = _database.Task
-                .Where(x => x.Id == task.Id)
-                .Select(x => new TaskResponseDto
-                {
-                    Description = x.Description,
-                    Id = x.Id,
-                    Name = x.Name,
-                    Locked = x.Locked,
-                    Favorite = userHasFavorite == null ? false : true,
-                    Project = new ProjectDto
-                    {
-                        Id = x.ProjectNavigation.Id,
-                        Name = x.ProjectNavigation.Name,
-                        Customer = new CustomerDto
-                        {
-                            Id = x.ProjectNavigation.CustomerNavigation.Id,
-                            Name = x.ProjectNavigation.CustomerNavigation.Name
-                        }
-                    },
-                })
-                .Single();
-
-            return taskResponseDto;
         }
 
         private User RetrieveUser()
@@ -132,13 +101,6 @@ namespace AlvTimeApi.Controllers.Tasks
             _database.TaskFavorites.Add(favorite);
             _database.SaveChanges();
             return favorite;
-        }
-
-        private TaskFavorites RetrieveExistingFavorite(UpdateTasksDto taskDto, User user)
-        {
-            return _database.TaskFavorites.FirstOrDefault(x =>
-                x.TaskId == taskDto.Id &&
-                x.UserId == user.Id);
         }
     }
 }

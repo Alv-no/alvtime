@@ -1,8 +1,10 @@
-﻿using AlvTimeWebApi.DatabaseModels;
+﻿using AlvTimeWebApi.Authentication;
+using AlvTimeWebApi.DatabaseModels;
 using AlvTimeWebApi.Dto;
-using Microsoft.AspNetCore.Authorization;
+using AlvTimeWebApi.HelperClasses;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace AlvTimeWebApi.Controllers.Economy
@@ -13,21 +15,26 @@ namespace AlvTimeWebApi.Controllers.Economy
     {
         private readonly AlvTime_dbContext _database;
 
+        private CreatedObjectReturner returnObjects;
+        private ExistingObjectFinder checkExisting;
+
         public EconomyController(AlvTime_dbContext database)
         {
             _database = database;
+            returnObjects = new CreatedObjectReturner(_database);
+            checkExisting = new ExistingObjectFinder(_database);
         }
 
         [HttpGet("EconomyInfo")]
-        [Authorize]
-        public ActionResult<IEnumerable<EconomyDto>> FetchEconomyInfo()
+        [AuthorizeAdmin]
+        public ActionResult<IEnumerable<DataDumpDto>> FetchEconomyInfo()
         {
             var info = _database.VDataDump
-                .Select(x => new EconomyDto
+                .Select(x => new DataDumpDto
                 {
                     CustomerId = x.CustomerId,
                     CustomerName = x.CustomerName,
-                    Date = x.Date,
+                    Date = x.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                     Email = x.Email,
                     HourRate = x.HourRate,
                     ProjectId = x.ProjectId,
@@ -36,7 +43,9 @@ namespace AlvTimeWebApi.Controllers.Economy
                     TaskName = x.TaskName,
                     UserId = x.UserId,
                     UserName = x.UserName,
-                    Value = x.Value
+                    Value = x.Value,
+                    Earnings = x.Earnings,
+                    IsBillable = x.IsBillable
                 })
                 .ToList();
             return Ok(info);
