@@ -44,7 +44,7 @@ export default Vue.extend({
     this.dates = this.createManySlides();
     const self = this;
     this.swiper = new Swiper(".swiper-container", {
-      initialSlide: 1000,
+      initialSlide: 364,
       shortSwipes: false,
       simulateTouch: false,
       noSwipingSelector: "input, button",
@@ -95,8 +95,8 @@ export default Vue.extend({
 
     createManySlides(): moment.Moment[] {
       const date = this.$store.state.activeDate;
-      const future = Array.apply(null, Array(1001)).map((n, i) => i);
-      const past = Array.apply(null, Array(1000))
+      const future = Array.apply(null, Array(730)).map((n, i) => i);
+      const past = Array.apply(null, Array(365))
         .map((n, i) => (i + 1) * -1)
         .reverse();
       return [...past, ...future].map(n => date.clone().add(n, "day"));
