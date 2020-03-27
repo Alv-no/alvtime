@@ -56,6 +56,7 @@ export default Vue.extend({
       },
       on: {
         transitionEnd: self.onTransitionEnd,
+        touchStart: self.onTransitionStart,
       },
       virtual: {
         slides: self.dates,
@@ -86,6 +87,10 @@ export default Vue.extend({
       const activeDate = this.dates[this.swiper.activeIndex];
       const date = activeDate ? activeDate : moment();
       this.$store.commit("UPDATE_ACTVIE_DATE", date);
+    },
+
+    onTransitionStart() {
+      this.$store.commit("UPDATE_EDITING", false);
     },
 
     createManySlides(): moment.Moment[] {
