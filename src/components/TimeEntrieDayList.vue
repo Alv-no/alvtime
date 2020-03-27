@@ -28,33 +28,25 @@ export default Vue.extend({
   props: ["date"],
 
   computed: {
-    rows() {
-      // @ts-ignore
+    rows(): Row[] {
       return [...this.rowsWithHours, ...this.rowsWithoutHours].sort(sortList);
     },
 
     rowsWithHours(): Row[] {
-      // @ts-ignore
       return this.daysTimeEntries.map((entrie: FrontendTimentrie) => {
         const task = this.$store.getters.getTask(entrie.taskId);
-        // @ts-ignore
         return this.createRow(task, entrie);
       });
     },
 
-    rowsWithoutHours() {
-      return (
-        this.$store.getters.favoriteTasks
-          // @ts-ignore
-          .filter((task: Task) => !this.isTaskInEntries(task))
-          // @ts-ignore
-          .map((task: Task) => this.createRow(task))
-      );
+    rowsWithoutHours(): Row[] {
+      return this.$store.getters.favoriteTasks
+        .filter((task: Task) => !this.isTaskInEntries(task))
+        .map((task: Task) => this.createRow(task));
     },
 
     daysTimeEntries(): FrontendTimentrie[] {
       return this.$store.state.timeEntries.filter((entrie: FrontendTimentrie) =>
-        // @ts-ignore
         this.isThisDate(entrie.date)
       );
     },
@@ -62,7 +54,6 @@ export default Vue.extend({
 
   methods: {
     isTaskInEntries(task: Task): boolean {
-      // @ts-ignore
       return this.daysTimeEntries.some(
         (entrie: FrontendTimentrie) => entrie.taskId === task.id
       );
@@ -72,7 +63,7 @@ export default Vue.extend({
       return date === this.date.format(config.DATE_FORMAT);
     },
 
-    createRow(task: Task, timeEntrie: FrontendTimentrie): Row {
+    createRow(task: Task, timeEntrie?: FrontendTimentrie): Row {
       if (!timeEntrie) {
         timeEntrie = {
           id: 0,

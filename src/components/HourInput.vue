@@ -1,11 +1,15 @@
 <template>
   <div>
-    <button @click="onTimeLeftInDayClick" v-if="showHelperButtons">
-      {{ timeLeftInDay }}
-    </button>
+    <TimeLeftInDayButton
+      @click="onTimeLeftInDayClick"
+      :value="value"
+      :timeEntrie="timeEntrie"
+      v-if="showHelperButtons"
+    />
     <input
       :class="{ error }"
       type="text"
+      @input="onInput"
       v-model="value"
       @touchstart="onTouchStart"
       @blur="onBlur"
@@ -22,15 +26,19 @@
 import { defer } from "lodash";
 import { isFloat } from "@/store/timeEntries";
 import config from "@/config";
+import TimeLeftInDayButton from "@/components/TimeLeftInDayButton";
 
 export default {
+  components: {
+    TimeLeftInDayButton,
+  },
+
   props: ["timeEntrie"],
   data() {
     return {
       showHelperButtons: false,
       enableBlur: true,
       localValue: "0",
-      editing: false,
     };
   },
 
@@ -41,9 +49,11 @@ export default {
 
     value: {
       get() {
-        if (this.editing) return this.localValue;
-        const entrie = this.$store.getters.getTimeEntrie(this.timeEntrie);
-        return entrie ? entrie.value.toString().replace(".", ",") : "0";
+        if (this.$store.state.editing) return this.localValue;
+        const date = this.$store.state.timeEntriesMap[this.timeEntrie.date];
+        const task = date && date[this.timeEntrie.taskId];
+        const value = task && task.value;
+        return value ? value.toString().replace(".", ",") : "0";
       },
       set(str) {
         this.localValue = str.replace(".", ",");
@@ -56,21 +66,6 @@ export default {
       return !isFloat(this.value);
     },
 
-    timeLeftInDay() {
-      let timeLeft = config.HOURS_IN_WORKDAY;
-      for (let entrie of this.$store.state.timeEntries) {
-        if (
-          entrie.date === this.timeEntrie.date &&
-          entrie.taskId !== this.timeEntrie.taskId
-        ) {
-          timeLeft = timeLeft - Number(entrie.value);
-        }
-      }
-
-      timeLeft = timeLeft > 0 ? timeLeft : config.HOURS_IN_WORKDAY;
-      return timeLeft.toString().replace(".", ",");
-    },
-
     isOnline() {
       return this.$store.state.isOnline;
     },
@@ -81,6 +76,10 @@ export default {
   },
 
   watch: {
+    value() {
+      this.localValue = this.value;
+    },
+
     activeDate() {
       const isSameTask =
         this.activeDate.format(config.DATE_FORMAT) === this.timeEntrie.date &&
@@ -94,18 +93,13 @@ export default {
 
   methods: {
     onTouchStart(e) {
-      setTimeout(() => {
-        const isValueChanged = this.value !== this.timeLeftInDay;
-        if (isValueChanged) {
-          this.showHelperButtons = true;
-          this.$store.commit("UPDATE_ACTVIE_TASK", this.timeEntrie.taskId);
-          e.target.focus();
-        }
-      }, 200);
+      this.showHelperButtons = true;
+      this.$store.commit("UPDATE_ACTVIE_TASK", this.timeEntrie.taskId);
+      e.target.focus();
     },
 
     onBlur() {
-      this.editing = false;
+      this.$store.commit("UPDATE_EDITING", false);
       defer(() => {
         if (this.enableBlur && this.showHelperButtons) {
           this.showHelperButtons = false;
@@ -121,12 +115,13 @@ export default {
 
     onFocus() {
       this.localValue = this.value;
-      this.editing = true;
+    },
+
+    onInput() {
+      this.$store.commit("UPDATE_EDITING", true);
     },
 
     onTimeLeftInDayClick() {
-      const timeEntrie = { ...this.timeEntrie, value: this.timeLeftInDay };
-      this.$store.dispatch("UPDATE_TIME_ENTRIE", timeEntrie);
       this.enableBlur = false;
       this.inputRef.focus();
     },
@@ -151,16 +146,5 @@ input:focus {
 
 .error {
   border-color: red;
-}
-
-button {
-  background-color: #e8b925;
-  border: none;
-  padding: 0.3rem 0.4rem;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 0.8rem;
-  margin-right: 0.4rem;
 }
 </style>

@@ -14,27 +14,24 @@ import Vue from "vue";
 import EditFavoritesButton from "./EditFavoritesButton.vue";
 import config from "@/config";
 import { FrontendTimentrie } from "@/store";
-import { weekSum } from "@/mixins/date";
+import { createWeek, weekTimeEntrieSum } from "@/mixins/date";
 import moment from "moment";
 
 export default Vue.extend({
-  mixins: [weekSum],
   components: {
     EditFavoritesButton,
   },
 
   computed: {
-    day() {
-      // @ts-ignore
+    day(): string {
       const str = this.activeDate.format("dddd D. MMMM");
       return str.charAt(0).toUpperCase() + str.slice(1);
     },
 
-    daySum() {
+    daySum(): string {
       const number = this.$store.state.timeEntries.reduce(
         (acc: number, curr: FrontendTimentrie) => {
           if (
-            // @ts-ignore
             this.activeDate.format(config.DATE_FORMAT) === curr.date &&
             !isNaN(Number(curr.value))
           ) {
@@ -49,7 +46,11 @@ export default Vue.extend({
       return str;
     },
 
-    activeDate() {
+    weekSum(): string {
+      return weekTimeEntrieSum(this.activeDate, this.$store.state.timeEntries);
+    },
+
+    activeDate(): moment.Moment {
       return this.$store.state.activeDate;
     },
   },

@@ -9,7 +9,16 @@ on:
       - 'CODEOWNERS'
 
 jobs:
-  # Run tests.
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run tests
+        run: |
+          docker build . --file Dockerfile
+
   test:
     runs-on: ubuntu-latest
 
@@ -17,4 +26,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Run tests
-        run: docker build . --file Dockerfile
+        run: |
+          docker build . --file Dockerfile-dev --tag image
+          docker run image npx vue-cli-service lint
+          docker run image npx vue-cli-service test:unit

@@ -3,7 +3,7 @@
     <FavoriteSelector v-if="selectFavorites && isTasks" />
     <div v-if="!selectFavorites && isTasks">
       <mq-layout mq="sm">
-        <MobileSwiper />
+        <DaySwiper />
       </mq-layout>
       <mq-layout mq="md+">
         <WeekSwiper />
@@ -13,18 +13,19 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
 import moment from "moment";
 
-import MobileSwiper from "./MobileSwiper";
-import WeekSwiper from "./WeekSwiper";
-import FavoriteSelector from "./FavoriteSelector";
-import Spinner from "./Spinner";
+import DaySwiper from "./DaySwiper.vue";
+import WeekSwiper from "./WeekSwiper.vue";
+import FavoriteSelector from "./FavoriteSelector.vue";
+import Spinner from "./Spinner.vue";
 import isInIframe from "@/mixins/isInIframe";
 
-export default {
+export default Vue.extend({
   components: {
-    MobileSwiper,
+    DaySwiper,
     WeekSwiper,
     FavoriteSelector,
     Spinner,
@@ -37,13 +38,13 @@ export default {
   },
 
   computed: {
-    selectFavorites() {
+    selectFavorites(): boolean {
       return this.$store.state.selectFavorites;
     },
 
-    isTasks() {
+    isTasks(): boolean {
       return !!this.$store.state.tasks.length;
     },
   },
-};
+});
 </script>

@@ -5,16 +5,18 @@
   </div>
 </template>
 
-<script>
-import TimeEntrieText from "./TimeEntrieText";
-import HourInput from "./HourInput";
-export default {
+<script lang="ts">
+import Vue from "vue";
+import TimeEntrieText from "./TimeEntrieText.vue";
+import HourInput from "./HourInput.vue";
+
+export default Vue.extend({
   components: {
     TimeEntrieText,
     HourInput,
   },
   props: ["timeEntrie"],
-};
+});
 </script>
 
 <style scoped>
