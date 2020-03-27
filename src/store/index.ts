@@ -96,8 +96,9 @@ export const mutations = {
   },
 
   UPDATE_EDITING(state: State, editing: boolean) {
-    console.log("editing: ", editing);
-    state.editing = editing;
+    if (state.editing !== editing) {
+      state.editing = editing;
+    }
   },
 };
 

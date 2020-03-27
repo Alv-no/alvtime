@@ -34,7 +34,16 @@ export default Vue.extend({
       const rows = [...this.tasksWithHours, ...this.tasksWithoutHours].sort(
         sortList
       );
-      return rows;
+      if (rows.length <= 4) {
+        return rows;
+      }
+      const activeDate = this.$store.state.activeDate.format(
+        config.DATE_FORMAT
+      );
+      const activeDateIsInWeek = this.week.some(
+        (date: moment.Moment) => date.format(config.DATE_FORMAT) === activeDate
+      );
+      return activeDateIsInWeek ? rows : rows.slice(0, 3);
     },
 
     tasksWithHours(): Task[] {

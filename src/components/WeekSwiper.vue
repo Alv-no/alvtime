@@ -45,7 +45,7 @@ export default Vue.extend({
     this.weeks = this.createManyWeeks();
     const self = this;
     this.swiper = new Swiper(".swiper-container", {
-      initialSlide: 142,
+      initialSlide: 52,
       shortSwipes: false,
       simulateTouch: false,
       noSwipingSelector: "input, button",
@@ -56,7 +56,7 @@ export default Vue.extend({
         onlyInViewport: false,
       },
       on: {
-        slideChangeTransitionEnd: self.onSlideChangeTransitionEnd,
+        transitionEnd: self.onTransitionEnd,
       },
       virtual: {
         slides: self.weeks,
@@ -80,7 +80,7 @@ export default Vue.extend({
       this.swiper.slidePrev();
     },
 
-    onSlideChangeTransitionEnd() {
+    onTransitionEnd() {
       const dayOfWeek = this.$store.state.activeDate.weekday();
       const week = this.weeks[this.swiper.activeIndex];
       const date = week ? week[dayOfWeek] : moment();
@@ -89,8 +89,8 @@ export default Vue.extend({
 
     createManyWeeks(): moment.Moment[][] {
       const date = this.$store.state.activeDate;
-      const future = Array.apply(null, Array(142)).map((n, i) => i);
-      const past = Array.apply(null, Array(142))
+      const future = Array.apply(null, Array(104)).map((n, i) => i);
+      const past = Array.apply(null, Array(52))
         .map((n, i) => (i + 1) * -1)
         .reverse();
       return [...past, ...future]
