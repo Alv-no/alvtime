@@ -37,10 +37,13 @@ export default Vue.extend({
       if (rows.length <= 4) {
         return rows;
       }
-      const isSame = this.week.some((date: moment.Moment) =>
-        date.isSame(this.$store.state.activeDate, "day")
+      const activeDate = this.$store.state.activeDate.format(
+        config.DATE_FORMAT
       );
-      return isSame ? rows : rows.slice(0, 3);
+      const activeDateIsInWeek = this.week.some(
+        (date: moment.Moment) => date.format(config.DATE_FORMAT) === activeDate
+      );
+      return activeDateIsInWeek ? rows : rows.slice(0, 3);
     },
 
     tasksWithHours(): Task[] {
