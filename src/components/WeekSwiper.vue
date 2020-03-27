@@ -56,7 +56,7 @@ export default Vue.extend({
         onlyInViewport: false,
       },
       on: {
-        slideChangeTransitionEnd: self.onSlideChangeTransitionEnd,
+        transitionEnd: self.onTransitionEnd,
       },
       virtual: {
         slides: self.weeks,
@@ -80,7 +80,7 @@ export default Vue.extend({
       this.swiper.slidePrev();
     },
 
-    onSlideChangeTransitionEnd() {
+    onTransitionEnd() {
       const dayOfWeek = this.$store.state.activeDate.weekday();
       const week = this.weeks[this.swiper.activeIndex];
       const date = week ? week[dayOfWeek] : moment();
