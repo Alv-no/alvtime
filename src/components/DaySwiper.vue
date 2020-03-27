@@ -44,7 +44,7 @@ export default Vue.extend({
     this.dates = this.createManySlides();
     const self = this;
     this.swiper = new Swiper(".swiper-container", {
-      initialSlide: 364,
+      initialSlide: 365,
       shortSwipes: false,
       simulateTouch: false,
       noSwipingSelector: "input, button",
