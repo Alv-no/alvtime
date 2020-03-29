@@ -91,7 +91,7 @@ namespace AlvTimeWebApi.Controllers.Tasks
             return alvUser;
         }
 
-        private TaskFavorites CreateNewFavorite(UpdateTasksDto taskDto, User user)
+        private void CreateNewFavorite(UpdateTasksDto taskDto, User user)
         {
             TaskFavorites favorite = new TaskFavorites
             {
@@ -100,7 +100,6 @@ namespace AlvTimeWebApi.Controllers.Tasks
             };
             _database.TaskFavorites.Add(favorite);
             _database.SaveChanges();
-            return favorite;
         }
     }
 }
