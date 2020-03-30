@@ -108,6 +108,7 @@ export function sortList(a: Task, b: Task) {
   display: grid;
   grid-template-columns: auto auto auto auto auto auto auto;
   gap: 1.51rem;
+  text-align: center;
 }
 
 .center {

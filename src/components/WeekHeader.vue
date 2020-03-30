@@ -45,14 +45,26 @@ export default Vue.extend({
 
     month() {
       let months: string[] = [];
+      let years: string[] = [];
       for (const day of this.week) {
-        const month = day.format("MMMM");
-        const upperCasedMonth = month.charAt(0).toUpperCase() + month.slice(1);
-        if (!months.includes(upperCasedMonth)) {
-          months = [...months, upperCasedMonth];
+        const month = upperCase(day.format("MMMM"));
+        const year = day.format("YYYY");
+        if (!months.includes(month)) {
+          months = [...months, month];
+        }
+        if (!years.includes(year)) {
+          years = [...years, year];
         }
       }
-      return months.join(" - ");
+
+      let text = `${months[0]} ${years[0]}`;
+      if (months.length === 2 && years.length === 2) {
+        text = `${months[0]} ${years[0]} - ${months[1]} ${years[1]}`;
+      }
+      if (months.length === 2 && years.length === 1) {
+        text = `${months[0]} - ${months[1]} ${years[0]}`;
+      }
+      return text;
     },
   },
 
@@ -68,6 +80,10 @@ export default Vue.extend({
     },
   },
 });
+
+function upperCase(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
 </script>
 
 <style scoped>
@@ -77,7 +93,7 @@ export default Vue.extend({
   align-items: center;
   justify-content: center;
   text-align: center;
-  margin-right: 1rem
+  margin-right: 1rem;
 }
 
 .arrow_button {
