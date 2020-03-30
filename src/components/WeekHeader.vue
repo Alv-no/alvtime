@@ -1,17 +1,20 @@
 <template>
   <div class="grid">
     <EditFavoritesButton />
-    <md-button @click="onArrowBackClick">
-      <md-icon>arrow_back</md-icon>
-      <md-tooltip>Gå til forrige uke</md-tooltip>
-    </md-button>
-    <h2>{{ month }}</h2>
-    <md-button @click="onArrowForwardClick">
-      <md-icon>arrow_forward</md-icon>
-      <md-tooltip>Gå til neste uke</md-tooltip>
-    </md-button>
     <div class="sums">
       <div>{{ weekSum }}/37,5</div>
+    </div>
+    <h2>{{ month }}</h2>
+    <div>
+      <md-button class="arrow_button" @click="onArrowBackClick">
+        <md-icon>arrow_back</md-icon>
+        <md-tooltip>Gå til forrige uke</md-tooltip>
+      </md-button>
+      <md-button @click="onTodayClick">Today</md-button>
+      <md-button class="arrow_button" @click="onArrowForwardClick">
+        <md-icon>arrow_forward</md-icon>
+        <md-tooltip>Gå til neste uke</md-tooltip>
+      </md-button>
     </div>
     <div />
   </div>
@@ -60,6 +63,9 @@ export default Vue.extend({
     onArrowForwardClick() {
       this.$emit("forwardClick");
     },
+    onTodayClick() {
+      this.$emit("todayClick");
+    },
   },
 });
 </script>
@@ -67,9 +73,14 @@ export default Vue.extend({
 <style scoped>
 .grid {
   display: grid;
-  grid-template-columns: 107px 70px minmax(6rem, calc(37rem - 140px)) 70px 107px;
+  grid-template-columns: 130px 70px minmax(6rem, calc(37rem - 205px)) 200px;
   align-items: center;
   justify-content: center;
   text-align: center;
+  margin-right: 1rem
+}
+
+.arrow_button {
+  min-width: 1rem;
 }
 </style>
