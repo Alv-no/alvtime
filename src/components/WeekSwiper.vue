@@ -1,6 +1,10 @@
 <template>
   <div>
-    <WeekHeader @backClick="onPrev" @forwardClick="onNext" />
+    <WeekHeader
+      @backClick="onPrev"
+      @forwardClick="onNext"
+      @todayClick="onTodayClick"
+    />
     <div ref="mySwiper" class="swiper-container">
       <div class="swiper-wrapper">
         <div
@@ -78,6 +82,20 @@ export default Vue.extend({
 
     onPrev() {
       this.swiper.slidePrev();
+    },
+
+    onTodayClick() {
+      const today = moment().format(config.DATE_FORMAT);
+      const slides = this.swiper.virtual ? this.swiper.virtual.slides : [];
+      const todayIndex = slides.findIndex((week: moment.Moment[]) =>
+        week.some(
+          (date: moment.Moment) => date.format(config.DATE_FORMAT) === today
+        )
+      );
+      if (todayIndex === -1) {
+        return;
+      }
+      this.swiper.slideTo(todayIndex);
     },
 
     onTransitionEnd() {
