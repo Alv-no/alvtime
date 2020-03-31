@@ -56,8 +56,9 @@ export default {
         return obj ? obj.value.toString().replace(".", ",") : "0";
       },
       set(str) {
-        this.localValue = str.replace(".", ",");
-        const timeEntrie = { ...this.timeEntrie, value: str };
+        const validStr = str.replace(/^[,.]/,"0,")
+        this.localValue = validStr.replace(".", ",");
+        const timeEntrie = { ...this.timeEntrie, value: validStr };
         this.$store.dispatch("UPDATE_TIME_ENTRIE", timeEntrie);
       },
     },
