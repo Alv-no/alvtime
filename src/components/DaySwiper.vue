@@ -1,7 +1,7 @@
 <template>
   <div>
     <DayHeader />
-    <div ref="mySwiper" class="swiper-container">
+    <div id="day-swiper-container" ref="mySwiper" class="swiper-container">
       <div class="swiper-wrapper">
         <div
           class="swiper-slide"
@@ -43,7 +43,7 @@ export default Vue.extend({
   mounted() {
     this.dates = this.createManySlides();
     const self = this;
-    this.swiper = new Swiper(".swiper-container", {
+    this.swiper = new Swiper("#day-swiper-container", {
       initialSlide: 365,
       shortSwipes: false,
       simulateTouch: false,
@@ -84,6 +84,7 @@ export default Vue.extend({
 
   methods: {
     onTransitionEnd() {
+      if (!this.swiper.activeIndex) return;
       const activeDate = this.dates[this.swiper.activeIndex];
       const date = activeDate ? activeDate : moment();
       this.$store.commit("UPDATE_ACTVIE_DATE", date);
