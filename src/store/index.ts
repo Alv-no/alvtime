@@ -40,7 +40,7 @@ export interface TimeEntrieObj {
 }
 
 export interface TimeEntrieMap {
-  [key: string]: { [key: number]: TimeEntrieObj };
+  [key: string]: TimeEntrieObj;
 }
 
 interface AppState {

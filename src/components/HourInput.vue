@@ -50,10 +50,10 @@ export default {
     value: {
       get() {
         if (this.$store.state.editing) return this.localValue;
-        const date = this.$store.state.timeEntriesMap[this.timeEntrie.date];
-        const task = date && date[this.timeEntrie.taskId];
-        const value = task && task.value;
-        return value ? value.toString().replace(".", ",") : "0";
+        const obj = this.$store.state.timeEntriesMap[
+          `${this.timeEntrie.date}${this.timeEntrie.taskId}`
+        ];
+        return obj ? obj.value.toString().replace(".", ",") : "0";
       },
       set(str) {
         this.localValue = str.replace(".", ",");

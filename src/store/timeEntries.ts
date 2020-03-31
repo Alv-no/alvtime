@@ -2,7 +2,6 @@ import {
   State,
   FrontendTimentrie,
   TimeEntrieMap,
-  TimeEntrieObj,
 } from "./index";
 import { ActionContext } from "vuex";
 import { debounce } from "lodash";
@@ -133,14 +132,10 @@ function updateTimeEntrieMap(
   timeEntrieMap: TimeEntrieMap,
   paramEntrie: FrontendTimentrie
 ): TimeEntrieMap {
-  let tasks = timeEntrieMap[paramEntrie.date];
-  tasks = tasks ? tasks : {};
-  const newTask = {} as { [key: number]: TimeEntrieObj };
-  newTask[paramEntrie.taskId] = {
+  timeEntrieMap[`${paramEntrie.date}${paramEntrie.taskId}`] = {
     value: paramEntrie.value,
     id: paramEntrie.id,
   };
-  timeEntrieMap[paramEntrie.date] = { ...tasks, ...newTask };
   return timeEntrieMap;
 }
 
