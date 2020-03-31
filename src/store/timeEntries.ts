@@ -1,8 +1,4 @@
-import {
-  State,
-  FrontendTimentrie,
-  TimeEntrieMap,
-} from "./index";
+import { State, FrontendTimentrie, TimeEntrieMap } from "./index";
 import { ActionContext } from "vuex";
 import { debounce } from "lodash";
 import config from "@/config";
@@ -119,7 +115,10 @@ ${timeEntries.title}`);
         if (!Array.isArray(timeEntries) && timeEntries.message) {
           throw Error(timeEntries.message);
         }
-        commit("UPDATE_TIME_ENTRIES", timeEntries.map(createTimeEntrie));
+        const frontendTimeEntries = timeEntries
+          .filter((entrie: ServerSideTimeEntrie) => entrie.value)
+          .map(createTimeEntrie);
+        commit("UPDATE_TIME_ENTRIES", frontendTimeEntries);
       } catch (e) {
         console.error(e);
         commit("ADD_TO_ERROR_LIST", e);
