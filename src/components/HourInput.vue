@@ -17,6 +17,7 @@
       novalidate
       inputmode="decimal"
       ref="inputRef"
+      @click="onClick"
       :disabled="!isOnline"
     />
   </div>
@@ -120,6 +121,10 @@ export default {
 
     onFocus() {
       this.localValue = this.value;
+    },
+
+    onClick() {
+      this.inputRef.setSelectionRange(0, this.inputRef.value.length);
     },
 
     onInput() {
