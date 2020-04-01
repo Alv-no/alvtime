@@ -5,7 +5,7 @@
       @forwardClick="onNext"
       @todayClick="onTodayClick"
     />
-    <div ref="mySwiper" class="swiper-container">
+    <div id="week-swiper-container" ref="mySwiper" class="swiper-container">
       <div class="swiper-wrapper">
         <div
           class="swiper-slide"
@@ -48,7 +48,7 @@ export default Vue.extend({
   mounted() {
     this.weeks = this.createManyWeeks();
     const self = this;
-    this.swiper = new Swiper(".swiper-container", {
+    this.swiper = new Swiper("#week-swiper-container", {
       initialSlide: 52,
       shortSwipes: false,
       simulateTouch: false,
@@ -99,6 +99,7 @@ export default Vue.extend({
     },
 
     onTransitionEnd() {
+      if (!this.swiper.activeIndex) return;
       const dayOfWeek = this.$store.state.activeDate.weekday();
       const week = this.weeks[this.swiper.activeIndex];
       const date = week ? week[dayOfWeek] : moment();

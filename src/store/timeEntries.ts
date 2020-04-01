@@ -1,9 +1,4 @@
-import {
-  State,
-  FrontendTimentrie,
-  TimeEntrieMap,
-  TimeEntrieObj,
-} from "./index";
+import { State, FrontendTimentrie, TimeEntrieMap } from "./index";
 import { ActionContext } from "vuex";
 import { debounce } from "lodash";
 import config from "@/config";
@@ -120,7 +115,10 @@ ${timeEntries.title}`);
         if (!Array.isArray(timeEntries) && timeEntries.message) {
           throw Error(timeEntries.message);
         }
-        commit("UPDATE_TIME_ENTRIES", timeEntries.map(createTimeEntrie));
+        const frontendTimeEntries = timeEntries
+          .filter((entrie: ServerSideTimeEntrie) => entrie.value)
+          .map(createTimeEntrie);
+        commit("UPDATE_TIME_ENTRIES", frontendTimeEntries);
       } catch (e) {
         console.error(e);
         commit("ADD_TO_ERROR_LIST", e);
@@ -133,14 +131,10 @@ function updateTimeEntrieMap(
   timeEntrieMap: TimeEntrieMap,
   paramEntrie: FrontendTimentrie
 ): TimeEntrieMap {
-  let tasks = timeEntrieMap[paramEntrie.date];
-  tasks = tasks ? tasks : {};
-  const newTask = {} as { [key: number]: TimeEntrieObj };
-  newTask[paramEntrie.taskId] = {
+  timeEntrieMap[`${paramEntrie.date}${paramEntrie.taskId}`] = {
     value: paramEntrie.value,
     id: paramEntrie.id,
   };
-  timeEntrieMap[paramEntrie.date] = { ...tasks, ...newTask };
   return timeEntrieMap;
 }
 

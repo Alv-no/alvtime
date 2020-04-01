@@ -13,7 +13,7 @@ describe("UPDATE_TIME_ENTRIES", () => {
     ]);
 
     expect(state.timeEntriesMap).toEqual({
-      "2020-02-25": { 17: { value: "7.5", id: 1 } },
+      "2020-02-2517": { value: "7.5", id: 1 },
     });
     expect(state.timeEntries).toEqual([
       { id: 1, date: "2020-02-25", value: "7.5", taskId: 17 },
@@ -29,7 +29,7 @@ describe("UPDATE_TIME_ENTRIES", () => {
     ]);
 
     expect(state.timeEntriesMap).toEqual({
-      "2020-02-25": { 17: { value: "5", id: 1 } },
+      "2020-02-2517": { value: "5", id: 1 },
     });
     expect(state.timeEntries).toEqual([
       { id: 1, date: "2020-02-25", value: "5", taskId: 17 },
@@ -43,7 +43,8 @@ describe("UPDATE_TIME_ENTRIES", () => {
     ]);
 
     expect(state.timeEntriesMap).toEqual({
-      "2020-02-25": { 13: { value: "5", id: 2 }, 17: { value: "7.5", id: 1 } },
+      "2020-02-2513": { value: "5", id: 2 },
+      "2020-02-2517": { value: "7.5", id: 1 },
     });
     expect(state.timeEntries).toEqual([
       { id: 1, date: "2020-02-25", value: "7.5", taskId: 17 },

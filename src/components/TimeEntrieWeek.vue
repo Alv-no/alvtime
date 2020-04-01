@@ -36,12 +36,9 @@ export default Vue.extend({
   methods: {
     findEntrieInState(day: moment.Moment): FrontendTimentrie | undefined {
       const date = day.format(config.DATE_FORMAT);
-      const dateObj = this.$store.state.timeEntriesMap[date];
       const taskId = this.task.id;
-      const task = dateObj && dateObj[taskId];
-      return task
-        ? { id: task.id, value: task.value, taskId, date }
-        : undefined;
+      const task = this.$store.state.timeEntriesMap[`${date}${taskId}`];
+      return task && { id: task.id, value: task.value, taskId, date };
     },
 
     zeroEntrie(day: moment.Moment): FrontendTimentrie {
