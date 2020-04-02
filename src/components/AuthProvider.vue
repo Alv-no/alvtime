@@ -4,6 +4,7 @@
       Login
     </button>
     <div v-if="isAuthenticated">
+      <button  @click="reload">Reload</button>
       <button :disabled="!isOnline" @click="logout">Logout</button>
       <span>{{ name }}</span>
     </div>
@@ -43,6 +44,9 @@ export default Vue.extend({
     logout() {
       logout();
     },
+    reload() {
+      location.reload()
+    }
   },
 });
 </script>

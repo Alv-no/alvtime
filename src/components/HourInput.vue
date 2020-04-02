@@ -17,6 +17,7 @@
       novalidate
       inputmode="decimal"
       ref="inputRef"
+      @click="onClick"
       :disabled="!isOnline"
     />
   </div>
@@ -42,6 +43,10 @@ export default {
     };
   },
 
+  mounted() {
+    this.localValue = this.value;
+  },
+
   computed: {
     inputRef() {
       return this.$refs.inputRef;
@@ -53,10 +58,10 @@ export default {
         const obj = this.$store.state.timeEntriesMap[
           `${this.timeEntrie.date}${this.timeEntrie.taskId}`
         ];
-        return obj ? obj.value.toString().replace(".", ",") : "0";
+        return obj && obj.value ? obj.value.toString().replace(".", ",") : "0";
       },
       set(str) {
-        const validStr = str.replace(/^[,.]/,"0,")
+        const validStr = str.replace(/^[,.]/, "0,");
         this.localValue = validStr.replace(".", ",");
         const timeEntrie = { ...this.timeEntrie, value: validStr };
         this.$store.dispatch("UPDATE_TIME_ENTRIE", timeEntrie);
@@ -116,6 +121,10 @@ export default {
 
     onFocus() {
       this.localValue = this.value;
+    },
+
+    onClick() {
+      this.inputRef.setSelectionRange(0, this.inputRef.value.length);
     },
 
     onInput() {
