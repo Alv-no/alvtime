@@ -1,10 +1,5 @@
 // https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-js-initializing-client-applications
-import {
-  AuthResponse,
-  AuthError,
-  UserAgentApplication,
-  AuthenticationParameters,
-} from "msal";
+import { UserAgentApplication, AuthenticationParameters } from "msal";
 import config from "@/config";
 
 const authParams: AuthenticationParameters = {
@@ -19,6 +14,7 @@ const msalApp = new UserAgentApplication({
     postLogoutRedirectUri: window.location.origin,
   },
   cache: {
+    cacheLocation: "localStorage",
     storeAuthStateInCookie: false,
   },
 
