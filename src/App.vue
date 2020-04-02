@@ -3,6 +3,7 @@
     <router-view />
     <UpdateSnackbar />
     <ErrorSnackbar />
+    <OnlineSnackbar />
   </div>
 </template>
 
@@ -11,11 +12,13 @@ import Vue from "vue";
 import moment from "moment";
 import ErrorSnackbar from "@/components/ErrorSnackbar.vue";
 import UpdateSnackbar from "@/components/UpdateSnackbar.vue";
+import OnlineSnackbar from "@/components/OnlineSnackbar.vue";
 
 export default Vue.extend({
   components: {
     ErrorSnackbar,
     UpdateSnackbar,
+    OnlineSnackbar,
   },
 
   data() {
