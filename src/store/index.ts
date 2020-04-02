@@ -3,7 +3,7 @@ import timeEntrie, { TimeEntrieState } from "./timeEntries";
 import task, { TaskState } from "./tasks";
 import auth, { AuthState } from "./auth";
 import error, { ErrorState } from "./error";
-import app, { AppState } from "./app";
+import swiper, { SwiperState } from "./swiper";
 
 moment.locale("nb");
 
@@ -16,7 +16,8 @@ export interface State
   extends TaskState,
     TimeEntrieState,
     AuthState,
-    ErrorState {
+    ErrorState,
+    SwiperState {
   activeDate: moment.Moment;
   activeTaskId: number;
   selectFavorites: boolean;
@@ -30,6 +31,7 @@ export const state = {
   ...task.state,
   ...auth.state,
   ...error.state,
+  ...swiper.state,
 
   interactionState: { oldState: "", newState: "" },
   isOnline: true,
@@ -43,6 +45,7 @@ export const mutations = {
   ...timeEntrie.mutations,
   ...task.mutations,
   ...error.mutations,
+  ...swiper.mutations,
 
   UPDATE_ACTVIE_DATE(state: State, date: moment.Moment) {
     state.activeDate = date;
@@ -81,15 +84,16 @@ export const mutations = {
 const getters = {
   ...timeEntrie.getters,
   ...task.getters,
+  ...swiper.getters,
 };
 
 const actions = {
   ...timeEntrie.actions,
   ...task.actions,
+  ...swiper.actions,
 };
 
 const storeOptions = {
-  strict: process.env.NODE_ENV !== "production",
   state,
   getters,
   mutations,

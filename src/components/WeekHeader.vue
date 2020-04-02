@@ -69,14 +69,16 @@ export default Vue.extend({
   },
 
   methods: {
-    onArrowBackClick() {
-      this.$emit("backClick");
-    },
-    onArrowForwardClick() {
-      this.$emit("forwardClick");
-    },
     onTodayClick() {
-      this.$emit("todayClick");
+      this.$store.commit("SLIDE_TO_TODAY")
+    },
+
+    onArrowForwardClick() {
+      this.$store.commit("SLIDE_NEXT")
+    },
+
+    onArrowBackClick() {
+      this.$store.commit("SLIDE_PREV")
     },
   },
 });

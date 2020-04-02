@@ -1,10 +1,5 @@
 <template>
   <div>
-    <WeekHeader
-      @backClick="onPrev"
-      @forwardClick="onNext"
-      @todayClick="onTodayClick"
-    />
     <div id="week-swiper-container" ref="mySwiper" class="swiper-container">
       <div class="swiper-wrapper">
         <div
@@ -22,11 +17,10 @@
 
 <script lang="ts">
 import Vue from "vue";
-import moment from "moment";
+import { Moment } from "moment";
 import config from "@/config";
 import TimeEntrieWeekList from "./TimeEntrieWeekList.vue";
-import WeekHeader from "./WeekHeader.vue";
-import isInIframe from "@/mixins/isInIframe";
+import { GLOBAL_SWIPER_OPTIONS } from "@/store/swiper";
 import { createWeek } from "@/mixins/date";
 
 import Swiper from "swiper";
@@ -34,87 +28,42 @@ import Swiper from "swiper";
 export default Vue.extend({
   components: {
     TimeEntrieWeekList,
-    WeekHeader,
   },
 
   data() {
     return {
-      weeks: [[]] as moment.Moment[][],
-      virtualData: [[]] as moment.Moment[][],
-      swiper: {} as Swiper,
+      virtualData: [[]] as Moment[][],
     };
   },
 
   mounted() {
-    this.weeks = this.createManyWeeks();
+    this.$store.dispatch("CREATE_WEEKS");
     const self = this;
-    this.swiper = new Swiper("#week-swiper-container", {
+    const swiperOptions = {
+      ...GLOBAL_SWIPER_OPTIONS,
       initialSlide: 52,
-      shortSwipes: false,
-      simulateTouch: false,
-      noSwipingSelector: "input, button",
-      longSwipesRatio: 0.15,
-      longSwipesMs: 100,
-      keyboard: {
-        enabled: true,
-        onlyInViewport: false,
-      },
       on: {
-        transitionEnd: self.onTransitionEnd,
+        transitionEnd: this.onTransitionEnd,
       },
       virtual: {
-        slides: self.weeks,
-        renderExternal(data: any) {
-          self.virtualData = data;
-        },
+        slides: this.$store.state.weeks,
+        renderExternal: this.onRenderExternal,
       },
-    });
+    };
 
-    if (!isInIframe() && this.dateRange) {
-      this.$store.dispatch("FETCH_TIME_ENTRIES", this.dateRange);
-    }
+    const swiper = new Swiper("#week-swiper-container", swiperOptions);
+    this.$store.commit("SET_SWIPER", swiper);
+
+    this.$store.dispatch("FETCH_WEEK_ENTRIES");
   },
 
   methods: {
-    onNext() {
-      this.swiper.slideNext();
-    },
-
-    onPrev() {
-      this.swiper.slidePrev();
-    },
-
-    onTodayClick() {
-      const today = moment().format(config.DATE_FORMAT);
-      const slides = this.swiper.virtual ? this.swiper.virtual.slides : [];
-      const todayIndex = slides.findIndex((week: moment.Moment[]) =>
-        week.some(
-          (date: moment.Moment) => date.format(config.DATE_FORMAT) === today
-        )
-      );
-      if (todayIndex === -1) {
-        return;
-      }
-      this.swiper.slideTo(todayIndex);
-    },
-
     onTransitionEnd() {
-      if (!this.swiper.activeIndex) return;
-      const dayOfWeek = this.$store.state.activeDate.weekday();
-      const week = this.weeks[this.swiper.activeIndex];
-      const date = week ? week[dayOfWeek] : moment();
-      this.$store.commit("UPDATE_ACTVIE_DATE", date);
+      this.$store.commit("UPDATE_ACTVIE_DATE_IN_WEEKS");
     },
 
-    createManyWeeks(): moment.Moment[][] {
-      const date = this.$store.state.activeDate;
-      const future = Array.apply(null, Array(104)).map((n, i) => i);
-      const past = Array.apply(null, Array(52))
-        .map((n, i) => (i + 1) * -1)
-        .reverse();
-      return [...past, ...future]
-        .map(n => date.clone().add(n, "week"))
-        .map(createWeek);
+    onRenderExternal(data: Moment[][]) {
+      this.virtualData = data;
     },
   },
 
@@ -122,15 +71,7 @@ export default Vue.extend({
     dateRange():
       | { fromDateInclusive: string; toDateInclusive: string }
       | undefined {
-      if (!this.weeks[0][0]) {
-        return;
-      }
-      return {
-        fromDateInclusive: this.weeks[0][0].format(config.DATE_FORMAT),
-        toDateInclusive: this.weeks[this.weeks.length - 1][6].format(
-          config.DATE_FORMAT
-        ),
-      };
+      return this.$store.getters.dateRange;
     },
   },
 });
