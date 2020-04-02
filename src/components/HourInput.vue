@@ -7,7 +7,7 @@
       v-if="showHelperButtons"
     />
     <input
-      :class="{ error }"
+      :class="{ error, nonZero }"
       type="text"
       @input="onInput"
       v-model="value"
@@ -66,6 +66,10 @@ export default {
         const timeEntrie = { ...this.timeEntrie, value: validStr };
         this.$store.dispatch("UPDATE_TIME_ENTRIE", timeEntrie);
       },
+    },
+
+    nonZero() {
+      return Number(this.value.replace(",", "."));
     },
 
     error() {
@@ -146,15 +150,26 @@ input {
   width: 2.1rem;
   padding: 0.4rem;
   font-size: 0.8rem;
-  border-radius: 0;
-  border: 1px solid black;
+  border-radius: 5px;
+  border: 1px solid #e0e0e0;
+  background-color: #f7f7f7;
 }
 
 input:focus {
   outline: none;
 }
 
+input:hover {
+  border-color: #008dcf;
+  transition: border-color 500ms ease-out;
+}
+
 .error {
-  border-color: red;
+  background-color: #f3912340;
+  transition: border-color 500ms ease-in-out;
+}
+
+.nonZero {
+  border-color: #000;
 }
 </style>
