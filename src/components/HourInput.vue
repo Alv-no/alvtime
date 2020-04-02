@@ -165,7 +165,7 @@ input:hover {
 }
 
 .error {
-  background-color: #f3912340;
+  background-color: #d7312540;
   transition: border-color 500ms ease-in-out;
 }
 

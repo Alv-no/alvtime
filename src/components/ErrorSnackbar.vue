@@ -77,7 +77,7 @@ export default Vue.extend({
   color: #fff;
   color: var(--md-theme-default-text-primary-on-text-primary, #fff);
   font-weight: 500;
-  background-color: #f44336;
+  background-color: #d73125;
 }
 
 .md-button.md-theme-default {
