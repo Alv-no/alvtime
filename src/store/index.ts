@@ -1,71 +1,47 @@
 import moment from "moment";
-import timeEntrieHandlers from "./timeEntries";
-import taskHandlers from "./tasks";
-import auth from "./auth";
-import error from "./error";
+import timeEntrie, { TimeEntrieState } from "./timeEntries";
+import task, { TaskState } from "./tasks";
+import auth, { AuthState } from "./auth";
+import error, { ErrorState } from "./error";
+import app, { AppState } from "./app";
 
 moment.locale("nb");
 
-export interface FrontendTimentrie {
-  id: number;
-  date: string;
-  value: string;
-  taskId: number;
-}
-
-export interface Task {
-  id: number;
-  name: string;
-  description: string;
-  hourRate: number;
-  project: {
-    id: number;
-    name: string;
-    customer: {
-      id: number;
-      name: string;
-    };
-  };
-  favorite: boolean;
-  locked: boolean;
-}
-
-interface Account {
-  name: string;
-}
-
-export interface TimeEntrieObj {
-  value: string;
-  id: number;
-}
-
-export interface TimeEntrieMap {
-  [key: string]: TimeEntrieObj;
-}
-
-interface AppState {
+interface InteractionState {
   oldState: string;
   newState: string;
 }
 
-export interface State {
-  tasks: Task[];
-  timeEntries: FrontendTimentrie[];
-  timeEntriesMap: TimeEntrieMap;
+export interface State
+  extends TaskState,
+    TimeEntrieState,
+    AuthState,
+    ErrorState {
   activeDate: moment.Moment;
   activeTaskId: number;
-  pushQueue: FrontendTimentrie[];
   selectFavorites: boolean;
-  account: Account | null;
   isOnline: boolean;
-  errorTexts: string[];
-  appState: AppState;
+  interactionState: InteractionState;
   editing: boolean;
 }
 
+export const state = {
+  ...timeEntrie.state,
+  ...task.state,
+  ...auth.state,
+  ...error.state,
+
+  interactionState: { oldState: "", newState: "" },
+  isOnline: true,
+  activeDate: moment(),
+  activeTaskId: -1,
+  selectFavorites: false,
+  editing: false,
+};
+
 export const mutations = {
-  ...timeEntrieHandlers.mutations,
-  ...taskHandlers.mutations,
+  ...timeEntrie.mutations,
+  ...task.mutations,
   ...error.mutations,
 
   UPDATE_ACTVIE_DATE(state: State, date: moment.Moment) {
@@ -91,8 +67,8 @@ export const mutations = {
     }
   },
 
-  UPDATE_APP_STATE(state: State, { oldState, newState }: AppState) {
-    state.appState = { oldState, newState };
+  UPDATE_APP_STATE(state: State, { oldState, newState }: InteractionState) {
+    state.interactionState = { oldState, newState };
   },
 
   UPDATE_EDITING(state: State, editing: boolean) {
@@ -102,31 +78,23 @@ export const mutations = {
   },
 };
 
-export const state = {
-  ...timeEntrieHandlers.state,
-  ...taskHandlers.state,
-  ...auth.state,
-  ...error.state,
-
-  appState: { oldState: "", newState: "" },
-  isOnline: true,
-  activeDate: moment(),
-  activeTaskId: -1,
-  selectFavorites: false,
-  editing: false,
+const getters = {
+  ...timeEntrie.getters,
+  ...task.getters,
 };
 
-export default {
+const actions = {
+  ...timeEntrie.actions,
+  ...task.actions,
+};
+
+const storeOptions = {
   strict: process.env.NODE_ENV !== "production",
   state,
-  getters: {
-    ...timeEntrieHandlers.getters,
-    ...taskHandlers.getters,
-  },
+  getters,
   mutations,
-  actions: {
-    ...timeEntrieHandlers.actions,
-    ...taskHandlers.actions,
-  },
+  actions,
   modules: {},
 };
+
+export default storeOptions;

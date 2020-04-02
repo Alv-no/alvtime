@@ -18,7 +18,8 @@ import Vue from "vue";
 import TimeEntrieWeek from "./TimeEntrieWeek.vue";
 import TimeEntrie from "./TimeEntrie.vue";
 import TimeEntrieText from "./TimeEntrieText.vue";
-import { Task, FrontendTimentrie } from "@/store";
+import { Task } from "@/store/tasks";
+import { FrontendTimentrie } from "@/store/timeEntries";
 import config from "@/config";
 import moment from "moment";
 

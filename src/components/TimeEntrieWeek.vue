@@ -13,7 +13,7 @@ import Vue from "vue";
 import HourInput from "./HourInput.vue";
 import config from "@/config";
 import moment from "moment";
-import { FrontendTimentrie, TimeEntrieObj } from "@/store";
+import { FrontendTimentrie, TimeEntrieObj } from "@/store/timeEntries";
 
 export default Vue.extend({
   components: {

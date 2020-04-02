@@ -13,7 +13,7 @@
 import Vue from "vue";
 import EditFavoritesButton from "./EditFavoritesButton.vue";
 import config from "@/config";
-import { FrontendTimentrie } from "@/store";
+import { FrontendTimentrie } from "@/store/timeEntries";
 import { createWeek, weekTimeEntrieSum } from "@/mixins/date";
 import moment from "moment";
 

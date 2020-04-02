@@ -1,6 +1,6 @@
 import moment from "moment";
 import config from "@/config";
-import { FrontendTimentrie } from "@/store";
+import { FrontendTimentrie } from "@/store/timeEntries";
 
 export function createWeek(day: moment.Moment) {
   const monday = day.clone().startOf("week");

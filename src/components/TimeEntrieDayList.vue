@@ -13,7 +13,8 @@ import TimeEntrieText from "./TimeEntrieText.vue";
 import HourInput from "./HourInput.vue";
 import moment from "moment";
 import config from "@/config";
-import { Task, FrontendTimentrie } from "@/store";
+import { Task } from "@/store/tasks";
+import { FrontendTimentrie } from "@/store/timeEntries";
 
 interface Row {
   task: Task;
