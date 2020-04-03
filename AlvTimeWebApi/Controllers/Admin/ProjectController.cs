@@ -36,7 +36,11 @@ namespace AlvTimeWebApi.Controllers.Admin
                     Customer = new CustomerDto
                     {
                         Id = x.CustomerNavigation.Id,
-                        Name = x.CustomerNavigation.Name
+                        Name = x.CustomerNavigation.Name,
+                        ContactEmail = x.CustomerNavigation.ContactEmail,
+                        ContactPerson = x.CustomerNavigation.ContactPerson,
+                        ContactPhone = x.CustomerNavigation.ContactPhone,
+                        InvoiceAddress = x.CustomerNavigation.InvoiceAddress
                     }
                 }).ToList();
 

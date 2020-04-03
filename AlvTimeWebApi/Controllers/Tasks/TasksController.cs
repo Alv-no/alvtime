@@ -45,7 +45,11 @@ namespace AlvTimeWebApi.Controllers.Tasks
                         Customer = new CustomerDto
                         {
                             Id = x.ProjectNavigation.CustomerNavigation.Id,
-                            Name = x.ProjectNavigation.CustomerNavigation.Name
+                            Name = x.ProjectNavigation.CustomerNavigation.Name,
+                            ContactEmail = x.ProjectNavigation.CustomerNavigation.ContactEmail,
+                            ContactPerson = x.ProjectNavigation.CustomerNavigation.ContactPerson,
+                            ContactPhone = x.ProjectNavigation.CustomerNavigation.ContactPhone,
+                            InvoiceAddress = x.ProjectNavigation.CustomerNavigation.InvoiceAddress
                         }
                     },
                 })

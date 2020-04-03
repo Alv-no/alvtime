@@ -3,11 +3,11 @@ GO
 
 insert into [dbo].[Customer]
 values 
-('SuperMat'),                                                                                        
-('Rutsjebaner AS'),                                                                                        
-('Film og TV'),                                                                                        
-('Datafabrikken'),                                                                                                                                                                               
-('Alv')       
+('SuperMat', 'Alvvegen 34', 'Supermann', 'supermann@supermat.no', '81549300'),                                                                                        
+('Rutsjebaner AS', 'Alvvegen 21', 'Willy', 'willy@rutsjebaner.no', '53153162'),                                                                                        
+('Film og TV', 'Alvvegen 8', 'Halvstrøm', 'halvstrom@filmtv.no', '64136423'),                                                                                        
+('Datafabrikken', 'Alvvegen 52', 'Roboto', 'roboto@data.no', '53154753'),                                                                                                                                                                               
+('Alv', 'Alvvegen 27', 'Sjefen', 'sjefen@alv.no', '53178685')        
 
 insert into [dbo].[Project]
 values 
@@ -22,37 +22,37 @@ values
 
 insert into [dbo].[User]
 values
-('Ansatt En', 'ansatten@alv.no'),
-('Ansatt To', 'ansatto@alv.no'),
-('Ansatt Tre', 'ansattre@alv.no'),
-('Ansatt Fire', 'ansattfire@alv.no'),
-('Ansatt Fem', 'ansattfem@alv.no'),
-('Ansatt Seks', 'ansattseks@alv.no'),
-('Ansatt Syv', 'ansattsyv@alv.no'),
-('Ansatt Atte', 'ansattatte@alv.no'),
-('Ansatt Ni', 'ansattni@alv.no'),
-('Ansatt Ti', 'ansatti@alv.no'),
-('Ahre Ketil Lillehagen', 'ahre-ketil.lillehagen@alvno.onmicrosoft.com')
+('Ansatt En', 'ansatten@alv.no', '2019-08-01', '20'),
+('Ansatt To', 'ansatto@alv.no', '2019-09-01', '5'),
+('Ansatt Tre', 'ansattre@alv.no', '2019-10-01', '202'),
+('Ansatt Fire', 'ansattfire@alv.no', '2019-11-01', '320'),
+('Ansatt Fem', 'ansattfem@alv.no', '2019-12-01', '120'),
+('Ansatt Seks', 'ansattseks@alv.no', '2019-08-01', '59'),
+('Ansatt Syv', 'ansattsyv@alv.no', '2019-09-01', '327'),
+('Ansatt Atte', 'ansattatte@alv.no', '2019-10-01', '53'),
+('Ansatt Ni', 'ansattni@alv.no', '2019-11-01', '184'),
+('Ansatt Ti', 'ansatti@alv.no', '2019-12-01', '531'),
+('Ahre Ketil Lillehagen', 'ahre-ketil.lillehagen@alvno.onmicrosoft.com', '2020-01-01', '68')
 
 insert into [dbo].[Task]
 values
-('Testleder', '', 2, 0, 0),
-('Funksjonell arkitekt', '', 2, 0, 0),
-('Teamleder', '', 6, 0, 0),
-('Prosjektstotte', '', 6, 0, 0),
-('Testleder', '', 3, 0, 0),
-('Testradgiver', '', 3, 0, 0),
-('Cost controller', '',	8, 0, 0),
-('Utvikler', '', 7, 0, 0),
-('Seniorutvikler', '', 1, 0, 0),
-('Juniorutvikler', '', 1, 0, 0),
-('Sikkerhetstester', '', 2, 0, 0),
-('Interntid' ,'', 8, 0, 0),
-('Ferie', '', 8, 0, 0),
-('Syk', '',	8, 0, 0),
-('Sykt barn', '', 8, 0, 0),
-('Youtube serie', '', 8, 0, 0),
-('AlvTimeUtvikling', '', 8, 0, 0)
+('Testleder', '', 2, 0, 0, 1.0),
+('Funksjonell arkitekt', '', 2, 0, 0, 1.0),
+('Teamleder', '', 6, 0, 0, 1.0),
+('Prosjektstotte', '', 6, 0, 0, 1.0),
+('Testleder', '', 3, 0, 0, 1.0),
+('Testradgiver', '', 3, 0, 0, 1.0),
+('Cost controller', '',	8, 0, 0, 1.0),
+('Utvikler', '', 7, 0, 0, 1.0),
+('Seniorutvikler', '', 1, 0, 0, 1.0),
+('Juniorutvikler', '', 1, 0, 0, 1.0),
+('Sikkerhetstester', '', 2, 0, 0, 1.0),
+('Interntid' ,'', 8, 0, 0, 1.0),
+('Ferie', '', 8, 0, 0, 1.0),
+('Syk', '',	8, 0, 0, 1.0),
+('Sykt barn', '', 8, 0, 0, 1.0),
+('Youtube serie', '', 8, 0, 0, 1.0),
+('AlvTimeUtvikling', '', 8, 0, 0, 1.0)
 
 insert into [dbo].[TaskFavorites]
 select id as UserId, 12 as TaskId
