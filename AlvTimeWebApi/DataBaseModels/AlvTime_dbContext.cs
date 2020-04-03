@@ -15,6 +15,7 @@ namespace AlvTimeWebApi.DatabaseModels
         {
         }
 
+        public virtual DbSet<AccessTokens> AccessTokens { get; set; }
         public virtual DbSet<Customer> Customer { get; set; }
         public virtual DbSet<HourRate> HourRate { get; set; }
         public virtual DbSet<Hours> Hours { get; set; }
@@ -35,8 +36,39 @@ namespace AlvTimeWebApi.DatabaseModels
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<AccessTokens>(entity =>
+            {
+                entity.Property(e => e.ExpiryDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Value)
+                    .IsRequired()
+                    .HasMaxLength(1000);
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.AccessTokens)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_AccessTokens_User");
+            });
+
             modelBuilder.Entity<Customer>(entity =>
             {
+                entity.Property(e => e.ContactEmail)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.ContactPerson)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.ContactPhone)
+                    .IsRequired()
+                    .HasMaxLength(12);
+
+                entity.Property(e => e.InvoiceAddress)
+                    .IsRequired()
+                    .HasMaxLength(255);
+
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(100);
@@ -94,7 +126,7 @@ namespace AlvTimeWebApi.DatabaseModels
             modelBuilder.Entity<RefactorLog>(entity =>
             {
                 entity.HasKey(e => e.OperationKey)
-                    .HasName("PK____Refact__D3AEFFDB95F6B6A9");
+                    .HasName("PK____Refact__D3AEFFDB3DA33408");
 
                 entity.ToTable("__RefactorLog");
 
@@ -104,7 +136,7 @@ namespace AlvTimeWebApi.DatabaseModels
             modelBuilder.Entity<Sysdiagrams>(entity =>
             {
                 entity.HasKey(e => e.DiagramId)
-                    .HasName("PK__sysdiagr__C2B05B618E69ACA2");
+                    .HasName("PK__sysdiagr__C2B05B610D952B23");
 
                 entity.ToTable("sysdiagrams");
 
@@ -128,6 +160,10 @@ namespace AlvTimeWebApi.DatabaseModels
 
             modelBuilder.Entity<Task>(entity =>
             {
+                entity.Property(e => e.CompensationRate)
+                    .HasColumnType("decimal(3, 2)")
+                    .HasDefaultValueSql("((1.00))");
+
                 entity.Property(e => e.Description)
                     .IsRequired()
                     .HasMaxLength(300);
@@ -165,10 +201,14 @@ namespace AlvTimeWebApi.DatabaseModels
                     .HasColumnName("email")
                     .HasMaxLength(100);
 
+                entity.Property(e => e.FlexiHours).HasColumnType("decimal(5, 2)");
+
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasColumnName("name")
                     .HasMaxLength(100);
+
+                entity.Property(e => e.StartDate).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<VDataDump>(entity =>

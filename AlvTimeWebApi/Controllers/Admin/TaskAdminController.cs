@@ -41,7 +41,8 @@ namespace AlvTimeWebApi.Controllers.Admin
                         Favorite = false,
                         Locked = task.Locked,
                         Name = task.Name,
-                        Project = task.Project
+                        Project = task.Project,
+                        CompensationRate = task.CompensationRate
                     };
                     _database.Task.Add(newTask);
                     _database.SaveChanges();
@@ -52,9 +53,9 @@ namespace AlvTimeWebApi.Controllers.Admin
             return Ok(response);
         }
 
-        [HttpPost("LockTask")]
+        [HttpPost("UpdateTask")]
         [AuthorizeAdmin]
-        public ActionResult<IEnumerable<CreateTaskDto>> UpdateLockTask([FromBody] IEnumerable<UpdateTasksDto> tasksToBeUpdated)
+        public ActionResult<IEnumerable<TaskResponseDto>> UpdateTask([FromBody] IEnumerable<UpdateTasksDto> tasksToBeUpdated)
         {
             var user = RetrieveUser();
 
@@ -62,11 +63,23 @@ namespace AlvTimeWebApi.Controllers.Admin
 
             foreach (var task in tasksToBeUpdated)
             {
-                var taskToBeUpdated = _database.Task
+                var existingTask = _database.Task
                     .Where(x => x.Id == task.Id)
                     .FirstOrDefault();
 
-                taskToBeUpdated.Locked = task.Locked;
+                if(task.Locked != null)
+                {
+                    existingTask.Locked = (bool)task.Locked;
+                }
+                if(task.CompensationRate != null)
+                {
+                    existingTask.CompensationRate = (decimal)task.CompensationRate;
+                }
+                if(task.Name != null)
+                {
+                    existingTask.Name = task.Name;
+                }
+
                 _database.SaveChanges();
 
                 response.Add(returnObjects.ReturnTask(user, task));

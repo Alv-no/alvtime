@@ -33,7 +33,9 @@ namespace AlvTimeWebApi.Controllers.Admin
                 {
                     Id = x.Id,
                     Email = x.Email,
-                    Name = x.Name
+                    Name = x.Name,
+                    FlexiHours = x.FlexiHours,
+                    StartDate = x.StartDate
                 }).ToList();
 
             return Ok(users);
@@ -52,7 +54,9 @@ namespace AlvTimeWebApi.Controllers.Admin
                     var newUser = new User
                     {
                         Name = user.Name,
-                        Email = user.Email
+                        Email = user.Email,
+                        StartDate = user.StartDate,
+                        FlexiHours = user.FlexiHours
                     };
                     _database.User.Add(newUser);
                     _database.SaveChanges();

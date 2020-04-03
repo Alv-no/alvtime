@@ -14,14 +14,18 @@ namespace AlvTimeWebApi.HelperClasses
             _database = database;
         }
 
-        public CustomerDto ReturnCreatedCustomer(CreateCustomerDto customer)
+        public CustomerDto ReturnCustomer(string customerName)
         {
             var customerResponseDto = _database.Customer
-                .Where(x => x.Name == customer.Name)
+                .Where(x => x.Name == customerName)
                 .Select(x => new CustomerDto
                 {
                     Id = x.Id,
-                    Name = x.Name
+                    Name = x.Name,
+                    ContactPerson = x.ContactPerson,
+                    ContactEmail = x.ContactEmail,
+                    ContactPhone = x.ContactPhone,
+                    InvoiceAddress = x.InvoiceAddress
                 })
                 .FirstOrDefault();
 
@@ -39,7 +43,11 @@ namespace AlvTimeWebApi.HelperClasses
                     Customer = new CustomerDto
                     {
                         Id = x.CustomerNavigation.Id,
-                        Name = x.CustomerNavigation.Name
+                        Name = x.CustomerNavigation.Name,
+                        ContactEmail = x.CustomerNavigation.ContactEmail,
+                        ContactPerson = x.CustomerNavigation.ContactPerson,
+                        ContactPhone = x.CustomerNavigation.ContactPhone,
+                        InvoiceAddress = x.CustomerNavigation.InvoiceAddress
                     }
                 })
                 .FirstOrDefault();
@@ -55,7 +63,9 @@ namespace AlvTimeWebApi.HelperClasses
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    Email = x.Email
+                    Email = x.Email,
+                    FlexiHours = x.FlexiHours,
+                    StartDate = x.StartDate
                 })
                 .FirstOrDefault();
 
@@ -73,6 +83,7 @@ namespace AlvTimeWebApi.HelperClasses
                     Favorite = false,
                     Locked = x.Locked,
                     Name = x.Name,
+                    CompensationRate = x.CompensationRate,
                     Project = new ProjectResponseDto
                     {
                         Id = x.ProjectNavigation.Id,
@@ -80,7 +91,11 @@ namespace AlvTimeWebApi.HelperClasses
                         Customer = new CustomerDto
                         {
                             Id = x.ProjectNavigation.CustomerNavigation.Id,
-                            Name = x.ProjectNavigation.CustomerNavigation.Name
+                            Name = x.ProjectNavigation.CustomerNavigation.Name,
+                            ContactEmail = x.ProjectNavigation.CustomerNavigation.ContactEmail,
+                            ContactPerson = x.ProjectNavigation.CustomerNavigation.ContactPerson,
+                            ContactPhone = x.ProjectNavigation.CustomerNavigation.ContactPhone,
+                            InvoiceAddress = x.ProjectNavigation.CustomerNavigation.InvoiceAddress
                         }
                     }
                 })
@@ -88,42 +103,6 @@ namespace AlvTimeWebApi.HelperClasses
 
             return _database.HourRate
                 .Where(x => x.FromDate.Date == hourRate.FromDate.Date && x.Rate == hourRate.Rate && x.TaskId == hourRate.TaskId)
-                .Select(x => new HourRateResponseDto
-                {
-                    Id = x.Id,
-                    Rate = x.Rate,
-                    FromDate = x.FromDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                    Task = taskResponseDto
-                })
-                .FirstOrDefault();
-        }
-
-        public HourRateResponseDto ReturnUpdatedHourRate(UpdateHourRateDto hourRate)
-        {
-            var taskResponseDto = _database.Task
-                .Where(x => x.Id == hourRate.TaskId)
-                .Select(x => new TaskResponseDto
-                {
-                    Description = x.Description,
-                    Id = x.Id,
-                    Favorite = false,
-                    Locked = x.Locked,
-                    Name = x.Name,
-                    Project = new ProjectResponseDto
-                    {
-                        Id = x.ProjectNavigation.Id,
-                        Name = x.ProjectNavigation.Name,
-                        Customer = new CustomerDto
-                        {
-                            Id = x.ProjectNavigation.CustomerNavigation.Id,
-                            Name = x.ProjectNavigation.CustomerNavigation.Name
-                        }
-                    }
-                })
-                .FirstOrDefault();
-
-            return _database.HourRate
-                .Where(x => x.Id == hourRate.Id)
                 .Select(x => new HourRateResponseDto
                 {
                     Id = x.Id,
@@ -146,6 +125,7 @@ namespace AlvTimeWebApi.HelperClasses
                     Id = x.Id,
                     Name = x.Name,
                     Locked = x.Locked,
+                    CompensationRate = x.CompensationRate,
                     Project = new ProjectResponseDto
                     {
                         Id = x.ProjectNavigation.Id,
@@ -153,7 +133,11 @@ namespace AlvTimeWebApi.HelperClasses
                         Customer = new CustomerDto
                         {
                             Id = x.ProjectNavigation.CustomerNavigation.Id,
-                            Name = x.ProjectNavigation.CustomerNavigation.Name
+                            Name = x.ProjectNavigation.CustomerNavigation.Name,
+                            ContactEmail = x.ProjectNavigation.CustomerNavigation.ContactEmail,
+                            ContactPerson = x.ProjectNavigation.CustomerNavigation.ContactPerson,
+                            ContactPhone = x.ProjectNavigation.CustomerNavigation.ContactPhone,
+                            InvoiceAddress = x.ProjectNavigation.CustomerNavigation.InvoiceAddress
                         }
                     },
                 })
@@ -182,7 +166,11 @@ namespace AlvTimeWebApi.HelperClasses
                         Customer = new CustomerDto
                         {
                             Id = x.ProjectNavigation.CustomerNavigation.Id,
-                            Name = x.ProjectNavigation.CustomerNavigation.Name
+                            Name = x.ProjectNavigation.CustomerNavigation.Name,
+                            ContactEmail = x.ProjectNavigation.CustomerNavigation.ContactEmail,
+                            ContactPerson = x.ProjectNavigation.CustomerNavigation.ContactPerson,
+                            ContactPhone = x.ProjectNavigation.CustomerNavigation.ContactPhone,
+                            InvoiceAddress = x.ProjectNavigation.CustomerNavigation.InvoiceAddress
                         }
                     }
                 })

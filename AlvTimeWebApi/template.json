@@ -28,7 +28,7 @@
     },
     "AzureAd__Domain": {
       "type": "String"
-    },
+    }, 
     "AzureAd__TenantId": {
       "type": "String"
     },

@@ -18,6 +18,7 @@ namespace AlvTimeWebApi.DatabaseModels
         public int Project { get; set; }
         public bool Locked { get; set; }
         public bool Favorite { get; set; }
+        public decimal CompensationRate { get; set; }
 
         public virtual Project ProjectNavigation { get; set; }
         public virtual ICollection<HourRate> HourRate { get; set; }

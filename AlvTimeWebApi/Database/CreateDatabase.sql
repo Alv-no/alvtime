@@ -28,6 +28,10 @@ GO
 CREATE TABLE [dbo].[Customer](
 	[Id] [int] IDENTITY NOT NULL,
 	[Name] [nvarchar](100) NOT NULL,
+	[InvoiceAddress] [nvarchar](255) NOT NULL,
+	[ContactPerson] [nvarchar](100) NOT NULL,
+	[ContactEmail] [nvarchar](100) NOT NULL,
+	[ContactPhone] [nvarchar](12) NOT NULL
 PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -61,6 +65,7 @@ CREATE TABLE [dbo].[Task](
 	[Project] [int] NOT NULL,
 	[Locked] [bit] NOT NULL,
 	[Favorite] [bit] NOT NULL,
+	[CompensationRate] [decimal](3,2) NOT NULL
 PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -76,6 +81,8 @@ CREATE TABLE [dbo].[User](
 	[Id] [int] IDENTITY  NOT NULL,
 	[name] [nvarchar](100) NOT NULL,
 	[email] [nvarchar](100) NOT NULL,
+	[StartDate] [datetime] NOT NULL,
+	[FlexiHours] [decimal](5,2) NOT NULL
 PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -198,6 +205,21 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AccessTokens](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[UserId] [int] NOT NULL,
+	[ExpiryDate] [datetime] NOT NULL,
+	[Value] [nvarchar](100) NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
 ALTER TABLE [dbo].[hours] ADD  DEFAULT ((0)) FOR [Locked]
 GO
 ALTER TABLE [dbo].[Task] ADD  DEFAULT ((0)) FOR [Locked]
@@ -238,4 +260,7 @@ ALTER TABLE [dbo].[TaskFavorites]  WITH CHECK ADD  CONSTRAINT [FK_TaskFavorites_
 REFERENCES [dbo].[User] ([Id])
 GO
 ALTER TABLE [dbo].[TaskFavorites] CHECK CONSTRAINT [FK_TaskFavorites_User]
+GO
+ALTER TABLE [dbo].[AccessTokens]  WITH CHECK ADD  CONSTRAINT [FK_AccessTokens_User] FOREIGN KEY([UserId])
+REFERENCES [dbo].[User] ([Id])
 GO
