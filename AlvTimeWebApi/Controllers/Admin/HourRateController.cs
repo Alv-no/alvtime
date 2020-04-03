@@ -44,6 +44,7 @@ namespace AlvTimeWebApi.Controllers.Admin
                         Favorite = false,
                         Locked = y.Locked,
                         Name = y.Name,
+                        CompensationRate = y.CompensationRate,
                         Project = new ProjectResponseDto
                         {
                             Id = y.ProjectNavigation.Id,
@@ -51,7 +52,11 @@ namespace AlvTimeWebApi.Controllers.Admin
                             Customer = new CustomerDto
                             {
                                 Id = y.ProjectNavigation.CustomerNavigation.Id,
-                                Name = y.ProjectNavigation.CustomerNavigation.Name
+                                Name = y.ProjectNavigation.CustomerNavigation.Name,
+                                InvoiceAddress = y.ProjectNavigation.CustomerNavigation.InvoiceAddress,
+                                ContactPhone = y.ProjectNavigation.CustomerNavigation.ContactPhone,
+                                ContactEmail = y.ProjectNavigation.CustomerNavigation.ContactEmail,
+                                ContactPerson = y.ProjectNavigation.CustomerNavigation.ContactPerson
                             }
                         }
                     })

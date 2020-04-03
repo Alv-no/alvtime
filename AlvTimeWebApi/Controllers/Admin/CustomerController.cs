@@ -32,7 +32,11 @@ namespace AlvTimeWebApi.Controllers.Admin
                 .Select(x => new CustomerDto
                 {
                     Id = x.Id,
-                    Name = x.Name
+                    Name = x.Name,
+                    ContactPerson = x.ContactPerson,
+                    ContactEmail = x.ContactEmail,
+                    ContactPhone = x.ContactPhone,
+                    InvoiceAddress = x.InvoiceAddress
                 }).ToList();
 
             return Ok(customers);
@@ -50,13 +54,50 @@ namespace AlvTimeWebApi.Controllers.Admin
                 {
                     var newCustomer = new Customer
                     {
-                        Name = customer.Name
+                        Name = customer.Name,
+                        InvoiceAddress = customer.InvoiceAddress != null ? customer.InvoiceAddress : "",
+                        ContactPhone = customer.ContactPhone != null ? customer.ContactPhone : "",
+                        ContactEmail = customer.ContactEmail != null ? customer.ContactEmail : "",
+                        ContactPerson = customer.ContactPerson != null ? customer.ContactPerson : ""
                     };
                     _database.Customer.Add(newCustomer);
                     _database.SaveChanges();
 
-                    response.Add(returnObjects.ReturnCreatedCustomer(customer));
+                    response.Add(returnObjects.ReturnCustomer(customer.Name));
                 }
+            }
+            return Ok(response);
+        }
+
+        [HttpPost("UpdateCustomer")]
+        [AuthorizeAdmin]
+        public ActionResult<IEnumerable<CustomerDto>> UpdateExistingCustomer([FromBody] IEnumerable<UpdateCustomerDto> customersToBeUpdated)
+        {
+            List<CustomerDto> response = new List<CustomerDto>();
+
+            foreach (var customer in customersToBeUpdated)
+            {
+                var existingCustomer = _database.Customer.FirstOrDefault(x => x.Id == customer.Id);
+
+                if(customer.ContactEmail != null)
+                {
+                    existingCustomer.ContactEmail = customer.ContactEmail;
+                }
+                if(customer.ContactPerson != null)
+                {
+                    existingCustomer.ContactPerson = customer.ContactPerson;
+                }
+                if(customer.ContactPhone != null)
+                {
+                    existingCustomer.ContactPhone = customer.ContactPhone;
+                }
+                if(customer.InvoiceAddress != null){
+                    existingCustomer.InvoiceAddress = customer.InvoiceAddress;
+                }
+                
+                _database.SaveChanges();
+
+                response.Add(returnObjects.ReturnCustomer(existingCustomer.Name));
             }
             return Ok(response);
         }
