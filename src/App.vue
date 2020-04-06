@@ -1,9 +1,40 @@
 <template>
   <div>
-    <router-view />
-    <UpdateSnackbar />
-    <ErrorSnackbar />
-    <OnlineSnackbar />
+    <md-app md-waterfall md-mode="fixed-last">
+      <md-app-toolbar class="app-toolbar md-large md-dense">
+        <div class="md-toolbar-row">
+          <div class="md-toolbar-section-start">
+            <router-link to="/">
+              <img
+                class="light logo"
+                src="/img/logo_white.svg"
+                alt="Hvit Alv-logo"
+              />
+            </router-link>
+          </div>
+          <h1>Alvtime</h1>
+          <div class="md-toolbar-section-end">
+            <Avatar />
+          </div>
+        </div>
+
+        <div class="md-toolbar-row">
+          <Toolbar />
+        </div>
+      </md-app-toolbar>
+
+      <md-app-drawer :md-active.sync="$store.state.drawerOpen" md-right>
+        <Drawer />
+      </md-app-drawer>
+      <md-app-content>
+        <div>
+          <router-view />
+          <UpdateSnackbar />
+          <OnlineSnackbar />
+          <ErrorSnackbar />
+        </div>
+      </md-app-content>
+    </md-app>
   </div>
 </template>
 
@@ -13,12 +44,18 @@ import moment from "moment";
 import ErrorSnackbar from "@/components/ErrorSnackbar.vue";
 import UpdateSnackbar from "@/components/UpdateSnackbar.vue";
 import OnlineSnackbar from "@/components/OnlineSnackbar.vue";
+import Toolbar from "@/components/Toolbar.vue";
+import Avatar from "@/components/Avatar.vue";
+import Drawer from "@/components/Drawer.vue";
 
 export default Vue.extend({
   components: {
     ErrorSnackbar,
     UpdateSnackbar,
     OnlineSnackbar,
+    Toolbar,
+    Avatar,
+    Drawer,
   },
 
   data() {
@@ -29,7 +66,7 @@ export default Vue.extend({
 
   computed: {
     isBecomingActive(): boolean {
-      const { oldState, newState } = this.appState;
+      const { oldState, newState } = this.interactionState;
       return oldState === "passive" && newState === "active";
     },
 
@@ -37,13 +74,13 @@ export default Vue.extend({
       return moment().diff(this.pageLoadTime, "minutes") > 30;
     },
 
-    appState(): { oldState: string; newState: string } {
-      return this.$store.state.appState;
+    interactionState(): { oldState: string; newState: string } {
+      return this.$store.state.interactionState;
     },
   },
 
   watch: {
-    appState() {
+    interactionState() {
       if (
         isIPhone() &&
         this.isBecomingActive &&
@@ -63,9 +100,41 @@ function isIPhone() {
 <style>
 html {
   font-size: 20px;
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  font-family: source-sans-pro, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
+}
+</style>
+
+<style scoped>
+.md-app {
+  height: 100vh;
+}
+
+.md-toolbar.md-theme-default {
+  background-color: #00083d;
+  color: white;
+}
+
+.logo {
+  width: 3rem;
+  margin-left: 3rem;
+}
+
+@media only screen and (max-width: 650px) {
+  .logo {
+    margin-left: 1rem;
+  }
+}
+
+@media only screen and (max-width: 449px) {
+  .logo {
+    margin-left: 0.5rem;
+  }
+}
+
+.app-toolbar {
+  z-index: 8;
 }
 </style>

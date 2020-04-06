@@ -60,6 +60,10 @@ const actions = {
     try {
       const url = new URL(config.HOST + "/api/user/tasks").toString();
       const res = await adAuthenticatedFetch(url);
+      if (res.status === 404) {
+        commit("SET_USER_NOT_FOUND")
+        throw new Error(res.statusText)
+      }
       const tasks = await res.json();
       commit("SET_TASKS", tasks);
     } catch (e) {

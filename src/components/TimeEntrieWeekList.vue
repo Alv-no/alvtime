@@ -129,6 +129,5 @@ export function sortList(a: Task, b: Task) {
   display: grid;
   grid-template-columns: minmax(8rem, 16rem) 30rem;
   margin: 0 1rem;
-  padding-right: 1rem;
 }
 </style>

@@ -1,6 +1,5 @@
 <template>
   <div>
-    <DayHeader />
     <div id="day-swiper-container" ref="mySwiper" class="swiper-container">
       <div class="swiper-wrapper">
         <div
@@ -20,7 +19,6 @@
 import Vue from "vue";
 import config from "@/config";
 import TimeEntrieDayList from "./TimeEntrieDayList.vue";
-import DayHeader from "./DayHeader.vue";
 import isInIframe from "@/mixins/isInIframe";
 import { GLOBAL_SWIPER_OPTIONS } from "@/store/swiper";
 import { Moment } from "moment";
@@ -30,7 +28,6 @@ import Swiper from "swiper";
 export default Vue.extend({
   components: {
     TimeEntrieDayList,
-    DayHeader,
   },
 
   data() {

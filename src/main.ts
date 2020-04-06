@@ -1,14 +1,11 @@
 import Vue from "vue";
-import Vuex from "vuex";
 import App from "./App.vue";
 import "swiper/css/swiper.css";
 import "./registerServiceWorker";
 import router from "./router";
-import storeOptions from "./store";
-import lifecycle from "@/services/lifecycle.es5.js";
+import store from "./store";
 import "vue-material/dist/vue-material.min.css";
 import "vue-material/dist/theme/default.css";
-import { setRedirectCallback } from "@/services/auth";
 import {
   MdButton,
   MdSnackbar,
@@ -16,11 +13,18 @@ import {
   MdCheckbox,
   MdTooltip,
   MdProgress,
+  MdApp,
+  MdToolbar,
+  MdContent,
+  MdDrawer,
+  MdList,
+  MdAvatar,
+  MdRipple,
+  MdEmptyState,
 } from "vue-material/dist/components";
 import VueMq from "vue-mq";
 import VueClipboard from "vue-clipboard2";
 
-Vue.use(Vuex);
 Vue.use(VueMq);
 Vue.use(MdButton);
 Vue.use(MdSnackbar);
@@ -28,19 +32,18 @@ Vue.use(MdIcon);
 Vue.use(MdCheckbox);
 Vue.use(MdTooltip);
 Vue.use(MdProgress);
+Vue.use(MdApp);
+Vue.use(MdToolbar);
+Vue.use(MdContent);
+Vue.use(MdDrawer);
+Vue.use(MdList);
+Vue.use(MdAvatar);
+Vue.use(MdRipple);
+Vue.use(MdEmptyState);
+
 Vue.use(VueClipboard);
 
 Vue.config.productionTip = false;
-
-const store = new Vuex.Store(storeOptions);
-
-setRedirectCallback((errorMessage: Error) =>
-  store.commit("ADD_TO_ERROR_LIST", errorMessage)
-);
-
-lifecycle.addEventListener("statechange", function(event: any) {
-  store.commit("UPDATE_APP_STATE", event);
-});
 
 new Vue({
   router,

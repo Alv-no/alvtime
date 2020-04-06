@@ -1,27 +1,20 @@
 <template>
-  <div class="grid">
-    <EditFavoritesButton />
-    <h2>{{ day }}</h2>
-    <div class="sums">
+  <div v-if="$store.state.currentRoute.name === 'hours'" class="sums">
+    <mq-layout mq="sm">
       <div>{{ daySum }}/7,5</div>
-      <div>{{ weekSum }}/37,5</div>
-    </div>
+    </mq-layout>
+    <div>{{ weekSum }}/37,5</div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import EditFavoritesButton from "./EditFavoritesButton.vue";
 import config from "@/config";
 import { FrontendTimentrie } from "@/store/timeEntries";
-import { createWeek, weekTimeEntrieSum } from "@/mixins/date";
+import { createWeek } from "@/mixins/date";
 import moment from "moment";
 
 export default Vue.extend({
-  components: {
-    EditFavoritesButton,
-  },
-
   computed: {
     day(): string {
       const str = this.activeDate.format("dddd D. MMMM");
@@ -55,16 +48,27 @@ export default Vue.extend({
     },
   },
 });
+
+function weekTimeEntrieSum(
+  activeDate: moment.Moment,
+  timeEntries: FrontendTimentrie[]
+): string {
+  const week = createWeek(activeDate).map((date: moment.Moment) =>
+    date.format(config.DATE_FORMAT)
+  );
+  const number = timeEntries.reduce((acc: number, curr: FrontendTimentrie) => {
+    if (week.indexOf(curr.date) !== -1 && !isNaN(Number(curr.value))) {
+      return (acc = acc + Number(curr.value));
+    } else {
+      return acc;
+    }
+  }, 0);
+  const str = number.toString().replace(".", ",");
+  return str;
+}
 </script>
 
 <style scoped>
-.grid {
-  display: grid;
-  grid-template-columns: 50px auto 50px;
-  align-items: center;
-  text-align: center;
-}
-
 .sums {
   font-size: 0.5rem;
   line-height: 0.7rem;

@@ -1,52 +1,19 @@
 <template>
-  <div>
-    <button :disabled="!isOnline" v-if="!isAuthenticated" @click="login">
-      Login
-    </button>
-    <div v-if="isAuthenticated">
-      <button  @click="reload">Reload</button>
-      <button :disabled="!isOnline" @click="logout">Logout</button>
-      <span>{{ name }}</span>
-    </div>
-  </div>
+  <md-list-item @click="logout">
+    <md-icon>meeting_room</md-icon>
+    <span class="md-list-item-text">Logg ut</span>
+  </md-list-item>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import { logout, login } from "../services/auth";
+import { logout } from "../services/auth";
 
 export default Vue.extend({
-  computed: {
-    name() {
-      const account = this.$store.state.account;
-      return account ? account.name : "";
-    },
-
-    isAuthenticated() {
-      return !!this.$store.state.account;
-    },
-
-    isOnline() {
-      return this.$store.state.isOnline;
-    },
-  },
-
-  created() {
-    if (!this.isAuthenticated) {
-      this.login();
-    }
-  },
-
   methods: {
-    login() {
-      login();
-    },
     logout() {
       logout();
     },
-    reload() {
-      location.reload()
-    }
   },
 });
 </script>

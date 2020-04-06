@@ -1,37 +1,29 @@
 <template>
-  <div class="grid">
-    <EditFavoritesButton />
-    <div class="sums">
-      <div>{{ weekSum }}/37,5</div>
-    </div>
-    <div />
-  </div>
+  <h2>{{ text }}</h2>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import EditFavoritesButton from "./EditFavoritesButton.vue";
+import { Moment } from "moment";
 import { createWeek } from "@/mixins/date";
-import { weekTimeEntrieSum } from "@/mixins/date";
 
 export default Vue.extend({
-  components: {
-    EditFavoritesButton,
-  },
-
   computed: {
-    week() {
-      return createWeek(this.$store.state.activeDate);
+    week(): Moment[] {
+      return createWeek(this.activeDate);
     },
 
-    weekSum(): string {
-      return weekTimeEntrieSum(
-        this.$store.state.activeDate,
-        this.$store.state.timeEntries
-      );
+    text(): string {
+      if (!this.$store.getters.isValidUser) return "Alvtime";
+      if (this.$store.state.currentRoute.name === "tasks") return "Select Favorite Tasks";
+      // @ts-ignore
+      const screenSize = this.$mq;
+      if (screenSize === "sm") return this.day;
+      if (screenSize !== "sm") return this.month;
+      return "";
     },
 
-    month() {
+    month(): string {
       let months: string[] = [];
       let years: string[] = [];
       for (const day of this.week) {
@@ -54,6 +46,15 @@ export default Vue.extend({
       }
       return text;
     },
+
+    day(): string {
+      const str = this.activeDate.format("dddd D. MMMM");
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    },
+
+    activeDate(): Moment {
+      return this.$store.state.activeDate;
+    },
   },
 });
 
@@ -63,16 +64,7 @@ function upperCase(s: string) {
 </script>
 
 <style scoped>
-.grid {
-  display: grid;
-  grid-template-columns: 130px 70px minmax(6rem, calc(37rem - 205px)) 200px;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  margin-right: 1rem;
-}
-
-.arrow_button {
-  min-width: 1rem;
+h2 {
+  font-weight: 300;
 }
 </style>

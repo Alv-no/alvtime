@@ -1,10 +1,5 @@
 <template>
   <div>
-    <div class="header">
-      <EditFavoritesButton />
-      <h2>Select Favorite Tasks</h2>
-      <div />
-    </div>
     <div class="container">
       <div v-for="task in tasks" :key="task.id" class="row">
         <TimeEntrieText :task="task" />
@@ -52,13 +47,6 @@ export default Vue.extend({
 </script>
 
 <style scoped>
-.header {
-  display: grid;
-  grid-template-columns: 0 auto;
-  align-items: center;
-  text-align: center;
-}
-
 .row {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -73,13 +61,17 @@ export default Vue.extend({
     justify-content: center;
   }
 
-  .header {
-    grid-template-columns: 107px minmax(16rem, 37rem) 107px;
-    justify-content: center;
-  }
-
   .row {
     width: 48rem;
   }
+}
+
+.container >>> .md-checkbox.md-theme-default.md-checked .md-checkbox-container {
+  background-color: #008dcf;
+  border-color: #008dcf;
+}
+
+.container >>> .md-checkbox.md-theme-default.md-checked .md-ripple {
+  color: #008dcf;
 }
 </style>

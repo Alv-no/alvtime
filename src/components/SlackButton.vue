@@ -1,5 +1,5 @@
 <template>
-  <md-button class="icon_button" @click="onClick">
+  <md-button @click="onClick">
     <md-icon md-src="/img/icons/slack.svg" />
     <md-tooltip class="tooltip">{{ tooltip }}</md-tooltip>
   </md-button>
@@ -20,10 +20,9 @@ export default Vue.extend({
 });
 </script>
 
-<style scoped>
-.md-icon.md-theme-default.md-icon-image svg {
-  fill: #fff;
-  fill: var(--md-theme-default-icon-on-background, #fff);
+<style>
+path {
+  fill: currentColor;
 }
 
 .tooltip {

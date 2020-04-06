@@ -1,19 +1,27 @@
 <template>
-  <md-button v-if="isTasks" @click="editFavorites" class="md-icon-button">
-    <md-icon class="icon" v-if="selectFavorites">star</md-icon>
-    <md-icon class="icon" v-if="!selectFavorites">star_border</md-icon>
-    <md-tooltip>Velg favoritt aktiviteter</md-tooltip>
-  </md-button>
+  <div class="button">
+    <YellowButton
+      v-if="isTasks"
+      @click="editFavorites"
+      :toggle="$store.state.selectFavorites"
+      iconId="star"
+      iconId2="star_border"
+      tooltip="Velg favoritt aktiviteter"
+      text="Favoritter"
+    />
+  </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-export default Vue.extend({
-  computed: {
-    selectFavorites() {
-      return this.$store.state.selectFavorites;
-    },
+import YellowButton from "./YellowButton.vue";
 
+export default Vue.extend({
+  components: {
+    YellowButton,
+  },
+
+  computed: {
     isTasks() {
       return !!this.$store.state.tasks.length;
     },
@@ -26,3 +34,9 @@ export default Vue.extend({
   },
 });
 </script>
+
+<style scoped>
+.button {
+  margin: 0 1rem;
+}
+</style>

@@ -1,30 +1,25 @@
 import moment from "moment";
+import Vue from "vue";
+import Vuex from "vuex";
 import timeEntrie, { TimeEntrieState } from "./timeEntries";
 import task, { TaskState } from "./tasks";
 import auth, { AuthState } from "./auth";
 import error, { ErrorState } from "./error";
 import swiper, { SwiperState } from "./swiper";
+import app, { AppState } from "./app";
+import lifecycle from "@/services/lifecycle.es5.js";
+import { setRedirectCallback } from "@/services/auth";
 
+Vue.use(Vuex);
 moment.locale("nb");
-
-interface InteractionState {
-  oldState: string;
-  newState: string;
-}
 
 export interface State
   extends TaskState,
     TimeEntrieState,
     AuthState,
     ErrorState,
-    SwiperState {
-  activeDate: moment.Moment;
-  activeTaskId: number;
-  selectFavorites: boolean;
-  isOnline: boolean;
-  interactionState: InteractionState;
-  editing: boolean;
-}
+    SwiperState,
+    AppState {}
 
 export const state = {
   ...timeEntrie.state,
@@ -32,59 +27,23 @@ export const state = {
   ...auth.state,
   ...error.state,
   ...swiper.state,
-
-  interactionState: { oldState: "", newState: "" },
-  isOnline: true,
-  activeDate: moment(),
-  activeTaskId: -1,
-  selectFavorites: false,
-  editing: false,
+  ...app.state,
 };
 
 export const mutations = {
   ...timeEntrie.mutations,
   ...task.mutations,
+  ...auth.mutations,
   ...error.mutations,
   ...swiper.mutations,
-
-  UPDATE_ACTVIE_DATE(state: State, date: moment.Moment) {
-    state.activeDate = date;
-  },
-
-  UPDATE_ACTVIE_TASK(state: State, taskId: number) {
-    state.activeTaskId = taskId;
-  },
-
-  TOGGLE_SELECTFAVORITES(state: State) {
-    state.selectFavorites = !state.selectFavorites;
-  },
-
-  UPDATE_ONLINE_STATUS(state: State) {
-    if (typeof window.navigator.onLine === "undefined") {
-      // If the browser doesn't support connection status reports
-      // assume that we are online because most apps' only react
-      // when they now that the connection has been interrupted
-      state.isOnline = true;
-    } else {
-      state.isOnline = window.navigator.onLine;
-    }
-  },
-
-  UPDATE_APP_STATE(state: State, { oldState, newState }: InteractionState) {
-    state.interactionState = { oldState, newState };
-  },
-
-  UPDATE_EDITING(state: State, editing: boolean) {
-    if (state.editing !== editing) {
-      state.editing = editing;
-    }
-  },
+  ...app.mutations,
 };
 
 const getters = {
   ...timeEntrie.getters,
   ...task.getters,
   ...swiper.getters,
+  ...auth.getters,
 };
 
 const actions = {
@@ -98,7 +57,16 @@ const storeOptions = {
   getters,
   mutations,
   actions,
-  modules: {},
 };
 
-export default storeOptions;
+const store = new Vuex.Store(storeOptions);
+
+setRedirectCallback((errorMessage: Error) =>
+  store.commit("ADD_TO_ERROR_LIST", errorMessage)
+);
+
+lifecycle.addEventListener("statechange", function(event: any) {
+  store.commit("UPDATE_INTERACTION_STATE", event);
+});
+
+export default store;

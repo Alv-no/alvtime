@@ -75,19 +75,16 @@ export default Vue.extend({
 <style scoped>
 .md-snackbar.md-theme-default {
   color: #fff;
-  color: var(--md-theme-default-text-primary-on-text-primary, #fff);
   font-weight: 500;
   background-color: #d73125;
 }
 
 .md-button.md-theme-default {
   color: #fff;
-  color: var(--md-theme-default-primary-on-background, #fff);
 }
 
 .md-button.md-theme-default .md-icon-font {
   color: #fff;
-  color: var(--md-theme-default-primary-on-background, #fff);
 }
 
 .icon_button {
