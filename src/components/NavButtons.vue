@@ -37,7 +37,7 @@ export default Vue.extend({
 
   methods: {
     onTodayClick() {
-      this.$store.commit("SLIDE_TO_TODAY");
+      this.$store.commit("SLIDE_TO_THIS_WEEK");
     },
 
     onArrowForwardClick() {

@@ -104,26 +104,26 @@ export default {
   methods: {
     onTouchStart(e) {
       this.showHelperButtons = true;
-      this.$store.commit("UPDATE_ACTVIE_TASK", this.timeEntrie.taskId);
       e.target.focus();
     },
 
     onBlur() {
       this.$store.commit("UPDATE_EDITING", false);
+      if (
+        this.activeDate.format(config.DATE_FORMAT) === this.timeEntrie.date
+      ) {
+        this.$store.commit("UPDATE_ACTVIE_TASK", -1);
+      }
       defer(() => {
         if (this.enableBlur && this.showHelperButtons) {
           this.showHelperButtons = false;
-          if (
-            this.activeDate.format(config.DATE_FORMAT) === this.timeEntrie.date
-          ) {
-            this.$store.commit("UPDATE_ACTVIE_TASK", -1);
-          }
         }
         this.enableBlur = true;
       });
     },
 
     onFocus() {
+      this.$store.commit("UPDATE_ACTVIE_TASK", this.timeEntrie.taskId);
       this.localValue = this.value;
     },
 

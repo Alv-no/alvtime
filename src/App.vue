@@ -35,6 +35,7 @@
         </div>
       </md-app-content>
     </md-app>
+    <DayFooter />
   </div>
 </template>
 
@@ -47,6 +48,7 @@ import OnlineSnackbar from "@/components/OnlineSnackbar.vue";
 import Toolbar from "@/components/Toolbar.vue";
 import Avatar from "@/components/Avatar.vue";
 import Drawer from "@/components/Drawer.vue";
+import DayFooter from "@/components/DayFooter.vue";
 
 export default Vue.extend({
   components: {
@@ -56,6 +58,7 @@ export default Vue.extend({
     Toolbar,
     Avatar,
     Drawer,
+    DayFooter,
   },
 
   data() {
@@ -109,12 +112,18 @@ html {
 
 <style scoped>
 .md-app {
-  height: 100vh;
+  height: calc(100vh);
 }
 
 .md-toolbar.md-theme-default {
   background-color: #00083d;
   color: white;
+}
+
+.md-app-content {
+  padding: 0;
+  padding-top: 1rem;
+  padding-bottom: 3rem;
 }
 
 .logo {

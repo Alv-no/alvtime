@@ -78,9 +78,16 @@ const mutations = {
     state.swiper.slidePrev();
   },
 
-  SLIDE_TO_TODAY(state: State) {
+  SLIDE_TO_THIS_WEEK(state: State) {
     const weeks = state.swiper.virtual ? state.swiper.virtual.slides : [];
     const todayIndex = weeks.findIndex(findDateInWeek(moment()));
+    if (todayIndex === -1) return;
+    state.swiper.slideTo(todayIndex);
+  },
+
+  SLIDE_TO_TODAY(state: State) {
+    const days = state.swiper.virtual ? state.swiper.virtual.slides : [];
+    const todayIndex = days.findIndex(findDayInDates(moment()));
     if (todayIndex === -1) return;
     state.swiper.slideTo(todayIndex);
   },
@@ -143,12 +150,19 @@ const actions = {
   },
 };
 
-function findDateInWeek(date: Moment) {
+function findDateInWeek(date: Moment): (week: Moment[]) => boolean {
+  const isEqualDates = findDayInDates(date);
+  return function findDateInWeek(week: Moment[]) {
+    return week.some(isEqualDates);
+  };
+}
+
+function findDayInDates(date: Moment): (day: Moment) => boolean {
   const format = config.DATE_FORMAT;
   const dateString = date.format(format);
-  const isEqualDates = (date: Moment) => date.format(format) === dateString;
-  const findDateInWeek = (week: Moment[]) => week.some(isEqualDates);
-  return findDateInWeek;
+  return function findDayInDates(day: Moment) {
+    return day.format(format) === dateString;
+  };
 }
 
 function createWeeksAround(centerDate: Moment, radiusOfWeeks: number) {
