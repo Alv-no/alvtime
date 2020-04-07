@@ -1,24 +1,52 @@
 {
-  "name": "bolt-app-template",
+  "name": "Alvtime-slack-app",
   "version": "0.0.1",
-  "description": "A basic template to spin up a Bolt app for Slack",
+  "description": "Alvtime slack app",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "npm run serve",
+    "build": "npm run build-ts && npm run lint",
+    "serve": "node dist/app.js",
+    "watch-node": "nodemon dist/app.js",
+    "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run watch-node\"",
+    "test": "jest --forceExit --coverage --verbose",
+    "watch-test": "npm run test -- --watchAll",
+    "build-ts": "tsc",
+    "watch-ts": "tsc -w",
+    "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
+    "debug": "npm run build && npm run watch-debug",
+    "serve-debug": "nodemon --inspect dist/app.js",
+    "watch-debug": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run serve-debug\""
   },
   "dependencies": {
-    "@slack/bolt": "^1.6.0"
+    "@slack/bolt": "^1.6.0",
+    "@types/concurrently": "^5.1.0",
+    "@types/eslint": "^6.8.0",
+    "@types/jest": "^25.2.1",
+    "@types/node": "^13.11.0",
+    "@typescript-eslint/eslint-plugin": "^2.27.0",
+    "@typescript-eslint/parser": "^2.27.0",
+    "concurrently": "^5.1.0",
+    "dotenv": "^8.2.0",
+    "eslint": "^6.8.0",
+    "jest": "^25.2.7",
+    "nodemon": "^2.0.2",
+    "ts-jest": "^25.3.1",
+    "ts-node": "^8.8.2"
   },
   "engines": {
     "node": "11.x"
   },
   "repository": {
-    "url": "https://glitch.com/edit/#!/bolt-app-template"
+    "url": "https://github.com/Alv-no/alvtime-slack-app"
   },
   "license": "MIT",
   "keywords": [
     "node",
-    "glitch",
+    "slack",
     "express"
-  ]
+  ],
+  "devDependencies": {
+    "typescript": "^3.8.3"
+  }
 }
