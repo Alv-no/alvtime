@@ -1,0 +1,26 @@
+version: '3.7'
+
+services:
+  alvtime-slack-app:
+    container_name: alvtime-slack-app
+    tty: true
+    image: alvtime-slack-app
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+    volumes:
+      - .:/usr/src/app:delegated
+      - /usr/src/app/node_modules/
+    expose:
+      - 3000
+
+  ngrok:
+    container_name: ngrok
+    ports:
+      - "0.0.0.0:4040:4040"
+    image: wernight/ngrok
+    links:
+      - "alvtime-slack-app"
+    environment:
+      - NGROK_REGION=eu
+      - NGROK_PORT=alvtime-slack-app:3000

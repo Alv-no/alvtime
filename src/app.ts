@@ -56,7 +56,7 @@ app.event('app_home_opened', async ({ event, context }) => {
                   "type": "plain_text",
                   "text": "Click me!"
                 }
-                "action_id": 'button_abc'
+                "action_id": 'button_abc',
               }
             ]
           }
@@ -195,7 +195,7 @@ app.command('/alvtime', async ({ ack, body, context }) => {
 
 
 (async () => {
-  const port = process.env.PORT || 4390;
+  const port = process.env.PORT || 3000;
   // Start your app
   await app.start(port);
 
