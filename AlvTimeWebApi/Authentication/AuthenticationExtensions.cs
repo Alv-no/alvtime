@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Linq;
 
 namespace AlvTimeWebApi.Authentication
 {
@@ -8,18 +9,11 @@ namespace AlvTimeWebApi.Authentication
     {
         public static void AddAlvtimeAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
-            var authentication = new AuthenticationOptions();
+            var authentication = new OAuthOptions();
             configuration.Bind("AzureAd", authentication);
 
             services
-                .AddAuthorization(options =>
-                {
-                    options.AddPolicy(AdminAuthorizationPolicy.Name, AdminAuthorizationPolicy.Build);
-                })
-                .AddAuthentication(options =>
-                {
-                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
                     options.Authority = $"{authentication.Instance}{authentication.TenantId}";
@@ -28,7 +22,8 @@ namespace AlvTimeWebApi.Authentication
                         ValidAudience = $"{authentication.ClientId}",
                         ValidIssuer = $"{authentication.Instance}{authentication.TenantId}/v2.0"
                     };
-                });
+                })
+                .AddScheme<PersonalAccessTokenOptions, PersonalAccessTokenHandler>("PersonalAccessTokenScheme", null);
         }
     }
 }

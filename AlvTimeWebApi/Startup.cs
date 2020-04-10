@@ -1,5 +1,7 @@
 using AlvTimeWebApi.Authentication;
+using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.DatabaseModels;
+using AlvTimeWebApi.Persistence.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -23,9 +25,11 @@ namespace AlvTimeWebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<IPersonalAccessTokenStorage, PersonalAccessTokenRepository>();
             services.AddDbContext<AlvTime_dbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("AlvTime_db")), contextLifetime: ServiceLifetime.Scoped, optionsLifetime: ServiceLifetime.Scoped);
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddAlvtimeAuthentication(Configuration);
+            services.AddAlvtimeAuthorization();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Example API", Version = "v1" });

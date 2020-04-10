@@ -1,4 +1,5 @@
-﻿using AlvTimeWebApi.DatabaseModels;
+﻿using AlvTimeWebApi.Authorization;
+using AlvTimeWebApi.DatabaseModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace AlvTimeWebApi.Controllers.Profile
         }
 
         [HttpGet("Profile")]
-        [Authorize]
+        [Authorize(Policy = AllowPersonalAccessTokenPolicy.Name)]
         public ActionResult<User> GetUserProfile()
         {
             return Ok(RetrieveUser());

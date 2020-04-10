@@ -1,6 +1,6 @@
 namespace AlvTimeWebApi.Authentication
 {
-    public class AuthenticationOptions
+    public class OAuthOptions
     {
         public string Instance { get; set; }
 
