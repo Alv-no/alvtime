@@ -1,24 +1,40 @@
 ﻿using AlvTimeWebApi.Authentication;
-using AlvTimeWebApi.Business;
 using AlvTimeWebApi.Business.PersonalAccessToken;
+using AlvTimeWebApi.DatabaseModels;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Task = System.Threading.Tasks.Task;
 
 namespace AlvTimeWebApi.Persistence.Repositories
 {
     public class PersonalAccessTokenRepository : IPersonalAccessTokenStorage
     {
-        public Task<User> GetUserFromToken(Token token)
+        private readonly AlvTime_dbContext _database;
+
+        public PersonalAccessTokenRepository(AlvTime_dbContext database)
         {
-            if (token.Value != "1234")
+            _database = database;
+        }
+
+        public async Task<Business.User> GetUserFromToken(Token token)
+        {
+            var databaseToken = await _database.AccessTokens.FirstOrDefaultAsync(x => x.Value == token.Value && x.ExpiryDate >= DateTime.UtcNow);
+
+            if(databaseToken != null)
             {
-                return Task.FromResult((User)null);
+                var databaseUser = await _database.User.FirstOrDefaultAsync(x => x.Id == databaseToken.UserId);
+
+                return new Business.User
+                {
+                    Id = databaseUser.Id,
+                    Email = databaseUser.Email,
+                    Name = databaseUser.Name
+                };
             }
 
-            return Task.FromResult(new User
-            {
-                Name = "Some One",
-                Email = "someone@alv.no"
-            });
+            return null;
         }
     }
 }
