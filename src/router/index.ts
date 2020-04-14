@@ -3,9 +3,9 @@ import VueRouter from "vue-router";
 import Hours from "../views/Hours.vue";
 import Tasks from "../views/Tasks.vue";
 import UnAutherized from "../views/UnAutherized.vue";
+import Login from "../views/Login.vue";
 import store from "@/store";
 import isInIframe from "@/mixins/isInIframe";
-import { login } from "@/services/auth";
 
 Vue.use(VueRouter);
 
@@ -26,6 +26,11 @@ const routes = [
     name: "UnAutherized",
     component: UnAutherized,
   },
+  {
+    path: "/login",
+    name: "login",
+    component: Login,
+  },
 ];
 
 const router = new VueRouter({
@@ -33,10 +38,13 @@ const router = new VueRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-  if (to.name === "UnAutherized") {
+  console.log("to: ", to);
+  console.log("from: ", from);
+  console.log("store.state.account: ", store.state.account);
+  if (to.name === "UnAutherized" || to.name === "login") {
     next();
   } else if (!store.state.account) {
-    login();
+    next("login");
   } else if (!isInIframe() && !store.state.tasks.length) {
     await store.dispatch("FETCH_TASKS");
     if (store.state.userNotFound) {

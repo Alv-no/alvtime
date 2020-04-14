@@ -1,13 +1,10 @@
+import { Account } from "@azure/msal-common";
+import { getAccount } from "@/services/auth";
 import { State } from "./index";
-import { getAccount } from "../services/auth";
 
 export interface AuthState {
   account: Account | null;
   userNotFound: boolean;
-}
-
-interface Account {
-  name: string;
 }
 
 const state = {
@@ -24,6 +21,10 @@ const getters = {
 const mutations = {
   SET_USER_NOT_FOUND(state: State) {
     state.userNotFound = true;
+  },
+
+  SET_ACCOUNT(state: State, account: Account) {
+    state.account = account;
   },
 };
 

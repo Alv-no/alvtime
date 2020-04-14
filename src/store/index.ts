@@ -1,13 +1,14 @@
+import { setRedirectCallback } from "@/services/auth";
+import lifecycle from "@/services/lifecycle.es5.js";
 import Vue from "vue";
 import Vuex from "vuex";
-import timeEntrie, { TimeEntrieState } from "./timeEntries";
-import task, { TaskState } from "./tasks";
+import app, { AppState } from "./app";
 import auth, { AuthState } from "./auth";
 import error, { ErrorState } from "./error";
 import swiper, { SwiperState } from "./swiper";
-import app, { AppState } from "./app";
-import lifecycle from "@/services/lifecycle.es5.js";
-import { setRedirectCallback } from "@/services/auth";
+import task, { TaskState } from "./tasks";
+import timeEntrie, { TimeEntrieState } from "./timeEntries";
+import router from "@/router";
 
 Vue.use(Vuex);
 
@@ -59,8 +60,15 @@ const storeOptions = {
 
 const store = new Vuex.Store(storeOptions);
 
-setRedirectCallback((errorMessage: Error) =>
-  store.commit("ADD_TO_ERROR_LIST", errorMessage)
+setRedirectCallback(
+  (errorMessage: Error) => {
+    console.error(errorMessage);
+    store.commit("ADD_TO_ERROR_LIST", errorMessage);
+  },
+  (account: Account) => {
+    store.commit("SET_ACCOUNT", account);
+    router.push("hours");
+  }
 );
 
 lifecycle.addEventListener("statechange", function(event: any) {
