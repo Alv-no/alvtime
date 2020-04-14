@@ -5,14 +5,16 @@
         <div class="md-toolbar-row">
           <div class="md-toolbar-section-start">
             <router-link to="/">
-              <img
-                class="light logo"
-                src="/img/logo_white.svg"
-                alt="Hvit Alv-logo"
-              />
+              <div class="logo_grid">
+                <img
+                  class="light logo"
+                  src="/img/logo_white.svg"
+                  alt="Hvit Alv-logo"
+                />
+                <div class="logo_text">time</div>
+              </div>
             </router-link>
           </div>
-          <h1>Alvtime</h1>
           <div class="md-toolbar-section-end">
             <Avatar />
           </div>
@@ -145,5 +147,14 @@ html {
 
 .app-toolbar {
   z-index: 8;
+}
+
+.logo_grid {
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
+.logo_text {
+  color: white;
 }
 </style>
