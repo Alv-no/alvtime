@@ -5,6 +5,7 @@ import moment, { Moment } from "moment";
 import Swiper from "swiper";
 import isInIframe from "@/mixins/isInIframe";
 import { createWeek } from "@/mixins/date";
+moment.locale("nb");
 
 export interface SwiperState {
   swiper: Swiper;
@@ -111,11 +112,11 @@ const mutations = {
     state.activeDate = date;
   },
 
-  CREATE_WEEKS(state: State, weeks: Moment[][]) {
+  SET_WEEKS(state: State, weeks: Moment[][]) {
     state.weeks = weeks;
   },
 
-  CREATE_DATES(state: State, dates: Moment[]) {
+  SET_DATES(state: State, dates: Moment[]) {
     state.dates = dates;
   },
 };
@@ -125,14 +126,14 @@ const actions = {
     const centerDate = state.activeDate;
     const radiusOfWeeks = getters.radiusOfWeeks;
     const weeks = createWeeksAround(centerDate, radiusOfWeeks);
-    commit("CREATE_WEEKS", weeks);
+    commit("SET_WEEKS", weeks);
   },
 
   CREATE_DATES({ state, commit, getters }: ActionContext<State, State>) {
     const centerDate = state.activeDate;
     const radiusOfDays = getters.radiusOfDays;
     const dates = createDatesAround(centerDate, radiusOfDays);
-    commit("CREATE_DATES", dates);
+    commit("SET_DATES", dates);
   },
 
   FETCH_WEEK_ENTRIES({ dispatch, getters }: ActionContext<State, State>) {

@@ -1,4 +1,3 @@
-import moment from "moment";
 import Vue from "vue";
 import Vuex from "vuex";
 import timeEntrie, { TimeEntrieState } from "./timeEntries";
@@ -11,7 +10,6 @@ import lifecycle from "@/services/lifecycle.es5.js";
 import { setRedirectCallback } from "@/services/auth";
 
 Vue.use(Vuex);
-moment.locale("nb");
 
 export interface State
   extends TaskState,
