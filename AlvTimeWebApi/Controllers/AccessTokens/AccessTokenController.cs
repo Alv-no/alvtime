@@ -42,7 +42,7 @@ namespace AlvTimeApi.Controllers.AccessToken
 
         [HttpGet("ActiveAccessTokens")]
         [Authorize]
-        public ActionResult<IEnumerable<AccessTokens>> FetchFriendlyNames()
+        public ActionResult<IEnumerable<AccessTokenResponseDto>> FetchFriendlyNames()
         {
             var user = RetrieveUser();
 
