@@ -34,6 +34,7 @@ values
 ('Ansatt Ti', 'ansatti@alv.no', '2019-12-01', '531'),
 ('Ahre Ketil Lillehagen', 'ahre-ketil.lillehagen@alvno.onmicrosoft.com', '2020-01-01', '68')
 
+
 insert into [dbo].[Task]
 values
 ('Testleder', '', 2, 0, 0, 1.0),
