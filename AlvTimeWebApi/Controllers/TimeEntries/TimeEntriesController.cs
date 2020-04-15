@@ -1,6 +1,6 @@
-using AlvTimeWebApi.DatabaseModels;
 using AlvTimeWebApi.Dto;
 using AlvTimeWebApi.HelperClasses;
+using AlvTimeWebApi.Persistence.DatabaseModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -54,16 +54,16 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
         }
 
         [HttpPost("TimeEntries")]
-        [Authorize]
+        [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<List<TimeEntriesResponseDto>> UpsertTimeEntry([FromBody] List<CreateTimeEntryDto> requests)
         {
             List<TimeEntriesResponseDto> response = new List<TimeEntriesResponseDto>();
-            
+            var user = RetrieveUser();
+
             foreach (var request in requests)
             {
                 try
                 {
-                    var user = RetrieveUser();
                     Hours timeEntry = checkExisting.RetrieveExistingTimeEntry(request, user);
                     if (timeEntry == null)
                     {
@@ -74,11 +74,11 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
                         .Where(x => x.Id == timeEntry.TaskId)
                         .FirstOrDefault();
 
-                    if(timeEntry.Locked == false && task.Locked == false)
+                    if (timeEntry.Locked == false && task.Locked == false)
                     {
                         timeEntry.Value = request.Value;
                         _database.SaveChanges();
-                        
+
                         var responseDto = new TimeEntriesResponseDto
                         {
                             Id = timeEntry.Id,
@@ -96,7 +96,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
                     {
                         Message = e.ToString()
                     });
-                } 
+                }
             }
             return Ok(response);
         }

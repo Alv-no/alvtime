@@ -1,11 +1,11 @@
 ﻿using AlvTimeWebApi.Authentication;
-using AlvTimeWebApi.DatabaseModels;
 using AlvTimeWebApi.Dto;
 using AlvTimeWebApi.HelperClasses;
+using AlvTimeWebApi.Persistence.DatabaseModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
-using Task = AlvTimeWebApi.DatabaseModels.Task;
+using Task = AlvTimeWebApi.Persistence.DatabaseModels.Task;
 
 namespace AlvTimeWebApi.Controllers.Admin
 {

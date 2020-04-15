@@ -1,3 +1,6 @@
+using AlvTimeWebApi.Dto;
+using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace Tests
@@ -7,11 +10,16 @@ namespace Tests
         [Fact]
         public void Test1_Passes()
         {
-            string s1 = "hel";
-            string s2 = "lo";
-            string s3 = s1 + s2;
+            var list = new List<CreateTimeEntryDto>();
 
-            Assert.Equal("hello", s3);
+            var dto = new CreateTimeEntryDto
+            {
+                Date = DateTime.UtcNow,
+                TaskId = 3,
+                Value = 3
+            };
+
+            list.Add(dto);
         }
     }
 }

@@ -17,4 +17,8 @@
     <Folder Include="IntegrationTests\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AlvTimeWebApi\AlvTimeWebApi.csproj" />
+  </ItemGroup>
+
 </Project>
