@@ -40,14 +40,14 @@ namespace AlvTimeApi.Controllers.AccessToken
             return DeleteToken(user, token.TokenId);
         }
 
-        [HttpGet("AccessTokenFriendlyNames")]
+        [HttpGet("ActiveAccessTokens")]
         [Authorize]
         public ActionResult<IEnumerable<AccessTokens>> FetchFriendlyNames()
         {
             var user = RetrieveUser();
 
             var tokens = _database.AccessTokens
-                .Where(x => x.UserId == user.Id)
+                .Where(x => x.UserId == user.Id && x.ExpiryDate >= DateTime.UtcNow)
                 .Select(x => new AccessTokenResponseDto
                 {
                     Id = x.Id,
