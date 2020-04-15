@@ -1,6 +1,3 @@
-using AlvTimeApi.Controllers.AccessToken;
-using AlvTimeWebApi.Controllers.TimeEntries;
-using AlvTimeWebApi.DatabaseModels;
 using AlvTimeWebApi.Dto;
 using System;
 using System.Collections.Generic;

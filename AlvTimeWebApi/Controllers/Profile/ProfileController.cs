@@ -1,5 +1,4 @@
-﻿using AlvTimeWebApi.Authorization;
-using AlvTimeWebApi.DatabaseModels;
+﻿using AlvTimeWebApi.Persistence.DatabaseModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;

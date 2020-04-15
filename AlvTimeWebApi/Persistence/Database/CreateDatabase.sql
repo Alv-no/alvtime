@@ -212,6 +212,7 @@ GO
 CREATE TABLE [dbo].[AccessTokens](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
 	[UserId] [int] NOT NULL,
+	[FriendlyName] [nvarchar](100) NOT NULL,
 	[ExpiryDate] [datetime] NOT NULL,
 	[Value] [nvarchar](100) NOT NULL,
 PRIMARY KEY CLUSTERED 

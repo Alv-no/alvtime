@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace AlvTimeWebApi.DatabaseModels
+namespace AlvTimeWebApi.Persistence.DatabaseModels
 {
     public partial class AlvTime_dbContext : DbContext
     {
@@ -39,6 +39,10 @@ namespace AlvTimeWebApi.DatabaseModels
             modelBuilder.Entity<AccessTokens>(entity =>
             {
                 entity.Property(e => e.ExpiryDate).HasColumnType("datetime");
+
+                entity.Property(e => e.FriendlyName)
+                    .IsRequired()
+                    .HasMaxLength(100);
 
                 entity.Property(e => e.Value)
                     .IsRequired()

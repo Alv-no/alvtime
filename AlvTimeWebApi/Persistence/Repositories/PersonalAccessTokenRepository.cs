@@ -1,11 +1,9 @@
 ﻿using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Business.PersonalAccessToken;
-using AlvTimeWebApi.DatabaseModels;
+using AlvTimeWebApi.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
-using Task = System.Threading.Tasks.Task;
 
 namespace AlvTimeWebApi.Persistence.Repositories
 {

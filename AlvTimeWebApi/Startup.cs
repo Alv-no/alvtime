@@ -1,6 +1,6 @@
 using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Authorization;
-using AlvTimeWebApi.DatabaseModels;
+using AlvTimeWebApi.Persistence.DatabaseModels;
 using AlvTimeWebApi.Persistence.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

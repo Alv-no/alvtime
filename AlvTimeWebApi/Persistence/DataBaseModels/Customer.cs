@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AlvTimeWebApi.DatabaseModels
+namespace AlvTimeWebApi.Persistence.DatabaseModels
 {
     public partial class Customer
     {

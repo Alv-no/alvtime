@@ -1,6 +1,6 @@
-﻿using AlvTimeWebApi.DatabaseModels;
-using AlvTimeWebApi.Dto;
+﻿using AlvTimeWebApi.Dto;
 using AlvTimeWebApi.HelperClasses;
+using AlvTimeWebApi.Persistence.DatabaseModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;

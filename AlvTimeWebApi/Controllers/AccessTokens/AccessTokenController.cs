@@ -1,5 +1,5 @@
-﻿using AlvTimeWebApi.DatabaseModels;
-using AlvTimeWebApi.Dto;
+﻿using AlvTimeWebApi.Dto;
+using AlvTimeWebApi.Persistence.DatabaseModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -22,13 +22,13 @@ namespace AlvTimeApi.Controllers.AccessToken
 
         [HttpPost("AccessToken")]
         [Authorize]
-        public ActionResult<string> CreateLifetimeToken()
+        public ActionResult<string> CreateLifetimeToken([FromBody] AccessTokenRequestDto request)
         {
             var user = RetrieveUser();
 
             var uuid = Guid.NewGuid().ToString();
 
-            return CreateToken(user, uuid);
+            return CreateToken(user, uuid, request.FriendlyName);
         }
 
         [HttpDelete("AccessToken")]
@@ -47,23 +47,26 @@ namespace AlvTimeApi.Controllers.AccessToken
             var user = RetrieveUser();
 
             var tokens = _database.AccessTokens
+                .Where(x => x.UserId == user.Id)
                 .Select(x => new AccessTokenResponseDto
                 {
                     Id = x.Id,
-                    ExpiryDate = x.ExpiryDate
+                    FriendlyName = x.FriendlyName,
+                    ExpiryDate = x.ExpiryDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
                 })
                 .ToList();
 
             return Ok(tokens);
         }
 
-        private ActionResult<string> CreateToken(User user, string uuid)
+        private ActionResult<string> CreateToken(User user, string uuid, string friendlyName)
         {
             var accessToken = new AccessTokens
             {
                 UserId = user.Id,
                 Value = uuid,
-                ExpiryDate = DateTime.UtcNow.AddMonths(6)
+                ExpiryDate = DateTime.UtcNow.AddMonths(6),
+                FriendlyName = friendlyName
             };
 
             _database.AccessTokens.Add(accessToken);
