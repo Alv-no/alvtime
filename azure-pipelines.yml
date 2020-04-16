@@ -25,12 +25,13 @@ steps:
   inputs:
     restoreSolution: '$(solution)'
 
-- task: VSBuild@1
+- task: UseDotNet@2
+  displayName: ".NET Core 3.0.x"
   inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    version: '3.1.x'
+    packageType: sdk
+- script: dotnet build --configuration $(buildConfiguration)
+  displayName: 'dotnet build $(buildConfiguration)'
 
 - task: CopyFiles@2
   inputs:
@@ -38,16 +39,6 @@ steps:
     Contents: '**/*'
     TargetFolder: '$(build.artifactStagingDirectory)'
     flattenFolders: false
-
-- task: VSTest@2
-  inputs:
-    testSelector: 'testAssemblies'
-    otherConsoleOptions: '/Framework:.NETCoreApp,Version=v3.0'
-    testAssemblyVer2: |
-      **\*Tests.dll
-      !**\*TestAdapter.dll
-      !**\obj\**
-    searchFolder: '$(System.DefaultWorkingDirectory)'
 
 - task: ArchiveFiles@2
   displayName: "Archive files"
