@@ -11,6 +11,6 @@ namespace AlvTimeWebApi.Dto
         public string Name { get; set; }
         public string Email { get; set; }
         public decimal FlexiHours { get; set; }
-        public DateTime StartDate { get; set; }
+        public string StartDate { get; set; }
     }
 }
