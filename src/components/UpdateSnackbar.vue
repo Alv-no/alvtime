@@ -8,17 +8,20 @@
     <span>New version available! Click to update</span>
     <md-button class="md-primary" @click="refreshApp">
       Update
-      <md-tooltip class="tooltip"
-        >Oppdater til siste versjon av appen</md-tooltip
-      >
+      <Tooltip text="Oppdater til siste versjon av appen" />
     </md-button>
   </md-snackbar>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
+import Tooltip from "@/components/Tooltip.vue";
 
 export default Vue.extend({
+  components: {
+    Tooltip,
+  },
+
   data() {
     return {
       duration: Infinity,

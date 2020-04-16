@@ -12,7 +12,7 @@
     />
     <md-button class="icon_button" @click="close">
       <md-icon class="icon">close</md-icon>
-      <md-tooltip class="tooltip">Lukk</md-tooltip>
+      <Tooltip text="Lukk" />
     </md-button>
   </md-snackbar>
 </template>
@@ -20,6 +20,7 @@
 <script lang="ts">
 import Vue from "vue";
 import SlackButton from "@/components/SlackButton.vue";
+import Tooltip from "@/components/Tooltip.vue";
 
 declare global {
   interface Window {
@@ -30,6 +31,7 @@ declare global {
 export default Vue.extend({
   components: {
     SlackButton,
+    Tooltip,
   },
 
   data() {

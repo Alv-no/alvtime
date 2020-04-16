@@ -2,13 +2,19 @@
   <md-button @click="onClick">
     <md-icon v-if="iconId">{{ iconIdToShow }}</md-icon>
     <span v-if="text" class="text">{{ text }}</span>
-    <md-tooltip v-if="tooltip">{{ tooltip }}</md-tooltip>
+    <Tooltip :text="tooltip" />
   </md-button>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
+import Tooltip from "@/components/Tooltip.vue";
+
 export default Vue.extend({
+  components: {
+    Tooltip,
+  },
+
   props: ["toggle", "iconId", "iconId2", "text", "tooltip"],
 
   computed: {
