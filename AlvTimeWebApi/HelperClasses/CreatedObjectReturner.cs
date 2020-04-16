@@ -65,7 +65,7 @@ namespace AlvTimeWebApi.HelperClasses
                     Name = x.Name,
                     Email = x.Email,
                     FlexiHours = x.FlexiHours,
-                    StartDate = x.StartDate
+                    StartDate = x.StartDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
                 })
                 .FirstOrDefault();
 

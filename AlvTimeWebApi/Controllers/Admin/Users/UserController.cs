@@ -4,9 +4,8 @@ using AlvTimeWebApi.HelperClasses;
 using AlvTimeWebApi.Persistence.DatabaseModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace AlvTimeWebApi.Controllers.Admin
+namespace AlvTimeWebApi.Controllers.Admin.Users
 {
     [Route("api/admin")]
     [ApiController]
@@ -16,10 +15,12 @@ namespace AlvTimeWebApi.Controllers.Admin
 
         private CreatedObjectReturner returnObjects;
         private ExistingObjectFinder checkExisting;
+        private readonly IUserStorage _userStorage;
 
-        public UserController(AlvTime_dbContext database)
+        public UserController(AlvTime_dbContext database, IUserStorage userStorage)
         {
             _database = database;
+            _userStorage = userStorage;
             returnObjects = new CreatedObjectReturner(_database);
             checkExisting = new ExistingObjectFinder(_database);
         }
@@ -28,16 +29,7 @@ namespace AlvTimeWebApi.Controllers.Admin
         [AuthorizeAdmin]
         public ActionResult<IEnumerable<UserResponseDto>> FetchUsers()
         {
-            var users = _database.User
-                .Select(x => new UserResponseDto
-                {
-                    Id = x.Id,
-                    Email = x.Email,
-                    Name = x.Name,
-                    FlexiHours = x.FlexiHours,
-                    StartDate = x.StartDate
-                }).ToList();
-
+            var users = _userStorage.GetUser(new UserQuerySearch());
             return Ok(users);
         }
 
