@@ -26,13 +26,13 @@ steps:
     restoreSolution: '$(solution)'
 
 - task: UseDotNet@2 
-      displayName: ".NET Core 3.0.x"
-      inputs:
-        solution: '$(solution)'
-        version: '3.1.x'
-        packageType: sdk
-    - script: dotnet build --configuration $(buildConfiguration)
-      displayName: 'dotnet build $(buildConfiguration)'
+  displayName: ".NET Core 3.0.x"
+  inputs:
+    solution: '$(solution)'
+    version: '3.1.x'
+    packageType: sdk
+  - script: dotnet build --configuration $(buildConfiguration)
+    displayName: 'dotnet build $(buildConfiguration)'
 
 - task: CopyFiles@2
   inputs:
