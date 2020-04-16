@@ -9,7 +9,7 @@ services:
       - "8000:80"
   mssql-db:
     container_name: mssql-db
-    build: ./Database
+    build: ./Persistence/Database
     volumes:
      - ./Database/:/scripts/
     ports:

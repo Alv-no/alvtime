@@ -13,6 +13,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\**" />
+    <Compile Remove="nginx\**" />
+    <Compile Remove="Views\**" />
+    <Content Remove="Models\**" />
+    <Content Remove="nginx\**" />
+    <Content Remove="Views\**" />
+    <EmbeddedResource Remove="Models\**" />
+    <EmbeddedResource Remove="nginx\**" />
+    <EmbeddedResource Remove="Views\**" />
+    <None Remove="Models\**" />
+    <None Remove="nginx\**" />
+    <None Remove="Views\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove=".env" />
     <None Remove="Authentication\NewFile.txt" />
     <None Remove="docker-compose.yml" />

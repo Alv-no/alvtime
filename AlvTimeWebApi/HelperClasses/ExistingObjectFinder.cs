@@ -1,5 +1,5 @@
-﻿using AlvTimeWebApi.DatabaseModels;
-using AlvTimeWebApi.Dto;
+﻿using AlvTimeWebApi.Dto;
+using AlvTimeWebApi.Persistence.DatabaseModels;
 using System.Linq;
 
 namespace AlvTimeWebApi.HelperClasses
