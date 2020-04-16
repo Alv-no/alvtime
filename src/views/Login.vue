@@ -1,14 +1,20 @@
 <template>
   <div class="grid">
-    <md-button @click="login">Login with Azure Ad</md-button>
+    <md-button v-if="!$store.state.account" @click="login">Login with Azure Ad</md-button>
+    <Spinner v-if="!$store.state.tasks.length && $store.state.account" />
   </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { login } from "../services/auth";
+import Spinner from "@/components/Spinner.vue";
 
 export default Vue.extend({
+  components: {
+    Spinner,
+  },
+
   methods: {
     login: () => login(),
   },

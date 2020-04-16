@@ -2,7 +2,7 @@
   <div v-if="show" class="center">
     <div class="center_text">
       <md-progress-spinner md-mode="indeterminate"></md-progress-spinner>
-      <p>Slapp av. Dataen er nok rett rundt hjørnet nå.</p>
+      <p>Dataen er nok rett rundt hjørnet nå.</p>
     </div>
   </div>
 </template>
