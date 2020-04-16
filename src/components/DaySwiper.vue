@@ -19,7 +19,6 @@
 import Vue from "vue";
 import config from "@/config";
 import TimeEntrieDayList from "./TimeEntrieDayList.vue";
-import isInIframe from "@/mixins/isInIframe";
 import { GLOBAL_SWIPER_OPTIONS } from "@/store/swiper";
 import { Moment } from "moment";
 

@@ -5,7 +5,6 @@ import Tasks from "../views/Tasks.vue";
 import UnAutherized from "../views/UnAutherized.vue";
 import Login from "../views/Login.vue";
 import store from "@/store";
-import isInIframe from "@/mixins/isInIframe";
 
 Vue.use(VueRouter);
 
@@ -37,15 +36,12 @@ const router = new VueRouter({
   routes,
 });
 
-router.beforeEach(async (to, from, next) => {
-  console.log("to: ", to);
-  console.log("from: ", from);
-  console.log("store.state.account: ", store.state.account);
+router.beforeEach(async (to, _from, next) => {
   if (to.name === "UnAutherized" || to.name === "login") {
     next();
   } else if (!store.state.account) {
     next("login");
-  } else if (!isInIframe() && !store.state.tasks.length) {
+  } else if (!store.state.tasks.length) {
     await store.dispatch("FETCH_TASKS");
     if (store.state.userNotFound) {
       next("UnAutherized");

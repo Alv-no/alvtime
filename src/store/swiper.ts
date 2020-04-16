@@ -3,7 +3,6 @@ import { ActionContext } from "vuex";
 import config from "@/config";
 import moment, { Moment } from "moment";
 import Swiper from "swiper";
-import isInIframe from "@/mixins/isInIframe";
 import { createWeek } from "@/mixins/date";
 moment.locale("nb");
 
@@ -138,14 +137,14 @@ const actions = {
 
   FETCH_WEEK_ENTRIES({ dispatch, getters }: ActionContext<State, State>) {
     const weeksDateRange = getters.weeksDateRange;
-    if (!isInIframe() && weeksDateRange) {
+    if (weeksDateRange) {
       dispatch("FETCH_TIME_ENTRIES", weeksDateRange);
     }
   },
 
   FETCH_DATE_ENTRIES({ dispatch, getters }: ActionContext<State, State>) {
     const datesDateRange = getters.datesDateRange;
-    if (!isInIframe() && datesDateRange) {
+    if (datesDateRange) {
       dispatch("FETCH_TIME_ENTRIES", datesDateRange);
     }
   },
