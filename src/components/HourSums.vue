@@ -22,7 +22,10 @@ export default Vue.extend({
     },
 
     daySum(): string {
-      const number = this.$store.state.timeEntries.reduce(
+      const timeEntries = this.$store.state.timeEntries
+        ? this.$store.state.timeEntries
+        : [];
+      const number = timeEntries.reduce(
         (acc: number, curr: FrontendTimentrie) => {
           if (
             this.activeDate.format(config.DATE_FORMAT) === curr.date &&
@@ -40,7 +43,10 @@ export default Vue.extend({
     },
 
     weekSum(): string {
-      return weekTimeEntrieSum(this.activeDate, this.$store.state.timeEntries);
+      const timeEntries = this.$store.state.timeEntries
+        ? this.$store.state.timeEntries
+        : [];
+      return weekTimeEntrieSum(this.activeDate, timeEntries);
     },
 
     activeDate(): moment.Moment {

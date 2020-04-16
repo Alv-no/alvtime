@@ -55,6 +55,10 @@ export default Vue.extend({
   padding: 0 1rem;
 }
 
+.container {
+  padding-top: 1rem;
+}
+
 @media only screen and (min-width: 1000px) {
   .container {
     display: grid;

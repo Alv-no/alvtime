@@ -35,9 +35,12 @@ export default Vue.extend({
     };
   },
 
-  mounted() {
-    this.$store.dispatch("CREATE_DATES");
+  beforeCreate() {
+    this.$store.commit("CREATE_DATES");
+    this.$store.dispatch("FETCH_DATE_ENTRIES");
+  },
 
+  mounted() {
     const swiperOptions = {
       ...GLOBAL_SWIPER_OPTIONS,
       initialSlide: this.$store.getters.initialDaySlide,
@@ -53,8 +56,10 @@ export default Vue.extend({
 
     const swiper = new Swiper("#day-swiper-container", swiperOptions);
     this.$store.commit("SET_SWIPER", swiper);
+  },
 
-    this.$store.dispatch("FETCH_DATE_ENTRIES");
+  beforeDestroy() {
+    this.$store.state.swiper.destroy();
   },
 
   methods: {

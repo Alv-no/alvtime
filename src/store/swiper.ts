@@ -24,6 +24,9 @@ export const GLOBAL_SWIPER_OPTIONS = {
   },
 };
 
+const RADIUS_OF_WEEKS = 52;
+const RADIUS_OF_DAYS = 7 * RADIUS_OF_WEEKS;
+
 const state = {
   swiper: {} as Swiper,
   weeks: [[]] as Moment[][],
@@ -31,16 +34,8 @@ const state = {
 };
 
 const getters = {
-  radiusOfWeeks(): number {
-    return 52;
-  },
-
-  radiusOfDays(_state: State, { radiusOfWeeks }: { radiusOfWeeks: number }) {
-    return 7 * radiusOfWeeks;
-  },
-
-  initialDaySlide(_state: State, { radiusOfDays }: { radiusOfDays: number }) {
-    return radiusOfDays;
+  initialDaySlide() {
+    return RADIUS_OF_DAYS;
   },
 
   weeksDateRange(
@@ -111,30 +106,20 @@ const mutations = {
     state.activeDate = date;
   },
 
-  SET_WEEKS(state: State, weeks: Moment[][]) {
+  CREATE_WEEKS(state: State) {
+    const centerDate = state.activeDate;
+    const weeks = createWeeksAround(centerDate);
     state.weeks = weeks;
   },
 
-  SET_DATES(state: State, dates: Moment[]) {
+  CREATE_DATES(state: State) {
+    const centerDate = state.activeDate;
+    const dates = createDatesAround(centerDate);
     state.dates = dates;
   },
 };
 
 const actions = {
-  CREATE_WEEKS({ state, commit, getters }: ActionContext<State, State>) {
-    const centerDate = state.activeDate;
-    const radiusOfWeeks = getters.radiusOfWeeks;
-    const weeks = createWeeksAround(centerDate, radiusOfWeeks);
-    commit("SET_WEEKS", weeks);
-  },
-
-  CREATE_DATES({ state, commit, getters }: ActionContext<State, State>) {
-    const centerDate = state.activeDate;
-    const radiusOfDays = getters.radiusOfDays;
-    const dates = createDatesAround(centerDate, radiusOfDays);
-    commit("SET_DATES", dates);
-  },
-
   FETCH_WEEK_ENTRIES({ dispatch, getters }: ActionContext<State, State>) {
     const weeksDateRange = getters.weeksDateRange;
     if (weeksDateRange) {
@@ -165,11 +150,11 @@ function findDayInDates(date: Moment): (day: Moment) => boolean {
   };
 }
 
-function createWeeksAround(centerDate: Moment, radiusOfWeeks: number) {
+function createWeeksAround(centerDate: Moment) {
   const numbers = [
-    ...descendingNumbers(radiusOfWeeks),
+    ...descendingNumbers(RADIUS_OF_WEEKS),
     0,
-    ...ascendingNumbers(radiusOfWeeks),
+    ...ascendingNumbers(RADIUS_OF_WEEKS),
   ];
   const weeks = numbers
     .map(n => centerDate.clone().add(n, "week"))
@@ -177,14 +162,11 @@ function createWeeksAround(centerDate: Moment, radiusOfWeeks: number) {
   return weeks;
 }
 
-function createDatesAround(
-  date: Moment,
-  radiusOfDays: number
-): moment.Moment[] {
+function createDatesAround(date: Moment): moment.Moment[] {
   const numbers = [
-    ...descendingNumbers(radiusOfDays),
+    ...descendingNumbers(RADIUS_OF_DAYS),
     0,
-    ...ascendingNumbers(radiusOfDays),
+    ...ascendingNumbers(RADIUS_OF_DAYS),
   ];
   const dates = numbers.map(n => date.clone().add(n, "day"));
   return dates;

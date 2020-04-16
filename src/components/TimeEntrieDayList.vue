@@ -47,7 +47,10 @@ export default Vue.extend({
     },
 
     daysTimeEntries(): FrontendTimentrie[] {
-      return this.$store.state.timeEntries.filter((entrie: FrontendTimentrie) =>
+      const timeEntries = this.$store.state.timeEntries
+        ? this.$store.state.timeEntries
+        : [];
+      return timeEntries.filter((entrie: FrontendTimentrie) =>
         this.isThisDate(entrie.date)
       );
     },

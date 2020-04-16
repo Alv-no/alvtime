@@ -1,6 +1,7 @@
 <template>
   <div>
-    <div v-if="!$store.state.timeEntries.length">
+    <Progress :visible="progressBarVisible" />
+    <div class="swipers">
       <mq-layout mq="sm">
         <DaySwiper />
       </mq-layout>
@@ -8,7 +9,6 @@
         <WeekSwiper />
       </mq-layout>
     </div>
-    <Spinner v-if="$store.state.timeEntries.length" />
   </div>
 </template>
 
@@ -17,14 +17,35 @@ import Vue from "vue";
 
 import DaySwiper from "@/components/DaySwiper.vue";
 import WeekSwiper from "@/components/WeekSwiper.vue";
-import Spinner from "@/components/Spinner.vue";
+import Progress from "@/components/Progress.vue";
 
 export default Vue.extend({
   name: "hours",
+
   components: {
     DaySwiper,
     WeekSwiper,
-    Spinner,
+    Progress,
+  },
+
+  computed: {
+    progressBarVisible() {
+      console.log(
+        "this.$store.state.timeEntries: ",
+        this.$store.state.timeEntries
+      );
+      return this.$store.state.timeEntries === null;
+    },
   },
 });
 </script>
+
+<style scoped>
+.swipers {
+  padding-top: 1rem;
+}
+
+.hidden {
+  visibility: hidden;
+}
+</style>

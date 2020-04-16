@@ -26,6 +26,15 @@ import { createWeek } from "@/mixins/date";
 import Swiper from "swiper";
 
 export default Vue.extend({
+  beforeCreate() {
+    this.$store.commit("CREATE_WEEKS");
+    this.$store.dispatch("FETCH_WEEK_ENTRIES");
+  },
+
+  beforeDestroy() {
+    this.$store.state.swiper.destroy();
+  },
+
   components: {
     TimeEntrieWeekList,
   },
@@ -37,7 +46,6 @@ export default Vue.extend({
   },
 
   mounted() {
-    this.$store.dispatch("CREATE_WEEKS");
     const self = this;
     const swiperOptions = {
       ...GLOBAL_SWIPER_OPTIONS,
@@ -53,8 +61,6 @@ export default Vue.extend({
 
     const swiper = new Swiper("#week-swiper-container", swiperOptions);
     this.$store.commit("SET_SWIPER", swiper);
-
-    this.$store.dispatch("FETCH_WEEK_ENTRIES");
   },
 
   methods: {
@@ -76,3 +82,10 @@ export default Vue.extend({
   },
 });
 </script>
+
+<style scoped>
+.progress {
+  position: fixed;
+  top: 0;
+}
+</style>

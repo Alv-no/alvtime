@@ -124,7 +124,7 @@ html {
 
 .md-app-content {
   padding: 0;
-  padding-top: 1rem;
+  padding-top: 0;
   padding-bottom: 3rem;
 }
 

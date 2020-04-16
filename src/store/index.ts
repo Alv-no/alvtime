@@ -39,7 +39,6 @@ export const mutations = {
 };
 
 const getters = {
-  ...timeEntrie.getters,
   ...task.getters,
   ...swiper.getters,
   ...auth.getters,

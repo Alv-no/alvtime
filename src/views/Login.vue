@@ -29,6 +29,7 @@ export default Vue.extend({
 }
 
 .md-button.md-theme-default {
+  margin-top: 3rem;
   background-color: #0074c6;
   color: white;
 }

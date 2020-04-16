@@ -5,7 +5,7 @@ import config from "@/config";
 import { adAuthenticatedFetch } from "@/services/auth";
 
 export interface TimeEntrieState {
-  timeEntries: FrontendTimentrie[];
+  timeEntries: FrontendTimentrie[] | null;
   timeEntriesMap: TimeEntrieMap;
   pushQueue: FrontendTimentrie[];
 }
@@ -34,17 +34,9 @@ export interface ServerSideTimeEntrie {
 }
 
 const state = {
-  timeEntries: [],
+  timeEntries: null,
   pushQueue: [],
   timeEntriesMap: {},
-};
-
-const getters = {
-  getTimeEntrie: (state: State) => (entrieA: FrontendTimentrie) => {
-    return state.timeEntries.find((entrieB: FrontendTimentrie) =>
-      isMatchingEntrie(entrieA, entrieB)
-    );
-  },
 };
 
 const mutations = {
@@ -55,7 +47,7 @@ const mutations = {
     }
     state.timeEntriesMap = { ...state.timeEntriesMap, ...newTimeEntriesMap };
 
-    let newTimeEntries = [...state.timeEntries];
+    let newTimeEntries = state.timeEntries ? [...state.timeEntries] : [];
     for (const paramEntrie of paramEntries) {
       newTimeEntries = updateArrayWith(newTimeEntries, paramEntrie);
     }
@@ -147,7 +139,6 @@ ${timeEntries.title}`);
 
 export default {
   state,
-  getters,
   mutations,
   actions,
 };
