@@ -20,6 +20,8 @@ namespace Tests
             };
 
             list.Add(dto);
+
+            Assert.True(list.Count == 1);
         }
     }
 }
