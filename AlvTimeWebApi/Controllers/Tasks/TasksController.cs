@@ -2,6 +2,7 @@
 using AlvTimeWebApi.HelperClasses;
 using AlvTimeWebApi.Persistence.DatabaseModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,10 +16,12 @@ namespace AlvTimeWebApi.Controllers.Tasks
         private readonly AlvTime_dbContext _database;
         private CreatedObjectReturner returnObjects;
         private ExistingObjectFinder checkExisting;
+        private RetrieveUsers _userRetriever;
 
-        public TasksController(AlvTime_dbContext database)
+        public TasksController(AlvTime_dbContext database, RetrieveUsers userRetriever)
         {
             _database = database;
+            _userRetriever = userRetriever;
             returnObjects = new CreatedObjectReturner(_database);
             checkExisting = new ExistingObjectFinder(_database);
         }
@@ -27,7 +30,7 @@ namespace AlvTimeWebApi.Controllers.Tasks
         [Authorize]
         public ActionResult<IEnumerable<TaskResponseDto>> FetchTasks()
         {
-            var user = RetrieveUser();
+            var user = _userRetriever.RetrieveUser();
 
             var favoriteList = _database.TaskFavorites.Where(x => x.UserId == user.Id).Select(x => x.TaskId).ToList();
 
@@ -64,7 +67,7 @@ namespace AlvTimeWebApi.Controllers.Tasks
         [Authorize]
         public ActionResult<IEnumerable<TaskResponseDto>> UpdateFavoriteTasks([FromBody] IEnumerable<UpdateTasksDto> tasksToBeUpdated)
         {
-            var user = RetrieveUser();
+            var user = _userRetriever.RetrieveUser();
 
             List<TaskResponseDto> response = new List<TaskResponseDto>();
 
@@ -84,15 +87,6 @@ namespace AlvTimeWebApi.Controllers.Tasks
                 response.Add(returnObjects.ReturnTask(user, task));
             }
             return Ok(response);
-        }
-
-        private User RetrieveUser()
-        {
-            var username = User.Claims.FirstOrDefault(x => x.Type == "name").Value;
-            var email = User.Claims.FirstOrDefault(x => x.Type == "preferred_username").Value;
-            var alvUser = _database.User.FirstOrDefault(x => x.Email.Equals(email));
-
-            return alvUser;
         }
 
         private void CreateNewFavorite(UpdateTasksDto taskDto, User user)

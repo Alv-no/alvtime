@@ -1,4 +1,5 @@
 ﻿using AlvTimeWebApi.Dto;
+using AlvTimeWebApi.HelperClasses;
 using AlvTimeWebApi.Persistence.DatabaseModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,17 +15,19 @@ namespace AlvTimeApi.Controllers.AccessToken
     public class AccessTokenController : Controller
     {
         private readonly AlvTime_dbContext _database;
+        private RetrieveUsers _userRetriever;
 
-        public AccessTokenController(AlvTime_dbContext database)
+        public AccessTokenController(AlvTime_dbContext database, RetrieveUsers userRetriever)
         {
             _database = database;
+            _userRetriever = userRetriever;
         }
 
         [HttpPost("AccessToken")]
         [Authorize]
         public ActionResult<string> CreateLifetimeToken([FromBody] AccessTokenRequestDto request)
         {
-            var user = RetrieveUser();
+            var user = _userRetriever.RetrieveUser();
 
             var uuid = Guid.NewGuid().ToString();
 
@@ -35,7 +38,7 @@ namespace AlvTimeApi.Controllers.AccessToken
         [Authorize]
         public ActionResult<int> DeleteAccessToken([FromBody] DeleteAccessTokenDto token)
         {
-            var user = RetrieveUser();
+            var user = _userRetriever.RetrieveUser();
 
             return DeleteToken(user, token.TokenId);
         }
@@ -44,7 +47,7 @@ namespace AlvTimeApi.Controllers.AccessToken
         [Authorize]
         public ActionResult<IEnumerable<AccessTokenResponseDto>> FetchFriendlyNames()
         {
-            var user = RetrieveUser();
+            var user = _userRetriever.RetrieveUser();
 
             var tokens = _database.AccessTokens
                 .Where(x => x.UserId == user.Id && x.ExpiryDate >= DateTime.UtcNow)
@@ -84,15 +87,6 @@ namespace AlvTimeApi.Controllers.AccessToken
             _database.SaveChanges();
 
             return Ok(accessToken.Value);
-        }
-
-        private User RetrieveUser()
-        {
-            var username = User.Claims.FirstOrDefault(x => x.Type == "name").Value;
-            var email = User.Claims.FirstOrDefault(x => x.Type == "preferred_username").Value;
-            var alvUser = _database.User.FirstOrDefault(x => x.Email.Equals(email));
-
-            return alvUser;
         }
     }
 }
