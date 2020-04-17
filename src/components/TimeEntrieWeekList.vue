@@ -6,7 +6,7 @@
         <div v-for="day in daysOfWeek" :key="day">{{ day }}</div>
       </div>
     </div>
-    <div class="row" v-for="task in tasks" :key="task.id">
+    <div v-for="task in tasks" :key="task.id" class="row">
       <TimeEntrieText :task="task" />
       <TimeEntrieWeek :task="task" :week="week" />
     </div>
@@ -16,18 +16,18 @@
 <script lang="ts">
 import Vue from "vue";
 import TimeEntrieWeek from "./TimeEntrieWeek.vue";
-import TimeEntrie from "./TimeEntrie.vue";
 import TimeEntrieText from "./TimeEntrieText.vue";
-import { Task, FrontendTimentrie } from "@/store";
+import { Task } from "@/store/tasks";
+import { FrontendTimentrie } from "@/store/timeEntries";
 import config from "@/config";
-import moment from "moment";
+import { Moment } from "moment";
 
 export default Vue.extend({
   components: {
     TimeEntrieWeek,
     TimeEntrieText,
   },
-  props: ["week"],
+  props: { week: { type: Object as () => Moment[], default: () => [] } },
 
   computed: {
     tasks(): Task[] {
@@ -41,7 +41,7 @@ export default Vue.extend({
         config.DATE_FORMAT
       );
       const activeDateIsInWeek = this.week.some(
-        (date: moment.Moment) => date.format(config.DATE_FORMAT) === activeDate
+        (date: Moment) => date.format(config.DATE_FORMAT) === activeDate
       );
       return activeDateIsInWeek ? rows : rows.slice(0, 3);
     },
@@ -64,13 +64,16 @@ export default Vue.extend({
     },
 
     weeksTimeEntries(): FrontendTimentrie[] {
-      return this.$store.state.timeEntries.filter((entrie: FrontendTimentrie) =>
+      const timeEntries = this.$store.state.timeEntries
+        ? this.$store.state.timeEntries
+        : [];
+      return timeEntries.filter((entrie: FrontendTimentrie) =>
         this.isThisWeek(entrie.date)
       );
     },
 
     daysOfWeek(): string[] {
-      return this.week.map((day: moment.Moment) => {
+      return this.week.map((day: Moment) => {
         const d = day.format("ddd DD");
         return d.charAt(0).toUpperCase() + d.slice(1);
       });
@@ -80,7 +83,7 @@ export default Vue.extend({
   methods: {
     isThisWeek(d: string): boolean {
       return this.week.some(
-        (date: moment.Moment) => date.format(config.DATE_FORMAT) === d
+        (date: Moment) => date.format(config.DATE_FORMAT) === d
       );
     },
   },
@@ -128,6 +131,5 @@ export function sortList(a: Task, b: Task) {
   display: grid;
   grid-template-columns: minmax(8rem, 16rem) 30rem;
   margin: 0 1rem;
-  padding-right: 1rem;
 }
 </style>

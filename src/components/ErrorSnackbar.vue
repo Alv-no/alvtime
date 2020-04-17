@@ -12,7 +12,7 @@
     />
     <md-button class="icon_button" @click="close">
       <md-icon class="icon">close</md-icon>
-      <md-tooltip class="tooltip">Lukk</md-tooltip>
+      <Tooltip text="Lukk" />
     </md-button>
   </md-snackbar>
 </template>
@@ -20,6 +20,7 @@
 <script lang="ts">
 import Vue from "vue";
 import SlackButton from "@/components/SlackButton.vue";
+import Tooltip from "@/components/Tooltip.vue";
 
 declare global {
   interface Window {
@@ -30,6 +31,7 @@ declare global {
 export default Vue.extend({
   components: {
     SlackButton,
+    Tooltip,
   },
 
   data() {
@@ -37,11 +39,6 @@ export default Vue.extend({
       duration: Infinity,
       position: "left",
     };
-  },
-
-  created() {
-    window.addError = (errorMessage: string) =>
-      this.$store.commit("ADD_TO_ERROR_LIST", errorMessage);
   },
 
   computed: {
@@ -57,6 +54,11 @@ export default Vue.extend({
     issues() {
       return this.$store.state.errorTexts.join(" -> ");
     },
+  },
+
+  created() {
+    window.addError = (errorMessage: string) =>
+      this.$store.commit("ADD_TO_ERROR_LIST", errorMessage);
   },
 
   methods: {
@@ -75,19 +77,16 @@ export default Vue.extend({
 <style scoped>
 .md-snackbar.md-theme-default {
   color: #fff;
-  color: var(--md-theme-default-text-primary-on-text-primary, #fff);
   font-weight: 500;
-  background-color: #f44336;
+  background-color: #d73125;
 }
 
 .md-button.md-theme-default {
   color: #fff;
-  color: var(--md-theme-default-primary-on-background, #fff);
 }
 
 .md-button.md-theme-default .md-icon-font {
   color: #fff;
-  color: var(--md-theme-default-primary-on-background, #fff);
 }
 
 .icon_button {

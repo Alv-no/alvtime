@@ -1,12 +1,12 @@
 // https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-js-initializing-client-applications
-import { UserAgentApplication, AuthenticationParameters } from "msal";
 import config from "@/config";
+import createMsalApp from "@/services/createMsalApp.js";
 
-const authParams: AuthenticationParameters = {
+const authParams = {
   scopes: [config.ACCESS_SCOPE],
 };
 
-const msalApp = new UserAgentApplication({
+const msalApp = createMsalApp({
   auth: {
     clientId: config.CLIENT_ID,
     authority: config.AUTHORITY + config.TENANT_ID,
@@ -14,7 +14,7 @@ const msalApp = new UserAgentApplication({
     postLogoutRedirectUri: window.location.origin,
   },
   cache: {
-    cacheLocation: "localStorage",
+    cacheLocation: "sessionStorage",
     storeAuthStateInCookie: false,
   },
 
@@ -23,21 +23,17 @@ const msalApp = new UserAgentApplication({
   },
 });
 
-function createRedirectCallback(cb?: (error: Error) => void) {
-  function redirectCallback(error: any, response: any) {
-    // https://github.com/AzureAD/microsoft-authentication-library-for-js/wiki/Known-issue-on-Safari
-    const isSafari = navigator.userAgent.toLowerCase().indexOf("safari") > -1;
-    const isIdToken = response && response.tokenType == "id_token";
-    if (isSafari && !error && isIdToken) {
-      msalApp.acquireTokenRedirect(authParams);
-    }
-
+function createRedirectCallback(
+  cb?: (error: Error) => void,
+  setAccount?: (account: Account) => void
+) {
+  function redirectCallback(error: any) {
     if (error) {
-      const errorMessage = error.errorMessage
-        ? error.errorMessage
-        : "Unable to acquire access token.";
-      console.error(errorMessage);
-      if (cb) cb(Error(errorMessage));
+      if (cb) cb(error);
+    } else {
+      if (msalApp.getAccount()) {
+        if (setAccount) setAccount(msalApp.getAccount());
+      }
     }
   }
 
@@ -46,11 +42,14 @@ function createRedirectCallback(cb?: (error: Error) => void) {
 
 msalApp.handleRedirectCallback(createRedirectCallback());
 
-export function setRedirectCallback(cb: (error: Error) => void) {
-  msalApp.handleRedirectCallback(createRedirectCallback(cb));
+export function setRedirectCallback(
+  cb: (error: Error) => void,
+  setAccount: (account: Account) => void
+) {
+  msalApp.handleRedirectCallback(createRedirectCallback(cb, setAccount));
 }
 
-export function login() {
+export async function login() {
   msalApp.loginRedirect(authParams);
 }
 
@@ -66,11 +65,13 @@ export async function adAuthenticatedFetch(
   url: string,
   paramOptions: RequestInit = { headers: {} }
 ) {
-  const accessTokenResponse = await acquireToken();
+  const accessTokenResponse = await getTokenRedirect();
   const authHeaders =
     accessTokenResponse && accessTokenResponse.accessToken
       ? { Authorization: `Bearer ${accessTokenResponse.accessToken}` }
       : { Authorization: "" };
+
+  paramOptions = paramOptions ? paramOptions : { headers: {} };
 
   var options = {
     ...paramOptions,
@@ -83,28 +84,22 @@ export async function adAuthenticatedFetch(
   return fetch(url, options);
 }
 
+async function getTokenRedirect() {
+  return await msalApp.acquireTokenSilent(authParams).catch(() => {
+    console.log(
+      "silent token acquisition fails. acquiring token using redirect"
+    );
+    // fallback to interaction when silent call fails
+    return msalApp.acquireTokenRedirect(authParams);
+  });
+}
+
 async function acquireToken() {
   try {
     // Call acquireTokenPopup (popup window) in case of acquireTokenSilent failure
     // due to consent or interaction required ONLY
     return await msalApp.acquireTokenSilent(authParams);
   } catch (error) {
-    if (requiresInteraction(error.errorCode)) {
-      return msalApp.acquireTokenRedirect(authParams);
-    } else {
-      throw error;
-    }
+    return await msalApp.acquireTokenPopup(authParams);
   }
-}
-
-function requiresInteraction(errorMessage: string[]) {
-  if (!errorMessage || !errorMessage.length) {
-    return false;
-  }
-
-  return (
-    errorMessage.indexOf("consent_required") > -1 ||
-    errorMessage.indexOf("interaction_required") > -1 ||
-    errorMessage.indexOf("login_required") > -1
-  );
 }

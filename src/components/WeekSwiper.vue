@@ -1,16 +1,11 @@
 <template>
   <div>
-    <WeekHeader
-      @backClick="onPrev"
-      @forwardClick="onNext"
-      @todayClick="onTodayClick"
-    />
     <div id="week-swiper-container" ref="mySwiper" class="swiper-container">
       <div class="swiper-wrapper">
         <div
-          class="swiper-slide"
           v-for="(week, index) in virtualData.slides"
           :key="index"
+          class="swiper-slide"
           :style="{ left: `${virtualData.offset}px` }"
         >
           <TimeEntrieWeekList :week="week" />
@@ -22,116 +17,71 @@
 
 <script lang="ts">
 import Vue from "vue";
-import moment from "moment";
-import config from "@/config";
+import { Moment } from "moment";
 import TimeEntrieWeekList from "./TimeEntrieWeekList.vue";
-import WeekHeader from "./WeekHeader.vue";
-import isInIframe from "@/mixins/isInIframe";
-import { createWeek } from "@/mixins/date";
+import { GLOBAL_SWIPER_OPTIONS } from "@/store/swiper";
 
 import Swiper from "swiper";
 
 export default Vue.extend({
   components: {
     TimeEntrieWeekList,
-    WeekHeader,
   },
 
   data() {
     return {
-      weeks: [[]] as moment.Moment[][],
-      virtualData: [[]] as moment.Moment[][],
-      swiper: {} as Swiper,
+      virtualData: [[]] as Moment[][],
     };
-  },
-
-  mounted() {
-    this.weeks = this.createManyWeeks();
-    const self = this;
-    this.swiper = new Swiper("#week-swiper-container", {
-      initialSlide: 52,
-      shortSwipes: false,
-      simulateTouch: false,
-      noSwipingSelector: "input, button",
-      longSwipesRatio: 0.15,
-      longSwipesMs: 100,
-      keyboard: {
-        enabled: true,
-        onlyInViewport: false,
-      },
-      on: {
-        transitionEnd: self.onTransitionEnd,
-      },
-      virtual: {
-        slides: self.weeks,
-        renderExternal(data: any) {
-          self.virtualData = data;
-        },
-      },
-    });
-
-    if (!isInIframe() && this.dateRange) {
-      this.$store.dispatch("FETCH_TIME_ENTRIES", this.dateRange);
-    }
-  },
-
-  methods: {
-    onNext() {
-      this.swiper.slideNext();
-    },
-
-    onPrev() {
-      this.swiper.slidePrev();
-    },
-
-    onTodayClick() {
-      const today = moment().format(config.DATE_FORMAT);
-      const slides = this.swiper.virtual ? this.swiper.virtual.slides : [];
-      const todayIndex = slides.findIndex((week: moment.Moment[]) =>
-        week.some(
-          (date: moment.Moment) => date.format(config.DATE_FORMAT) === today
-        )
-      );
-      if (todayIndex === -1) {
-        return;
-      }
-      this.swiper.slideTo(todayIndex);
-    },
-
-    onTransitionEnd() {
-      if (!this.swiper.activeIndex) return;
-      const dayOfWeek = this.$store.state.activeDate.weekday();
-      const week = this.weeks[this.swiper.activeIndex];
-      const date = week ? week[dayOfWeek] : moment();
-      this.$store.commit("UPDATE_ACTVIE_DATE", date);
-    },
-
-    createManyWeeks(): moment.Moment[][] {
-      const date = this.$store.state.activeDate;
-      const future = Array.apply(null, Array(104)).map((n, i) => i);
-      const past = Array.apply(null, Array(52))
-        .map((n, i) => (i + 1) * -1)
-        .reverse();
-      return [...past, ...future]
-        .map(n => date.clone().add(n, "week"))
-        .map(createWeek);
-    },
   },
 
   computed: {
     dateRange():
       | { fromDateInclusive: string; toDateInclusive: string }
       | undefined {
-      if (!this.weeks[0][0]) {
-        return;
-      }
-      return {
-        fromDateInclusive: this.weeks[0][0].format(config.DATE_FORMAT),
-        toDateInclusive: this.weeks[this.weeks.length - 1][6].format(
-          config.DATE_FORMAT
-        ),
-      };
+      return this.$store.getters.dateRange;
+    },
+  },
+  beforeCreate() {
+    this.$store.commit("CREATE_WEEKS");
+    this.$store.dispatch("FETCH_WEEK_ENTRIES");
+  },
+
+  beforeDestroy() {
+    this.$store.state.swiper.destroy();
+  },
+
+  mounted() {
+    const swiperOptions = {
+      ...GLOBAL_SWIPER_OPTIONS,
+      initialSlide: 52,
+      on: {
+        transitionEnd: this.onTransitionEnd,
+      },
+      virtual: {
+        slides: this.$store.state.weeks,
+        renderExternal: this.onRenderExternal,
+      },
+    };
+
+    const swiper = new Swiper("#week-swiper-container", swiperOptions);
+    this.$store.commit("SET_SWIPER", swiper);
+  },
+
+  methods: {
+    onTransitionEnd() {
+      this.$store.commit("UPDATE_ACTVIE_DATE_IN_WEEKS");
+    },
+
+    onRenderExternal(data: Moment[][]) {
+      this.virtualData = data;
     },
   },
 });
 </script>
+
+<style scoped>
+.progress {
+  position: fixed;
+  top: 0;
+}
+</style>

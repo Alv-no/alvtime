@@ -1,8 +1,30 @@
-import { State, FrontendTimentrie, TimeEntrieMap } from "./index";
+import { State } from "./index";
 import { ActionContext } from "vuex";
 import { debounce } from "lodash";
 import config from "@/config";
 import { adAuthenticatedFetch } from "@/services/auth";
+
+export interface TimeEntrieState {
+  timeEntries: FrontendTimentrie[] | null;
+  timeEntriesMap: TimeEntrieMap;
+  pushQueue: FrontendTimentrie[];
+}
+
+export interface FrontendTimentrie {
+  id: number;
+  date: string;
+  value: string;
+  taskId: number;
+}
+
+export interface TimeEntrieMap {
+  [key: string]: TimeEntrieObj;
+}
+
+export interface TimeEntrieObj {
+  value: string;
+  id: number;
+}
 
 export interface ServerSideTimeEntrie {
   id: number;
@@ -11,120 +33,114 @@ export interface ServerSideTimeEntrie {
   taskId: number;
 }
 
-export default {
-  state: {
-    timeEntries: [],
-    pushQueue: [],
-    timeEntriesMap: {},
+const state = {
+  timeEntries: null,
+  pushQueue: [],
+  timeEntriesMap: {},
+};
+
+const mutations = {
+  UPDATE_TIME_ENTRIES(state: State, paramEntries: FrontendTimentrie[]) {
+    let newTimeEntriesMap = { ...state.timeEntriesMap };
+    for (const paramEntrie of paramEntries) {
+      newTimeEntriesMap = updateTimeEntrieMap(newTimeEntriesMap, paramEntrie);
+    }
+    state.timeEntriesMap = { ...state.timeEntriesMap, ...newTimeEntriesMap };
+
+    let newTimeEntries = state.timeEntries ? [...state.timeEntries] : [];
+    for (const paramEntrie of paramEntries) {
+      newTimeEntries = updateArrayWith(newTimeEntries, paramEntrie);
+    }
+    state.timeEntries = newTimeEntries;
   },
 
-  getters: {
-    getTimeEntrie: (state: State) => (entrieA: FrontendTimentrie) => {
-      return state.timeEntries.find((entrieB: FrontendTimentrie) =>
-        isMatchingEntrie(entrieA, entrieB)
-      );
-    },
+  ADD_TO_PUSH_QUEUE(state: State, paramEntrie: FrontendTimentrie) {
+    state.pushQueue = updateArrayWith(state.pushQueue, paramEntrie);
   },
 
-  mutations: {
-    UPDATE_TIME_ENTRIES(state: State, paramEntries: FrontendTimentrie[]) {
-      let newTimeEntriesMap = { ...state.timeEntriesMap };
-      for (const paramEntrie of paramEntries) {
-        newTimeEntriesMap = updateTimeEntrieMap(newTimeEntriesMap, paramEntrie);
-      }
-      state.timeEntriesMap = { ...state.timeEntriesMap, ...newTimeEntriesMap };
+  FLUSH_PUSH_QUEUE(state: State) {
+    state.pushQueue = [];
+  },
+};
 
-      let newTimeEntries = [...state.timeEntries];
-      for (const paramEntrie of paramEntries) {
-        newTimeEntries = updateArrayWith(newTimeEntries, paramEntrie);
-      }
-      state.timeEntries = newTimeEntries;
-    },
-
-    ADD_TO_PUSH_QUEUE(state: State, paramEntrie: FrontendTimentrie) {
-      state.pushQueue = updateArrayWith(state.pushQueue, paramEntrie);
-    },
-
-    FLUSH_PUSH_QUEUE(state: State) {
-      state.pushQueue = [];
-    },
+const actions = {
+  UPDATE_TIME_ENTRIE(
+    { commit, dispatch }: ActionContext<State, State>,
+    paramEntrie: FrontendTimentrie
+  ) {
+    commit("UPDATE_TIME_ENTRIES", [paramEntrie]);
+    commit("ADD_TO_PUSH_QUEUE", paramEntrie);
+    dispatch("DEBOUNCED_PUSH_TIME_ENTRIES");
   },
 
-  actions: {
-    UPDATE_TIME_ENTRIE(
-      { commit, dispatch }: ActionContext<State, State>,
-      paramEntrie: FrontendTimentrie
-    ) {
-      commit("UPDATE_TIME_ENTRIES", [paramEntrie]);
-      commit("ADD_TO_PUSH_QUEUE", paramEntrie);
-      dispatch("DEBOUNCED_PUSH_TIME_ENTRIES");
-    },
+  DEBOUNCED_PUSH_TIME_ENTRIES: debounce(
+    async ({ state, commit }: ActionContext<State, State>) => {
+      const timeEntriesToPush = ([...state.pushQueue]
+        .filter(entrie => isFloat(entrie.value))
+        .map(createServerSideTimeEntrie)
+        .filter(shouldBeStoredServerSide) as unknown) as ServerSideTimeEntrie[];
 
-    DEBOUNCED_PUSH_TIME_ENTRIES: debounce(
-      async ({ state, commit }: ActionContext<State, State>) => {
-        const timeEntriesToPush = ([...state.pushQueue]
-          .filter(entrie => isFloat(entrie.value))
-          .map(createServerSideTimeEntrie)
-          .filter(
-            shouldBeStoredServerSide
-          ) as unknown) as ServerSideTimeEntrie[];
+      if (!timeEntriesToPush.length) return;
 
-        if (!timeEntriesToPush.length) return;
-
-        commit("FLUSH_PUSH_QUEUE");
-        try {
-          const response = await adAuthenticatedFetch(
-            config.HOST + "/api/user/TimeEntries",
-            {
-              method: "post",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(timeEntriesToPush),
-            }
-          );
-          const timeEntries = await response.json();
-          if (response.status !== 200) {
-            throw Error(`${response.statusText}
-${timeEntries.title}`);
-          }
-          if (!Array.isArray(timeEntries) && timeEntries.message) {
-            throw Error(timeEntries.message);
-          }
-          if (Array.isArray(timeEntries)) {
-            commit("UPDATE_TIME_ENTRIES", timeEntries.map(createTimeEntrie));
-          }
-        } catch (e) {
-          console.error(e);
-          commit("ADD_TO_ERROR_LIST", e);
-        }
-      },
-      1000
-    ),
-
-    FETCH_TIME_ENTRIES: async (
-      { commit }: ActionContext<State, State>,
-      params: { fromDateInclusive: string; toDateInclusive: string }
-    ) => {
-      const url = new URL(config.HOST + "/api/user/TimeEntries");
-      url.search = new URLSearchParams(params).toString();
-
+      commit("FLUSH_PUSH_QUEUE");
       try {
-        const res = await adAuthenticatedFetch(url.toString());
-        const timeEntries = await res.json();
+        const response = await adAuthenticatedFetch(
+          config.HOST + "/api/user/TimeEntries",
+          {
+            method: "post",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(timeEntriesToPush),
+          }
+        );
+        const timeEntries = await response.json();
+        if (response.status !== 200) {
+          throw Error(`${response.statusText}
+${timeEntries.title}`);
+        }
         if (!Array.isArray(timeEntries) && timeEntries.message) {
           throw Error(timeEntries.message);
         }
-        const frontendTimeEntries = timeEntries
-          .filter((entrie: ServerSideTimeEntrie) => entrie.value)
-          .map(createTimeEntrie);
-        commit("UPDATE_TIME_ENTRIES", frontendTimeEntries);
+        if (Array.isArray(timeEntries)) {
+          commit("UPDATE_TIME_ENTRIES", timeEntries.map(createTimeEntrie));
+        }
       } catch (e) {
         console.error(e);
         commit("ADD_TO_ERROR_LIST", e);
       }
     },
+    1000
+  ),
+
+  FETCH_TIME_ENTRIES: async (
+    { commit }: ActionContext<State, State>,
+    params: { fromDateInclusive: string; toDateInclusive: string }
+  ) => {
+    const url = new URL(config.HOST + "/api/user/TimeEntries");
+    url.search = new URLSearchParams(params).toString();
+
+    try {
+      const res = await adAuthenticatedFetch(url.toString());
+      const timeEntries = await res.json();
+      if (!Array.isArray(timeEntries) && timeEntries.message) {
+        throw Error(timeEntries.message);
+      }
+      const frontendTimeEntries = timeEntries
+        .filter((entrie: ServerSideTimeEntrie) => entrie.value)
+        .map(createTimeEntrie);
+      commit("UPDATE_TIME_ENTRIES", frontendTimeEntries);
+    } catch (e) {
+      console.error(e);
+      commit("ADD_TO_ERROR_LIST", e);
+    }
   },
+};
+
+export default {
+  state,
+  mutations,
+  actions,
 };
 
 function updateTimeEntrieMap(

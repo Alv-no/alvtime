@@ -1,12 +1,11 @@
 <template>
   <div>
-    <DayHeader />
     <div id="day-swiper-container" ref="mySwiper" class="swiper-container">
       <div class="swiper-wrapper">
         <div
-          class="swiper-slide"
           v-for="(date, index) in virtualData.slides"
           :key="index"
+          class="swiper-slide"
           :style="{ left: `${virtualData.offset}px` }"
         >
           <TimeEntrieDayList :date="date" />
@@ -18,89 +17,61 @@
 
 <script lang="ts">
 import Vue from "vue";
-import config from "@/config";
 import TimeEntrieDayList from "./TimeEntrieDayList.vue";
-import DayHeader from "./DayHeader.vue";
-import isInIframe from "@/mixins/isInIframe";
-import moment from "moment";
+import { GLOBAL_SWIPER_OPTIONS } from "@/store/swiper";
+import { Moment } from "moment";
 
 import Swiper from "swiper";
 
 export default Vue.extend({
   components: {
     TimeEntrieDayList,
-    DayHeader,
   },
 
   data() {
     return {
-      dates: [] as moment.Moment[],
-      virtualData: [] as moment.Moment[],
-      swiper: {} as Swiper,
+      virtualData: [] as Moment[],
     };
   },
 
-  mounted() {
-    this.dates = this.createManySlides();
-    const self = this;
-    this.swiper = new Swiper("#day-swiper-container", {
-      initialSlide: 365,
-      shortSwipes: false,
-      simulateTouch: false,
-      noSwipingSelector: "input, button",
-      longSwipesRatio: 0.15,
-      longSwipesMs: 100,
-      keyboard: {
-        enabled: true,
-        onlyInViewport: false,
-      },
-      on: {
-        transitionEnd: self.onTransitionEnd,
-        touchStart: self.onTransitionStart,
-      },
-      virtual: {
-        slides: self.dates,
-        renderExternal(data: moment.Moment[]) {
-          self.virtualData = data;
-        },
-      },
-    });
-
-    if (!isInIframe()) {
-      this.$store.dispatch("FETCH_TIME_ENTRIES", this.dateRange);
-    }
+  beforeCreate() {
+    this.$store.commit("CREATE_DATES");
+    this.$store.dispatch("FETCH_DATE_ENTRIES");
   },
 
-  computed: {
-    dateRange(): { fromDateInclusive: string; toDateInclusive: string } {
-      return {
-        fromDateInclusive: this.dates[0].format(config.DATE_FORMAT),
-        toDateInclusive: this.dates[this.dates.length - 1].format(
-          config.DATE_FORMAT
-        ),
-      };
-    },
+  mounted() {
+    const swiperOptions = {
+      ...GLOBAL_SWIPER_OPTIONS,
+      initialSlide: this.$store.getters.initialDaySlide,
+      on: {
+        transitionEnd: this.onTransitionEnd,
+        touchStart: this.onTransitionStart,
+      },
+      virtual: {
+        slides: this.$store.state.dates,
+        renderExternal: this.onRenderExternal,
+      },
+    };
+
+    const swiper = new Swiper("#day-swiper-container", swiperOptions);
+    this.$store.commit("SET_SWIPER", swiper);
+  },
+
+  beforeDestroy() {
+    this.$store.state.swiper.destroy();
   },
 
   methods: {
     onTransitionEnd() {
-      if (!this.swiper.activeIndex) return;
-      const activeDate = this.dates[this.swiper.activeIndex];
-      const date = activeDate ? activeDate : moment();
-      this.$store.commit("UPDATE_ACTVIE_DATE", date);
+      this.$store.commit("UPDATE_ACTVIE_DATE_IN_DATES");
     },
 
     onTransitionStart() {
       this.$store.commit("UPDATE_EDITING", false);
     },
 
-    createManySlides(): moment.Moment[] {
-      const date = this.$store.state.activeDate;
-      const future = Array.apply(null, Array(730)).map((n, i) => i);
-      const past = Array.apply(null, Array(365))
-        .map((n, i) => (i + 1) * -1)
-        .reverse();
-      return [...past, ...future].map(n => date.clone().add(n, "day"));
+    onRenderExternal(data: Moment[]) {
+      this.virtualData = data;
     },
   },
 });

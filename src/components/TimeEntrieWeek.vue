@@ -3,7 +3,7 @@
     <HourInput
       v-for="timeEntrie in timeEntries"
       :key="timeEntrie.date"
-      :timeEntrie="timeEntrie"
+      :time-entrie="timeEntrie"
     />
   </div>
 </template>
@@ -12,18 +12,27 @@
 import Vue from "vue";
 import HourInput from "./HourInput.vue";
 import config from "@/config";
-import moment from "moment";
-import { FrontendTimentrie, TimeEntrieObj } from "@/store";
+import { Moment } from "moment";
+import { FrontendTimentrie } from "@/store/timeEntries";
+import { Task } from "@/store/tasks";
 
 export default Vue.extend({
   components: {
     HourInput,
   },
-  props: ["task", "week"],
+  props: {
+    task: {
+      type: Object as () => Task,
+      default: (): Task => {
+        return {} as Task;
+      },
+    },
+    week: { type: Object as () => Moment[], default: () => [] },
+  },
 
   computed: {
     timeEntries(): FrontendTimentrie[] {
-      return this.week.map((day: moment.Moment) => {
+      return this.week.map((day: Moment) => {
         const timeEntrie = this.findEntrieInState(day);
         if (!timeEntrie) {
           return this.zeroEntrie(day);
@@ -34,14 +43,14 @@ export default Vue.extend({
   },
 
   methods: {
-    findEntrieInState(day: moment.Moment): FrontendTimentrie | undefined {
+    findEntrieInState(day: Moment): FrontendTimentrie | undefined {
       const date = day.format(config.DATE_FORMAT);
       const taskId = this.task.id;
       const task = this.$store.state.timeEntriesMap[`${date}${taskId}`];
       return task && { id: task.id, value: task.value, taskId, date };
     },
 
-    zeroEntrie(day: moment.Moment): FrontendTimentrie {
+    zeroEntrie(day: Moment): FrontendTimentrie {
       return {
         id: 0,
         date: day.format(config.DATE_FORMAT),

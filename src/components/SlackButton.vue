@@ -1,16 +1,21 @@
 <template>
-  <md-button class="icon_button" @click="onClick">
+  <md-button @click="onClick">
     <md-icon md-src="/img/icons/slack.svg" />
-    <md-tooltip class="tooltip">{{ tooltip }}</md-tooltip>
+    <Tooltip :text="tooltip" />
   </md-button>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import config from "@/config.ts";
+import Tooltip from "@/components/Tooltip.vue";
 
 export default Vue.extend({
-  props: ["tooltip"],
+  components: {
+    Tooltip,
+  },
+
+  props: { tooltip: { type: String, default: "" } },
   methods: {
     onClick() {
       this.$emit("click");
@@ -20,10 +25,9 @@ export default Vue.extend({
 });
 </script>
 
-<style scoped>
-.md-icon.md-theme-default.md-icon-image svg {
-  fill: #fff;
-  fill: var(--md-theme-default-icon-on-background, #fff);
+<style>
+path {
+  fill: currentColor;
 }
 
 .tooltip {

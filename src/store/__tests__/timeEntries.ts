@@ -1,5 +1,7 @@
 import { mutations, State, state as initialState } from "@/store";
 
+jest.mock("@azure/msal-browser");
+
 describe("UPDATE_TIME_ENTRIES", () => {
   const { UPDATE_TIME_ENTRIES } = mutations;
   let state: State;

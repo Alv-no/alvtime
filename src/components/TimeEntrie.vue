@@ -1,6 +1,6 @@
 <template>
   <div class="grid">
-    <TimeEntrieText :timeEntrie="timeEntrie" />
+    <TimeEntrieText :time-entrie="timeEntrie" />
     <HourInput :value="timeEntrie.value" />
   </div>
 </template>
@@ -9,13 +9,21 @@
 import Vue from "vue";
 import TimeEntrieText from "./TimeEntrieText.vue";
 import HourInput from "./HourInput.vue";
+import { FrontendTimentrie } from "@/store/timeEntries";
 
 export default Vue.extend({
   components: {
     TimeEntrieText,
     HourInput,
   },
-  props: ["timeEntrie"],
+  props: {
+    timeEntrie: {
+      type: Object as () => FrontendTimentrie,
+      default: (): FrontendTimentrie => {
+        return {} as FrontendTimentrie;
+      },
+    },
+  },
 });
 </script>
 

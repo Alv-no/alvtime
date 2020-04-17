@@ -1,132 +1,77 @@
-import moment from "moment";
-import timeEntrieHandlers from "./timeEntries";
-import taskHandlers from "./tasks";
-import auth from "./auth";
-import error from "./error";
+import { setRedirectCallback } from "@/services/auth";
+import lifecycle from "@/services/lifecycle.es5.js";
+import Vue from "vue";
+import Vuex from "vuex";
+import app, { AppState } from "./app";
+import auth, { AuthState } from "./auth";
+import error, { ErrorState } from "./error";
+import swiper, { SwiperState } from "./swiper";
+import task, { TaskState } from "./tasks";
+import timeEntrie, { TimeEntrieState } from "./timeEntries";
+import router from "@/router";
 
-moment.locale("nb");
+Vue.use(Vuex);
 
-export interface FrontendTimentrie {
-  id: number;
-  date: string;
-  value: string;
-  taskId: number;
-}
-
-export interface Task {
-  id: number;
-  name: string;
-  description: string;
-  hourRate: number;
-  project: {
-    id: number;
-    name: string;
-    customer: {
-      id: number;
-      name: string;
-    };
-  };
-  favorite: boolean;
-  locked: boolean;
-}
-
-interface Account {
-  name: string;
-}
-
-export interface TimeEntrieObj {
-  value: string;
-  id: number;
-}
-
-export interface TimeEntrieMap {
-  [key: string]: TimeEntrieObj;
-}
-
-interface AppState {
-  oldState: string;
-  newState: string;
-}
-
-export interface State {
-  tasks: Task[];
-  timeEntries: FrontendTimentrie[];
-  timeEntriesMap: TimeEntrieMap;
-  activeDate: moment.Moment;
-  activeTaskId: number;
-  pushQueue: FrontendTimentrie[];
-  selectFavorites: boolean;
-  account: Account | null;
-  isOnline: boolean;
-  errorTexts: string[];
-  appState: AppState;
-  editing: boolean;
-}
-
-export const mutations = {
-  ...timeEntrieHandlers.mutations,
-  ...taskHandlers.mutations,
-  ...error.mutations,
-
-  UPDATE_ACTVIE_DATE(state: State, date: moment.Moment) {
-    state.activeDate = date;
-  },
-
-  UPDATE_ACTVIE_TASK(state: State, taskId: number) {
-    state.activeTaskId = taskId;
-  },
-
-  TOGGLE_SELECTFAVORITES(state: State) {
-    state.selectFavorites = !state.selectFavorites;
-  },
-
-  UPDATE_ONLINE_STATUS(state: State) {
-    if (typeof window.navigator.onLine === "undefined") {
-      // If the browser doesn't support connection status reports
-      // assume that we are online because most apps' only react
-      // when they now that the connection has been interrupted
-      state.isOnline = true;
-    } else {
-      state.isOnline = window.navigator.onLine;
-    }
-  },
-
-  UPDATE_APP_STATE(state: State, { oldState, newState }: AppState) {
-    state.appState = { oldState, newState };
-  },
-
-  UPDATE_EDITING(state: State, editing: boolean) {
-    if (state.editing !== editing) {
-      state.editing = editing;
-    }
-  },
-};
+export interface State
+  extends TaskState,
+    TimeEntrieState,
+    AuthState,
+    ErrorState,
+    SwiperState,
+    AppState {}
 
 export const state = {
-  ...timeEntrieHandlers.state,
-  ...taskHandlers.state,
+  ...timeEntrie.state,
+  ...task.state,
   ...auth.state,
   ...error.state,
-
-  appState: { oldState: "", newState: "" },
-  isOnline: true,
-  activeDate: moment(),
-  activeTaskId: -1,
-  selectFavorites: false,
-  editing: false,
+  ...swiper.state,
+  ...app.state,
 };
 
-export default {
-  strict: process.env.NODE_ENV !== "production",
+export const mutations = {
+  ...timeEntrie.mutations,
+  ...task.mutations,
+  ...auth.mutations,
+  ...error.mutations,
+  ...swiper.mutations,
+  ...app.mutations,
+};
+
+const getters = {
+  ...task.getters,
+  ...swiper.getters,
+  ...auth.getters,
+};
+
+const actions = {
+  ...timeEntrie.actions,
+  ...task.actions,
+  ...swiper.actions,
+};
+
+const storeOptions = {
   state,
-  getters: {
-    ...timeEntrieHandlers.getters,
-    ...taskHandlers.getters,
-  },
+  getters,
   mutations,
-  actions: {
-    ...timeEntrieHandlers.actions,
-    ...taskHandlers.actions,
-  },
-  modules: {},
+  actions,
 };
+
+const store = new Vuex.Store(storeOptions);
+
+setRedirectCallback(
+  (errorMessage: Error) => {
+    console.error(errorMessage);
+    store.commit("ADD_TO_ERROR_LIST", errorMessage);
+  },
+  (account: Account) => {
+    store.commit("SET_ACCOUNT", account);
+    router.push("hours");
+  }
+);
+
+lifecycle.addEventListener("statechange", function(event: any) {
+  store.commit("UPDATE_INTERACTION_STATE", event);
+});
+
+export default store;

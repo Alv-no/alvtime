@@ -1,24 +1,24 @@
 <template>
   <div>
     <TimeLeftInDayButton
-      @click="onTimeLeftInDayClick"
-      :value="value"
-      :timeEntrie="timeEntrie"
       v-if="showHelperButtons"
+      :value="value"
+      :time-entrie="timeEntrie"
+      @click="onTimeLeftInDayClick"
     />
     <input
-      :class="{ error }"
-      type="text"
-      @input="onInput"
+      ref="inputRef"
       v-model="value"
+      :class="{ error, nonZero }"
+      type="text"
+      novalidate
+      inputmode="decimal"
+      :disabled="!isOnline"
+      @input="onInput"
       @touchstart="onTouchStart"
       @blur="onBlur"
       @focus="onFocus"
-      novalidate
-      inputmode="decimal"
-      ref="inputRef"
       @click="onClick"
-      :disabled="!isOnline"
     />
   </div>
 </template>
@@ -34,17 +34,13 @@ export default {
     TimeLeftInDayButton,
   },
 
-  props: ["timeEntrie"],
+  props: { timeEntrie: { type: Object, default: () => ({}) } },
   data() {
     return {
       showHelperButtons: false,
       enableBlur: true,
       localValue: "0",
     };
-  },
-
-  mounted() {
-    this.localValue = this.value;
   },
 
   computed: {
@@ -66,6 +62,10 @@ export default {
         const timeEntrie = { ...this.timeEntrie, value: validStr };
         this.$store.dispatch("UPDATE_TIME_ENTRIE", timeEntrie);
       },
+    },
+
+    nonZero() {
+      return Number(this.value.replace(",", "."));
     },
 
     error() {
@@ -97,29 +97,31 @@ export default {
     },
   },
 
+  mounted() {
+    this.localValue = this.value;
+  },
+
   methods: {
     onTouchStart(e) {
       this.showHelperButtons = true;
-      this.$store.commit("UPDATE_ACTVIE_TASK", this.timeEntrie.taskId);
       e.target.focus();
     },
 
     onBlur() {
       this.$store.commit("UPDATE_EDITING", false);
+      if (this.activeDate.format(config.DATE_FORMAT) === this.timeEntrie.date) {
+        this.$store.commit("UPDATE_ACTVIE_TASK", -1);
+      }
       defer(() => {
         if (this.enableBlur && this.showHelperButtons) {
           this.showHelperButtons = false;
-          if (
-            this.activeDate.format(config.DATE_FORMAT) === this.timeEntrie.date
-          ) {
-            this.$store.commit("UPDATE_ACTVIE_TASK", -1);
-          }
         }
         this.enableBlur = true;
       });
     },
 
     onFocus() {
+      this.$store.commit("UPDATE_ACTVIE_TASK", this.timeEntrie.taskId);
       this.localValue = this.value;
     },
 
@@ -146,15 +148,26 @@ input {
   width: 2.1rem;
   padding: 0.4rem;
   font-size: 0.8rem;
-  border-radius: 0;
-  border: 1px solid black;
+  border-radius: 5px;
+  border: 1px solid #e0e0e0;
+  background-color: #f7f7f7;
 }
 
 input:focus {
   outline: none;
 }
 
+input:hover {
+  border-color: #008dcf;
+  transition: border-color 500ms ease-out;
+}
+
 .error {
-  border-color: red;
+  background-color: #d7312540;
+  transition: border-color 500ms ease-in-out;
+}
+
+.nonZero {
+  border-color: #000;
 }
 </style>
