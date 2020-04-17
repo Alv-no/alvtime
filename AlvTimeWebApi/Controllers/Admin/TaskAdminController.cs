@@ -17,12 +17,14 @@ namespace AlvTimeWebApi.Controllers.Admin
 
         private CreatedObjectReturner returnObjects;
         private ExistingObjectFinder checkExisting;
+        private RetrieveUsers _userRetriever;
 
-        public TaskAdminController(AlvTime_dbContext database)
+        public TaskAdminController(AlvTime_dbContext database, RetrieveUsers userRetriever)
         {
             _database = database;
             returnObjects = new CreatedObjectReturner(_database);
             checkExisting = new ExistingObjectFinder(_database);
+            _userRetriever = userRetriever;
         }
 
         [HttpPost("CreateTask")]
@@ -57,7 +59,7 @@ namespace AlvTimeWebApi.Controllers.Admin
         [AuthorizeAdmin]
         public ActionResult<IEnumerable<TaskResponseDto>> UpdateTask([FromBody] IEnumerable<UpdateTasksDto> tasksToBeUpdated)
         {
-            var user = RetrieveUser();
+            var user = _userRetriever.RetrieveUser();
 
             List<TaskResponseDto> response = new List<TaskResponseDto>();
 
@@ -85,15 +87,6 @@ namespace AlvTimeWebApi.Controllers.Admin
                 response.Add(returnObjects.ReturnTask(user, task));
             }
             return Ok(response);
-        }
-
-        private User RetrieveUser()
-        {
-            var username = User.Claims.FirstOrDefault(x => x.Type == "name").Value;
-            var email = User.Claims.FirstOrDefault(x => x.Type == "preferred_username").Value;
-            var alvUser = _database.User.FirstOrDefault(x => x.Email.Equals(email));
-
-            return alvUser;
         }
     }
 }

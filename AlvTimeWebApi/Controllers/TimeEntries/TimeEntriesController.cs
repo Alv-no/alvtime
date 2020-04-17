@@ -16,10 +16,12 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
     {
         private readonly AlvTime_dbContext _database;
         private ExistingObjectFinder checkExisting;
+        private RetrieveUsers _userRetriever;
 
-        public TimeEntriesController(AlvTime_dbContext database)
+        public TimeEntriesController(AlvTime_dbContext database, RetrieveUsers userRetriever)
         {
             _database = database;
+            _userRetriever = userRetriever;
             checkExisting = new ExistingObjectFinder(_database);
         }
 
@@ -29,7 +31,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
         {
             try
             {
-                var user = RetrieveUser();
+                var user = _userRetriever.RetrieveUser();
 
                 var hours = _database.Hours
                     .Where(x => x.Date >= fromDateInclusive && x.Date <= toDateInclusive && x.User == user.Id)
@@ -58,7 +60,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
         public ActionResult<List<TimeEntriesResponseDto>> UpsertTimeEntry([FromBody] List<CreateTimeEntryDto> requests)
         {
             List<TimeEntriesResponseDto> response = new List<TimeEntriesResponseDto>();
-            var user = RetrieveUser();
+            var user = _userRetriever.RetrieveUser();
 
             foreach (var request in requests)
             {
@@ -99,15 +101,6 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
                 }
             }
             return Ok(response);
-        }
-
-        private User RetrieveUser()
-        {
-            var username = User.Claims.FirstOrDefault(x => x.Type == "name").Value;
-            var email = User.Claims.FirstOrDefault(x => x.Type == "preferred_username").Value;
-            var alvUser = _database.User.FirstOrDefault(x => x.Email.Equals(email));
-
-            return alvUser;
         }
 
         private Hours CreateNewTimeEntry(CreateTimeEntryDto hoursDto, User user)
