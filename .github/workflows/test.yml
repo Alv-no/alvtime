@@ -34,4 +34,5 @@ jobs:
       - name: Run tests
         run: |
           docker build . --file Dockerfile-dev --tag image
+          docker run image npx vue-cli-service lint
           docker run image npx vue-cli-service test:unit

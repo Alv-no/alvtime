@@ -34,7 +34,7 @@ export default {
     TimeLeftInDayButton,
   },
 
-  props: { timeEntrie: { type: Object, default: {} } },
+  props: { timeEntrie: { type: Object, default: () => ({}) } },
   data() {
     return {
       showHelperButtons: false,
