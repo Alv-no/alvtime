@@ -1,5 +1,7 @@
 <template>
-  <md-tooltip class="tooltip" v-if="calculatedText">{{ calculatedText }}</md-tooltip>
+  <md-tooltip class="tooltip" v-if="calculatedText">{{
+    calculatedText
+  }}</md-tooltip>
 </template>
 
 <script lang="ts">

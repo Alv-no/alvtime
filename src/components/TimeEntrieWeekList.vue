@@ -16,12 +16,11 @@
 <script lang="ts">
 import Vue from "vue";
 import TimeEntrieWeek from "./TimeEntrieWeek.vue";
-import TimeEntrie from "./TimeEntrie.vue";
 import TimeEntrieText from "./TimeEntrieText.vue";
 import { Task } from "@/store/tasks";
 import { FrontendTimentrie } from "@/store/timeEntries";
 import config from "@/config";
-import moment from "moment";
+import { Moment } from "moment";
 
 export default Vue.extend({
   components: {
@@ -42,7 +41,7 @@ export default Vue.extend({
         config.DATE_FORMAT
       );
       const activeDateIsInWeek = this.week.some(
-        (date: moment.Moment) => date.format(config.DATE_FORMAT) === activeDate
+        (date: Moment) => date.format(config.DATE_FORMAT) === activeDate
       );
       return activeDateIsInWeek ? rows : rows.slice(0, 3);
     },
@@ -74,7 +73,7 @@ export default Vue.extend({
     },
 
     daysOfWeek(): string[] {
-      return this.week.map((day: moment.Moment) => {
+      return this.week.map((day: Moment) => {
         const d = day.format("ddd DD");
         return d.charAt(0).toUpperCase() + d.slice(1);
       });
@@ -84,7 +83,7 @@ export default Vue.extend({
   methods: {
     isThisWeek(d: string): boolean {
       return this.week.some(
-        (date: moment.Moment) => date.format(config.DATE_FORMAT) === d
+        (date: Moment) => date.format(config.DATE_FORMAT) === d
       );
     },
   },

@@ -109,9 +109,7 @@ export default {
 
     onBlur() {
       this.$store.commit("UPDATE_EDITING", false);
-      if (
-        this.activeDate.format(config.DATE_FORMAT) === this.timeEntrie.date
-      ) {
+      if (this.activeDate.format(config.DATE_FORMAT) === this.timeEntrie.date) {
         this.$store.commit("UPDATE_ACTVIE_TASK", -1);
       }
       defer(() => {

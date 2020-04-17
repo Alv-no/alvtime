@@ -18,12 +18,10 @@
 import Vue from "vue";
 import { Task } from "../store/tasks";
 import TimeEntrieText from "./TimeEntrieText.vue";
-import EditFavoritesButton from "./EditFavoritesButton.vue";
 
 export default Vue.extend({
   components: {
     TimeEntrieText,
-    EditFavoritesButton,
   },
 
   methods: {

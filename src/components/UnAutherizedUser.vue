@@ -11,7 +11,6 @@
 <script lang="ts">
 import Vue from "vue";
 import YellowButton from "./YellowButton.vue";
-import config from "@/config.ts";
 import { logout } from "../services/auth";
 
 export default Vue.extend({

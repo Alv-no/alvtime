@@ -1,5 +1,5 @@
 import { State } from "./index";
-import {Route} from "vue-router";
+import { Route } from "vue-router";
 import moment from "moment";
 
 export interface InteractionState {
@@ -67,8 +67,8 @@ const mutations = {
   },
 
   SET_CURRENT_ROUTE(state: State, route: Route) {
-    state.currentRoute = route
-  }
+    state.currentRoute = route;
+  },
 };
 
 export default {

@@ -6,8 +6,6 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { defer } from "lodash";
-import { isFloat } from "@/store/timeEntries";
 import config from "@/config";
 
 export default Vue.extend({

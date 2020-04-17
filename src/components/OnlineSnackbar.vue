@@ -1,5 +1,10 @@
 <template>
-  <md-snackbar :md-position="position" :md-duration="duration" :md-active.sync="show" md-persistent>
+  <md-snackbar
+    :md-position="position"
+    :md-duration="duration"
+    :md-active.sync="show"
+    md-persistent
+  >
     <span>Det ser ut som at du har mistet tilgangen til internett.</span>
     <md-button class="icon_button" @click="close">
       <md-icon class="icon">close</md-icon>

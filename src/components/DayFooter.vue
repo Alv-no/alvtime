@@ -1,7 +1,11 @@
 <template>
   <transition appear name="slide">
     <div v-if="show" class="footer">
-      <YellowButton @click="onTodayClick" tooltip="Gå til dagens dato" text="Today" />
+      <YellowButton
+        @click="onTodayClick"
+        tooltip="Gå til dagens dato"
+        text="Today"
+      />
     </div>
   </transition>
 </template>

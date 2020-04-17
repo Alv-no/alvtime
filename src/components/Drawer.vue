@@ -46,13 +46,11 @@
 <script lang="ts">
 import Vue from "vue";
 import YellowButton from "@/components/YellowButton.vue";
-import AuthProvider from "@/components/AuthProvider.vue";
 import { logout } from "../services/auth";
 
 export default Vue.extend({
   components: {
     YellowButton,
-    AuthProvider,
   },
 
   computed: {

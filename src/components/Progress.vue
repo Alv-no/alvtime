@@ -1,6 +1,10 @@
 <template>
   <div>
-    <md-progress-bar v-if="visible" class="{hidden}" md-mode="indeterminate"></md-progress-bar>
+    <md-progress-bar
+      v-if="visible"
+      class="{hidden}"
+      md-mode="indeterminate"
+    ></md-progress-bar>
     <div v-if="!visible" class="replacement" />
   </div>
 </template>

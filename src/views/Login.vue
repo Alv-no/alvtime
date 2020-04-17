@@ -1,6 +1,8 @@
 <template>
   <div class="grid">
-    <md-button v-if="!$store.state.account" @click="login">Login with Azure Ad</md-button>
+    <md-button v-if="!$store.state.account" @click="login"
+      >Login with Azure Ad</md-button
+    >
     <Spinner v-if="!$store.state.tasks.length && $store.state.account" />
   </div>
 </template>

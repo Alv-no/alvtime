@@ -12,7 +12,7 @@ import Vue from "vue";
 import config from "@/config";
 import { FrontendTimentrie } from "@/store/timeEntries";
 import { createWeek } from "@/mixins/date";
-import moment from "moment";
+import { Moment } from "moment";
 
 export default Vue.extend({
   computed: {
@@ -49,17 +49,17 @@ export default Vue.extend({
       return weekTimeEntrieSum(this.activeDate, timeEntries);
     },
 
-    activeDate(): moment.Moment {
+    activeDate(): Moment {
       return this.$store.state.activeDate;
     },
   },
 });
 
 function weekTimeEntrieSum(
-  activeDate: moment.Moment,
+  activeDate: Moment,
   timeEntries: FrontendTimentrie[]
 ): string {
-  const week = createWeek(activeDate).map((date: moment.Moment) =>
+  const week = createWeek(activeDate).map((date: Moment) =>
     date.format(config.DATE_FORMAT)
   );
   const number = timeEntries.reduce((acc: number, curr: FrontendTimentrie) => {

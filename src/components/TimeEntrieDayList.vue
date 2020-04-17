@@ -11,7 +11,6 @@
 import Vue from "vue";
 import TimeEntrieText from "./TimeEntrieText.vue";
 import HourInput from "./HourInput.vue";
-import moment from "moment";
 import config from "@/config";
 import { Task } from "@/store/tasks";
 import { FrontendTimentrie } from "@/store/timeEntries";

@@ -18,10 +18,8 @@
 <script lang="ts">
 import Vue from "vue";
 import { Moment } from "moment";
-import config from "@/config";
 import TimeEntrieWeekList from "./TimeEntrieWeekList.vue";
 import { GLOBAL_SWIPER_OPTIONS } from "@/store/swiper";
-import { createWeek } from "@/mixins/date";
 
 import Swiper from "swiper";
 
@@ -46,7 +44,6 @@ export default Vue.extend({
   },
 
   mounted() {
-    const self = this;
     const swiperOptions = {
       ...GLOBAL_SWIPER_OPTIONS,
       initialSlide: 52,

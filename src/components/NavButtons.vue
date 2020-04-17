@@ -31,7 +31,9 @@ export default Vue.extend({
     show(): boolean {
       // @ts-ignore
       const screenSize = this.$mq;
-      return screenSize !== "sm" && this.$store.state.currentRoute.path === "/hours";
+      return (
+        screenSize !== "sm" && this.$store.state.currentRoute.path === "/hours"
+      );
     },
   },
 
@@ -49,8 +51,4 @@ export default Vue.extend({
     },
   },
 });
-
-function upperCase(s: string) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
 </script>

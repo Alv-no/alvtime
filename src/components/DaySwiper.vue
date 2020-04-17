@@ -17,7 +17,6 @@
 
 <script lang="ts">
 import Vue from "vue";
-import config from "@/config";
 import TimeEntrieDayList from "./TimeEntrieDayList.vue";
 import { GLOBAL_SWIPER_OPTIONS } from "@/store/swiper";
 import { Moment } from "moment";
