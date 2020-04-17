@@ -2,6 +2,7 @@ using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.Controllers.Admin.Users;
 using AlvTimeWebApi.Controllers.Admin.Users.UserStorage;
+using AlvTimeWebApi.HelperClasses;
 using AlvTimeWebApi.Persistence.DatabaseModels;
 using AlvTimeWebApi.Persistence.Repositories;
 using Microsoft.AspNetCore.Builder;
@@ -29,6 +30,8 @@ namespace AlvTimeWebApi
         {
             services.AddScoped<IPersonalAccessTokenStorage, PersonalAccessTokenRepository>();
             services.AddTransient<IUserStorage, UserStorage>();
+            services.AddHttpContextAccessor();
+            services.AddSingleton<RetrieveUsers>();
             services.AddDbContext<AlvTime_dbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("AlvTime_db")), contextLifetime: ServiceLifetime.Scoped, optionsLifetime: ServiceLifetime.Scoped);
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddAlvtimeAuthentication(Configuration);

@@ -1,4 +1,5 @@
-﻿using AlvTimeWebApi.Persistence.DatabaseModels;
+﻿using AlvTimeWebApi.HelperClasses;
+using AlvTimeWebApi.Persistence.DatabaseModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
@@ -9,27 +10,18 @@ namespace AlvTimeWebApi.Controllers.Profile
     [ApiController]
     public class ProfileController:Controller
     {
-        private readonly AlvTime_dbContext _database;
+        private RetrieveUsers _userRetriever;
 
-        public ProfileController(AlvTime_dbContext database)
+        public ProfileController(RetrieveUsers userRetriever)
         {
-            _database = database;
+            _userRetriever = userRetriever;
         }
 
         [HttpGet("Profile")]
         [Authorize]
         public ActionResult<User> GetUserProfile()
         {
-            return Ok(RetrieveUser());
-        }
-
-        private User RetrieveUser()
-        {
-            var username = User.Claims.FirstOrDefault(x => x.Type == "name").Value;
-            var user = User.Claims.FirstOrDefault(x => x.Type == "preferred_username").Value;
-            var alvUser = _database.User.FirstOrDefault(x => x.Email.Equals(user));
-
-            return alvUser;
+            return Ok(_userRetriever.RetrieveUser());
         }
     }
 }
