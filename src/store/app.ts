@@ -30,10 +30,6 @@ const state = {
 };
 
 const mutations = {
-  UPDATE_ACTVIE_DATE(state: State, date: moment.Moment) {
-    state.activeDate = date;
-  },
-
   UPDATE_ACTVIE_TASK(state: State, taskId: number) {
     state.activeTaskId = taskId;
   },

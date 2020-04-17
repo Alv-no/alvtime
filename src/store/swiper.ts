@@ -87,10 +87,6 @@ const mutations = {
     state.swiper.slideTo(todayIndex);
   },
 
-  UPDATE_ACTVIE_DATE(state: State, date: moment.Moment) {
-    state.activeDate = date;
-  },
-
   UPDATE_ACTVIE_DATE_IN_WEEKS(state: State) {
     if (!state.swiper.activeIndex) return;
     const dayOfWeek = state.activeDate.weekday();
