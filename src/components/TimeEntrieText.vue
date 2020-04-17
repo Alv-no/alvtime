@@ -7,9 +7,17 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { Task } from "@/store/tasks";
 
 export default Vue.extend({
-  props: ["task"],
+  props: {
+    task: {
+      type: Object as () => Task,
+      default: (): Task => {
+        return {} as Task;
+      },
+    },
+  },
 });
 </script>
 

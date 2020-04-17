@@ -24,14 +24,6 @@ export default Vue.extend({
     TimeEntrieText,
   },
 
-  methods: {
-    toggleFavorite(task: Task) {
-      this.$store.dispatch("PUSH_TASKS", [
-        { ...task, favorite: !task.favorite },
-      ]);
-    },
-  },
-
   computed: {
     tasks() {
       return this.$store.state.tasks;
@@ -39,6 +31,14 @@ export default Vue.extend({
 
     isOnline() {
       return this.$store.state.isOnline;
+    },
+  },
+
+  methods: {
+    toggleFavorite(task: Task) {
+      this.$store.dispatch("PUSH_TASKS", [
+        { ...task, favorite: !task.favorite },
+      ]);
     },
   },
 });

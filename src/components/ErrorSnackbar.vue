@@ -41,11 +41,6 @@ export default Vue.extend({
     };
   },
 
-  created() {
-    window.addError = (errorMessage: string) =>
-      this.$store.commit("ADD_TO_ERROR_LIST", errorMessage);
-  },
-
   computed: {
     show: {
       get() {
@@ -59,6 +54,11 @@ export default Vue.extend({
     issues() {
       return this.$store.state.errorTexts.join(" -> ");
     },
+  },
+
+  created() {
+    window.addError = (errorMessage: string) =>
+      this.$store.commit("ADD_TO_ERROR_LIST", errorMessage);
   },
 
   methods: {

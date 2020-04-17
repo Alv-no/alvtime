@@ -7,7 +7,7 @@ import Vue from "vue";
 import FavoriteSelector from "@/components/FavoriteSelector.vue";
 
 export default Vue.extend({
-  name: "home",
+  name: "Home",
   components: {
     FavoriteSelector,
   },

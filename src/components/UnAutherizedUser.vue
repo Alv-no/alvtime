@@ -4,7 +4,7 @@
     :md-label="label"
     md-description="Logg ut og prøv med en annen bruker eller spør høyere makter om hjelp."
   >
-    <YellowButton @click="logout" iconId="meeting_room" text="Logg ut" />
+    <YellowButton icon-id="meeting_room" text="Logg ut" @click="logout" />
   </md-empty-state>
 </template>
 

@@ -6,7 +6,7 @@
         <div v-for="day in daysOfWeek" :key="day">{{ day }}</div>
       </div>
     </div>
-    <div class="row" v-for="task in tasks" :key="task.id">
+    <div v-for="task in tasks" :key="task.id" class="row">
       <TimeEntrieText :task="task" />
       <TimeEntrieWeek :task="task" :week="week" />
     </div>
@@ -27,7 +27,7 @@ export default Vue.extend({
     TimeEntrieWeek,
     TimeEntrieText,
   },
-  props: ["week"],
+  props: { week: { type: Object as () => Moment[], default: () => [] } },
 
   computed: {
     tasks(): Task[] {

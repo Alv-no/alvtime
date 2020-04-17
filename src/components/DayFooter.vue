@@ -2,9 +2,9 @@
   <transition appear name="slide">
     <div v-if="show" class="footer">
       <YellowButton
-        @click="onTodayClick"
         tooltip="Gå til dagens dato"
         text="Today"
+        @click="onTodayClick"
       />
     </div>
   </transition>

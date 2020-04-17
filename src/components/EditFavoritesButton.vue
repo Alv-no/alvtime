@@ -2,12 +2,12 @@
   <div class="button">
     <YellowButton
       v-if="isTasks"
-      @click="editFavorites"
       :toggle="$store.state.selectFavorites"
-      iconId="star"
-      iconId2="star_border"
+      icon-id="star"
+      icon-id2="star_border"
       tooltip="Velg favoritt aktiviteter"
       text="Favoritter"
+      @click="editFavorites"
     />
   </div>
 </template>

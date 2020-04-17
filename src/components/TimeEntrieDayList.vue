@@ -2,7 +2,7 @@
   <div class="slide">
     <div v-for="row in rows" :key="row.task.id" class="grid">
       <TimeEntrieText :task="row.task" />
-      <HourInput :timeEntrie="row.timeEntrie" />
+      <HourInput :time-entrie="row.timeEntrie" />
     </div>
   </div>
 </template>
@@ -14,6 +14,7 @@ import HourInput from "./HourInput.vue";
 import config from "@/config";
 import { Task } from "@/store/tasks";
 import { FrontendTimentrie } from "@/store/timeEntries";
+import { Moment } from "moment";
 
 interface Row {
   task: Task;
@@ -25,7 +26,14 @@ export default Vue.extend({
     TimeEntrieText,
     HourInput,
   },
-  props: ["date"],
+  props: {
+    date: {
+      type: Object as () => Moment,
+      default: () => {
+        return {} as Moment;
+      },
+    },
+  },
 
   computed: {
     rows(): Row[] {

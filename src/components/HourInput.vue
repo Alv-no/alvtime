@@ -1,24 +1,24 @@
 <template>
   <div>
     <TimeLeftInDayButton
-      @click="onTimeLeftInDayClick"
-      :value="value"
-      :timeEntrie="timeEntrie"
       v-if="showHelperButtons"
+      :value="value"
+      :time-entrie="timeEntrie"
+      @click="onTimeLeftInDayClick"
     />
     <input
+      ref="inputRef"
+      v-model="value"
       :class="{ error, nonZero }"
       type="text"
+      novalidate
+      inputmode="decimal"
+      :disabled="!isOnline"
       @input="onInput"
-      v-model="value"
       @touchstart="onTouchStart"
       @blur="onBlur"
       @focus="onFocus"
-      novalidate
-      inputmode="decimal"
-      ref="inputRef"
       @click="onClick"
-      :disabled="!isOnline"
     />
   </div>
 </template>
@@ -34,17 +34,13 @@ export default {
     TimeLeftInDayButton,
   },
 
-  props: ["timeEntrie"],
+  props: { timeEntrie: { type: Object, default: {} } },
   data() {
     return {
       showHelperButtons: false,
       enableBlur: true,
       localValue: "0",
     };
-  },
-
-  mounted() {
-    this.localValue = this.value;
   },
 
   computed: {
@@ -99,6 +95,10 @@ export default {
         this.showHelperButtons = true;
       }
     },
+  },
+
+  mounted() {
+    this.localValue = this.value;
   },
 
   methods: {

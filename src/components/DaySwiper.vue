@@ -3,9 +3,9 @@
     <div id="day-swiper-container" ref="mySwiper" class="swiper-container">
       <div class="swiper-wrapper">
         <div
-          class="swiper-slide"
           v-for="(date, index) in virtualData.slides"
           :key="index"
+          class="swiper-slide"
           :style="{ left: `${virtualData.offset}px` }"
         >
           <TimeEntrieDayList :date="date" />

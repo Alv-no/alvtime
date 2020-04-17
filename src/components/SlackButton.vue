@@ -15,7 +15,7 @@ export default Vue.extend({
     Tooltip,
   },
 
-  props: ["tooltip"],
+  props: { tooltip: { type: String, default: "" } },
   methods: {
     onClick() {
       this.$emit("click");

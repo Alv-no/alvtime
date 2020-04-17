@@ -1,7 +1,5 @@
 <template>
-  <button @click="onTimeLeftInDayClick">
-    {{ timeLeftInDay }}
-  </button>
+  <button @click="onTimeLeftInDayClick">{{ timeLeftInDay }}</button>
 </template>
 
 <script lang="ts">
@@ -9,7 +7,15 @@ import Vue from "vue";
 import config from "@/config";
 
 export default Vue.extend({
-  props: ["timeEntrie", "value"],
+  props: {
+    timeEntrie: {
+      type: Object,
+      default: function() {
+        return {};
+      },
+    },
+    value: { type: String, default: "" },
+  },
 
   computed: {
     timeLeftInDay(): string {

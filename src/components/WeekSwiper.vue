@@ -3,9 +3,9 @@
     <div id="week-swiper-container" ref="mySwiper" class="swiper-container">
       <div class="swiper-wrapper">
         <div
-          class="swiper-slide"
           v-for="(week, index) in virtualData.slides"
           :key="index"
+          class="swiper-slide"
           :style="{ left: `${virtualData.offset}px` }"
         >
           <TimeEntrieWeekList :week="week" />
@@ -24,15 +24,6 @@ import { GLOBAL_SWIPER_OPTIONS } from "@/store/swiper";
 import Swiper from "swiper";
 
 export default Vue.extend({
-  beforeCreate() {
-    this.$store.commit("CREATE_WEEKS");
-    this.$store.dispatch("FETCH_WEEK_ENTRIES");
-  },
-
-  beforeDestroy() {
-    this.$store.state.swiper.destroy();
-  },
-
   components: {
     TimeEntrieWeekList,
   },
@@ -41,6 +32,22 @@ export default Vue.extend({
     return {
       virtualData: [[]] as Moment[][],
     };
+  },
+
+  computed: {
+    dateRange():
+      | { fromDateInclusive: string; toDateInclusive: string }
+      | undefined {
+      return this.$store.getters.dateRange;
+    },
+  },
+  beforeCreate() {
+    this.$store.commit("CREATE_WEEKS");
+    this.$store.dispatch("FETCH_WEEK_ENTRIES");
+  },
+
+  beforeDestroy() {
+    this.$store.state.swiper.destroy();
   },
 
   mounted() {
@@ -67,14 +74,6 @@ export default Vue.extend({
 
     onRenderExternal(data: Moment[][]) {
       this.virtualData = data;
-    },
-  },
-
-  computed: {
-    dateRange():
-      | { fromDateInclusive: string; toDateInclusive: string }
-      | undefined {
-      return this.$store.getters.dateRange;
     },
   },
 });

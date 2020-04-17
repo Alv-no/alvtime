@@ -15,7 +15,25 @@ export default Vue.extend({
     Tooltip,
   },
 
-  props: ["toggle", "iconId", "iconId2", "text", "tooltip"],
+  props: {
+    toggle: Boolean,
+    iconId: {
+      type: String,
+      default: "",
+    },
+    iconId2: {
+      type: String,
+      default: "",
+    },
+    text: {
+      type: String,
+      default: "",
+    },
+    tooltip: {
+      type: String,
+      default: "",
+    },
+  },
 
   computed: {
     iconIdToShow(): string {

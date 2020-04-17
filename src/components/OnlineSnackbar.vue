@@ -30,16 +30,6 @@ export default Vue.extend({
     };
   },
 
-  created() {
-    this.$store.commit("UPDATE_ONLINE_STATUS");
-    window.addEventListener("online", () =>
-      this.$store.commit("UPDATE_ONLINE_STATUS")
-    );
-    window.addEventListener("offline", () =>
-      this.$store.commit("UPDATE_ONLINE_STATUS")
-    );
-  },
-
   computed: {
     isOnline(): boolean {
       return !!this.$store.state.isOnline;
@@ -50,6 +40,16 @@ export default Vue.extend({
     isOnline() {
       this.show = !this.isOnline;
     },
+  },
+
+  created() {
+    this.$store.commit("UPDATE_ONLINE_STATUS");
+    window.addEventListener("online", () =>
+      this.$store.commit("UPDATE_ONLINE_STATUS")
+    );
+    window.addEventListener("offline", () =>
+      this.$store.commit("UPDATE_ONLINE_STATUS")
+    );
   },
 
   methods: {

@@ -12,7 +12,7 @@
 <script lang="ts">
 import Vue from "vue";
 export default Vue.extend({
-  props: ["visible"],
+  props: { visible: Boolean },
 });
 </script>
 

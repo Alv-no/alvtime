@@ -20,7 +20,7 @@ import WeekSwiper from "@/components/WeekSwiper.vue";
 import Progress from "@/components/Progress.vue";
 
 export default Vue.extend({
-  name: "hours",
+  name: "Hours",
 
   components: {
     DaySwiper,

@@ -1,19 +1,19 @@
 <template>
   <div v-if="show">
     <YellowButton
-      @click="onArrowBackClick"
-      iconId="arrow_back"
+      icon-id="arrow_back"
       tooltip="Gå til forrige uke"
+      @click="onArrowBackClick"
     />
     <YellowButton
-      @click="onTodayClick"
       tooltip="Gå til dagens dato"
       text="Today"
+      @click="onTodayClick"
     />
     <YellowButton
-      @click="onArrowForwardClick"
-      iconId="arrow_forward"
+      icon-id="arrow_forward"
       tooltip="Gå til neste uke"
+      @click="onArrowForwardClick"
     />
   </div>
 </template>

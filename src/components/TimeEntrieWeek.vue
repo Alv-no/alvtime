@@ -3,7 +3,7 @@
     <HourInput
       v-for="timeEntrie in timeEntries"
       :key="timeEntrie.date"
-      :timeEntrie="timeEntrie"
+      :time-entrie="timeEntrie"
     />
   </div>
 </template>
@@ -14,12 +14,21 @@ import HourInput from "./HourInput.vue";
 import config from "@/config";
 import { Moment } from "moment";
 import { FrontendTimentrie } from "@/store/timeEntries";
+import { Task } from "@/store/tasks";
 
 export default Vue.extend({
   components: {
     HourInput,
   },
-  props: ["task", "week"],
+  props: {
+    task: {
+      type: Object as () => Task,
+      default: (): Task => {
+        return {} as Task;
+      },
+    },
+    week: { type: Object as () => Moment[], default: () => [] },
+  },
 
   computed: {
     timeEntries(): FrontendTimentrie[] {

@@ -1,13 +1,18 @@
 <template>
-  <md-tooltip class="tooltip" v-if="calculatedText">{{
-    calculatedText
-  }}</md-tooltip>
+  <md-tooltip v-if="calculatedText" class="tooltip">
+    {{ calculatedText }}
+  </md-tooltip>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 export default Vue.extend({
-  props: ["text"],
+  props: {
+    text: {
+      type: String,
+      default: "",
+    },
+  },
 
   computed: {
     calculatedText() {

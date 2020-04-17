@@ -6,9 +6,9 @@
       <div class="md-toolbar-section-end">
         <div class="close_button">
           <YellowButton
-            @click="toggleMenu"
-            iconId="close"
+            icon-id="close"
             tooltip="Lukk menyen"
+            @click="toggleMenu"
           />
         </div>
       </div>
