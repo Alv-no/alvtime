@@ -31,7 +31,7 @@ namespace AlvTimeWebApi
             services.AddScoped<IPersonalAccessTokenStorage, PersonalAccessTokenRepository>();
             services.AddTransient<IUserStorage, UserStorage>();
             services.AddHttpContextAccessor();
-            services.AddSingleton<RetrieveUsers>();
+            services.AddScoped<RetrieveUsers>();
             services.AddDbContext<AlvTime_dbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("AlvTime_db")), contextLifetime: ServiceLifetime.Scoped, optionsLifetime: ServiceLifetime.Scoped);
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddAlvtimeAuthentication(Configuration);
