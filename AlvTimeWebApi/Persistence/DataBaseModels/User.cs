@@ -15,7 +15,7 @@ namespace AlvTimeWebApi.Persistence.DatabaseModels
         public int Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
-        public decimal FlexiHours { get; set; }
+        public decimal? FlexiHours { get; set; }
         public DateTime StartDate { get; set; }
 
         public virtual ICollection<AccessTokens> AccessTokens { get; set; }
