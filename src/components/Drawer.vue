@@ -31,7 +31,7 @@
           :class="{ active: $store.state.currentRoute.name === 'tasks' }"
           class="md-list-item-text"
         >
-          Favoritt aktiviteter
+          Favorittaktiviteter
         </span>
       </md-list-item>
 
