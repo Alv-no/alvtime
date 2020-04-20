@@ -1,11 +1,12 @@
 ﻿using AlvTimeWebApi.Dto;
 using System.Collections.Generic;
 
-namespace AlvTimeWebApi.Controllers.Admin.Users
+namespace AlvTime.Business.Users
 {
     public interface IUserStorage
     {
         IEnumerable<UserResponseDto> GetUser(UserQuerySearch criterias);
+        void AddUser(CreateUserRequest user);
     }
 
     public class UserQuerySearch

@@ -1,4 +1,5 @@
-﻿using AlvTimeWebApi.Persistence.DatabaseModels;
+﻿using AlvTime.Business.Users;
+using AlvTimeWebApi.Persistence.DatabaseModels;
 using System.Linq;
 
 namespace AlvTimeWebApi.Controllers.Admin.Users.UserStorage

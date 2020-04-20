@@ -1,4 +1,6 @@
-﻿using AlvTimeWebApi.Authentication;
+﻿using AlvTime.Business;
+using AlvTime.Business.Users;
+using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Dto;
 using AlvTimeWebApi.HelperClasses;
 using AlvTimeWebApi.Persistence.DatabaseModels;
@@ -16,11 +18,13 @@ namespace AlvTimeWebApi.Controllers.Admin.Users
         private CreatedObjectReturner returnObjects;
         private ExistingObjectFinder checkExisting;
         private readonly IUserStorage _userStorage;
+        private readonly UserCreator _creator;
 
-        public UserController(AlvTime_dbContext database, IUserStorage userStorage)
+        public UserController(AlvTime_dbContext database, IUserStorage userStorage, UserCreator creator)
         {
             _database = database;
             _userStorage = userStorage;
+            _creator = creator;
             returnObjects = new CreatedObjectReturner(_database);
             checkExisting = new ExistingObjectFinder(_database);
         }
@@ -38,7 +42,23 @@ namespace AlvTimeWebApi.Controllers.Admin.Users
         public ActionResult<IEnumerable<UserResponseDto>> CreateNewUser([FromBody] IEnumerable<CreateUserDto> usersToBeCreated)
         {
             List<UserResponseDto> response = new List<UserResponseDto>();
+            foreach (var user in usersToBeCreated)
+            {
+                response.Add(_creator.CreateUser(new CreateUserRequest
+                {
+                    Email = user.Email,
+                    FlexiHours = user.FlexiHours,
+                    Name = user.Name,
+                    StartDate = user.StartDate
+                }));
+            }
 
+            return Ok(response);
+        }
+
+        private IEnumerable<UserResponseDto> CreateUsers(IEnumerable<CreateUserDto> usersToBeCreated)
+        {
+            List<UserResponseDto> response = new List<UserResponseDto>();
             decimal? flexiHours = 0;
 
             var calculator = new AlvHoursCalculator();
@@ -69,7 +89,8 @@ namespace AlvTimeWebApi.Controllers.Admin.Users
                     response.Add(returnObjects.ReturnCreatedUser(user));
                 }
             }
-            return Ok(response);
+
+            return response;
         }
     }
 }

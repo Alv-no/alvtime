@@ -1,6 +1,6 @@
+using AlvTime.Business.Users;
 using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Authorization;
-using AlvTimeWebApi.Controllers.Admin.Users;
 using AlvTimeWebApi.Controllers.Admin.Users.UserStorage;
 using AlvTimeWebApi.HelperClasses;
 using AlvTimeWebApi.Persistence.DatabaseModels;

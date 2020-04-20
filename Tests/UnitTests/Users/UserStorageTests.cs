@@ -1,4 +1,4 @@
-﻿using AlvTimeWebApi.Controllers.Admin.Users;
+﻿using AlvTime.Business.Users;
 using AlvTimeWebApi.Controllers.Admin.Users.UserStorage;
 using AlvTimeWebApi.Persistence.DatabaseModels;
 using System;
