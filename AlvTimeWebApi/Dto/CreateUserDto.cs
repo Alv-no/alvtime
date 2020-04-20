@@ -7,6 +7,6 @@ namespace AlvTimeWebApi.Dto
         public string Name { get; set; }
         public string Email { get; set; }
         public DateTime StartDate { get; set; }
-        public decimal FlexiHours { get; set; } = 187.5M;
+        public decimal? FlexiHours { get; set; }
     }
 }

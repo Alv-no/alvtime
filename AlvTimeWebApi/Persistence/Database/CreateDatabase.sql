@@ -82,7 +82,7 @@ CREATE TABLE [dbo].[User](
 	[name] [nvarchar](100) NOT NULL,
 	[email] [nvarchar](100) NOT NULL,
 	[StartDate] [datetime] NOT NULL,
-	[FlexiHours] [decimal](5,2) NOT NULL
+	[FlexiHours] [decimal](5,2) NULL
 PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
