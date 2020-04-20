@@ -27,7 +27,7 @@ export default Vue.extend({
     TimeEntrieWeek,
     TimeEntrieText,
   },
-  props: { week: { type: Object as () => Moment[], default: () => [] } },
+  props: { week: { type: Array as () => Moment[], default: () => [] } },
 
   computed: {
     tasks(): Task[] {
