@@ -30,6 +30,7 @@
       </md-app-drawer>
       <md-app-content>
         <div>
+          <Progress :visible="progressBarVisible" />
           <router-view />
           <UpdateSnackbar />
           <OnlineSnackbar />
@@ -51,6 +52,7 @@ import Toolbar from "@/components/Toolbar.vue";
 import Avatar from "@/components/Avatar.vue";
 import Drawer from "@/components/Drawer.vue";
 import DayFooter from "@/components/DayFooter.vue";
+import Progress from "@/components/Progress.vue";
 
 export default Vue.extend({
   components: {
@@ -61,6 +63,7 @@ export default Vue.extend({
     Avatar,
     Drawer,
     DayFooter,
+    Progress,
   },
 
   data() {
@@ -81,6 +84,10 @@ export default Vue.extend({
 
     interactionState(): { oldState: string; newState: string } {
       return this.$store.state.interactionState;
+    },
+
+    progressBarVisible() {
+      return this.$store.state.timeEntries === null;
     },
   },
 
