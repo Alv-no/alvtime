@@ -12,6 +12,7 @@ export default Vue.extend({
   props: {
     holiday: {
       type: String,
+      default: "",
     },
   },
 });

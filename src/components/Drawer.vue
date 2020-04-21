@@ -35,6 +35,16 @@
         </span>
       </md-list-item>
 
+      <md-list-item @click="navToTokens">
+        <md-icon>vpn_key</md-icon>
+        <span
+          :class="{ active: $store.state.currentRoute.name === 'tokens' }"
+          class="md-list-item-text"
+        >
+          Personal access tokens
+        </span>
+      </md-list-item>
+
       <md-list-item @click="logout">
         <md-icon>meeting_room</md-icon>
         <span class="md-list-item-text">Logg ut</span>
@@ -72,6 +82,11 @@ export default Vue.extend({
 
     navToTasks() {
       this.$router.push("tasks");
+      setTimeout(() => this.$store.commit("TOGGLE_DRAWER"), 150);
+    },
+
+    navToTokens() {
+      this.$router.push("tokens");
       setTimeout(() => this.$store.commit("TOGGLE_DRAWER"), 150);
     },
 

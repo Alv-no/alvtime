@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import Hours from "../views/Hours.vue";
 import Tasks from "../views/Tasks.vue";
+import Tokens from "../views/Tokens.vue";
 import UnAutherized from "../views/UnAutherized.vue";
 import Login from "../views/Login.vue";
 import store from "@/store";
@@ -19,6 +20,11 @@ const routes = [
     path: "/tasks",
     name: "tasks",
     component: Tasks,
+  },
+  {
+    path: "/tokens",
+    name: "tokens",
+    component: Tokens,
   },
   {
     path: "/UnAutherized",
