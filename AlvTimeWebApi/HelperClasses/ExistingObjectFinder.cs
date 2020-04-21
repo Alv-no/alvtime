@@ -34,13 +34,6 @@ namespace AlvTimeWebApi.HelperClasses
                     .FirstOrDefault() == null ? true : false;
         }
 
-        public bool UserDoesNotExist(CreateUserDto user)
-        {
-            return _database.User
-                    .Where(x => x.Name == user.Name && x.Email == user.Email)
-                    .FirstOrDefault() == null ? true : false;
-        }
-
         public bool HourRateDoesNotExist(CreateHourRateDto hourRate)
         {
             return _database.HourRate.FirstOrDefault(x =>

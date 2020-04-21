@@ -55,23 +55,6 @@ namespace AlvTimeWebApi.HelperClasses
             return projectResponseDto;
         }
 
-        public UserResponseDto ReturnCreatedUser(CreateUserDto user)
-        {
-            var userResponseDto = _database.User
-                .Where(x => x.Name == user.Name && x.Email == user.Email)
-                .Select(x => new UserResponseDto
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Email = x.Email,
-                    FlexiHours = x.FlexiHours,
-                    StartDate = x.StartDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
-                })
-                .FirstOrDefault();
-
-            return userResponseDto;
-        }
-
         public HourRateResponseDto ReturnCreatedHourRate(CreateHourRateDto hourRate)
         {
             var taskResponseDto = _database.Task
@@ -159,6 +142,7 @@ namespace AlvTimeWebApi.HelperClasses
                     Name = x.Name,
                     Locked = x.Locked,
                     Favorite = false,
+                    CompensationRate = x.CompensationRate,
                     Project = new ProjectResponseDto
                     {
                         Id = x.ProjectNavigation.Id,

@@ -55,42 +55,5 @@ namespace AlvTimeWebApi.Controllers.Admin.Users
 
             return Ok(response);
         }
-
-        private IEnumerable<UserResponseDto> CreateUsers(IEnumerable<CreateUserDto> usersToBeCreated)
-        {
-            List<UserResponseDto> response = new List<UserResponseDto>();
-            decimal? flexiHours = 0;
-
-            var calculator = new AlvHoursCalculator();
-
-            foreach (var user in usersToBeCreated)
-            {
-                if (user.FlexiHours != null)
-                {
-                    flexiHours = user.FlexiHours;
-                }
-                else
-                {
-                    flexiHours = 187.5M + calculator.CalculateAlvHours();
-                }
-
-                if (checkExisting.UserDoesNotExist(user))
-                {
-                    var newUser = new User
-                    {
-                        Name = user.Name,
-                        Email = user.Email,
-                        StartDate = user.StartDate,
-                        FlexiHours = flexiHours
-                    };
-                    _database.User.Add(newUser);
-                    _database.SaveChanges();
-
-                    response.Add(returnObjects.ReturnCreatedUser(user));
-                }
-            }
-
-            return response;
-        }
     }
 }
