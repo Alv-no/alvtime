@@ -41,7 +41,7 @@ function createNorwegianHolidaysForYear(yearNumber: number) {
     { date: easter.clone().add(1, "days"), description: "Andre påskedag" },
     {
       date: moment(yearString + "-05-01"),
-      description: "Offentlig høytidsdag",
+      description: "Arbeidernes dag",
     },
     { date: moment(yearString + "-05-17"), description: "Grunnlovsdag" },
     {

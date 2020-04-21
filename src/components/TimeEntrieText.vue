@@ -1,6 +1,6 @@
 <template>
   <div class="text">
-    <p class="customer_text">{{ task.project.customer.name }}</p>
+    <p>{{ task.project.customer.name }}</p>
     <p class="activity_name_text">{{ task.name }}</p>
   </div>
 </template>
@@ -28,13 +28,10 @@ export default Vue.extend({
   text-align: left;
   white-space: nowrap;
   overflow: hidden;
-}
-
-.customer_text {
   font-size: 0.8rem;
 }
 
 .activity_name_text {
-  font-size: 1rem;
+  font-weight: 600;
 }
 </style>
