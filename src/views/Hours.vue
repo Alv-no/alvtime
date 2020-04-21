@@ -1,5 +1,6 @@
 <template>
   <div>
+    <Progress :visible="progressBarVisible" />
     <mq-layout mq="sm">
       <DaySwiper />
     </mq-layout>
@@ -14,6 +15,7 @@ import Vue from "vue";
 
 import DaySwiper from "@/components/DaySwiper.vue";
 import WeekSwiper from "@/components/WeekSwiper.vue";
+import Progress from "@/components/Progress.vue";
 
 export default Vue.extend({
   name: "Hours",
@@ -21,6 +23,13 @@ export default Vue.extend({
   components: {
     DaySwiper,
     WeekSwiper,
+    Progress,
+  },
+
+  computed: {
+    progressBarVisible() {
+      return this.$store.state.timeEntries === null;
+    },
   },
 });
 </script>
