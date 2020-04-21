@@ -35,7 +35,7 @@ steps:
 
 - task: CopyFiles@2
   inputs:
-    SourceFolder: './AlvTimeWebApi'
+    SourceFolder: './'
     Contents: '**/*'
     TargetFolder: '$(build.artifactStagingDirectory)'
     flattenFolders: false
