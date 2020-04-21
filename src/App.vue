@@ -87,7 +87,9 @@ export default Vue.extend({
     },
 
     progressBarVisible() {
-      return this.$store.state.timeEntries === null;
+      return (
+        this.$store.state.tasks.length && this.$store.state.timeEntries === null
+      );
     },
   },
 
