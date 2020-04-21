@@ -1,7 +1,7 @@
 <template>
   <div
     class="day"
-    :class="{ 'day-off': isDayOff, holiday: isHoliday }"
+    :class="{ 'day-off': isDayOff, holiday: isHoliday, today: isToday }"
     @mouseover="mouseOver"
     @mouseleave="mouseLeave"
   >
@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Moment } from "moment";
+import moment, { Moment } from "moment";
 
 export default Vue.extend({
   props: {
@@ -54,6 +54,10 @@ export default Vue.extend({
 
     isSaturday(): boolean {
       return this.date.day() === 6;
+    },
+
+    isToday(): boolean {
+      return moment().isSame(this.date, "day");
     },
   },
 
@@ -99,5 +103,11 @@ export default Vue.extend({
   overflow-wrap: break-word;
   hyphens: auto;
   overflow-y: hidden;
+}
+
+.today {
+  border: 2px solid red;
+  height: calc(1.55rem - 4px);
+  width: calc(2.8rem - 4px);
 }
 </style>
