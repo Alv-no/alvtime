@@ -16,7 +16,7 @@
 
     <md-list>
       <md-list-item @click="navToHours">
-        <md-icon>star_border</md-icon>
+        <md-icon>query_builder</md-icon>
         <span
           :class="{ active: $store.state.currentRoute.name === 'hours' }"
           class="md-list-item-text"

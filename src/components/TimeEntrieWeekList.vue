@@ -3,7 +3,9 @@
     <div class="row">
       <div />
       <div class="days">
-        <div v-for="day in daysOfWeek" :key="day">{{ day }}</div>
+        <div v-for="day in week" :key="day._d.Date">
+          <DayPill :date="day" />
+        </div>
       </div>
     </div>
     <div v-for="task in tasks" :key="task.id" class="row">
@@ -17,6 +19,7 @@
 import Vue from "vue";
 import TimeEntrieWeek from "./TimeEntrieWeek.vue";
 import TimeEntrieText from "./TimeEntrieText.vue";
+import DayPill from "./DayPill.vue";
 import { Task } from "@/store/tasks";
 import { FrontendTimentrie } from "@/store/timeEntries";
 import config from "@/config";
@@ -26,8 +29,9 @@ export default Vue.extend({
   components: {
     TimeEntrieWeek,
     TimeEntrieText,
+    DayPill,
   },
-  props: { week: { type: Object as () => Moment[], default: () => [] } },
+  props: { week: { type: Array as () => Moment[], default: () => [] } },
 
   computed: {
     tasks(): Task[] {
@@ -115,6 +119,7 @@ export function sortList(a: Task, b: Task) {
 }
 
 .center {
+  padding-top: 1rem;
   display: grid;
   justify-content: center;
 }

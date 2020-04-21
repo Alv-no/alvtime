@@ -1,12 +1,16 @@
-import { State } from "./index";
-import { ActionContext } from "vuex";
 import config from "@/config";
+import { createWeek } from "@/mixins/date";
+import createNorwegianHolidays, {
+  NorwegianHolidays,
+} from "@/services/holidays";
 import moment, { Moment } from "moment";
 import Swiper from "swiper";
-import { createWeek } from "@/mixins/date";
+import { ActionContext } from "vuex";
+import { State } from "./index";
 moment.locale("nb");
 
 export interface SwiperState {
+  holidays: NorwegianHolidays;
   swiper: Swiper;
   weeks: Moment[][];
   dates: Moment[];
@@ -28,6 +32,7 @@ const RADIUS_OF_WEEKS = 52;
 const RADIUS_OF_DAYS = 7 * RADIUS_OF_WEEKS;
 
 const state = {
+  holidays: {} as NorwegianHolidays,
   swiper: {} as Swiper,
   weeks: [[]] as Moment[][],
   dates: [] as moment.Moment[],
@@ -57,6 +62,16 @@ const getters = {
     const fromDateInclusive = firstDate.format(config.DATE_FORMAT);
     const toDateInclusive = lastDate.format(config.DATE_FORMAT);
     return { fromDateInclusive, toDateInclusive };
+  },
+
+  isHoliday: (state: State) => (date: Moment): boolean => {
+    const isHoliday = state.holidays.isHoliday;
+    return isHoliday && isHoliday(date);
+  },
+
+  getHoliday: (state: State) => (date: Moment): string => {
+    const holiday = state.holidays.getHoliday(date);
+    return holiday ? holiday.description : "";
   },
 };
 
@@ -105,12 +120,21 @@ const mutations = {
   CREATE_WEEKS(state: State) {
     const centerDate = state.activeDate;
     const weeks = createWeeksAround(centerDate);
+    const years = numbArray(
+      weeks[0][0].year(),
+      weeks[weeks.length - 1][6].year()
+    );
+    const holidays = createNorwegianHolidays(years);
+    state.holidays = holidays;
     state.weeks = weeks;
   },
 
   CREATE_DATES(state: State) {
     const centerDate = state.activeDate;
     const dates = createDatesAround(centerDate);
+    const years = numbArray(dates[0].year(), dates[dates.length - 1].year());
+    const holidays = createNorwegianHolidays(years);
+    state.holidays = holidays;
     state.dates = dates;
   },
 };
@@ -178,6 +202,11 @@ function descendingNumbers(length: number) {
 
 function createArrayOf(length: number, mapFunc: (index: number) => any) {
   return Array.apply(null, Array(length)).map((_n, i) => mapFunc(i));
+}
+
+function numbArray(start: number, stop: number): number[] {
+  const length = stop - start + 1;
+  return createArrayOf(length, (i: number) => start + i);
 }
 
 export default { state, getters, mutations, actions };

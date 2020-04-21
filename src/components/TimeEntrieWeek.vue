@@ -27,7 +27,7 @@ export default Vue.extend({
         return {} as Task;
       },
     },
-    week: { type: Object as () => Moment[], default: () => [] },
+    week: { type: Array as () => Moment[], default: () => [] },
   },
 
   computed: {

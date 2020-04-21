@@ -1,5 +1,6 @@
 <template>
-  <div class="slide">
+  <div class="slide" :class="{ 'day-off': isDayOff }">
+    <HolidayPill v-if="holiday" :holiday="holiday" />
     <div v-for="row in rows" :key="row.task.id" class="grid">
       <TimeEntrieText :task="row.task" />
       <HourInput :time-entrie="row.timeEntrie" />
@@ -11,6 +12,7 @@
 import Vue from "vue";
 import TimeEntrieText from "./TimeEntrieText.vue";
 import HourInput from "./HourInput.vue";
+import HolidayPill from "./HolidayPill.vue";
 import config from "@/config";
 import { Task } from "@/store/tasks";
 import { FrontendTimentrie } from "@/store/timeEntries";
@@ -25,6 +27,7 @@ export default Vue.extend({
   components: {
     TimeEntrieText,
     HourInput,
+    HolidayPill,
   },
   props: {
     date: {
@@ -60,6 +63,26 @@ export default Vue.extend({
       return timeEntries.filter((entrie: FrontendTimentrie) =>
         this.isThisDate(entrie.date)
       );
+    },
+
+    holiday(): string {
+      return this.$store.getters.getHoliday(this.date);
+    },
+
+    isDayOff(): boolean {
+      return (
+        this.$store.getters.isHoliday(this.date) ||
+        this.isSunday ||
+        this.isSaturday
+      );
+    },
+
+    isSunday(): boolean {
+      return this.date.day() === 0;
+    },
+
+    isSaturday(): boolean {
+      return this.date.day() === 6;
     },
   },
 
@@ -111,6 +134,8 @@ function sortList(a: Row, b: Row) {
 <style scoped>
 .slide {
   min-height: calc(100vh - 75px);
+  padding-top: 0.5rem;
+  background-color: white;
 }
 
 .grid {
@@ -119,5 +144,9 @@ function sortList(a: Row, b: Row) {
   align-items: center;
   color: #000;
   padding: 0 1rem;
+}
+
+.day-off {
+  background-color: #d5d5d5;
 }
 </style>
