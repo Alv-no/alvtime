@@ -2,7 +2,6 @@ import config from "@/config";
 import { createWeek } from "@/mixins/date";
 import createNorwegianHolidays, {
   NorwegianHolidays,
-  Holiday,
 } from "@/services/holidays";
 import moment, { Moment } from "moment";
 import Swiper from "swiper";
@@ -66,7 +65,8 @@ const getters = {
   },
 
   isHoliday: (state: State) => (date: Moment): boolean => {
-    return state.holidays.isHoliday(date);
+    const isHoliday = state.holidays.isHoliday;
+    return isHoliday && isHoliday(date);
   },
 
   getHoliday: (state: State) => (date: Moment): string => {
