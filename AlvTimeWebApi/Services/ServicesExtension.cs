@@ -1,7 +1,9 @@
 ﻿using AlvTime.Business;
+using AlvTime.Business.Tasks;
 using AlvTime.Business.Users;
 using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Controllers.Admin.Users.UserStorage;
+using AlvTimeWebApi.Controllers.Tasks.TaskStorage;
 using AlvTimeWebApi.HelperClasses;
 using AlvTimeWebApi.Persistence.Repositories;
 using Microsoft.Extensions.Configuration;
@@ -19,6 +21,8 @@ namespace AlvTimeWebApi.Services
             services.AddScoped<RetrieveUsers>();
             services.AddScoped<UserCreator>();
             services.AddScoped<AlvHoursCalculator>();
+            services.AddScoped<ITaskStorage, TaskStorage>();
+            services.AddScoped<FavoriteUpdater>();
         }
     }
 }

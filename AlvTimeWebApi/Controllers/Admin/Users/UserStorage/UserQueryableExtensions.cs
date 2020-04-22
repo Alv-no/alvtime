@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace AlvTimeWebApi.Controllers.Admin.Users.UserStorage
 {
-    public static class UseryQueryableExtensions
+    public static class UserQueryableExtensions
     {
         public static IQueryable<User> Filter(this IQueryable<User> query, UserQuerySearch criterias)
         {
