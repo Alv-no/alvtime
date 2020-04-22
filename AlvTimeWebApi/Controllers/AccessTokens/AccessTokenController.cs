@@ -36,11 +36,10 @@ namespace AlvTimeApi.Controllers.AccessToken
 
         [HttpDelete("AccessToken")]
         [Authorize]
-        public ActionResult<int> DeleteAccessToken([FromBody] DeleteAccessTokenDto token)
+        public ActionResult<IEnumerable<AccessTokenFriendlyNameResponseDto>> DeleteAccessToken([FromBody] IEnumerable<DeleteAccessTokenDto> tokenIds)
         {
             var user = _userRetriever.RetrieveUser();
-
-            return DeleteToken(user, token.TokenId);
+            return DeleteTokens(user, tokenIds);
         }
 
         [HttpGet("ActiveAccessTokens")]
@@ -84,15 +83,35 @@ namespace AlvTimeApi.Controllers.AccessToken
             return Ok(token);
         }
 
-        private ActionResult<int> DeleteToken(User user, int tokenId)
+        private ActionResult<IEnumerable<AccessTokenFriendlyNameResponseDto>> DeleteTokens(User user, IEnumerable<DeleteAccessTokenDto> tokens)
+        {
+            List<AccessTokenFriendlyNameResponseDto> deletedFriendlyNames = new List<AccessTokenFriendlyNameResponseDto>();
+
+            foreach (var token in tokens)
+            {
+                var deletedFriendlyName = DeleteToken(user, token.TokenId);
+                deletedFriendlyNames.Add(deletedFriendlyName);
+            }
+
+            return Ok(deletedFriendlyNames);
+        }
+
+        private AccessTokenFriendlyNameResponseDto DeleteToken(User user, int tokenId)
         {
             var accessToken = _database.AccessTokens
-                            .FirstOrDefault(x => x.Id == tokenId && x.UserId == user.Id);
+                            .FirstOrDefault(token => token.Id == tokenId && token.UserId == user.Id);
 
             accessToken.ExpiryDate = DateTime.UtcNow;
             _database.SaveChanges();
 
-            return Ok(accessToken.Value);
+            var deletedFriendlyName = new AccessTokenFriendlyNameResponseDto
+            {
+                Id = accessToken.Id,
+                FriendlyName = accessToken.FriendlyName,
+                ExpiryDate = accessToken.ExpiryDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+            };
+
+            return deletedFriendlyName;
         }
     }
 }
