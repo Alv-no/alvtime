@@ -31,6 +31,7 @@ export default Vue.extend({
   data() {
     return {
       virtualData: [[]] as Moment[][],
+      preventEvent: true,
     };
   },
 
@@ -58,7 +59,11 @@ export default Vue.extend({
 
   methods: {
     onTransitionEnd() {
-      this.$store.commit("UPDATE_ACTVIE_DATE_IN_WEEKS");
+      if (this.preventEvent) {
+        this.preventEvent = false;
+      } else {
+        this.$store.commit("UPDATE_ACTVIE_DATE_IN_WEEKS");
+      }
     },
 
     onRenderExternal(data: Moment[][]) {
