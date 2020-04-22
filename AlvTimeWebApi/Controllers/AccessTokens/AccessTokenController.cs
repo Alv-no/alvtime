@@ -45,13 +45,13 @@ namespace AlvTimeApi.Controllers.AccessToken
 
         [HttpGet("ActiveAccessTokens")]
         [Authorize]
-        public ActionResult<IEnumerable<AccessTokenResponseDto>> FetchFriendlyNames()
+        public ActionResult<IEnumerable<AccessTokenFriendlyNameResponseDto>> FetchFriendlyNames()
         {
             var user = _userRetriever.RetrieveUser();
 
             var tokens = _database.AccessTokens
                 .Where(x => x.UserId == user.Id && x.ExpiryDate >= DateTime.UtcNow)
-                .Select(x => new AccessTokenResponseDto
+                .Select(x => new AccessTokenFriendlyNameResponseDto
                 {
                     Id = x.Id,
                     FriendlyName = x.FriendlyName,
@@ -75,7 +75,13 @@ namespace AlvTimeApi.Controllers.AccessToken
             _database.AccessTokens.Add(accessToken);
             _database.SaveChanges();
 
-            return Ok(uuid + " expires " + accessToken.ExpiryDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+            var token = new AccessTokenResponseDto
+            {
+                Token = uuid,
+                ExpiryDate = accessToken.ExpiryDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+            };
+
+            return Ok(token);
         }
 
         private ActionResult<int> DeleteToken(User user, int tokenId)
