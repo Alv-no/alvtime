@@ -34,26 +34,15 @@ export default Vue.extend({
     };
   },
 
-  computed: {
-    dateRange():
-      | { fromDateInclusive: string; toDateInclusive: string }
-      | undefined {
-      return this.$store.getters.dateRange;
-    },
-  },
   beforeCreate() {
     this.$store.commit("CREATE_WEEKS");
     this.$store.dispatch("FETCH_WEEK_ENTRIES");
   },
 
-  beforeDestroy() {
-    this.$store.state.swiper.destroy();
-  },
-
   mounted() {
     const swiperOptions = {
       ...GLOBAL_SWIPER_OPTIONS,
-      initialSlide: 52,
+      initialSlide: this.$store.getters.initialWeekSlide,
       on: {
         transitionEnd: this.onTransitionEnd,
       },
@@ -78,10 +67,3 @@ export default Vue.extend({
   },
 });
 </script>
-
-<style scoped>
-.progress {
-  position: fixed;
-  top: 0;
-}
-</style>

@@ -17,9 +17,9 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { Moment } from "moment";
 import TimeEntrieDayList from "./TimeEntrieDayList.vue";
 import { GLOBAL_SWIPER_OPTIONS } from "@/store/swiper";
-import { Moment } from "moment";
 
 import Swiper from "swiper";
 
@@ -55,10 +55,6 @@ export default Vue.extend({
 
     const swiper = new Swiper("#day-swiper-container", swiperOptions);
     this.$store.commit("SET_SWIPER", swiper);
-  },
-
-  beforeDestroy() {
-    this.$store.state.swiper.destroy();
   },
 
   methods: {
