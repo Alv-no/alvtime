@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AlvTime.Business.Tasks;
+using System;
 
 namespace AlvTimeWebApi.Dto
 {

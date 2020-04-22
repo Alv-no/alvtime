@@ -1,5 +1,4 @@
-﻿using AlvTimeWebApi.Dto;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace AlvTime.Business.Users
 {

@@ -1,5 +1,4 @@
 ﻿using AlvTime.Business.Users;
-using AlvTimeWebApi.Dto;
 using AlvTimeWebApi.Persistence.DatabaseModels;
 using System.Collections.Generic;
 using System.Globalization;

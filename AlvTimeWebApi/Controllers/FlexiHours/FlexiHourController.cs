@@ -14,9 +14,7 @@ namespace AlvTimeWebApi.Controllers.FlexiHours
     public class FlexiHourController : Controller
     {
         private readonly AlvTime_dbContext _database;
-
         private RetrieveUsers _userRetriever;
-
 
         public FlexiHourController(AlvTime_dbContext database, RetrieveUsers userRetriever)
         {
