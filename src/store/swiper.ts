@@ -43,6 +43,10 @@ const getters = {
     return RADIUS_OF_DAYS;
   },
 
+  initialWeekSlide() {
+    return RADIUS_OF_WEEKS;
+  },
+
   weeksDateRange(
     state: State
   ): { fromDateInclusive: string; toDateInclusive: string } | undefined {
