@@ -17,9 +17,9 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { Moment } from "moment";
 import TimeEntrieDayList from "./TimeEntrieDayList.vue";
 import { GLOBAL_SWIPER_OPTIONS } from "@/store/swiper";
-import { Moment } from "moment";
 
 import Swiper from "swiper";
 
@@ -31,6 +31,7 @@ export default Vue.extend({
   data() {
     return {
       virtualData: [] as Moment[],
+      preventEvent: true,
     };
   },
 
@@ -57,13 +58,13 @@ export default Vue.extend({
     this.$store.commit("SET_SWIPER", swiper);
   },
 
-  beforeDestroy() {
-    this.$store.state.swiper.destroy();
-  },
-
   methods: {
     onTransitionEnd() {
-      this.$store.commit("UPDATE_ACTVIE_DATE_IN_DATES");
+      if (this.preventEvent) {
+        this.preventEvent = false;
+      } else {
+        this.$store.commit("UPDATE_ACTVIE_DATE_IN_DATES");
+      }
     },
 
     onTransitionStart() {
