@@ -1,5 +1,5 @@
 <template>
-  <md-button @click="onClick">
+  <md-button :disabled="disabled" @click="onClick">
     <md-icon v-if="iconId">{{ iconIdToShow }}</md-icon>
     <span v-if="text" class="text">{{ text }}</span>
     <Tooltip :text="tooltip" />
@@ -32,6 +32,10 @@ export default Vue.extend({
     tooltip: {
       type: String,
       default: "",
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
     },
   },
 

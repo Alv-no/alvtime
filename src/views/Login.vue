@@ -1,20 +1,28 @@
 <template>
-  <div class="grid">
-    <md-button v-if="!$store.state.account" @click="login"
-      >Login with Azure Ad</md-button
-    >
-    <Spinner v-if="!$store.state.tasks.length && $store.state.account" />
+  <div>
+    <Progress :visible="progressBarVisible" />
+    <div class="grid">
+      <md-button v-if="!$store.state.account" @click="login"
+        >Login with Azure Ad</md-button
+      >
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { login } from "../services/auth";
-import Spinner from "@/components/Spinner.vue";
+import Progress from "@/components/Progress.vue";
 
 export default Vue.extend({
   components: {
-    Spinner,
+    Progress,
+  },
+
+  computed: {
+    progressBarVisible() {
+      return !this.$store.state.tasks.length && !!this.$store.state.account;
+    },
   },
 
   methods: {
