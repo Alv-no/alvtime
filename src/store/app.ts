@@ -1,6 +1,7 @@
 import { State } from "./index";
 import { Route } from "vue-router";
 import moment from "moment";
+import store from "store2";
 
 export interface InteractionState {
   oldState: string;
@@ -16,6 +17,7 @@ export interface AppState {
   editing: boolean;
   drawerOpen: boolean;
   currentRoute: Route;
+  dontShowGapestokk: boolean;
 }
 
 const state = {
@@ -27,6 +29,7 @@ const state = {
   editing: false,
   drawerOpen: false,
   currentRoute: {} as Route,
+  dontShowGapestokk: store("dontShowGapestokk"),
 };
 
 const mutations = {
@@ -68,6 +71,11 @@ const mutations = {
 
   SET_CURRENT_ROUTE(state: State, route: Route) {
     state.currentRoute = route;
+  },
+
+  SET_DONT_SHOW_GAPESTOKK(state: State, show: boolean) {
+    state.dontShowGapestokk = show;
+    store("dontShowGapestokk", show);
   },
 };
 
