@@ -88,6 +88,7 @@ export default {
 
     activeDate() {
       const isSameTask =
+        this.$mq === "sm" &&
         this.activeDate.format(config.DATE_FORMAT) === this.timeEntrie.date &&
         this.$store.state.activeTaskId === this.timeEntrie.taskId;
       if (isSameTask) {
@@ -103,7 +104,6 @@ export default {
 
   methods: {
     onTouchStart(e) {
-      this.showHelperButtons = true;
       e.target.focus();
     },
 
@@ -112,12 +112,12 @@ export default {
       if (this.activeDate.format(config.DATE_FORMAT) === this.timeEntrie.date) {
         this.$store.commit("UPDATE_ACTVIE_TASK", -1);
       }
-      defer(() => {
+      setTimeout(() => {
         if (this.enableBlur && this.showHelperButtons) {
           this.showHelperButtons = false;
         }
         this.enableBlur = true;
-      });
+      }, 200);
     },
 
     onFocus() {
@@ -126,6 +126,7 @@ export default {
     },
 
     onClick() {
+      this.showHelperButtons = true;
       this.inputRef.setSelectionRange(0, this.inputRef.value.length);
     },
 
