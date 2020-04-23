@@ -1,4 +1,5 @@
 ﻿using AlvTime.Business.Tasks;
+using AlvTime.Business.Tasks.Admin;
 using AlvTimeWebApi.Persistence.DatabaseModels;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,6 +47,43 @@ namespace AlvTimeWebApi.Controllers.Tasks.TaskStorage
             tasks.ForEach(x => x.Favorite = favoriteList.Contains(x.Id) ? true : false);
 
             return tasks;
+        }
+
+        public void CreateTask(CreateTaskDto task, int userId)
+        {
+            var newTask = new Task
+            {
+                Description = task.Description,
+                Favorite = false,
+                Locked = task.Locked,
+                Name = task.Name,
+                Project = task.Project,
+                CompensationRate = task.CompensationRate
+            };
+            _context.Task.Add(newTask);
+            _context.SaveChanges();
+        }
+
+        public void UpdateTask(UpdateTasksDto taskToBeUpdated, int userId)
+        {
+            var existingTask = _context.Task
+                   .Where(x => x.Id == taskToBeUpdated.Id)
+                   .FirstOrDefault();
+
+            if (taskToBeUpdated.Locked != null)
+            {
+                existingTask.Locked = (bool)taskToBeUpdated.Locked;
+            }
+            if (taskToBeUpdated.CompensationRate != null)
+            {
+                existingTask.CompensationRate = (decimal)taskToBeUpdated.CompensationRate;
+            }
+            if (taskToBeUpdated.Name != null)
+            {
+                existingTask.Name = taskToBeUpdated.Name;
+            }
+
+            _context.SaveChanges();
         }
 
         public void CreateFavoriteTask(int taskId, int userId)

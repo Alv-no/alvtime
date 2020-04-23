@@ -1,4 +1,4 @@
-﻿namespace AlvTimeWebApi.Dto
+﻿namespace AlvTime.Business.Tasks.Admin
 {
     public class CreateTaskDto
     {
