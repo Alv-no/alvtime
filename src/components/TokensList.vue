@@ -1,7 +1,15 @@
 <template>
   <div class="container">
     <div v-if="!!tokens.length">
-      <div class="row">
+      <div class="flush-right">
+        <YellowButton
+          icon-id="delete_forever"
+          tooltip="Slett alle"
+          text="Fjern alle"
+          @click="onDeletAllClick"
+        />
+      </div>
+      <div class="row header">
         <div class="friendly-name">Navn</div>
         <div class="expiry-date-header">Utløpsdato</div>
         <div />
@@ -14,7 +22,7 @@
       <YellowButton
         icon-id="delete_forever"
         tooltip="Slett"
-        @click="() => onDeleteClick(token.id)"
+        @click="() => onDeleteClick(token)"
       />
     </div>
   </div>
@@ -59,8 +67,12 @@ export default Vue.extend({
   },
 
   methods: {
-    onDeleteClick(id: number) {
-      this.deleteAccessToken(id);
+    onDeleteClick(token: Token) {
+      this.deleteAccessTokens([token]);
+    },
+
+    onDeletAllClick() {
+      this.deleteAccessTokens(this.tokens);
     },
 
     async fetchActiveAccessTokens() {
@@ -80,11 +92,12 @@ export default Vue.extend({
       }
     },
 
-    async deleteAccessToken(id: number) {
+    async deleteAccessTokens(tokens: { id: number }[]) {
       try {
         const method = "delete";
         const headers = { "Content-Type": "application/json" };
-        const body = JSON.stringify({ tokenId: id });
+        const tokensToDelete = tokens.map(token => ({ tokenId: token.id }));
+        const body = JSON.stringify(tokensToDelete);
         const options = { method, headers, body };
 
         const response = await adAuthenticatedFetch(
@@ -96,7 +109,13 @@ export default Vue.extend({
           throw response.statusText;
         }
 
-        this.tokens = this.tokens.filter((token: Token) => token.id !== id);
+        const deletedTokens = await response.json();
+        this.tokens = this.tokens.filter(
+          (token: Token) =>
+            !deletedTokens.some(
+              (deletedToken: { id: number }) => deletedToken.id === token.id
+            )
+        );
       } catch (e) {
         console.error(e);
         this.$store.commit("ADD_TO_ERROR_LIST", e);
@@ -150,5 +169,11 @@ export default Vue.extend({
 .line {
   border: 0.5px solid #008dcf;
   margin: 0.3rem 1rem;
+}
+
+.flush-right {
+  display: grid;
+  margin-right: 1rem;
+  justify-content: right;
 }
 </style>

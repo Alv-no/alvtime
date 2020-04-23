@@ -22,7 +22,7 @@
       <div class="token">
         <div>
           <span>{{ token }}</span>
-          <span class="expires">{{ expires }}</span>
+          <span class="expires">expires: {{ expires }}</span>
         </div>
         <md-button class="icon_button" @click="onCopyClick">
           <md-icon class="icon">file_copy</md-icon>
@@ -91,10 +91,9 @@ export default Vue.extend({
           throw response.statusText;
         }
 
-        const tokenResponse = await response.text();
-        const parts = tokenResponse.split(" ");
-        this.token = parts[0];
-        this.expires = parts[1] + " " + parts[2];
+        const tokenResponse = await response.json();
+        this.token = tokenResponse.token;
+        this.expires = tokenResponse.expiryDate;
       } catch (e) {
         console.error(e);
         this.$store.commit("ADD_TO_ERROR_LIST", e);
