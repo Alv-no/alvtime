@@ -25,7 +25,7 @@ namespace AlvTimeWebApi.Controllers.Tasks
         }
 
         [HttpGet("Tasks")]
-        [Authorize]
+        [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<IEnumerable<TaskResponseDto>> FetchTasks()
         {
             var user = _userRetriever.RetrieveUser();
@@ -36,7 +36,7 @@ namespace AlvTimeWebApi.Controllers.Tasks
         }
 
         [HttpPost("Tasks")]
-        [Authorize]
+        [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<IEnumerable<TaskResponseDto>> UpdateFavoriteTasks([FromBody] IEnumerable<UpdateTasksDto> tasksToBeUpdated)
         {
             var user = _userRetriever.RetrieveUser();

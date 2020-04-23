@@ -1,5 +1,6 @@
 ﻿using AlvTime.Business;
 using AlvTime.Business.Tasks;
+using AlvTime.Business.Tasks.Admin;
 using AlvTime.Business.Users;
 using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Controllers.Admin.Users.UserStorage;
@@ -23,6 +24,7 @@ namespace AlvTimeWebApi.Services
             services.AddScoped<AlvHoursCalculator>();
             services.AddScoped<ITaskStorage, TaskStorage>();
             services.AddScoped<FavoriteUpdater>();
+            services.AddScoped<TaskCreator>();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AlvTime.Business.Tasks;
+using AlvTime.Business.Tasks.Admin;
 using AlvTimeWebApi.Dto;
 using AlvTimeWebApi.Persistence.DatabaseModels;
 using System.Globalization;
@@ -95,73 +96,6 @@ namespace AlvTimeWebApi.HelperClasses
                     Task = taskResponseDto
                 })
                 .FirstOrDefault();
-        }
-
-        public TaskResponseDto ReturnTask(User user, UpdateTasksDto task)
-        {
-            var userHasFavorite = _database.TaskFavorites.FirstOrDefault(x => x.TaskId == task.Id && x.UserId == user.Id);
-
-            var taskResponseDto = _database.Task
-                .Where(x => x.Id == task.Id)
-                .Select(x => new TaskResponseDto
-                {
-                    Description = x.Description,
-                    Id = x.Id,
-                    Name = x.Name,
-                    Locked = x.Locked,
-                    CompensationRate = x.CompensationRate,
-                    Project = new ProjectResponseDto
-                    {
-                        Id = x.ProjectNavigation.Id,
-                        Name = x.ProjectNavigation.Name,
-                        Customer = new CustomerDto
-                        {
-                            Id = x.ProjectNavigation.CustomerNavigation.Id,
-                            Name = x.ProjectNavigation.CustomerNavigation.Name,
-                            ContactEmail = x.ProjectNavigation.CustomerNavigation.ContactEmail,
-                            ContactPerson = x.ProjectNavigation.CustomerNavigation.ContactPerson,
-                            ContactPhone = x.ProjectNavigation.CustomerNavigation.ContactPhone,
-                            InvoiceAddress = x.ProjectNavigation.CustomerNavigation.InvoiceAddress
-                        }
-                    },
-                })
-                .FirstOrDefault();
-
-            taskResponseDto.Favorite = userHasFavorite == null ? false : true;
-
-            return taskResponseDto;
-        }
-
-        public TaskResponseDto ReturnCreatedTask(CreateTaskDto task)
-        {
-            var taskResponseDto = _database.Task
-                .Where(x => x.Name == task.Name && x.Project == task.Project)
-                .Select(x => new TaskResponseDto
-                {
-                    Description = x.Description,
-                    Id = x.Id,
-                    Name = x.Name,
-                    Locked = x.Locked,
-                    Favorite = false,
-                    CompensationRate = x.CompensationRate,
-                    Project = new ProjectResponseDto
-                    {
-                        Id = x.ProjectNavigation.Id,
-                        Name = x.ProjectNavigation.Name,
-                        Customer = new CustomerDto
-                        {
-                            Id = x.ProjectNavigation.CustomerNavigation.Id,
-                            Name = x.ProjectNavigation.CustomerNavigation.Name,
-                            ContactEmail = x.ProjectNavigation.CustomerNavigation.ContactEmail,
-                            ContactPerson = x.ProjectNavigation.CustomerNavigation.ContactPerson,
-                            ContactPhone = x.ProjectNavigation.CustomerNavigation.ContactPhone,
-                            InvoiceAddress = x.ProjectNavigation.CustomerNavigation.InvoiceAddress
-                        }
-                    }
-                })
-                .FirstOrDefault();
-
-            return taskResponseDto;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using AlvTime.Business.Tasks.Admin;
+using System.Collections.Generic;
 
 namespace AlvTime.Business.Tasks
 {
@@ -8,6 +9,8 @@ namespace AlvTime.Business.Tasks
         void CreateFavoriteTask(int taskId, int userId);
         void RemoveFavoriteTask(int taskId, int userId);
         bool GetFavorite(UpdateTasksDto taskToBeUpdated, int userId);
+        void CreateTask(CreateTaskDto task, int userId);
+        void UpdateTask(UpdateTasksDto taskToBeUpdated, int userId);
     }
 
     public class TaskQuerySearch
