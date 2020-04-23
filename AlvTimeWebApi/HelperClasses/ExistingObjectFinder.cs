@@ -1,4 +1,5 @@
 ﻿using AlvTime.Business.Tasks;
+using AlvTime.Business.Tasks.Admin;
 using AlvTimeWebApi.Dto;
 using AlvTimeWebApi.Persistence.DatabaseModels;
 using System.Linq;
@@ -12,13 +13,6 @@ namespace AlvTimeWebApi.HelperClasses
         public ExistingObjectFinder(AlvTime_dbContext database)
         {
             _database = database;
-        }
-
-        public bool TaskDoesNotExist(CreateTaskDto task)
-        {
-            return _database.Task
-                    .Where(x => x.Name == task.Name && x.Project == task.Project)
-                    .FirstOrDefault() == null ? true : false;
         }
 
         public bool CustomerDoesNotExist(CreateCustomerDto customer)
@@ -49,13 +43,6 @@ namespace AlvTimeWebApi.HelperClasses
                 h.Date.Date == hoursDto.Date.Date &&
                 h.TaskId == hoursDto.TaskId &&
                 h.User == user.Id);
-        }
-
-        public TaskFavorites RetrieveExistingFavorite(UpdateTasksDto taskDto, User user)
-        {
-            return _database.TaskFavorites.FirstOrDefault(x =>
-                x.TaskId == taskDto.Id &&
-                x.UserId == user.Id);
         }
     }
 }

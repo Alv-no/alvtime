@@ -13,20 +13,13 @@ namespace AlvTimeWebApi.Controllers.Admin.Users
     [ApiController]
     public class UserController : Controller
     {
-        private readonly AlvTime_dbContext _database;
-
-        private CreatedObjectReturner returnObjects;
-        private ExistingObjectFinder checkExisting;
         private readonly IUserStorage _userStorage;
         private readonly UserCreator _creator;
 
-        public UserController(AlvTime_dbContext database, IUserStorage userStorage, UserCreator creator)
+        public UserController(IUserStorage userStorage, UserCreator creator)
         {
-            _database = database;
             _userStorage = userStorage;
             _creator = creator;
-            returnObjects = new CreatedObjectReturner(_database);
-            checkExisting = new ExistingObjectFinder(_database);
         }
 
         [HttpGet("Users")]

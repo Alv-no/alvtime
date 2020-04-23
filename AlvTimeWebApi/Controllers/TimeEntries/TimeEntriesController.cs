@@ -26,7 +26,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
         }
 
         [HttpGet("TimeEntries")]
-        [Authorize]
+        [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<IEnumerable<TimeEntriesResponseDto>> FetchTimeEntries(DateTime fromDateInclusive, DateTime toDateInclusive)
         {
             try
