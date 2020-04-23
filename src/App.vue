@@ -5,7 +5,7 @@
         <div class="md-toolbar-row">
           <div class="md-toolbar-section-start">
             <router-link to="/">
-              <div class="logo_grid">
+              <div class="logo_grid" @click="openGapestokk">
                 <img
                   class="light logo"
                   src="/img/logo_white.svg"
@@ -93,6 +93,12 @@ export default Vue.extend({
       ) {
         location.reload();
       }
+    },
+  },
+
+  methods: {
+    openGapestokk() {
+      this.$store.commit("SET_DONT_SHOW_GAPESTOKK", false);
     },
   },
 });

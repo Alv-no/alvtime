@@ -21,6 +21,7 @@ import {
   MdAvatar,
   MdRipple,
   MdEmptyState,
+  MdDialog,
 } from "vue-material/dist/components";
 import VueMq from "vue-mq";
 import VueClipboard from "vue-clipboard2";
@@ -40,6 +41,7 @@ Vue.use(MdList);
 Vue.use(MdAvatar);
 Vue.use(MdRipple);
 Vue.use(MdEmptyState);
+Vue.use(MdDialog);
 
 Vue.use(VueClipboard);
 
