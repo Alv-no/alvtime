@@ -50,4 +50,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <ProjectReference Include="..\AlvTime.Business\AlvTime.Business.csproj" />
+  </ItemGroup>
+
 </Project>

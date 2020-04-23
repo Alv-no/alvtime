@@ -1,4 +1,6 @@
-﻿using AlvTimeWebApi.Authentication;
+﻿using AlvTime.Business;
+using AlvTime.Business.Users;
+using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Dto;
 using AlvTimeWebApi.HelperClasses;
 using AlvTimeWebApi.Persistence.DatabaseModels;
@@ -11,18 +13,13 @@ namespace AlvTimeWebApi.Controllers.Admin.Users
     [ApiController]
     public class UserController : Controller
     {
-        private readonly AlvTime_dbContext _database;
-
-        private CreatedObjectReturner returnObjects;
-        private ExistingObjectFinder checkExisting;
         private readonly IUserStorage _userStorage;
+        private readonly UserCreator _creator;
 
-        public UserController(AlvTime_dbContext database, IUserStorage userStorage)
+        public UserController(IUserStorage userStorage, UserCreator creator)
         {
-            _database = database;
             _userStorage = userStorage;
-            returnObjects = new CreatedObjectReturner(_database);
-            checkExisting = new ExistingObjectFinder(_database);
+            _creator = creator;
         }
 
         [HttpGet("Users")]
@@ -38,37 +35,17 @@ namespace AlvTimeWebApi.Controllers.Admin.Users
         public ActionResult<IEnumerable<UserResponseDto>> CreateNewUser([FromBody] IEnumerable<CreateUserDto> usersToBeCreated)
         {
             List<UserResponseDto> response = new List<UserResponseDto>();
-
-            decimal? flexiHours = 0;
-
-            var calculator = new AlvHoursCalculator();
-
             foreach (var user in usersToBeCreated)
             {
-                if (user.FlexiHours != null)
+                response.Add(_creator.CreateUser(new CreateUserRequest
                 {
-                    flexiHours = user.FlexiHours;
-                }
-                else
-                {
-                    flexiHours = 187.5M + calculator.CalculateAlvHours();
-                }
-
-                if (checkExisting.UserDoesNotExist(user))
-                {
-                    var newUser = new User
-                    {
-                        Name = user.Name,
-                        Email = user.Email,
-                        StartDate = user.StartDate,
-                        FlexiHours = flexiHours
-                    };
-                    _database.User.Add(newUser);
-                    _database.SaveChanges();
-
-                    response.Add(returnObjects.ReturnCreatedUser(user));
-                }
+                    Email = user.Email,
+                    FlexiHours = user.FlexiHours,
+                    Name = user.Name,
+                    StartDate = user.StartDate
+                }));
             }
+
             return Ok(response);
         }
     }

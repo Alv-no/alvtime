@@ -1,4 +1,5 @@
-﻿using AlvTimeWebApi.Authentication;
+﻿using AlvTime.Business.Tasks;
+using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Dto;
 using AlvTimeWebApi.HelperClasses;
 using AlvTimeWebApi.Persistence.DatabaseModels;

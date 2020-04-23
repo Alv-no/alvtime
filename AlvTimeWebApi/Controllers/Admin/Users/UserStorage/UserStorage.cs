@@ -1,4 +1,4 @@
-﻿using AlvTimeWebApi.Dto;
+﻿using AlvTime.Business.Users;
 using AlvTimeWebApi.Persistence.DatabaseModels;
 using System.Collections.Generic;
 using System.Globalization;
@@ -8,11 +8,25 @@ namespace AlvTimeWebApi.Controllers.Admin.Users.UserStorage
 {
     public class UserStorage : IUserStorage
     {
-        private AlvTime_dbContext _context;
+        private readonly AlvTime_dbContext _context;
 
         public UserStorage(AlvTime_dbContext context)
         {
             _context = context;
+        }
+
+        public void AddUser(CreateUserRequest user)
+        {
+            var newUser = new User
+            {
+                Name = user.Name,
+                Email = user.Email,
+                StartDate = user.StartDate,
+                FlexiHours = user.FlexiHours,
+            };
+
+            _context.User.Add(newUser);
+            _context.SaveChanges();
         }
 
         public IEnumerable<UserResponseDto> GetUser(UserQuerySearch criterias)

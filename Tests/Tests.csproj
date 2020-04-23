@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AlvTime.Business\AlvTime.Business.csproj" />
     <ProjectReference Include="..\AlvTimeWebApi\AlvTimeWebApi.csproj" />
   </ItemGroup>
 

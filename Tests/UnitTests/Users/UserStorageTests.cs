@@ -1,4 +1,5 @@
-﻿using AlvTimeWebApi.Controllers.Admin.Users;
+﻿using AlvTime.Business;
+using AlvTime.Business.Users;
 using AlvTimeWebApi.Controllers.Admin.Users.UserStorage;
 using AlvTimeWebApi.Persistence.DatabaseModels;
 using System;
@@ -52,6 +53,46 @@ namespace Tests.UnitTests.Users
             Assert.Equal("Someone", users.Single().Name);
         }
 
+        [Fact]
+        public void UserCreator_NewUser_NewUserIsCreated()
+        {
+            AlvTime_dbContext context = new AlvTimeDbContextBuilder().CreateDbContext();
+            CreateUsers(context);
+
+            var storage = new UserStorage(context);
+            var creator = new UserCreator(storage, new AlvHoursCalculator());
+
+            creator.CreateUser(new CreateUserRequest
+            {
+                Email = "newUser@alv.no",
+                FlexiHours = 10,
+                Name = "New User",
+                StartDate = DateTime.UtcNow
+            });
+
+            Assert.True(context.User.Count() == 3);
+        }
+
+        [Fact]
+        public void UserCreator_UserAlreadyExists_NoUserIsCreated()
+        {
+            AlvTime_dbContext context = new AlvTimeDbContextBuilder().CreateDbContext();
+            CreateUsers(context);
+
+            var storage = new UserStorage(context);
+            var creator = new UserCreator(storage, new AlvHoursCalculator());
+
+            creator.CreateUser(new CreateUserRequest
+            {
+                Email = "someone@alv.no",
+                FlexiHours = 150,
+                Name = "Someone",
+                StartDate = DateTime.UtcNow
+            });
+
+            Assert.True(context.User.Count() == 2);
+        }
+
         private static void CreateUsers(AlvTime_dbContext context)
         {
             context.User.Add(new User
@@ -60,6 +101,15 @@ namespace Tests.UnitTests.Users
                 Email = "someone@alv.no",
                 Name = "Someone",
                 FlexiHours = 150,
+                StartDate = DateTime.Now
+            });
+
+            context.User.Add(new User
+            {
+                Id = 2,
+                Email = "someone2@alv.no",
+                Name = "Someone2",
+                FlexiHours = 10,
                 StartDate = DateTime.Now
             });
 

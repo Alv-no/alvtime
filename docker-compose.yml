@@ -9,7 +9,7 @@ services:
       - "8000:80"
   mssql-db:
     container_name: mssql-db
-    build: ./Persistence/Database
+    build: ./AlvTimeWebApi/Persistence/Database
     volumes:
      - ./Database/:/scripts/
     ports:

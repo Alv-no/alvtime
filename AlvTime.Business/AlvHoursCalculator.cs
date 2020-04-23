@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AlvTimeWebApi.HelperClasses
+namespace AlvTime.Business
 {
     public class AlvHoursCalculator
     {
@@ -35,7 +35,7 @@ namespace AlvTimeWebApi.HelperClasses
                     break;
             }
 
-            var alvHours = (daysBetweenChristmasNewYear * HOURS_IN_WORKDAY) + HOURS_IN_EASTER;
+            var alvHours = daysBetweenChristmasNewYear * HOURS_IN_WORKDAY + HOURS_IN_EASTER;
 
             return alvHours;
         }
