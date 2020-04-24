@@ -1,9 +1,8 @@
-FROM node:14
+FROM node:14.0.0-alpine3.10
 
-RUN mkdir /usr/src/app
 WORKDIR /usr/src/app
 
 COPY package*.json ./
-RUN npm install --silent
+RUN npm install
 
 CMD sh
