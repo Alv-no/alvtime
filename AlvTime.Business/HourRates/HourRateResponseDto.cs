@@ -1,7 +1,7 @@
 ﻿using AlvTime.Business.Tasks;
 using System;
 
-namespace AlvTimeWebApi.Dto
+namespace AlvTime.Business.HourRates
 {
     public class HourRateResponseDto
     {

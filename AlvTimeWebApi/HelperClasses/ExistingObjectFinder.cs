@@ -1,5 +1,7 @@
-﻿using AlvTime.Business.Tasks;
+﻿using AlvTime.Business.HourRates;
+using AlvTime.Business.Tasks;
 using AlvTime.Business.Tasks.Admin;
+using AlvTime.Business.TimeEntries;
 using AlvTimeWebApi.Dto;
 using AlvTimeWebApi.Persistence.DatabaseModels;
 using System.Linq;
@@ -27,22 +29,6 @@ namespace AlvTimeWebApi.HelperClasses
             return _database.Project
                     .Where(x => x.Name == project.Name && x.Customer == project.Customer)
                     .FirstOrDefault() == null ? true : false;
-        }
-
-        public bool HourRateDoesNotExist(CreateHourRateDto hourRate)
-        {
-            return _database.HourRate.FirstOrDefault(x =>
-                x.FromDate.Date == hourRate.FromDate.Date &&
-                x.Rate == hourRate.Rate &&
-                x.TaskId == hourRate.TaskId) == null ? true : false;
-        }
-
-        public Hours RetrieveExistingTimeEntry(CreateTimeEntryDto hoursDto, User user)
-        {
-            return _database.Hours.FirstOrDefault(h =>
-                h.Date.Date == hoursDto.Date.Date &&
-                h.TaskId == hoursDto.TaskId &&
-                h.User == user.Id);
         }
     }
 }

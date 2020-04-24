@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AlvTimeWebApi.Dto
+namespace AlvTime.Business.TimeEntries
 {
     public class TimeEntriesResponseDto
     {
