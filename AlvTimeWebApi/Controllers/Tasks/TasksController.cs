@@ -11,14 +11,12 @@ namespace AlvTimeWebApi.Controllers.Tasks
     [ApiController]
     public class TasksController : Controller
     {
-        private readonly AlvTime_dbContext _database;
-        private RetrieveUsers _userRetriever;
+        private readonly RetrieveUsers _userRetriever;
         private readonly ITaskStorage _taskStorage;
         private readonly FavoriteUpdater _updater;
 
-        public TasksController(AlvTime_dbContext database, RetrieveUsers userRetriever, ITaskStorage taskStorage, FavoriteUpdater updater)
+        public TasksController(RetrieveUsers userRetriever, ITaskStorage taskStorage, FavoriteUpdater updater)
         {
-            _database = database;
             _userRetriever = userRetriever;
             _taskStorage = taskStorage;
             _updater = updater;
