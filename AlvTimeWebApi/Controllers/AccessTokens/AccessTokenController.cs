@@ -36,22 +36,21 @@ namespace AlvTimeApi.Controllers.AccessToken
 
         [HttpDelete("AccessToken")]
         [Authorize]
-        public ActionResult<int> DeleteAccessToken([FromBody] DeleteAccessTokenDto token)
+        public ActionResult<IEnumerable<AccessTokenFriendlyNameResponseDto>> DeleteAccessToken([FromBody] IEnumerable<DeleteAccessTokenDto> tokenIds)
         {
             var user = _userRetriever.RetrieveUser();
-
-            return DeleteToken(user, token.TokenId);
+            return DeleteTokens(user, tokenIds);
         }
 
         [HttpGet("ActiveAccessTokens")]
         [Authorize]
-        public ActionResult<IEnumerable<AccessTokenResponseDto>> FetchFriendlyNames()
+        public ActionResult<IEnumerable<AccessTokenFriendlyNameResponseDto>> FetchFriendlyNames()
         {
             var user = _userRetriever.RetrieveUser();
 
             var tokens = _database.AccessTokens
                 .Where(x => x.UserId == user.Id && x.ExpiryDate >= DateTime.UtcNow)
-                .Select(x => new AccessTokenResponseDto
+                .Select(x => new AccessTokenFriendlyNameResponseDto
                 {
                     Id = x.Id,
                     FriendlyName = x.FriendlyName,
@@ -75,18 +74,44 @@ namespace AlvTimeApi.Controllers.AccessToken
             _database.AccessTokens.Add(accessToken);
             _database.SaveChanges();
 
-            return Ok(uuid + " expires " + accessToken.ExpiryDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+            var token = new AccessTokenResponseDto
+            {
+                Token = uuid,
+                ExpiryDate = accessToken.ExpiryDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+            };
+
+            return Ok(token);
         }
 
-        private ActionResult<int> DeleteToken(User user, int tokenId)
+        private ActionResult<IEnumerable<AccessTokenFriendlyNameResponseDto>> DeleteTokens(User user, IEnumerable<DeleteAccessTokenDto> tokens)
+        {
+            List<AccessTokenFriendlyNameResponseDto> deletedFriendlyNames = new List<AccessTokenFriendlyNameResponseDto>();
+
+            foreach (var token in tokens)
+            {
+                var deletedFriendlyName = DeleteToken(user, token.TokenId);
+                deletedFriendlyNames.Add(deletedFriendlyName);
+            }
+
+            return Ok(deletedFriendlyNames);
+        }
+
+        private AccessTokenFriendlyNameResponseDto DeleteToken(User user, int tokenId)
         {
             var accessToken = _database.AccessTokens
-                            .FirstOrDefault(x => x.Id == tokenId && x.UserId == user.Id);
+                            .FirstOrDefault(token => token.Id == tokenId && token.UserId == user.Id);
 
             accessToken.ExpiryDate = DateTime.UtcNow;
             _database.SaveChanges();
 
-            return Ok(accessToken.Value);
+            var deletedFriendlyName = new AccessTokenFriendlyNameResponseDto
+            {
+                Id = accessToken.Id,
+                FriendlyName = accessToken.FriendlyName,
+                ExpiryDate = accessToken.ExpiryDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+            };
+
+            return deletedFriendlyName;
         }
     }
 }
