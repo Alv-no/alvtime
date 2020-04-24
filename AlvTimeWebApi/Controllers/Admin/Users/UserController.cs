@@ -1,9 +1,6 @@
-﻿using AlvTime.Business;
-using AlvTime.Business.Users;
+﻿using AlvTime.Business.Users;
 using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Dto;
-using AlvTimeWebApi.HelperClasses;
-using AlvTimeWebApi.Persistence.DatabaseModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 

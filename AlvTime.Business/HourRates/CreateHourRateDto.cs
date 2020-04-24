@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AlvTimeWebApi.Dto
+namespace AlvTime.Business.HourRates
 {
     public class CreateHourRateDto
     {

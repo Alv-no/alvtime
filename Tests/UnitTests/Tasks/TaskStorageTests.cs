@@ -15,7 +15,6 @@ namespace Tests.UnitTests.Tasks
         public void GetTasks_NoCriterias_AllTasks()
         {
             var context = new AlvTimeDbContextBuilder().CreateDbContext();
-            CreateDatabaseData(context);
 
             var storage = new TaskStorage(context);
 
@@ -28,7 +27,6 @@ namespace Tests.UnitTests.Tasks
         public void GetTasks_ProjectIsGiven_AllTasksWithSpecifiedProject()
         {
             var context = new AlvTimeDbContextBuilder().CreateDbContext();
-            CreateDatabaseData(context);
 
             var storage = new TaskStorage(context);
             var tasks = storage.GetTasks(new TaskQuerySearch
@@ -43,7 +41,6 @@ namespace Tests.UnitTests.Tasks
         public void GetTasks_CompensationRateIsGiven_AllTasksWithSpecifiedCompensationRate()
         {
             AlvTime_dbContext context = new AlvTimeDbContextBuilder().CreateDbContext();
-            CreateDatabaseData(context);
 
             var storage = new TaskStorage(context);
             var tasks = storage.GetTasks(new TaskQuerySearch
@@ -58,7 +55,6 @@ namespace Tests.UnitTests.Tasks
         public void GetTasks_ProjectAndLockedIsGiven_AllTasksWithSpecifiedProjectAndLocked()
         {
             AlvTime_dbContext context = new AlvTimeDbContextBuilder().CreateDbContext();
-            CreateDatabaseData(context);
 
             var storage = new TaskStorage(context);
             var tasks = storage.GetTasks(new TaskQuerySearch
@@ -74,7 +70,6 @@ namespace Tests.UnitTests.Tasks
         public void FavoriteUpdater_UserCreatesNewFavorite_NewFavoriteIsCreated()
         {
             AlvTime_dbContext context = new AlvTimeDbContextBuilder().CreateDbContext();
-            CreateDatabaseData(context);
 
             var previousNumberOfFavorites = context.TaskFavorites
                 .Where(tf => tf.UserId == 1)
@@ -93,14 +88,13 @@ namespace Tests.UnitTests.Tasks
                 .Where(tf => tf.UserId == 1)
                 .ToList();
 
-            Assert.True(userFavorites.Count() == previousNumberOfFavorites+1);
+            Assert.Equal(previousNumberOfFavorites + 1, userFavorites.Count());
         }
 
         [Fact]
         public void FavoriteUpdater_UserCreatesNewFavoriteWithCompensationRate_NewFavoriteIsCreatedCompensationRateIsUnchanged()
         {
             AlvTime_dbContext context = new AlvTimeDbContextBuilder().CreateDbContext();
-            CreateDatabaseData(context);
 
             var previousNumberOfFavorites = context.TaskFavorites
                 .Where(tf => tf.UserId == 1)
@@ -120,14 +114,13 @@ namespace Tests.UnitTests.Tasks
 
             var task = context.Task.FirstOrDefault(x => x.Id == 2);
 
-            Assert.True(task.CompensationRate == previousCompensationRate);
+            Assert.Equal(previousCompensationRate, task.CompensationRate);
         }
 
         [Fact]
         public void FavoriteUpdater_UserRemovesExistingFavorite_ExistingFavoriteIsRemoved()
         {
             AlvTime_dbContext context = new AlvTimeDbContextBuilder().CreateDbContext();
-            CreateDatabaseData(context);
 
             var storage = new TaskStorage(context);
             var updater = new FavoriteUpdater(storage);
@@ -146,14 +139,13 @@ namespace Tests.UnitTests.Tasks
                 .Where(tf => tf.UserId == 1)
                 .ToList();
 
-            Assert.True(userFavorites.Count() == previousNumberOfFavorites-1);
+            Assert.Equal(previousNumberOfFavorites - 1, userFavorites.Count());
         }
 
         [Fact]
         public void TaskCreator_CreateNewTask_NewTaskIsCreated()
         {
             AlvTime_dbContext context = new AlvTimeDbContextBuilder().CreateDbContext();
-            CreateDatabaseData(context);
 
             var storage = new TaskStorage(context);
             var creator = new TaskCreator(storage);
@@ -169,14 +161,13 @@ namespace Tests.UnitTests.Tasks
                 Project = 1
             }, 1);
 
-            Assert.True(context.Task.Count() != previousNumberOfTasks);
+            Assert.Equal(previousNumberOfTasks, context.Task.Count());
         }
 
         [Fact]
         public void TaskCreator_CreateNewTaskAlreadyExists_NoNewTaskIsCreated()
         {
             AlvTime_dbContext context = new AlvTimeDbContextBuilder().CreateDbContext();
-            CreateDatabaseData(context);
 
             var storage = new TaskStorage(context);
             var creator = new TaskCreator(storage);
@@ -192,14 +183,13 @@ namespace Tests.UnitTests.Tasks
                 Project = 1
             }, 1);
 
-            Assert.True(context.Task.Count() == previousNumberOfTasks);
+            Assert.Equal(previousNumberOfTasks, context.Task.Count());
         }
 
         [Fact]
         public void TaskCreator_UpdateOnlyCompensationRate_CompensationRateIsUpdated()
         {
             AlvTime_dbContext context = new AlvTimeDbContextBuilder().CreateDbContext();
-            CreateDatabaseData(context);
 
             var storage = new TaskStorage(context);
             var creator = new TaskCreator(storage);
@@ -219,7 +209,6 @@ namespace Tests.UnitTests.Tasks
         public void TaskCreator_UpdateBothLockedAndName_LockedAndNameIsUpdated()
         {
             AlvTime_dbContext context = new AlvTimeDbContextBuilder().CreateDbContext();
-            CreateDatabaseData(context);
 
             var storage = new TaskStorage(context);
             var creator = new TaskCreator(storage);
@@ -235,67 +224,6 @@ namespace Tests.UnitTests.Tasks
 
             Assert.Equal("MyExampleTask", task.Name);
             Assert.True(task.Locked == true);
-        }
-
-        private static void CreateDatabaseData(AlvTime_dbContext context)
-        {
-            context.Task.Add(new Task
-            {
-                Id = 1,
-                Description = "",
-                Project = 1,
-                CompensationRate = 1.0M,
-                Name = "ExampleTask",
-                Locked = false
-            });
-
-            context.Task.Add(new Task
-            {
-                Id = 2,
-                Description = "",
-                Project = 2,
-                CompensationRate = 1.5M,
-                Name = "ExampleTaskTwo",
-                Locked = true
-            });
-
-            context.Project.Add(new Project
-            {
-                Id = 1,
-                Name = "ExampleProject",
-                Customer = 1
-            });
-
-            context.Project.Add(new Project
-            {
-                Id = 2,
-                Name = "ExampleProjectTwo",
-                Customer = 1
-            });
-
-            context.Customer.Add(new Customer
-            {
-                Id = 1,
-                Name = "ExampleCustomer"
-            });
-
-            context.User.Add(new User
-            {
-                Id = 1,
-                Name = "Some One",
-                Email = "someone@alv.no",
-                FlexiHours = 50,
-                StartDate = DateTime.UtcNow
-            });
-
-            context.TaskFavorites.Add(new TaskFavorites
-            {
-                Id = 1,
-                UserId = 1,
-                TaskId = 1
-            });
-
-            context.SaveChanges();
         }
     }
 }

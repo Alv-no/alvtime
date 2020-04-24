@@ -14,7 +14,6 @@ namespace Tests.UnitTests.Users
         public void GetUsers_NoCriterias_AllUsers()
         {
             var context = new AlvTimeDbContextBuilder().CreateDbContext();
-            CreateUsers(context);
 
             var storage = new UserStorage(context);
 
@@ -27,7 +26,6 @@ namespace Tests.UnitTests.Users
         public void GetUsers_EmailIsGiven_AllUsersWithSpecifiedEmail()
         {
             var context = new AlvTimeDbContextBuilder().CreateDbContext();
-            CreateUsers(context);
 
             var storage = new UserStorage(context);
             var users = storage.GetUser(new UserQuerySearch
@@ -42,7 +40,6 @@ namespace Tests.UnitTests.Users
         public void GetUsers_NameIsGiven_AllUsersWithSpecifiedName()
         {
             AlvTime_dbContext context = new AlvTimeDbContextBuilder().CreateDbContext();
-            CreateUsers(context);
 
             var storage = new UserStorage(context);
             var users = storage.GetUser(new UserQuerySearch
@@ -57,7 +54,6 @@ namespace Tests.UnitTests.Users
         public void UserCreator_NewUser_NewUserIsCreated()
         {
             AlvTime_dbContext context = new AlvTimeDbContextBuilder().CreateDbContext();
-            CreateUsers(context);
 
             var storage = new UserStorage(context);
             var creator = new UserCreator(storage, new AlvHoursCalculator());
@@ -77,7 +73,6 @@ namespace Tests.UnitTests.Users
         public void UserCreator_UserAlreadyExists_NoUserIsCreated()
         {
             AlvTime_dbContext context = new AlvTimeDbContextBuilder().CreateDbContext();
-            CreateUsers(context);
 
             var storage = new UserStorage(context);
             var creator = new UserCreator(storage, new AlvHoursCalculator());
@@ -91,29 +86,6 @@ namespace Tests.UnitTests.Users
             });
 
             Assert.True(context.User.Count() == 2);
-        }
-
-        private static void CreateUsers(AlvTime_dbContext context)
-        {
-            context.User.Add(new User
-            {
-                Id = 1,
-                Email = "someone@alv.no",
-                Name = "Someone",
-                FlexiHours = 150,
-                StartDate = DateTime.Now
-            });
-
-            context.User.Add(new User
-            {
-                Id = 2,
-                Email = "someone2@alv.no",
-                Name = "Someone2",
-                FlexiHours = 10,
-                StartDate = DateTime.Now
-            });
-
-            context.SaveChanges();
         }
     }
 }
