@@ -16,10 +16,12 @@
     "typescript": "^3.7.5"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "up": "docker-compose up --detach",
+    "start": "docker-compose up --detach && docker-compose exec alvtime-admin-react-pwa node node_modules/react-scripts/scripts/start.js",
+    "down": "docker-compose down --volumes",
+    "build": "docker-compose up --detach && docker-compose exec alvtime-admin-react-pwa node node_modules/react-scripts/scripts/build.js",
+    "test": "docker-compose up --detach && docker-compose exec alvtime-admin-react-pwa node node_modules/react-scripts/scripts/test.js",
+    "eject": "docker-compose up --detach && docker-compose exec alvtime-admin-react-pwa node node_modules/react-scripts/scripts/eject.js"
   },
   "eslintConfig": {
     "extends": "react-app"
