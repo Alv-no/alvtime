@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Alvtime admin pwa",
+  "name": "Alvtime admin react pwa",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +20,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#00083d",
+  "background_color": "#00083d"
 }
