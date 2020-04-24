@@ -161,7 +161,7 @@ namespace Tests.UnitTests.Tasks
                 Project = 1
             }, 1);
 
-            Assert.Equal(previousNumberOfTasks, context.Task.Count());
+            Assert.Equal(previousNumberOfTasks+1, context.Task.Count());
         }
 
         [Fact]
