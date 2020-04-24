@@ -2,24 +2,28 @@ version: '3.7'
 
 services:
   alvtime-admin-react-pwa:
+    container_name: alvtime-admin-react-pwa
+    tty: true
     build:
       context: .
       dockerfile: Dockerfile-dev
-    container_name: alvtime-admin-react-pwa
-    tty: true
     image: alvtime-admin-react-pwa
     volumes:
       - .:/usr/src/app:delegated
       - /usr/src/app/node_modules/
     expose:
       - 3000
+    ports:
+      - "3000:3000"
     command: sh
+    environment:
+      - CHOKIDAR_USEPOLLING=true
   nginx-reverse-proxy-admin-react-pwa:
     container_name: nginx-reverse-proxy-admin-react-pwa
     build: ./nginx/
     command: nginx -g 'daemon off;'
     ports:
-      - "3000:80"
+      - "8080:80"
     links:
       - alvtime-web-api-admin-react-pwa
       - alvtime-admin-react-pwa
