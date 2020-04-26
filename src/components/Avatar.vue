@@ -33,7 +33,7 @@ export default Vue.extend({
 
     imageUrl(): string {
       const account = this.$store.state.account;
-      const name = account ? "Jan Tore Bøe".replace(/ /g, "_") : "";
+      const name = account ? account.name.replace(/ /g, "_") : "";
       return `https://files-cdn.vitaminw.no/5be7d601f81143448bde804302723901/Root/Bilder/profilbilde_${name}_512.png`;
     },
 
