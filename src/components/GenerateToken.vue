@@ -156,7 +156,7 @@ input {
   border-radius: 5px;
   border: 1px solid #e0e0e0;
   background-color: #f7f7f7;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   line-height: 0.7rem;
   height: 2rem;
 }
