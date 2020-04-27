@@ -13,7 +13,7 @@ Scafolding
 
 The first time this command is ran it will download and start the local developmment environment. As well as start the development server in the alvtime-slack-app container. The development server recompiles and refreshes the browser on every detected change to the source code.
 
-The command also starts a container running [ngrok](https://ngrok.com), which exposes the Alvtime-slack-app on a public url. This url is useful to connect the slack app configured on at [https://api.slack.com/apps](https://api.slack.com/apps) and test ti in a development slack workspace. The public url is show in the ngrok inspector.
+The command also starts a container running [ngrok](https://ngrok.com), which exposes the Alvtime-slack-app on a public url. This url is useful to connect the slack app configured on at [https://api.slack.com/apps](https://api.slack.com/apps) and test it in a development slack workspace. The public url is shown in the ngrok inspector.
 
 ```
 docker-compose up
