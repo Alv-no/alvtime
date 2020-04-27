@@ -1,12 +1,22 @@
 ﻿using AlvTime.Business;
+using AlvTime.Business.AccessToken;
+using AlvTime.Business.Customers;
+using AlvTime.Business.Economy;
+using AlvTime.Business.FlexiHours;
 using AlvTime.Business.HourRates;
+using AlvTime.Business.Projects;
 using AlvTime.Business.Tasks;
 using AlvTime.Business.Tasks.Admin;
 using AlvTime.Business.TimeEntries;
 using AlvTime.Business.Users;
 using AlvTimeWebApi.Authentication;
+using AlvTimeWebApi.Controllers.AccessToken.AccessTokenStorage;
+using AlvTimeWebApi.Controllers.Admin.Customers.CustomerStorage;
+using AlvTimeWebApi.Controllers.Admin.Economy.EconomyStorage;
 using AlvTimeWebApi.Controllers.Admin.HourRates.HourRateStorage;
+using AlvTimeWebApi.Controllers.Admin.Projects.ProjectStorage;
 using AlvTimeWebApi.Controllers.Admin.Users.UserStorage;
+using AlvTimeWebApi.Controllers.FlexiHours.FlexiHourStorage;
 using AlvTimeWebApi.Controllers.Tasks.TaskStorage;
 using AlvTimeWebApi.Controllers.TimeEntries.TimeEntryStorage;
 using AlvTimeWebApi.HelperClasses;
@@ -33,6 +43,13 @@ namespace AlvTimeWebApi.Services
             services.AddScoped<TimeEntryCreator>();
             services.AddScoped<IHourRateStorage, HourRateStorage>();
             services.AddScoped<HourRateCreator>();
+            services.AddScoped<IProjectStorage, ProjectStorage>();
+            services.AddScoped<ProjectCreator>();
+            services.AddScoped<ICustomerStorage, CustomerStorage>();
+            services.AddScoped<CustomerCreator>();
+            services.AddScoped<IEconomyStorage, EconomyStorage>();
+            services.AddScoped<IFlexiHourStorage, FlexiHourStorage>();
+            services.AddScoped<IAccessTokenStorage, AccessTokenStorage>();
         }
     }
 }

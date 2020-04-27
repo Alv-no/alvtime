@@ -58,7 +58,7 @@ namespace Tests.UnitTests.Users
             var storage = new UserStorage(context);
             var creator = new UserCreator(storage, new AlvHoursCalculator());
 
-            creator.CreateUser(new CreateUserRequest
+            creator.CreateUser(new CreateUserDto
             {
                 Email = "newUser@alv.no",
                 FlexiHours = 10,
@@ -77,7 +77,7 @@ namespace Tests.UnitTests.Users
             var storage = new UserStorage(context);
             var creator = new UserCreator(storage, new AlvHoursCalculator());
 
-            creator.CreateUser(new CreateUserRequest
+            creator.CreateUser(new CreateUserDto
             {
                 Email = "someone@alv.no",
                 FlexiHours = 150,

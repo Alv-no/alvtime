@@ -1,4 +1,6 @@
-﻿using AlvTime.Business.Tasks;
+﻿using AlvTime.Business.Customers;
+using AlvTime.Business.Projects;
+using AlvTime.Business.Tasks;
 using AlvTime.Business.Tasks.Admin;
 using AlvTimeWebApi.Persistence.DatabaseModels;
 using System.Collections.Generic;
@@ -64,7 +66,7 @@ namespace AlvTimeWebApi.Controllers.Tasks.TaskStorage
             _context.SaveChanges();
         }
 
-        public void UpdateTask(UpdateTasksDto taskToBeUpdated, int userId)
+        public void UpdateTask(UpdateTasksDto taskToBeUpdated)
         {
             var existingTask = _context.Task
                    .Where(x => x.Id == taskToBeUpdated.Id)
