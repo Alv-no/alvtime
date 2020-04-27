@@ -15,7 +15,7 @@ namespace AlvTimeWebApi.Controllers.Admin.Users.UserStorage
             _context = context;
         }
 
-        public void AddUser(CreateUserRequest user)
+        public void AddUser(CreateUserDto user)
         {
             var newUser = new User
             {
