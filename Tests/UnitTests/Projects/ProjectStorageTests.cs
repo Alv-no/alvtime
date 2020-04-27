@@ -1,9 +1,6 @@
 ﻿using AlvTime.Business.Projects;
 using AlvTimeWebApi.Controllers.Admin.Projects.ProjectStorage;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Xunit;
 
 namespace Tests.UnitTests.Projects
@@ -26,7 +23,7 @@ namespace Tests.UnitTests.Projects
                 Customer = 1
             });
 
-            var newProjectAmount = context.Customer.ToList().Count();
+            var newProjectAmount = context.Project.ToList().Count();
 
             Assert.Equal(previousProjectAmount + 1, newProjectAmount);
         }
