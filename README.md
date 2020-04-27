@@ -11,15 +11,29 @@ Scafolding
 
 ## Start Development environment
 
-The first time this command is ran it will download and start the local developmment environment. As well as start the development server in the alvtime-slack-app container. The development server recompiles and refreshes the browser on every detected change to the source code.
+The first time this command is ran it will download and start the local developmment environment.
 
-The command also starts a container running [ngrok](https://ngrok.com), which exposes the Alvtime-slack-app on a public url. This url is useful to connect the slack app configured on at [https://api.slack.com/apps](https://api.slack.com/apps) and test it in a development slack workspace. The public url is shown in the ngrok inspector.
+The command also starts a container running [ngrok](https://ngrok.com), which is used to expose the Alvtime-slack-app on a public url. This url is useful to connect the slack app configured on at [https://api.slack.com/apps](https://api.slack.com/apps) and test it in a development slack workspace. The public url is shown in the ngrok inspector.
+
+Start the environment:
 
 ```
-docker-compose up
+docker-compose up -d
+```
+
+Start the verification server
+
+```
+docker-compose exec alvtime-slack-app npx slack-verify --secret $(grep SLACK_SIGNING_SECRET .env | cut -d '=' -f2)
 ```
 
 - The ngrok inspector is available on `localhost:4040`
+
+Copy the url in the ngrok inspector and use it as the new request URL under Event Subscriptions on the api.slack.com app setup page to trigger the verification. Stop the verification server and run the following to start the app in watch mode
+
+```
+docker-compose exec alvtime-slack-app npm run watch
+```
 
 To stop and remove the containers run
 
