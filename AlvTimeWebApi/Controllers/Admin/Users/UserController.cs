@@ -1,9 +1,5 @@
-﻿using AlvTime.Business;
-using AlvTime.Business.Users;
+﻿using AlvTime.Business.Users;
 using AlvTimeWebApi.Authentication;
-using AlvTimeWebApi.Dto;
-using AlvTimeWebApi.HelperClasses;
-using AlvTimeWebApi.Persistence.DatabaseModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
@@ -37,7 +33,7 @@ namespace AlvTimeWebApi.Controllers.Admin.Users
             List<UserResponseDto> response = new List<UserResponseDto>();
             foreach (var user in usersToBeCreated)
             {
-                response.Add(_creator.CreateUser(new CreateUserRequest
+                response.Add(_creator.CreateUser(new CreateUserDto
                 {
                     Email = user.Email,
                     FlexiHours = user.FlexiHours,

@@ -5,7 +5,7 @@ namespace AlvTime.Business.Users
     public interface IUserStorage
     {
         IEnumerable<UserResponseDto> GetUser(UserQuerySearch criterias);
-        void AddUser(CreateUserRequest user);
+        void AddUser(CreateUserDto user);
     }
 
     public class UserQuerySearch

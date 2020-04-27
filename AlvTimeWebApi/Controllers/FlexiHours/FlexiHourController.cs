@@ -1,5 +1,5 @@
 ﻿using AlvTime.Business;
-using AlvTimeWebApi.Dto;
+using AlvTime.Business.FlexiHours;
 using AlvTimeWebApi.HelperClasses;
 using AlvTimeWebApi.Persistence.DatabaseModels;
 using Microsoft.AspNetCore.Authorization;
@@ -13,12 +13,12 @@ namespace AlvTimeWebApi.Controllers.FlexiHours
     [ApiController]
     public class FlexiHourController : Controller
     {
-        private readonly AlvTime_dbContext _database;
+        private readonly IFlexiHourStorage _storage;
         private RetrieveUsers _userRetriever;
 
-        public FlexiHourController(AlvTime_dbContext database, RetrieveUsers userRetriever)
+        public FlexiHourController(RetrieveUsers userRetriever, IFlexiHourStorage storage)
         {
-            _database = database;
+            _storage = storage;
             _userRetriever = userRetriever;
         }
 
@@ -26,12 +26,7 @@ namespace AlvTimeWebApi.Controllers.FlexiHours
         [Authorize]
         public ActionResult<FlexiHourResponseDto> FetchTotalFlexiHours()
         {
-            var calculator = new AlvHoursCalculator();
-
-            return new FlexiHourResponseDto
-            {
-                FlexiHours = 187.5M + calculator.CalculateAlvHours()
-            };
+            return Ok(_storage.GetTotalFlexiHours());
         }
 
         [HttpGet("UsedFlexiHours")]
@@ -40,23 +35,7 @@ namespace AlvTimeWebApi.Controllers.FlexiHours
         {
             var user = _userRetriever.RetrieveUser();
 
-            var currentYear = DateTime.UtcNow.Year;
-
-            decimal totalUsedHours = 0;
-
-            var hourList = _database.Hours
-                .Where(x => x.User == user.Id && x.TaskId == 13 && x.Year == currentYear)
-                .ToList();
-
-            foreach (var timeEntry in hourList)
-            {
-                totalUsedHours += timeEntry.Value;
-            }
-
-            return new FlexiHourResponseDto
-            {
-                FlexiHours = totalUsedHours
-            };
+            return Ok(_storage.GetUsedFlexiHours(user.Id));
         }
     }
 }

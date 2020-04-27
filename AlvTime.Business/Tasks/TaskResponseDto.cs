@@ -1,4 +1,6 @@
-﻿namespace AlvTime.Business.Tasks
+﻿using AlvTime.Business.Projects;
+
+namespace AlvTime.Business.Tasks
 {
     public class TaskResponseDto
     {
