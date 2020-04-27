@@ -1,4 +1,6 @@
-﻿using AlvTime.Business.HourRates;
+﻿using AlvTime.Business.Customers;
+using AlvTime.Business.HourRates;
+using AlvTime.Business.Projects;
 using AlvTime.Business.Tasks;
 using AlvTimeWebApi.Persistence.DatabaseModels;
 using System.Collections.Generic;

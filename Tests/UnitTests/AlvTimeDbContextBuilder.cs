@@ -143,6 +143,14 @@ namespace Tests.UnitTests
                 TaskId = 1
             });
 
+            context.AccessTokens.Add(new AccessTokens
+            {
+                Id = 1,
+                UserId = 1,
+                Value = "123",
+                ExpiryDate = DateTime.UtcNow.AddMonths(6)
+            });
+
             context.SaveChanges();
 
             return context;

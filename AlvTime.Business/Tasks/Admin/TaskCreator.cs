@@ -24,7 +24,7 @@ namespace AlvTime.Business.Tasks.Admin
 
         public TaskResponseDto UpdateTask(UpdateTasksDto taskToBeUpdated, int userId)
         {
-            _storage.UpdateTask(taskToBeUpdated, userId);
+            _storage.UpdateTask(taskToBeUpdated);
 
             return _storage.GetTasks(new TaskQuerySearch
             {

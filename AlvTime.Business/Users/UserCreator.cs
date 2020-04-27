@@ -16,7 +16,7 @@ namespace AlvTime.Business.Users
             _calculator = calculator;
         }
 
-        public UserResponseDto CreateUser(CreateUserRequest user)
+        public UserResponseDto CreateUser(CreateUserDto user)
         {
             if (user.FlexiHours == null)
             {
@@ -32,7 +32,7 @@ namespace AlvTime.Business.Users
 
         }
 
-        private IEnumerable<UserResponseDto> GetUser(CreateUserRequest user)
+        private IEnumerable<UserResponseDto> GetUser(CreateUserDto user)
         {
             return _storage.GetUser(new UserQuerySearch
             {
