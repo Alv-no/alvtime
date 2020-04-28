@@ -1,5 +1,6 @@
 ﻿using AlvTime.Business;
 using AlvTime.Business.AccessToken;
+using AlvTime.Business.AssociatedTask;
 using AlvTime.Business.Customers;
 using AlvTime.Business.Economy;
 using AlvTime.Business.FlexiHours;
@@ -11,6 +12,7 @@ using AlvTime.Business.TimeEntries;
 using AlvTime.Business.Users;
 using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Controllers.AccessToken.AccessTokenStorage;
+using AlvTimeWebApi.Controllers.Admin.AssociatedTask.AssociatedTaskStorage;
 using AlvTimeWebApi.Controllers.Admin.Customers.CustomerStorage;
 using AlvTimeWebApi.Controllers.Admin.Economy.EconomyStorage;
 using AlvTimeWebApi.Controllers.Admin.HourRates.HourRateStorage;
@@ -50,6 +52,7 @@ namespace AlvTimeWebApi.Services
             services.AddScoped<IEconomyStorage, EconomyStorage>();
             services.AddScoped<IFlexiHourStorage, FlexiHourStorage>();
             services.AddScoped<IAccessTokenStorage, AccessTokenStorage>();
+            services.AddScoped<IAssociatedTaskStorage, AssociatedTaskStorage>();
         }
     }
 }
