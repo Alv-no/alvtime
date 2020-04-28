@@ -7,6 +7,7 @@ namespace AlvTimeWebApi.Persistence.DatabaseModels
     {
         public Task()
         {
+            AssociatedTasks = new HashSet<AssociatedTasks>();
             HourRate = new HashSet<HourRate>();
             Hours = new HashSet<Hours>();
             TaskFavorites = new HashSet<TaskFavorites>();
@@ -21,6 +22,7 @@ namespace AlvTimeWebApi.Persistence.DatabaseModels
         public decimal CompensationRate { get; set; }
 
         public virtual Project ProjectNavigation { get; set; }
+        public virtual ICollection<AssociatedTasks> AssociatedTasks { get; set; }
         public virtual ICollection<HourRate> HourRate { get; set; }
         public virtual ICollection<Hours> Hours { get; set; }
         public virtual ICollection<TaskFavorites> TaskFavorites { get; set; }
