@@ -1,12 +1,10 @@
-Alvtime-slack-app
-=================
+# Alvtime-slack-app
 
-This app i built using [Bolt](https://slack.dev/bolt). Read the [Getting Started with Bolt](https://api.slack.com/start/building/bolt) guide for a in-depth tutorial on how to contribute to this project. More info is found in the [Bolt documentation](https://slack.dev/bolt).
+This app i built using [node slack sdk](https://slack.dev/node-slack-sdk/). Read the [Getting Started with node slack sdk](https://slack.dev/node-slack-sdk/) docs for a in-depth info on how to contribute to this project.
 
-Scafolding
-----------
+## Scafolding
 
-- `src/app.ts` contains the primary Bolt app. It imports the Bolt package (`@slack/bolt`) and starts the Bolt app's server. It's where you'll add your app's listeners.
+- `src/app.ts` contains the primary app. It imports the SDK and starts the app/server. It's where you'll add your app's listeners.
 - `.env` is where you'll put your Slack app's authorization token and signing secret.
 
 ## Start Development environment
