@@ -221,6 +221,18 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+CREATE TABLE [dbo].[AssociatedTasks](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[UserId] [int] NOT NULL,
+	[TaskId] [int] NOT NULL,
+	[FromDate] [datetime2](7) NOT NULL,
+	[EndDate] [datetime2](7) NOT NULL DEFAULT ''
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
 ALTER TABLE [dbo].[hours] ADD  DEFAULT ((0)) FOR [Locked]
 GO
 ALTER TABLE [dbo].[Task] ADD  DEFAULT ((0)) FOR [Locked]
@@ -264,4 +276,10 @@ ALTER TABLE [dbo].[TaskFavorites] CHECK CONSTRAINT [FK_TaskFavorites_User]
 GO
 ALTER TABLE [dbo].[AccessTokens]  WITH CHECK ADD  CONSTRAINT [FK_AccessTokens_User] FOREIGN KEY([UserId])
 REFERENCES [dbo].[User] ([Id])
+GO
+ALTER TABLE [dbo].[AssociatedTasks]  WITH CHECK ADD  CONSTRAINT [FK_AssociatedTasks_User] FOREIGN KEY([UserId])
+REFERENCES [dbo].[User] ([Id])
+GO
+ALTER TABLE [dbo].[AssociatedTasks]  WITH CHECK ADD  CONSTRAINT [FK_AssociatedTasks_Task] FOREIGN KEY([TaskId])
+REFERENCES [dbo].[Task] ([Id])
 GO

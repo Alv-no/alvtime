@@ -16,6 +16,7 @@ namespace AlvTimeWebApi.Persistence.DatabaseModels
         }
 
         public virtual DbSet<AccessTokens> AccessTokens { get; set; }
+        public virtual DbSet<AssociatedTasks> AssociatedTasks { get; set; }
         public virtual DbSet<Customer> Customer { get; set; }
         public virtual DbSet<HourRate> HourRate { get; set; }
         public virtual DbSet<Hours> Hours { get; set; }
@@ -46,13 +47,30 @@ namespace AlvTimeWebApi.Persistence.DatabaseModels
 
                 entity.Property(e => e.Value)
                     .IsRequired()
-                    .HasMaxLength(1000);
+                    .HasMaxLength(100);
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.AccessTokens)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_AccessTokens_User");
+            });
+
+            modelBuilder.Entity<AssociatedTasks>(entity =>
+            {
+                entity.Property(e => e.EndDate).HasDefaultValueSql("('')");
+
+                entity.HasOne(d => d.Task)
+                    .WithMany(p => p.AssociatedTasks)
+                    .HasForeignKey(d => d.TaskId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_AssociatedTasks_Task");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.AssociatedTasks)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_AssociatedTasks_User");
             });
 
             modelBuilder.Entity<Customer>(entity =>
@@ -130,7 +148,7 @@ namespace AlvTimeWebApi.Persistence.DatabaseModels
             modelBuilder.Entity<RefactorLog>(entity =>
             {
                 entity.HasKey(e => e.OperationKey)
-                    .HasName("PK____Refact__D3AEFFDB3DA33408");
+                    .HasName("PK____Refact__D3AEFFDB8B5F0469");
 
                 entity.ToTable("__RefactorLog");
 
@@ -140,7 +158,7 @@ namespace AlvTimeWebApi.Persistence.DatabaseModels
             modelBuilder.Entity<Sysdiagrams>(entity =>
             {
                 entity.HasKey(e => e.DiagramId)
-                    .HasName("PK__sysdiagr__C2B05B610D952B23");
+                    .HasName("PK__sysdiagr__C2B05B615842254D");
 
                 entity.ToTable("sysdiagrams");
 
@@ -164,9 +182,7 @@ namespace AlvTimeWebApi.Persistence.DatabaseModels
 
             modelBuilder.Entity<Task>(entity =>
             {
-                entity.Property(e => e.CompensationRate)
-                    .HasColumnType("decimal(3, 2)")
-                    .HasDefaultValueSql("((1.00))");
+                entity.Property(e => e.CompensationRate).HasColumnType("decimal(3, 2)");
 
                 entity.Property(e => e.Description)
                     .IsRequired()
