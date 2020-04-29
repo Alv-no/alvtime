@@ -40,6 +40,9 @@
     },
     "AdminGroup": {
       "type": "String"
+    },
+    "ReportGroup": {
+      "type": "String"
     }
   },
   "variables": {},

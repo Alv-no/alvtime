@@ -1,12 +1,10 @@
 using AlvTime.Business.TimeEntries;
+using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.HelperClasses;
-using AlvTimeWebApi.Persistence.DatabaseModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 
 namespace AlvTimeWebApi.Controllers.TimeEntries
 {
@@ -58,6 +56,15 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
             var user = _userRetriever.RetrieveUser();
 
             return Ok(_creator.UpsertTimeEntry(requests, user.Id));
+        }
+
+        [HttpGet("TimeEntriesReport")]
+        [AuthorizeReporting]
+        public ActionResult<IEnumerable<SomeDto>> FetchTimeEntriesReport(DateTime fromDateInclusive, DateTime toDateInclusive)
+        {
+            var report = _storage.GetTimeEntriesForAllUsersInTimePeriod(new TimeEntryQuerySearch
+            {
+            });
         }
     }
 }
