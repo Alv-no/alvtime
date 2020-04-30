@@ -50,7 +50,6 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
         }
 
         [HttpPost("TimeEntries")]
-        [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<List<TimeEntriesResponseDto>> UpsertTimeEntry([FromBody] List<CreateTimeEntryDto> requests)
         {
             var user = _userRetriever.RetrieveUser();
@@ -59,7 +58,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
         }
 
         [HttpGet("TimeEntriesReport")]
-        [AuthorizeReporting]
+        [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<IEnumerable<SomeDto>> FetchTimeEntriesReport(DateTime fromDateInclusive, DateTime toDateInclusive)
         {
             var report = _storage.GetTimeEntriesForAllUsersInTimePeriod(new TimeEntryQuerySearch
