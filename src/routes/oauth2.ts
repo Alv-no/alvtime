@@ -51,7 +51,7 @@ const oauth2Options = {
   tokenURL,
   clientID: env.AZURE_AD_CLIENT_ID,
   clientSecret: env.AZURE_AD_CLIENT_SECTRET,
-  callbackURL: "http://18856e31.eu.ngrok.io/oauth2/cb",
+  callbackURL: env.HOST + "/oauth2/cb",
 };
 
 function azureAdLoginSuccess(

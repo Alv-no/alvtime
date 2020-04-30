@@ -58,6 +58,7 @@
     "express"
   ],
   "devDependencies": {
+    "node-fetch": "^2.6.0",
     "typescript": "^3.8.3"
   }
 }
