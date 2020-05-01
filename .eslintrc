@@ -16,6 +16,7 @@
         }
       ],
       "@typescript-eslint/no-unused-vars": "warn",
-      "@typescript-eslint/camelcase": ["warn", { "properties": "never" }]
+      "@typescript-eslint/camelcase": ["warn", { "properties": "never" }],
+      "@typescript-eslint/no-use-before-define": "off"
     }
 }
