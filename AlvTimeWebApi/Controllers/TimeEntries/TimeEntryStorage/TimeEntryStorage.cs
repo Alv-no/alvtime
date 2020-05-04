@@ -65,6 +65,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries.TimeEntryStorage
             return new TimeEntriesResponseDto
             {
                 Id = hour.Id,
+                User = hour.User,
                 Date = hour.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                 TaskId = hour.TaskId,
                 Value = hour.Value
@@ -95,6 +96,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries.TimeEntryStorage
                 return new TimeEntriesResponseDto
                 {
                     Id = hour.Id,
+                    User = hour.User,
                     Date = hour.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                     TaskId = hour.TaskId,
                     Value = hour.Value
