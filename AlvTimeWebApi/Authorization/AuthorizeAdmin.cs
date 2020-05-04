@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AlvTimeWebApi.Authorization.Policies;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AlvTimeWebApi.Authentication
 {

@@ -1,4 +1,4 @@
-﻿using AlvTimeWebApi.Authentication;
+﻿using AlvTimeWebApi.Authorization.Policies;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
@@ -12,6 +12,7 @@ namespace AlvTimeWebApi.Authorization
             {
                 options.AddPolicy(AdminAuthorizationPolicy.Name, AdminAuthorizationPolicy.Build);
                 options.AddPolicy(AllowPersonalAccessTokenPolicy.Name, AllowPersonalAccessTokenPolicy.Build);
+                options.AddPolicy(ReportAuthorizationPolicy.Name, ReportAuthorizationPolicy.Build);
             });
         }
     }

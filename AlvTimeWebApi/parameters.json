@@ -40,6 +40,9 @@
     },
     "AdminGroup": {
       "value": null
+    },
+    "ReportGroup": {
+      "value": null 
     }
   }
 }

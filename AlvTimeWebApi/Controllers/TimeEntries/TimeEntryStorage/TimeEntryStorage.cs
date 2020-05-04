@@ -23,6 +23,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries.TimeEntryStorage
                     .Select(x => new TimeEntriesResponseDto
                     {
                         Id = x.Id,
+                        User = x.User,
                         Value = x.Value,
                         Date = x.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                         TaskId = x.TaskId
@@ -64,6 +65,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries.TimeEntryStorage
             return new TimeEntriesResponseDto
             {
                 Id = hour.Id,
+                User = hour.User,
                 Date = hour.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                 TaskId = hour.TaskId,
                 Value = hour.Value
@@ -94,6 +96,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries.TimeEntryStorage
                 return new TimeEntriesResponseDto
                 {
                     Id = hour.Id,
+                    User = hour.User,
                     Date = hour.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                     TaskId = hour.TaskId,
                     Value = hour.Value

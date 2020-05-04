@@ -3,11 +3,11 @@ using System;
 
 namespace AlvTimeWebApi.Authorization.Policies
 {
-    public class AdminAuthorizationPolicy
+    public class ReportAuthorizationPolicy
     {
-        public static string Name => "Admin";
+        public static string Name => "Reporting";
 
         public static void Build(AuthorizationPolicyBuilder builder) =>
-            builder.RequireClaim("groups", Environment.GetEnvironmentVariable("AdminGroup"));
+            builder.RequireClaim("groups", Environment.GetEnvironmentVariable("ReportGroup"));
     }
 }
