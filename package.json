@@ -22,33 +22,17 @@
     "@slack/events-api": "^2.3.2",
     "@slack/interactive-messages": "^1.5.0",
     "@slack/web-api": "^5.8.0",
-    "@types/concurrently": "^5.1.0",
-    "@types/eslint": "^6.8.0",
-    "@types/express-session": "^1.17.0",
-    "@types/jest": "^25.2.1",
-    "@types/node": "^13.11.0",
-    "@types/node-cron": "^2.0.3",
-    "@types/passport": "^1.0.3",
-    "@types/passport-oauth2": "^1.4.9",
-    "@typescript-eslint/eslint-plugin": "^2.27.0",
-    "@typescript-eslint/parser": "^2.27.0",
     "body-parser": "^1.19.0",
-    "concurrently": "^5.1.0",
     "dotenv": "^8.2.0",
-    "eslint": "^6.8.0",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
-    "jest": "^25.2.7",
     "jwt-simple": "^0.5.6",
     "node-cron": "^2.0.3",
-    "nodemon": "^2.0.2",
     "passport": "^0.4.1",
-    "passport-oauth2": "^1.5.0",
-    "ts-jest": "^25.3.1",
-    "ts-node": "^8.8.2"
+    "passport-oauth2": "^1.5.0"
   },
   "engines": {
-    "node": "11.x"
+    "node": "12.x"
   },
   "repository": {
     "url": "https://github.com/Alv-no/alvtime-slack-app"
@@ -60,7 +44,22 @@
     "express"
   ],
   "devDependencies": {
-    "node-fetch": "^2.6.0",
-    "typescript": "^3.8.3"
+    "@types/concurrently": "^5.1.0",
+    "@types/eslint": "^6.8.0",
+    "@types/express-session": "^1.17.0",
+    "@types/jest": "^25.2.1",
+    "@types/node": "12.12.37",
+    "@types/node-cron": "^2.0.3",
+    "@types/passport": "^1.0.3",
+    "@types/passport-oauth2": "^1.4.9",
+    "@typescript-eslint/eslint-plugin": "^2.27.0",
+    "@typescript-eslint/parser": "^2.27.0",
+    "typescript": "^3.8.3",
+    "concurrently": "^5.1.0",
+    "eslint": "^6.8.0",
+    "jest": "^25.2.7",
+    "nodemon": "^2.0.2",
+    "ts-jest": "^25.3.1",
+    "ts-node": "^8.8.2"
   }
 }
