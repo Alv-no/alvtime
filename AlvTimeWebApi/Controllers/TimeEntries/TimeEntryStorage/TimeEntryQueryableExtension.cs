@@ -8,8 +8,10 @@ namespace AlvTimeWebApi.Controllers.TimeEntries.TimeEntryStorage
     {
         public static IQueryable<Hours> Filter(this IQueryable<Hours> query, TimeEntryQuerySearch criterias)
         {
-            query = query.Where(hour => hour.User == criterias.UserId);
-
+            if(criterias.UserId != null)
+            {
+                query = query.Where(hour => hour.User == criterias.UserId);
+            }
             if (criterias.FromDateInclusive != null)
             {
                 query = query.Where(hour => hour.Date >= criterias.FromDateInclusive);

@@ -1,11 +1,10 @@
 using AlvTime.Business.TimeEntries;
+using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.HelperClasses;
-using AlvTimeWebApi.Persistence.DatabaseModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 
 namespace AlvTimeWebApi.Controllers.TimeEntries
@@ -52,12 +51,31 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
         }
 
         [HttpPost("TimeEntries")]
-        [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<List<TimeEntriesResponseDto>> UpsertTimeEntry([FromBody] List<CreateTimeEntryDto> requests)
         {
             var user = _userRetriever.RetrieveUser();
 
             return Ok(_creator.UpsertTimeEntry(requests, user.Id));
+        }
+
+        [HttpGet("TimeEntriesReport")]
+        [Authorize(Policy = "AllowPersonalAccessToken")]
+        public ActionResult<IEnumerable<TimeEntriesResponseDto>> FetchTimeEntriesReport(DateTime fromDateInclusive, DateTime toDateInclusive)
+        {
+            var user = _userRetriever.RetrieveUser();
+
+            if(user.Id == 11 || user.Id == 17)
+            {
+                var report = _storage.GetTimeEntries(new TimeEntryQuerySearch
+                {
+                    FromDateInclusive = fromDateInclusive,
+                    ToDateInclusive = toDateInclusive
+                }).ToList();
+
+                return Ok(report);
+            }
+
+            return Unauthorized();
         }
     }
 }
