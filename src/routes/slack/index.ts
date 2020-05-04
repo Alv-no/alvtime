@@ -3,7 +3,7 @@ import { createMessageAdapter } from "@slack/interactive-messages";
 import { WebClient } from "@slack/web-api";
 import bodyParser from "body-parser";
 import express from "express";
-import env from "../environment";
+import env from "../../environment";
 
 const token = process.env.SLACK_BOT_TOKEN;
 export const slackWebClient = new WebClient(token);
@@ -32,7 +32,7 @@ interface CommandBody {
   trigger_id: string;
 }
 
-slackRouter.use("/command", (req, res, next) => {
+slackRouter.use("/command", (req, _res, next) => {
   console.log(req.body);
   next();
 });

@@ -1,17 +1,18 @@
-FROM node:13.12-alpine AS build-stage
+FROM node:12.16-alpine3.9 AS build-stage
 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
-RUN npm install --only=production
+RUN npm install
 
 COPY . .
-CMD npx tsc
+RUN npx tsc
 
 
-FROM node:13.12-alpine AS prod-stage
+FROM node:12.16-alpine3.9 AS prod-stage
 WORKDIR /app
-COPY --from=build-stage /usr/src/app/node_modules ./node_modules
 COPY --from=build-stage /usr/src/app/dist ./dist
+COPY --from=build-stage /usr/src/app/package*.json ./
+RUN npm install --only=production
 EXPOSE 80
 CMD ["node", "dist/app.js"]
