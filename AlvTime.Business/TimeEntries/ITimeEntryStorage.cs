@@ -13,7 +13,7 @@ namespace AlvTime.Business.TimeEntries
 
     public class TimeEntryQuerySearch
     {
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
         public int? Id { get; set; }
         public DateTime? FromDateInclusive { get; set; }
         public DateTime? ToDateInclusive { get; set; }

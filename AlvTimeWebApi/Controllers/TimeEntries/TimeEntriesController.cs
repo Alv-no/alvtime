@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AlvTimeWebApi.Controllers.TimeEntries
 {
@@ -59,11 +60,22 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
 
         [HttpGet("TimeEntriesReport")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
-        public ActionResult<IEnumerable<SomeDto>> FetchTimeEntriesReport(DateTime fromDateInclusive, DateTime toDateInclusive)
+        public ActionResult<IEnumerable<TimeEntriesResponseDto>> FetchTimeEntriesReport(DateTime fromDateInclusive, DateTime toDateInclusive)
         {
-            var report = _storage.GetTimeEntriesForAllUsersInTimePeriod(new TimeEntryQuerySearch
+            var user = _userRetriever.RetrieveUser();
+
+            if(user.Id == 11 || user.Id == 17)
             {
-            });
+                var report = _storage.GetTimeEntries(new TimeEntryQuerySearch
+                {
+                    FromDateInclusive = fromDateInclusive,
+                    ToDateInclusive = toDateInclusive
+                }).ToList();
+
+                return Ok(report);
+            }
+
+            return Unauthorized();
         }
     }
 }

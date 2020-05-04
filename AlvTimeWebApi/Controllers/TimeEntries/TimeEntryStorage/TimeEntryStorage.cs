@@ -23,6 +23,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries.TimeEntryStorage
                     .Select(x => new TimeEntriesResponseDto
                     {
                         Id = x.Id,
+                        User = x.User,
                         Value = x.Value,
                         Date = x.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                         TaskId = x.TaskId
