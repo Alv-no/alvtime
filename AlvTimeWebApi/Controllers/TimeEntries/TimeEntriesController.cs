@@ -17,6 +17,9 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
         private readonly TimeEntryCreator _creator;
         private RetrieveUsers _userRetriever;
 
+        private readonly int TEST_USER = 11;
+        private readonly int REPORT_USER = 17;
+
         public TimeEntriesController(RetrieveUsers userRetriever, ITimeEntryStorage storage, TimeEntryCreator creator)
         {
             _userRetriever = userRetriever;
@@ -64,7 +67,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
         {
             var user = _userRetriever.RetrieveUser();
 
-            if(user.Id == 11 || user.Id == 17)
+            if(user.Id == TEST_USER || user.Id == REPORT_USER)
             {
                 var report = _storage.GetTimeEntries(new TimeEntryQuerySearch
                 {
