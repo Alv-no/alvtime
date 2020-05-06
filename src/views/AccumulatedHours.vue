@@ -1,11 +1,14 @@
 <template>
-  <div>Hei</div>
+  <HoursWithdrawal />
 </template>
 
 <script lang="ts">
 import Vue from "vue";
+import HoursWithdrawal from "@/components/HoursWithdrawal.vue";
 
 export default Vue.extend({
-  components: {},
+  components: {
+    HoursWithdrawal,
+  },
 });
 </script>
