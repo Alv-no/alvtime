@@ -24,16 +24,13 @@ export default Vue.extend({
 <style scoped>
 .grid {
   display: grid;
-  width: 100%;
-  grid-template-columns: 200px minmax(6rem, calc(27rem)) 200px;
+  grid-template-columns: 210px auto 210px;
   align-items: center;
-  justify-content: center;
-  text-align: center;
+  justify-content: space-between;
 }
 
 .hour_sums {
-  justify-self: left;
-  margin-left: 0.5rem;
+  margin-left: 1rem;
 }
 
 .title {
@@ -41,19 +38,18 @@ export default Vue.extend({
 }
 
 .nav_buttons {
-  justify-self: right;
-  margin-right: 0.5rem;
+  margin-right: 1rem;
 }
 
 @media only screen and (max-width: 650px) {
   .grid {
-    grid-template-columns: 50px minmax(6rem, calc(27rem)) 200px;
+    grid-template-columns: 50px auto 210px;
   }
 }
 
 @media only screen and (max-width: 449px) {
   .grid {
-    grid-template-columns: 50px minmax(6rem, calc(27rem)) 50px;
+    grid-template-columns: 50px auto 50px;
   }
 }
 </style>

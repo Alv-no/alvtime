@@ -65,9 +65,8 @@ export default Vue.extend({
 <style scoped>
 .container {
   display: grid;
-  grid-template-columns: auto auto auto auto auto auto auto;
+  grid-template-columns: repeat(7, auto);
   gap: 1.51rem;
   align-items: center;
-  color: #000;
 }
 </style>

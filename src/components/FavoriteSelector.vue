@@ -1,15 +1,13 @@
 <template>
-  <div>
-    <div class="container">
-      <div v-for="task in tasks" :key="task.id" class="row">
-        <TimeEntrieText :task="task" />
-        <md-checkbox
-          :value="!task.favorite"
-          type="checkbox"
-          :disabled="!isOnline"
-          @change="toggleFavorite(task)"
-        />
-      </div>
+  <div class="list">
+    <div v-for="task in tasks" :key="task.id" class="row">
+      <TimeEntrieText :task="task" />
+      <md-checkbox
+        :value="!task.favorite"
+        type="checkbox"
+        :disabled="!isOnline"
+        @change="toggleFavorite(task)"
+      />
     </div>
   </div>
 </template>
@@ -49,31 +47,19 @@ export default Vue.extend({
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
-  color: #000;
   padding: 0 1rem;
 }
 
-.container {
+.list {
   padding-top: 1rem;
 }
 
-@media only screen and (min-width: 1000px) {
-  .container {
-    display: grid;
-    justify-content: center;
-  }
-
-  .row {
-    width: 48rem;
-  }
-}
-
-.container >>> .md-checkbox.md-theme-default.md-checked .md-checkbox-container {
+.list >>> .md-checkbox.md-theme-default.md-checked .md-checkbox-container {
   background-color: #008dcf;
   border-color: #008dcf;
 }
 
-.container >>> .md-checkbox.md-theme-default.md-checked .md-ripple {
+.list >>> .md-checkbox.md-theme-default.md-checked .md-ripple {
   color: #008dcf;
 }
 </style>
