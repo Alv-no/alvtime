@@ -1,7 +1,7 @@
 <template>
   <input
     ref="inputRef"
-    :type="type"
+    :class="{ error }"
     :value="value"
     :placeholder="placeholder"
     @input="update"
@@ -12,10 +12,6 @@
 import Vue from "vue";
 export default Vue.extend({
   props: {
-    type: {
-      type: String,
-      default: "text",
-    },
     value: {
       type: String,
       default: "",
@@ -23,6 +19,10 @@ export default Vue.extend({
     placeholder: {
       type: String,
       default: "",
+    },
+    error: {
+      type: Boolean,
+      default: false,
     },
   },
 
@@ -55,6 +55,16 @@ input:focus {
 }
 
 input:hover {
+  border-color: #008dcf;
+  transition: border-color 500ms ease-out;
+}
+
+.error {
+  background-color: #d7312540;
+  transition: border-color 500ms ease-in-out;
+}
+
+.error:hover {
   border-color: #008dcf;
   transition: border-color 500ms ease-out;
 }
