@@ -8,4 +8,5 @@ export default Object.freeze({
   ACCESS_SCOPE: process.env.VUE_APP_ACCESS_SCOPE,
   SLACK_TEAM_ID: "TJ70QLJRL",
   SLACK_CHANNEL_ID: "CNEHG527J",
+  TEST_ACCESS_TOKEN: "5801gj90-jf39-5j30-fjk3-480fj39kl409",
 });

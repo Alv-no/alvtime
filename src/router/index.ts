@@ -7,6 +7,7 @@ import Tokens from "../views/Tokens.vue";
 import UnAutherized from "../views/UnAutherized.vue";
 import Login from "../views/Login.vue";
 import store from "@/store";
+import { requireLogin } from "@/services/auth";
 
 Vue.use(VueRouter);
 
@@ -51,7 +52,7 @@ const router = new VueRouter({
 router.beforeEach(async (to, _from, next) => {
   if (to.name === "UnAutherized" || to.name === "login") {
     next();
-  } else if (!store.state.account) {
+  } else if (requireLogin()) {
     next("login");
   } else if (!store.state.tasks.length) {
     await store.dispatch("FETCH_TASKS");
@@ -64,6 +65,8 @@ router.beforeEach(async (to, _from, next) => {
     next();
   }
 });
+
+function is() {}
 
 router.afterEach(route => {
   store.commit("SET_CURRENT_ROUTE", route);

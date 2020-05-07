@@ -21,6 +21,7 @@
         @click="navTo(item.routeName)"
       >
         <md-icon>query_builder</md-icon>
+
         <span
           :class="{ active: $store.state.currentRoute.name === item.routeName }"
           class="md-list-item-text"
@@ -28,9 +29,9 @@
         >
       </md-list-item>
 
-      <md-list-item @click="logout">
+      <md-list-item @click="authAction">
         <md-icon>meeting_room</md-icon>
-        <span class="md-list-item-text">Logg ut</span>
+        <span class="md-list-item-text">{{ authText }}</span>
       </md-list-item>
     </md-list>
   </div>
@@ -39,7 +40,7 @@
 <script lang="ts">
 import Vue from "vue";
 import YellowButton from "@/components/YellowButton.vue";
-import { logout } from "../services/auth";
+import { logout, login } from "../services/auth";
 
 export default Vue.extend({
   components: {
@@ -59,8 +60,15 @@ export default Vue.extend({
 
   computed: {
     name(): string {
-      const account = this.$store.state.account;
-      return account ? account.name : " ";
+      return this.account && this.account.name ? this.account.name : "";
+    },
+
+    authText(): string {
+      return this.account ? "Logg ut" : "Logg in";
+    },
+
+    account(): Account {
+      return this.$store.state.account;
     },
   },
 
@@ -74,8 +82,12 @@ export default Vue.extend({
       setTimeout(() => this.$store.commit("TOGGLE_DRAWER"), 150);
     },
 
-    logout() {
-      logout();
+    authAction() {
+      if (this.account) {
+        logout();
+      } else {
+        login();
+      }
     },
   },
 });
