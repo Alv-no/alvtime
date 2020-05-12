@@ -58,7 +58,7 @@ export default Vue.extend({
     return {
       tokens: [] as Token[],
       active: false,
-      token: null,
+      token: null as null | Token,
     };
   },
 
