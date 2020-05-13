@@ -25,6 +25,14 @@
         @click="() => onDeleteClick(token)"
       />
     </div>
+    <md-dialog-confirm
+      :md-active.sync="active"
+      md-title="Slette tokens?"
+      md-content="Er du sikker på at du vil slette tokens? De vil da ikke lenger fungere på steder du har implementert dem."
+      md-confirm-text="Slett"
+      md-cancel-text="Avbryt"
+      @md-confirm="onConfirm"
+    />
   </div>
 </template>
 
@@ -49,6 +57,8 @@ export default Vue.extend({
   data() {
     return {
       tokens: [] as Token[],
+      active: false,
+      token: null as null | Token,
     };
   },
 
@@ -68,11 +78,21 @@ export default Vue.extend({
 
   methods: {
     onDeleteClick(token: Token) {
-      this.deleteAccessTokens([token]);
+      this.active = true;
+      this.token = token;
     },
 
     onDeletAllClick() {
-      this.deleteAccessTokens(this.tokens);
+      this.active = true;
+    },
+
+    onConfirm() {
+      if (this.token != null) {
+        this.deleteAccessTokens([this.token]);
+        this.token = null;
+      } else {
+        this.deleteAccessTokens(this.tokens);
+      }
     },
 
     async fetchActiveAccessTokens() {
