@@ -1,0 +1,44 @@
+#!/usr/bin/env sh
+
+[ "start" = $1 ] && \
+  docker-compose -f .devcontainer/docker-compose.yaml up -d && \
+  docker-compose -f .devcontainer/docker-compose.yaml exec alvtime-vue-dev npx vue-cli-service serve
+
+[ "up" = $1 ] && \
+  docker-compose -f .devcontainer/docker-compose.yaml up -d
+
+[ "serve" = $1 ] && \
+  docker-compose -f .devcontainer/docker-compose.yaml exec alvtime-vue-dev npx vue-cli-service serve
+
+[ "down" = $1 ] && \
+  docker-compose -f .devcontainer/docker-compose.yaml down --volumes
+
+[ "logs" = $1 ] && \
+  docker-compose -f .devcontainer/docker-compose.yaml logs -f
+
+[ "pull" = $1 ] && \
+  docker-compose -f .devcontainer/docker-compose.yaml pull
+
+[ "build" = $1 ] && \
+  docker-compose -f .devcontainer/docker-compose.yaml build
+
+[ "test" = $1 ] && \
+  docker-compose -f .devcontainer/docker-compose.yaml exec alvtime-vue-dev npx vue-cli-service test:unit
+
+[ "test:e2e" = $1 ] && \
+  docker-compose -f .devcontainer/docker-compose.yaml exec alvtime-vue-dev npx vue-cli-service test:e2e
+
+[ "lint" = $1 ] && \
+  docker-compose -f .devcontainer/docker-compose.yaml exec alvtime-vue-dev npx vue-cli-service lint run lint
+
+[ "local-up" = $1 ] && \
+  docker-compose up --build
+
+[ "local-down" = $1 ] && \
+  docker-compose down --volumes
+
+[ "local-logs" = $1 ] && \
+  docker-compose logs -f
+
+[ "prune" = $1 ] && \
+  docker system prune --volumes -f

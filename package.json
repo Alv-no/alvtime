@@ -3,12 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "up": "docker-compose up --detach",
-    "start": "docker-compose up --detach && docker-compose exec alvtime-vue-dev npx vue-cli-service serve",
-    "build": "docker-compose up --detach && docker-compose exec alvtime-vue-dev npx vue-cli-service build",
-    "test": "docker-compose up --detach && docker-compose exec alvtime-vue-dev npx vue-cli-service test:unit",
-    "lint": "docker-compose up --detach && docker-compose exec alvtime-vue-dev npx vue-cli-service lint",
-    "down": "docker-compose down --volumes"
+    "start": "npx vue-cli-service serve",
+    "build": "npx vue-cli-service build",
+    "test": "npx vue-cli-service test:unit",
+    "lint": "npx vue-cli-service lint"
   },
   "dependencies": {
     "@azure/msal-browser": "^2.0.0-beta.0",

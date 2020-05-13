@@ -11,7 +11,6 @@ import TokensList from "@/components/TokensList.vue";
 import GenerateToken from "@/components/GenerateToken.vue";
 
 export default Vue.extend({
-  name: "Home",
   components: {
     TokensList,
     GenerateToken,

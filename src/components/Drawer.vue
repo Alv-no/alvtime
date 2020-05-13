@@ -15,39 +15,23 @@
     </md-toolbar>
 
     <md-list>
-      <md-list-item @click="navToHours">
+      <md-list-item
+        v-for="item in items"
+        :key="item.routeName"
+        @click="navTo(item.routeName)"
+      >
         <md-icon>query_builder</md-icon>
+
         <span
-          :class="{ active: $store.state.currentRoute.name === 'hours' }"
+          :class="{ active: $store.state.currentRoute.name === item.routeName }"
           class="md-list-item-text"
+          >{{ item.text }}</span
         >
-          Timeføring
-        </span>
       </md-list-item>
 
-      <md-list-item @click="navToTasks">
-        <md-icon>star_border</md-icon>
-        <span
-          :class="{ active: $store.state.currentRoute.name === 'tasks' }"
-          class="md-list-item-text"
-        >
-          Favorittaktiviteter
-        </span>
-      </md-list-item>
-
-      <md-list-item @click="navToTokens">
-        <md-icon>vpn_key</md-icon>
-        <span
-          :class="{ active: $store.state.currentRoute.name === 'tokens' }"
-          class="md-list-item-text"
-        >
-          Personal access tokens
-        </span>
-      </md-list-item>
-
-      <md-list-item @click="logout">
+      <md-list-item @click="authAction">
         <md-icon>meeting_room</md-icon>
-        <span class="md-list-item-text">Logg ut</span>
+        <span class="md-list-item-text">{{ authText }}</span>
       </md-list-item>
     </md-list>
   </div>
@@ -56,17 +40,35 @@
 <script lang="ts">
 import Vue from "vue";
 import YellowButton from "@/components/YellowButton.vue";
-import { logout } from "../services/auth";
+import { logout, login } from "../services/auth";
 
 export default Vue.extend({
   components: {
     YellowButton,
   },
 
+  data() {
+    return {
+      items: [
+        { text: "Timeføring", routeName: "hours" },
+        { text: "Favorittaktiviteter", routeName: "tasks" },
+        // { text: "Overtid og avspassering", routeName: "accumulated-hours" },
+        { text: "Personal access tokens", routeName: "tokens" },
+      ],
+    };
+  },
+
   computed: {
     name(): string {
-      const account = this.$store.state.account;
-      return account ? account.name : " ";
+      return this.account && this.account.name ? this.account.name : "";
+    },
+
+    authText(): string {
+      return this.account ? "Logg ut" : "Logg in";
+    },
+
+    account(): Account {
+      return this.$store.state.account;
     },
   },
 
@@ -75,23 +77,17 @@ export default Vue.extend({
       this.$store.commit("TOGGLE_DRAWER");
     },
 
-    navToHours() {
-      this.$router.push("hours");
+    navTo(routeName: string) {
+      this.$router.push(routeName);
       setTimeout(() => this.$store.commit("TOGGLE_DRAWER"), 150);
     },
 
-    navToTasks() {
-      this.$router.push("tasks");
-      setTimeout(() => this.$store.commit("TOGGLE_DRAWER"), 150);
-    },
-
-    navToTokens() {
-      this.$router.push("tokens");
-      setTimeout(() => this.$store.commit("TOGGLE_DRAWER"), 150);
-    },
-
-    logout() {
-      logout();
+    authAction() {
+      if (this.account) {
+        logout();
+      } else {
+        login();
+      }
     },
   },
 });

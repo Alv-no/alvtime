@@ -1,31 +1,33 @@
 version: '3.7'
 
 services:
-  alvtime-vue-dev:
-    container_name: alvtime-vue-dev
+  alvtime-vue-local-build:
+    container_name: alvtime-vue-local-build
     tty: true
-    image: alvtime-vue-dev
+    image: alvtime-vue-local-build
     build:
       context: .
-      dockerfile: Dockerfile-dev
+      dockerfile: ./Dockerfile
+      args:
+        VUE_APP_HOST: "http://localhost"
+        VUE_APP_ACCESS_SCOPE: "https://d8aedd.alvtime-ap-alvtime-api-dev-f9b4e4.westeurope.cloudapp.azure.com/access_as_user"
+        VUE_APP_CLIENT_ID: "373a7768-6d2a-4b20-b671-bc1089104a3a"
     volumes:
       - .:/usr/src/app:delegated
       - /usr/src/app/node_modules/
     expose:
-      - 8080
-    environment:
-      - VUE_APP_HOST=http://localhost:3000
-      - VUE_APP_ACCESS_SCOPE=https://d8aedd.alvtime-ap-alvtime-api-dev-f9b4e4.westeurope.cloudapp.azure.com/access_as_user
-      - VUE_APP_CLIENT_ID=373a7768-6d2a-4b20-b671-bc1089104a3a
-  nginx-reverse-proxy:
-    container_name: nginx-reverse-proxy
-    build: ./nginx/
+      - 80
+  nginx-reverse-proxy-local-build:
+    container_name: nginx-reverse-proxy-local-build
+    build:
+      context: ./nginx
+      dockerfile: ./Dockerfile-local-build
     command: nginx -g 'daemon off;'
     ports:
-      - "3000:80"
+      - "80:80"
     links:
       - dotnet-backend
-      - alvtime-vue-dev
+      - alvtime-vue-local-build
   dotnet-backend:
     container_name: dotnet-backend
     image: alvnoas/alvtime-web-api:latest

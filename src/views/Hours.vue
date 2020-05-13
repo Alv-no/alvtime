@@ -1,6 +1,5 @@
 <template>
   <div>
-    <Gapestokk />
     <Progress :visible="progressBarVisible" />
     <mq-layout mq="sm">
       <DaySwiper />
@@ -26,7 +25,6 @@ export default Vue.extend({
     DaySwiper,
     WeekSwiper,
     Progress,
-    Gapestokk,
   },
 
   computed: {

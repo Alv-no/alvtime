@@ -113,9 +113,10 @@ export function sortList(a: Task, b: Task) {
 <style scoped>
 .days {
   display: grid;
-  grid-template-columns: auto auto auto auto auto auto auto;
+  grid-template-columns: repeat(7, auto);
   gap: 1.51rem;
   text-align: center;
+  margin-bottom: 0.55rem;
 }
 
 .center {
@@ -134,7 +135,7 @@ export function sortList(a: Task, b: Task) {
 
 .row {
   display: grid;
-  grid-template-columns: minmax(8rem, 16rem) 30rem;
+  grid-template-columns: minmax(8rem, 999rem) 30rem;
   margin: 0 1rem;
 }
 </style>

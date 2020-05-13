@@ -21,7 +21,9 @@
         </div>
 
         <div class="md-toolbar-row">
-          <Toolbar />
+          <CenterColumnWrapper>
+            <Toolbar />
+          </CenterColumnWrapper>
         </div>
       </md-app-toolbar>
 
@@ -30,7 +32,9 @@
       </md-app-drawer>
       <md-app-content>
         <div>
-          <router-view />
+          <CenterColumnWrapper>
+            <router-view />
+          </CenterColumnWrapper>
           <UpdateSnackbar />
           <OnlineSnackbar />
           <ErrorSnackbar />
@@ -51,6 +55,7 @@ import Toolbar from "@/components/Toolbar.vue";
 import Avatar from "@/components/Avatar.vue";
 import Drawer from "@/components/Drawer.vue";
 import DayFooter from "@/components/DayFooter.vue";
+import CenterColumnWrapper from "@/components/CenterColumnWrapper.vue";
 
 export default Vue.extend({
   components: {
@@ -61,6 +66,7 @@ export default Vue.extend({
     Avatar,
     Drawer,
     DayFooter,
+    CenterColumnWrapper,
   },
 
   data() {
@@ -126,6 +132,10 @@ html {
 .md-toolbar.md-theme-default {
   background-color: #00083d;
   color: white;
+}
+
+.md-toolbar {
+  padding: 0;
 }
 
 .md-app-content {

@@ -66,7 +66,9 @@ export default Vue.extend({
     prettyTokens(): Token[] {
       return this.tokens.map((token: Token) => {
         const { id, friendlyName, expiryDate } = token;
-        const humanReadableDate = moment(expiryDate).format("dddd D. MMMM");
+        const humanReadableDate = moment(expiryDate).format(
+          "dddd D. MMMM YYYY"
+        );
         return { id, friendlyName, expiryDate: humanReadableDate };
       });
     },
