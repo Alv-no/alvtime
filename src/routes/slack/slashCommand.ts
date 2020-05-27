@@ -1,8 +1,13 @@
 import express from "express";
 import env from "../../environment";
 import { slackWebClient, slackInteractions } from "./index";
+import { capitalizeFirstLetter } from "../../utils/text";
+import jwt from "jwt-simple";
+import config from "../../config";
+import UserModel from "../../models/user";
+import runCommand from "./runCommand";
 
-interface CommandBody {
+export interface CommandBody {
   token: string;
   team_id: string;
   team_domain: string;
@@ -16,42 +21,94 @@ interface CommandBody {
   trigger_id: string;
 }
 
-function createSlashCommandRouter() {
+export interface LoginInfo {
+  slackUserName: string;
+  slackUserID: string;
+  slackChannelID: string;
+  slackChannelName: string;
+  slackTeamID: string;
+  slackTeamDomain: string;
+  action: { type: string; value: { [key: string]: string } };
+}
+
+export interface LoginTokenData extends LoginInfo {
+  exp: number;
+  iat: number;
+}
+
+export const actionTypes = Object.freeze({
+  COMMAND: "COMMAND",
+});
+
+export default function createSlashCommandRouter() {
   const slashCommandRouter = express.Router();
 
-  slashCommandRouter.use("/", (req, _res, next) => {
-    console.log(req.body);
-    next();
-  });
-
-  slashCommandRouter.use("/", (req, _res, next) => {
-    const { text, channel_id, user_name } = req.body;
-    if (text === "test") {
-      const loginMessage = createLoginMessage(user_name, channel_id);
-      slackWebClient.chat.postMessage(loginMessage);
-    }
-    next();
-  });
+  slashCommandRouter.use("/", authenticate);
 
   slashCommandRouter.post("/", (req, res) => {
-    const body = req.body as CommandBody;
-    slackWebClient.chat.postMessage({ text: "HEI", channel: body.channel_id });
+    const commandBody = req.body as CommandBody;
+    runCommand(commandBody);
     res.send("");
   });
 
-  slackInteractions.action(
-    { actionId: "open_login_in_browser" },
-    async function () {
-      return {
-        text: "Åpner login nettside...",
-      };
-    }
-  );
+  slackInteractions.action({ actionId: "open_login_in_browser" }, () => ({
+    text: "Åpner login nettside...",
+  }));
 
   return slashCommandRouter;
 }
 
-function createLoginMessage(name: string, channelId: string) {
+async function authenticate(
+  req: { body: CommandBody },
+  res: { send: (s: string) => void },
+  next: (s?: string) => void
+) {
+  const user = await UserModel.findById(req.body.user_id);
+  if (!user) {
+    const loginInfo = {
+      slackUserName: req.body.user_name,
+      slackUserID: req.body.user_id,
+      slackChannelID: req.body.channel_id,
+      slackChannelName: req.body.channel_name,
+      slackTeamID: req.body.team_id,
+      slackTeamDomain: req.body.team_domain,
+      action: {
+        type: actionTypes.COMMAND,
+        value: (req.body as unknown) as { [key: string]: string },
+      },
+    };
+    sendLoginMessage(loginInfo);
+    res.send("");
+  } else {
+    next();
+  }
+}
+
+function sendLoginMessage(info: LoginInfo) {
+  const { slackUserName, slackChannelID } = info;
+  const token = createToken(info);
+  const loginMessage = createLoginMessage(slackUserName, slackChannelID, token);
+  slackWebClient.chat.postEphemeral({
+    token: env.SLACK_BOT_TOKEN,
+    channel: info.slackChannelID,
+    user: info.slackUserID,
+    ...loginMessage,
+  });
+}
+
+function createToken(info: LoginInfo) {
+  const iat = new Date().getTime();
+  const exp = iat + 60 * 60 * 1000;
+  const payload = {
+    ...info,
+    iat,
+    exp,
+  };
+  return jwt.encode(payload, config.JWT_SECRET);
+}
+
+function createLoginMessage(name: string, channelId: string, token: string) {
+  name = capitalizeFirstLetter(name);
   return {
     text: "",
     blocks: [
@@ -67,10 +124,10 @@ function createLoginMessage(name: string, channelId: string) {
           action_id: "open_login_in_browser",
           text: {
             type: "plain_text",
-            text: "Login med Azure Ad",
+            text: "Connect Alvtime account",
             emoji: true,
           },
-          url: env.HOST + "/oauth2/azuread",
+          url: env.HOST + "/oauth2/login?token=" + token,
           value: "login_button_clicked",
         },
       },
@@ -78,5 +135,3 @@ function createLoginMessage(name: string, channelId: string) {
     channel: channelId,
   };
 }
-
-export default createSlashCommandRouter;
