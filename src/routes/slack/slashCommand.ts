@@ -1,11 +1,12 @@
 import express from "express";
-import env from "../../environment";
-import { slackWebClient, slackInteractions } from "./index";
-import { capitalizeFirstLetter } from "../../utils/text";
 import jwt from "jwt-simple";
 import config from "../../config";
+import env from "../../environment";
 import UserModel from "../../models/user";
+import { capitalizeFirstLetter } from "../../utils/text";
+import { slackInteractions } from "./index";
 import runCommand from "./runCommand";
+import sendCommandResponse from "./sendCommandResponse";
 
 export interface CommandBody {
   token: string;
@@ -85,15 +86,10 @@ async function authenticate(
 }
 
 function sendLoginMessage(info: LoginInfo) {
-  const { slackUserName, slackChannelID } = info;
+  const { slackUserName, slackChannelID, action } = info;
   const token = createToken(info);
   const loginMessage = createLoginMessage(slackUserName, slackChannelID, token);
-  slackWebClient.chat.postEphemeral({
-    token: env.SLACK_BOT_TOKEN,
-    channel: info.slackChannelID,
-    user: info.slackUserID,
-    ...loginMessage,
-  });
+  sendCommandResponse(action.value.response_url, loginMessage);
 }
 
 function createToken(info: LoginInfo) {

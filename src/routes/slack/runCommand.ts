@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import createAlvtimeClient, { Task, TimeEntrie } from "../../client/index";
 import config from "../../config";
 import env from "../../environment";
@@ -7,6 +6,7 @@ import configuredMoment from "../../moment";
 import { capitalizeFirstLetter } from "../../utils/text";
 import getAccessToken from "../auth/getAccessToken";
 import { slackWebClient } from "./index";
+import sendCommandResponse from "./sendCommandResponse";
 import { CommandBody } from "./slashCommand";
 
 const { LOGG, TASKS, REG, UKE } = Object.freeze({
@@ -108,18 +108,10 @@ async function logg(
       }
     }
 
-    sendCommendResponse(commandBody.response_url, message);
+    sendCommandResponse(commandBody.response_url, message);
   } catch (e) {
     console.log("error", e);
   }
-}
-
-function sendCommendResponse(responsURL: string, message: any) {
-  const method = "post";
-  const headers = { "Content-type": "application/json" };
-  const body = JSON.stringify(message);
-  const options = { method, headers, body };
-  fetch(responsURL, options);
 }
 
 async function tasks(
