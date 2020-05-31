@@ -5,7 +5,6 @@ import UserModel, { UserData } from "../../models/user";
 import configuredMoment from "../../moment";
 import { capitalizeFirstLetter } from "../../utils/text";
 import getAccessToken from "../auth/getAccessToken";
-import { slackWebClient } from "./index";
 import sendCommandResponse from "./sendCommandResponse";
 import { CommandBody } from "./slashCommand";
 
@@ -48,7 +47,7 @@ export default async function runCommand(commandBody: CommandBody) {
 }
 
 async function logg(
-  params: string[],
+  _params: string[],
   commandBody: CommandBody,
   userData: UserData
 ) {
@@ -122,9 +121,8 @@ async function tasks(
   try {
     const accessToken = await getAccessToken(userData);
     const tasks = await client.getTasks(accessToken);
-    slackWebClient.chat.postMessage({
-      text: JSON.stringify(tasks),
-      channel: commandBody.channel_id,
+    sendCommandResponse(commandBody.response_url, {
+      text: createTasksMessage(tasks, params.includes("alle")),
     });
   } catch (e) {
     console.log("error", e);
@@ -197,4 +195,15 @@ function createWorkWeek(day: moment.Moment) {
 function createWeek(day: moment.Moment) {
   const monday = day.clone().startOf("week");
   return [0, 1, 2, 3, 4, 5, 6].map((n) => monday.clone().add(n, "day"));
+}
+
+function createTasksMessage(tasks: Task[], all: boolean) {
+  let text = "*ID* - *Task* - *Prosjekt* - *Kunde*\n";
+  for (const task of tasks) {
+    if (task.favorite || all)
+      text =
+        text +
+        `${task.id} - ${task.name} - ${task.project.name} - ${task.project.customer.name}\n`;
+  }
+  return text;
 }
