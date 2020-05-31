@@ -30,7 +30,7 @@ export default async function getAccessToken(userData: UserData) {
 
   if (isExpired) {
     const refreshTokenBody = await refreshAccessToken(userData);
-    updateUserAuth(userData, refreshTokenBody);
+    updateUserAuth(userData.slackUserID, refreshTokenBody);
     accessToken = refreshTokenBody.access_token;
   } else {
     accessToken = userData.auth.accessToken;
@@ -72,28 +72,23 @@ async function refreshAccessToken(userData: UserData) {
 }
 
 function updateUserAuth(
-  userData: UserData,
+  slackUserID: string,
   refreshTokenBody: RefreshAccessTokenRespons
 ) {
   const nowInSecounds = Math.floor(new Date().getTime() / 1000);
-  const { name, email, slackUserName, slackUserID } = userData;
-  const doc = {
-    _id: userData.slackUserID,
-    name,
-    email,
-    slackUserName,
-    slackUserID,
-    auth: {
-      tokenType: refreshTokenBody.token_type,
-      scope: refreshTokenBody.scope,
-      expiresIn: refreshTokenBody.expires_in,
-      expiresOn: nowInSecounds + refreshTokenBody.expires_in,
-      accessToken: refreshTokenBody.access_token,
-      refreshToken: refreshTokenBody.refresh_token,
-      idToken: refreshTokenBody.id_token,
-    },
+  const auth = {
+    tokenType: refreshTokenBody.token_type,
+    scope: refreshTokenBody.scope,
+    expiresIn: refreshTokenBody.expires_in,
+    expiresOn: nowInSecounds + refreshTokenBody.expires_in,
+    accessToken: refreshTokenBody.access_token,
+    refreshToken: refreshTokenBody.refresh_token,
+    idToken: refreshTokenBody.id_token,
   };
-  UserModel.replaceOne({ _id: userData.slackUserID }, doc)
+  UserModel.findOneAndUpdate(
+    { _id: slackUserID },
+    { $set: { auth, __enc_message: false } }
+  )
     .then(() => console.log("Succesfully updated auth on user."))
     .catch((e) => console.error("Unable to replace user data: ", e));
 }

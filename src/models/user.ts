@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import encrypt from "mongoose-encryption";
+import mongooseFieldEncryption from "mongoose-field-encryption";
 import env from "../environment";
 
 export interface UserData {
@@ -38,9 +38,9 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.plugin(encrypt, {
-  encryptionKey: env.DB_ENCRYPTION_KEY,
-  signingKey: env.DB_SIGNING_KEY,
+userSchema.plugin(mongooseFieldEncryption.fieldEncryption, {
+  fields: ["auth"],
+  secret: env.DB_ENCRYPTION_KEY,
 });
 
 export default mongoose.model("User", userSchema);
