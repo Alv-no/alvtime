@@ -1,7 +1,7 @@
 <template>
   <div class="center">
     <div class="row">
-      <div />
+      <div class="week-number">Uke {{ weekNumber }}</div>
       <div class="days">
         <div v-for="day in week" :key="day._d.Date">
           <DayPill :date="day" />
@@ -82,6 +82,10 @@ export default Vue.extend({
         return d.charAt(0).toUpperCase() + d.slice(1);
       });
     },
+
+    weekNumber(): number {
+      return this.week[0].week();
+    },
   },
 
   methods: {
@@ -137,5 +141,12 @@ export function sortList(a: Task, b: Task) {
   display: grid;
   grid-template-columns: minmax(8rem, 999rem) 30rem;
   margin: 0 1rem;
+}
+
+.week-number {
+  display: grid;
+  align-items: center;
+  margin-bottom: 0.55rem;
+  font-size: 0.8rem;
 }
 </style>
