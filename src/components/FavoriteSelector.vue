@@ -1,25 +1,29 @@
 <template>
-  <div class="list">
-    <div v-for="task in tasks" :key="task.id" class="row">
-      <TimeEntrieText :task="task" />
-      <md-checkbox
-        :value="!task.favorite"
-        type="checkbox"
-        :disabled="!isOnline"
-        @change="toggleFavorite(task)"
-      />
+  <CenterColumnWrapper>
+    <div class="list">
+      <div v-for="task in tasks" :key="task.id" class="row">
+        <TimeEntrieText :task="task" />
+        <md-checkbox
+          :value="!task.favorite"
+          type="checkbox"
+          :disabled="!isOnline"
+          @change="toggleFavorite(task)"
+        />
+      </div>
     </div>
-  </div>
+  </CenterColumnWrapper>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { Task } from "../store/tasks";
 import TimeEntrieText from "./TimeEntrieText.vue";
+import CenterColumnWrapper from "@/components/CenterColumnWrapper.vue";
 
 export default Vue.extend({
   components: {
     TimeEntrieText,
+    CenterColumnWrapper,
   },
 
   computed: {

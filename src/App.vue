@@ -32,9 +32,7 @@
       </md-app-drawer>
       <md-app-content>
         <div>
-          <CenterColumnWrapper>
-            <router-view />
-          </CenterColumnWrapper>
+          <router-view />
           <UpdateSnackbar />
           <OnlineSnackbar />
           <ErrorSnackbar />

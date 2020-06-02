@@ -158,18 +158,7 @@ export default Vue.extend({
 }
 
 .container {
-  display: grid;
   padding-top: 1rem;
-}
-
-@media only screen and (min-width: 1000px) {
-  .container {
-    justify-content: center;
-  }
-
-  .row {
-    width: 50rem;
-  }
 }
 
 .friendly-name {
