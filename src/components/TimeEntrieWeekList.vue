@@ -1,8 +1,9 @@
 <template>
+
   <CenterColumnWrapper>
     <div class="center">
       <div class="row">
-        <div />
+        <div class="week-number">Uke {{ weekNumber }}</div>
         <div class="days">
           <div v-for="day in week" :key="day._d.Date">
             <DayPill :date="day" />
