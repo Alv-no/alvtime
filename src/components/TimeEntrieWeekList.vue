@@ -1,18 +1,21 @@
 <template>
-  <div class="center">
-    <div class="row">
-      <div class="week-number">Uke {{ weekNumber }}</div>
-      <div class="days">
-        <div v-for="day in week" :key="day._d.Date">
-          <DayPill :date="day" />
+
+  <CenterColumnWrapper>
+    <div class="center">
+      <div class="row">
+        <div class="week-number">Uke {{ weekNumber }}</div>
+        <div class="days">
+          <div v-for="day in week" :key="day._d.Date">
+            <DayPill :date="day" />
+          </div>
         </div>
       </div>
+      <div v-for="task in tasks" :key="task.id" class="row">
+        <TimeEntrieText :task="task" />
+        <TimeEntrieWeek :task="task" :week="week" />
+      </div>
     </div>
-    <div v-for="task in tasks" :key="task.id" class="row">
-      <TimeEntrieText :task="task" />
-      <TimeEntrieWeek :task="task" :week="week" />
-    </div>
-  </div>
+  </CenterColumnWrapper>
 </template>
 
 <script lang="ts">
@@ -24,12 +27,14 @@ import { Task } from "@/store/tasks";
 import { FrontendTimentrie } from "@/store/timeEntries";
 import config from "@/config";
 import { Moment } from "moment";
+import CenterColumnWrapper from "@/components/CenterColumnWrapper.vue";
 
 export default Vue.extend({
   components: {
     TimeEntrieWeek,
     TimeEntrieText,
     DayPill,
+    CenterColumnWrapper,
   },
   props: { week: { type: Array as () => Moment[], default: () => [] } },
 

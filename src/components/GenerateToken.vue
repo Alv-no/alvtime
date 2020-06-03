@@ -1,5 +1,5 @@
 <template>
-  <div class="outer-container">
+  <div>
     <div class="description">
       Personal access tokens fungerer akkurat som OAuth access tokens for å
       autentisere deg mot alvtime web api. Bruk de som bearer tokens i
@@ -142,11 +142,6 @@ export default Vue.extend({
 .expires {
   margin-left: 1rem;
   font-weight: bold;
-}
-
-.outer-container {
-  display: grid;
-  justify-content: center;
 }
 
 .icon_button {
