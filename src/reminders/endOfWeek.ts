@@ -12,10 +12,11 @@ interface Member {
   is_bot: boolean;
 }
 
-const fridays1630 = "30 14 * * 5"; // UTS time
+const fridays1630 = "30 14 * * 5"; // UTC time
+const thursdays1900 = "0 17 * * 4"; // UTC time
 
 function startEndOfWeekReminder() {
-  cron.schedule(fridays1630, remindUsersToRegisterHours);
+  cron.schedule(thursdays1900, remindUsersToRegisterHours);
 
   slackInteractions.action(
     { actionId: "open_alvtime_button" },
@@ -43,7 +44,8 @@ async function getUsers() {
   };
 
   const users = res.members.filter(
-    (member) => !member.is_bot && member.id !== "USLACKBOT"
+    (member) =>
+      !member.is_bot && member.id !== "USLACKBOT" && member.id === "UR64B2VGE"
   );
 
   return users;
@@ -77,7 +79,7 @@ const createRegisterHoursReminder = (name: string) => {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: "Det ser ut som du ikke har ført alle timene dine denne uken.",
+          text: "Har du husket å føre timene dine?",
         },
         accessory: {
           type: "button",

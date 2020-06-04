@@ -4,6 +4,7 @@ import env from "./environment";
 import oauth2Router from "./routes/auth/index";
 import slackRouter from "./routes/slack";
 import createErrorView from "./views/error";
+import startEndOfWeekReminder from "./reminders/endOfWeek";
 
 const app = express();
 
@@ -47,7 +48,7 @@ function errorHandler(
   res.redirect("/something-went-wrong");
 }
 
-// startEndOfWeekReminder();
+startEndOfWeekReminder();
 
 // Starts server
 const port = env.PORT || 3000;
