@@ -75,7 +75,7 @@ const tokenURL = azureAdBaseUrl + config.TENANT_ID + "/oauth2/v2.0/token";
 const scope = [
   "openid",
   "offline_access",
-  "https://d8aedd.alvtime-ap-alvtime-api-dev-f9b4e4.westeurope.cloudapp.azure.com/access_as_user",
+  env.AZURE_AD_ACCESS_AS_USER_SCOPE,
 ].join(" ");
 
 const oauth2Options = {
