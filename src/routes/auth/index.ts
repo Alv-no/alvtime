@@ -3,10 +3,9 @@ import session from "express-session";
 import jwt from "jwt-simple";
 import passport from "passport";
 import config from "../../config";
-import env from "../../environment";
 import UserModel from "../../models/user";
-import { slackWebClient } from "../slack/index";
 import runCommand from "../slack/runCommand";
+import sendCommandResponse from "../slack/sendCommandResponse";
 import { actionTypes, LoginTokenData } from "../slack/slashCommand";
 import azureAdStrategy, { AuthenticatedUser, DoneFunc } from "./azureAd";
 import createLoginPage from "./loginPage";
@@ -73,12 +72,7 @@ oauth2Router.get(
       slackChannelID
     );
     if (actionTypes.COMMAND === action.type) runCommand(action.value);
-    slackWebClient.chat.postEphemeral({
-      token: env.SLACK_BOT_TOKEN,
-      channel: slackChannelID,
-      user: slackUserID,
-      ...loginSuccessMessage,
-    });
+    sendCommandResponse(action.value.response_url, loginSuccessMessage);
     res.redirect(
       `https://${slackTeamDomain}.slack.com/app_redirect?channel=${slackChannelID}`
     );

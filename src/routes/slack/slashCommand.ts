@@ -3,7 +3,6 @@ import jwt from "jwt-simple";
 import config from "../../config";
 import env from "../../environment";
 import UserModel from "../../models/user";
-import { capitalizeFirstLetter } from "../../utils/text";
 import { slackInteractions } from "./index";
 import runCommand from "./runCommand";
 import sendCommandResponse from "./sendCommandResponse";
@@ -86,9 +85,9 @@ async function authenticate(
 }
 
 function sendLoginMessage(info: LoginInfo) {
-  const { slackUserName, slackChannelID, action } = info;
+  const { slackUserID, slackChannelID, action } = info;
   const token = createToken(info);
-  const loginMessage = createLoginMessage(slackUserName, slackChannelID, token);
+  const loginMessage = createLoginMessage(slackUserID, slackChannelID, token);
   sendCommandResponse(action.value.response_url, loginMessage);
 }
 
@@ -103,14 +102,17 @@ function createToken(info: LoginInfo) {
   return jwt.encode(payload, config.JWT_SECRET);
 }
 
-function createLoginMessage(name: string, channelId: string, token: string) {
-  name = capitalizeFirstLetter(name);
+function createLoginMessage(
+  slackUserID: string,
+  channelId: string,
+  token: string
+) {
   return {
     text: "",
     blocks: [
       {
         type: "section",
-        text: { type: "mrkdwn", text: `Hei ${name} :wave:` },
+        text: { type: "mrkdwn", text: `Hei <@${slackUserID}> :wave:` },
       },
       {
         type: "section",
