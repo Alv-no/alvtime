@@ -1,7 +1,7 @@
 import createAlvtimeClient, { Task, TimeEntrie } from "../../client/index";
 import config from "../../config";
 import env from "../../environment";
-import UserModel, { UserData } from "../../models/user";
+import userDB, { UserData } from "../../models/user";
 import configuredMoment from "../../moment";
 import { capitalizeFirstLetter } from "../../utils/text";
 import getAccessToken from "../auth/getAccessToken";
@@ -21,9 +21,7 @@ export default async function runCommand(commandBody: CommandBody) {
   const textArray = commandBody.text.split(" ");
   const command = textArray[0].toUpperCase();
   const params = textArray.filter((_t, i) => i !== 0);
-  const userData = ((await UserModel.findById(
-    commandBody.user_id
-  )) as unknown) as UserData;
+  const userData = await userDB.findById(commandBody.user_id);
 
   switch (command) {
     case LOGG:

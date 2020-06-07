@@ -2,7 +2,7 @@ import express from "express";
 import jwt from "jwt-simple";
 import config from "../../config";
 import env from "../../environment";
-import UserModel from "../../models/user";
+import userDB from "../../models/user";
 import { slackInteractions } from "./index";
 import runCommand from "./runCommand";
 import sendCommandResponse from "./sendCommandResponse";
@@ -63,7 +63,7 @@ async function authenticate(
   res: { send: (s: string) => void },
   next: (s?: string) => void
 ) {
-  const user = await UserModel.findById(req.body.user_id);
+  const user = await userDB.findById(req.body.user_id);
   if (!user) {
     const loginInfo = {
       slackUserName: req.body.user_name,

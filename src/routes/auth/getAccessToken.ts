@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 import config from "../../config";
 import env from "../../environment";
-import UserModel, { UserData } from "../../models/user";
+import userDB, { UserData } from "../../models/user";
 
 interface RefreshAccessTokenRespons {
   token_type: string;
@@ -25,7 +25,7 @@ interface RefreshAccessTokenErrorRespons {
 export default async function getAccessToken(userData: UserData) {
   let accessToken;
   const nowInSecounds = Math.floor(new Date().getTime() / 1000);
-  const expiresOn = parseInt(userData.auth.expiresOn);
+  const expiresOn = userData.auth.expiresOn;
   const isExpired = nowInSecounds > expiresOn;
 
   if (isExpired) {
@@ -77,20 +77,17 @@ function updateUserAuth(
 ) {
   const nowInSecounds = Math.floor(new Date().getTime() / 1000);
   const auth = {
-    tokenType: refreshTokenBody.token_type,
-    scope: refreshTokenBody.scope,
+    accessToken: refreshTokenBody.access_token,
     expiresIn: refreshTokenBody.expires_in,
     expiresOn: nowInSecounds + refreshTokenBody.expires_in,
-    accessToken: refreshTokenBody.access_token,
-    refreshToken: refreshTokenBody.refresh_token,
+    extExpiresIn: refreshTokenBody.ext_expires_in,
     idToken: refreshTokenBody.id_token,
+    refreshToken: refreshTokenBody.refresh_token,
+    scope: refreshTokenBody.scope,
+    tokenType: refreshTokenBody.token_type,
   };
-  UserModel.findOneAndUpdate(
-    { _id: slackUserID },
-    { $set: { auth, __enc_message: false } }
-  )
-    .then(() => console.log("Succesfully updated auth on user."))
-    .catch((e) => console.error("Unable to replace user data: ", e));
+
+  userDB.updateUserAuth(slackUserID, auth);
 }
 
 function createFormBody(obj: { [key: string]: string | number }) {

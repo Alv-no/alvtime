@@ -56,10 +56,11 @@ export interface AuthenticatedUser {
   auth: {
     tokenType: string;
     scope: string;
-    expiresOn: string;
+    expiresOn: number;
     expiresIn: number;
     extExpiresIn: number;
     accessToken: string;
+    refreshToken: string;
     idToken: string;
   };
 }
