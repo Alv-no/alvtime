@@ -1,9 +1,9 @@
-import createAlvtimeClient, { Task, TimeEntrie } from "../../client/index";
+import alvtimeClient from "../../alvtimeClient";
+import { Task, TimeEntrie } from "../../client/index";
 import config from "../../config";
-import env from "../../environment";
+import { createWeekLogg } from "../../messages/index";
 import userDB, { UserData } from "../../models/user";
 import configuredMoment from "../../moment";
-import { capitalizeFirstLetter } from "../../utils/text";
 import getAccessToken from "../auth/getAccessToken";
 import sendCommandResponse from "./sendCommandResponse";
 import { CommandBody } from "./slashCommand";
@@ -14,8 +14,6 @@ const { LOGG, TASKS, REG, UKE } = Object.freeze({
   REG: "REG",
   UKE: "UKE",
 });
-
-const client = createAlvtimeClient(env.ALVTIME_API_URI);
 
 export default async function runCommand(commandBody: CommandBody) {
   const textArray = commandBody.text.split(" ");
@@ -39,6 +37,7 @@ export default async function runCommand(commandBody: CommandBody) {
     case UKE:
       registerWeek(params, commandBody, userData);
       break;
+
     default:
       break;
   }
@@ -52,8 +51,11 @@ async function logg(
   try {
     const accessToken = await getAccessToken(userData);
     const params = thisWeek();
-    const tasksPromise = client.getTasks(accessToken);
-    const timeEntriesPromise = client.getTimeEntries(params, accessToken);
+    const tasksPromise = alvtimeClient.getTasks(accessToken);
+    const timeEntriesPromise = alvtimeClient.getTimeEntries(
+      params,
+      accessToken
+    );
     const [tasks, timeEntries] = await Promise.all([
       tasksPromise,
       timeEntriesPromise,
@@ -63,46 +65,24 @@ async function logg(
       (entrie: TimeEntrie) => entrie.value !== 0
     );
 
-    const message = { text: "", response_type: "ephemeral", blocks: [] as any };
+    let message;
     if (timeEntriesWithValue.length === 0) {
-      message.text = "Du har ikke ført noen timer denne uken :calendar:";
+      message = {
+        text: "Du har ikke ført noen timer denne uken :calendar:",
+      };
     } else {
-      message.blocks = [
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: "Timer ført denne uken :calendar:",
-          },
-        },
-      ];
-      const week = createWeek(configuredMoment());
-      for (const day of week) {
-        const entries = timeEntriesWithValue.filter(
-          (entrie: TimeEntrie) => entrie.date === day.format(config.DATE_FORMAT)
-        );
-
-        let text = `*${capitalizeFirstLetter(day.format("dddd D."))}*\n`;
-        for (const entrie of entries) {
-          const task = tasks.find((task: Task) => task.id === entrie.taskId);
-
-          if (entrie.value !== 0) {
-            text =
-              text +
-              capitalizeFirstLetter(`${task.name} - \`${entrie.value}\`\n`);
-          }
-        }
-        message.blocks = [
-          ...message.blocks,
+      message = {
+        blocks: [
           {
             type: "section",
             text: {
               type: "mrkdwn",
-              text,
+              text: "Timer ført denne uken :calendar:",
             },
           },
-        ];
-      }
+          ...createWeekLogg(timeEntriesWithValue, tasks),
+        ],
+      };
     }
 
     sendCommandResponse(commandBody.response_url, message);
@@ -118,7 +98,7 @@ async function tasks(
 ) {
   try {
     const accessToken = await getAccessToken(userData);
-    const tasks = await client.getTasks(accessToken);
+    const tasks = await alvtimeClient.getTasks(accessToken);
     sendCommandResponse(commandBody.response_url, {
       text: createTasksMessage(tasks, params.includes("alle")),
     });
@@ -145,7 +125,7 @@ async function register(
         taskId: parseInt(params[0]),
       },
     ];
-    await client.editTimeEntries(timeEntriesToEdit, accessToken);
+    await alvtimeClient.editTimeEntries(timeEntriesToEdit, accessToken);
     logg(params, commandBody, userData);
   } catch (e) {
     console.log("error", e);
@@ -166,7 +146,7 @@ async function registerWeek(
       value: parseFloat(params[1].replace(",", ".")),
       taskId: parseInt(params[0]),
     }));
-    await client.editTimeEntries(timeEntriesToEdit, accessToken);
+    await alvtimeClient.editTimeEntries(timeEntriesToEdit, accessToken);
     logg(params, commandBody, userData);
   } catch (e) {
     console.log("error", e);
@@ -188,11 +168,6 @@ function createWorkWeek(day: moment.Moment) {
   return [0, 1, 2, 3, 4].map((n) =>
     monday.clone().add(n, "day").format(config.DATE_FORMAT)
   );
-}
-
-function createWeek(day: moment.Moment) {
-  const monday = day.clone().startOf("week");
-  return [0, 1, 2, 3, 4, 5, 6].map((n) => monday.clone().add(n, "day"));
 }
 
 function createTasksMessage(tasks: Task[], all: boolean) {

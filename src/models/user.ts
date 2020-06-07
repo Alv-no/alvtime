@@ -68,13 +68,13 @@ export interface UserData {
 export default createUserDB(UserModel);
 export function createUserDB(model: Model) {
   return {
-    async getAll() {
+    async getAll(): Promise<UserData[]> {
       const query = await model.find({}).exec();
       if (!query) return undefined;
       return query.map((doc) => prune(doc));
     },
 
-    async updateUserAuth(slackUserID: string, auth: Auth) {
+    async updateUserAuth(slackUserID: string, auth: Auth): Promise<void> {
       try {
         model
           .findOneAndUpdate(
@@ -88,13 +88,13 @@ export function createUserDB(model: Model) {
       }
     },
 
-    async findById(slackUserID: string) {
+    async findById(slackUserID: string): Promise<UserData> {
       const doc = await model.findById(slackUserID).exec();
       if (!doc) return undefined;
       return prune(doc);
     },
 
-    async save(user: UserData) {
+    async save(user: UserData): Promise<boolean> {
       let saved = false;
       try {
         const document: UserData & { _id: string } = {

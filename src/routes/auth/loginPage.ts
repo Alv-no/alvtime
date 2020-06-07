@@ -83,22 +83,20 @@ export default function createLoginPage(slackTeamDomain: string) {
             class="alvtimeplusslack"
             style="max-width: 300px;"
           />
-          <p>Finish connecting your Alvtime account to your Slack account</p>
+          <p>Koble din Alvtime konto til din Slack konto</p>
           <p class="workspace-line">
-            on the
+            for
             <span class="workspace">${slackTeamDomain}.slack.com</span>
-            workspace
+            arbeidsgruppen.
           </p>
           <p>
-            This will connect your accounts so that you can use Slack to view
-            rich previews for reported hours, report and remove hours, and other
-            features that depend on your access to Alvtime.
+            Dette vil koble kontoene sammen slik at du kan bruke Slack til å se uttrekk av førte timer, føre og fjerne timer og få tilpassede påminnelser om å føre timer. Dette og mye mer som er avhengig av din tilgang til Alvtime.
           </p>
           <p></p>
           <a
             href="${env.HOST}/oauth2/azureAd"
             class="yellow-button"
-            >Connect Alvtime account</a
+            >Koble til Alvtime konto</a
           >
         </div>
       </div>

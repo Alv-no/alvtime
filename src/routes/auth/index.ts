@@ -3,10 +3,12 @@ import session from "express-session";
 import jwt from "jwt-simple";
 import passport from "passport";
 import config from "../../config";
-import UserModel from "../../models/user";
+import { TokenPayload } from "../../messages/index";
+import userDB from "../../models/user";
+import { slackWebClient } from "../../routes/slack";
 import runCommand from "../slack/runCommand";
 import sendCommandResponse from "../slack/sendCommandResponse";
-import { actionTypes, LoginTokenData } from "../slack/slashCommand";
+import { actionTypes } from "../slack/slashCommand";
 import azureAdStrategy, { AuthenticatedUser, DoneFunc } from "./azureAd";
 import createLoginPage from "./loginPage";
 
@@ -29,10 +31,10 @@ oauth2Router.use(
 );
 
 oauth2Router.get("/login", (req, res) => {
-  const loginInfo = jwt.decode(req.query.token, config.JWT_SECRET);
-  validateTokenExp(loginInfo.exp);
-  req.session.loginInfo = loginInfo;
-  res.send(createLoginPage(loginInfo.slackTeamDomain));
+  const loginPayload = jwt.decode(req.query.token, config.JWT_SECRET);
+  validateTokenExp(loginPayload.exp);
+  req.session.loginPayload = loginPayload;
+  res.send(createLoginPage(loginPayload.slackTeamDomain));
 });
 
 oauth2Router.get("/azuread", passport.authenticate("azureAd"));
@@ -43,10 +45,10 @@ oauth2Router.get(
     failureRedirect: "/something-went-wrong",
   }),
   async (req, res, next) => {
-    const { slackTeamDomain, slackChannelID } = req.session.loginInfo;
+    const { slackTeamDomain, slackChannelID } = req.session.loginPayload;
     const written = await writeUserToDb(
       req.user as AuthenticatedUser,
-      req.session.loginInfo
+      req.session.loginPayload
     );
     if (written) {
       next();
@@ -62,7 +64,7 @@ oauth2Router.get(
       slackChannelID,
       slackUserID,
       action,
-    } = req.session.loginInfo;
+    } = req.session.loginPayload;
 
     const { email } = req.user as AuthenticatedUser;
 
@@ -71,8 +73,15 @@ oauth2Router.get(
       email,
       slackChannelID
     );
-    if (actionTypes.COMMAND === action.type) runCommand(action.value);
-    sendCommandResponse(action.value.response_url, loginSuccessMessage);
+    if (action && actionTypes.COMMAND === action.type) {
+      runCommand(action.value);
+      sendCommandResponse(action.value.response_url, loginSuccessMessage);
+    } else {
+      slackWebClient.chat.postMessage({
+        ...loginSuccessMessage,
+        channel: slackChannelID,
+      });
+    }
     res.redirect(
       `https://${slackTeamDomain}.slack.com/app_redirect?channel=${slackChannelID}`
     );
@@ -106,28 +115,30 @@ function createLoginSuccessMessage(
   };
 }
 
+export interface LoginTokenData extends TokenPayload {
+  exp: number;
+  iat: number;
+}
+
 async function writeUserToDb(
   authenticatedUser: AuthenticatedUser,
-  loginInfo: LoginTokenData
+  loginPayload: LoginTokenData
 ) {
   let written = false;
-  const { slackUserName, slackUserID } = loginInfo;
+  const { slackUserName, slackUserID } = loginPayload;
 
-  const user = await UserModel.findById(slackUserID);
+  const user = await userDB.findById(slackUserID);
   if (!user) {
     const { name, email, auth } = authenticatedUser;
     const doc = {
-      _id: slackUserID,
       name,
-      email,
+      email: email.toLowerCase(),
       slackUserName,
       slackUserID,
       auth,
     };
 
-    const user = new UserModel(doc);
-    await user.save();
-    written = true;
+    written = await userDB.save(doc);
   }
   return written;
 }

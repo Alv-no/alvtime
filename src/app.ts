@@ -1,10 +1,10 @@
 import express from "express";
 import mongoose from "mongoose";
 import env from "./environment";
+import startLastWeeksHoursReminder from "./reminders/lastWeeksHours";
 import oauth2Router from "./routes/auth/index";
 import slackRouter from "./routes/slack";
 import createErrorView from "./views/error";
-import startEndOfWeekReminder from "./reminders/endOfWeek";
 
 const app = express();
 
@@ -48,7 +48,7 @@ function errorHandler(
   res.redirect("/something-went-wrong");
 }
 
-startEndOfWeekReminder();
+startLastWeeksHoursReminder();
 
 // Starts server
 const port = env.PORT || 3000;

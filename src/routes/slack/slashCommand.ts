@@ -1,7 +1,5 @@
 import express from "express";
-import jwt from "jwt-simple";
-import config from "../../config";
-import env from "../../environment";
+import { createLoginMessage } from "../../messages/index";
 import userDB from "../../models/user";
 import { slackInteractions } from "./index";
 import runCommand from "./runCommand";
@@ -19,21 +17,6 @@ export interface CommandBody {
   text: string;
   response_url: string;
   trigger_id: string;
-}
-
-export interface LoginInfo {
-  slackUserName: string;
-  slackUserID: string;
-  slackChannelID: string;
-  slackChannelName: string;
-  slackTeamID: string;
-  slackTeamDomain: string;
-  action: { type: string; value: { [key: string]: string } };
-}
-
-export interface LoginTokenData extends LoginInfo {
-  exp: number;
-  iat: number;
 }
 
 export const actionTypes = Object.freeze({
@@ -65,7 +48,7 @@ async function authenticate(
 ) {
   const user = await userDB.findById(req.body.user_id);
   if (!user) {
-    const loginInfo = {
+    const loginPayload = {
       slackUserName: req.body.user_name,
       slackUserID: req.body.user_id,
       slackChannelID: req.body.channel_id,
@@ -77,59 +60,10 @@ async function authenticate(
         value: (req.body as unknown) as { [key: string]: string },
       },
     };
-    sendLoginMessage(loginInfo);
+    const loginMessage = createLoginMessage(loginPayload);
+    sendCommandResponse(req.body.response_url, loginMessage);
     res.send("");
   } else {
     next();
   }
-}
-
-function sendLoginMessage(info: LoginInfo) {
-  const { slackUserID, slackChannelID, action } = info;
-  const token = createToken(info);
-  const loginMessage = createLoginMessage(slackUserID, slackChannelID, token);
-  sendCommandResponse(action.value.response_url, loginMessage);
-}
-
-function createToken(info: LoginInfo) {
-  const iat = new Date().getTime();
-  const exp = iat + 60 * 60 * 1000;
-  const payload = {
-    ...info,
-    iat,
-    exp,
-  };
-  return jwt.encode(payload, config.JWT_SECRET);
-}
-
-function createLoginMessage(
-  slackUserID: string,
-  channelId: string,
-  token: string
-) {
-  return {
-    text: "",
-    blocks: [
-      {
-        type: "section",
-        text: { type: "mrkdwn", text: `Hei <@${slackUserID}> :wave:` },
-      },
-      {
-        type: "section",
-        text: { type: "mrkdwn", text: "Du er ikke logget inn." },
-        accessory: {
-          type: "button",
-          action_id: "open_login_in_browser",
-          text: {
-            type: "plain_text",
-            text: "Connect Alvtime account",
-            emoji: true,
-          },
-          url: env.HOST + "/oauth2/login?token=" + token,
-          value: "login_button_clicked",
-        },
-      },
-    ],
-    channel: channelId,
-  };
 }
