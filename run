@@ -32,6 +32,6 @@
   docker-compose -f .devcontainer/docker-compose.yaml exec alvtime-slack-app npm debug
 
 [ "prune" = $1 ] && \
-  docker system prune --volumes -f
+  docker system prune -f
 
 exit 0
