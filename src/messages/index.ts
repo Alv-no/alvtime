@@ -1,10 +1,11 @@
 import jwt from "jwt-simple";
-import { Task, TimeEntrie } from "../client/index";
-import configuredMoment from "../moment";
-import { capitalizeFirstLetter } from "../utils/text";
+import { Moment } from "moment";
+import { Task } from "../client/index";
 import config from "../config";
 import env from "../environment";
+import configuredMoment from "../moment";
 import { UserReport } from "../reminders/lastWeeksHours";
+import { capitalizeFirstLetter } from "../utils/text";
 
 export interface TokenPayload {
   slackUserName: string;
@@ -117,7 +118,7 @@ export function createWeekLogg(
   tasks: Task[]
 ) {
   let blocks: any[] = [];
-  const week = createWeek(configuredMoment());
+  const week = createWeek(configuredMoment(timeEntriesWithValue[0].date));
   for (const day of week) {
     const entries = timeEntriesWithValue.filter(
       (entrie) => entrie.date === day.format(config.DATE_FORMAT)
@@ -147,7 +148,7 @@ export function createWeekLogg(
   return blocks;
 }
 
-function createWeek(day: moment.Moment) {
+function createWeek(day: Moment) {
   const monday = day.clone().startOf("week");
   return [0, 1, 2, 3, 4, 5, 6].map((n) => monday.clone().add(n, "day"));
 }

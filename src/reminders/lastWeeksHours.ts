@@ -65,19 +65,20 @@ export async function remindUsersToRegisterLastWeeksHours() {
         (user) => user.slackUserID === member.id
       );
 
-      const {
-        channel: { id },
-      } = ((await slackWebClient.conversations.open({
-        users: member.id,
-      })) as unknown) as { channel: { id: string } };
-      const tokenPayload: TokenPayload = {
-        slackUserName: member.name,
-        slackUserID: member.id,
-        slackChannelID: id,
-        slackTeamDomain: teamInfo.team.domain,
-      };
-
       if (!activatedUser) {
+        const {
+          channel: { id },
+        } = ((await slackWebClient.conversations.open({
+          users: member.id,
+        })) as unknown) as { channel: { id: string } };
+
+        const tokenPayload: TokenPayload = {
+          slackUserName: member.name,
+          slackUserID: member.id,
+          slackChannelID: id,
+          slackTeamDomain: teamInfo.team.domain,
+        };
+
         slackWebClient.chat.postMessage({
           ...createReminderToRegisterHoursAndActivate(tokenPayload),
           channel: id,
@@ -86,6 +87,12 @@ export async function remindUsersToRegisterLastWeeksHours() {
         !report[activatedUser.email.toLowerCase()] ||
         report[activatedUser.email.toLowerCase()].sum < weekHoursGoal
       ) {
+        const {
+          channel: { id },
+        } = ((await slackWebClient.conversations.open({
+          users: member.id,
+        })) as unknown) as { channel: { id: string } };
+
         const email = activatedUser.email.toLowerCase();
         const userReport = report[email]
           ? report[email]
