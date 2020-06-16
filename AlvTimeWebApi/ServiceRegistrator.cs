@@ -28,7 +28,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AlvTimeWebApi.Services
 {
-    public static class ServicesExtension
+    public static class ServiceRegistrator
     {
         public static void AddAlvtimeServices(this IServiceCollection services, IConfiguration configuration)
         {

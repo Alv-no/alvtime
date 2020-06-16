@@ -85,7 +85,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries.TimeEntryStorage
                 .FirstOrDefault();
 
             var task = _context.Task
-                .Where(task => task.Id == timeEntry.TaskId)
+                .Where(t => t.Id == timeEntry.TaskId)
                 .FirstOrDefault();
 
             if(hour.Locked == false &&  task.Locked == false)
