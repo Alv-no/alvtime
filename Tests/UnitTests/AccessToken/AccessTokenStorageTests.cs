@@ -21,7 +21,7 @@ namespace Tests.UnitTests.AccessToken
         [Fact]
         public void CreateLifetimeToken_FriendlyNameSpecified_TokenWithFriendlyNameCreated()
         {
-            var context = new AlvTimeDbContextBuilder().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder().WithData().CreateDbContext();
 
             var storage = new AccessTokenStorage(context);
 
@@ -35,7 +35,7 @@ namespace Tests.UnitTests.AccessToken
         [Fact]
         public void DeleteToken_TokenIdSpecified_TokenWithIdDeleted()
         {
-            var context = new AlvTimeDbContextBuilder().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder().WithData().CreateDbContext();
 
             var storage = new AccessTokenStorage(context);
 

@@ -37,5 +37,12 @@ namespace AlvTimeWebApi.Controllers.FlexiHours
 
             return Ok(_storage.GetUsedFlexiHours(user.Id));
         }
+
+        [HttpGet("FlexHours")]
+        [Authorize]
+        public ActionResult<FlexiHourResponseDto> GetFlexHours()
+        {
+            return Ok(1);
+        }
     }
 }

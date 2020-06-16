@@ -78,7 +78,7 @@ namespace Tests.UnitTests.TimeEntries
         [Fact]
         public void UpdateTimeEntry_ExistingTimeEntry_TimeEntryUpdated()
         {
-            var context = new AlvTimeDbContextBuilder().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder().WithData().CreateDbContext();
 
             var storage = new TimeEntryStorage(context);
 
