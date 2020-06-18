@@ -53,6 +53,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AlvTime.Business\AlvTime.Business.csproj" />
+    <ProjectReference Include="..\AlvTime.Persistence\AlvTime.Persistence.csproj" />
   </ItemGroup>
 
 </Project>
