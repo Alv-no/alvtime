@@ -5,8 +5,8 @@ import { ReportTimeEntrie } from "../client/index";
 import config from "../config";
 import env from "../environment";
 import {
-  createRegisterHoursReminder,
-  createReminderToRegisterHoursAndActivate,
+  registerHoursReminderMessage,
+  reminderToRegisterHoursAndActivateMessage,
   TokenPayload,
 } from "../messages/index";
 import userDB from "../models/user";
@@ -80,7 +80,7 @@ export async function remindUsersToRegisterLastWeeksHours() {
         };
 
         slackWebClient.chat.postMessage({
-          ...createReminderToRegisterHoursAndActivate(tokenPayload),
+          ...reminderToRegisterHoursAndActivateMessage(tokenPayload),
           channel: id,
         });
       } else if (
@@ -98,7 +98,7 @@ export async function remindUsersToRegisterLastWeeksHours() {
           ? report[email]
           : { sum: 0, entries: [] };
         slackWebClient.chat.postMessage({
-          ...createRegisterHoursReminder(member.id, userReport, tasks),
+          ...registerHoursReminderMessage(member.id, userReport, tasks),
           channel: id,
         });
       }

@@ -1,5 +1,5 @@
 import express from "express";
-import { createLoginMessage } from "../../messages/index";
+import { loginMessage } from "../../messages/index";
 import userDB from "../../models/user";
 import { slackInteractions } from "./index";
 import runCommand from "./runCommand";
@@ -60,8 +60,8 @@ async function authenticate(
         value: (req.body as unknown) as { [key: string]: string },
       },
     };
-    const loginMessage = createLoginMessage(loginPayload);
-    sendCommandResponse(req.body.response_url, loginMessage);
+
+    sendCommandResponse(req.body.response_url, loginMessage(loginPayload));
     res.send("");
   } else {
     next();

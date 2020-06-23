@@ -1,6 +1,6 @@
 import jwt from "jwt-simple";
 import { Moment } from "moment";
-import { Task } from "../client/index";
+import { Task, TimeEntrie } from "../client/index";
 import config from "../config";
 import env from "../environment";
 import configuredMoment from "../moment";
@@ -17,35 +17,13 @@ export interface TokenPayload {
   action?: { type: string; value: { [key: string]: string } };
 }
 
-const alvtimeKnapp = {
-  type: "button",
-  action_id: "open_alvtime_button", // We need to add this
-  text: {
-    type: "plain_text",
-    text: "Alvtime",
-    emoji: true,
-  },
-  url: "https://www.alvtime.no",
-  value: "alvtime_button_clicked",
-};
-
-function createHello(slackUserID: string) {
-  return {
-    type: "section",
-    text: {
-      type: "mrkdwn",
-      text: `Hei <@${slackUserID}> :wave:`,
-    },
-  };
-}
-
-export const createReminderToRegisterHoursAndActivate = (
+export function reminderToRegisterHoursAndActivateMessage(
   tokenPayload: TokenPayload
-) => {
+) {
   return {
     text: "",
     blocks: [
-      createHello(tokenPayload.slackUserID),
+      hello(tokenPayload.slackUserID),
       {
         type: "section",
         text: {
@@ -53,7 +31,7 @@ export const createReminderToRegisterHoursAndActivate = (
           text:
             "Har du husket å føre timene dine? Trykk på knappen for å hoppe direkte til Alvtime.",
         },
-        accessory: alvtimeKnapp,
+        accessory: alvtimeKnapp(),
       },
       {
         type: "divider",
@@ -70,17 +48,17 @@ export const createReminderToRegisterHoursAndActivate = (
       },
       {
         type: "actions",
-        elements: [createLoginButton(tokenPayload)],
+        elements: [loginButton(tokenPayload)],
       },
     ],
   };
-};
+}
 
-export const createRegisterHoursReminder = (
+export function registerHoursReminderMessage(
   slackUserID: string,
   userReport: UserReport,
   tasks: Task[]
-) => {
+) {
   const weekLogg =
     userReport.sum > 0
       ? [
@@ -92,28 +70,28 @@ export const createRegisterHoursReminder = (
                 "Dette er timene du så langt har ført for forrige uke :calendar:",
             },
           },
-          ...createWeekLogg(userReport.entries, tasks),
+          ...weekLoggMessage(userReport.entries, tasks),
         ]
       : [];
 
   return {
     text: "",
     blocks: [
-      createHello(slackUserID),
+      hello(slackUserID),
       {
         type: "section",
         text: {
           type: "mrkdwn",
           text: `Har du husket å føre alle timene dine for forrige uke? Jeg har bare fått med meg at du har ført ${userReport.sum} timer. Trykk på knappen for å hoppe til Alvtime og føre resten.`,
         },
-        accessory: alvtimeKnapp,
+        accessory: alvtimeKnapp(),
       },
       ...weekLogg,
     ],
   };
-};
+}
 
-export function createWeekLogg(
+export function weekLoggMessage(
   timeEntriesWithValue: { date: string; taskId: number; value: number }[],
   tasks: Task[]
 ) {
@@ -148,29 +126,41 @@ export function createWeekLogg(
   return blocks;
 }
 
-function createWeek(day: Moment) {
-  const monday = day.clone().startOf("week");
-  return [0, 1, 2, 3, 4, 5, 6].map((n) => monday.clone().add(n, "day"));
+export function loggMessage(timeEntries: TimeEntrie[], tasks: Task[]) {
+  const timeEntriesWithValue = timeEntries.filter(
+    (entrie: TimeEntrie) => entrie.value !== 0
+  );
+
+  let message;
+  if (timeEntriesWithValue.length === 0) {
+    message = {
+      text: "Du har ikke ført noen timer denne uken :calendar:",
+    };
+  } else {
+    message = {
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: "Timer ført denne uken :calendar:",
+          },
+        },
+        ...weekLoggMessage(timeEntriesWithValue, tasks),
+      ],
+    };
+  }
+
+  return message;
 }
 
-function createToken(info: TokenPayload) {
-  const iat = new Date().getTime();
-  const exp = iat + 60 * 60 * 1000;
-  const payload = {
-    ...info,
-    iat,
-    exp,
-  };
-  return jwt.encode(payload, config.JWT_SECRET);
-}
-
-export function createLoginMessage(tokenPayload: TokenPayload) {
+export function loginMessage(tokenPayload: TokenPayload) {
   const { slackUserID } = tokenPayload;
 
   return {
     text: "",
     blocks: [
-      createHello(slackUserID),
+      hello(slackUserID),
       {
         type: "section",
         text: {
@@ -178,14 +168,38 @@ export function createLoginMessage(tokenPayload: TokenPayload) {
           text:
             "Du har ikke koblet Alvtime sammen med Slack enda. Trykk på knappen under og følg instruksjonene. Så vil du kanskje få det du ba om :wink:",
         },
-        accessory: createLoginButton(tokenPayload),
+        accessory: loginButton(tokenPayload),
       },
     ],
   };
 }
 
-function createLoginButton(tokenPayload: TokenPayload) {
-  const token = createToken(tokenPayload);
+function alvtimeKnapp() {
+  return {
+    type: "button",
+    action_id: "open_alvtime_button", // We need to add this
+    text: {
+      type: "plain_text",
+      text: "Alvtime",
+      emoji: true,
+    },
+    url: "https://www.alvtime.no",
+    value: "alvtime_button_clicked",
+  };
+}
+
+function hello(slackUserID: string) {
+  return {
+    type: "section",
+    text: {
+      type: "mrkdwn",
+      text: `Hei <@${slackUserID}> :wave:`,
+    },
+  };
+}
+
+function loginButton(tokenPayload: TokenPayload) {
+  const token = encodePayload(tokenPayload);
   return {
     type: "button",
     action_id: "open_login_in_browser",
@@ -198,3 +212,20 @@ function createLoginButton(tokenPayload: TokenPayload) {
     value: "login_button_clicked",
   };
 }
+
+function createWeek(day: Moment) {
+  const monday = day.clone().startOf("week");
+  return [0, 1, 2, 3, 4, 5, 6].map((n) => monday.clone().add(n, "day"));
+}
+
+function encodePayload(info: TokenPayload) {
+  const iat = new Date().getTime();
+  const exp = iat + 60 * 60 * 1000;
+  const payload = {
+    ...info,
+    iat,
+    exp,
+  };
+  return jwt.encode(payload, config.JWT_SECRET);
+}
+
