@@ -5,7 +5,6 @@ import config from "../config";
 import env from "../environment";
 import configuredMoment from "../moment";
 import { UserReport } from "../reminders/lastWeeksHours";
-import { capitalizeFirstLetter } from "../utils/text";
 
 export interface TokenPayload {
   slackUserName: string;
@@ -206,3 +205,6 @@ function encodePayload(info: TokenPayload) {
   return jwt.encode(payload, config.JWT_SECRET);
 }
 
+export function capitalizeFirstLetter(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
