@@ -31,6 +31,11 @@ namespace AlvTime.Persistence.Repositories
                     })
                     .ToList();
 
+            foreach (var entry in hours)
+            {
+                entry.UserEmail = _context.User.FirstOrDefault(x => x.Id == entry.User).Email;
+            }
+
             return hours;
         }
 
