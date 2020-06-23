@@ -7,7 +7,7 @@ import { TokenPayload } from "../../messages/index";
 import userDB from "../../models/user";
 import { slackWebClient } from "../../routes/slack";
 import runCommand from "../slack/runCommand";
-import sendCommandResponse from "../slack/sendCommandResponse";
+import respondToResponseURL from "../../response/respondToResponseURL";
 import { actionTypes } from "../slack/slashCommand";
 import azureAdStrategy, { AuthenticatedUser, DoneFunc } from "./azureAd";
 import createLoginPage from "./loginPage";
@@ -75,7 +75,7 @@ oauth2Router.get(
     );
     if (action && actionTypes.COMMAND === action.type) {
       runCommand(action.value);
-      sendCommandResponse(action.value.response_url, loginSuccessMessage);
+      respondToResponseURL(action.value.response_url, loginSuccessMessage);
     } else {
       slackWebClient.chat.postMessage({
         ...loginSuccessMessage,

@@ -1,6 +1,6 @@
 import userDB from "../../models/user";
 import { CommandBody } from "./slashCommand";
-import createCommands from "./commands";
+import createCommands from "../../actions/index";
 
 const { LOGG, TASKS, REG, UKE } = Object.freeze({
   TASKS: "TASKS",

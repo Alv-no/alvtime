@@ -3,7 +3,7 @@ import { loginMessage } from "../../messages/index";
 import userDB from "../../models/user";
 import { slackInteractions } from "./index";
 import runCommand from "./runCommand";
-import sendCommandResponse from "./sendCommandResponse";
+import respondToResponseURL from "../../response/respondToResponseURL";
 
 export interface CommandBody {
   token: string;
@@ -61,7 +61,7 @@ async function authenticate(
       },
     };
 
-    sendCommandResponse(req.body.response_url, loginMessage(loginPayload));
+    respondToResponseURL(req.body.response_url, loginMessage(loginPayload));
     res.send("");
   } else {
     next();

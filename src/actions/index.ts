@@ -1,12 +1,12 @@
-import alvtimeClient from "../../alvtimeClient";
-import { Task } from "../../client/index";
-import config from "../../config";
-import { loggMessage } from "../../messages/index";
-import { UserData } from "../../models/user";
-import configuredMoment from "../../moment";
-import getAccessToken from "../auth/getAccessToken";
-import sendCommandResponse from "./sendCommandResponse";
-import { CommandBody } from "./slashCommand";
+import alvtimeClient from "../alvtimeClient";
+import { Task } from "../client/index";
+import config from "../config";
+import { loggMessage } from "../messages/index";
+import { UserData } from "../models/user";
+import configuredMoment from "../moment";
+import getAccessToken from "../routes/auth/getAccessToken";
+import respondToResponseURL from "../response/respondToResponseURL";
+import { CommandBody } from "../routes/slack/slashCommand";
 
 interface State {
   accessToken: string;
@@ -59,7 +59,7 @@ async function logg({ commandBody, accessToken }: State) {
 
     const message = loggMessage(timeEntries, tasks);
 
-    sendCommandResponse(commandBody.response_url, message);
+    respondToResponseURL(commandBody.response_url, message);
   } catch (e) {
     console.log("error", e);
   }
@@ -68,7 +68,7 @@ async function logg({ commandBody, accessToken }: State) {
 async function tasks({ params, commandBody, accessToken }: State) {
   try {
     const tasks = await alvtimeClient.getTasks(accessToken);
-    sendCommandResponse(commandBody.response_url, {
+    respondToResponseURL(commandBody.response_url, {
       text: createTasksMessage(tasks, params.includes("alle")),
     });
   } catch (e) {
