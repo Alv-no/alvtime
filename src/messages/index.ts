@@ -25,12 +25,9 @@ export function reminderToRegisterHoursAndActivateMessage(
     blocks: [
       hello(tokenPayload.slackUserID),
       {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text:
-            "Har du husket å føre timene dine? Trykk på knappen for å hoppe direkte til Alvtime.",
-        },
+        ...section(
+          "Har du husket å føre timene dine? Trykk på knappen for å hoppe direkte til Alvtime."
+        ),
         accessory: alvtimeKnapp(),
       },
       {
@@ -62,14 +59,10 @@ export function registerHoursReminderMessage(
   const weekLogg =
     userReport.sum > 0
       ? [
-          {
-            type: "section",
-            text: {
-              type: "mrkdwn",
-              text:
-                "Dette er timene du så langt har ført for forrige uke :calendar:",
-            },
-          },
+          section(
+            "Dette er timene du så langt har ført for forrige uke :calendar:"
+          ),
+          ,
           ...weekLoggMessage(userReport.entries, tasks),
         ]
       : [];
@@ -79,11 +72,9 @@ export function registerHoursReminderMessage(
     blocks: [
       hello(slackUserID),
       {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `Har du husket å føre alle timene dine for forrige uke? Jeg har bare fått med meg at du har ført ${userReport.sum} timer. Trykk på knappen for å hoppe til Alvtime og føre resten.`,
-        },
+        ...section(
+          `Har du husket å føre alle timene dine for forrige uke? Jeg har bare fått med meg at du har ført ${userReport.sum} timer. Trykk på knappen for å hoppe til Alvtime og føre resten.`
+        ),
         accessory: alvtimeKnapp(),
       },
       ...weekLogg,
@@ -111,16 +102,7 @@ export function weekLoggMessage(
           text + capitalizeFirstLetter(`${task.name} - \`${entrie.value}\`\n`);
       }
     }
-    blocks = [
-      ...blocks,
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text,
-        },
-      },
-    ];
+    blocks = [...blocks, section(text)];
   }
 
   return blocks;
@@ -139,13 +121,7 @@ export function loggMessage(timeEntries: TimeEntrie[], tasks: Task[]) {
   } else {
     message = {
       blocks: [
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: "Timer ført denne uken :calendar:",
-          },
-        },
+        section("Timer ført denne uken :calendar:"),
         ...weekLoggMessage(timeEntriesWithValue, tasks),
       ],
     };
@@ -162,12 +138,9 @@ export function loginMessage(tokenPayload: TokenPayload) {
     blocks: [
       hello(slackUserID),
       {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text:
-            "Du har ikke koblet Alvtime sammen med Slack enda. Trykk på knappen under og følg instruksjonene. Så vil du kanskje få det du ba om :wink:",
-        },
+        ...section(
+          "Du har ikke koblet Alvtime sammen med Slack enda. Trykk på knappen under og følg instruksjonene. Så vil du kanskje få det du ba om :wink:"
+        ),
         accessory: loginButton(tokenPayload),
       },
     ],
@@ -189,11 +162,15 @@ function alvtimeKnapp() {
 }
 
 function hello(slackUserID: string) {
+  return section(`Hei <@${slackUserID}> :wave:`);
+}
+
+function section(text: string) {
   return {
     type: "section",
     text: {
       type: "mrkdwn",
-      text: `Hei <@${slackUserID}> :wave:`,
+      text,
     },
   };
 }
