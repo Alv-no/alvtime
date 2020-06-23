@@ -1,6 +1,6 @@
 ﻿using AlvTime.Business.FlexiHours;
 using AlvTime.Business.TimeEntries;
-using AlvTimeWebApi.Controllers.TimeEntries.TimeEntryStorage;
+using AlvTime.Persistence.Repositories;
 using AlvTimeWebApi.Persistence.DatabaseModels;
 using System;
 using System.Collections.Generic;
@@ -256,6 +256,32 @@ namespace Tests.UnitTests.Flexhours
             Assert.Single(flexhours);
             Assert.Contains(flexhours, item => item.Value == 2.5M);
         }
+
+        [Fact]
+        public void GetFlexhoursToday_Recorded0HoursOnWeekend_EmptyFlexHours()
+        {
+            var context = new AlvTimeDbContextBuilder().CreateDbContext();
+
+            context.Hours.Add(new Hours
+            {
+                User = 1,
+                Task = new Task
+                {
+                    Id = 1
+                },
+                Date = new DateTime(2020, 01, 01),
+                Value = 0M
+            });
+
+            context.SaveChanges();
+
+            Assert.True(context.Task.Any());
+
+            var calculator = new FlexhourCalculator(context);
+            var flexhours = calculator.GetFlexhours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
+
+            Assert.Empty(flexhours);
+        }
     }
 
     internal class FlexhourCalculator : IFlexhourRepository
@@ -289,8 +315,6 @@ namespace Tests.UnitTests.Flexhours
             }
             else
             {
-                //var timeEntries = _context.Hours.Where(hour => hour.User == userId && hour.Date >= startDate && hour.Date <= endDate).ToList();
-
                 var hoursByDate = timeEntries.GroupBy(
                     h => h.Date,
                     h => h.Value,

@@ -1,11 +1,8 @@
-﻿using AlvTime.Business;
-using AlvTime.Business.FlexiHours;
+﻿using AlvTime.Business.FlexiHours;
 using AlvTimeWebApi.HelperClasses;
-using AlvTimeWebApi.Persistence.DatabaseModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Linq;
 
 namespace AlvTimeWebApi.Controllers.FlexiHours
 {
@@ -22,27 +19,13 @@ namespace AlvTimeWebApi.Controllers.FlexiHours
             _userRetriever = userRetriever;
         }
 
-        [HttpGet("TotalFlexiHours")]
+        [HttpGet("FlexiHours")]
         [Authorize]
-        public ActionResult<FlexiHourResponseDto> FetchTotalFlexiHours()
-        {
-            return Ok(_storage.GetTotalFlexiHours());
-        }
-
-        [HttpGet("UsedFlexiHours")]
-        [Authorize]
-        public ActionResult<FlexiHourResponseDto> FetchUsedFlexiHours()
+        public ActionResult<FlexHoursResponseDto> FetchTotalFlexiHours(DateTime startDate, DateTime endDate)
         {
             var user = _userRetriever.RetrieveUser();
 
-            return Ok(_storage.GetUsedFlexiHours(user.Id));
-        }
-
-        [HttpGet("FlexHours")]
-        [Authorize]
-        public ActionResult<FlexiHourResponseDto> GetFlexHours()
-        {
-            return Ok(1);
+            return Ok(_storage.GetTotalFlexiHours(user.Id, startDate, endDate));
         }
     }
 }

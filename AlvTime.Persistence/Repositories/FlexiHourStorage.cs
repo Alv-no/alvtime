@@ -1,50 +1,59 @@
 ﻿using AlvTime.Business;
 using AlvTime.Business.FlexiHours;
+using AlvTime.Business.TimeEntries;
 using AlvTimeWebApi.Persistence.DatabaseModels;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
-namespace AlvTimeWebApi.Controllers.FlexiHours.FlexiHourStorage
+namespace AlvTime.Persistence.Repositories
 {
     public class FlexiHourStorage : IFlexiHourStorage
     {
         private readonly AlvTime_dbContext _context;
+        private readonly ITimeEntryStorage _timeEntryStorage;
 
-        public FlexiHourStorage(AlvTime_dbContext context)
+        public FlexiHourStorage(AlvTime_dbContext context, ITimeEntryStorage timeEntryStorage)
         {
             _context = context;
+            _timeEntryStorage = timeEntryStorage;
         }
 
-        public FlexiHourResponseDto GetTotalFlexiHours()
+        public IEnumerable<FlexHoursResponseDto> GetTotalFlexiHours(int userId, DateTime startDate, DateTime endDate)
         {
-            var calculator = new AlvHoursCalculator();
+            var flexHours = new List<FlexHoursResponseDto>();
 
-            return new FlexiHourResponseDto
+            var timeEntries = _timeEntryStorage.GetTimeEntries(new TimeEntryQuerySearch
             {
-                FlexiHours = 187.5M + calculator.CalculateAlvHours()
-            };
-        }
+                UserId = userId,
+                FromDateInclusive = startDate,
+                ToDateInclusive = endDate
+            });
 
-        public FlexiHourResponseDto GetUsedFlexiHours(int userId)
-        {
-            var currentYear = DateTime.UtcNow.Year;
+            var hoursByDate = timeEntries.GroupBy(
+                    h => h.Date,
+                    h => h.Value,
+                    (date, value) => new
+                    {
+                        Date = date,
+                        SumHours = value.ToList().Sum()
+                    });
 
-            decimal totalUsedHours = 0;
-
-            var hourList = _context.Hours
-                .Where(x => x.User == userId && x.TaskId == 13 && x.Year == currentYear)
-                .ToList();
-
-            foreach (var timeEntry in hourList)
+            foreach (var hour in hoursByDate)
             {
-                totalUsedHours += timeEntry.Value;
+
+                if (hour.SumHours != 7.5M)
+                {
+                    flexHours.Add(new FlexHoursResponseDto
+                    {
+                        Value = hour.SumHours - 7.5M,
+                        Date = DateTime.Parse(hour.Date).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                    });
+                }
             }
 
-            return new FlexiHourResponseDto
-            {
-                FlexiHours = totalUsedHours
-            };
+            return flexHours;
         }
     }
 }

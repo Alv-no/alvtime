@@ -1,5 +1,5 @@
 ﻿using AlvTime.Business.TimeEntries;
-using AlvTimeWebApi.Controllers.TimeEntries.TimeEntryStorage;
+using AlvTime.Persistence.Repositories;
 using System;
 using System.Linq;
 using Xunit;
