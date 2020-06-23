@@ -1,10 +1,11 @@
 ﻿using AlvTime.Business.TimeEntries;
+using AlvTimeWebApi.Controllers.TimeEntries.TimeEntryStorage;
 using AlvTimeWebApi.Persistence.DatabaseModels;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace AlvTimeWebApi.Controllers.TimeEntries.TimeEntryStorage
+namespace AlvTime.Persistence.Repositories
 {
     public class TimeEntryStorage : ITimeEntryStorage
     {
@@ -90,10 +91,10 @@ namespace AlvTimeWebApi.Controllers.TimeEntries.TimeEntryStorage
                 .FirstOrDefault();
 
             var task = _context.Task
-                .Where(task => task.Id == timeEntry.TaskId)
+                .Where(t => t.Id == timeEntry.TaskId)
                 .FirstOrDefault();
 
-            if(hour.Locked == false &&  task.Locked == false)
+            if (hour.Locked == false && task.Locked == false)
             {
                 hour.Value = timeEntry.Value;
                 _context.SaveChanges();

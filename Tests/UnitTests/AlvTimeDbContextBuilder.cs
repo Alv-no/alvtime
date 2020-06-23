@@ -6,15 +6,25 @@ namespace Tests.UnitTests
 {
     public class AlvTimeDbContextBuilder
     {
-        public AlvTime_dbContext CreateDbContext()
+        private AlvTime_dbContext _context;
+
+        public AlvTimeDbContextBuilder()
         {
             var options = new DbContextOptionsBuilder<AlvTime_dbContext>()
                             .UseInMemoryDatabase(Guid.NewGuid().ToString())
                             .Options;
 
-            var context = new AlvTime_dbContext(options);
+            _context = new AlvTime_dbContext(options);
+        }
 
-            context.Task.Add(new Task
+        public AlvTime_dbContext CreateDbContext()
+        {
+            return _context;
+        }
+
+        public AlvTimeDbContextBuilder WithData()
+        {
+            _context.Task.Add(new Task
             {
                 Id = 1,
                 Description = "",
@@ -24,7 +34,7 @@ namespace Tests.UnitTests
                 Locked = false
             });
 
-            context.Task.Add(new Task
+            _context.Task.Add(new Task
             {
                 Id = 2,
                 Description = "",
@@ -34,34 +44,34 @@ namespace Tests.UnitTests
                 Locked = true
             });
 
-            context.Project.Add(new Project
+            _context.Project.Add(new Project
             {
                 Id = 1,
                 Name = "ExampleProject",
                 Customer = 1
             });
 
-            context.Project.Add(new Project
+            _context.Project.Add(new Project
             {
                 Id = 2,
                 Name = "ExampleProjectTwo",
                 Customer = 1
             });
 
-            context.Customer.Add(new Customer
+            _context.Customer.Add(new Customer
             {
                 Id = 1,
                 Name = "ExampleCustomer"
             });
 
-            context.TaskFavorites.Add(new TaskFavorites
+            _context.TaskFavorites.Add(new TaskFavorites
             {
                 Id = 1,
                 UserId = 1,
                 TaskId = 1
             });
 
-            context.User.Add(new User
+            _context.User.Add(new User
             {
                 Id = 1,
                 Email = "someone@alv.no",
@@ -70,7 +80,7 @@ namespace Tests.UnitTests
                 StartDate = DateTime.Now
             });
 
-            context.User.Add(new User
+            _context.User.Add(new User
             {
                 Id = 2,
                 Email = "someone2@alv.no",
@@ -79,7 +89,7 @@ namespace Tests.UnitTests
                 StartDate = DateTime.Now
             });
 
-            context.Hours.Add(new Hours
+            _context.Hours.Add(new Hours
             {
                 User = 1,
                 Date = new DateTime(2019, 05, 01),
@@ -91,7 +101,7 @@ namespace Tests.UnitTests
                 Year = 2019
             });
 
-            context.Hours.Add(new Hours
+            _context.Hours.Add(new Hours
             {
                 User = 1,
                 Date = new DateTime(2019, 05, 02),
@@ -103,7 +113,7 @@ namespace Tests.UnitTests
                 Year = 2019
             });
 
-            context.Hours.Add(new Hours
+            _context.Hours.Add(new Hours
             {
                 User = 1,
                 Date = new DateTime(2019, 05, 02),
@@ -115,7 +125,7 @@ namespace Tests.UnitTests
                 Year = 2019
             });
 
-            context.Hours.Add(new Hours
+            _context.Hours.Add(new Hours
             {
                 User = 1,
                 Date = new DateTime(2020, 05, 02),
@@ -127,7 +137,7 @@ namespace Tests.UnitTests
                 Year = 2019
             });
 
-            context.HourRate.Add(new HourRate
+            _context.HourRate.Add(new HourRate
             {
                 Id = 1,
                 FromDate = new DateTime(2019, 01, 01),
@@ -135,7 +145,7 @@ namespace Tests.UnitTests
                 TaskId = 1
             });
 
-            context.HourRate.Add(new HourRate
+            _context.HourRate.Add(new HourRate
             {
                 Id = 2,
                 FromDate = new DateTime(2020, 01, 01),
@@ -143,7 +153,7 @@ namespace Tests.UnitTests
                 TaskId = 1
             });
 
-            context.AccessTokens.Add(new AccessTokens
+            _context.AccessTokens.Add(new AccessTokens
             {
                 Id = 1,
                 UserId = 1,
@@ -151,9 +161,8 @@ namespace Tests.UnitTests
                 ExpiryDate = DateTime.UtcNow.AddMonths(6)
             });
 
-            context.SaveChanges();
-
-            return context;
+            _context.SaveChanges();
+            return this;
         }
     }
 }
