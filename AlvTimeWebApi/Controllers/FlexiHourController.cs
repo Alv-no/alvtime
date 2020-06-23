@@ -21,11 +21,11 @@ namespace AlvTimeWebApi.Controllers.FlexiHours
 
         [HttpGet("FlexiHours")]
         [Authorize]
-        public ActionResult<FlexHoursResponseDto> FetchTotalFlexiHours(DateTime startDate, DateTime endDate)
+        public ActionResult<FlexiHoursResponseDto> FetchFlexiHours(DateTime startDate, DateTime endDate)
         {
             var user = _userRetriever.RetrieveUser();
 
-            return Ok(_storage.GetTotalFlexiHours(user.Id, startDate, endDate));
+            return Ok(_storage.GetFlexiHours(user.Id, startDate, endDate));
         }
     }
 }

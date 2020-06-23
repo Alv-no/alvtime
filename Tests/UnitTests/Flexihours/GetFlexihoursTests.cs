@@ -7,17 +7,17 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace Tests.UnitTests.Flexhours
+namespace Tests.UnitTests.Flexihours
 {
-    public class GetFlexhoursTests
+    public class GetFlexihoursTests
     {
         [Fact]
         public void GetFlexhours_NoWorkAtAll_Minus1WorkDayInFlexhour()
         {
             var context = new AlvTimeDbContextBuilder().CreateDbContext();
-            
+
             var calculator = new FlexhourCalculator(context);
-            var flexhours = calculator.GetFlexhours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
+            var flexhours = calculator.GetFlexihours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
 
             Assert.Contains(flexhours, hour => hour.Value == -7.5M);
         }
@@ -37,7 +37,7 @@ namespace Tests.UnitTests.Flexhours
             context.SaveChanges();
 
             var calculator = new FlexhourCalculator(context);
-            var flexhours = calculator.GetFlexhours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
+            var flexhours = calculator.GetFlexihours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
 
             Assert.Empty(flexhours);
         }
@@ -57,7 +57,7 @@ namespace Tests.UnitTests.Flexhours
             context.SaveChanges();
 
             var calculator = new FlexhourCalculator(context);
-            var flexhours = calculator.GetFlexhours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
+            var flexhours = calculator.GetFlexihours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
 
             Assert.Contains(flexhours, hour => hour.Value == 2.5M);
         }
@@ -77,7 +77,7 @@ namespace Tests.UnitTests.Flexhours
             context.SaveChanges();
 
             var calculator = new FlexhourCalculator(context);
-            var flexhours = calculator.GetFlexhours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
+            var flexhours = calculator.GetFlexihours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
 
             Assert.Contains(flexhours, hour => hour.Value == -2.5M);
         }
@@ -103,7 +103,7 @@ namespace Tests.UnitTests.Flexhours
             context.SaveChanges();
 
             var calculator = new FlexhourCalculator(context);
-            var flexhours = calculator.GetFlexhours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 02), 1);
+            var flexhours = calculator.GetFlexihours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 02), 1);
 
             Assert.Contains(flexhours, hour => hour.Value == 2.5M && hour.Date == new DateTime(2020, 01, 01));
             Assert.Contains(flexhours, hour => hour.Value == 2.5M && hour.Date == new DateTime(2020, 01, 02));
@@ -130,7 +130,7 @@ namespace Tests.UnitTests.Flexhours
             context.SaveChanges();
 
             var calculator = new FlexhourCalculator(context);
-            var flexhours = calculator.GetFlexhours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
+            var flexhours = calculator.GetFlexihours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
 
             Assert.Empty(flexhours);
         }
@@ -157,7 +157,7 @@ namespace Tests.UnitTests.Flexhours
             context.SaveChanges();
 
             var calculator = new FlexhourCalculator(context);
-            var flexhours = calculator.GetFlexhours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
+            var flexhours = calculator.GetFlexihours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
 
             Assert.Contains(flexhours, hour => hour.Value == 2.5M);
         }
@@ -184,7 +184,7 @@ namespace Tests.UnitTests.Flexhours
             context.SaveChanges();
 
             var calculator = new FlexhourCalculator(context);
-            var flexhours = calculator.GetFlexhours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
+            var flexhours = calculator.GetFlexihours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
 
             Assert.Single(flexhours);
             Assert.Contains(flexhours, hour => hour.Value == 2.5M);
@@ -212,7 +212,7 @@ namespace Tests.UnitTests.Flexhours
             context.SaveChanges();
 
             var calculator = new FlexhourCalculator(context);
-            var flexhours = calculator.GetFlexhours(new DateTime(2019, 01, 01), new DateTime(2020, 01, 01), 1);
+            var flexhours = calculator.GetFlexihours(new DateTime(2019, 01, 01), new DateTime(2020, 01, 01), 1);
 
             Assert.True(flexhours.Sum(item => item.Value) == 5.0M);
         }
@@ -251,7 +251,7 @@ namespace Tests.UnitTests.Flexhours
             Assert.True(context.Task.Any());
 
             var calculator = new FlexhourCalculator(context);
-            var flexhours = calculator.GetFlexhours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 02), 1);
+            var flexhours = calculator.GetFlexihours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 02), 1);
 
             Assert.Single(flexhours);
             Assert.Contains(flexhours, item => item.Value == 2.5M);
@@ -278,13 +278,13 @@ namespace Tests.UnitTests.Flexhours
             Assert.True(context.Task.Any());
 
             var calculator = new FlexhourCalculator(context);
-            var flexhours = calculator.GetFlexhours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
+            var flexhours = calculator.GetFlexihours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
 
             Assert.Empty(flexhours);
         }
     }
 
-    internal class FlexhourCalculator : IFlexhourRepository
+    internal class FlexhourCalculator : IFlexihourRepository
     {
         private readonly AlvTime_dbContext _context;
         private readonly TimeEntryStorage _storage;
@@ -295,9 +295,9 @@ namespace Tests.UnitTests.Flexhours
             _storage = new TimeEntryStorage(_context);
         }
 
-        public IEnumerable<FlexHours> GetFlexhours(DateTime startDate, DateTime endDate, int userId)
+        public IEnumerable<FlexiHours> GetFlexihours(DateTime startDate, DateTime endDate, int userId)
         {
-            var flexHours = new List<FlexHours>();
+            var flexHours = new List<FlexiHours>();
 
             var timeEntries = _storage.GetTimeEntries(new TimeEntryQuerySearch
             {
@@ -308,7 +308,7 @@ namespace Tests.UnitTests.Flexhours
 
             if (!_context.Hours.Any())
             {
-                flexHours.Add(new FlexHours
+                flexHours.Add(new FlexiHours
                 {
                     Value = -7.5M
                 });
@@ -329,7 +329,7 @@ namespace Tests.UnitTests.Flexhours
 
                     if (hour.SumHours != 7.5M)
                     {
-                        flexHours.Add(new FlexHours
+                        flexHours.Add(new FlexiHours
                         {
                             Value = hour.SumHours - 7.5M,
                             Date = DateTime.Parse(hour.Date)

@@ -6,6 +6,6 @@ namespace AlvTime.Business.FlexiHours
 {
     public interface IFlexiHourStorage
     {
-        IEnumerable<FlexHoursResponseDto> GetTotalFlexiHours(int userId, DateTime startDate, DateTime endDate);
+        IEnumerable<FlexiHoursResponseDto> GetFlexiHours(int userId, DateTime startDate, DateTime endDate);
     }
 }

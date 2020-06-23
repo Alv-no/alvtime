@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace AlvTime.Business.FlexiHours
 {
-    public interface IFlexhourRepository
+    public interface IFlexihourRepository
     {
-        IEnumerable<FlexHours> GetFlexhours(DateTime dateTime, DateTime dateTime1, int userId);
+        IEnumerable<FlexiHours> GetFlexihours(DateTime dateTime, DateTime dateTime1, int userId);
     }
 }

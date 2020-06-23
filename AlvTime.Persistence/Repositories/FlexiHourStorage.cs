@@ -20,9 +20,9 @@ namespace AlvTime.Persistence.Repositories
             _timeEntryStorage = timeEntryStorage;
         }
 
-        public IEnumerable<FlexHoursResponseDto> GetTotalFlexiHours(int userId, DateTime startDate, DateTime endDate)
+        public IEnumerable<FlexiHoursResponseDto> GetFlexiHours(int userId, DateTime startDate, DateTime endDate)
         {
-            var flexHours = new List<FlexHoursResponseDto>();
+            var flexHours = new List<FlexiHoursResponseDto>();
 
             var timeEntries = _timeEntryStorage.GetTimeEntries(new TimeEntryQuerySearch
             {
@@ -45,7 +45,7 @@ namespace AlvTime.Persistence.Repositories
 
                 if (hour.SumHours != 7.5M)
                 {
-                    flexHours.Add(new FlexHoursResponseDto
+                    flexHours.Add(new FlexiHoursResponseDto
                     {
                         Value = hour.SumHours - 7.5M,
                         Date = DateTime.Parse(hour.Date).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
