@@ -1,5 +1,6 @@
 ﻿using AlvTime.Business;
 using AlvTime.Business.AccessToken;
+using AlvTime.Business.AccessToken.PersonalAccessToken;
 using AlvTime.Business.AssociatedTask;
 using AlvTime.Business.Customers;
 using AlvTime.Business.Economy;
@@ -11,21 +12,12 @@ using AlvTime.Business.Tasks.Admin;
 using AlvTime.Business.TimeEntries;
 using AlvTime.Business.Users;
 using AlvTime.Persistence.Repositories;
-using AlvTimeWebApi.Authentication;
-using AlvTimeWebApi.Controllers.AccessToken.AccessTokenStorage;
-using AlvTimeWebApi.Controllers.Admin.AssociatedTask.AssociatedTaskStorage;
-using AlvTimeWebApi.Controllers.Admin.Customers.CustomerStorage;
-using AlvTimeWebApi.Controllers.Admin.Economy.EconomyStorage;
-using AlvTimeWebApi.Controllers.Admin.HourRates.HourRateStorage;
-using AlvTimeWebApi.Controllers.Admin.Projects.ProjectStorage;
-using AlvTimeWebApi.Controllers.Admin.Users.UserStorage;
-using AlvTimeWebApi.Controllers.Tasks.TaskStorage;
-using AlvTimeWebApi.HelperClasses;
+using AlvTimeWebApi.Controllers.Utils;
 using AlvTimeWebApi.Persistence.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AlvTimeWebApi.Services
+namespace AlvTimeWebApi
 {
     public static class ServiceRegistrator
     {

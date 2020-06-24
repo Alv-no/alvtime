@@ -2,11 +2,12 @@
 using AlvTime.Business.Projects;
 using AlvTime.Business.Tasks;
 using AlvTime.Business.Tasks.Admin;
-using AlvTimeWebApi.Persistence.DatabaseModels;
+using AlvTime.Persistence.DatabaseModels;
+using AlvTime.Persistence.DataBaseModels;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AlvTimeWebApi.Controllers.Tasks.TaskStorage
+namespace AlvTime.Persistence.Repositories
 {
     public class TaskStorage : ITaskStorage
     {

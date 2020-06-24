@@ -1,6 +1,5 @@
 ﻿using AlvTime.Business.TimeEntries;
-using AlvTimeWebApi.Controllers.TimeEntries.TimeEntryStorage;
-using AlvTimeWebApi.Persistence.DatabaseModels;
+using AlvTime.Persistence.DataBaseModels;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;

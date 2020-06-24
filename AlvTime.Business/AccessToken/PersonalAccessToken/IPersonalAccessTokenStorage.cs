@@ -1,8 +1,6 @@
-﻿using AlvTimeWebApi.Business;
-using AlvTimeWebApi.Business.PersonalAccessToken;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-namespace AlvTimeWebApi.Authentication
+namespace AlvTime.Business.AccessToken.PersonalAccessToken
 {
     public interface IPersonalAccessTokenStorage
     {

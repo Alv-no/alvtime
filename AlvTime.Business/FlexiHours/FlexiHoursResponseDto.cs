@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AlvTime.Business.FlexiHours
+﻿namespace AlvTime.Business.FlexiHours
 {
     public class FlexiHoursResponseDto
     {

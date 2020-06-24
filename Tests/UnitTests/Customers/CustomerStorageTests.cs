@@ -1,5 +1,5 @@
 ﻿using AlvTime.Business.Customers;
-using AlvTimeWebApi.Controllers.Admin.Customers.CustomerStorage;
+using AlvTime.Persistence.Repositories;
 using System.Linq;
 using Xunit;
 

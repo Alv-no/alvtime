@@ -1,8 +1,8 @@
 ﻿using AlvTime.Business.Users;
-using AlvTimeWebApi.Persistence.DatabaseModels;
+using AlvTime.Persistence.DataBaseModels;
 using System.Linq;
 
-namespace AlvTimeWebApi.Controllers.Admin.Users.UserStorage
+namespace AlvTime.Persistence.Repositories
 {
     public static class UserQueryableExtensions
     {

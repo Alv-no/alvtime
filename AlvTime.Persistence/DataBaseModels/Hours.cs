@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using AlvTime.Persistence.DatabaseModels;
+using System;
 
-namespace AlvTimeWebApi.Persistence.DatabaseModels
+namespace AlvTime.Persistence.DataBaseModels
 {
     public partial class Hours
     {

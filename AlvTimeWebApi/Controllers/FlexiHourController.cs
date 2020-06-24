@@ -1,10 +1,10 @@
 ﻿using AlvTime.Business.FlexiHours;
-using AlvTimeWebApi.HelperClasses;
+using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
-namespace AlvTimeWebApi.Controllers.FlexiHours
+namespace AlvTimeWebApi.Controllers
 {
     [Route("api/user")]
     [ApiController]

@@ -1,7 +1,8 @@
 ﻿using AlvTime.Business.FlexiHours;
 using AlvTime.Business.TimeEntries;
+using AlvTime.Persistence.DatabaseModels;
+using AlvTime.Persistence.DataBaseModels;
 using AlvTime.Persistence.Repositories;
-using AlvTimeWebApi.Persistence.DatabaseModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +26,7 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhours_NoOvertime_NoFlexhour()
         {
-            var context = new AlvTimeDbContextBuilder().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder().WithUsers().CreateDbContext();
 
             context.Hours.Add(new Hours
             {
@@ -45,7 +46,7 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhours_Worked10Hours_2AndAHalfHourInFlex()
         {
-            var context = new AlvTimeDbContextBuilder().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder().WithUsers().CreateDbContext();
 
             context.Hours.Add(new Hours
             {
@@ -65,7 +66,7 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhours_Worked5Hours_Minus2AndAHalfHourInFlex()
         {
-            var context = new AlvTimeDbContextBuilder().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder().WithUsers().CreateDbContext();
 
             context.Hours.Add(new Hours
             {
@@ -85,7 +86,7 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhours_Worked10HoursAnd10Hours_5HourInFlex()
         {
-            var context = new AlvTimeDbContextBuilder().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder().WithUsers().CreateDbContext();
 
             context.Hours.Add(new Hours
             {
@@ -112,7 +113,7 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhours_Worked0HoursAnd7AndAHalfHours_NoHourInFlex()
         {
-            var context = new AlvTimeDbContextBuilder().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder().WithUsers().CreateDbContext();
 
             context.Hours.Add(new Hours
             {
@@ -138,7 +139,7 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhours_YouWorked10HoursAndSomeoneElseWorked8Hours_2AndAHalfHoursInFlex()
         {
-            var context = new AlvTimeDbContextBuilder().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder().WithUsers().CreateDbContext();
 
             context.Hours.Add(new Hours
             {
@@ -165,7 +166,7 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhoursToday_YouWorked10YesterdayAnd10HoursToday_2AndAHalfHoursInFlex()
         {
-            var context = new AlvTimeDbContextBuilder().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder().WithUsers().CreateDbContext();
 
             context.Hours.Add(new Hours
             {
@@ -193,7 +194,7 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhoursToday_YouWorked10YesterdayAnd10HoursToday_5HoursInFlex()
         {
-            var context = new AlvTimeDbContextBuilder().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder().WithUsers().CreateDbContext();
 
             context.Hours.Add(new Hours
             {
@@ -220,7 +221,7 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhoursToday_Worked10HoursOnBillableAnd10HoursOnNonBillable_2AndAHalfHoursInFlex()
         {
-            var context = new AlvTimeDbContextBuilder().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder().WithUsers().CreateDbContext();
 
             context.Hours.Add(new Hours
             {
@@ -260,7 +261,7 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhoursToday_Recorded0HoursOnWeekend_EmptyFlexHours()
         {
-            var context = new AlvTimeDbContextBuilder().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder().WithUsers().CreateDbContext();
 
             context.Hours.Add(new Hours
             {

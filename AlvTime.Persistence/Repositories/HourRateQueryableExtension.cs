@@ -1,8 +1,8 @@
 ﻿using AlvTime.Business.HourRates;
-using AlvTimeWebApi.Persistence.DatabaseModels;
+using AlvTime.Persistence.DataBaseModels;
 using System.Linq;
 
-namespace AlvTimeWebApi.Controllers.Admin.HourRates.HourRateStorage
+namespace AlvTime.Persistence.Repositories
 {
     public static class HourRateQueryableExtension
     {

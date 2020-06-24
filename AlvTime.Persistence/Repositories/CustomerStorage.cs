@@ -1,11 +1,11 @@
 ﻿using AlvTime.Business.Customers;
-using AlvTimeWebApi.Persistence.DatabaseModels;
+using AlvTime.Persistence.DataBaseModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AlvTimeWebApi.Controllers.Admin.Customers.CustomerStorage
+namespace AlvTime.Persistence.Repositories
 {
     public class CustomerStorage : ICustomerStorage
     {

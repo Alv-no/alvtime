@@ -1,12 +1,9 @@
 ﻿using AlvTime.Business.Economy;
 using AlvTimeWebApi.Authentication;
-using AlvTimeWebApi.Persistence.DatabaseModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 
-namespace AlvTimeWebApi.Controllers.Admin.Economy
+namespace AlvTimeWebApi.Controllers.Admin
 {
     [Route("api/admin")]
     [ApiController]

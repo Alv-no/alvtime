@@ -1,8 +1,8 @@
-﻿using AlvTimeWebApi.Persistence.DatabaseModels;
+﻿using AlvTime.Persistence.DataBaseModels;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
 
-namespace AlvTimeWebApi.HelperClasses
+namespace AlvTimeWebApi.Controllers.Utils
 {
     public class RetrieveUsers
     {

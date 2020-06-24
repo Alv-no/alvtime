@@ -1,12 +1,11 @@
 ﻿using AlvTime.Business.AccessToken;
-using AlvTimeWebApi.Persistence.DatabaseModels;
+using AlvTime.Persistence.DataBaseModels;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
 
-namespace AlvTimeWebApi.Controllers.AccessToken.AccessTokenStorage
+namespace AlvTime.Persistence.Repositories
 {
     public class AccessTokenStorage : IAccessTokenStorage
     {
@@ -43,7 +42,7 @@ namespace AlvTimeWebApi.Controllers.AccessToken.AccessTokenStorage
         {
             var token = _context.AccessTokens
                 .FirstOrDefault(t => t.Id == tokenId && t.UserId == userId);
-            
+
             token.ExpiryDate = DateTime.UtcNow;
             _context.SaveChanges();
 

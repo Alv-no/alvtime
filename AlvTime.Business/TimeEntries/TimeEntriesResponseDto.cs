@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AlvTime.Business.TimeEntries
+﻿namespace AlvTime.Business.TimeEntries
 {
     public class TimeEntriesResponseDto
     {

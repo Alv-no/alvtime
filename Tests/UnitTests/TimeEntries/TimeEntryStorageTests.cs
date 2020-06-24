@@ -52,7 +52,7 @@ namespace Tests.UnitTests.TimeEntries
         [Fact]
         public void CreateTimeEntry_NewTimeEntry_TimeEntryCreated()
         {
-            var context = new AlvTimeDbContextBuilder().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder().WithUsers().CreateDbContext();
 
             var storage = new TimeEntryStorage(context);
 

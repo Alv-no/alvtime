@@ -1,4 +1,5 @@
-﻿using AlvTimeWebApi.Persistence.DatabaseModels;
+﻿using AlvTime.Persistence.DatabaseModels;
+using AlvTime.Persistence.DataBaseModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 
@@ -71,24 +72,6 @@ namespace Tests.UnitTests
                 TaskId = 1
             });
 
-            _context.User.Add(new User
-            {
-                Id = 1,
-                Email = "someone@alv.no",
-                Name = "Someone",
-                FlexiHours = 150,
-                StartDate = DateTime.Now
-            });
-
-            _context.User.Add(new User
-            {
-                Id = 2,
-                Email = "someone2@alv.no",
-                Name = "Someone2",
-                FlexiHours = 10,
-                StartDate = DateTime.Now
-            });
-
             _context.Hours.Add(new Hours
             {
                 User = 1,
@@ -159,6 +142,30 @@ namespace Tests.UnitTests
                 UserId = 1,
                 Value = "123",
                 ExpiryDate = DateTime.UtcNow.AddMonths(6)
+            });
+
+            _context.SaveChanges();
+            return this;
+        }
+
+        public AlvTimeDbContextBuilder WithUsers()
+        {
+            _context.User.Add(new User
+            {
+                Id = 1,
+                Email = "someone@alv.no",
+                Name = "Someone",
+                FlexiHours = 150,
+                StartDate = DateTime.Now
+            });
+
+            _context.User.Add(new User
+            {
+                Id = 2,
+                Email = "someone2@alv.no",
+                Name = "Someone2",
+                FlexiHours = 10,
+                StartDate = DateTime.Now
             });
 
             _context.SaveChanges();

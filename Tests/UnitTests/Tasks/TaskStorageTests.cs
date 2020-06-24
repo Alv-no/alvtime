@@ -1,11 +1,9 @@
 ﻿using AlvTime.Business.Tasks;
 using AlvTime.Business.Tasks.Admin;
-using AlvTimeWebApi.Controllers.Tasks.TaskStorage;
-using AlvTimeWebApi.Persistence.DatabaseModels;
-using System;
+using AlvTime.Persistence.DataBaseModels;
+using AlvTime.Persistence.Repositories;
 using System.Linq;
 using Xunit;
-using Task = AlvTimeWebApi.Persistence.DatabaseModels.Task;
 
 namespace Tests.UnitTests.Tasks
 {

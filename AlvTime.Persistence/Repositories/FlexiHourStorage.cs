@@ -1,7 +1,6 @@
-﻿using AlvTime.Business;
-using AlvTime.Business.FlexiHours;
+﻿using AlvTime.Business.FlexiHours;
 using AlvTime.Business.TimeEntries;
-using AlvTimeWebApi.Persistence.DatabaseModels;
+using AlvTime.Persistence.DataBaseModels;
 using System;
 using System.Collections.Generic;
 using System.Globalization;

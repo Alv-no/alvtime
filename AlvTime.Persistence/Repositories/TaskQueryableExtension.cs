@@ -1,8 +1,8 @@
 ﻿using AlvTime.Business.Tasks;
 using System.Linq;
-using Task = AlvTimeWebApi.Persistence.DatabaseModels.Task;
+using Task = AlvTime.Persistence.DatabaseModels.Task;
 
-namespace AlvTimeWebApi.Controllers.Tasks.TaskStorage
+namespace AlvTime.Persistence.Repositories
 {
     public static class TaskQueryableExtensions
     {

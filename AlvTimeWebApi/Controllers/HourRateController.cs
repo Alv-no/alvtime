@@ -1,14 +1,9 @@
 ﻿using AlvTime.Business.HourRates;
-using AlvTime.Business.Tasks;
 using AlvTimeWebApi.Authentication;
-using AlvTimeWebApi.HelperClasses;
-using AlvTimeWebApi.Persistence.DatabaseModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 
-namespace AlvTimeWebApi.Controllers.Admin.HourRates
+namespace AlvTimeWebApi.Controllers
 {
     [Route("api/admin")]
     [ApiController]
