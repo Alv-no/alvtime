@@ -1,5 +1,5 @@
 ﻿using AlvTime.Business.TimeEntries;
-using AlvTimeWebApi.Controllers.TimeEntries.TimeEntryStorage;
+using AlvTime.Persistence.Repositories;
 using System;
 using System.Linq;
 using Xunit;
@@ -78,7 +78,7 @@ namespace Tests.UnitTests.TimeEntries
         [Fact]
         public void UpdateTimeEntry_ExistingTimeEntry_TimeEntryUpdated()
         {
-            var context = new AlvTimeDbContextBuilder().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder().WithData().CreateDbContext();
 
             var storage = new TimeEntryStorage(context);
 

@@ -25,7 +25,7 @@ namespace Tests.UnitTests.Users
         [Fact]
         public void GetUsers_EmailIsGiven_AllUsersWithSpecifiedEmail()
         {
-            var context = new AlvTimeDbContextBuilder().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder().WithData().CreateDbContext();
 
             var storage = new UserStorage(context);
             var users = storage.GetUser(new UserQuerySearch
@@ -39,7 +39,7 @@ namespace Tests.UnitTests.Users
         [Fact]
         public void GetUsers_NameIsGiven_AllUsersWithSpecifiedName()
         {
-            AlvTime_dbContext context = new AlvTimeDbContextBuilder().CreateDbContext();
+            AlvTime_dbContext context = new AlvTimeDbContextBuilder().WithData().CreateDbContext();
 
             var storage = new UserStorage(context);
             var users = storage.GetUser(new UserQuerySearch
@@ -53,7 +53,7 @@ namespace Tests.UnitTests.Users
         [Fact]
         public void UserCreator_NewUser_NewUserIsCreated()
         {
-            AlvTime_dbContext context = new AlvTimeDbContextBuilder().CreateDbContext();
+            AlvTime_dbContext context = new AlvTimeDbContextBuilder().WithData().CreateDbContext();
 
             var storage = new UserStorage(context);
             var creator = new UserCreator(storage, new AlvHoursCalculator());
@@ -72,7 +72,7 @@ namespace Tests.UnitTests.Users
         [Fact]
         public void UserCreator_UserAlreadyExists_NoUserIsCreated()
         {
-            AlvTime_dbContext context = new AlvTimeDbContextBuilder().CreateDbContext();
+            AlvTime_dbContext context = new AlvTimeDbContextBuilder().WithData().CreateDbContext();
 
             var storage = new UserStorage(context);
             var creator = new UserCreator(storage, new AlvHoursCalculator());

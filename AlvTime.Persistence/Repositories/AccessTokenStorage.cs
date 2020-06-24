@@ -42,7 +42,7 @@ namespace AlvTimeWebApi.Controllers.AccessToken.AccessTokenStorage
         public AccessTokenFriendlyNameResponseDto DeleteActiveTokens(int tokenId, int userId)
         {
             var token = _context.AccessTokens
-                .FirstOrDefault(token => token.Id == tokenId && token.UserId == userId);
+                .FirstOrDefault(t => t.Id == tokenId && t.UserId == userId);
             
             token.ExpiryDate = DateTime.UtcNow;
             _context.SaveChanges();
