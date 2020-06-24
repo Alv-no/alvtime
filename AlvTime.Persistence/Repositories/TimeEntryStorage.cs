@@ -73,7 +73,8 @@ namespace AlvTime.Persistence.Repositories
                 User = hour.User,
                 Date = hour.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                 TaskId = hour.TaskId,
-                Value = hour.Value
+                Value = hour.Value,
+                UserEmail = hour.UserNavigation.Email
             };
         }
 
@@ -104,7 +105,8 @@ namespace AlvTime.Persistence.Repositories
                     User = hour.User,
                     Date = hour.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                     TaskId = hour.TaskId,
-                    Value = hour.Value
+                    Value = hour.Value,
+                    UserEmail = hour.UserNavigation.Email
                 };
             }
 
