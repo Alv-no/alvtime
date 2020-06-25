@@ -9,12 +9,11 @@ import {
   reminderToRegisterHoursAndActivateMessage,
   TokenPayload,
 } from "../messages/index";
-import userDB from "../models/user";
+import userDB, { UserData } from "../models/user";
 import configuredMoment from "../moment";
-import { createDMChannel } from "../response/createDMChannel";
+import { createDMChannel, Member } from "../response/createDMChannel";
 import { slackInteractions, slackWebClient } from "../routes/slack";
 import createNorwegianHolidays from "../services/holidays";
-import { Member } from "../response/createDMChannel";
 
 const holidays = createNorwegianHolidays([configuredMoment().year()]);
 
@@ -46,9 +45,6 @@ export async function remindUsersToRegisterLastWeeksHours() {
       alvtimeClient.getTasks(env.REPORT_USER_PERSONAL_ACCESS_TOKEN),
     ]);
 
-    const sunday = configuredMoment().add(-1, "day");
-    const weekHoursGoal = weekGoal(sunday);
-
     for (const member of slackMembers) {
       const activatedUser = users.find(
         (user) => user.slackUserID === member.id
@@ -66,10 +62,7 @@ export async function remindUsersToRegisterLastWeeksHours() {
 
         const message = reminderToRegisterHoursAndActivateMessage(tokenPayload);
         postMessage(message);
-      } else if (
-        !report[activatedUser.email.toLowerCase()] ||
-        report[activatedUser.email.toLowerCase()].sum < weekHoursGoal
-      ) {
+      } else if (shouldRegisterMoreHours(activatedUser, report)) {
         const email = activatedUser.email.toLowerCase();
         const userReport = report[email]
           ? report[email]
@@ -85,6 +78,13 @@ export async function remindUsersToRegisterLastWeeksHours() {
   } catch (error) {
     console.error(error);
   }
+}
+
+function shouldRegisterMoreHours(activatedUser: UserData, report: UserReports) {
+  const sunday = configuredMoment().add(-1, "day");
+  const weekHoursGoal = weekGoal(sunday);
+  const email = activatedUser.email.toLowerCase();
+  return !report[email] || report[email].sum < weekHoursGoal;
 }
 
 function weekGoal(mondayOfWeek: Moment): number {
