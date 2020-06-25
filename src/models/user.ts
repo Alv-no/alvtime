@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import mongooseFieldEncryption from "mongoose-field-encryption";
 import env from "../environment";
+import { logger } from "../createLogger"
 
 const userSchema = new mongoose.Schema({
   _id: String,
@@ -82,9 +83,9 @@ export function createUserDB(model: Model) {
             { $set: { auth, __enc_message: false } }
           )
           .exec();
-        console.log("Succesfully updated auth on user.");
+        logger.info("Succesfully updated auth on user.");
       } catch (e) {
-        console.error("Unable to replace user data: ", e);
+        logger.error("Unable to replace user data: ", e);
       }
     },
 
@@ -105,7 +106,7 @@ export function createUserDB(model: Model) {
         await doc.save();
         saved = true;
       } catch (e) {
-        console.error("Unable to save user data: ", e);
+        logger.error("Unable to save user data: ", e);
       }
       return saved;
     },

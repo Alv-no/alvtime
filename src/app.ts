@@ -5,6 +5,7 @@ import startReminders from "./reminders/index";
 import oauth2Router from "./routes/auth/index";
 import slackRouter from "./routes/slack";
 import createErrorView from "./views/error";
+import { logger, loggerMiddleware } from "./createLogger";
 
 const app = express();
 
@@ -23,17 +24,19 @@ const dbOptions = {
 mongoose
   .connect(env.DB_CONNECTION_STRING, dbOptions)
   .then(() => {
-    console.log("Database connected");
+    logger.info("Database connected");
   })
   .catch((error) => {
-    console.error("Database connection error: " + error);
+    logger.error("Database connection error: " + error);
   });
 
+app.use(loggerMiddleware);
 app.use(express.static("public"));
 app.use("/slack", slackRouter);
 app.use("/oauth2", oauth2Router);
-app.use("/something-went-wrong", (_req, res) => {
+app.use("/something-went-wrong", (req, res) => {
   res.status(500).send(createErrorView());
+  req.log.warn("Respond with error view");
 });
 
 app.use(errorHandler);
@@ -44,7 +47,7 @@ function errorHandler(
   res: { redirect: (s: string) => void },
   _next: () => void
 ) {
-  console.error(err.stack);
+  logger.error(err.stack);
   res.redirect("/something-went-wrong");
 }
 
@@ -53,5 +56,5 @@ startReminders();
 // Starts server
 const port = env.PORT || 3000;
 app.listen(port, function () {
-  console.log("Alvtime slack app is listening on port " + port);
+  logger.info("Alvtime slack app is listening on port " + port);
 });

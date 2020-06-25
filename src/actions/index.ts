@@ -7,6 +7,7 @@ import configuredMoment from "../moment";
 import getAccessToken from "../routes/auth/getAccessToken";
 import respondToResponseURL from "../response/respondToResponseURL";
 import { CommandBody } from "../routes/slack/slashCommand";
+import { logger } from "../createLogger"
 
 interface State {
   accessToken: string;
@@ -61,7 +62,7 @@ async function logg({ commandBody, accessToken }: State) {
 
     respondToResponseURL(commandBody.response_url, message);
   } catch (e) {
-    console.log("error", e);
+    logger.error("error", e);
   }
 }
 
@@ -72,7 +73,7 @@ async function tasks({ params, commandBody, accessToken }: State) {
       text: createTasksMessage(tasks, params.includes("alle")),
     });
   } catch (e) {
-    console.log("error", e);
+    logger.error("error", e);
   }
 }
 
@@ -93,7 +94,7 @@ async function register(state: State) {
     await alvtimeClient.editTimeEntries(timeEntriesToEdit, accessToken);
     logg(state);
   } catch (e) {
-    console.log("error", e);
+    logger.error("error", e);
   }
 }
 
@@ -110,7 +111,7 @@ async function registerWeek(state: State) {
     await alvtimeClient.editTimeEntries(timeEntriesToEdit, accessToken);
     logg(state);
   } catch (e) {
-    console.log("error", e);
+    logger.error("error", e);
   }
 }
 
