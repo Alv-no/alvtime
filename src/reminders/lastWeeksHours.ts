@@ -11,23 +11,12 @@ import {
 } from "../messages/index";
 import userDB from "../models/user";
 import configuredMoment from "../moment";
+import { createDMChannel } from "../response/createDMChannel";
 import { slackInteractions, slackWebClient } from "../routes/slack";
 import createNorwegianHolidays from "../services/holidays";
+import { Member } from "../response/createDMChannel";
 
 const holidays = createNorwegianHolidays([configuredMoment().year()]);
-
-interface Member {
-  id: string;
-  name: string;
-  deleted: boolean;
-  profile: {
-    email: string;
-  };
-  is_bot: boolean;
-  is_restricted: boolean;
-  is_ultra_restricted: boolean;
-  is_stranger: boolean;
-}
 
 // const fridays1630 = "30 14 * * 5"; // UTC time
 // const thursdays1900 = "0 17 * * 4"; // UTC time
@@ -60,47 +49,37 @@ export async function remindUsersToRegisterLastWeeksHours() {
     const sunday = configuredMoment().add(-1, "day");
     const weekHoursGoal = weekGoal(sunday);
 
-    for await (const member of slackMembers) {
+    for (const member of slackMembers) {
       const activatedUser = users.find(
         (user) => user.slackUserID === member.id
       );
 
-      if (!activatedUser) {
-        const {
-          channel: { id },
-        } = ((await slackWebClient.conversations.open({
-          users: member.id,
-        })) as unknown) as { channel: { id: string } };
+      const { channel, postMessage } = await createDMChannel(member);
 
+      if (!activatedUser) {
         const tokenPayload: TokenPayload = {
           slackUserName: member.name,
           slackUserID: member.id,
-          slackChannelID: id,
+          slackChannelID: channel.id,
           slackTeamDomain: teamInfo.team.domain,
         };
 
-        slackWebClient.chat.postMessage({
-          ...reminderToRegisterHoursAndActivateMessage(tokenPayload),
-          channel: id,
-        });
+        const message = reminderToRegisterHoursAndActivateMessage(tokenPayload);
+        postMessage(message);
       } else if (
         !report[activatedUser.email.toLowerCase()] ||
         report[activatedUser.email.toLowerCase()].sum < weekHoursGoal
       ) {
-        const {
-          channel: { id },
-        } = ((await slackWebClient.conversations.open({
-          users: member.id,
-        })) as unknown) as { channel: { id: string } };
-
         const email = activatedUser.email.toLowerCase();
         const userReport = report[email]
           ? report[email]
           : { sum: 0, entries: [] };
-        slackWebClient.chat.postMessage({
-          ...registerHoursReminderMessage(member.id, userReport, tasks),
-          channel: id,
-        });
+        const message = registerHoursReminderMessage(
+          member.id,
+          userReport,
+          tasks
+        );
+        postMessage(message);
       }
     }
   } catch (error) {
