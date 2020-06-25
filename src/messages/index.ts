@@ -4,7 +4,7 @@ import { Task, TimeEntrie } from "../client/index";
 import config from "../config";
 import env from "../environment";
 import configuredMoment from "../moment";
-import { UserReport } from "../reminders/index";
+import { UserReport } from "../alvtime/alvtimeClient";
 
 export interface TokenPayload {
   slackUserName: string;

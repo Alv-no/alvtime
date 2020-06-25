@@ -1,6 +1,7 @@
 import userDB from "../../models/user";
 import { CommandBody } from "./slashCommand";
 import createCommands from "../../actions/index";
+import { remindUsersToRegisterLastWeeksHours } from "../../reminders/remindUsersToRegisterLastWeeksHours";
 
 const { LOGG, TASKS, REG, UKE } = Object.freeze({
   TASKS: "TASKS",
@@ -31,6 +32,10 @@ export default async function runCommand(commandBody: CommandBody) {
 
     case UKE:
       commands.registerWeek();
+      break;
+
+    case "TEST":
+      remindUsersToRegisterLastWeeksHours();
       break;
 
     default:

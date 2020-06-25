@@ -1,4 +1,4 @@
-import alvtimeClient from "../alvtimeClient";
+import alvtimeClient from "../alvtime/alvtimeClient";
 import { Task } from "../client/index";
 import config from "../config";
 import { loggMessage } from "../messages/index";
