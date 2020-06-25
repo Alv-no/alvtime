@@ -1,6 +1,7 @@
 import { Moment } from "moment";
 import cron from "node-cron";
 import alvtimeClient from "../alvtimeClient";
+import { Task } from "../client";
 import { ReportTimeEntrie } from "../client/index";
 import config from "../config";
 import env from "../environment";
@@ -23,7 +24,13 @@ const monday0900 = "0 7 * * 1";
 
 export default startLastWeeksHoursReminder;
 function startLastWeeksHoursReminder() {
-  cron.schedule(monday0900, remindUsersToRegisterLastWeeksHours);
+  cron.schedule(monday0900, () => {
+    try {
+      remindUsersToRegisterLastWeeksHours();
+    } catch (error) {
+      console.error(error);
+    }
+  });
 
   slackInteractions.action(
     { actionId: "open_alvtime_button" },
@@ -36,47 +43,43 @@ function startLastWeeksHoursReminder() {
 }
 
 export async function remindUsersToRegisterLastWeeksHours() {
-  try {
-    const [users, slackMembers, report, teamInfo, tasks] = await Promise.all([
-      userDB.getAll(),
-      getMembers(),
-      getLastWeekReport(),
-      getTeamInfo(),
-      alvtimeClient.getTasks(env.REPORT_USER_PERSONAL_ACCESS_TOKEN),
-    ]);
+  const [users, slackMembers, report, teamInfo, tasks] = await Promise.all([
+    userDB.getAll(),
+    getMembers(),
+    getLastWeekReport(),
+    getTeamInfo(),
+    alvtimeClient.getTasks(env.REPORT_USER_PERSONAL_ACCESS_TOKEN),
+  ]);
 
-    for (const member of slackMembers) {
-      const activatedUser = users.find(
-        (user) => user.slackUserID === member.id
-      );
+  for (const member of slackMembers) {
+    await sendReminderToSlacker(users, member, teamInfo, report, tasks);
+  }
+}
 
-      const { channel, postMessage } = await createDMChannel(member);
+async function sendReminderToSlacker(
+  users: UserData[],
+  member: Member,
+  teamInfo: TeamInfo,
+  report: UserReports,
+  tasks: Task[]
+) {
+  const activatedUser = users.find((user) => user.slackUserID === member.id);
+  const { channel, postMessage } = await createDMChannel(member);
 
-      if (!activatedUser) {
-        const tokenPayload: TokenPayload = {
-          slackUserName: member.name,
-          slackUserID: member.id,
-          slackChannelID: channel.id,
-          slackTeamDomain: teamInfo.team.domain,
-        };
-
-        const message = reminderToRegisterHoursAndActivateMessage(tokenPayload);
-        postMessage(message);
-      } else if (shouldRegisterMoreHours(activatedUser, report)) {
-        const email = activatedUser.email.toLowerCase();
-        const userReport = report[email]
-          ? report[email]
-          : { sum: 0, entries: [] };
-        const message = registerHoursReminderMessage(
-          member.id,
-          userReport,
-          tasks
-        );
-        postMessage(message);
-      }
-    }
-  } catch (error) {
-    console.error(error);
+  if (!activatedUser) {
+    const tokenPayload: TokenPayload = {
+      slackUserName: member.name,
+      slackUserID: member.id,
+      slackChannelID: channel.id,
+      slackTeamDomain: teamInfo.team.domain,
+    };
+    const message = reminderToRegisterHoursAndActivateMessage(tokenPayload);
+    postMessage(message);
+  } else if (shouldRegisterMoreHours(activatedUser, report)) {
+    const email = activatedUser.email.toLowerCase();
+    const userReport = report[email] ? report[email] : { sum: 0, entries: [] };
+    const message = registerHoursReminderMessage(member.id, userReport, tasks);
+    postMessage(message);
   }
 }
 
