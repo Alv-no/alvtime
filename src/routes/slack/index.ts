@@ -17,6 +17,10 @@ export const slackInteractions = createMessageAdapter(env.SLACK_SIGNING_SECRET);
 slackRouter.use("/events", slackEvents.expressMiddleware());
 slackRouter.use("/actions", slackInteractions.expressMiddleware());
 
+slackInteractions.action({ actionId: "open_alvtime_button" }, () => ({
+  text: "Åpner Alvtime...",
+}));
+
 slackRouter.use(
   "/command",
   bodyParser.urlencoded({

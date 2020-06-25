@@ -13,7 +13,7 @@ import {
 import userDB, { UserData } from "../models/user";
 import configuredMoment from "../moment";
 import { createDMChannel, Member } from "../response/createDMChannel";
-import { slackInteractions, slackWebClient } from "../routes/slack";
+import { slackWebClient } from "../routes/slack";
 import createNorwegianHolidays from "../services/holidays";
 
 const holidays = createNorwegianHolidays([configuredMoment().year()]);
@@ -22,8 +22,9 @@ const holidays = createNorwegianHolidays([configuredMoment().year()]);
 // const thursdays1900 = "0 17 * * 4"; // UTC time
 const monday0900 = "0 7 * * 1";
 
-export default startLastWeeksHoursReminder;
-function startLastWeeksHoursReminder() {
+export default startReminders;
+
+function startReminders() {
   cron.schedule(monday0900, () => {
     try {
       remindUsersToRegisterLastWeeksHours();
@@ -31,15 +32,6 @@ function startLastWeeksHoursReminder() {
       console.error(error);
     }
   });
-
-  slackInteractions.action(
-    { actionId: "open_alvtime_button" },
-    async function () {
-      return {
-        text: "Åpner Alvtime...",
-      };
-    }
-  );
 }
 
 export async function remindUsersToRegisterLastWeeksHours() {
