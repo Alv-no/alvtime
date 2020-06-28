@@ -7,7 +7,7 @@ import configuredMoment from "../moment";
 import getAccessToken from "../routes/auth/getAccessToken";
 import respondToResponseURL from "../response/respondToResponseURL";
 import { CommandBody } from "../routes/slack/slashCommand";
-import { logger } from "../createLogger"
+import { logger } from "../createLogger";
 
 interface State {
   accessToken: string;
@@ -49,14 +49,18 @@ export default async function createCommands(
 async function logg({ commandBody, accessToken }: State) {
   try {
     const tasksPromise = alvtimeClient.getTasks(accessToken);
+    const period = thisWeek();
+    logger.debug(period);
     const timeEntriesPromise = alvtimeClient.getTimeEntries(
-      thisWeek(),
+      period,
       accessToken
     );
     const [tasks, timeEntries] = await Promise.all([
       tasksPromise,
       timeEntriesPromise,
     ]);
+    logger.debug(tasks);
+    logger.debug(timeEntries);
 
     const message = loggMessage(timeEntries, tasks);
 
