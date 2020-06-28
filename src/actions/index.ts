@@ -50,7 +50,6 @@ async function logg({ commandBody, accessToken }: State) {
   try {
     const tasksPromise = alvtimeClient.getTasks(accessToken);
     const period = thisWeek();
-    logger.info(period);
     const timeEntriesPromise = alvtimeClient.getTimeEntries(
       period,
       accessToken
@@ -59,8 +58,6 @@ async function logg({ commandBody, accessToken }: State) {
       tasksPromise,
       timeEntriesPromise,
     ]);
-    logger.info("tasks");
-    logger.info(timeEntries);
 
     const message = loggMessage(timeEntries, tasks);
 
@@ -121,7 +118,7 @@ async function registerWeek(state: State) {
 
 function thisWeek() {
   const monday = configuredMoment().startOf("week");
-  const sunday = monday.clone().add(7, "days");
+  const sunday = monday.clone().add(6, "days");
 
   return {
     fromDateInclusive: monday.format(config.DATE_FORMAT),
