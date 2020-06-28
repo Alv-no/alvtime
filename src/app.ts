@@ -34,21 +34,19 @@ app.use(loggerMiddleware);
 app.use(express.static("public"));
 app.use("/slack", slackRouter);
 app.use("/oauth2", oauth2Router);
-app.use("/something-went-wrong", (req, res) => {
-  res.status(500).send(createErrorView());
-  req.log.warn("Respond with error view");
+app.use("/something-went-wrong", (_req, res) => {
+  res.send(createErrorView());
 });
 
 app.use(errorHandler);
 
 function errorHandler(
-  err: { stack: string },
-  _req: {},
-  res: { redirect: (s: string) => void },
+  _err: { stack: string },
+  _req: { log: { error: (s: string) => void } },
+  res: { status: (n: number) => { send: (s: string) => void } },
   _next: () => void
 ) {
-  logger.error(err.stack);
-  res.redirect("/something-went-wrong");
+  res.status(500).send(createErrorView());
 }
 
 startReminders();

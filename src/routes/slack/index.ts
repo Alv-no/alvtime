@@ -7,6 +7,7 @@ import express from "express";
 import { IncomingMessage, ServerResponse } from "http";
 import env from "../../environment";
 import createSlashCommandRouter from "./slashCommand";
+import { logger } from "../../createLogger";
 
 export const slackWebClient = new WebClient(env.SLACK_BOT_TOKEN);
 
@@ -17,9 +18,15 @@ export const slackInteractions = createMessageAdapter(env.SLACK_SIGNING_SECRET);
 slackRouter.use("/events", slackEvents.expressMiddleware());
 slackRouter.use("/actions", slackInteractions.expressMiddleware());
 
-slackInteractions.action({ actionId: "open_alvtime_button" }, () => ({
-  text: "Åpner Alvtime...",
-}));
+slackInteractions.action(
+  { actionId: "open_alvtime_button" },
+  (payload: { user: { id: string } }) => {
+    logger.info(`Alvtime button clicked by ${payload.user.id}`);
+    return {
+      text: "Åpner Alvtime...",
+    };
+  }
+);
 
 slackRouter.use(
   "/command",
@@ -33,9 +40,9 @@ slackRouter.use("/command", createSlashCommandRouter());
 
 function verifySlackRequest(
   req: IncomingMessage,
-  res: ServerResponse,
+  _res: ServerResponse,
   buf: Buffer,
-  encoding: string
+  _encoding: string
 ) {
   const xSlackRequestTimestamp = parseInt(
     req.headers["x-slack-request-timestamp"] as string

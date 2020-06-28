@@ -1,4 +1,5 @@
 import { slackWebClient } from "../routes/slack";
+import { logger } from "../createLogger";
 
 export interface Member {
   id: string;
@@ -13,7 +14,6 @@ export interface Member {
   is_stranger: boolean;
 }
 
-
 export async function createDMChannel(member: Member) {
   const { channel } = ((await slackWebClient.conversations.open({
     users: member.id,
@@ -27,10 +27,10 @@ export async function createDMChannel(member: Member) {
       ...message,
       channel: channel.id,
     });
+    logger.info({msg: "Sent direct message", message});
   };
   return {
     channel,
     postMessage,
   };
 }
-
