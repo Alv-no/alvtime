@@ -1,15 +1,7 @@
-version: '3.7'
+version: "3.7"
 
 services:
   alvtime-vue-dev:
-    container_name: alvtime-vue-dev
-    
-    # You may want to add a non-root user to your Dockerfile and uncomment the line below
-    # to cause all processes to run as this user. Once present, you can also simply
-    # use the "remoteUser" property in devcontainer.json if you just want VS Code and
-    # its sub-processes (terminals, tasks, debugging) to execute as the user. On Linux,
-    # you may need to ensure the UID and GID of the container user you create matches your 
-    # local user. See https://aka.ms/vscode-remote/containers/non-root for details.
     user: vscode
     tty: true
     image: alvtime-vue-dev
