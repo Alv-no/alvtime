@@ -110,13 +110,13 @@ function isNotExternal(member: Member) {
 
 function hasMemberStarted(member: Member) {
   const notStartedMembers = [
-    "U0154NBUA3W",
-    "U011YHQHLGK",
-    "UNC851SAG",
-    "U0138NPLV1P",
     "U010SSZAT4N",
+    "U011YHQHLGK",
+    "U0138NPLV1P",
+    "U01533B2BNE",
+    "U0154NBUA3W",
+    "UNC851SAG",
   ];
   const notStarted = notStartedMembers.includes(member.id);
   return !notStarted;
 }
-
