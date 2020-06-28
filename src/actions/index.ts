@@ -50,7 +50,7 @@ async function logg({ commandBody, accessToken }: State) {
   try {
     const tasksPromise = alvtimeClient.getTasks(accessToken);
     const period = thisWeek();
-    logger.debug(period);
+    logger.info(period);
     const timeEntriesPromise = alvtimeClient.getTimeEntries(
       period,
       accessToken
@@ -59,8 +59,8 @@ async function logg({ commandBody, accessToken }: State) {
       tasksPromise,
       timeEntriesPromise,
     ]);
-    logger.debug(tasks);
-    logger.debug(timeEntries);
+    logger.info("tasks");
+    logger.info(timeEntries);
 
     const message = loggMessage(timeEntries, tasks);
 
