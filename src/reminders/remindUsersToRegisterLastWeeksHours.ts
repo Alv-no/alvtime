@@ -16,12 +16,12 @@ import configuredMoment from "../moment";
 import { createDMChannel, Member } from "../response/createDMChannel";
 import { holidays } from "./index";
 import getTeamInfo, { TeamInfo } from "../slack/getTeamInfo";
-import getMembers from "../slack/getMembers";
+import getAlvMembers from "../slack/getMembers";
 
 export async function remindUsersToRegisterLastWeeksHours() {
   const [users, slackMembers, report, teamInfo, tasks] = await Promise.all([
     userDB.getAll(),
-    getMembers(),
+    getAlvMembers(),
     getLastWeekReport(),
     getTeamInfo(),
     alvtimeClient.getTasks(env.REPORT_USER_PERSONAL_ACCESS_TOKEN),

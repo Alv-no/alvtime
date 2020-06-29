@@ -1,6 +1,6 @@
 import env from "../environment";
 import respondToResponseURL from "../response/respondToResponseURL";
-import getMembers from "../slack/getMembers";
+import { getMembers } from "../slack/getMembers";
 import { State } from "./index";
 
 export async function admin(state: State) {
@@ -33,13 +33,7 @@ export async function admin(state: State) {
 async function members({ commandBody }: State) {
   const members = (await getMembers()) as any[];
   const memebersParsed = members.map((member: any) => {
-    const profile = member.profile;
-    delete profile.image_24;
-    delete profile.image_32;
-    delete profile.image_48;
-    delete profile.image_72;
-    delete profile.image_192;
-    delete profile.image_512;
+    const profile = removeImageRefs(member.profile);
 
     return {
       ...member,
@@ -47,15 +41,31 @@ async function members({ commandBody }: State) {
     };
   });
 
+  useBatching(memebersParsed, (batch: any[]) => {
+    respondToResponseURL(commandBody.response_url, {
+      text: JSON.stringify(batch),
+    });
+  });
+}
+
+// calls callback function with batches of the input array
+function useBatching(data: any[], cb: (batch: any[]) => void, batchSize = 10) {
   let batch = [];
-  for (let index = 0; index < memebersParsed.length; index++) {
-    const member = memebersParsed[index];
-    batch.push(member);
-    if (batch.length >= 10 || index >= memebersParsed.length - 1) {
-      respondToResponseURL(commandBody.response_url, {
-        text: JSON.stringify(batch),
-      });
+  for (let index = 0; index < data.length; index++) {
+    batch.push(data[index]);
+
+    if (batch.length >= batchSize || index >= data.length - 1) {
+      cb(batch);
       batch = [];
     }
   }
+}
+
+function removeImageRefs(profile: any) {
+  for (let key of Object.keys(profile)) {
+    if (key.includes("image")) {
+      delete profile[key];
+    }
+  }
+  return profile;
 }
