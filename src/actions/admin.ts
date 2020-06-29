@@ -2,6 +2,7 @@ import env from "../environment";
 import respondToResponseURL from "../response/respondToResponseURL";
 import { getMembers } from "../slack/getMembers";
 import { State } from "./index";
+import { remindUsersToRegisterLastWeeksHours } from "../reminders/remindUsersToRegisterLastWeeksHours";
 
 export async function admin(state: State) {
   const { commandBody } = state;
@@ -24,6 +25,9 @@ export async function admin(state: State) {
   switch (adminCommand.toUpperCase()) {
     case "MEMBERS":
       await members(state);
+      break;
+    case "09_MONDAY_REMINDER":
+      remindUsersToRegisterLastWeeksHours();
       break;
     default:
       break;
