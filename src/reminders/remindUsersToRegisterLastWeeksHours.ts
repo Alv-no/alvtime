@@ -14,9 +14,9 @@ import {
 import userDB, { UserData } from "../models/user";
 import configuredMoment from "../moment";
 import { createDMChannel, Member } from "../response/createDMChannel";
-import { slackWebClient } from "../routes/slack";
 import { holidays } from "./index";
 import getTeamInfo, { TeamInfo } from "../slack/getTeamInfo";
+import getMembers from "../slack/getMembers";
 
 export async function remindUsersToRegisterLastWeeksHours() {
   const [users, slackMembers, report, teamInfo, tasks] = await Promise.all([
@@ -85,38 +85,4 @@ function isNonWorkDay(date: Moment): boolean {
 function createWeek(day: Moment) {
   const monday = day.clone().startOf("week");
   return [0, 1, 2, 3, 4, 5, 6].map((n) => monday.clone().add(n, "day"));
-}
-
-async function getMembers() {
-  const res = ((await slackWebClient.users.list()) as unknown) as {
-    members: Member[];
-  };
-  return res.members.filter(isStartedAlvMember);
-}
-
-function isStartedAlvMember(member: Member) {
-  return isNotABot(member) && hasMemberStarted(member) && isNotExternal(member);
-}
-
-function isNotABot(member: Member) {
-  return !member.is_bot && member.id !== "USLACKBOT";
-}
-
-function isNotExternal(member: Member) {
-  const { is_restricted, is_ultra_restricted, is_stranger } = member;
-  const isExternal = is_restricted || is_ultra_restricted || is_stranger;
-  return !isExternal;
-}
-
-function hasMemberStarted(member: Member) {
-  const notStartedMembers = [
-    "U010SSZAT4N",
-    "U011YHQHLGK",
-    "U0138NPLV1P",
-    "U01533B2BNE",
-    "U0154NBUA3W",
-    "UNC851SAG",
-  ];
-  const notStarted = notStartedMembers.includes(member.id);
-  return !notStarted;
 }
