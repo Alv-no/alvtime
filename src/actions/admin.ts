@@ -32,7 +32,19 @@ export async function admin(state: State) {
 
 async function members({ commandBody }: State) {
   const members = await getMembers();
+  const memebersParsed = members.map((member) => ({
+    id: member.id,
+    name: member.name,
+    deleted: member.deleted,
+    profile: {
+      email: member.profile.email,
+    },
+    is_bot: member.is_bot,
+    is_restricted: member.is_restricted,
+    is_ultra_restricted: member.is_ultra_restricted,
+    is_stranger: member.is_stranger,
+  }));
   respondToResponseURL(commandBody.response_url, {
-    text: JSON.stringify(members),
+    text: JSON.stringify(memebersParsed),
   });
 }
