@@ -61,7 +61,6 @@ export function registerHoursReminderMessage(
           section(
             "Dette er timene du så langt har ført for forrige uke :calendar:"
           ),
-          ,
           ...weekLoggMessage(userReport.entries, tasks),
         ]
       : [];

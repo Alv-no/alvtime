@@ -31,7 +31,6 @@ export interface Task {
   id: number;
   name: string;
   description: string;
-  hourRate: number;
   project: {
     id: number;
     name: string;
