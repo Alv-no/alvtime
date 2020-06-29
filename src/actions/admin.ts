@@ -31,20 +31,31 @@ export async function admin(state: State) {
 }
 
 async function members({ commandBody }: State) {
-  const members = await getMembers();
-  const memebersParsed = members.map((member) => ({
-    id: member.id,
-    name: member.name,
-    deleted: member.deleted,
-    profile: {
-      email: member.profile.email,
-    },
-    is_bot: member.is_bot,
-    is_restricted: member.is_restricted,
-    is_ultra_restricted: member.is_ultra_restricted,
-    is_stranger: member.is_stranger,
-  }));
-  respondToResponseURL(commandBody.response_url, {
-    text: JSON.stringify(memebersParsed),
+  const members = (await getMembers()) as any[];
+  const memebersParsed = members.map((member: any) => {
+    const profile = member.profile;
+    delete profile.image_24;
+    delete profile.image_32;
+    delete profile.image_48;
+    delete profile.image_72;
+    delete profile.image_192;
+    delete profile.image_512;
+
+    return {
+      ...member,
+      profile,
+    };
   });
+
+  let batch = [];
+  for (let index = 0; index < memebersParsed.length; index++) {
+    const member = memebersParsed[index];
+    batch.push(member);
+    if (batch.length >= 10 || index >= memebersParsed.length - 1) {
+      respondToResponseURL(commandBody.response_url, {
+        text: JSON.stringify(batch),
+      });
+      batch = [];
+    }
+  }
 }
