@@ -1,35 +1,35 @@
 #!/usr/bin/env sh
 
 [ "start" = $1 ] && \
-  docker-compose -f .devcontainer/docker-compose.yaml up -d && \
-  docker-compose -f .devcontainer/docker-compose.yaml exec alvtime-vue-dev npx vue-cli-service serve
+  docker-compose --file .devcontainer/docker-compose.yaml up --detach && \
+  docker-compose --file .devcontainer/docker-compose.yaml exec alvtime-vue-dev npx vue-cli-service serve
 
 [ "up" = $1 ] && \
-  docker-compose -f .devcontainer/docker-compose.yaml up -d
+  docker-compose --file .devcontainer/docker-compose.yaml up --detach
 
 [ "serve" = $1 ] && \
-  docker-compose -f .devcontainer/docker-compose.yaml exec alvtime-vue-dev npx vue-cli-service serve
+  docker-compose --file .devcontainer/docker-compose.yaml exec alvtime-vue-dev npx vue-cli-service serve
 
 [ "down" = $1 ] && \
-  docker-compose -f .devcontainer/docker-compose.yaml down --volumes
+  docker-compose --file .devcontainer/docker-compose.yaml down --volumes
 
 [ "logs" = $1 ] && \
-  docker-compose -f .devcontainer/docker-compose.yaml logs -f
+  docker-compose --file .devcontainer/docker-compose.yaml logs --follow
 
 [ "pull" = $1 ] && \
-  docker-compose -f .devcontainer/docker-compose.yaml pull
+  docker-compose --file .devcontainer/docker-compose.yaml pull
 
 [ "build" = $1 ] && \
-  docker-compose -f .devcontainer/docker-compose.yaml build
+  docker-compose --file .devcontainer/docker-compose.yaml build
 
 [ "test" = $1 ] && \
-  docker-compose -f .devcontainer/docker-compose.yaml exec alvtime-vue-dev npx vue-cli-service test:unit
+  docker-compose --file .devcontainer/docker-compose.yaml exec alvtime-vue-dev npx vue-cli-service test:unit
 
 [ "test:e2e" = $1 ] && \
-  docker-compose -f .devcontainer/docker-compose.yaml exec alvtime-vue-dev npx vue-cli-service test:e2e
+  docker-compose --file .devcontainer/docker-compose.yaml exec alvtime-vue-dev npx vue-cli-service test:e2e
 
 [ "lint" = $1 ] && \
-  docker-compose -f .devcontainer/docker-compose.yaml exec alvtime-vue-dev npx vue-cli-service lint run lint
+  docker-compose --file .devcontainer/docker-compose.yaml exec alvtime-vue-dev npx vue-cli-service lint run lint
 
 [ "local-up" = $1 ] && \
   docker-compose up --build
@@ -38,7 +38,7 @@
   docker-compose down --volumes
 
 [ "local-logs" = $1 ] && \
-  docker-compose logs -f
+  docker-compose logs --follow
 
 [ "prune" = $1 ] && \
-  docker system prune --volumes -f
+  docker system prune --force
