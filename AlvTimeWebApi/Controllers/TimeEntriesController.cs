@@ -54,6 +54,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
         }
 
         [HttpPost("TimeEntries")]
+        [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<List<TimeEntriesResponseDto>> UpsertTimeEntry([FromBody] List<CreateTimeEntryDto> requests)
         {
             var user = _userRetriever.RetrieveUser();
