@@ -1,0 +1,39 @@
+version: "3.7"
+
+services:
+  alvtime-admin-react-pwa:
+    user: vscode
+    tty: true
+    image: alvtime-admin-react-pwa
+    build:
+      context: ../
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/usr/src/app:cached
+      - /usr/src/app/node_modules/
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    ports:
+      - "3000:3000"
+
+  alvtime-web-api:
+    image: alvnoas/alvtime-web-api:latest
+    links:
+      - alvtime-database
+    environment:
+      - ConnectionStrings__AlvTime_db=Data Source=tcp:mssql-db-alvtime-admin-react-pwa-dev,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32
+    ports:
+      - "8000:80"
+
+  alvtime-database:
+    image: alvnoas/alvtime-database:latest
+    expose:
+      - "1433"
+    command:
+      - /bin/bash
+      - -c
+      - |
+        # Launch MSSQL and send to background
+        /opt/mssql/bin/sqlservr &
+        # So that the container doesn't shut down, sleep this thread
+        sleep infinity
