@@ -1,7 +1,7 @@
 version: "3.7"
 
 services:
-  alvtime-admin-react-pwa-alvtime-admin-react-pwa-dev:
+  alvtime-admin-react-pwa:
     user: vscode
     tty: true
     image: alvtime-admin-react-pwa
@@ -16,18 +16,16 @@ services:
     ports:
       - "3000:3000"
 
-  dotnet-backend-alvtime-admin-react-pwa-dev:
-    container_name: dotnet-backend-alvtime-admin-react-pwa-dev
+  alvtime-web-api:
     image: alvnoas/alvtime-web-api:latest
     links:
-      - mssql-db-alvtime-admin-react-pwa-dev
+      - alvtime-database
     environment:
       - ConnectionStrings__AlvTime_db=Data Source=tcp:mssql-db-alvtime-admin-react-pwa-dev,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32
     ports:
       - "8000:80"
 
-  mssql-db-alvtime-admin-react-pwa-dev:
-    container_name: mssql-db-alvtime-admin-react-pwa-dev
+  alvtime-database:
     image: alvnoas/alvtime-database:latest
     expose:
       - "1433"

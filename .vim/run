@@ -1,29 +1,29 @@
 #!/usr/bin/env sh
 
-[ "start" = $1 ] && \
+[ "start" = "$1" ] && \
   docker-compose --file .devcontainer/docker-compose.yaml up --detach && \
-  docker-compose --file .devcontainer/docker-compose.yaml exec alvtime-admin-react-pwa-alvtime-admin-react-pwa-dev npx react-scripts start
+  docker-compose --file .devcontainer/docker-compose.yaml exec alvtime-admin-react-pwa npx react-scripts start
 
-[ "up" = $1 ] && \
+[ "up" = "$1" ] && \
   docker-compose --file .devcontainer/docker-compose.yaml up --detach
 
-[ "serve" = $1 ] && \
-  docker-compose --file .devcontainer/docker-compose.yaml exec alvtime-admin-react-pwa-alvtime-admin-react-pwa-dev npx react-scripts start
+[ "serve" = "$1" ] && \
+  docker-compose --file .devcontainer/docker-compose.yaml exec alvtime-admin-react-pwa npx react-scripts start
 
-[ "down" = $1 ] && \
+[ "down" = "$1" ] && \
   docker-compose --file .devcontainer/docker-compose.yaml down --volumes
 
-[ "logs" = $1 ] && \
+[ "logs" = "$1" ] && \
   docker-compose --file .devcontainer/docker-compose.yaml logs --follow
 
-[ "pull" = $1 ] && \
+[ "pull" = "$1" ] && \
   docker-compose --file .devcontainer/docker-compose.yaml pull
 
-[ "build" = $1 ] && \
+[ "build" = "$1" ] && \
   docker-compose --file .devcontainer/docker-compose.yaml build
 
-[ "test" = $1 ] && \
-  docker-compose --file .devcontainer/docker-compose.yaml exec alvtime-admin-react-pwa-alvtime-admin-react-pwa-dev npx react-scripts test
+[ "test" = "$1" ] && \
+  docker-compose --file .devcontainer/docker-compose.yaml exec alvtime-admin-react-pwa npx react-scripts test
 
-[ "prune" = $1 ] && \
+[ "prune" = "$1" ] && \
   docker system prune --force
