@@ -27,3 +27,5 @@
 
 [ "prune" = "$1" ] && \
   docker system prune --force
+
+exit 0
