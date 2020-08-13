@@ -15,5 +15,10 @@ code {
 .centerContent{
   display: flex;
   justify-content: center;
-  align-items: center; 
+  align-items: center;
+}
+
+a{
+  color: initial;
+  text-decoration: none;
 }
