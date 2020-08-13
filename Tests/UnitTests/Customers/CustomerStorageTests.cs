@@ -30,7 +30,9 @@ namespace Tests.UnitTests.Customers
         [Fact]
         public void UpdateCustomer_ContactPersonProvided_UpdatesContactPerson()
         {
-            var context = new AlvTimeDbContextBuilder().WithData().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder()
+                .WithCustomers()
+                .CreateDbContext();
 
             var storage = new CustomerStorage(context);
             var creator = new CustomerCreator(storage);

@@ -219,9 +219,11 @@ namespace Tests.UnitTests.Flexihours
         }
 
         [Fact]
-        public void GetFlexhoursToday_Worked10HoursOnBillableAnd10HoursOnNonBillable_2AndAHalfHoursInFlex()
+        public void GetFlexhoursFromPeriod_Worked10HoursOnBillableAnd10HoursOnNonBillable_2AndAHalfHoursInFlex()
         {
-            var context = new AlvTimeDbContextBuilder().WithUsers().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder()
+                .WithUsers()
+                .CreateDbContext();
 
             context.Hours.Add(new Hours
             {
@@ -234,7 +236,7 @@ namespace Tests.UnitTests.Flexihours
                 Date = new DateTime(2020, 01, 01),
                 Value = 10M
             });
-
+            
             context.Hours.Add(new Hours
             {
                 User = 1,
@@ -261,7 +263,9 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhoursToday_Recorded0HoursOnWeekend_EmptyFlexHours()
         {
-            var context = new AlvTimeDbContextBuilder().WithUsers().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder()
+                .WithUsers()
+                .CreateDbContext();
 
             context.Hours.Add(new Hours
             {
@@ -283,63 +287,146 @@ namespace Tests.UnitTests.Flexihours
 
             Assert.Empty(flexhours);
         }
-    }
 
-    internal class FlexhourCalculator : IFlexihourRepository
-    {
-        private readonly AlvTime_dbContext _context;
-        private readonly TimeEntryStorage _storage;
-
-        public FlexhourCalculator(AlvTime_dbContext context)
+        [Fact]
+        public void GetFlexhoursToday_Recorded5HoursOnOneCompensationRateAnd5HoursAnotherCompensationRate_WHATISTHEANSWER()
         {
-            _context = context;
-            _storage = new TimeEntryStorage(_context);
-        }
+            var context = new AlvTimeDbContextBuilder()
+                .WithUsers()
+                .CreateDbContext();
 
-        public IEnumerable<FlexiHours> GetFlexihours(DateTime startDate, DateTime endDate, int userId)
-        {
-            var flexHours = new List<FlexiHours>();
-
-            var timeEntries = _storage.GetTimeEntries(new TimeEntryQuerySearch
+            context.Hours.Add(new Hours
             {
-                UserId = userId,
-                FromDateInclusive = startDate,
-                ToDateInclusive = endDate
+                User = 1,
+                Task = new Task
+                {
+                    Id = 1,
+                    CompensationRate = 1.5M
+                },
+                Date = new DateTime(2020, 01, 01),
+                Value = 10M
             });
 
-            if (!_context.Hours.Any())
+            context.Hours.Add(new Hours
             {
-                flexHours.Add(new FlexiHours
+                User = 1,
+                Task = new Task
                 {
-                    Value = -7.5M
+                    Id = 2,
+                    CompensationRate = 1.2M
+                },
+                Date = new DateTime(2020, 01, 02),
+                Value = 10M
+            });
+
+            context.SaveChanges();
+
+            Assert.True(context.Task.Any());
+
+            var calculator = new FlexhourCalculator(context);
+            var flexhours = calculator.GetFlexihours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
+
+            Assert.Empty(flexhours);
+        }
+
+        [Fact]
+        public void GetFlexhours_Recorded0HoursYesterdayAnd10HoursToday_2AndAHalfHoursInFlexHours()
+        {
+            var context = new AlvTimeDbContextBuilder()
+                .WithUsers()
+                .CreateDbContext();
+
+            context.Hours.Add(new Hours
+            {
+                User = 1,
+                Task = new Task
+                {
+                    Id = 1
+                },
+                Date = new DateTime(2020, 01, 01),
+                Value = 0M
+            });
+
+            context.Hours.Add(new Hours
+            {
+                User = 1,
+                Task = new Task
+                {
+                    Id = 2
+                },
+                Date = new DateTime(2020, 01, 02),
+                Value = 10M
+            });
+
+            context.SaveChanges();
+
+            Assert.True(context.Task.Any());
+
+            var calculator = new FlexhourCalculator(context);
+            var flexhours = calculator.GetFlexihours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
+
+            Assert.Single(flexhours);
+            Assert.Contains(flexhours, item => item.Value == 2.5M);
+        }
+
+        //SOME TESTS ON FILLPRIORITY
+    }
+}
+
+internal class FlexhourCalculator : IFlexihourRepository
+{
+    private readonly AlvTime_dbContext _context;
+    private readonly TimeEntryStorage _storage;
+
+    public FlexhourCalculator(AlvTime_dbContext context)
+    {
+        _context = context;
+        _storage = new TimeEntryStorage(_context);
+    }
+
+    public IEnumerable<FlexiHours> GetFlexihours(DateTime startDate, DateTime endDate, int userId)
+    {
+        var flexHours = new List<FlexiHours>();
+
+        var timeEntries = _storage.GetTimeEntries(new TimeEntryQuerySearch
+        {
+            UserId = userId,
+            FromDateInclusive = startDate,
+            ToDateInclusive = endDate
+        });
+
+        if (!_context.Hours.Any())
+        {
+            flexHours.Add(new FlexiHours
+            {
+                Value = -7.5M
+            });
+        }
+        else
+        {
+            var hoursByDate = timeEntries.GroupBy(
+                h => h.Date,
+                h => h.Value,
+                (date, value) => new
+                {
+                    Date = date,
+                    SumHours = value.ToList().Sum()
                 });
-            }
-            else
+
+            foreach (var hour in hoursByDate)
             {
-                var hoursByDate = timeEntries.GroupBy(
-                    h => h.Date,
-                    h => h.Value,
-                    (date, value) => new
-                    {
-                        Date = date,
-                        SumHours = value.ToList().Sum()
-                    });
 
-                foreach (var hour in hoursByDate)
+                if (hour.SumHours != 7.5M)
                 {
-
-                    if (hour.SumHours != 7.5M)
+                    flexHours.Add(new FlexiHours
                     {
-                        flexHours.Add(new FlexiHours
-                        {
-                            Value = hour.SumHours - 7.5M,
-                            Date = DateTime.Parse(hour.Date)
-                        });
-                    }
+                        Value = hour.SumHours - 7.5M,
+                        Date = DateTime.Parse(hour.Date)
+                    });
                 }
             }
-
-            return flexHours;
         }
+
+        return flexHours;
     }
 }

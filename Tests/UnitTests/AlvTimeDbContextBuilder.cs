@@ -23,48 +23,44 @@ namespace Tests.UnitTests
             return _context;
         }
 
-        public AlvTimeDbContextBuilder WithData()
+        public AlvTimeDbContextBuilder WithPersonalAccessTokens()
         {
-            _context.Task.Add(new Task
+            _context.AccessTokens.Add(new AccessTokens
             {
                 Id = 1,
-                Description = "",
-                Project = 1,
-                CompensationRate = 1.0M,
-                Name = "ExampleTask",
-                Locked = false
+                UserId = 1,
+                Value = "123",
+                ExpiryDate = DateTime.UtcNow.AddMonths(6)
             });
 
-            _context.Task.Add(new Task
+            _context.SaveChanges();
+            return this;
+        }
+
+        public AlvTimeDbContextBuilder WithHourRates()
+        {
+            _context.HourRate.Add(new HourRate
+            {
+                Id = 1,
+                FromDate = new DateTime(2019, 01, 01),
+                Rate = 1000,
+                TaskId = 1
+            });
+
+            _context.HourRate.Add(new HourRate
             {
                 Id = 2,
-                Description = "",
-                Project = 2,
-                CompensationRate = 1.5M,
-                Name = "ExampleTaskTwo",
-                Locked = true
+                FromDate = new DateTime(2020, 01, 01),
+                Rate = 1100,
+                TaskId = 1
             });
 
-            _context.Project.Add(new Project
-            {
-                Id = 1,
-                Name = "ExampleProject",
-                Customer = 1
-            });
+            _context.SaveChanges();
+            return this;
+        }
 
-            _context.Project.Add(new Project
-            {
-                Id = 2,
-                Name = "ExampleProjectTwo",
-                Customer = 1
-            });
-
-            _context.Customer.Add(new Customer
-            {
-                Id = 1,
-                Name = "ExampleCustomer"
-            });
-
+        public AlvTimeDbContextBuilder WithTaskFavorites()
+        {
             _context.TaskFavorites.Add(new TaskFavorites
             {
                 Id = 1,
@@ -72,6 +68,24 @@ namespace Tests.UnitTests
                 TaskId = 1
             });
 
+            _context.SaveChanges();
+            return this;
+        }
+
+        public AlvTimeDbContextBuilder WithCustomers()
+        {
+            _context.Customer.Add(new Customer
+            {
+                Id = 1,
+                Name = "ExampleCustomer"
+            });
+
+            _context.SaveChanges();
+            return this;
+        }
+
+        public AlvTimeDbContextBuilder WithTimeEntries()
+        {
             _context.Hours.Add(new Hours
             {
                 User = 1,
@@ -120,28 +134,50 @@ namespace Tests.UnitTests
                 Year = 2019
             });
 
-            _context.HourRate.Add(new HourRate
+            _context.SaveChanges();
+            return this;
+        }
+
+        public AlvTimeDbContextBuilder WithProjects()
+        {
+            _context.Project.Add(new Project
             {
                 Id = 1,
-                FromDate = new DateTime(2019, 01, 01),
-                Rate = 1000,
-                TaskId = 1
+                Name = "ExampleProject",
+                Customer = 1
             });
 
-            _context.HourRate.Add(new HourRate
+            _context.Project.Add(new Project
             {
                 Id = 2,
-                FromDate = new DateTime(2020, 01, 01),
-                Rate = 1100,
-                TaskId = 1
+                Name = "ExampleProjectTwo",
+                Customer = 1
             });
 
-            _context.AccessTokens.Add(new AccessTokens
+            _context.SaveChanges();
+            return this;
+        }
+
+        public AlvTimeDbContextBuilder WithTasks()
+        {
+            _context.Task.Add(new Task
             {
                 Id = 1,
-                UserId = 1,
-                Value = "123",
-                ExpiryDate = DateTime.UtcNow.AddMonths(6)
+                Description = "",
+                Project = 1,
+                CompensationRate = 1.0M,
+                Name = "ExampleTask",
+                Locked = false
+            });
+
+            _context.Task.Add(new Task
+            {
+                Id = 2,
+                Description = "",
+                Project = 2,
+                CompensationRate = 1.5M,
+                Name = "ExampleTaskTwo",
+                Locked = true
             });
 
             _context.SaveChanges();
