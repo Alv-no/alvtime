@@ -8,6 +8,12 @@ The first time this command is ran it will download and start the local developm
 ./run start
 ```
 
+If you are using windows you can replace ``./run`` with ``npm run``
+
+```
+npm run start 
+```
+
 - The web app is available on `localhost:3000`
 - Swagger documentation is available on `localhost:8000/swagger`
 - The api is available on `localhost:8000/api`

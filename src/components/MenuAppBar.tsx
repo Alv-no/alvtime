@@ -1,5 +1,8 @@
 import React from "react";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import {
+  Link
+} from "react-router-dom";
 
 // Bar
 import AppBar from "@material-ui/core/AppBar";
@@ -45,6 +48,9 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     drawLogo: {
       maxWidth: "50%"
+    },
+    drawLogoWrapper: {
+      background: "rgba(0,0,0, .1)"
     },
   })
 );
@@ -109,24 +115,26 @@ export default function MenuAppBar() {
     onClick={toggleDrawer(anchor, false)}
     onKeyDown={toggleDrawer(anchor, false)}
     >
-    <div className="centerContent">
-    <img alt="Alv logo" className={classes.drawLogo} src={process.env.PUBLIC_URL + '/img/logo192.png'} />
-    </div>
+      <Link to="/" className={"centerContent " + classes.drawLogoWrapper}>
+        <img alt="Alv logo" className={classes.drawLogo} src={process.env.PUBLIC_URL + '/img/logo192.png'} />
+      </Link>
 
     <List>
     {routes.map((item, index) => (
-      <ListItem button key={item.description}>
-      <item.icon className={classes.menuButton} />
-      <ListItemText primary={item.description} />
-      </ListItem>
+      <Link to={item.route}>
+        <ListItem button key={item.description}>
+        <item.icon className={classes.menuButton} />
+        <ListItemText primary={item.description} />
+        </ListItem>
+      </Link>
     ))}
     </List>
     <Divider />
     <List>
     {actions.map((item, index) => (
-      <ListItem button key={item.description}>
-      {<item.icon className={classes.menuButton} />}
-      <ListItemText primary={item.description} />
+      <ListItem button key={item.description} onClick={item.action}>
+        {<item.icon className={classes.menuButton} />}
+        <ListItemText primary={item.description} />
       </ListItem>
     ))}
     </List>
@@ -144,11 +152,11 @@ export default function MenuAppBar() {
     <div>
 
     <IconButton
-    edge="start"
-    className={classes.menuButton}
-    color="inherit"
-    aria-label="menu"
-    onClick={toggleDrawer(drawer_side, true)}
+      edge="start"
+      className={classes.menuButton}
+      color="inherit"
+      aria-label="menu"
+      onClick={toggleDrawer(drawer_side, true)}
     >
     <MenuIcon />
 
