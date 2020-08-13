@@ -110,7 +110,7 @@ export default function MenuAppBar() {
     onKeyDown={toggleDrawer(anchor, false)}
     >
     <div className="centerContent">
-    <img className={classes.drawLogo} src={process.env.PUBLIC_URL + '/img/logo192.png'} />
+    <img alt="Alv logo" className={classes.drawLogo} src={process.env.PUBLIC_URL + '/img/logo192.png'} />
     </div>
 
     <List>
