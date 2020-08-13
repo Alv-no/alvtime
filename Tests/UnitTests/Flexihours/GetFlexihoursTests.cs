@@ -245,9 +245,9 @@ namespace Tests.UnitTests.Flexihours
             context.SaveChanges();
 
             var calculator = new FlexhourCalculator(context);
-            var flexhours = calculator.GetFlexihours(new DateTime(2019, 01, 01), new DateTime(2020, 01, 01), 1);
+            var flexhours = calculator.GetFlexihours(new DateTime(2019, 12, 31), new DateTime(2020, 01, 01), 1);
 
-            Assert.True(flexhours.Sum(item => item.Value) == 5.0M);
+            Assert.Equal(5.0M, flexhours.Sum(item => item.Value));
         }
 
         [Fact]
@@ -314,43 +314,36 @@ internal class FlexhourCalculator : IFlexihourRepository
             ToDateInclusive = endDate
         });
 
-        var numberOfDays = endDate - startDate;
+        var hoursByDate = timeEntries.GroupBy(
+            h => h.Date,
+            h => h,
+            (date, entry) => new DateEntry
+            {
+                Date = date,
+                Entries = entry.Select(e => new Entry
+                {
+                    TaskId = e.TaskId,
+                    Value = e.Value
+                })
+            });
 
-        if (!timeEntries.Any())
+        for (DateTime d = startDate; d <= endDate; d += TimeSpan.FromDays(1))
         {
-            for (int i = 0; i < numberOfDays.TotalDays + 1; i++)
+            var day = hoursByDate.SingleOrDefault(dd => DateTime.Parse(dd.Date) == d);
+            if (day == null)
             {
                 flexHours.Add(new FlexiHours
                 {
                     Value = -7.5M,
                 });
             }
-        }
-        else
-        {
-            var hoursByDate = timeEntries.GroupBy(
-                h => h.Date,
-                h => h,
-                (date, entry) => new DateEntry
-                {
-                    Date = date,
-                    Entries = entry.Select(e => new Entry
-                    {
-                        TaskId = e.TaskId,
-                        Value = e.Value
-                    })
-                }) ;
-
-            foreach (var day in hoursByDate)
+            else if (day.GetWorkingHours() != 7.5M)
             {
-                if (day.GetWorkingHours() != 7.5M)
+                flexHours.Add(new FlexiHours
                 {
-                    flexHours.Add(new FlexiHours
-                    {
-                        Value = day.GetWorkingHours() - 7.5M,
-                        Date = DateTime.Parse(day.Date)
-                    });
-                }
+                    Value = day.GetWorkingHours() - 7.5M,
+                    Date = DateTime.Parse(day.Date)
+                });
             }
         }
 
