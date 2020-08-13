@@ -1,21 +1,30 @@
-import AppBar from "@material-ui/core/AppBar";
-import IconButton from "@material-ui/core/IconButton";
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import Toolbar from "@material-ui/core/Toolbar";
-import Drawer from "@material-ui/core/Drawer";
-import Typography from "@material-ui/core/Typography";
-import MenuIcon from "@material-ui/icons/Menu";
 import React from "react";
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+
+// Bar
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
+
+// Menu burger
+import MenuIcon from "@material-ui/icons/Menu";
+import IconButton from "@material-ui/core/IconButton";
 
 import clsx from 'clsx';
-import Button from '@material-ui/core/Button';
+
+// Used in the draw list
+import Drawer from "@material-ui/core/Drawer";
 import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
+
+// Icons for the navigation menu
+import StarIcon from '@material-ui/icons/Star';
+import EqualizerIcon from '@material-ui/icons/Equalizer';
+import SettingsIcon from '@material-ui/icons/Settings';
+import LockIcon from '@material-ui/icons/Lock';
+import HourglassFullIcon from '@material-ui/icons/HourglassFull';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -29,11 +38,14 @@ const useStyles = makeStyles((theme: Theme) =>
       flexGrow: 1,
     },
     list: {
-    width: 250
-  },
-  fullList: {
-    width: "auto"
-  }
+      width: 250
+    },
+    fullList: {
+      width: "auto"
+    },
+    drawLogo: {
+      maxWidth: "50%"
+    },
   })
 );
 
@@ -43,98 +55,116 @@ export default function MenuAppBar() {
 
   const drawer_side = "right";
 
-  const list_items = [
+  // First part of the draw list
+  const routes = [
     {
       description: "Timeføring",
-      route: "/hours"
+      route: "/hours",
+      icon: HourglassFullIcon
     },{
       description: "Admin",
-      route: "/admin"
+      route: "/admin",
+      icon: SettingsIcon
     }, {
       description: "Project",
-      route: "/project"
+      route: "/project",
+      icon: StarIcon
     },{
       description: "Rapportering",
-      route: "/reports"
+      route: "/reports",
+      icon: EqualizerIcon
     }
   ]
 
+  // Botton part of the draw list
+  const actions = [
+    {
+      description: "Logg av",
+      action: () => {
+        console.log("Logging out");
+      },
+      icon: LockIcon
+    }
+  ]
 
-  const [state, setState] = React.useState({
-    top: false,
-    left: false,
-    bottom: false,
-    right: false,
-  });
+  const [state, setState] = React.useState(false);
 
+
+  // Open and close drawer
   const toggleDrawer = (anchor:string, open:boolean) => (event:any) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
     }
-    setState({ ...state, [anchor]: open });
+    setState(open);
   };
 
 
+  // Drawer list
   const list = (anchor:string) => (
     <div
-      role="presentation"
-      className={clsx(classes.list, {
-        [classes.fullList]: anchor === "top" || anchor === "bottom"
-      })}
-      onClick={toggleDrawer(anchor, false)}
-      onKeyDown={toggleDrawer(anchor, false)}
+    role="presentation"
+    className={clsx(classes.list, {
+      [classes.fullList]: anchor === "top" || anchor === "bottom"
+    })}
+    onClick={toggleDrawer(anchor, false)}
+    onKeyDown={toggleDrawer(anchor, false)}
     >
-      <List>
-        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-      <List>
-        {['All mail', 'Trash', 'Spam'].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
+    <div className="centerContent">
+    <img className={classes.drawLogo} src={process.env.PUBLIC_URL + '/img/logo192.png'} />
+    </div>
+
+    <List>
+    {routes.map((item, index) => (
+      <ListItem button key={item.description}>
+      <item.icon className={classes.menuButton} />
+      <ListItemText primary={item.description} />
+      </ListItem>
+    ))}
+    </List>
+    <Divider />
+    <List>
+    {actions.map((item, index) => (
+      <ListItem button key={item.description}>
+      {<item.icon className={classes.menuButton} />}
+      <ListItemText primary={item.description} />
+      </ListItem>
+    ))}
+    </List>
     </div>
   );
 
+  // Main template
   return (
     <div className={classes.root}>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" className={classes.title}>
-            Alvtime Admin
-          </Typography>
-          <div>
+    <AppBar position="static">
+    <Toolbar>
+    <Typography variant="h6" className={classes.title}>
+    Alvtime Admin
+    </Typography>
+    <div>
 
-            <IconButton
-              edge="start"
-              className={classes.menuButton}
-              color="inherit"
-              aria-label="menu"
-              onClick={toggleDrawer(drawer_side, true)}
-            >
-              <MenuIcon />
+    <IconButton
+    edge="start"
+    className={classes.menuButton}
+    color="inherit"
+    aria-label="menu"
+    onClick={toggleDrawer(drawer_side, true)}
+    >
+    <MenuIcon />
 
-            </IconButton>
+    </IconButton>
 
-            <React.Fragment key={drawer_side}>
-             <Drawer anchor={drawer_side} open={state[drawer_side]} onClose={toggleDrawer(drawer_side, false)}>
-               {list(drawer_side)}
-             </Drawer>
-           </React.Fragment>
+    <React.Fragment key={drawer_side}>
+    <Drawer anchor={drawer_side} open={state} onClose={toggleDrawer(drawer_side, false)}>
+      {list(drawer_side)}
+    </Drawer>
+    </React.Fragment>
 
 
 
-          </div>
-        </Toolbar>
-      </AppBar>
+    </div>
+    </Toolbar>
+    </AppBar>
     </div>
   );
 }
