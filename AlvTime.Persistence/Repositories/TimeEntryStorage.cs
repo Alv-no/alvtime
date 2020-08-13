@@ -38,6 +38,26 @@ namespace AlvTime.Persistence.Repositories
             return hours;
         }
 
+        public IEnumerable<DateEntry> GetDateEntries(TimeEntryQuerySearch criterias)
+        {
+            var hours = _context.Hours.AsQueryable()
+                    .Filter(criterias)
+                    .ToList();
+
+            return hours.GroupBy(
+                entry => entry.Date,
+                entry => entry,
+                (date, entry) => new DateEntry
+                {
+                    Date = date,
+                    Entries = entry.Select(e => new Entry
+                    {
+                        TaskId = e.TaskId,
+                        Value = e.Value
+                    })
+                });
+        }
+
         public TimeEntriesResponseDto GetTimeEntry(TimeEntryQuerySearch criterias)
         {
             var timeEntry = _context.Hours.AsQueryable()
