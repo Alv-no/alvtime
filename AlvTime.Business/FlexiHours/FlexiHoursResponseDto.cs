@@ -1,4 +1,6 @@
-﻿namespace AlvTime.Business.FlexiHours
+﻿using System;
+
+namespace AlvTime.Business.FlexiHours
 {
     public class FlexiHoursResponseDto
     {

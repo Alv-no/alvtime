@@ -13,10 +13,10 @@ namespace AlvTimeWebApi.Controllers
     [ApiController]
     public class FlexiHourController : Controller
     {
-        private readonly IFlexihourRepository _storage;
+        private readonly IFlexhourCalculator _storage;
         private readonly RetrieveUsers _userRetriever;
 
-        public FlexiHourController(RetrieveUsers userRetriever, IFlexihourRepository storage)
+        public FlexiHourController(RetrieveUsers userRetriever, IFlexhourCalculator storage)
         {
             _storage = storage;
             _userRetriever = userRetriever;
@@ -24,19 +24,17 @@ namespace AlvTimeWebApi.Controllers
 
         [HttpGet("FlexiHours")]
         [Authorize]
-        public ActionResult<IEnumerable<FlexiHoursResponseDto>> FetchFlexiHour(DateTime startDate, DateTime endDate)
+        public ActionResult<IEnumerable<FlexiHoursResponseDto>> FetchFlexiHour(DateTime fromDateInclusive, DateTime toDateInclusive)
         {
             var user = _userRetriever.RetrieveUser();
 
             return Ok(_storage
-                .GetFlexihours(startDate, endDate, user.Id)
+                .GetFlexihours(fromDateInclusive, toDateInclusive, user.Id)
                 .Select(f => new
                 {
-                    StartDate = startDate,
-                    EndDate = endDate,
                     Result = new FlexiHoursResponseDto
                     {
-                        Date = f.Date.ToDateOnly(),
+                        Date = f.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                         Value = f.Value
                     }
                 }));

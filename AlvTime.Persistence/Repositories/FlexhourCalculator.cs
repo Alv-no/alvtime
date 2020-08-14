@@ -1,12 +1,10 @@
 ﻿using AlvTime.Business.FlexiHours;
 using AlvTime.Business.TimeEntries;
-using AlvTime.Persistence.DataBaseModels;
-using AlvTime.Persistence.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public class FlexhourCalculator : IFlexihourRepository
+public class FlexhourCalculator : IFlexhourCalculator
 {
     private const decimal HoursInRegularWorkday = 7.5M;
     private readonly ITimeEntryStorage _storage;
@@ -35,6 +33,7 @@ public class FlexhourCalculator : IFlexihourRepository
                 flexHours.Add(new FlexiHours
                 {
                     Value = -HoursInRegularWorkday,
+                    Date = currentDate
                 });
             }
             else if (day.GetWorkingHours() != HoursInRegularWorkday)
