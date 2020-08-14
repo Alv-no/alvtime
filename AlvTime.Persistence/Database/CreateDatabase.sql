@@ -65,7 +65,8 @@ CREATE TABLE [dbo].[Task](
 	[Project] [int] NOT NULL,
 	[Locked] [bit] NOT NULL,
 	[Favorite] [bit] NOT NULL,
-	[CompensationRate] [decimal](3,2) NOT NULL
+	[CompensationRate] [decimal](3,2) NOT NULL,
+	[FillPriority] [int] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -120,7 +121,6 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-
 
 CREATE VIEW [dbo].[V_DataDump]
 AS 

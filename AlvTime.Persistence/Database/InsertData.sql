@@ -37,23 +37,23 @@ values
 
 insert into [dbo].[Task]
 values
-('Testleder', '', 2, 0, 0, 1.0),
-('Funksjonell arkitekt', '', 2, 0, 0, 1.0),
-('Teamleder', '', 6, 0, 0, 1.0),
-('Prosjektstotte', '', 6, 0, 0, 1.0),
-('Testleder', '', 3, 0, 0, 1.0),
-('Testradgiver', '', 3, 0, 0, 1.0),
-('Cost controller', '',	8, 0, 0, 1.0),
-('Utvikler', '', 7, 0, 0, 1.0),
-('Seniorutvikler', '', 1, 0, 0, 1.0),
-('Juniorutvikler', '', 1, 0, 0, 1.0),
-('Sikkerhetstester', '', 2, 0, 0, 1.0),
-('Interntid' ,'', 8, 0, 0, 1.0),
-('Ferie', '', 8, 0, 0, 1.0),
-('Syk', '',	8, 0, 0, 1.0),
-('Sykt barn', '', 8, 0, 0, 1.0),
-('Youtube serie', '', 8, 0, 0, 1.0),
-('AlvTimeUtvikling', '', 8, 0, 0, 1.0)
+('Testleder', '', 2, 0, 0, 1.0, 1),
+('Funksjonell arkitekt', '', 2, 0, 0, 1.0, 2),
+('Teamleder', '', 6, 0, 0, 1.0, 3),
+('Prosjektstotte', '', 6, 0, 0, 1.0, 4),
+('Testleder', '', 3, 0, 0, 1.0, 5),
+('Testradgiver', '', 3, 0, 0, 1.0, 6),
+('Cost controller', '',	8, 0, 0, 1.0, 7),
+('Utvikler', '', 7, 0, 0, 1.0, 8),
+('Seniorutvikler', '', 1, 0, 0, 1.0, 9),
+('Juniorutvikler', '', 1, 0, 0, 1.0, 10),
+('Sikkerhetstester', '', 2, 0, 0, 1.0, 11),
+('Interntid' ,'', 8, 0, 0, 1.0, 12),
+('Ferie', '', 8, 0, 0, 1.0, 13),
+('Syk', '',	8, 0, 0, 1.0, 14),
+('Sykt barn', '', 8, 0, 0, 1.0, 15),
+('Youtube serie', '', 8, 0, 0, 1.0, 16),
+('AlvTimeUtvikling', '', 8, 0, 0, 1.0, 17)
 
 insert into [dbo].[TaskFavorites]
 select id as UserId, 12 as TaskId

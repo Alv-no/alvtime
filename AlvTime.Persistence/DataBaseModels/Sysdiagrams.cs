@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace AlvTimeWebApi.Persistence.DatabaseModels
+﻿namespace AlvTime.Persistence.DataBaseModels
 {
     public partial class Sysdiagrams
     {

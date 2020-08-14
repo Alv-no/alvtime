@@ -1,10 +1,10 @@
 ﻿using AlvTime.Business.Customers;
 using AlvTime.Business.Projects;
-using AlvTimeWebApi.Persistence.DatabaseModels;
+using AlvTime.Persistence.DataBaseModels;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AlvTimeWebApi.Controllers.Admin.Projects.ProjectStorage
+namespace AlvTime.Persistence.Repositories
 {
     public class ProjectStorage : IProjectStorage
     {

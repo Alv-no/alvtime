@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using AlvTime.Persistence.DatabaseModels;
 
-namespace AlvTimeWebApi.Persistence.DatabaseModels
+namespace AlvTime.Persistence.DataBaseModels
 {
     public partial class TaskFavorites
     {

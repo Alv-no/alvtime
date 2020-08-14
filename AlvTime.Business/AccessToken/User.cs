@@ -1,4 +1,4 @@
-﻿namespace AlvTimeWebApi.Business
+﻿namespace AlvTime.Business.AccessToken
 {
     public class User
     {

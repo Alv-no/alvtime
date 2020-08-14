@@ -1,5 +1,5 @@
-﻿using AlvTimeWebApi.Business;
-using AlvTimeWebApi.Business.PersonalAccessToken;
+﻿using AlvTime.Business.AccessToken;
+using AlvTime.Business.AccessToken.PersonalAccessToken;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -8,7 +8,7 @@ using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
-namespace AlvTimeWebApi.Authentication
+namespace AlvTimeWebApi.Authentication.PersonalAccessToken
 {
     public class PersonalAccessTokenHandler : AuthenticationHandler<PersonalAccessTokenOptions>
     {

@@ -1,11 +1,9 @@
 ﻿using AlvTime.Business.Tasks;
 using AlvTime.Business.Tasks.Admin;
-using AlvTimeWebApi.Controllers.Tasks.TaskStorage;
-using AlvTimeWebApi.Persistence.DatabaseModels;
-using System;
+using AlvTime.Persistence.DataBaseModels;
+using AlvTime.Persistence.Repositories;
 using System.Linq;
 using Xunit;
-using Task = AlvTimeWebApi.Persistence.DatabaseModels.Task;
 
 namespace Tests.UnitTests.Tasks
 {
@@ -14,7 +12,11 @@ namespace Tests.UnitTests.Tasks
         [Fact]
         public void GetTasks_NoCriterias_AllTasks()
         {
-            var context = new AlvTimeDbContextBuilder().WithData().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder()
+                .WithTasks()
+                .WithProjects()
+                .WithCustomers()
+                .CreateDbContext();
 
             var storage = new TaskStorage(context);
 
@@ -26,7 +28,11 @@ namespace Tests.UnitTests.Tasks
         [Fact]
         public void GetTasks_ProjectIsGiven_AllTasksWithSpecifiedProject()
         {
-            var context = new AlvTimeDbContextBuilder().WithData().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder()
+                .WithTasks()
+                .WithProjects()
+                .WithCustomers()
+                .CreateDbContext();
 
             var storage = new TaskStorage(context);
             var tasks = storage.GetTasks(new TaskQuerySearch
@@ -40,7 +46,11 @@ namespace Tests.UnitTests.Tasks
         [Fact]
         public void GetTasks_CompensationRateIsGiven_AllTasksWithSpecifiedCompensationRate()
         {
-            AlvTime_dbContext context = new AlvTimeDbContextBuilder().WithData().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder()
+                .WithTasks()
+                .WithProjects()
+                .WithCustomers()
+                .CreateDbContext();
 
             var storage = new TaskStorage(context);
             var tasks = storage.GetTasks(new TaskQuerySearch
@@ -54,7 +64,11 @@ namespace Tests.UnitTests.Tasks
         [Fact]
         public void GetTasks_ProjectAndLockedIsGiven_AllTasksWithSpecifiedProjectAndLocked()
         {
-            AlvTime_dbContext context = new AlvTimeDbContextBuilder().WithData().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder()
+                .WithTasks()
+                .WithProjects()
+                .WithCustomers()
+                .CreateDbContext();
 
             var storage = new TaskStorage(context);
             var tasks = storage.GetTasks(new TaskQuerySearch
@@ -69,7 +83,11 @@ namespace Tests.UnitTests.Tasks
         [Fact]
         public void FavoriteUpdater_UserCreatesNewFavorite_NewFavoriteIsCreated()
         {
-            AlvTime_dbContext context = new AlvTimeDbContextBuilder().WithData().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder()
+                .WithTasks()
+                .WithProjects()
+                .WithCustomers()
+                .CreateDbContext();
 
             var previousNumberOfFavorites = context.TaskFavorites
                 .Where(tf => tf.UserId == 1)
@@ -94,7 +112,11 @@ namespace Tests.UnitTests.Tasks
         [Fact]
         public void FavoriteUpdater_UserCreatesNewFavoriteWithCompensationRate_NewFavoriteIsCreatedCompensationRateIsUnchanged()
         {
-            AlvTime_dbContext context = new AlvTimeDbContextBuilder().WithData().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder()
+                .WithTasks()
+                .WithProjects()
+                .WithCustomers()
+                .CreateDbContext();
 
             var previousNumberOfFavorites = context.TaskFavorites
                 .Where(tf => tf.UserId == 1)
@@ -120,7 +142,12 @@ namespace Tests.UnitTests.Tasks
         [Fact]
         public void FavoriteUpdater_UserRemovesExistingFavorite_ExistingFavoriteIsRemoved()
         {
-            AlvTime_dbContext context = new AlvTimeDbContextBuilder().WithData().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder()
+                .WithTasks()
+                .WithProjects()
+                .WithCustomers()
+                .WithTaskFavorites()
+                .CreateDbContext();
 
             var storage = new TaskStorage(context);
             var updater = new FavoriteUpdater(storage);
@@ -145,7 +172,11 @@ namespace Tests.UnitTests.Tasks
         [Fact]
         public void TaskCreator_CreateNewTask_NewTaskIsCreated()
         {
-            AlvTime_dbContext context = new AlvTimeDbContextBuilder().WithData().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder()
+                .WithTasks()
+                .WithProjects()
+                .WithCustomers()
+                .CreateDbContext();
 
             var storage = new TaskStorage(context);
             var creator = new TaskCreator(storage);
@@ -167,7 +198,11 @@ namespace Tests.UnitTests.Tasks
         [Fact]
         public void TaskCreator_CreateNewTaskAlreadyExists_NoNewTaskIsCreated()
         {
-            AlvTime_dbContext context = new AlvTimeDbContextBuilder().WithData().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder()
+                .WithTasks()
+                .WithProjects()
+                .WithCustomers()
+                .CreateDbContext();
 
             var storage = new TaskStorage(context);
             var creator = new TaskCreator(storage);
@@ -189,7 +224,11 @@ namespace Tests.UnitTests.Tasks
         [Fact]
         public void TaskCreator_UpdateOnlyCompensationRate_CompensationRateIsUpdated()
         {
-            AlvTime_dbContext context = new AlvTimeDbContextBuilder().WithData().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder()
+                .WithTasks()
+                .WithProjects()
+                .WithCustomers()
+                .CreateDbContext();
 
             var storage = new TaskStorage(context);
             var creator = new TaskCreator(storage);
@@ -208,7 +247,11 @@ namespace Tests.UnitTests.Tasks
         [Fact]
         public void TaskCreator_UpdateBothLockedAndName_LockedAndNameIsUpdated()
         {
-            AlvTime_dbContext context = new AlvTimeDbContextBuilder().WithData().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder()
+                .WithTasks()
+                .WithProjects()
+                .WithCustomers()
+                .CreateDbContext();
 
             var storage = new TaskStorage(context);
             var creator = new TaskCreator(storage);

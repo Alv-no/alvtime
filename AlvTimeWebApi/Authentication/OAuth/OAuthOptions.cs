@@ -1,4 +1,4 @@
-namespace AlvTimeWebApi.Authentication
+namespace AlvTimeWebApi.Authentication.OAuth
 {
     public class OAuthOptions
     {

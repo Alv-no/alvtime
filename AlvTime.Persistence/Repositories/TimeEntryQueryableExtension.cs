@@ -1,14 +1,14 @@
 ﻿using AlvTime.Business.TimeEntries;
-using AlvTimeWebApi.Persistence.DatabaseModels;
+using AlvTime.Persistence.DataBaseModels;
 using System.Linq;
 
-namespace AlvTimeWebApi.Controllers.TimeEntries.TimeEntryStorage
+namespace AlvTime.Persistence.Repositories
 {
     public static class TimeEntryQueryableExtension
     {
         public static IQueryable<Hours> Filter(this IQueryable<Hours> query, TimeEntryQuerySearch criterias)
         {
-            if(criterias.UserId != null)
+            if (criterias.UserId != null)
             {
                 query = query.Where(hour => hour.User == criterias.UserId);
             }

@@ -3,7 +3,7 @@ using AlvTimeWebApi.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
-namespace AlvTimeWebApi.Controllers.Admin.AssociatedTask
+namespace AlvTimeWebApi.Controllers.Admin
 {
     [Route("api/admin")]
     [ApiController]

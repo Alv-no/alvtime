@@ -1,11 +1,11 @@
 ﻿using AlvTime.Business.AssociatedTask;
-using AlvTimeWebApi.Persistence.DatabaseModels;
+using AlvTime.Persistence.DataBaseModels;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace AlvTimeWebApi.Controllers.Admin.AssociatedTask.AssociatedTaskStorage
+namespace AlvTime.Persistence.Repositories
 {
     public class AssociatedTaskStorage : IAssociatedTaskStorage
     {

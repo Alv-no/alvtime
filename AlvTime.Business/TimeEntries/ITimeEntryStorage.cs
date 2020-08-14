@@ -9,6 +9,7 @@ namespace AlvTime.Business.TimeEntries
         TimeEntriesResponseDto GetTimeEntry(TimeEntryQuerySearch criterias);
         TimeEntriesResponseDto CreateTimeEntry(CreateTimeEntryDto timeEntry, int userId);
         TimeEntriesResponseDto UpdateTimeEntry(CreateTimeEntryDto timeEntry, int userId);
+        IEnumerable<DateEntry> GetDateEntries(TimeEntryQuerySearch criterias);
     }
 
     public class TimeEntryQuerySearch

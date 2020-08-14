@@ -1,19 +1,22 @@
 ﻿using AlvTime.Business.FlexiHours;
-using AlvTimeWebApi.HelperClasses;
+using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 
-namespace AlvTimeWebApi.Controllers.FlexiHours
+namespace AlvTimeWebApi.Controllers
 {
     [Route("api/user")]
     [ApiController]
     public class FlexiHourController : Controller
     {
-        private readonly IFlexiHourStorage _storage;
-        private RetrieveUsers _userRetriever;
+        private readonly IFlexhourCalculator _storage;
+        private readonly RetrieveUsers _userRetriever;
 
-        public FlexiHourController(RetrieveUsers userRetriever, IFlexiHourStorage storage)
+        public FlexiHourController(RetrieveUsers userRetriever, IFlexhourCalculator storage)
         {
             _storage = storage;
             _userRetriever = userRetriever;
@@ -21,11 +24,20 @@ namespace AlvTimeWebApi.Controllers.FlexiHours
 
         [HttpGet("FlexiHours")]
         [Authorize]
-        public ActionResult<FlexiHoursResponseDto> FetchFlexiHours(DateTime startDate, DateTime endDate)
+        public ActionResult<IEnumerable<FlexiHoursResponseDto>> FetchFlexiHour(DateTime fromDateInclusive, DateTime toDateInclusive)
         {
             var user = _userRetriever.RetrieveUser();
 
-            return Ok(_storage.GetFlexiHours(user.Id, startDate, endDate));
+            return Ok(_storage
+                .GetFlexihours(fromDateInclusive, toDateInclusive, user.Id)
+                .Select(f => new
+                {
+                    Result = new FlexiHoursResponseDto
+                    {
+                        Date = f.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                        Value = f.Value
+                    }
+                }));
         }
     }
 }
