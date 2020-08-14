@@ -1,8 +1,7 @@
-﻿using System;
+﻿using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace AlvTimeWebApi.Persistence.DatabaseModels
+namespace AlvTime.Persistence.DataBaseModels
 {
     public partial class AlvTime_dbContext : DbContext
     {

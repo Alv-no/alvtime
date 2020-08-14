@@ -1,13 +1,12 @@
 using AlvTime.Business.TimeEntries;
-using AlvTimeWebApi.Authorization;
-using AlvTimeWebApi.HelperClasses;
+using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AlvTimeWebApi.Controllers.TimeEntries
+namespace AlvTimeWebApi.Controllers
 {
     [Route("api/user")]
     [ApiController]
@@ -35,7 +34,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
             {
                 var user = _userRetriever.RetrieveUser();
 
-                var hours = _storage.GetTimeEntries(new TimeEntryQuerySearch 
+                var hours = _storage.GetTimeEntries(new TimeEntryQuerySearch
                 {
                     UserId = user.Id,
                     FromDateInclusive = fromDateInclusive,
@@ -67,7 +66,7 @@ namespace AlvTimeWebApi.Controllers.TimeEntries
         {
             var user = _userRetriever.RetrieveUser();
 
-            if(user.Id == TEST_USER || user.Id == REPORT_USER)
+            if (user.Id == TEST_USER || user.Id == REPORT_USER)
             {
                 var report = _storage.GetTimeEntries(new TimeEntryQuerySearch
                 {

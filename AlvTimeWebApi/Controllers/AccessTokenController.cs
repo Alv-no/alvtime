@@ -1,10 +1,10 @@
 ﻿using AlvTime.Business.AccessToken;
-using AlvTimeWebApi.HelperClasses;
+using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
-namespace AlvTimeApi.Controllers.AccessToken
+namespace AlvTimeWebApi.Controllers
 {
     [Route("api/user")]
     [ApiController]

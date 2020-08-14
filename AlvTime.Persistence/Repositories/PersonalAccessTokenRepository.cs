@@ -1,6 +1,5 @@
-﻿using AlvTimeWebApi.Authentication;
-using AlvTimeWebApi.Business.PersonalAccessToken;
-using AlvTimeWebApi.Persistence.DatabaseModels;
+﻿using AlvTime.Business.AccessToken.PersonalAccessToken;
+using AlvTime.Persistence.DataBaseModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
@@ -16,7 +15,7 @@ namespace AlvTimeWebApi.Persistence.Repositories
             _database = database;
         }
 
-        public async Task<Business.User> GetUserFromToken(Token token)
+        public async Task<AlvTime.Business.AccessToken.User> GetUserFromToken(Token token)
         {
             var databaseToken = await _database.AccessTokens.FirstOrDefaultAsync(x => x.Value == token.Value && x.ExpiryDate >= DateTime.UtcNow);
 
@@ -24,7 +23,7 @@ namespace AlvTimeWebApi.Persistence.Repositories
             {
                 var databaseUser = await _database.User.FirstOrDefaultAsync(x => x.Id == databaseToken.UserId);
 
-                return new Business.User
+                return new AlvTime.Business.AccessToken.User
                 {
                     Id = databaseUser.Id,
                     Email = databaseUser.Email,

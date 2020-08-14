@@ -1,7 +1,7 @@
-﻿using System;
+﻿using AlvTime.Persistence.DataBaseModels;
 using System.Collections.Generic;
 
-namespace AlvTimeWebApi.Persistence.DatabaseModels
+namespace AlvTime.Persistence.DatabaseModels
 {
     public partial class Task
     {

@@ -1,14 +1,13 @@
-﻿using AlvTimeWebApi.HelperClasses;
-using AlvTimeWebApi.Persistence.DatabaseModels;
+﻿using AlvTime.Persistence.DataBaseModels;
+using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
 
-namespace AlvTimeWebApi.Controllers.Profile
+namespace AlvTimeWebApi.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    public class ProfileController:Controller
+    public class ProfileController : Controller
     {
         private RetrieveUsers _userRetriever;
 

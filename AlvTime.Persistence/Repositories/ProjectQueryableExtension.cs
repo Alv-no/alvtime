@@ -1,8 +1,8 @@
 ﻿using AlvTime.Business.Projects;
-using AlvTimeWebApi.Persistence.DatabaseModels;
+using AlvTime.Persistence.DataBaseModels;
 using System.Linq;
 
-namespace AlvTimeWebApi.Controllers.Admin.Projects.ProjectStorage
+namespace AlvTime.Persistence.Repositories
 {
     public static class ProjectQueryableExtension
     {

@@ -1,5 +1,5 @@
 ﻿using AlvTime.Business.HourRates;
-using AlvTimeWebApi.Controllers.Admin.HourRates.HourRateStorage;
+using AlvTime.Persistence.Repositories;
 using System;
 using System.Linq;
 using Xunit;

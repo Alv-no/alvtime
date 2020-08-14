@@ -1,4 +1,4 @@
-﻿namespace AlvTimeWebApi.Business.PersonalAccessToken
+﻿namespace AlvTime.Business.AccessToken.PersonalAccessToken
 {
     public class Token
     {

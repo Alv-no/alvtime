@@ -1,11 +1,10 @@
 ﻿using AlvTime.Business.Tasks;
-using AlvTimeWebApi.HelperClasses;
-using AlvTimeWebApi.Persistence.DatabaseModels;
+using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
-namespace AlvTimeWebApi.Controllers.Tasks
+namespace AlvTimeWebApi.Controllers
 {
     [Route("api/user")]
     [ApiController]
@@ -44,7 +43,7 @@ namespace AlvTimeWebApi.Controllers.Tasks
             {
                 response.Add(_updater.UpdateFavoriteTasks(task, user.Id));
             }
-            
+
             return Ok(response);
         }
     }

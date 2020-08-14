@@ -1,10 +1,10 @@
 ﻿using AlvTime.Business.Economy;
-using AlvTimeWebApi.Persistence.DatabaseModels;
+using AlvTime.Persistence.DataBaseModels;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace AlvTimeWebApi.Controllers.Admin.Economy.EconomyStorage
+namespace AlvTime.Persistence.Repositories
 {
     public class EconomyStorage : IEconomyStorage
     {
