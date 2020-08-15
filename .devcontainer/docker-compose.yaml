@@ -29,6 +29,8 @@ services:
     image: alvnoas/alvtime-database:latest
     expose:
       - "1433"
+    ports:
+      - "1433:1433"
     command:
       - /bin/bash
       - -c
