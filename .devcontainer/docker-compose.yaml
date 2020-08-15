@@ -4,7 +4,6 @@ services:
   alvtime-admin-react-pwa:
     user: vscode
     tty: true
-    image: alvtime-admin-react-pwa
     build:
       context: ../
       dockerfile: .devcontainer/Dockerfile
@@ -13,8 +12,17 @@ services:
       - /usr/src/app/node_modules/
     environment:
       - CHOKIDAR_USEPOLLING=true
+    expose:
+      - "3000"
+
+  nginx-reverse-proxy:
+    build: ../nginx/
     ports:
       - "3000:3000"
+    links:
+      - alvtime-web-api
+      - alvtime-admin-react-pwa
+    command: nginx -g 'daemon off;'
 
   alvtime-web-api:
     image: alvnoas/alvtime-web-api:latest
