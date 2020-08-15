@@ -1,20 +1,19 @@
-import React from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { ThemeProvider } from "@material-ui/core";
-import theme from "./theme";
-
+import React from "react";
+import { BrowserRouter as Router } from "react-router-dom";
 // Views
 import MenuAppBar from "./components/MenuAppBar";
+import Tables from "./components/Tables";
 import Login from "./components/Login";
+import theme from "./theme";
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <Router>
         <MenuAppBar />
-        <Switch>
-          <Route exact path="/" component={Login} />
-        </Switch>
+        <Login />
+        <Tables />
       </Router>
     </ThemeProvider>
   );
