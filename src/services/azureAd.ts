@@ -40,11 +40,8 @@ export async function adAuthenticatedFetch(
   url: string,
   paramOptions: RequestInit = { headers: {} }
 ) {
-  const accessTokenResponse = await getTokenRedirect();
-  const authHeaders =
-    accessTokenResponse && accessTokenResponse.accessToken
-      ? { Authorization: `Bearer ${accessTokenResponse.accessToken}` }
-      : { Authorization: "" };
+  const accessToken = await getAccessToken();
+  const authHeaders = { Authorization: `Bearer ${accessToken}` };
 
   paramOptions = paramOptions ? paramOptions : { headers: {} };
 
@@ -59,12 +56,26 @@ export async function adAuthenticatedFetch(
   return fetch(url, options);
 }
 
+async function getAccessToken() {
+  if (getAccount()) {
+    const res = await getTokenRedirect();
+    return res ? res.accessToken : "";
+  } else {
+    return config.TEST_ACCESS_TOKEN;
+  }
+}
+
+export function requireLogin() {
+  return !getAccount() && process.env.NODE_ENV !== "development";
+}
+
 async function getTokenRedirect() {
-  return await msalApp.acquireTokenSilent(authParams).catch(() => {
+  try {
+    return await msalApp.acquireTokenSilent(authParams);
+  } catch {
     console.log(
       "silent token acquisition fails. acquiring token using redirect"
     );
-    // fallback to interaction when silent call fails
-    return msalApp.acquireTokenPopup(authParams);
-  });
+    return msalApp.acquireTokenRedirect(authParams);
+  }
 }
