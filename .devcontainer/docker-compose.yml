@@ -1,0 +1,24 @@
+version: "3.7"
+
+services:
+  alvtime-web-api:
+    user: vscode
+    tty: true
+    build:
+      context: ../
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/usr/src/app:cached
+    links:
+      - mssql-db
+    ports:
+      - "8000:80"
+      - "5000:5000"
+      - "5001:5001"
+
+  mssql-db:
+    build: ../AlvTime.Persistence/Database
+    volumes:
+     - ./Database/:/scripts/
+    ports:
+      - "1433:1433"
