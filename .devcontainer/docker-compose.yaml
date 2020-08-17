@@ -30,6 +30,7 @@ services:
       - alvtime-database
     environment:
       - ConnectionStrings__AlvTime_db=Data Source=tcp:alvtime-database,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32
+      - AdminGroup=5850c192-c101-4b64-9c45-cbbf73542805
     expose:
       - "80"
     ports:
