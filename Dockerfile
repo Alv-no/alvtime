@@ -1,6 +1,8 @@
 FROM mcr.microsoft.com/dotnet/core/sdk:3.0 AS base
 WORKDIR /app
 
+ARG ASPNETCORE_ENVIRONMENT
+
 COPY ["AlvTimeWebApi/AlvTimeWebApi.csproj", "AlvTimeWebApi/"]
 COPY ["/AlvTime.Business/AlvTime.Business.csproj", "AlvTime.Business/"]
 RUN dotnet restore "AlvTimeWebApi/AlvTimeWebApi.csproj"

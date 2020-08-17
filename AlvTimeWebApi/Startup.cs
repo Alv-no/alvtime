@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System;
 
 namespace AlvTimeWebApi
 {
@@ -43,6 +44,7 @@ namespace AlvTimeWebApi
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                Environment.SetEnvironmentVariable("AdminGroup", "5850c192-c101-4b64-9c45-cbbf73542805");
             }
             else
             {
