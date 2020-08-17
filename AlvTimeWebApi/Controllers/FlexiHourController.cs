@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 
 namespace AlvTimeWebApi.Controllers
@@ -32,11 +31,8 @@ namespace AlvTimeWebApi.Controllers
                 .GetFlexihours(fromDateInclusive, toDateInclusive, user.Id)
                 .Select(f => new
                 {
-                    Result = new FlexiHoursResponseDto
-                    {
-                        Date = f.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                        Value = f.Value
-                    }
+                    Date = f.Date.ToDateOnly(),
+                    Value = f.Value
                 }));
         }
     }
