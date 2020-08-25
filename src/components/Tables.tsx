@@ -62,7 +62,14 @@ const tableIcons = {
 };
 
 export default function CustomerTable() {
-  const [columns, setColumns] = useState();
+  const columns = [
+    { title: "Name", field: "name" },
+    { title: "contactEmail", field: "contactEmail" },
+    { title: "contactPerson", field: "contactPerson" },
+    { title: "contactPhone", field: "contactPhone" },
+    { title: "id", field: "id" },
+    { title: "invoiceAddress", field: "invoiceAddress" },
+  ];
 
   useEffect(() => {
     async function getCustomers() {
@@ -75,7 +82,8 @@ export default function CustomerTable() {
           throw res.statusText;
         }
         const customers = await res.json();
-        setColumns(customers);
+        //setColumns(customers);
+        setData(customers);
       } catch (e) {
         if (e !== "Not Found") {
           console.error(e);
@@ -85,10 +93,7 @@ export default function CustomerTable() {
     getCustomers();
   }, []);
 
-  const [data, setData] = useState([
-    { name: "Mehmet", surname: "Baran", birthYear: 1987, birthCity: 63 },
-    { name: "Zerya Betül", surname: "Baran", birthYear: 2017, birthCity: 34 },
-  ]);
+  const [data, setData] = useState([]);
 
   return (
     <MaterialTable
