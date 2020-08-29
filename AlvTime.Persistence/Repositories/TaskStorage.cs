@@ -2,7 +2,6 @@
 using AlvTime.Business.Projects;
 using AlvTime.Business.Tasks;
 using AlvTime.Business.Tasks.Admin;
-using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.DataBaseModels;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,6 +1,6 @@
 ﻿using AlvTime.Business.Tasks;
 using System.Linq;
-using Task = AlvTime.Persistence.DatabaseModels.Task;
+using Task = AlvTime.Persistence.DataBaseModels.Task;
 
 namespace AlvTime.Persistence.Repositories
 {

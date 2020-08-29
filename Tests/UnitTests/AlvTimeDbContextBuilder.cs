@@ -1,5 +1,4 @@
-﻿using AlvTime.Persistence.DatabaseModels;
-using AlvTime.Persistence.DataBaseModels;
+﻿using AlvTime.Persistence.DataBaseModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 
@@ -191,7 +190,6 @@ namespace Tests.UnitTests
                 Id = 1,
                 Email = "someone@alv.no",
                 Name = "Someone",
-                FlexiHours = 150,
                 StartDate = DateTime.Now
             });
 
@@ -200,7 +198,6 @@ namespace Tests.UnitTests
                 Id = 2,
                 Email = "someone2@alv.no",
                 Name = "Someone2",
-                FlexiHours = 10,
                 StartDate = DateTime.Now
             });
 

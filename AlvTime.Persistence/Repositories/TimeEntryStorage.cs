@@ -25,7 +25,7 @@ namespace AlvTime.Persistence.Repositories
                         Id = x.Id,
                         User = x.User,
                         Value = x.Value,
-                        Date = x.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                        Date = x.Date,
                         TaskId = x.TaskId
                     })
                     .ToList();
@@ -66,7 +66,7 @@ namespace AlvTime.Persistence.Repositories
                 {
                     Id = x.Id,
                     Value = x.Value,
-                    Date = x.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                    Date = x.Date,
                     TaskId = x.TaskId
                 }).FirstOrDefault();
 
@@ -91,7 +91,7 @@ namespace AlvTime.Persistence.Repositories
             {
                 Id = hour.Id,
                 User = hour.User,
-                Date = hour.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                Date = hour.Date,
                 TaskId = hour.TaskId,
                 Value = hour.Value,
                 UserEmail = hour.UserNavigation.Email
@@ -123,7 +123,7 @@ namespace AlvTime.Persistence.Repositories
                 {
                     Id = hour.Id,
                     User = hour.User,
-                    Date = hour.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                    Date = hour.Date,
                     TaskId = hour.TaskId,
                     Value = hour.Value,
                     UserEmail = hour.UserNavigation.Email

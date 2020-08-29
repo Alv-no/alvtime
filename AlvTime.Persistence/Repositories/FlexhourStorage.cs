@@ -1,17 +1,21 @@
 ﻿using AlvTime.Business.FlexiHours;
 using AlvTime.Business.TimeEntries;
+using AlvTime.Persistence.DataBaseModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public class FlexhourCalculator : IFlexhourCalculator
+public class FlexhourStorage : IFlexhourStorage
 {
     private const decimal HoursInRegularWorkday = 7.5M;
     private readonly ITimeEntryStorage _storage;
+    private readonly AlvTime_dbContext _context;
 
-    public FlexhourCalculator(ITimeEntryStorage storage)
+    public FlexhourStorage(ITimeEntryStorage storage, AlvTime_dbContext context)
     {
         _storage = storage;
+        _context = context;
+
     }
 
     public IEnumerable<FlexiHours> GetFlexihours(DateTime startDate, DateTime endDate, int userId)
@@ -47,5 +51,24 @@ public class FlexhourCalculator : IFlexhourCalculator
         }
 
         return flexHours;
+    }
+
+    public RegisterPaidOvertimeDto RegisterPaidOvertime(DateTime date, decimal valueRegistered, int userId)
+    {
+        PaidOvertime paidOvertime = new PaidOvertime
+        {
+            Date = date,
+            User = userId,
+            Value = valueRegistered
+        };
+
+        _context.PaidOvertime.Add(paidOvertime);
+        _context.SaveChanges();
+
+        return new RegisterPaidOvertimeDto 
+        {
+            Date = paidOvertime.Date,
+            Value = paidOvertime.Value
+        };
     }
 }

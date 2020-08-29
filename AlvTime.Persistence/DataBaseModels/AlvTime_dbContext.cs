@@ -1,5 +1,4 @@
-﻿using AlvTime.Persistence.DatabaseModels;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace AlvTime.Persistence.DataBaseModels
 {
@@ -19,9 +18,8 @@ namespace AlvTime.Persistence.DataBaseModels
         public virtual DbSet<Customer> Customer { get; set; }
         public virtual DbSet<HourRate> HourRate { get; set; }
         public virtual DbSet<Hours> Hours { get; set; }
+        public virtual DbSet<PaidOvertime> PaidOvertime { get; set; }
         public virtual DbSet<Project> Project { get; set; }
-        public virtual DbSet<RefactorLog> RefactorLog { get; set; }
-        public virtual DbSet<Sysdiagrams> Sysdiagrams { get; set; }
         public virtual DbSet<Task> Task { get; set; }
         public virtual DbSet<TaskFavorites> TaskFavorites { get; set; }
         public virtual DbSet<User> User { get; set; }
@@ -76,19 +74,23 @@ namespace AlvTime.Persistence.DataBaseModels
             {
                 entity.Property(e => e.ContactEmail)
                     .IsRequired()
-                    .HasMaxLength(100);
+                    .HasMaxLength(100)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.ContactPerson)
                     .IsRequired()
-                    .HasMaxLength(100);
+                    .HasMaxLength(100)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.ContactPhone)
                     .IsRequired()
-                    .HasMaxLength(12);
+                    .HasMaxLength(12)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.InvoiceAddress)
                     .IsRequired()
-                    .HasMaxLength(255);
+                    .HasMaxLength(255)
+                    .HasDefaultValueSql("('')");
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -131,6 +133,17 @@ namespace AlvTime.Persistence.DataBaseModels
                     .HasConstraintName("FK_hours_User");
             });
 
+            modelBuilder.Entity<PaidOvertime>(entity =>
+            {
+                entity.Property(e => e.Value).HasColumnType("decimal(6, 2)");
+
+                entity.HasOne(d => d.UserNavigation)
+                    .WithMany(p => p.PaidOvertime)
+                    .HasForeignKey(d => d.User)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_PaidOvertime_User");
+            });
+
             modelBuilder.Entity<Project>(entity =>
             {
                 entity.Property(e => e.Name)
@@ -144,48 +157,17 @@ namespace AlvTime.Persistence.DataBaseModels
                     .HasConstraintName("FK_Project_Customer");
             });
 
-            modelBuilder.Entity<RefactorLog>(entity =>
-            {
-                entity.HasKey(e => e.OperationKey)
-                    .HasName("PK____Refact__D3AEFFDB8B5F0469");
-
-                entity.ToTable("__RefactorLog");
-
-                entity.Property(e => e.OperationKey).ValueGeneratedNever();
-            });
-
-            modelBuilder.Entity<Sysdiagrams>(entity =>
-            {
-                entity.HasKey(e => e.DiagramId)
-                    .HasName("PK__sysdiagr__C2B05B615842254D");
-
-                entity.ToTable("sysdiagrams");
-
-                entity.HasIndex(e => new { e.PrincipalId, e.Name })
-                    .HasName("UK_principal_name")
-                    .IsUnique();
-
-                entity.Property(e => e.DiagramId).HasColumnName("diagram_id");
-
-                entity.Property(e => e.Definition).HasColumnName("definition");
-
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasColumnName("name")
-                    .HasMaxLength(128);
-
-                entity.Property(e => e.PrincipalId).HasColumnName("principal_id");
-
-                entity.Property(e => e.Version).HasColumnName("version");
-            });
-
             modelBuilder.Entity<Task>(entity =>
             {
-                entity.Property(e => e.CompensationRate).HasColumnType("decimal(3, 2)");
+                entity.Property(e => e.CompensationRate)
+                    .HasColumnType("decimal(3, 2)")
+                    .HasDefaultValueSql("((1.00))");
 
                 entity.Property(e => e.Description)
                     .IsRequired()
                     .HasMaxLength(300);
+
+                entity.Property(e => e.FillPriority).HasDefaultValueSql("((1))");
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -220,14 +202,14 @@ namespace AlvTime.Persistence.DataBaseModels
                     .HasColumnName("email")
                     .HasMaxLength(100);
 
-                entity.Property(e => e.FlexiHours).HasColumnType("decimal(5, 2)");
-
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasColumnName("name")
                     .HasMaxLength(100);
 
-                entity.Property(e => e.StartDate).HasColumnType("datetime");
+                entity.Property(e => e.StartDate)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("('')");
             });
 
             modelBuilder.Entity<VDataDump>(entity =>
