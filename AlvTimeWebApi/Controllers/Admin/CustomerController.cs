@@ -25,7 +25,7 @@ namespace AlvTimeWebApi.Controllers.Admin
             return Ok(_storage.GetCustomers(new CustomerQuerySearch()));
         }
 
-        [HttpPost("CreateCustomers")]
+        [HttpPost("Customers")]
         [AuthorizeAdmin]
         public ActionResult<IEnumerable<CustomerDto>> CreateNewCustomers([FromBody] IEnumerable<CustomerDto> customersToBeCreated)
         {
@@ -39,7 +39,7 @@ namespace AlvTimeWebApi.Controllers.Admin
             return Ok(response);
         }
 
-        [HttpPost("UpdateCustomers")]
+        [HttpPut("Customers")]
         [AuthorizeAdmin]
         public ActionResult<IEnumerable<CustomerDto>> UpdateExistingCustomers([FromBody] IEnumerable<CustomerDto> customersToBeUpdated)
         {

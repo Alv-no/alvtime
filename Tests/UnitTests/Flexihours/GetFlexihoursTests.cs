@@ -1,5 +1,4 @@
-﻿using AlvTime.Persistence.DatabaseModels;
-using AlvTime.Persistence.DataBaseModels;
+﻿using AlvTime.Persistence.DataBaseModels;
 using AlvTime.Persistence.Repositories;
 using System;
 using System.Linq;
@@ -16,7 +15,7 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhours_NoWorkAtAll_Minus1WorkDayInFlexhour()
         {
-            FlexhourCalculator calculator = CreateCalculator();
+            FlexhourStorage calculator = CreateCalculator();
             var flexhours = calculator.GetFlexihours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
 
             Assert.Contains(flexhours, hour => hour.Value == -7.5M);
@@ -25,7 +24,7 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhours_NoWorkFor2Days_Minus2WorkDaysInFlexhour()
         {
-            FlexhourCalculator calculator = CreateCalculator();
+            FlexhourStorage calculator = CreateCalculator();
             var flexhours = calculator.GetFlexihours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 02), 1);
 
             Assert.True(flexhours.Sum(item => item.Value) == -15.0M);
@@ -37,7 +36,7 @@ namespace Tests.UnitTests.Flexihours
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 0M));
             _context.SaveChanges();
 
-            FlexhourCalculator calculator = CreateCalculator();
+            FlexhourStorage calculator = CreateCalculator();
             var flexhours = calculator.GetFlexihours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 02), 1);
 
             Assert.True(flexhours.Sum(item => item.Value) == -15.0M);
@@ -49,7 +48,7 @@ namespace Tests.UnitTests.Flexihours
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 7.5M));
             _context.SaveChanges();
 
-            FlexhourCalculator calculator = CreateCalculator();
+            FlexhourStorage calculator = CreateCalculator();
             var flexhours = calculator.GetFlexihours(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
 
             Assert.Empty(flexhours);
@@ -192,9 +191,9 @@ namespace Tests.UnitTests.Flexihours
             Assert.Equal(2.5M, flexhours.Single().Value);
         }
 
-        private FlexhourCalculator CreateCalculator()
+        private FlexhourStorage CreateCalculator()
         {
-            return new FlexhourCalculator(new TimeEntryStorage(_context));
+            return new FlexhourStorage(new TimeEntryStorage(_context), _context);
         }
 
         private static Hours CreateTimeEntry(DateTime date, decimal value)

@@ -10,6 +10,7 @@ namespace AlvTime.Persistence.DataBaseModels
             AccessTokens = new HashSet<AccessTokens>();
             AssociatedTasks = new HashSet<AssociatedTasks>();
             Hours = new HashSet<Hours>();
+            PaidOvertime = new HashSet<PaidOvertime>();
             TaskFavorites = new HashSet<TaskFavorites>();
         }
 
@@ -17,11 +18,11 @@ namespace AlvTime.Persistence.DataBaseModels
         public string Name { get; set; }
         public string Email { get; set; }
         public DateTime StartDate { get; set; }
-        public decimal? FlexiHours { get; set; }
 
         public virtual ICollection<AccessTokens> AccessTokens { get; set; }
         public virtual ICollection<AssociatedTasks> AssociatedTasks { get; set; }
         public virtual ICollection<Hours> Hours { get; set; }
+        public virtual ICollection<PaidOvertime> PaidOvertime { get; set; }
         public virtual ICollection<TaskFavorites> TaskFavorites { get; set; }
     }
 }

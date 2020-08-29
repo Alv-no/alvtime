@@ -1,4 +1,4 @@
-﻿using AlvTime.Persistence.DatabaseModels;
+﻿using System;
 using System.Collections.Generic;
 
 namespace AlvTime.Persistence.DataBaseModels

@@ -1,7 +1,7 @@
-﻿using AlvTime.Persistence.DataBaseModels;
+﻿using System;
 using System.Collections.Generic;
 
-namespace AlvTime.Persistence.DatabaseModels
+namespace AlvTime.Persistence.DataBaseModels
 {
     public partial class Task
     {
@@ -20,6 +20,7 @@ namespace AlvTime.Persistence.DatabaseModels
         public bool Locked { get; set; }
         public bool Favorite { get; set; }
         public decimal CompensationRate { get; set; }
+        public int FillPriority { get; set; }
 
         public virtual Project ProjectNavigation { get; set; }
         public virtual ICollection<AssociatedTasks> AssociatedTasks { get; set; }

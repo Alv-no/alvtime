@@ -1,4 +1,5 @@
 ﻿using AlvTime.Business.FlexiHours;
+using AlvTime.Persistence.DataBaseModels;
 using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +13,10 @@ namespace AlvTimeWebApi.Controllers
     [ApiController]
     public class FlexiHourController : Controller
     {
-        private readonly IFlexhourCalculator _storage;
+        private readonly IFlexhourStorage _storage;
         private readonly RetrieveUsers _userRetriever;
 
-        public FlexiHourController(RetrieveUsers userRetriever, IFlexhourCalculator storage)
+        public FlexiHourController(RetrieveUsers userRetriever, IFlexhourStorage storage)
         {
             _storage = storage;
             _userRetriever = userRetriever;
@@ -29,11 +30,26 @@ namespace AlvTimeWebApi.Controllers
 
             return Ok(_storage
                 .GetFlexihours(fromDateInclusive, toDateInclusive, user.Id)
-                .Select(f => new
+                .Select(f => new FlexiHoursResponseDto
                 {
                     Date = f.Date.ToDateOnly(),
                     Value = f.Value
                 }));
+        }
+
+        [HttpPost("Overtime")]
+        [Authorize]
+        public ActionResult<RegisterPaidOvertimeResponseDto> RegisterPaidOvertime([FromBody] RegisterPaidOvertimeDto request)
+        {
+            var user = _userRetriever.RetrieveUser();
+
+            var response = _storage.RegisterPaidOvertime(request.Date, request.Value, user.Id);
+
+            return Ok(new RegisterPaidOvertimeResponseDto
+            {
+                Date = response.Date.ToDateOnly(),
+                Value = response.Value
+            });
         }
     }
 }
