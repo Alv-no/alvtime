@@ -127,7 +127,7 @@ export default function MenuAppBar() {
 
       <List>
         {routes.map((item, index) => (
-          <Link to={item.route}>
+          <Link key={item.route} to={item.route}>
             <ListItem button key={item.description}>
               <item.icon className={classes.menuButton} />
               <ListItemText primary={item.description} />
