@@ -3,8 +3,7 @@ GO
 
 USE AlvDevDB
 GO
-
-/****** Object:  Table [dbo].[HourRate]    Script Date: 24/03/2020 14:21:08 ******/
+/****** Object:  Table [dbo].[HourRate]    Script Date: 29/08/2020 11:50:17 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -20,40 +19,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Customer]    Script Date: 24/03/2020 14:21:08 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [dbo].[Customer](
-	[Id] [int] IDENTITY NOT NULL,
-	[Name] [nvarchar](100) NOT NULL,
-	[InvoiceAddress] [nvarchar](255) NOT NULL,
-	[ContactPerson] [nvarchar](100) NOT NULL,
-	[ContactEmail] [nvarchar](100) NOT NULL,
-	[ContactPhone] [nvarchar](12) NOT NULL
-PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
-) ON [PRIMARY]
-GO
-/****** Object:  Table [dbo].[Project]    Script Date: 24/03/2020 14:21:08 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [dbo].[Project](
-	[Id] [int] IDENTITY NOT NULL,
-	[Name] [nvarchar](100) NOT NULL,
-	[Customer] [int] NOT NULL,
-PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
-) ON [PRIMARY]
-GO
-/****** Object:  Table [dbo].[Task]    Script Date: 24/03/2020 14:21:08 ******/
+/****** Object:  Table [dbo].[Task]    Script Date: 29/08/2020 11:50:17 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -65,7 +31,7 @@ CREATE TABLE [dbo].[Task](
 	[Project] [int] NOT NULL,
 	[Locked] [bit] NOT NULL,
 	[Favorite] [bit] NOT NULL,
-	[CompensationRate] [decimal](3,2) NOT NULL,
+	[CompensationRate] [decimal](3, 2) NOT NULL,
 	[FillPriority] [int] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
@@ -73,24 +39,56 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[User]    Script Date: 24/03/2020 14:21:08 ******/
+/****** Object:  Table [dbo].[Customer]    Script Date: 29/08/2020 11:50:17 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [dbo].[User](
-	[Id] [int] IDENTITY  NOT NULL,
-	[name] [nvarchar](100) NOT NULL,
-	[email] [nvarchar](100) NOT NULL,
-	[StartDate] [datetime] NOT NULL,
-	[FlexiHours] [decimal](5,2) NULL
+CREATE TABLE [dbo].[Customer](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](100) NOT NULL,
+	[InvoiceAddress] [nvarchar](255) NOT NULL,
+	[ContactPerson] [nvarchar](100) NOT NULL,
+	[ContactEmail] [nvarchar](100) NOT NULL,
+	[ContactPhone] [nvarchar](12) NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[hours]    Script Date: 24/03/2020 14:21:08 ******/
+/****** Object:  Table [dbo].[Project]    Script Date: 29/08/2020 11:50:17 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Project](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](100) NOT NULL,
+	[Customer] [int] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[User]    Script Date: 29/08/2020 11:50:17 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[User](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[name] [nvarchar](100) NOT NULL,
+	[email] [nvarchar](100) NOT NULL,
+	[StartDate] [datetime] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[hours]    Script Date: 29/08/2020 11:50:17 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -107,7 +105,7 @@ CREATE TABLE [dbo].[hours](
 PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
-)WITH (STATISTICS_NORECOMPUTE = ON, IGNORE_DUP_KEY = OFF) ON [PRIMARY],
+)WITH (STATISTICS_NORECOMPUTE = ON, IGNORE_DUP_KEY = OFF, FILLFACTOR = 80) ON [PRIMARY],
  CONSTRAINT [UC_hours_user_task] UNIQUE NONCLUSTERED 
 (
 	[Date] ASC,
@@ -116,11 +114,13 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[V_DataDump]    Script Date: 24/03/2020 14:21:08 ******/
+/****** Object:  View [dbo].[V_DataDump]    Script Date: 29/08/2020 11:50:17 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+
+
 
 CREATE VIEW [dbo].[V_DataDump]
 AS 
@@ -155,7 +155,7 @@ inner join (select HourRate.taskid, HourRate.rate, "hours".id as hourId
 				) maxHours on maxHours.taskid = HourRate.taskid and maxHours.FromDate = HourRate.FromDate and "hours".id = maxHours.hourId
 ) HourR on HourR.taskid = task.id and "hours".id = HourR.hourId
 GO
-/****** Object:  Table [dbo].[__RefactorLog]    Script Date: 24/03/2020 14:21:08 ******/
+/****** Object:  Table [dbo].[__RefactorLog]    Script Date: 29/08/2020 11:50:17 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -168,7 +168,57 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[sysdiagrams]    Script Date: 24/03/2020 14:21:08 ******/
+/****** Object:  Table [dbo].[AccessTokens]    Script Date: 29/08/2020 11:50:17 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AccessTokens](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[UserId] [int] NOT NULL,
+	[ExpiryDate] [datetime] NOT NULL,
+	[Value] [nvarchar](100) NOT NULL,
+	[FriendlyName] [nvarchar](100) NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[AssociatedTasks]    Script Date: 29/08/2020 11:50:17 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AssociatedTasks](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[UserId] [int] NOT NULL,
+	[TaskId] [int] NOT NULL,
+	[FromDate] [datetime2](7) NOT NULL,
+	[EndDate] [datetime2](7) NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[PaidOvertime]    Script Date: 29/08/2020 11:50:17 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[PaidOvertime](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Date] [datetime2](7) NOT NULL,
+	[User] [int] NOT NULL,
+	[Value] [decimal](6, 2) NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[sysdiagrams]    Script Date: 29/08/2020 11:50:17 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -190,7 +240,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[TaskFavorites]    Script Date: 24/03/2020 14:21:08 ******/
+/****** Object:  Table [dbo].[TaskFavorites]    Script Date: 29/08/2020 11:50:17 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -205,39 +255,42 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-SET ANSI_NULLS ON
+ALTER TABLE [dbo].[AssociatedTasks] ADD  DEFAULT ('') FOR [EndDate]
 GO
-SET QUOTED_IDENTIFIER ON
+ALTER TABLE [dbo].[Customer] ADD  DEFAULT ('') FOR [InvoiceAddress]
 GO
-CREATE TABLE [dbo].[AccessTokens](
-	[Id] [int] IDENTITY(1,1) NOT NULL,
-	[UserId] [int] NOT NULL,
-	[FriendlyName] [nvarchar](100) NOT NULL,
-	[ExpiryDate] [datetime] NOT NULL,
-	[Value] [nvarchar](100) NOT NULL,
-PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
-) ON [PRIMARY]
+ALTER TABLE [dbo].[Customer] ADD  DEFAULT ('') FOR [ContactPerson]
 GO
-CREATE TABLE [dbo].[AssociatedTasks](
-	[Id] [int] IDENTITY(1,1) NOT NULL,
-	[UserId] [int] NOT NULL,
-	[TaskId] [int] NOT NULL,
-	[FromDate] [datetime2](7) NOT NULL,
-	[EndDate] [datetime2](7) NOT NULL DEFAULT ''
-PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
-) ON [PRIMARY]
+ALTER TABLE [dbo].[Customer] ADD  DEFAULT ('') FOR [ContactEmail]
+GO
+ALTER TABLE [dbo].[Customer] ADD  DEFAULT ('') FOR [ContactPhone]
 GO
 ALTER TABLE [dbo].[hours] ADD  DEFAULT ((0)) FOR [Locked]
 GO
 ALTER TABLE [dbo].[Task] ADD  DEFAULT ((0)) FOR [Locked]
 GO
 ALTER TABLE [dbo].[Task] ADD  DEFAULT ((0)) FOR [Favorite]
+GO
+ALTER TABLE [dbo].[Task] ADD  DEFAULT ((1.00)) FOR [CompensationRate]
+GO
+ALTER TABLE [dbo].[Task] ADD  DEFAULT ((1)) FOR [FillPriority]
+GO
+ALTER TABLE [dbo].[User] ADD  DEFAULT ('') FOR [StartDate]
+GO
+ALTER TABLE [dbo].[AccessTokens]  WITH CHECK ADD  CONSTRAINT [FK_AccessTokens_User] FOREIGN KEY([UserId])
+REFERENCES [dbo].[User] ([Id])
+GO
+ALTER TABLE [dbo].[AccessTokens] CHECK CONSTRAINT [FK_AccessTokens_User]
+GO
+ALTER TABLE [dbo].[AssociatedTasks]  WITH CHECK ADD  CONSTRAINT [FK_AssociatedTasks_Task] FOREIGN KEY([TaskId])
+REFERENCES [dbo].[Task] ([Id])
+GO
+ALTER TABLE [dbo].[AssociatedTasks] CHECK CONSTRAINT [FK_AssociatedTasks_Task]
+GO
+ALTER TABLE [dbo].[AssociatedTasks]  WITH CHECK ADD  CONSTRAINT [FK_AssociatedTasks_User] FOREIGN KEY([UserId])
+REFERENCES [dbo].[User] ([Id])
+GO
+ALTER TABLE [dbo].[AssociatedTasks] CHECK CONSTRAINT [FK_AssociatedTasks_User]
 GO
 ALTER TABLE [dbo].[HourRate]  WITH CHECK ADD  CONSTRAINT [FK_HourRate_Task] FOREIGN KEY([TaskId])
 REFERENCES [dbo].[Task] ([Id])
@@ -253,6 +306,11 @@ ALTER TABLE [dbo].[hours]  WITH CHECK ADD  CONSTRAINT [FK_hours_User] FOREIGN KE
 REFERENCES [dbo].[User] ([Id])
 GO
 ALTER TABLE [dbo].[hours] CHECK CONSTRAINT [FK_hours_User]
+GO
+ALTER TABLE [dbo].[PaidOvertime]  WITH CHECK ADD  CONSTRAINT [FK_PaidOvertime_User] FOREIGN KEY([User])
+REFERENCES [dbo].[User] ([Id])
+GO
+ALTER TABLE [dbo].[PaidOvertime] CHECK CONSTRAINT [FK_PaidOvertime_User]
 GO
 ALTER TABLE [dbo].[Project]  WITH CHECK ADD  CONSTRAINT [FK_Project_Customer] FOREIGN KEY([Customer])
 REFERENCES [dbo].[Customer] ([Id])
@@ -274,12 +332,7 @@ REFERENCES [dbo].[User] ([Id])
 GO
 ALTER TABLE [dbo].[TaskFavorites] CHECK CONSTRAINT [FK_TaskFavorites_User]
 GO
-ALTER TABLE [dbo].[AccessTokens]  WITH CHECK ADD  CONSTRAINT [FK_AccessTokens_User] FOREIGN KEY([UserId])
-REFERENCES [dbo].[User] ([Id])
+EXEC sys.sp_addextendedproperty @name=N'microsoft_database_tools_support', @value=N'refactoring log' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'__RefactorLog'
 GO
-ALTER TABLE [dbo].[AssociatedTasks]  WITH CHECK ADD  CONSTRAINT [FK_AssociatedTasks_User] FOREIGN KEY([UserId])
-REFERENCES [dbo].[User] ([Id])
-GO
-ALTER TABLE [dbo].[AssociatedTasks]  WITH CHECK ADD  CONSTRAINT [FK_AssociatedTasks_Task] FOREIGN KEY([TaskId])
-REFERENCES [dbo].[Task] ([Id])
+EXEC sys.sp_addextendedproperty @name=N'microsoft_database_tools_support', @value=1 , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'sysdiagrams'
 GO

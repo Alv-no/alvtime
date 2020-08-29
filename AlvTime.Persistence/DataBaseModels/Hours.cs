@@ -1,5 +1,4 @@
-﻿using AlvTime.Persistence.DatabaseModels;
-using System;
+﻿using System;
 
 namespace AlvTime.Persistence.DataBaseModels
 {

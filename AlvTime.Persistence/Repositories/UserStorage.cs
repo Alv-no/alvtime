@@ -21,8 +21,7 @@ namespace AlvTime.Persistence.Repositories
             {
                 Name = user.Name,
                 Email = user.Email,
-                StartDate = user.StartDate,
-                FlexiHours = user.FlexiHours,
+                StartDate = user.StartDate
             };
 
             _context.User.Add(newUser);
@@ -38,7 +37,6 @@ namespace AlvTime.Persistence.Repositories
                     Email = u.Email,
                     Id = u.Id,
                     Name = u.Name,
-                    FlexiHours = u.FlexiHours,
                     StartDate = u.StartDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
                 }).ToList();
         }

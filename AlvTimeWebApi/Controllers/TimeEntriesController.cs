@@ -34,14 +34,22 @@ namespace AlvTimeWebApi.Controllers
             {
                 var user = _userRetriever.RetrieveUser();
 
-                var hours = _storage.GetTimeEntries(new TimeEntryQuerySearch
+                return Ok(_storage.GetTimeEntries(new TimeEntryQuerySearch
                 {
                     UserId = user.Id,
                     FromDateInclusive = fromDateInclusive,
                     ToDateInclusive = toDateInclusive
-                });
+                })
+                    .Select(timeEntry => new
+                    {
+                        User = timeEntry.User,
+                        UserEmail = timeEntry.UserEmail,
+                        Id = timeEntry.Id,
+                        Date = timeEntry.Date.ToDateOnly(),
+                        Value = timeEntry.Value,
+                        TaskId = timeEntry.TaskId
+                    }));
 
-                return Ok(hours);
             }
             catch (Exception e)
             {

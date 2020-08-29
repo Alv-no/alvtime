@@ -20,7 +20,7 @@ namespace AlvTimeWebApi.Controllers.Admin
             _creator = creator;
         }
 
-        [HttpPost("CreateTask")]
+        [HttpPost("TaskAdmin")]
         [AuthorizeAdmin]
         public ActionResult<IEnumerable<TaskResponseDto>> CreateNewTask([FromBody] IEnumerable<CreateTaskDto> tasksToBeCreated)
         {
@@ -35,7 +35,7 @@ namespace AlvTimeWebApi.Controllers.Admin
             return Ok(response);
         }
 
-        [HttpPost("UpdateTask")]
+        [HttpPut("TaskAdmin")]
         [AuthorizeAdmin]
         public ActionResult<IEnumerable<TaskResponseDto>> UpdateTask([FromBody] IEnumerable<UpdateTasksDto> tasksToBeUpdated)
         {
