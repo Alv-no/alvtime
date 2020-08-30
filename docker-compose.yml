@@ -7,6 +7,8 @@ services:
       - mssql-db
     ports:
       - "8000:80"
+    environment:
+      - AdminGroup=5850c192-c101-4b64-9c45-cbbf73542805
   mssql-db:
     container_name: mssql-db
     build: ./AlvTime.Persistence/Database
