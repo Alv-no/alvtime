@@ -4,7 +4,7 @@ import useSWR from "swr";
 import tableIcons from "./tableIcons";
 import { fetcher, setCache } from "./Tables";
 
-export function CustomerTable() {
+export default function CustomerTable() {
   const columns = [
     { title: "Navn", field: "name" },
     { title: "e-post", field: "contactEmail" },
