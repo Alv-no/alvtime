@@ -1,16 +1,16 @@
-import MaterialTable from "material-table";
+import MaterialTable, { Column } from "material-table";
 import React from "react";
 import useSWR from "swr";
 import tableIcons from "./tableIcons";
 import { fetcher, setCache, globalTableOptions } from "./Tables";
 
 export default function CustomerTable() {
-  const columns = [
-    { title: "Navn", field: "name" },
-    { title: "e-post", field: "contactEmail" },
-    { title: "kontakt", field: "contactPerson" },
-    { title: "telefon", field: "contactPhone" },
-    { title: "addresse", field: "invoiceAddress" },
+  const columns: Column<object>[] = [
+    { title: "Navn", field: "name", editable: "onAdd" },
+    { title: "e-post", field: "contactEmail", editable: "always" },
+    { title: "kontakt", field: "contactPerson", editable: "always" },
+    { title: "telefon", field: "contactPhone", editable: "always" },
+    { title: "addresse", field: "invoiceAddress", editable: "always" },
   ];
 
   const path = "/api/admin/Customers";
