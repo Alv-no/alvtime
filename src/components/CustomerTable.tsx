@@ -2,7 +2,7 @@ import MaterialTable from "material-table";
 import React from "react";
 import useSWR from "swr";
 import tableIcons from "./tableIcons";
-import { fetcher, setCache } from "./Tables";
+import { fetcher, setCache, globalTableOptions } from "./Tables";
 
 export default function CustomerTable() {
   const columns = [
@@ -23,7 +23,7 @@ export default function CustomerTable() {
       method: "post",
       body: JSON.stringify([newData]),
     });
-    setCache(path, [...data, ...addedData]);
+    setCache(path, [...addedData, ...data]);
   };
 
   const handleRowUpdate = async (newData: any, oldData: any) => {
@@ -47,6 +47,7 @@ export default function CustomerTable() {
       columns={columns}
       data={data}
       isLoading={!data}
+      options={{ ...globalTableOptions }}
       editable={{
         onRowAdd: handleRowAdd,
         onRowUpdate: handleRowUpdate,
