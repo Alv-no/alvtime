@@ -21,7 +21,7 @@ export default function CustomerTable() {
     setCache(path, [...data, newData]);
     const addedData = await fetcher(path, {
       method: "post",
-      body: JSON.stringify([newData]),
+      body: [newData],
     });
     setCache(path, [...addedData, ...data]);
   };
@@ -33,7 +33,7 @@ export default function CustomerTable() {
     setCache(path, [...dataUpdate]);
     const updatedData = await fetcher(path, {
       method: "put",
-      body: JSON.stringify([newData]),
+      body: [newData],
     });
     dataUpdate[index] = updatedData[0];
     setCache(path, [...dataUpdate]);

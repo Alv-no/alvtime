@@ -20,7 +20,7 @@ export default function UserTable() {
     setCache(path, [...data, newData]);
     const addedData = await fetcher("/api/admin/CreateUser", {
       method: "post",
-      body: JSON.stringify([newData]),
+      body: [newData],
     });
     setCache(path, [...addedData, ...data]);
   };
