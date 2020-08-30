@@ -1,15 +1,15 @@
-import MaterialTable from "material-table";
+import MaterialTable, { Column } from "material-table";
 import React from "react";
 import useSWR from "swr";
 import tableIcons from "./tableIcons";
 import { fetcher, setCache, globalTableOptions } from "./Tables";
 
 export default function UserTable() {
-  const columns = [
-    { title: "Navn", field: "name" },
-    { title: "E-post", field: "email" },
-    { title: "Flexi timer", field: "flexiHours" },
-    { title: "Start dato", field: "startDate" },
+  const columns: Column<object>[] = [
+    { title: "Navn", field: "name", editable: "always" },
+    { title: "E-post", field: "email", editable: "always" },
+    { title: "Flexi timer", field: "flexiHours", editable: "never" },
+    { title: "Start dato", field: "startDate", editable: "always" },
   ];
 
   const path = "/api/admin/Users";
