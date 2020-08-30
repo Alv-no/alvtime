@@ -2,7 +2,7 @@ import MaterialTable from "material-table";
 import React from "react";
 import useSWR from "swr";
 import tableIcons from "./tableIcons";
-import { fetcher, setCache } from "./Tables";
+import { fetcher, setCache, globalTableOptions } from "./Tables";
 
 export default function UserTable() {
   const columns = [
@@ -22,7 +22,7 @@ export default function UserTable() {
       method: "post",
       body: JSON.stringify([newData]),
     });
-    setCache(path, [...data, ...addedData]);
+    setCache(path, [...addedData, ...data]);
   };
 
   if (error) return <div>Error...</div>;
@@ -33,6 +33,7 @@ export default function UserTable() {
       columns={columns}
       data={data}
       isLoading={!data}
+      options={{ ...globalTableOptions }}
       editable={{
         onRowAdd: handleRowAdd,
       }}
