@@ -1,7 +1,8 @@
 import React from "react";
 import { mutate } from "swr";
 import { adAuthenticatedFetch } from "../services/azureAd";
-import { CustomerTable } from "./CustomerTable";
+import CustomerTable from "./CustomerTable";
+import UserTable from "./UserTable";
 
 export const fetcher = (url: string, options?: RequestInit) =>
   adAuthenticatedFetch(url, options).then((r) => r.json());
@@ -9,5 +10,10 @@ export const fetcher = (url: string, options?: RequestInit) =>
 export const setCache = (path: string, data: any) => mutate(path, data, false);
 
 export default function Tables() {
-  return <CustomerTable />;
+  return (
+    <>
+      <CustomerTable />
+      <UserTable />
+    </>
+  );
 }
