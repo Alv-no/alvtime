@@ -25,7 +25,7 @@ namespace AlvTimeWebApi.Controllers.Admin
             return Ok(_storage.GetProjects(new ProjectQuerySearch()));
         }
 
-        [HttpPost("CreateProject")]
+        [HttpPost("Project")]
         [AuthorizeAdmin]
         public ActionResult<IEnumerable<ProjectResponseDto>> CreateNewProject([FromBody] IEnumerable<CreateProjectDto> projectsToBeCreated)
         {
@@ -34,6 +34,20 @@ namespace AlvTimeWebApi.Controllers.Admin
             foreach (var project in projectsToBeCreated)
             {
                 response.Add(_creator.CreateProject(project));
+            }
+
+            return Ok(response);
+        }
+
+        [HttpPut("Project")]
+        [AuthorizeAdmin]
+        public ActionResult<IEnumerable<ProjectResponseDto>> UpdateProject([FromBody] IEnumerable<CreateProjectDto> projectsToBeCreated)
+        {
+            List<ProjectResponseDto> response = new List<ProjectResponseDto>();
+
+            foreach (var project in projectsToBeCreated)
+            {
+                response.Add(_creator.UpdateProject(project));
             }
 
             return Ok(response);

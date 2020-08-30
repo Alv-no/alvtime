@@ -41,11 +41,29 @@ namespace AlvTime.Persistence.Repositories
         {
             var project = new Project
             {
-                Customer = newProject.Customer,
+                Customer = (int)newProject.Customer,
                 Name = newProject.Name
             };
 
             _context.Project.Add(project);
+            _context.SaveChanges();
+        }
+
+        public void UpdateProject(CreateProjectDto request)
+        {
+            var existingProject = _context.Project
+                   .Where(x => x.Id == request.Id)
+                   .FirstOrDefault();
+
+            if (request.Customer != null)
+            {
+                existingProject.Customer = (int)request.Customer;
+            }
+            if (request.Name != null)
+            {
+                existingProject.Name = request.Name;
+            }
+
             _context.SaveChanges();
         }
     }

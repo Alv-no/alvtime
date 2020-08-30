@@ -26,9 +26,9 @@ namespace AlvTimeWebApi.Controllers.Admin
             return Ok(users);
         }
 
-        [HttpPost("CreateUser")]
+        [HttpPost("Users")]
         [AuthorizeAdmin]
-        public ActionResult<IEnumerable<UserResponseDto>> CreateNewUser([FromBody] IEnumerable<CreateUserDto> usersToBeCreated)
+        public ActionResult<IEnumerable<UserResponseDto>> CreateNewUsers([FromBody] IEnumerable<CreateUserDto> usersToBeCreated)
         {
             List<UserResponseDto> response = new List<UserResponseDto>();
             foreach (var user in usersToBeCreated)
@@ -36,7 +36,25 @@ namespace AlvTimeWebApi.Controllers.Admin
                 response.Add(_creator.CreateUser(new CreateUserDto
                 {
                     Email = user.Email,
-                    FlexiHours = user.FlexiHours,
+                    Name = user.Name,
+                    StartDate = user.StartDate
+                }));
+            }
+
+            return Ok(response);
+        }
+
+        [HttpPut("Users")]
+        [AuthorizeAdmin]
+        public ActionResult<IEnumerable<UserResponseDto>> UpdateUsers([FromBody] IEnumerable<CreateUserDto> usersToBeUpdated)
+        {
+            List<UserResponseDto> response = new List<UserResponseDto>();
+            foreach (var user in usersToBeUpdated)
+            {
+                response.Add(_creator.UpdateUser(new CreateUserDto
+                {
+                    Id = user.Id,
+                    Email = user.Email,
                     Name = user.Name,
                     StartDate = user.StartDate
                 }));

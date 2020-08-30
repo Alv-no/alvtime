@@ -16,18 +16,19 @@ namespace AlvTime.Business.Users
 
         public UserResponseDto CreateUser(CreateUserDto user)
         {
-            if (user.FlexiHours == null)
-            {
-                user.FlexiHours = 187.5M + _calculator.CalculateAlvHours();
-            }
-
             if (!GetUser(user).Any())
             {
                 _storage.AddUser(user);
             }
 
             return GetUser(user).Single();
+        }
 
+        public UserResponseDto UpdateUser(CreateUserDto user)
+        {
+            _storage.UpdateUser(user);
+
+            return GetUserById(user).Single();
         }
 
         private IEnumerable<UserResponseDto> GetUser(CreateUserDto user)
@@ -36,6 +37,14 @@ namespace AlvTime.Business.Users
             {
                 Email = user.Email,
                 Name = user.Name,
+            });
+        }
+
+        private IEnumerable<UserResponseDto> GetUserById(CreateUserDto user)
+        {
+            return _storage.GetUser(new UserQuerySearch
+            {
+                Id = user.Id
             });
         }
     }
