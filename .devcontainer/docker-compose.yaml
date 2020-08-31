@@ -11,6 +11,8 @@ services:
       - ..:/usr/src/app:delegated
     links:
       - mssql-db
+    expose:
+      - 5000
     ports:
       - "5000:5000"
 
@@ -22,3 +24,17 @@ services:
       - 1433
     ports:
       - "1433:1433"
+
+  nginx-reverse-proxy:
+    build: ../nginx/
+    command: nginx -g 'daemon off;'
+    ports:
+      - "3000:8080"
+    links:
+      - alvtime-web-api
+      - alvtime-vue-pwa
+
+  alvtime-vue-pwa:
+    image: alvnoas/alvtime-vue-pwa-local:latest
+    expose:
+      - 80
