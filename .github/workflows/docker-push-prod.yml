@@ -3,16 +3,17 @@ name: Docker push prod
 on:
   push:
     paths-ignore:
-      - '**.md'
-      - '.gitignore'
-      - 'LICENCE'
-      - 'CODEOWNERS'
+      - "**.md"
+      - ".gitignore"
+      - "LICENCE"
+      - "CODEOWNERS"
 
     branches:
       - master
 
 env:
   IMAGE_NAME: alvnoas/alvtime-vue-pwa
+  IMAGE_NAME_LOCAL: alvnoas/alvtime-vue-pwa-local
 
 jobs:
   # Push image to Docker Hub
@@ -22,12 +23,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Build image
+      - name: Build images
         run: |
           docker build . --file Dockerfile --tag image \
           --build-arg VUE_APP_HOST=https://alvtime-api-prod.azurewebsites.net \
           --build-arg VUE_APP_ACCESS_SCOPE=api://3644a03b-f801-4b67-b487-3353684fe7fc/access_as_user \
           --build-arg VUE_APP_CLIENT_ID=3644a03b-f801-4b67-b487-3353684fe7fc
+
+          docker build . --file Dockerfile --tag image-local \
+          --build-arg VUE_APP_HOST=http://localhost:3000 \
+          --build-arg VUE_APP_ACCESS_SCOPE=https://d8aedd.alvtime-ap-alvtime-api-dev-f9b4e4.westeurope.cloudapp.azure.com/access_as_user \
+          --build-arg VUE_APP_CLIENT_ID=373a7768-6d2a-4b20-b671-bc1089104a3a
 
       - name: Log into registry
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
@@ -39,3 +45,8 @@ jobs:
 
           docker tag image $IMAGE_NAME:latest
           docker push $IMAGE_NAME:latest
+
+          echo IMAGE_NAME_LOCAL=$IMAGE_NAME_LOCAL
+
+          docker tag image-local $IMAGE_NAME_LOCAL:latest
+          docker push $IMAGE_NAME_LOCAL:latest
