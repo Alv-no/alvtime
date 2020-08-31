@@ -12,6 +12,13 @@
             "program": "${workspaceFolder}/AlvTimeWebApi/bin/Debug/netcoreapp3.0/AlvTimeWebApi.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "http://0.0.0.0:5000",
+                "ASPNETCORE_DETAILEDERRORS": "1",
+                "ASPNETCORE_SHUTDOWNTIMEOUTSECONDS": "3",
+                "ConnectionStrings__AlvTime_db": "Data Source=tcp:mssql-db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32"
+            },
             "stopAtEntry": false,
             "console": "internalConsole"
         }

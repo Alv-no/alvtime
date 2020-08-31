@@ -42,21 +42,6 @@ RUN apt-get update \
   && ([ "${COMMON_SCRIPT_SHA}" = "dev-mode" ] || (echo "${COMMON_SCRIPT_SHA} */tmp/common-setup.sh" | sha256sum -c -)) \
   && /bin/bash /tmp/common-setup.sh "${INSTALL_ZSH}" "${USERNAME}" "${USER_UID}" "${USER_GID}" "${UPGRADE_PACKAGES}" \
   #
-  # [Optional] Install Node.js for ASP.NET Core Web Applicationss
-  && if [ "$INSTALL_NODE" = "true" ]; then \
-  curl -sSL ${NODE_SCRIPT_SOURCE} -o /tmp/node-setup.sh \
-  && ([ "${NODE_SCRIPT_SHA}" = "dev-mode" ] || (echo "${COMMON_SCRIPT_SHA} */tmp/node-setup.sh" | sha256sum -c -)) \
-  && /bin/bash /tmp/node-setup.sh "${NVM_DIR}" "${NODE_VERSION}" "${USERNAME}"; \
-  fi \
-  #
-  # [Optional] Install the Azure CLI
-  && if [ "$INSTALL_AZURE_CLI" = "true" ]; then \
-  echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" > /etc/apt/sources.list.d/azure-cli.list \
-  && curl -sL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - 2>/dev/null \
-  && apt-get update \
-  && apt-get install -y azure-cli; \
-  fi \
-  #
   # Clean up
   && apt-get autoremove -y \
   && apt-get clean -y \

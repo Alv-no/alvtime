@@ -8,17 +8,17 @@ services:
       context: ../
       dockerfile: .devcontainer/Dockerfile
     volumes:
-      - ..:/usr/src/app:cached
+      - ..:/usr/src/app:delegated
     links:
       - mssql-db
     ports:
-      - "8000:80"
       - "5000:5000"
-      - "5001:5001"
 
   mssql-db:
     build: ../AlvTime.Persistence/Database
     volumes:
-     - ./Database/:/scripts/
+      - ./Database/:/scripts/
+    expose:
+      - 1433
     ports:
       - "1433:1433"
