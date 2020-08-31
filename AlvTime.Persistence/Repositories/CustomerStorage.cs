@@ -52,6 +52,10 @@ namespace AlvTime.Persistence.Repositories
                 .Where(x => x.Id == customer.Id)
                 .FirstOrDefault();
 
+            if (customer.Name != null)
+            {
+                existingCustomer.Name = customer.Name;
+            }
             if (customer.ContactEmail != null)
             {
                 existingCustomer.ContactEmail = customer.ContactEmail;
