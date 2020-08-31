@@ -72,6 +72,10 @@ namespace AlvTime.Persistence.Repositories
                    .Where(x => x.Id == taskToBeUpdated.Id)
                    .FirstOrDefault();
 
+            if (taskToBeUpdated.FillPriority != null)
+            {
+                existingTask.FillPriority = (int)taskToBeUpdated.FillPriority;
+            }
             if (taskToBeUpdated.Locked != null)
             {
                 existingTask.Locked = (bool)taskToBeUpdated.Locked;

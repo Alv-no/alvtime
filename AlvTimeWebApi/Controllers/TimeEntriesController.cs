@@ -66,7 +66,16 @@ namespace AlvTimeWebApi.Controllers
         {
             var user = _userRetriever.RetrieveUser();
 
-            return Ok(_creator.UpsertTimeEntry(requests, user.Id));
+            return Ok(_creator.UpsertTimeEntry(requests, user.Id)
+                .Select(timeEntry => new
+                {
+                    User = timeEntry.User,
+                    UserEmail = timeEntry.UserEmail,
+                    Id = timeEntry.Id,
+                    Date = timeEntry.Date.ToDateOnly(),
+                    Value = timeEntry.Value,
+                    TaskId = timeEntry.TaskId
+                }));
         }
 
         [HttpGet("TimeEntriesReport")]
@@ -81,7 +90,17 @@ namespace AlvTimeWebApi.Controllers
                 {
                     FromDateInclusive = fromDateInclusive,
                     ToDateInclusive = toDateInclusive
-                }).ToList();
+                })
+                .ToList()
+                .Select(timeEntry => new
+                {
+                    User = timeEntry.User,
+                    UserEmail = timeEntry.UserEmail,
+                    Id = timeEntry.Id,
+                    Date = timeEntry.Date.ToDateOnly(),
+                    Value = timeEntry.Value,
+                    TaskId = timeEntry.TaskId
+                });
 
                 return Ok(report);
             }

@@ -1,5 +1,6 @@
 ﻿using AlvTime.Business.Users;
 using AlvTime.Persistence.DataBaseModels;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -21,7 +22,7 @@ namespace AlvTime.Persistence.Repositories
             {
                 Name = user.Name,
                 Email = user.Email,
-                StartDate = user.StartDate
+                StartDate = (DateTime)user.StartDate
             };
 
             _context.User.Add(newUser);
@@ -39,6 +40,28 @@ namespace AlvTime.Persistence.Repositories
                     Name = u.Name,
                     StartDate = u.StartDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
                 }).ToList();
+        }
+
+        public void UpdateUser(CreateUserDto userToBeUpdated)
+        {
+            var existingUser = _context.User
+                   .Where(x => x.Id == userToBeUpdated.Id)
+                   .FirstOrDefault();
+
+            if (userToBeUpdated.Name != null)
+            {
+                existingUser.Name = userToBeUpdated.Name;
+            }
+            if (userToBeUpdated.Email != null)
+            {
+                existingUser.Email = userToBeUpdated.Email;
+            }
+            if (userToBeUpdated.StartDate != null)
+            {
+                existingUser.StartDate = (DateTime)userToBeUpdated.StartDate;
+            }
+
+            _context.SaveChanges();
         }
     }
 }

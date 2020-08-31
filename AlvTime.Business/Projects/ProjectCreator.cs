@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace AlvTime.Business.Projects
 {
@@ -24,12 +22,27 @@ namespace AlvTime.Business.Projects
             return GetProject(project).SingleOrDefault();
         }
 
+        public ProjectResponseDto UpdateProject(CreateProjectDto project)
+        {
+            _storage.UpdateProject(project);
+
+            return GetProjectById(project).SingleOrDefault();
+        }
+
         public IEnumerable<ProjectResponseDto> GetProject(CreateProjectDto project)
         {
             return _storage.GetProjects(new ProjectQuerySearch
             {
                 Customer = project.Customer,
                 Name = project.Name
+            }).ToList();
+        }
+
+        public IEnumerable<ProjectResponseDto> GetProjectById(CreateProjectDto project)
+        {
+            return _storage.GetProjects(new ProjectQuerySearch
+            {
+                Id = project.Id
             }).ToList();
         }
     }

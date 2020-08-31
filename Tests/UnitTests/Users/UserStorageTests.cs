@@ -66,7 +66,6 @@ namespace Tests.UnitTests.Users
             creator.CreateUser(new CreateUserDto
             {
                 Email = "newUser@alv.no",
-                FlexiHours = 10,
                 Name = "New User",
                 StartDate = DateTime.UtcNow
             });
@@ -87,12 +86,35 @@ namespace Tests.UnitTests.Users
             creator.CreateUser(new CreateUserDto
             {
                 Email = "someone@alv.no",
-                FlexiHours = 150,
                 Name = "Someone",
                 StartDate = DateTime.UtcNow
             });
 
             Assert.True(context.User.Count() == 2);
+        }
+
+        [Fact]
+        public void UserCreator_UpdateExistingUser_UserIsUpdated()
+        {
+            var context = new AlvTimeDbContextBuilder()
+                .WithUsers()
+                .CreateDbContext();
+
+            var storage = new UserStorage(context);
+            var creator = new UserCreator(storage, new AlvHoursCalculator());
+
+            creator.UpdateUser(new CreateUserDto
+            {
+                Id = 1,
+                Email = "someoneElse@alv.no",
+                Name = "SomeoneElse",
+                StartDate = DateTime.UtcNow
+            });
+
+            var user = context.User.FirstOrDefault(u => u.Id == 1);
+
+            Assert.Equal("someoneElse@alv.no", user.Email);
+            Assert.Equal("SomeoneElse", user.Name);
         }
     }
 }
