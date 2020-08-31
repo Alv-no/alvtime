@@ -1,21 +1,8 @@
-#-------------------------------------------------------------------------------------------------------------
-# Copyright (c) Microsoft Corporation. All rights reserved.
-# Licensed under the MIT License. See https://go.microsoft.com/fwlink/?linkid=2090316 for license information.
-#-------------------------------------------------------------------------------------------------------------
-
-version: '3.7'
+version: "3.7"
 services:
-  # Update this to the name of the service you want to work with in your docker-compose.yml file
   alvtime-slack-app:
-    # You may want to add a non-root user to your Dockerfile and uncomment the line below
-    # to cause all processes to run as this user. Once present, you can also simply
-    # use the "remoteUser" property in devcontainer.json if you just want VS Code and
-    # its sub-processes (terminals, tasks, debugging) to execute as the user. On Linux,
-    # you may need to ensure the UID and GID of the container user you create matches your 
-    # local user. See https://aka.ms/vscode-remote/containers/non-root for details.
     user: vscode
 
-    container_name: alvtime-slack-app
     tty: true
     image: alvtime-slack-app
     build:
@@ -25,15 +12,14 @@ services:
       - ..:/usr/src/app:delegated
       - /usr/src/app/node_modules/
     links:
-      - alvtime-slack-app-dotnet-backend
+      - dotnet-backend
       - mongo
     environment:
-      - ALVTIME_API_URI=http://alvtime-slack-app-dotnet-backend
+      - ALVTIME_API_URI=http://dotnet-backend
     expose:
       - 3000
 
   ngrok:
-    container_name: ngrok
     ports:
       - "0.0.0.0:4040:4040"
     image: wernight/ngrok
@@ -45,23 +31,33 @@ services:
       - NGROK_REGION=eu
       - NGROK_PORT=alvtime-slack-app:3000
 
-  alvtime-slack-app-dotnet-backend:
-    container_name: alvtime-slack-app-dotnet-backend
+  nginx-reverse-proxy:
+    build: ../nginx/
+    command: nginx -g 'daemon off;'
+    ports:
+      - "3000:80"
+    links:
+      - dotnet-backend
+      - alvtime-vue-pwa
+
+  alvtime-vue-pwa:
+    image: alvnoas/alvtime-vue-pwa-local:latest
+    expose:
+      - 80
+
+  dotnet-backend:
     image: alvnoas/alvtime-web-api:latest
     links:
-      - alvtime-slack-app-mssql-db
+      - mssql-db
     environment:
-      - ConnectionStrings__AlvTime_db=Data Source=tcp:alvtime-slack-app-mssql-db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32
-    ports:
-      - "8080:80"
+      - ConnectionStrings__AlvTime_db=Data Source=tcp:mssql-db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32
     expose:
       - "80"
 
-  alvtime-slack-app-mssql-db:
-    container_name: alvtime-slack-app-mssql-db
+  mssql-db:
     image: alvnoas/alvtime-database:latest
-    expose:
-      - "1433"
+    ports:
+      - "1433:1433"
     command:
       - /bin/bash
       - -c
@@ -88,4 +84,3 @@ services:
     environment:
       - ME_CONFIG_MONGODB_ADMINUSERNAME=root
       - ME_CONFIG_MONGODB_ADMINPASSWORD=example
- 
