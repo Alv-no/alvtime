@@ -13,39 +13,46 @@ namespace AlvTimeWebApi.Controllers.Admin
     {
         private readonly TaskCreator _creator;
         private RetrieveUsers _userRetriever;
+        private ITaskStorage _taskStorage;
 
-        public TaskAdminController(RetrieveUsers userRetriever, TaskCreator creator)
+        public TaskAdminController(RetrieveUsers userRetriever, TaskCreator creator, ITaskStorage taskStorage)
         {
             _userRetriever = userRetriever;
             _creator = creator;
+            _taskStorage = taskStorage;
         }
 
-        [HttpPost("TaskAdmin")]
+        [HttpGet("Tasks")]
+        [AuthorizeAdmin]
+        public ActionResult<IEnumerable<TaskResponseDto>> FetchTasks()
+        {
+            var tasks = _taskStorage.GetTasks(new TaskQuerySearch {});
+            return Ok(tasks);
+        }
+
+
+        [HttpPost("Tasks")]
         [AuthorizeAdmin]
         public ActionResult<IEnumerable<TaskResponseDto>> CreateNewTask([FromBody] IEnumerable<CreateTaskDto> tasksToBeCreated)
         {
             List<TaskResponseDto> response = new List<TaskResponseDto>();
 
-            var user = _userRetriever.RetrieveUser();
-
             foreach (var task in tasksToBeCreated)
             {
-                response.Add(_creator.CreateTask(task, user.Id));
+                response.Add(_creator.CreateTask(task));
             }
             return Ok(response);
         }
 
-        [HttpPut("TaskAdmin")]
+        [HttpPut("Tasks")]
         [AuthorizeAdmin]
         public ActionResult<IEnumerable<TaskResponseDto>> UpdateTask([FromBody] IEnumerable<UpdateTasksDto> tasksToBeUpdated)
         {
-            var user = _userRetriever.RetrieveUser();
-
             List<TaskResponseDto> response = new List<TaskResponseDto>();
 
             foreach (var task in tasksToBeUpdated)
             {
-                response.Add(_creator.UpdateTask(task, user.Id));
+                response.Add(_creator.UpdateTask(task));
             }
             return Ok(response);
         }

@@ -17,10 +17,8 @@ namespace AlvTime.Persistence.Repositories
             _context = context;
         }
 
-        public IEnumerable<TaskResponseDto> GetTasks(TaskQuerySearch criterias, int userId)
+        public IEnumerable<TaskResponseDto> GetTasks(TaskQuerySearch criterias)
         {
-            var favoriteList = _context.TaskFavorites.Where(x => x.UserId == userId).Select(x => x.TaskId).ToList();
-
             var tasks = _context.Task.AsQueryable()
                 .Filter(criterias)
                 .Select(x => new TaskResponseDto
@@ -29,6 +27,7 @@ namespace AlvTime.Persistence.Repositories
                     Id = x.Id,
                     Name = x.Name,
                     Locked = x.Locked,
+                    Favorite = false,
                     CompensationRate = x.CompensationRate,
                     Project = new ProjectResponseDto
                     {
@@ -46,12 +45,24 @@ namespace AlvTime.Persistence.Repositories
                     }
                 }).ToList();
 
-            tasks.ForEach(x => x.Favorite = favoriteList.Contains(x.Id) ? true : false);
+            return tasks;
+        }
+
+        public IEnumerable<TaskResponseDto> GetUsersTasks(TaskQuerySearch criterias, int userId)
+        {
+            var usersFavoriteTaskIds = _context.TaskFavorites.Where(x => x.UserId == userId).Select(x => x.TaskId).ToList();
+
+            var tasks = GetTasks(criterias);
+
+            foreach (var task in tasks)
+            {
+                task.Favorite = usersFavoriteTaskIds.Contains(task.Id);
+            }
 
             return tasks;
         }
 
-        public void CreateTask(CreateTaskDto task, int userId)
+        public void CreateTask(CreateTaskDto task)
         {
             var newTask = new Task
             {
