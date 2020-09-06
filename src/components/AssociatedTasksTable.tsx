@@ -6,14 +6,13 @@ import { fetcher, setCache, globalTableOptions } from "./Tables";
 
 export default function CustomerTable() {
   const columns: Column<object>[] = [
-    { title: "Navn", field: "name", editable: "always" },
-    { title: "e-post", field: "contactEmail", editable: "always" },
-    { title: "kontakt", field: "contactPerson", editable: "always" },
-    { title: "telefon", field: "contactPhone", editable: "always" },
-    { title: "addresse", field: "invoiceAddress", editable: "always" },
+    { title: "User Id", field: "userId", editable: "always", type: "numeric" },
+    { title: "Task Id", field: "taskId", editable: "always", type: "numeric" },
+    { title: "From Date", field: "fromDate", editable: "always", type: "date" },
+    { title: "To Date", field: "endDate", editable: "onUpdate", type: "date" },
   ];
 
-  const path = "/api/admin/Customers";
+  const path = "/api/admin/AssociatedTasks";
 
   const { data, error } = useSWR(path, fetcher);
 
@@ -43,7 +42,7 @@ export default function CustomerTable() {
   return (
     <MaterialTable
       icons={tableIcons}
-      title="Customers"
+      title="Associated Tasks"
       columns={columns}
       data={data}
       isLoading={!data}

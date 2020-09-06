@@ -4,6 +4,8 @@ import { adAuthenticatedFetch } from "../services/azureAd";
 import CustomerTable from "./CustomerTable";
 import UserTable from "./UserTable";
 import TasksTable from "./TasksTable";
+import ProjectsTable from "./ProjectsTable";
+import AssociatedTasksTable from "./AssociatedTasksTable";
 import { Options } from "material-table";
 
 export const fetcher = async (url: string, paramOptions: any) => {
@@ -36,6 +38,8 @@ export const globalTableOptions: Options<object> = {
 export default function Tables() {
   return (
     <>
+      <AssociatedTasksTable />
+      <ProjectsTable />
       <TasksTable />
       <CustomerTable />
       <UserTable />
