@@ -20,7 +20,7 @@ namespace Tests.UnitTests.Tasks
 
             var storage = new TaskStorage(context);
 
-            var tasks = storage.GetTasks(new TaskQuerySearch(), 1);
+            var tasks = storage.GetUsersTasks(new TaskQuerySearch(), 1);
 
             Assert.Equal(context.Task.Count(), tasks.Count());
         }
@@ -35,7 +35,7 @@ namespace Tests.UnitTests.Tasks
                 .CreateDbContext();
 
             var storage = new TaskStorage(context);
-            var tasks = storage.GetTasks(new TaskQuerySearch
+            var tasks = storage.GetUsersTasks(new TaskQuerySearch
             {
                 Project = 1
             }, 1);
@@ -53,7 +53,7 @@ namespace Tests.UnitTests.Tasks
                 .CreateDbContext();
 
             var storage = new TaskStorage(context);
-            var tasks = storage.GetTasks(new TaskQuerySearch
+            var tasks = storage.GetUsersTasks(new TaskQuerySearch
             {
                 CompensationRate = 1.0M
             }, 1);
@@ -71,7 +71,7 @@ namespace Tests.UnitTests.Tasks
                 .CreateDbContext();
 
             var storage = new TaskStorage(context);
-            var tasks = storage.GetTasks(new TaskQuerySearch
+            var tasks = storage.GetUsersTasks(new TaskQuerySearch
             {
                 Project = 2,
                 Locked = true
@@ -190,7 +190,7 @@ namespace Tests.UnitTests.Tasks
                 Description = "",
                 Locked = false,
                 Project = 1
-            }, 1);
+            });
 
             Assert.Equal(previousNumberOfTasks+1, context.Task.Count());
         }
@@ -216,7 +216,7 @@ namespace Tests.UnitTests.Tasks
                 Description = "",
                 Locked = false,
                 Project = 1
-            }, 1);
+            });
 
             Assert.Equal(previousNumberOfTasks, context.Task.Count());
         }
@@ -237,7 +237,7 @@ namespace Tests.UnitTests.Tasks
             {
                 Id = 1,
                 CompensationRate = 1.5M
-            }, 1);
+            });
 
             var task = context.Task.FirstOrDefault(x => x.Id == 1);
 
@@ -261,7 +261,7 @@ namespace Tests.UnitTests.Tasks
                 Id = 1,
                 Locked = true,
                 Name = "MyExampleTask"
-            }, 1);
+            });
 
             var task = context.Task.FirstOrDefault(x => x.Id == 1);
 
