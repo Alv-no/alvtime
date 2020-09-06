@@ -1,29 +1,29 @@
 #!/usr/bin/env sh
 
 [ "start" = "$1" ] && \
-  docker-compose --file .devcontainer/docker-compose.yaml up --detach && \
-  docker-compose --file .devcontainer/docker-compose.yaml exec alvtime-admin-react-pwa npx react-scripts start
+  docker-compose --file .devcontainer/docker-compose.yaml --project-name alvtime-admin-react-pwa up --detach && \
+  docker-compose --file .devcontainer/docker-compose.yaml --project-name alvtime-admin-react-pwa exec alvtime-admin-react-pwa npx react-scripts start
 
 [ "up" = "$1" ] && \
-  docker-compose --file .devcontainer/docker-compose.yaml up --detach
+  docker-compose --file .devcontainer/docker-compose.yaml --project-name alvtime-admin-react-pwa up --detach
 
 [ "serve" = "$1" ] && \
-  docker-compose --file .devcontainer/docker-compose.yaml exec alvtime-admin-react-pwa npx react-scripts start
+  docker-compose --file .devcontainer/docker-compose.yaml --project-name alvtime-admin-react-pwa exec alvtime-admin-react-pwa npx react-scripts start
 
 [ "down" = "$1" ] && \
-  docker-compose --file .devcontainer/docker-compose.yaml down --volumes
+  docker-compose --file .devcontainer/docker-compose.yaml --project-name alvtime-admin-react-pwa down --volumes
 
 [ "logs" = "$1" ] && \
-  docker-compose --file .devcontainer/docker-compose.yaml logs --follow
+  docker-compose --file .devcontainer/docker-compose.yaml --project-name alvtime-admin-react-pwa logs --follow
 
 [ "pull" = "$1" ] && \
-  docker-compose --file .devcontainer/docker-compose.yaml pull
+  docker-compose --file .devcontainer/docker-compose.yaml --project-name alvtime-admin-react-pwa pull
 
 [ "build" = "$1" ] && \
-  docker-compose --file .devcontainer/docker-compose.yaml build
+  docker-compose --file .devcontainer/docker-compose.yaml --project-name alvtime-admin-react-pwa build
 
 [ "test" = "$1" ] && \
-  docker-compose --file .devcontainer/docker-compose.yaml exec alvtime-admin-react-pwa npx react-scripts test
+  docker-compose --file .devcontainer/docker-compose.yaml --project-name alvtime-admin-react-pwa exec alvtime-admin-react-pwa npx react-scripts test
 
 [ "prune" = "$1" ] && \
   docker system prune --force
