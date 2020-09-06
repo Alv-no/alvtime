@@ -1,0 +1,41 @@
+name: Test
+
+on:
+  pull_request:
+    paths-ignore:
+      - "**.md"
+      - ".gitignore"
+      - "LICENCE"
+      - "CODEOWNERS"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build the Docker image
+        working-directory: "./packages/frontend"
+        run: docker build . --file Dockerfile --tag image
+
+      - uses: anchore/scan-action@master
+        with:
+          image-reference: "image"
+          dockerfile-path: "./packages/frontend/Dockerfile"
+          fail-build: true
+          include-app-packages: true
+      - name: Anchore inline scan JSON results
+        run: for j in `ls ./anchore-reports/*.json`; do echo "---- ${j} ----"; cat ${j}; echo; done
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run tests
+        working-directory: "./packages/frontend"
+        run: |
+          docker build . --file .devcontainer/Dockerfile --tag image
+          docker run image npx vue-cli-service lint
+          docker run image npx vue-cli-service test:unit
