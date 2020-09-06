@@ -4,22 +4,24 @@ import useSWR from "swr";
 import tableIcons from "./tableIcons";
 import { fetcher, setCache, globalTableOptions } from "./Tables";
 
-export default function CustomerTable() {
+export default function ProjectsTable() {
   const columns: Column<object>[] = [
-    { title: "Navn", field: "name", editable: "always" },
-    { title: "e-post", field: "contactEmail", editable: "always" },
-    { title: "kontakt", field: "contactPerson", editable: "always" },
-    { title: "telefon", field: "contactPhone", editable: "always" },
-    { title: "addresse", field: "invoiceAddress", editable: "always" },
+    { title: "Navn", field: "name", editable: "always", type: "string" },
+    {
+      title: "Kunde",
+      field: "customerName",
+      editable: "always",
+      type: "string",
+    },
   ];
 
-  const path = "/api/admin/Customers";
+  const path = "/api/admin/Projects";
 
   const { data, error } = useSWR(path, fetcher);
 
   const handleRowAdd = async (newData: any) => {
     setCache(path, [...data, newData]);
-    const addedData = await fetcher(path, {
+    const addedData = await fetcher("/api/admin/CreateProject", {
       method: "post",
       body: [newData],
     });
@@ -39,13 +41,17 @@ export default function CustomerTable() {
     setCache(path, [...dataUpdate]);
   };
 
+  const d = !data
+    ? data
+    : data.map((p: any) => ({ ...p, customerName: p.customer?.name }));
+
   if (error) return <div>Error...</div>;
   return (
     <MaterialTable
       icons={tableIcons}
-      title="Customers"
+      title="Projects"
       columns={columns}
-      data={data}
+      data={d}
       isLoading={!data}
       options={{ ...globalTableOptions }}
       editable={{

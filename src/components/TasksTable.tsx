@@ -10,7 +10,7 @@ export default function TasksTable() {
     {
       title: "Prosjekt",
       field: "projectName",
-      editable: "always",
+      editable: "onAdd",
       type: "numeric",
     },
     { title: "Customer", field: "customerName", editable: "never" },
@@ -24,13 +24,13 @@ export default function TasksTable() {
     { title: "Låst", field: "locked", editable: "always", type: "boolean" },
   ];
 
-  const path = "/api/user/Tasks";
+  const path = "/api/admin/Tasks";
 
   const { data, error } = useSWR(path, fetcher);
 
   const handleRowAdd = async (newData: any) => {
     setCache(path, [...data, newData]);
-    const addedData = await fetcher("/api/admin/TaskAdmin", {
+    const addedData = await fetcher(path, {
       method: "post",
       body: [newData],
     });
@@ -50,7 +50,7 @@ export default function TasksTable() {
     const index = oldData.tableData.id;
     dataUpdate[index] = newData;
     setCache(path, [...dataUpdate]);
-    const updatedData = await fetcher("/api/admin/TaskAdmin", {
+    const updatedData = await fetcher(path, {
       method: "put",
       body: [newData],
     });

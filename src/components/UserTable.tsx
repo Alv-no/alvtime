@@ -8,7 +8,6 @@ export default function UserTable() {
   const columns: Column<object>[] = [
     { title: "Navn", field: "name", editable: "always" },
     { title: "E-post", field: "email", editable: "always" },
-    { title: "Flexi timer", field: "flexiHours", editable: "never" },
     { title: "Start dato", field: "startDate", editable: "always" },
   ];
 
