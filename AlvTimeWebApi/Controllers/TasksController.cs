@@ -27,7 +27,7 @@ namespace AlvTimeWebApi.Controllers
         {
             var user = _userRetriever.RetrieveUser();
 
-            var tasks = _taskStorage.GetTasks(new TaskQuerySearch(), user.Id);
+            var tasks = _taskStorage.GetUsersTasks(new TaskQuerySearch(), user.Id);
 
             return Ok(tasks);
         }

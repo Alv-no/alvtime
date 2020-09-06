@@ -29,7 +29,7 @@ namespace AlvTime.Business.Tasks
 
         private TaskResponseDto GetTask(int taskId, int userId)
         {
-            var taskResponseDto = _taskStorage.GetTasks(new TaskQuerySearch
+            var taskResponseDto = _taskStorage.GetUsersTasks(new TaskQuerySearch
             {
                 Id = taskId
             }, userId);
