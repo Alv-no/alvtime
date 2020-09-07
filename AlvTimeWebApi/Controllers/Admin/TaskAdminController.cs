@@ -12,8 +12,8 @@ namespace AlvTimeWebApi.Controllers.Admin
     public class TaskAdminController : Controller
     {
         private readonly TaskCreator _creator;
-        private RetrieveUsers _userRetriever;
-        private ITaskStorage _taskStorage;
+        private readonly RetrieveUsers _userRetriever;
+        private readonly ITaskStorage _taskStorage;
 
         public TaskAdminController(RetrieveUsers userRetriever, TaskCreator creator, ITaskStorage taskStorage)
         {

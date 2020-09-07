@@ -71,7 +71,8 @@ namespace AlvTime.Persistence.Repositories
                 Locked = task.Locked,
                 Name = task.Name,
                 Project = task.Project,
-                CompensationRate = task.CompensationRate
+                CompensationRate = task.CompensationRate,
+                FillPriority = 1
             };
             _context.Task.Add(newTask);
             _context.SaveChanges();
