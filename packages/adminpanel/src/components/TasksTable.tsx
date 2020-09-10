@@ -1,19 +1,64 @@
 import MaterialTable, { Column } from "material-table";
-import React from "react";
+import React, { useState } from "react";
 import useSWR from "swr";
 import tableIcons from "./tableIcons";
+import TextField from "@material-ui/core/TextField";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 import { fetcher, setCache, globalTableOptions } from "./Tables";
 
 export default function TasksTable() {
+  const [selectedCustomer, setSelectedCustomer] = useState("");
+
+  const { data: projects, error: projError } = useSWR(
+    "/api/admin/Projects",
+    fetcher
+  );
+  const { data: customers, error: custError } = useSWR(
+    "/api/admin/Customers",
+    fetcher
+  );
+
+  const [value, setValue] = React.useState<any>(null);
+  const [inputValue, setInputValue] = React.useState("");
+
   const columns: Column<object>[] = [
     { title: "Navn", field: "name", editable: "always" },
     {
       title: "Prosjekt",
       field: "projectName",
       editable: "onAdd",
-      type: "numeric",
+      editComponent: (props) => (
+        <Autocomplete
+          options={projects.filter((project: any) =>
+            value ? project.customer.id === value.id : true
+          )}
+          getOptionLabel={(option: any) => option.name}
+          renderInput={(params: any) => <TextField {...params} />}
+        />
+      ),
     },
-    { title: "Customer", field: "customerName", editable: "never" },
+    {
+      title: "Customer",
+      field: "customerName",
+      editable: "onAdd",
+      editComponent: (props) => (
+        <Autocomplete
+          options={customers}
+          getOptionLabel={(option: any) => option.name}
+          value={value}
+          onChange={(event: any, newValue: any) => {
+            console.log("newValue: ", newValue);
+            setValue(newValue);
+          }}
+          inputValue={inputValue}
+          onInputChange={(event: any, newInputValue: any) => {
+            console.log("newInputValue: ", newInputValue);
+            setInputValue(newInputValue);
+          }}
+          renderInput={(params: any) => <TextField {...params} />}
+        />
+      ),
+    },
     { title: "Beskrivelse", field: "description", editable: "onAdd" },
     {
       title: "Rate",
