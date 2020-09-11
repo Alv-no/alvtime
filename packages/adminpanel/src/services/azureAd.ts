@@ -3,9 +3,10 @@ import config from "../config";
 import {
   PublicClientApplication,
   InteractionRequiredAuthError,
+  AccountInfo,
 } from "@azure/msal-browser";
 
-const authParams = {
+const request = {
   scopes: [config.ACCESS_SCOPE],
 };
 
@@ -22,8 +23,21 @@ const msalInstance = new PublicClientApplication({
   },
 });
 
-export async function login() {
-  return msalInstance.loginPopup(authParams);
+export function acquireTokenSilent(account: AccountInfo) {
+  const silentRequest = {
+    ...request,
+    forceRefresh: false,
+    account,
+  };
+  return msalInstance.acquireTokenSilent(silentRequest);
+}
+
+export function handleRedirect() {
+  return msalInstance.handleRedirectPromise();
+}
+
+export function login() {
+  msalInstance.loginRedirect(request);
 }
 
 export function logout() {
@@ -35,48 +49,46 @@ export function getAllAccounts() {
   return accounts;
 }
 
-export async function adAuthenticatedFetch(
-  url: string,
-  paramOptions: RequestInit = { headers: {} }
-) {
-  const accessToken = await getAccessToken();
-  const authHeaders = { Authorization: `Bearer ${accessToken}` };
-
-  paramOptions = paramOptions ? paramOptions : { headers: {} };
-
-  var options = {
-    ...paramOptions,
-    headers: {
-      ...paramOptions.headers,
-      ...authHeaders,
-    },
-  };
-
-  return fetch(url, options);
+export function getAccountByHomeId(homeAccountId: string) {
+  return msalInstance.getAccountByHomeId(homeAccountId);
 }
 
-async function getAccessToken() {
-  if (getAllAccounts()) {
+export function createAdAuthenticatedFetch(account: AccountInfo) {
+  async function getAccessToken() {
     const res = await getTokenRedirect();
     return res ? res.accessToken : "";
-  } else {
-    return config.TEST_ACCESS_TOKEN;
   }
-}
 
-export function requireLogin() {
-  return !getAllAccounts() && process.env.NODE_ENV !== "development";
-}
-
-async function getTokenRedirect() {
-  try {
-    return msalInstance.ssoSilent(authParams);
-  } catch (err) {
-    console.log(
-      "silent token acquisition fails. acquiring token using redirect"
-    );
-    if (err instanceof InteractionRequiredAuthError) {
-      return login();
+  async function getTokenRedirect() {
+    try {
+      return acquireTokenSilent(account);
+    } catch (err) {
+      console.log(
+        "silent token acquisition fails. acquiring token using redirect"
+      );
+      if (err instanceof InteractionRequiredAuthError) {
+        return msalInstance.acquireTokenRedirect(request);
+      }
     }
   }
+
+  return async function (
+    url: string,
+    paramOptions: RequestInit = { headers: {} }
+  ) {
+    const accessToken = await getAccessToken();
+    const authHeaders = { Authorization: `Bearer ${accessToken}` };
+
+    paramOptions = paramOptions ? paramOptions : { headers: {} };
+
+    var options = {
+      ...paramOptions,
+      headers: {
+        ...paramOptions.headers,
+        ...authHeaders,
+      },
+    };
+
+    return fetch(url, options);
+  };
 }
