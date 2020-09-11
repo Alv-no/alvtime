@@ -1,27 +1,66 @@
 import { AccountInfo } from "@azure/msal-common";
-import React, { useState, useEffect } from "react";
-import { getAllAccounts, login, logout } from "./../services/azureAd";
+import React, { useState, useEffect, FC } from "react";
+import {
+  getAllAccounts,
+  login,
+  logout,
+  getAccountByHomeId,
+  handleRedirect,
+  acquireTokenSilent,
+} from "./../services/azureAd";
+import store from "store2";
 
 const Json = ({ data }: any) => <pre>{JSON.stringify(data, null, 4)}</pre>;
 
-function Login() {
+const Login: FC = (props) => {
   const [accounts, setAccounts] = useState<AccountInfo[]>([]);
   const [account, setAccount] = useState<AccountInfo>();
   const [error, setError] = useState("");
+  const homeAccountId = store("AlvtimeAdminHomeAccountId");
 
-  const signIn = async () => {
-    const accounts = getAllAccounts();
-    if (accounts.length) {
-      setAccounts(accounts);
-      return;
+  async function setAccountOrAccounts() {
+    if (homeAccountId) {
+      const account = getAccountByHomeId(homeAccountId);
+      if (account) {
+        setAccount(account);
+        return true;
+      }
     }
 
-    const loginResponse = await login().catch((error) => {
-      setError(error.message);
-    });
+    const accounts = getAllAccounts();
+    if (accounts.length) {
+      if (accounts.length === 1) {
+        const path = "/api/admin/Tasks";
+        const accessTokenResponse = await acquireTokenSilent(accounts[0]);
+        const res = await fetch(path, {
+          headers: {
+            Authorization: `Bearer ${
+              accessTokenResponse ? accessTokenResponse.accessToken : ""
+            }`,
+          },
+        }).catch((error) => console.error(error.message));
+        if (res && res.ok) {
+          setAccount(accounts[0]);
+          return true;
+        }
+      }
+      setAccounts(accounts);
+      return true;
+    }
 
-    if (loginResponse) {
-      setAccounts(getAllAccounts());
+    return;
+  }
+
+  const signIn = async () => {
+    if (await setAccountOrAccounts()) return;
+    const tokenResponse = await handleRedirect().catch((error) =>
+      setError(error.message)
+    );
+
+    if (tokenResponse) {
+      if (await setAccountOrAccounts()) return;
+    } else {
+      login();
     }
   };
 
@@ -29,26 +68,36 @@ function Login() {
     signIn();
   }, []);
 
-  if (!accounts.length)
+  if (account)
     return (
-      <section>
-        <h1>Login MVP</h1>
-        {!accounts.length ? (
-          <button onClick={signIn}>Sign In</button>
-        ) : (
-          <button onClick={logout}>Sign Out</button>
-        )}
-        {error && <p className="error">Error: {error}</p>}
-      </section>
+      <div>
+        <section>
+          <button
+            onClick={() => {
+              store.remove("AlvtimeAdminHomeAccountId");
+              logout();
+            }}
+          >
+            Sign Out
+          </button>
+          <div>{props.children}</div>
+        </section>
+      </div>
     );
 
-  if (!account)
+  if (accounts.length)
     return (
       <section>
         <h1>Select Account</h1>
         {accounts.map((account) => {
           return (
-            <button key={account.username} onClick={() => setAccount(account)}>
+            <button
+              key={account.username}
+              onClick={() => {
+                store("AlvtimeAdminHomeAccountId", account.homeAccountId);
+                setAccount(account);
+              }}
+            >
               {account.username}
             </button>
           );
@@ -57,16 +106,12 @@ function Login() {
     );
 
   return (
-    <div>
-      <section>
-        <button onClick={logout}>Sign Out</button>
-        <div>
-          <h2>Session Account Data</h2>
-          <Json data={accounts} />
-        </div>
-      </section>
-    </div>
+    <section>
+      <h1>Login MVP</h1>
+      <button onClick={signIn}>Sign In</button>
+      {error && <p className="error">Error: {error}</p>}
+    </section>
   );
-}
+};
 
 export default Login;

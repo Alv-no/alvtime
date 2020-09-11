@@ -1,6 +1,6 @@
 import React from "react";
 import { mutate } from "swr";
-import { adAuthenticatedFetch } from "../services/azureAd";
+import { createAdAuthenticatedFetch } from "../services/azureAd";
 import CustomerTable from "./CustomerTable";
 import UserTable from "./UserTable";
 import TasksTable from "./TasksTable";
@@ -8,7 +8,7 @@ import ProjectsTable from "./ProjectsTable";
 import AssociatedTasksTable from "./AssociatedTasksTable";
 import { Options } from "material-table";
 
-export const fetcher = async (url: string, paramOptions: any) => {
+export const fetcher = async (path: string, paramOptions: any) => {
   const contentTypeHeader = {
     "Content-Type": "application/json",
   };
@@ -26,7 +26,13 @@ export const fetcher = async (url: string, paramOptions: any) => {
     },
   };
 
-  return adAuthenticatedFetch(url, options).then((r) => r.json());
+  const adAuthenticatedFetch = createAdAuthenticatedFetch({
+    homeAccountId: "",
+    environment: "",
+    tenantId: "",
+    username: "",
+  });
+  return adAuthenticatedFetch(path, options).then((r) => r.json());
 };
 
 export const setCache = (path: string, data: any) => mutate(path, data, false);
