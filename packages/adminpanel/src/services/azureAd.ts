@@ -1,13 +1,15 @@
 // https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-js-initializing-client-applications
 import config from "../config";
-import createMsalApp from "./createMsalApp.js";
-import { TokenResponse } from "@azure/msal-common";
+import {
+  PublicClientApplication,
+  InteractionRequiredAuthError,
+} from "@azure/msal-browser";
 
 const authParams = {
   scopes: [config.ACCESS_SCOPE],
 };
 
-const msalApp = createMsalApp({
+const msalInstance = new PublicClientApplication({
   auth: {
     clientId: config.CLIENT_ID,
     authority: config.AUTHORITY + config.TENANT_ID,
@@ -18,22 +20,19 @@ const msalApp = createMsalApp({
     cacheLocation: "sessionStorage",
     storeAuthStateInCookie: false,
   },
-
-  system: {
-    navigateFrameWait: 0,
-  },
 });
 
-export async function login(): Promise<TokenResponse> {
-  return msalApp.loginPopup(authParams);
+export async function login() {
+  return msalInstance.loginPopup(authParams);
 }
 
 export function logout() {
-  return msalApp.logout();
+  return msalInstance.logout();
 }
 
-export function getAccount() {
-  return msalApp.getAccount();
+export function getAllAccounts() {
+  const accounts = msalInstance.getAllAccounts();
+  return accounts;
 }
 
 export async function adAuthenticatedFetch(
@@ -57,7 +56,7 @@ export async function adAuthenticatedFetch(
 }
 
 async function getAccessToken() {
-  if (getAccount()) {
+  if (getAllAccounts()) {
     const res = await getTokenRedirect();
     return res ? res.accessToken : "";
   } else {
@@ -66,16 +65,18 @@ async function getAccessToken() {
 }
 
 export function requireLogin() {
-  return !getAccount() && process.env.NODE_ENV !== "development";
+  return !getAllAccounts() && process.env.NODE_ENV !== "development";
 }
 
 async function getTokenRedirect() {
   try {
-    return await msalApp.acquireTokenSilent(authParams);
-  } catch {
+    return msalInstance.ssoSilent(authParams);
+  } catch (err) {
     console.log(
       "silent token acquisition fails. acquiring token using redirect"
     );
-    return msalApp.acquireTokenRedirect(authParams);
+    if (err instanceof InteractionRequiredAuthError) {
+      return login();
+    }
   }
 }
