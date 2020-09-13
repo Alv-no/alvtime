@@ -32,21 +32,25 @@ public class FlexhourStorage : IFlexhourStorage
         for (DateTime currentDate = startDate; currentDate <= endDate; currentDate += TimeSpan.FromDays(1))
         {
             var day = entriesByDate.SingleOrDefault(entryDate => entryDate.Date == currentDate);
-            if (day == null)
+
+            if (!(currentDate.DayOfWeek == DayOfWeek.Sunday || currentDate.DayOfWeek == DayOfWeek.Saturday))
             {
-                flexHours.Add(new FlexiHours
+                if (day == null)
                 {
-                    Value = -HoursInRegularWorkday,
-                    Date = currentDate
-                });
-            }
-            else if (day.GetWorkingHours() != HoursInRegularWorkday)
-            {
-                flexHours.Add(new FlexiHours
+                    flexHours.Add(new FlexiHours
+                    {
+                        Value = -HoursInRegularWorkday,
+                        Date = currentDate
+                    });
+                }
+                else if (day.GetWorkingHours() != HoursInRegularWorkday)
                 {
-                    Value = day.GetWorkingHours() - HoursInRegularWorkday,
-                    Date = day.Date
-                });
+                    flexHours.Add(new FlexiHours
+                    {
+                        Value = day.GetWorkingHours() - HoursInRegularWorkday,
+                        Date = day.Date
+                    });
+                }
             }
         }
 
@@ -65,7 +69,7 @@ public class FlexhourStorage : IFlexhourStorage
         _context.PaidOvertime.Add(paidOvertime);
         _context.SaveChanges();
 
-        return new RegisterPaidOvertimeDto 
+        return new RegisterPaidOvertimeDto
         {
             Date = paidOvertime.Date,
             Value = paidOvertime.Value
