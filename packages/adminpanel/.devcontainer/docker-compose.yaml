@@ -6,7 +6,8 @@ services:
     tty: true
     build:
       context: ../
-      dockerfile: .devcontainer/Dockerfile
+      dockerfile: Dockerfile
+      target: dev
     volumes:
       - ..:/usr/src/app:cached
       - /usr/src/app/node_modules/
