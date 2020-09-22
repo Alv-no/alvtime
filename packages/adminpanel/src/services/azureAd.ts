@@ -14,8 +14,8 @@ const msalInstance = new PublicClientApplication({
   auth: {
     clientId: config.CLIENT_ID,
     authority: config.AUTHORITY + config.TENANT_ID,
-    redirectUri: window.location.origin,
-    postLogoutRedirectUri: window.location.origin,
+    redirectUri: window.location.origin + "/adminpanel",
+    postLogoutRedirectUri: window.location.origin + "/adminpanel",
   },
   cache: {
     cacheLocation: "sessionStorage",

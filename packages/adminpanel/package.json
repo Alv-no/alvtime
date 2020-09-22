@@ -2,6 +2,7 @@
   "name": "alvtime-admin-react-pwa",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://www.alvtime.no/adminpanel",
   "dependencies": {
     "@azure/msal-browser": "^2.1.0",
     "@material-ui/core": "^4.11.0",
@@ -25,16 +26,9 @@
     "typescript": "^3.7.5"
   },
   "scripts": {
-    "start": "npm run up && npm run serve",
-    "up": "docker-compose --file .devcontainer/docker-compose.yaml up --detach",
-    "serve": "docker-compose --file .devcontainer/docker-compose.yaml exec alvtime-admin-react-pwa npx react-scripts start",
-    "down": "docker-compose --file .devcontainer/docker-compose.yaml down --volumes",
-    "logs": "docker-compose --file .devcontainer/docker-compose.yaml logs --follow",
-    "pull": "docker-compose --file .devcontainer/docker-compose.yaml pull",
-    "build": "docker-compose --file .devcontainer/docker-compose.yaml build",
-    "test": "docker-compose --file .devcontainer/docker-compose.yaml exec alvtime-admin-react-pwa npx react-scripts test",
-    "prune": "docker system prune --force",
-    "restart": "npm run down && npm run build && npm run start"
+    "start": "npx react-scripts start",
+    "build": "npx react-scripts build",
+    "test": "npx react-scripts test"
   },
   "eslintConfig": {
     "extends": "react-app"

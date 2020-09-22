@@ -5,23 +5,43 @@ services:
     user: vscode
     tty: true
     build:
-      context: ../
+      context: ./packages/adminpanel
       dockerfile: Dockerfile
       target: dev
+    working_dir: /src/packages/adminpanel
     volumes:
-      - ..:/usr/src/app:cached
-      - /usr/src/app/node_modules/
+      - .:/src:cached
+      - /src/node_modules/
     environment:
       - CHOKIDAR_USEPOLLING=true
     expose:
       - "3000"
 
-  nginx-reverse-proxy:
-    build: ../nginx/
+  alvtime-vue-pwa:
+    user: vscode
+    tty: true
+    build:
+      context: ./packages/frontend
+      dockerfile: Dockerfile
+      target: dev
+    working_dir: /src/packages/frontend
+    volumes:
+      - .:/src:cached
+      - /src/node_modules/
+    expose:
+      - 8080
+    environment:
+      - VUE_APP_HOST=http://localhost:3000
+      - VUE_APP_ACCESS_SCOPE=https://d8aedd.alvtime-ap-alvtime-api-dev-f9b4e4.westeurope.cloudapp.azure.com/access_as_user
+      - VUE_APP_CLIENT_ID=373a7768-6d2a-4b20-b671-bc1089104a3a
+
+  reverse-proxy:
+    build: ./reverse-proxy/
     ports:
       - "3000:3000"
     links:
       - alvtime-web-api
+      - alvtime-vue-pwa
       - alvtime-admin-react-pwa
     command: nginx -g 'daemon off;'
 
