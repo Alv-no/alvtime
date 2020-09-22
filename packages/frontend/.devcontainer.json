@@ -1,0 +1,17 @@
+{
+  "name": "alvtime-vue-pwa",
+  "dockerComposeFile": ["../../docker-compose.yaml"],
+  "service": "alvtime-vue-pwa",
+  "workspaceFolder": "/src/packages/frontend",
+  "settings": {
+    "terminal.integrated.shell.linux": null
+  },
+  "extensions": [
+    "dbaeumer.vscode-eslint",
+    "octref.vetur",
+    "esbenp.prettier-vscode",
+    "ms-azuretools.vscode-docker"
+  ],
+  "remoteUser": "vscode",
+  "shutdownAction": "none"
+}

@@ -10,8 +10,6 @@ import {
 } from "./../services/azureAd";
 import store from "store2";
 
-const Json = ({ data }: any) => <pre>{JSON.stringify(data, null, 4)}</pre>;
-
 const Login: FC = (props) => {
   const [accounts, setAccounts] = useState<AccountInfo[]>([]);
   const [account, setAccount] = useState<AccountInfo>();
@@ -66,7 +64,7 @@ const Login: FC = (props) => {
 
   useEffect(() => {
     signIn();
-  }, []);
+  });
 
   if (account)
     return (
