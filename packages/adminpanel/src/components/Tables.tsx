@@ -1,12 +1,12 @@
+import { Options } from "material-table";
 import React from "react";
 import { mutate } from "swr";
 import { createAdAuthenticatedFetch } from "../services/azureAd";
 import CustomerTable from "./CustomerTable";
-import UserTable from "./UserTable";
-import TasksTable from "./TasksTable";
 import ProjectsTable from "./ProjectsTable";
-import AssociatedTasksTable from "./AssociatedTasksTable";
-import { Options } from "material-table";
+import TasksTable from "./TasksTable";
+import UserTable from "./UserTable";
+import HourRates from "./HourRatesTable";
 
 export const fetcher = async (path: string, paramOptions: any) => {
   const contentTypeHeader = {
