@@ -64,7 +64,7 @@ const Login: FC = (props) => {
 
   useEffect(() => {
     signIn();
-  });
+  }, []);
 
   if (account)
     return (
