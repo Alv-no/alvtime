@@ -3,14 +3,15 @@ import React from "react";
 import useSWR from "swr";
 import tableIcons from "./tableIcons";
 import { fetcher, setCache, globalTableOptions } from "./Tables";
+import { norsk } from "./norsk";
 
 export default function CustomerTable() {
   const columns: Column<object>[] = [
     { title: "Navn", field: "name", editable: "always" },
-    { title: "e-post", field: "contactEmail", editable: "always" },
-    { title: "kontakt", field: "contactPerson", editable: "always" },
-    { title: "telefon", field: "contactPhone", editable: "always" },
-    { title: "addresse", field: "invoiceAddress", editable: "always" },
+    { title: "E-post", field: "contactEmail", editable: "always" },
+    { title: "Kontaktperson", field: "contactPerson", editable: "always" },
+    { title: "Telefon", field: "contactPhone", editable: "always" },
+    { title: "Adresse", field: "invoiceAddress", editable: "always" },
   ];
 
   const path = "/api/admin/Customers";
@@ -43,7 +44,7 @@ export default function CustomerTable() {
   return (
     <MaterialTable
       icons={tableIcons}
-      title="Customers"
+      title="Kunder"
       columns={columns}
       data={data}
       isLoading={!data}
@@ -52,6 +53,7 @@ export default function CustomerTable() {
         onRowAdd: handleRowAdd,
         onRowUpdate: handleRowUpdate,
       }}
+      localization={norsk}
     />
   );
 }
