@@ -44,9 +44,9 @@ export const globalTableOptions: Options<object> = {
 export default function Tables() {
   return (
     <>
-      <AssociatedTasksTable />
-      <ProjectsTable />
       <TasksTable />
+      <HourRates />
+      <ProjectsTable />
       <CustomerTable />
       <UserTable />
     </>
