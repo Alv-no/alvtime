@@ -3,6 +3,7 @@ import React from "react";
 import useSWR from "swr";
 import tableIcons from "./tableIcons";
 import { fetcher, setCache, globalTableOptions } from "./Tables";
+import { norsk } from "./norsk";
 
 export default function UserTable() {
   const columns: Column<object>[] = [
@@ -41,7 +42,7 @@ export default function UserTable() {
   return (
     <MaterialTable
       icons={tableIcons}
-      title="Users"
+      title="Ansatte"
       columns={columns}
       data={data}
       isLoading={!data}
@@ -50,6 +51,7 @@ export default function UserTable() {
         onRowAdd: handleRowAdd,
         onRowUpdate: handleRowUpdate,
       }}
+      localization={norsk}
     />
   );
 }

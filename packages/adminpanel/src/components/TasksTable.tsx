@@ -5,6 +5,7 @@ import tableIcons from "./tableIcons";
 import TextField from "@material-ui/core/TextField";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { fetcher, setCache, globalTableOptions } from "./Tables";
+import { norsk } from "./norsk";
 
 export default function TasksTable() {
   const [selectedCustomer, setSelectedCustomer] = useState("");
@@ -24,36 +25,30 @@ export default function TasksTable() {
   const columns: Column<object>[] = [
     { title: "Navn", field: "name", editable: "always" },
     {
-      title: "Prosjekt",
+      title: "Prosjekt Id",
       field: "project.id",
       editable: "onAdd",
       type: "numeric",
     },
     {
-      title: "ProjectName",
+      title: "Prosjektnavn",
       field: "project.name",
       editable: "never",
       type: "string",
     },
     {
-      title: "Customer",
+      title: "Kundenavn",
       field: "project.customer.name",
       editable: "never",
       type: "string",
     },
     {
-      title: "Beskrivelse",
-      field: "description",
-      editable: "always",
-      type: "string",
-    },
-    {
-      title: "Rate",
+      title: "Timerate",
       field: "compensationRate",
       editable: "always",
       type: "numeric",
     },
-    { title: "Låst", field: "locked", editable: "always", type: "boolean" },
+    { title: "Utgått", field: "locked", editable: "always", type: "boolean" },
   ];
 
   const path = "/api/admin/Tasks";
@@ -86,7 +81,7 @@ export default function TasksTable() {
   return (
     <MaterialTable
       icons={tableIcons}
-      title="Tasks"
+      title="Aktiviteter"
       columns={columns}
       data={data}
       isLoading={!data}
@@ -95,6 +90,7 @@ export default function TasksTable() {
         onRowAdd: handleRowAdd,
         onRowUpdate: handleRowUpdate,
       }}
+      localization={norsk}
     />
   );
 }

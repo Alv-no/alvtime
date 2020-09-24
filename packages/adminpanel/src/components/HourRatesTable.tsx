@@ -3,24 +3,25 @@ import React from "react";
 import useSWR from "swr";
 import tableIcons from "./tableIcons";
 import { fetcher, setCache, globalTableOptions } from "./Tables";
+import { norsk } from "./norsk";
 
 export default function HourRates() {
   const columns: Column<object>[] = [
-    { title: "Task", field: "task.id", editable: "onAdd", type: "numeric" },
+    { title: "Aktivitet", field: "task.id", editable: "onAdd", type: "numeric" },
     {
-      title: "Project",
+      title: "Prosjektnavn",
       field: "task.project.name",
       editable: "never",
       type: "string",
     },
     {
-      title: "Customer",
+      title: "Kundenavn",
       field: "task.project.customer.name",
       editable: "never",
       type: "string",
     },
-    { title: "Rate", field: "rate", editable: "always", type: "numeric" },
-    { title: "Fra Dato", field: "fromDate", editable: "onAdd", type: "date" },
+    { title: "Timerate", field: "rate", editable: "always", type: "numeric" },
+    { title: "Gjelder fra", field: "fromDate", editable: "onAdd", type: "date" },
   ];
 
   const path = "/api/admin/HourRates";
@@ -65,7 +66,7 @@ export default function HourRates() {
   return (
     <MaterialTable
       icons={tableIcons}
-      title="Hour Rates"
+      title="Timerater"
       columns={columns}
       data={data}
       isLoading={!data}
@@ -74,6 +75,7 @@ export default function HourRates() {
         onRowAdd: handleRowAdd,
         onRowUpdate: handleRowUpdate,
       }}
+      localization={norsk}
     />
   );
 }

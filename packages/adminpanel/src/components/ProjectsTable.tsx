@@ -3,15 +3,22 @@ import React from "react";
 import useSWR from "swr";
 import tableIcons from "./tableIcons";
 import { fetcher, setCache, globalTableOptions } from "./Tables";
+import { norsk } from "./norsk";
 
 export default function ProjectsTable() {
   const columns: Column<object>[] = [
     { title: "Navn", field: "name", editable: "always", type: "string" },
     {
-      title: "Kunde",
-      field: "customer",
+      title: "Kunde Id",
+      field: "customer.id",
       editable: "always",
       type: "numeric",
+    },
+    {
+      title: "Kundenavn",
+      field: "customer.name",
+      editable: "never",
+      type: "string",
     },
   ];
 
@@ -41,23 +48,20 @@ export default function ProjectsTable() {
     setCache(path, [...dataUpdate]);
   };
 
-  const d = !data
-    ? data
-    : data.map((p: any) => ({ ...p, customer: p.customer?.id }));
-
   if (error) return <div>Error...</div>;
   return (
     <MaterialTable
       icons={tableIcons}
-      title="Projects"
+      title="Prosjekter"
       columns={columns}
-      data={d}
+      data={data}
       isLoading={!data}
       options={{ ...globalTableOptions }}
       editable={{
         onRowAdd: handleRowAdd,
         onRowUpdate: handleRowUpdate,
       }}
+      localization={norsk}
     />
   );
 }
