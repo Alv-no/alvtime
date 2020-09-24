@@ -25,41 +25,28 @@ export default function TasksTable() {
     { title: "Navn", field: "name", editable: "always" },
     {
       title: "Prosjekt",
-      field: "projectName",
+      field: "project.id",
       editable: "onAdd",
-      editComponent: (props) => (
-        <Autocomplete
-          options={projects.filter((project: any) =>
-            value ? project.customer.id === value.id : true
-          )}
-          getOptionLabel={(option: any) => option.name}
-          renderInput={(params: any) => <TextField {...params} />}
-        />
-      ),
+      type: "numeric",
+    },
+    {
+      title: "ProjectName",
+      field: "project.name",
+      editable: "never",
+      type: "string",
     },
     {
       title: "Customer",
-      field: "customerName",
-      editable: "onAdd",
-      editComponent: (props) => (
-        <Autocomplete
-          options={customers}
-          getOptionLabel={(option: any) => option.name}
-          value={value}
-          onChange={(event: any, newValue: any) => {
-            console.log("newValue: ", newValue);
-            setValue(newValue);
-          }}
-          inputValue={inputValue}
-          onInputChange={(event: any, newInputValue: any) => {
-            console.log("newInputValue: ", newInputValue);
-            setInputValue(newInputValue);
-          }}
-          renderInput={(params: any) => <TextField {...params} />}
-        />
-      ),
+      field: "project.customer.name",
+      editable: "never",
+      type: "string",
     },
-    { title: "Beskrivelse", field: "description", editable: "onAdd" },
+    {
+      title: "Beskrivelse",
+      field: "description",
+      editable: "always",
+      type: "string",
+    },
     {
       title: "Rate",
       field: "compensationRate",
@@ -77,18 +64,10 @@ export default function TasksTable() {
     setCache(path, [...data, newData]);
     const addedData = await fetcher(path, {
       method: "post",
-      body: [newData],
+      body: [{ ...newData, project: newData.project.id }],
     });
     setCache(path, [...addedData, ...data]);
   };
-
-  const d = !data
-    ? data
-    : data.map((t: any) => ({
-        ...t,
-        projectName: t.project?.name,
-        customerName: t.project?.customer?.name,
-      }));
 
   const handleRowUpdate = async (newData: any, oldData: any) => {
     const dataUpdate = [...data];
@@ -109,7 +88,7 @@ export default function TasksTable() {
       icons={tableIcons}
       title="Tasks"
       columns={columns}
-      data={d}
+      data={data}
       isLoading={!data}
       options={{ ...globalTableOptions }}
       editable={{

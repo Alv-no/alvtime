@@ -9,9 +9,9 @@ export default function ProjectsTable() {
     { title: "Navn", field: "name", editable: "always", type: "string" },
     {
       title: "Kunde",
-      field: "customerName",
+      field: "customer",
       editable: "always",
-      type: "string",
+      type: "numeric",
     },
   ];
 
@@ -21,7 +21,7 @@ export default function ProjectsTable() {
 
   const handleRowAdd = async (newData: any) => {
     setCache(path, [...data, newData]);
-    const addedData = await fetcher("/api/admin/CreateProject", {
+    const addedData = await fetcher(path, {
       method: "post",
       body: [newData],
     });
@@ -43,7 +43,7 @@ export default function ProjectsTable() {
 
   const d = !data
     ? data
-    : data.map((p: any) => ({ ...p, customerName: p.customer?.name }));
+    : data.map((p: any) => ({ ...p, customer: p.customer?.id }));
 
   if (error) return <div>Error...</div>;
   return (

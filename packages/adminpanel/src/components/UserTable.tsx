@@ -17,11 +17,24 @@ export default function UserTable() {
 
   const handleRowAdd = async (newData: any) => {
     setCache(path, [...data, newData]);
-    const addedData = await fetcher("/api/admin/CreateUser", {
+    const addedData = await fetcher(path, {
       method: "post",
       body: [newData],
     });
     setCache(path, [...addedData, ...data]);
+  };
+
+  const handleRowUpdate = async (newData: any, oldData: any) => {
+    const dataUpdate = [...data];
+    const index = oldData.tableData.id;
+    dataUpdate[index] = newData;
+    setCache(path, [...dataUpdate]);
+    const updatedData = await fetcher(path, {
+      method: "put",
+      body: [newData],
+    });
+    dataUpdate[index] = updatedData[0];
+    setCache(path, [...dataUpdate]);
   };
 
   if (error) return <div>Error...</div>;
@@ -35,6 +48,7 @@ export default function UserTable() {
       options={{ ...globalTableOptions }}
       editable={{
         onRowAdd: handleRowAdd,
+        onRowUpdate: handleRowUpdate,
       }}
     />
   );
