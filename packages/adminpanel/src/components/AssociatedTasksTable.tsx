@@ -3,6 +3,7 @@ import React from "react";
 import useSWR from "swr";
 import tableIcons from "./tableIcons";
 import { fetcher, setCache, globalTableOptions } from "./Tables";
+import { norsk } from "./norsk";
 
 export default function CustomerTable() {
   const columns: Column<object>[] = [
@@ -51,6 +52,7 @@ export default function CustomerTable() {
         onRowAdd: handleRowAdd,
         onRowUpdate: handleRowUpdate,
       }}
+      localization={norsk}
     />
   );
 }
