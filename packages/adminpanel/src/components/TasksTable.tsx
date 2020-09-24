@@ -48,7 +48,7 @@ export default function TasksTable() {
       editable: "always",
       type: "numeric",
     },
-    { title: "Utgått", field: "locked", editable: "always", type: "boolean" },
+    { title: "Aktiv", field: "isActive", editable: "always", type: "boolean" },
   ];
 
   const path = "/api/admin/Tasks";
@@ -59,7 +59,9 @@ export default function TasksTable() {
     setCache(path, [...data, newData]);
     const addedData = await fetcher(path, {
       method: "post",
-      body: [{ ...newData, project: newData.project.id }],
+      body: [
+        { ...newData, project: newData.project.id, locked: !newData.isActive },
+      ],
     });
     setCache(path, [...addedData, ...data]);
   };
@@ -71,11 +73,18 @@ export default function TasksTable() {
     setCache(path, [...dataUpdate]);
     const updatedData = await fetcher(path, {
       method: "put",
-      body: [newData],
+      body: [{ ...newData, locked: !newData.isActive }],
     });
     dataUpdate[index] = updatedData[0];
     setCache(path, [...dataUpdate]);
   };
+
+  const dataToShow = !data
+    ? data
+    : data.map((task: any) => ({
+        ...task,
+        isActive: !task.locked,
+      }));
 
   if (error) return <div>Error...</div>;
   return (
@@ -83,7 +92,7 @@ export default function TasksTable() {
       icons={tableIcons}
       title="Aktiviteter"
       columns={columns}
-      data={data}
+      data={dataToShow}
       isLoading={!data}
       options={{ ...globalTableOptions }}
       editable={{
