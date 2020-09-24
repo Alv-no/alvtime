@@ -76,7 +76,7 @@ const Login: FC = (props) => {
               logout();
             }}
           >
-            Sign Out
+            Logg ut
           </button>
           <div>{props.children}</div>
         </section>
@@ -105,8 +105,7 @@ const Login: FC = (props) => {
 
   return (
     <section>
-      <h1>Login MVP</h1>
-      <button onClick={signIn}>Sign In</button>
+      <button onClick={signIn}>Logg inn</button>
       {error && <p className="error">Error: {error}</p>}
     </section>
   );
