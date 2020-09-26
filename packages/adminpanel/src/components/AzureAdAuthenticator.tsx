@@ -10,7 +10,7 @@ import {
 } from "./../services/azureAd";
 import store from "store2";
 
-const Login: FC = (props) => {
+const AzureAdAuthenticator: FC = (props) => {
   const [accounts, setAccounts] = useState<AccountInfo[]>([]);
   const [account, setAccount] = useState<AccountInfo>();
   const [error, setError] = useState("");
@@ -111,4 +111,4 @@ const Login: FC = (props) => {
   );
 };
 
-export default Login;
+export default AzureAdAuthenticator;
