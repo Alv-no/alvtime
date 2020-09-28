@@ -38,12 +38,22 @@ jobs:
       - task: Docker@2
         displayName: Build and push Adminpanel to dockerhub
         inputs:
-          containerRegistry: $(dockerHubServiceConnection)
-          command: buildAndPush
-          repository: "alvnoas/$(serviceName)"
-          dockerfile: "$(packageDiractory)/Dockerfile"
-          tags: |
-            $(shortHash)
+          containerRegistry: '$(dockerHubServiceConnection)'
+          repository: 'alvnoas/$(serviceName)'
+          command: 'build'
+          Dockerfile: '**/Dockerfile'
+          tags: '$(shortHash)'
+          arguments: |
+            --build-arg REACT_APP_API_HOST=https://alvtime-api-dev.azurewebsites.net 
+            --build-arg REACT_APP_ACCESS_SCOPE=https://d8aedd.alvtime-ap-alvtime-api-dev-f9b4e4.westeurope.cloudapp.azure.com/access_as_user
+            --build-arg REACT_APP_CLIENT_ID=373a7768-6d2a-4b20-b671-bc1089104a3a'
+
+      - task: Docker@2
+        inputs:
+          containerRegistry: 'alvdockerdev'
+          repository: 'alvnoas/$(serviceName)'
+          command: 'push'
+          tags: '$(shortHash)'
 
       - task: TerraformInstaller@0
         displayName: Install Terraform v0.13.0
