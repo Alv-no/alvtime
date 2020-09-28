@@ -1,72 +1,58 @@
 import { AccountInfo } from "@azure/msal-common";
-import React, { useState, useEffect, FC } from "react";
+import React, { createContext, FC, useEffect, useState } from "react";
+import store from "store2";
 import {
+  createAdAuthenticatedFetch,
+  getAccountByHomeId,
   getAllAccounts,
+  handleRedirect,
   login,
   logout,
-  getAccountByHomeId,
-  handleRedirect,
-  acquireTokenSilent,
 } from "./../services/azureAd";
-import store from "store2";
 
-const AzureAdAuthenticator: FC = (props) => {
-  const [accounts, setAccounts] = useState<AccountInfo[]>([]);
-  const [account, setAccount] = useState<AccountInfo>();
-  const [error, setError] = useState("");
+//@ts-ignore
+export const AlvtimeContext = createContext();
+
+const AzureAdAuthenticator: FC<{
+  render: (
+    adAuthenticatedFetch: (path: string, options: any) => Promise<Response>
+  ) => any;
+}> = (props) => {
   const homeAccountId = store("AlvtimeAdminHomeAccountId");
+  const accounts = getAllAccounts();
 
-  async function setAccountOrAccounts() {
-    if (homeAccountId) {
-      const account = getAccountByHomeId(homeAccountId);
-      if (account) {
-        setAccount(account);
-        return true;
-      }
-    }
-
-    const accounts = getAllAccounts();
-    if (accounts.length) {
-      if (accounts.length === 1) {
-        const path = "/api/admin/Tasks";
-        const accessTokenResponse = await acquireTokenSilent(accounts[0]);
-        const res = await fetch(path, {
-          headers: {
-            Authorization: `Bearer ${
-              accessTokenResponse ? accessTokenResponse.accessToken : ""
-            }`,
-          },
-        }).catch((error) => console.error(error.message));
-        if (res && res.ok) {
-          setAccount(accounts[0]);
-          return true;
-        }
-      }
-      setAccounts(accounts);
-      return true;
-    }
-
-    return;
-  }
-
-  const signIn = async () => {
-    if (await setAccountOrAccounts()) return;
-    const tokenResponse = await handleRedirect().catch((error) =>
-      setError(error.message)
-    );
-
-    if (tokenResponse) {
-      if (await setAccountOrAccounts()) return;
-    } else {
-      login();
-    }
-  };
+  const [selectedAccount, setSelectedAccount] = useState<AccountInfo | null>();
+  const [error, setError] = useState("");
+  const [notAdmins, setNotAdmins] = useState<string[]>([]);
 
   useEffect(() => {
-    signIn();
+    async function handleAzureRedirect() {
+      const tokenResponse = await handleRedirect().catch((error) =>
+        setError(error.message)
+      );
+
+      if (tokenResponse && (await isAdmin(tokenResponse.account))) {
+        store("AlvtimeAdminHomeAccountId", tokenResponse.account.homeAccountId);
+        setSelectedAccount(tokenResponse.account);
+      } else if (await isAdmin(getAccountByHomeId(homeAccountId))) {
+        setSelectedAccount(getAccountByHomeId(homeAccountId));
+      } else if (!accounts.length) {
+        login();
+      }
+    }
+    handleAzureRedirect();
   }, []);
 
-  if (account)
+  async function chooseAccount(account: AccountInfo) {
+    if (await isAdmin(account)) {
+      store("AlvtimeAdminHomeAccountId", account.homeAccountId);
+      setSelectedAccount(account);
+    } else {
+      setNotAdmins([...notAdmins, account.username]);
+    }
+  }
+
+  if (selectedAccount)
     return (
       <div>
         <section>
@@ -78,7 +64,7 @@ const AzureAdAuthenticator: FC = (props) => {
           >
             Logg ut
           </button>
-          <div>{props.children}</div>
+          {props.render(createAdAuthenticatedFetch(selectedAccount))}
         </section>
       </div>
     );
@@ -86,29 +72,44 @@ const AzureAdAuthenticator: FC = (props) => {
   if (accounts.length)
     return (
       <section>
-        <h1>Select Account</h1>
+        <h1>Select admin account</h1>
         {accounts.map((account) => {
           return (
-            <button
-              key={account.username}
-              onClick={() => {
-                store("AlvtimeAdminHomeAccountId", account.homeAccountId);
-                setAccount(account);
-              }}
-            >
-              {account.username}
-            </button>
+            <div>
+              <button
+                key={account.username}
+                onClick={() => chooseAccount(account)}
+              >
+                {account.username}
+              </button>
+              {notAdmins.some((username) => username === account.username)
+                ? " - is not an admin account"
+                : ""}
+            </div>
           );
         })}
+        <div>
+          <button onClick={login}>Logg inn with a different account</button>
+        </div>
       </section>
     );
 
   return (
     <section>
-      <button onClick={signIn}>Logg inn</button>
+      <button onClick={login}>Logg inn</button>
       {error && <p className="error">Error: {error}</p>}
     </section>
   );
 };
+
+async function isAdmin(account: AccountInfo | null) {
+  if (!account) return false;
+  const path = "/api/admin/Tasks";
+  const adAuthenticatedFetch = createAdAuthenticatedFetch(account);
+  const res = await adAuthenticatedFetch(path).catch((error) =>
+    console.error(error.message)
+  );
+  return res && res.ok;
+}
 
 export default AzureAdAuthenticator;

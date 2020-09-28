@@ -1,26 +1,13 @@
 import MaterialTable, { Column } from "material-table";
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import useSWR from "swr";
-import tableIcons from "./tableIcons";
-import TextField from "@material-ui/core/TextField";
-import Autocomplete from "@material-ui/lab/Autocomplete";
-import { fetcher, setCache, globalTableOptions } from "./Tables";
+import { AlvtimeContext } from "../App";
 import { norsk } from "./norsk";
+import tableIcons from "./tableIcons";
+import { globalTableOptions, setCache } from "./Tables";
 
 export default function TasksTable() {
-  const [selectedCustomer, setSelectedCustomer] = useState("");
-
-  const { data: projects, error: projError } = useSWR(
-    "/api/admin/Projects",
-    fetcher
-  );
-  const { data: customers, error: custError } = useSWR(
-    "/api/admin/Customers",
-    fetcher
-  );
-
-  const [value, setValue] = React.useState<any>(null);
-  const [inputValue, setInputValue] = React.useState("");
+  const { alvtimeFetcher } = useContext(AlvtimeContext);
 
   const columns: Column<object>[] = [
     { title: "Navn", field: "name", editable: "always" },
@@ -53,11 +40,11 @@ export default function TasksTable() {
 
   const path = "/api/admin/Tasks";
 
-  const { data, error } = useSWR(path, fetcher);
+  const { data, error } = useSWR(path, alvtimeFetcher);
 
   const handleRowAdd = async (newData: any) => {
     setCache(path, [...data, newData]);
-    const addedData = await fetcher(path, {
+    const addedData = await alvtimeFetcher(path, {
       method: "post",
       body: [
         { ...newData, project: newData.project.id, locked: !newData.isActive },
@@ -71,7 +58,7 @@ export default function TasksTable() {
     const index = oldData.tableData.id;
     dataUpdate[index] = newData;
     setCache(path, [...dataUpdate]);
-    const updatedData = await fetcher(path, {
+    const updatedData = await alvtimeFetcher(path, {
       method: "put",
       body: [{ ...newData, locked: !newData.isActive }],
     });
