@@ -23,10 +23,25 @@ const msalInstance = new PublicClientApplication({
   },
 });
 
-export function acquireTokenSilent(account: AccountInfo) {
+export async function getAccessToken(account: AccountInfo) {
+  try {
+    const res = await acquireTokenSilent(account);
+    return res ? res.accessToken : "";
+  } catch (err) {
+    console.error(
+      "silent token acquisition fails. acquiring token using redirect"
+    );
+    console.error("err: ", err);
+    if (err instanceof InteractionRequiredAuthError) {
+      return msalInstance.acquireTokenRedirect(request);
+    }
+  }
+}
+
+function acquireTokenSilent(account: AccountInfo) {
   const silentRequest = {
     ...request,
-    forceRefresh: false,
+    forceRefresh: true,
     account,
   };
   return msalInstance.acquireTokenSilent(silentRequest);
@@ -54,29 +69,11 @@ export function getAccountByHomeId(homeAccountId: string) {
 }
 
 export function createAdAuthenticatedFetch(account: AccountInfo) {
-  async function getAccessToken() {
-    const res = await getTokenRedirect();
-    return res ? res.accessToken : "";
-  }
-
-  async function getTokenRedirect() {
-    try {
-      return acquireTokenSilent(account);
-    } catch (err) {
-      console.log(
-        "silent token acquisition fails. acquiring token using redirect"
-      );
-      if (err instanceof InteractionRequiredAuthError) {
-        return msalInstance.acquireTokenRedirect(request);
-      }
-    }
-  }
-
   return async function (
     url: string,
     paramOptions: RequestInit = { headers: {} }
   ) {
-    const accessToken = await getAccessToken();
+    const accessToken = await getAccessToken(account);
     const authHeaders = { Authorization: `Bearer ${accessToken}` };
 
     paramOptions = paramOptions ? paramOptions : { headers: {} };
