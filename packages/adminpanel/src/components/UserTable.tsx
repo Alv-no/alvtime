@@ -1,11 +1,13 @@
 import MaterialTable, { Column } from "material-table";
-import React from "react";
+import React, { useContext } from "react";
 import useSWR from "swr";
-import tableIcons from "./tableIcons";
-import { fetcher, setCache, globalTableOptions } from "./Tables";
+import { AlvtimeContext } from "../App";
 import { norsk } from "./norsk";
+import tableIcons from "./tableIcons";
+import { globalTableOptions, setCache } from "./Tables";
 
 export default function UserTable() {
+  const { alvtimeFetcher } = useContext(AlvtimeContext);
   const columns: Column<object>[] = [
     { title: "Navn", field: "name", editable: "always" },
     { title: "E-post", field: "email", editable: "always" },
@@ -14,11 +16,11 @@ export default function UserTable() {
 
   const path = "/api/admin/Users";
 
-  const { data, error } = useSWR(path, fetcher);
+  const { data, error } = useSWR(path);
 
   const handleRowAdd = async (newData: any) => {
     setCache(path, [...data, newData]);
-    const addedData = await fetcher(path, {
+    const addedData = await alvtimeFetcher(path, {
       method: "post",
       body: [newData],
     });
@@ -30,7 +32,7 @@ export default function UserTable() {
     const index = oldData.tableData.id;
     dataUpdate[index] = newData;
     setCache(path, [...dataUpdate]);
-    const updatedData = await fetcher(path, {
+    const updatedData = await alvtimeFetcher(path, {
       method: "put",
       body: [newData],
     });

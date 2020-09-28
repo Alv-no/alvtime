@@ -1,13 +1,20 @@
 import MaterialTable, { Column } from "material-table";
-import React from "react";
+import React, { useContext } from "react";
 import useSWR from "swr";
-import tableIcons from "./tableIcons";
-import { fetcher, setCache, globalTableOptions } from "./Tables";
+import { AlvtimeContext } from "../App";
 import { norsk } from "./norsk";
+import tableIcons from "./tableIcons";
+import { globalTableOptions, setCache } from "./Tables";
 
 export default function HourRates() {
+  const { alvtimeFetcher } = useContext(AlvtimeContext);
   const columns: Column<object>[] = [
-    { title: "Aktivitet", field: "task.id", editable: "onAdd", type: "numeric" },
+    {
+      title: "Aktivitet",
+      field: "task.id",
+      editable: "onAdd",
+      type: "numeric",
+    },
     {
       title: "Prosjektnavn",
       field: "task.project.name",
@@ -21,16 +28,21 @@ export default function HourRates() {
       type: "string",
     },
     { title: "Timerate", field: "rate", editable: "always", type: "numeric" },
-    { title: "Gjelder fra", field: "fromDate", editable: "onAdd", type: "date" },
+    {
+      title: "Gjelder fra",
+      field: "fromDate",
+      editable: "onAdd",
+      type: "date",
+    },
   ];
 
   const path = "/api/admin/HourRates";
 
-  const { data, error } = useSWR(path, fetcher);
+  const { data, error } = useSWR(path);
 
   const handleRowAdd = async (newData: any) => {
     setCache(path, [...data, newData]);
-    const addedData = await fetcher(path, {
+    const addedData = await alvtimeFetcher(path, {
       method: "post",
       body: [
         {
@@ -48,7 +60,7 @@ export default function HourRates() {
     const index = oldData.tableData.id;
     dataUpdate[index] = newData;
     setCache(path, [...dataUpdate]);
-    const updatedData = await fetcher(path, {
+    const updatedData = await alvtimeFetcher(path, {
       method: "post",
       body: [
         {
