@@ -100,7 +100,7 @@ export default Vue.extend({
     async fetchActiveAccessTokens() {
       try {
         const url = new URL(
-          config.HOST + "/api/user/ActiveAccessTokens"
+          config.API_HOST + "/api/user/ActiveAccessTokens"
         ).toString();
         const res = await adAuthenticatedFetch(url);
         if (res.status !== 200) {
@@ -123,7 +123,7 @@ export default Vue.extend({
         const options = { method, headers, body };
 
         const response = await adAuthenticatedFetch(
-          config.HOST + "/api/user/AccessToken",
+          config.API_HOST + "/api/user/AccessToken",
           options
         );
 

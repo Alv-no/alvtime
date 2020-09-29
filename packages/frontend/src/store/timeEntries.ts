@@ -85,7 +85,7 @@ const actions = {
       commit("FLUSH_PUSH_QUEUE");
       try {
         const response = await adAuthenticatedFetch(
-          config.HOST + "/api/user/TimeEntries",
+          config.API_HOST + "/api/user/TimeEntries",
           {
             method: "post",
             headers: {
@@ -117,7 +117,7 @@ ${timeEntries.title}`);
     { commit }: ActionContext<State, State>,
     params: { fromDateInclusive: string; toDateInclusive: string }
   ) => {
-    const url = new URL(config.HOST + "/api/user/TimeEntries");
+    const url = new URL(config.API_HOST + "/api/user/TimeEntries");
     url.search = new URLSearchParams(params).toString();
 
     try {
