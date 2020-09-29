@@ -9,6 +9,7 @@ import {
   login,
   logout,
 } from "./../services/azureAd";
+import config from "../config";
 
 //@ts-ignore
 export const AlvtimeContext = createContext();
@@ -106,9 +107,9 @@ async function isAdmin(account: AccountInfo | null) {
   if (!account) return false;
   const path = "/api/admin/Tasks";
   const adAuthenticatedFetch = createAdAuthenticatedFetch(account);
-  const res = await adAuthenticatedFetch(path).catch((error) =>
-    console.error(error.message)
-  );
+  const res = await adAuthenticatedFetch(
+    config.API_HOST + path
+  ).catch((error) => console.error(error.message));
   return res && res.ok;
 }
 
