@@ -2,11 +2,12 @@ name: Test
 
 on:
   pull_request:
-    paths-ignore:
-      - "**.md"
-      - ".gitignore"
-      - "LICENCE"
-      - "CODEOWNERS"
+    paths:
+      - "packages/frontend/**"
+      - "!**.md"
+      - "!.gitignore"
+      - "!LICENCE"
+      - "!CODEOWNERS"
 
 jobs:
   build:
@@ -36,6 +37,6 @@ jobs:
       - name: Run tests
         working-directory: "./packages/frontend"
         run: |
-          docker build . --file .devcontainer/Dockerfile --tag image
+          docker build . --file Dockerfile --target dev --tag image
           docker run image npx vue-cli-service lint
           docker run image npx vue-cli-service test:unit
