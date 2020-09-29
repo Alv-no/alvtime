@@ -1,5 +1,5 @@
 export default Object.freeze({
-  API_HOST: process.env.VUE_APP_HOST,
+  API_HOST: process.env.VUE_APP_API_HOST,
   DATE_FORMAT: "YYYY-MM-DD",
   HOURS_IN_WORKDAY: 7.5,
   AUTHORITY: "https://login.microsoftonline.com/",

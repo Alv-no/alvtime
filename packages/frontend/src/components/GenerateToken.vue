@@ -85,7 +85,7 @@ export default Vue.extend({
         const options = { method, headers, body };
 
         const response = await adAuthenticatedFetch(
-          config.HOST + "/api/user/AccessToken",
+          config.API_HOST + "/api/user/AccessToken",
           options
         );
 
