@@ -58,7 +58,7 @@ const mutations = {
 const actions = {
   FETCH_TASKS: async ({ commit }: ActionContext<State, State>) => {
     try {
-      const url = new URL(config.HOST + "/api/user/tasks").toString();
+      const url = new URL(config.API_HOST + "/api/user/tasks").toString();
       const res = await adAuthenticatedFetch(url);
       if (res.status === 404) {
         commit("SET_USER_NOT_FOUND");
@@ -85,7 +85,7 @@ const actions = {
       const options = { method, headers, body };
 
       const response = await adAuthenticatedFetch(
-        config.HOST + "/api/user/Tasks",
+        config.API_HOST + "/api/user/Tasks",
         options
       );
       const updatedTasks = await response.json();
