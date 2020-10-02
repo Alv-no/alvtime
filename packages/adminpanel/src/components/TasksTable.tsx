@@ -1,27 +1,46 @@
 import MaterialTable, { Column } from "material-table";
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import useSWR from "swr";
 import { AlvtimeContext } from "../App";
 import { norsk } from "./norsk";
 import tableIcons from "./tableIcons";
 import { globalTableOptions, setCache } from "./Tables";
+import { TextField } from "@material-ui/core";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 
 export default function TasksTable() {
   const { alvtimeFetcher } = useContext(AlvtimeContext);
 
+  const { data: projects, error: projectsLoadError } = useSWR(
+    "/api/admin/Projects"
+  );
+  const path = "/api/admin/Tasks";
+  const { data, error } = useSWR(path);
+
   const columns: Column<object>[] = [
     { title: "Navn", field: "name", editable: "always" },
     {
-      title: "Prosjekt Id",
-      field: "project.id",
-      editable: "onAdd",
-      type: "numeric",
-    },
-    {
-      title: "Prosjektnavn",
+      title: "Prosjekt",
       field: "project.name",
-      editable: "never",
+      editable: "onAdd",
       type: "string",
+      editComponent: (props: any) => {
+        return (
+          <Autocomplete
+            options={projects}
+            getOptionLabel={(option: { name: string }) => option.name}
+            onChange={(
+              _event: any,
+              newValue: { name: string; id: number } | null
+            ) => {
+              props.onChange(newValue ? newValue.id : 0);
+            }}
+            renderInput={(params: any) => {
+              return <TextField {...params} />;
+            }}
+          />
+        );
+      },
     },
     {
       title: "Kundenavn",
@@ -38,16 +57,17 @@ export default function TasksTable() {
     { title: "Aktiv", field: "isActive", editable: "always", type: "boolean" },
   ];
 
-  const path = "/api/admin/Tasks";
-
-  const { data, error } = useSWR(path, alvtimeFetcher);
-
   const handleRowAdd = async (newData: any) => {
     setCache(path, [...data, newData]);
     const addedData = await alvtimeFetcher(path, {
       method: "post",
       body: [
-        { ...newData, project: newData.project.id, locked: !newData.isActive },
+        {
+          ...newData,
+          project: newData.project.name,
+          description: "",
+          locked: !newData.isActive,
+        },
       ],
     });
     setCache(path, [...addedData, ...data]);
