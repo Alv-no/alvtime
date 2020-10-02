@@ -1,7 +1,6 @@
 ﻿using AlvTime.Business.Tasks;
 using AlvTime.Business.Tasks.Admin;
 using AlvTimeWebApi.Authentication;
-using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
@@ -12,12 +11,10 @@ namespace AlvTimeWebApi.Controllers.Admin
     public class TaskAdminController : Controller
     {
         private readonly TaskCreator _creator;
-        private readonly RetrieveUsers _userRetriever;
         private readonly ITaskStorage _taskStorage;
 
-        public TaskAdminController(RetrieveUsers userRetriever, TaskCreator creator, ITaskStorage taskStorage)
+        public TaskAdminController(TaskCreator creator, ITaskStorage taskStorage)
         {
-            _userRetriever = userRetriever;
             _creator = creator;
             _taskStorage = taskStorage;
         }
