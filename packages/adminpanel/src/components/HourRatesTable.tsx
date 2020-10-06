@@ -5,15 +5,36 @@ import { AlvtimeContext } from "../App";
 import { norsk } from "./norsk";
 import tableIcons from "./tableIcons";
 import { globalTableOptions, setCache } from "./Tables";
+import Autocomplete from "@material-ui/lab/Autocomplete";
+import { TextField } from "@material-ui/core";
 
 export default function HourRates() {
   const { alvtimeFetcher } = useContext(AlvtimeContext);
+  const { data: tasks, error: tasksLoadError } = useSWR("/api/admin/Tasks");
+
   const columns: Column<object>[] = [
     {
       title: "Aktivitet",
-      field: "task.id",
+      field: "task.name",
       editable: "onAdd",
-      type: "numeric",
+      type: "string",
+      editComponent: (props: any) => {
+        return (
+          <Autocomplete
+            options={tasks}
+            getOptionLabel={(option: { name: string }) => option.name}
+            onChange={(
+              _event: any,
+              newValue: { name: string; id: number } | null
+            ) => {
+              props.onChange(newValue ? newValue.id : 0);
+            }}
+            renderInput={(params: any) => {
+              return <TextField {...params} />;
+            }}
+          />
+        );
+      },
     },
     {
       title: "Prosjektnavn",
@@ -46,7 +67,7 @@ export default function HourRates() {
       method: "post",
       body: [
         {
-          taskId: newData.task.id,
+          taskId: newData.task.name, // The Id is set in the name field in the Autocomplete
           fromDate: newData.fromDate,
           rate: newData.rate,
         },
