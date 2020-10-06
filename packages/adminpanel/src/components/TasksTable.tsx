@@ -64,7 +64,7 @@ export default function TasksTable() {
       body: [
         {
           ...newData,
-          project: newData.project.name,
+          project: newData.project.name, // The Id is set in the name field in the Autocomplete
           description: "",
           locked: !newData.isActive,
         },
