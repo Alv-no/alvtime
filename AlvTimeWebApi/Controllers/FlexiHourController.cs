@@ -37,6 +37,15 @@ namespace AlvTimeWebApi.Controllers
                 }));
         }
 
+        [HttpGet("OvertimeEquivalents")]
+        [Authorize]
+        public ActionResult<IEnumerable<FlexiHoursResponseDto>> FetchOvertimeEquivalents(DateTime fromDateInclusive, DateTime toDateInclusive)
+        {
+            var user = _userRetriever.RetrieveUser();
+
+            return Ok(_storage.GetOvertimeEquivalents(fromDateInclusive, toDateInclusive, user.Id));
+        }
+
         [HttpPost("Overtime")]
         [Authorize]
         public ActionResult<RegisterPaidOvertimeResponseDto> RegisterPaidOvertime([FromBody] RegisterPaidOvertimeDto request)

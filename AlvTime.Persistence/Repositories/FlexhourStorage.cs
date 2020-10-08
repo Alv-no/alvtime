@@ -57,6 +57,55 @@ public class FlexhourStorage : IFlexhourStorage
         return flexHours;
     }
 
+    public decimal GetOvertimeEquivalents(DateTime startDate, DateTime endDate, int userId)
+    {
+        var flexHours = new List<FlexiHours>();
+        var sum = 0M;
+
+        var entriesByDate = _storage.GetDateEntries(new TimeEntryQuerySearch
+        {
+            UserId = userId,
+            FromDateInclusive = startDate,
+            ToDateInclusive = endDate
+        });
+
+        for (DateTime currentDate = startDate; currentDate <= endDate; currentDate += TimeSpan.FromDays(1))
+        {
+            var day = entriesByDate.SingleOrDefault(entryDate => entryDate.Date == currentDate);
+
+            if (!(currentDate.DayOfWeek == DayOfWeek.Sunday || currentDate.DayOfWeek == DayOfWeek.Saturday))
+            {
+                if (day == null)
+                {
+                    flexHours.Add(new FlexiHours
+                    {
+                        Value = -HoursInRegularWorkday,
+                        Date = currentDate
+                    });
+                }
+                else if (day.GetWorkingHours() != HoursInRegularWorkday)
+                {
+                    flexHours.Add(new FlexiHours
+                    {
+                        Value = day.GetWorkingHours() - HoursInRegularWorkday,
+                        Date = day.Date
+                    });
+
+                    if(day.GetWorkingHours() < HoursInRegularWorkday)
+                    {
+                        sum += day.GetWorkingHours() - HoursInRegularWorkday;
+                    }
+                    else
+                    {
+                        sum += (day.GetWorkingHours() - HoursInRegularWorkday)*2;
+                    }
+                }
+            }
+        }
+
+        return sum;
+    }
+
     public RegisterPaidOvertimeDto RegisterPaidOvertime(DateTime date, decimal valueRegistered, int userId)
     {
         PaidOvertime paidOvertime = new PaidOvertime

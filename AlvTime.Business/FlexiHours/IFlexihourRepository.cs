@@ -5,7 +5,8 @@ namespace AlvTime.Business.FlexiHours
 {
     public interface IFlexhourStorage
     {
-        IEnumerable<FlexiHours> GetFlexihours(DateTime dateTime, DateTime dateTime1, int userId);
+        IEnumerable<FlexiHours> GetFlexihours(DateTime fromDate, DateTime toDate, int userId);
+        decimal GetOvertimeEquivalents(DateTime fromDate, DateTime toDate, int userId);
         RegisterPaidOvertimeDto RegisterPaidOvertime(DateTime date, decimal valueRegistered, int userId);
     }
 }
