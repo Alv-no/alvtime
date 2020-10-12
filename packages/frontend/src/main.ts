@@ -23,6 +23,7 @@ import {
   MdEmptyState,
   MdDialog,
   MdDialogConfirm,
+  MdDatepicker,
 } from "vue-material/dist/components";
 import VueMq from "vue-mq";
 import VueClipboard from "vue-clipboard2";
@@ -44,6 +45,7 @@ Vue.use(MdRipple);
 Vue.use(MdEmptyState);
 Vue.use(MdDialog);
 Vue.use(MdDialogConfirm);
+Vue.use(MdDatepicker);
 
 Vue.use(VueClipboard);
 

@@ -7,7 +7,7 @@
     />
     <YellowButton
       tooltip="Gå til dagens dato"
-      text="Today"
+      text="I dag"
       @click="onTodayClick"
     />
     <YellowButton
