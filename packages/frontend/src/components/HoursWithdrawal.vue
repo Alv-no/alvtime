@@ -1,137 +1,244 @@
 <template>
-  <div class="padding">
-    <div class="description">
-      Her kan du bestille utbetaling av dine akkumulerte overtidstimer
-    </div>
-    <div class="input-container">
-      <Input v-model="hours" :error="!isFloat" placeholder="Antall timer" />
-      <YellowButton
-        icon-id="add_circle_outline"
-        :text="buttonText"
-        :disabled="!isNumber"
-        @click="onButtonClick"
-      />
-    </div>
-    <div class="list">
-      <transition name="expand">
-        <div v-if="isNumber" class="row">
-          <div class="date">{{ today }}</div>
-          <div class="hours">{{ hours }}</div>
+  <CenterColumnWrapper>
+    <div class="padding">
+      <div class="description">
+        Her kan du bestille utbetaling av dine akkumulerte overtidstimer
+      </div>
+      <div class="input-container">
+        <Input v-model="hours" :error="!isFloat" placeholder="Antall timer" />
+        <YellowButton
+          icon-id="add_circle_outline"
+          :text="buttonText"
+          :disabled="!isNumber"
+          @click="onButtonClick"
+        />
+      </div>
+
+      <div class="list">
+        <transition name="expand">
+          <div v-if="isNumber" class="row">
+            <div class="date">{{ today }}</div>
+            <div class="hours">{{ hours }}</div>
+          </div>
+        </transition>
+      </div>
+
+      <div class="input-container">
+        <div class="date-pickers">
+          <div class="date-picker">
+            <md-datepicker v-model="fromDate" md-immediately>
+              <label>Fra</label>
+            </md-datepicker>
+          </div>
+
+          <div class="date-picker">
+            <md-datepicker v-model="toDate" md-immediately>
+              <label>Til</label>
+            </md-datepicker>
+          </div>
         </div>
-      </transition>
-      <div v-for="order in orders" :key="order.date" class="row">
-        <div class="date">{{ order.date }}</div>
-        <div class="hours">{{ order.hours }}</div>
+
+        <YellowButton
+          icon-id="add_circle_outline"
+          text="Hent overtidstimer"
+          @click="getFlexihours"
+        />
+
+        <div class="overtime">
+          <div class="sum">Total flex: {{ total }}</div>
+          <div class="sum">Total overtid: {{ overtimeEquivalents }}</div>
+        </div>
+
+        <div class="row header">
+          <div class="overtime-date">Dato</div>
+          <div class="overtime-value">Overtidstimer</div>
+        <div />
+      </div>
+      <div class="line" />
+    </div>
+
+        <div
+          class="row"
+          v-for="flexihour in formattedFlexihours"
+          :key="flexihour.date"
+        >
+          <div class="date">{{ flexihour.date }}</div>
+          <div class="hours">{{ flexihour.value }}</div>
+        </div>
       </div>
     </div>
-  </div>
+  </CenterColumnWrapper>
 </template>
-
+​
 <script lang="ts">
 import Vue from "vue";
 import YellowButton from "./YellowButton.vue";
 import { isFloat } from "@/store/timeEntries";
 import Input from "./Input.vue";
 import moment, { Moment } from "moment";
-
+import { adAuthenticatedFetch } from "@/services/auth";
+import config from "@/config";
+import DatePicker from "./DatePicker.vue";
+import CenterColumnWrapper from "@/components/CenterColumnWrapper.vue";
 export default Vue.extend({
   components: {
     YellowButton,
     Input,
+    DatePicker,
+    CenterColumnWrapper,
   },
-
   data() {
     return {
+      flexihours: [],
       hours: null,
-      ordered: [
-        { date: "2020-05-03", hours: 7.5 },
-        { date: "2020-04-03", hours: 7 },
-        { date: "2020-03-03", hours: 12 },
-        { date: "2020-05-02", hours: 5 },
-      ],
+      overtimeEquivalents: 0,
+      fromDate: moment()
+        .startOf("month")
+        .format("YYYY-MM-DD"),
+      toDate: moment().format("YYYY-MM-DD"),
     };
   },
-
   computed: {
-    orders(): { date: string; hours: number }[] {
-      return this.ordered.map(({ date, hours }) => ({
+    formattedFlexihours(): { date: string; value: number }[] {
+      return this.flexihours.map(({ date, value }) => ({
         date: this.formatDate(moment(date)),
-        hours,
+        value,
       }));
     },
-
+    total: function(): number {
+      return this.flexihours.reduce(function(
+        total: number,
+        item: { value: number }
+      ) {
+        return total + item.value;
+      },
+      0);
+    },
     today(): string {
       return this.formatDate(moment());
     },
-
     isNumber(): boolean {
       return this.isFloat && !!this.hours;
     },
-
     showHours(): number | null {
       return this.hours ? this.hours : 99;
     },
-
     buttonText(): string {
       // @ts-ignore
       return this.$mq === "sm" ? "" : "bestill";
     },
-
     isFloat(): boolean {
       const hours = this.hours ? this.hours : "";
       return isFloat(hours as string);
     },
   },
-
   methods: {
     onButtonClick() {
       console.log("button clicked");
     },
-
+    async getFlexihours() {
+      await this.fetchFlexiHours(this.fromDate, this.toDate);
+      await this.fetchOvertimeEquivalents(this.fromDate, this.toDate);
+      console.log("button clicked");
+      console.log(JSON.stringify(this.flexihours));
+    },
     formatDate(d: Moment): string {
       const s = d.format("dddd D. MMMM");
       return s.charAt(0).toUpperCase() + s.slice(1);
     },
+    async fetchFlexiHours(fromDateInclusive: string, toDateInclusive: string) {
+      try {
+        const url = new URL(config.API_HOST + "/api/user/FlexiHours");
+        url.search = new URLSearchParams({
+          fromDateInclusive,
+          toDateInclusive,
+        }).toString();
+        const res = await adAuthenticatedFetch(url.toString());
+        if (res.status !== 200) {
+          throw res.statusText;
+        }
+        this.flexihours = await res.json();
+      } catch (e) {
+        console.error(e);
+        this.$store.commit("ADD_TO_ERROR_LIST", e);
+      }
+    },
+    async fetchOvertimeEquivalents(
+      fromDateInclusive: string,
+      toDateInclusive: string
+    ) {
+      try {
+        const url = new URL(config.API_HOST + "/api/user/OvertimeEquivalents");
+        url.search = new URLSearchParams({
+          fromDateInclusive,
+          toDateInclusive,
+        }).toString();
+        const res = await adAuthenticatedFetch(url.toString());
+        if (res.status !== 200) {
+          throw res.statusText;
+        }
+        this.overtimeEquivalents = await res.json();
+      } catch (e) {
+        console.error(e);
+        this.$store.commit("ADD_TO_ERROR_LIST", e);
+      }
+    },
   },
 });
 </script>
-
+​
 <style scoped>
 .padding {
   padding: 1rem;
 }
-
-.input-container {
+.overtime-value {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.overtime-date {
+  font-weight: 600;
+  text-transform: capitalize;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.overtime {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.line {
+  border: 0.5px solid #008dcf;
+  margin: 0.3rem 0.3rem;
+}
+​.input-container {
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
 }
-
-.description {
+​.description {
   margin: 0.5rem 0;
 }
-
-.hours {
-  font-weight: bold;
-}
-
-.row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  padding: 0.5rem 0;
-}
-
-.expand-enter-active {
+​.expand-enter-active {
   animation: enter 0.1s;
   animation-timing-function: linear;
 }
-
-.expand-leave-active {
+​ .expand-leave-active {
   animation: enter 0.1s reverse;
   animation-timing-function: linear;
 }
-
-@keyframes enter {
+.row {
+  display: grid;
+  grid-template-columns: 1fr 60px;
+  align-items: center;
+  color: #000;
+  padding: 0 1rem;
+  grid-gap: 0.5rem;
+}
+.date-pickers {
+  display: flex;
+  justify-content: space-between;
+}
+​ @keyframes enter {
   0% {
     height: 0;
     padding: 0;
