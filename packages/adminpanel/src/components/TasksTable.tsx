@@ -49,7 +49,7 @@ export default function TasksTable() {
       type: "string",
     },
     {
-      title: "Timerate",
+      title: "Overtidsfaktor",
       field: "compensationRate",
       editable: "always",
       type: "numeric",
