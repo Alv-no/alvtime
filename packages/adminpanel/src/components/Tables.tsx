@@ -16,11 +16,11 @@ export const globalTableOptions: Options<object> = {
 export default function Tables() {
   return (
     <>
+      <UserTable />
+      <CustomerTable />
+      <ProjectsTable />
       <TasksTable />
       <HourRates />
-      <ProjectsTable />
-      <CustomerTable />
-      <UserTable />
     </>
   );
 }
