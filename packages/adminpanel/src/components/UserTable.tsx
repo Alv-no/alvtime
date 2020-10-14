@@ -11,7 +11,12 @@ export default function UserTable() {
   const columns: Column<object>[] = [
     { title: "Navn", field: "name", editable: "always" },
     { title: "E-post", field: "email", editable: "always" },
-    { title: "Start dato", field: "startDate", editable: "always" },
+    {
+      title: "Start dato",
+      field: "startDate",
+      editable: "always",
+      type: "date",
+    },
   ];
 
   const path = "/api/admin/Users";
