@@ -53,8 +53,15 @@ export default function TasksTable() {
       field: "compensationRate",
       editable: "always",
       type: "numeric",
+      initialEditValue: 1,
     },
-    { title: "Aktiv", field: "isActive", editable: "always", type: "boolean" },
+    {
+      title: "Aktiv",
+      field: "isActive",
+      editable: "always",
+      type: "boolean",
+      initialEditValue: true,
+    },
   ];
 
   const handleRowAdd = async (newData: any) => {
