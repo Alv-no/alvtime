@@ -19,7 +19,7 @@ variables:
   - name: serviceName
     value: "alvtime-admin-react-pwa"
   - name: azureServiceConnection
-    value: "Prod-Alv-Subscription-Azure-Service-Connection"
+    value: "Production-Alv (f9b4e4d2-39a5-4c35-876c-303dc3de03d2)"
 
   - name: shortHash
 
