@@ -69,6 +69,10 @@ public class FlexhourStorage : IFlexhourStorage
             ToDateInclusive = endDate
         });
 
+        var list = new List<OvertimeEntry>();
+
+        // [{date, compensationRate, hours}, {}]
+
         for (DateTime currentDate = startDate; currentDate <= endDate; currentDate += TimeSpan.FromDays(1))
         {
             var day = entriesByDate.SingleOrDefault(entryDate => entryDate.Date == currentDate);
@@ -97,13 +101,35 @@ public class FlexhourStorage : IFlexhourStorage
                     }
                     else
                     {
-                        sum += (day.GetWorkingHours() - HoursInRegularWorkday)*2;
+                        sum += GetCompensation(day);
                     }
                 }
             }
         }
 
         return sum;
+    }
+
+    private static decimal GetCompensation(DateEntry day)
+    {
+        decimal compensation = 0;
+        var overtimeHours = (day.GetWorkingHours() - HoursInRegularWorkday);
+
+        var orderedEntries = day.Entries.OrderBy(task => task.CompensationRate);
+        foreach (var entry in orderedEntries)
+        {
+            if (overtimeHours <= 0)
+            {
+                break;
+            }
+
+            var compensationHours = Math.Min(overtimeHours, entry.Value);
+            compensation += compensationHours * entry.CompensationRate;
+
+            overtimeHours -= compensationHours;
+        }
+
+        return compensation;
     }
 
     public RegisterPaidOvertimeDto RegisterPaidOvertime(DateTime date, decimal valueRegistered, int userId)
@@ -123,5 +149,12 @@ public class FlexhourStorage : IFlexhourStorage
             Date = paidOvertime.Date,
             Value = paidOvertime.Value
         };
+    }
+
+    private class OvertimeEntry
+    {
+        public DateTime Date { get; set; }
+        public decimal Value { get; set; }
+        public decimal CompensationRate { get; set; }
     }
 }

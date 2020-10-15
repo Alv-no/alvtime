@@ -1,5 +1,6 @@
 ﻿using AlvTime.Business.TimeEntries;
 using AlvTime.Persistence.DataBaseModels;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -40,9 +41,11 @@ namespace AlvTime.Persistence.Repositories
 
         public IEnumerable<DateEntry> GetDateEntries(TimeEntryQuerySearch criterias)
         {
-            var hours = _context.Hours.AsQueryable()
-                    .Filter(criterias)
-                    .ToList();
+            var hours = _context.Hours
+                .Include(h => h.Task)
+                .AsQueryable()
+                .Filter(criterias)
+                .ToList();
 
             return hours.GroupBy(
                 entry => entry.Date,
@@ -53,7 +56,8 @@ namespace AlvTime.Persistence.Repositories
                     Entries = entry.Select(e => new Entry
                     {
                         TaskId = e.TaskId,
-                        Value = e.Value
+                        Value = e.Value,
+                        CompensationRate = e.Task.CompensationRate,
                     })
                 });
         }
