@@ -36,7 +36,7 @@ namespace Tests.UnitTests.Flexihours
         }
 
         [Fact]
-        public void GetOvertime_Worked10HoursDay1And5HoursDay2_2point5Overtime()
+        public void GetOvertime_Worked10HoursDay1And5HoursDay2_0Overtime()
         {
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 10M));
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 02), value: 5M));
@@ -45,7 +45,7 @@ namespace Tests.UnitTests.Flexihours
             FlexhourStorage calculator = CreateStorage();
 
             var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 01), new DateTime(2020, 01, 02), 1);
-            Assert.Equal(2.5M, OTequivalents);
+            Assert.Equal(0M, OTequivalents);
         }
 
         [Fact]
