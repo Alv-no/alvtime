@@ -141,6 +141,19 @@ namespace Tests.UnitTests.Flexihours
             Assert.Equal(0M, OTequivalents);
         }
 
+        [Fact]
+        public void GetOvertime_OvertimeAndTimdwadwaeOff_6P75Overtime()
+        {
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 10, 12), value: 15M, compRate: 1M));
+
+            _context.SaveChanges();
+
+            FlexhourStorage calculator = CreateStorage();
+
+            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 10, 12), new DateTime(2020, 10, 13), 1);
+            Assert.Equal(0M, OTequivalents);
+        }
+
         private FlexhourStorage CreateStorage()
         {
             return new FlexhourStorage(new TimeEntryStorage(_context), _context);

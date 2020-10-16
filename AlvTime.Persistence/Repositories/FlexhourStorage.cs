@@ -15,33 +15,18 @@ public class FlexhourStorage : IFlexhourStorage
     {
         _storage = storage;
         _context = context;
-
     }
 
     public IEnumerable<FlexiHours> GetFlexihours(DateTime startDate, DateTime endDate, int userId)
     {
         var flexHours = new List<FlexiHours>();
-
-        var entriesByDate = _storage.GetDateEntries(new TimeEntryQuerySearch
-        {
-            UserId = userId,
-            FromDateInclusive = startDate,
-            ToDateInclusive = endDate
-        });
+        var entriesByDate = GetTimeEntries(startDate, endDate, userId);
 
         foreach (var currentDate in GetWorkingDaysInPeriod(startDate, endDate))
         {
             var day = entriesByDate.SingleOrDefault(entryDate => entryDate.Date == currentDate);
 
-            if (day == null)
-            {
-                flexHours.Add(new FlexiHours
-                {
-                    Value = -HoursInRegularWorkday,
-                    Date = currentDate
-                });
-            }
-            else if (day.GetWorkingHours() != HoursInRegularWorkday)
+            if (day.GetWorkingHours() != HoursInRegularWorkday)
             {
                 flexHours.Add(new FlexiHours
                 {
@@ -56,17 +41,34 @@ public class FlexhourStorage : IFlexhourStorage
 
     public decimal GetOvertimeEquivalents(DateTime startDate, DateTime endDate, int userId)
     {
-        var entriesByDate = _storage.GetDateEntries(new TimeEntryQuerySearch
-        {
-            UserId = userId,
-            FromDateInclusive = startDate,
-            ToDateInclusive = endDate
-        });
+        List<DateEntry> entriesByDate = GetTimeEntries(startDate, endDate, userId);
 
         List<OvertimeEntry> overtimeEntries = GetOvertimeEntries(entriesByDate, startDate, endDate);
         CompensateForOffTime(overtimeEntries, entriesByDate, startDate, endDate);
 
         return overtimeEntries.Sum(h => h.CompensationRate * h.Value);
+    }
+
+    private List<DateEntry> GetTimeEntries(DateTime startDate, DateTime endDate, int userId)
+    {
+        var entriesByDate = _storage.GetDateEntries(new TimeEntryQuerySearch
+        {
+            UserId = userId,
+            FromDateInclusive = startDate,
+            ToDateInclusive = endDate
+        }).ToList();
+
+        var daysNotRecorded = GetWorkingDaysInPeriod(startDate, endDate).Where(day => !entriesByDate.Select(e => e.Date).Contains(day));
+        foreach (var day in daysNotRecorded)
+        {
+            entriesByDate.Add(new DateEntry
+            {
+                Date = day,
+                Entries = new[] { new Entry { Value = 0, } }
+            });
+        }
+
+        return entriesByDate;
     }
 
     private List<OvertimeEntry> GetOvertimeEntries(IEnumerable<DateEntry> entriesByDate, DateTime startDate, DateTime endDate)
