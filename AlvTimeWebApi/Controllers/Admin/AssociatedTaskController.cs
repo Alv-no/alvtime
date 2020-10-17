@@ -25,18 +25,32 @@ namespace AlvTimeWebApi.Controllers.Admin
             return Ok(tasks);
         }
 
-        [HttpPost("CreateAssociatedTask")]
+        [HttpPost("AssociatedTasks")]
         [AuthorizeAdmin]
-        public ActionResult<AssociatedTaskResponseDto> CreateAssociatedTask([FromBody] AssociatedTaskRequestDto associatedTask)
+        public ActionResult<IEnumerable<AssociatedTaskResponseDto>> CreateAssociatedTask([FromBody] IEnumerable<AssociatedTaskRequestDto> associatedTasks)
         {
-            return Ok(_storage.CreateAssociatedTask(associatedTask));
+            List<AssociatedTaskResponseDto> response = new List<AssociatedTaskResponseDto>();
+
+            foreach (var associatedTask in associatedTasks)
+            {
+                response.Add(_storage.CreateAssociatedTask(associatedTask));
+            }
+
+            return Ok(response);
         }
 
-        [HttpPost("UpdateAssociatedTask")]
+        [HttpPut("AssociatedTasks")]
         [AuthorizeAdmin]
-        public ActionResult<AssociatedTaskResponseDto> UpdateAssociatedTask([FromBody] AssociatedTaskUpdateDto associatedTask)
+        public ActionResult<IEnumerable<AssociatedTaskResponseDto>> UpdateAssociatedTask([FromBody] IEnumerable<AssociatedTaskUpdateDto> associatedTasks)
         {
-            return Ok(_storage.UpdateAssociatedTask(associatedTask));
+            List<AssociatedTaskResponseDto> response = new List<AssociatedTaskResponseDto>();
+
+            foreach (var associatedTask in associatedTasks)
+            {
+                response.Add(_storage.UpdateAssociatedTask(associatedTask));
+            }
+
+            return Ok(response);
         }
     }
 }

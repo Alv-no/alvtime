@@ -12,33 +12,33 @@ namespace AlvTime.Business.Tasks.Admin
             _storage = storage;
         }
 
-        public TaskResponseDto CreateTask(CreateTaskDto task, int userId)
+        public TaskResponseDto CreateTask(CreateTaskDto task)
         {
-            if (!GetTask(task, userId).Any())
+            if (!GetTask(task).Any())
             {
-                _storage.CreateTask(task, userId);
+                _storage.CreateTask(task);
             }
 
-            return GetTask(task, userId).Single();
+            return GetTask(task).Single();
         }
 
-        public TaskResponseDto UpdateTask(UpdateTasksDto taskToBeUpdated, int userId)
+        public TaskResponseDto UpdateTask(UpdateTasksDto taskToBeUpdated)
         {
             _storage.UpdateTask(taskToBeUpdated);
 
             return _storage.GetTasks(new TaskQuerySearch
             {
                 Id = taskToBeUpdated.Id
-            }, userId).Single();
+            }).Single();
         }
 
-        private IEnumerable<TaskResponseDto> GetTask(CreateTaskDto task, int userId)
+        private IEnumerable<TaskResponseDto> GetTask(CreateTaskDto task)
         {
             return _storage.GetTasks(new TaskQuerySearch
             {
                 Name = task.Name,
                 Project = task.Project
-            }, userId);
+            });
         }
     }
 }
