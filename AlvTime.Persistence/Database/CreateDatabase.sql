@@ -31,7 +31,6 @@ CREATE TABLE [dbo].[Task](
 	[Project] [int] NOT NULL,
 	[Locked] [bit] NOT NULL,
 	[Favorite] [bit] NOT NULL,
-	[CompensationRate] [decimal](3, 2) NOT NULL,
 	[FillPriority] [int] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
@@ -255,6 +254,17 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+CREATE TABLE [dbo].[CompensationRate](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[FromDate] [dateTime2](7) NOT NULL,
+	[Value] [decimal] (4,2) NOT NULL,
+	[TaskId] [int] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
 ALTER TABLE [dbo].[AssociatedTasks] ADD  DEFAULT ('') FOR [EndDate]
 GO
 ALTER TABLE [dbo].[Customer] ADD  DEFAULT ('') FOR [InvoiceAddress]
@@ -279,6 +289,9 @@ ALTER TABLE [dbo].[User] ADD  DEFAULT ('') FOR [StartDate]
 GO
 ALTER TABLE [dbo].[AccessTokens]  WITH CHECK ADD  CONSTRAINT [FK_AccessTokens_User] FOREIGN KEY([UserId])
 REFERENCES [dbo].[User] ([Id])
+GO
+ALTER TABLE [dbo].[CompensationRate]  WITH CHECK ADD  CONSTRAINT [FK_CompensationRate_Task] FOREIGN KEY([TaskId])
+REFERENCES [dbo].[Task] ([Id])
 GO
 ALTER TABLE [dbo].[AccessTokens] CHECK CONSTRAINT [FK_AccessTokens_User]
 GO
