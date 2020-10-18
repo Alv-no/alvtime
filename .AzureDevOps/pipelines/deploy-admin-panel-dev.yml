@@ -70,7 +70,7 @@ jobs:
           workingDirectory: $(packageDiractory)
           backendServiceArm: $(azureServiceConnection)
           backendAzureRmResourceGroupName: $(terraformStateStorageResourceGroup)
-          backendAzureRmStorageAccountName: $(terraformStateStorageStorageAccount)
+          backendAzureRmStorageAccountName: $(terraformStateStorageStorageAccountDev)
           backendAzureRmContainerName: $(terraformStateStoreageContainer)
           backendAzureRmKey: "$(serviceName).tfstate"
 
