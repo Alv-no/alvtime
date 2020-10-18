@@ -19,15 +19,6 @@ jobs:
         working-directory: "./packages/frontend"
         run: docker build . --file Dockerfile --tag image
 
-      - uses: anchore/scan-action@master
-        with:
-          image-reference: "image"
-          dockerfile-path: "./packages/frontend/Dockerfile"
-          fail-build: true
-          include-app-packages: true
-      - name: Anchore inline scan JSON results
-        run: for j in `ls ./anchore-reports/*.json`; do echo "---- ${j} ----"; cat ${j}; echo; done
-
   test:
     runs-on: ubuntu-latest
 
