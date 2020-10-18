@@ -6,6 +6,8 @@ trigger:
     include:
       - packages/adminpanel/*
 
+pr: none
+
 variables:
   - group: subscriptionIds
   - group: terraformStateStorage
