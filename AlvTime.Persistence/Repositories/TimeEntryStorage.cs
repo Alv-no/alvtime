@@ -57,7 +57,7 @@ namespace AlvTime.Persistence.Repositories
                     {
                         TaskId = e.TaskId,
                         Value = e.Value,
-                        CompensationRate = e.Task.CompensationRate,
+                        CompensationRate = e.Task.CompensationRate.SingleOrDefault(cr => cr.TaskId == e.TaskId).Value,
                     })
                 });
         }

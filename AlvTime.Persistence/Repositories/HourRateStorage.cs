@@ -1,4 +1,5 @@
-﻿using AlvTime.Business.Customers;
+﻿using AlvTime.Business.CompensationRate;
+using AlvTime.Business.Customers;
 using AlvTime.Business.HourRates;
 using AlvTime.Business.Projects;
 using AlvTime.Business.Tasks;
@@ -43,6 +44,8 @@ namespace AlvTime.Persistence.Repositories
 
         public IEnumerable<HourRateResponseDto> GetHourRates(HourRateQuerySearch criterias)
         {
+            var compensationRates = _context.CompensationRate.ToList().OrderByDescending(cr => cr.FromDate);
+
             var hourRates = _context.HourRate.AsQueryable()
                 .Filter(criterias)
                 .Select(x => new HourRateResponseDto
@@ -59,7 +62,6 @@ namespace AlvTime.Persistence.Repositories
                         Favorite = false,
                         Locked = y.Locked,
                         Name = y.Name,
-                        CompensationRate = y.CompensationRate,
                         Project = new ProjectResponseDto
                         {
                             Id = y.ProjectNavigation.Id,
@@ -78,6 +80,13 @@ namespace AlvTime.Persistence.Repositories
                     .FirstOrDefault()
                 })
                 .ToList();
+
+            foreach (var hourRate in hourRates)
+            {
+                hourRate.Task.CompensationRate = compensationRates.Any(cr => cr.TaskId == hourRate.Task.Id) ?
+                    compensationRates.FirstOrDefault(cr => cr.TaskId == hourRate.Task.Id).Value :
+                    0.0M;
+            }
 
             return hourRates;
         }

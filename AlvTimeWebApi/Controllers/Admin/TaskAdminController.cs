@@ -1,8 +1,11 @@
-﻿using AlvTime.Business.Tasks;
+﻿using AlvTime.Business.CompensationRate;
+using AlvTime.Business.Tasks;
 using AlvTime.Business.Tasks.Admin;
 using AlvTimeWebApi.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AlvTimeWebApi.Controllers.Admin
 {
@@ -12,11 +15,13 @@ namespace AlvTimeWebApi.Controllers.Admin
     {
         private readonly TaskCreator _creator;
         private readonly ITaskStorage _taskStorage;
+        private readonly ICompensationRateStorage _compensationRateStorage;
 
-        public TaskAdminController(TaskCreator creator, ITaskStorage taskStorage)
+        public TaskAdminController(TaskCreator creator, ITaskStorage taskStorage, ICompensationRateStorage compensationRateStorage)
         {
             _creator = creator;
             _taskStorage = taskStorage;
+            _compensationRateStorage = compensationRateStorage;
         }
 
         [HttpGet("Tasks")]
@@ -36,8 +41,24 @@ namespace AlvTimeWebApi.Controllers.Admin
 
             foreach (var task in tasksToBeCreated)
             {
-                response.Add(_creator.CreateTask(task));
+                var createdTask = _creator.CreateTask(task);
+
+                _compensationRateStorage.CreateCompensationRate(new CompensationRateDto
+                {
+                    FromDate = DateTime.UtcNow,
+                    TaskId = createdTask.Id,
+                    Value = task.CompensationRate
+                });
+
+                var taskWithCompRate = _taskStorage.GetTasks(new TaskQuerySearch
+                {
+                    Name = task.Name,
+                    Project = task.Project
+                }).Single();
+
+                response.Add(taskWithCompRate);
             }
+
             return Ok(response);
         }
 

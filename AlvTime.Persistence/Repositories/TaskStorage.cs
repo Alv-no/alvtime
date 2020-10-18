@@ -28,7 +28,6 @@ namespace AlvTime.Persistence.Repositories
                     Name = x.Name,
                     Locked = x.Locked,
                     Favorite = false,
-                    CompensationRate = x.CompensationRate,
                     Project = new ProjectResponseDto
                     {
                         Id = x.ProjectNavigation.Id,
@@ -44,6 +43,15 @@ namespace AlvTime.Persistence.Repositories
                         }
                     }
                 }).ToList();
+
+            var compensationRates = _context.CompensationRate.ToList().OrderByDescending(cr => cr.FromDate);
+
+            foreach (var task in tasks)
+            {
+                task.CompensationRate = compensationRates.Any(cr => cr.TaskId == task.Id) ?
+                    compensationRates.First(cr => cr.TaskId == task.Id).Value :
+                    0.0M;
+            }
 
             return tasks;
         }
@@ -71,7 +79,6 @@ namespace AlvTime.Persistence.Repositories
                 Locked = task.Locked,
                 Name = task.Name,
                 Project = task.Project,
-                CompensationRate = task.CompensationRate,
                 FillPriority = 1
             };
             _context.Task.Add(newTask);
@@ -92,13 +99,15 @@ namespace AlvTime.Persistence.Repositories
             {
                 existingTask.Locked = (bool)taskToBeUpdated.Locked;
             }
-            if (taskToBeUpdated.CompensationRate != null)
-            {
-                existingTask.CompensationRate = (decimal)taskToBeUpdated.CompensationRate;
-            }
             if (taskToBeUpdated.Name != null)
             {
                 existingTask.Name = taskToBeUpdated.Name;
+            }
+            if (taskToBeUpdated.CompensationRate != null)
+            {
+                var compensationRates = _context.CompensationRate.ToList().OrderByDescending(cr => cr.FromDate);
+                var compRateToBeUpdated = compensationRates.First(cr => cr.TaskId == taskToBeUpdated.Id);
+                compRateToBeUpdated.Value = (decimal)taskToBeUpdated.CompensationRate;
             }
 
             _context.SaveChanges();

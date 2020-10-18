@@ -8,10 +8,6 @@ namespace AlvTime.Persistence.Repositories
     {
         public static IQueryable<Task> Filter(this IQueryable<Task> query, TaskQuerySearch criterias)
         {
-            if (criterias.CompensationRate != null)
-            {
-                query = query.Where(task => task.CompensationRate == criterias.CompensationRate);
-            }
             if (criterias.Locked != null)
             {
                 query = query.Where(task => task.Locked == criterias.Locked);

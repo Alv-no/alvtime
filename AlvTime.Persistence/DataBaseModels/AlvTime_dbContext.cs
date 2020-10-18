@@ -15,6 +15,7 @@ namespace AlvTime.Persistence.DataBaseModels
 
         public virtual DbSet<AccessTokens> AccessTokens { get; set; }
         public virtual DbSet<AssociatedTasks> AssociatedTasks { get; set; }
+        public virtual DbSet<CompensationRate> CompensationRate { get; set; }
         public virtual DbSet<Customer> Customer { get; set; }
         public virtual DbSet<HourRate> HourRate { get; set; }
         public virtual DbSet<Hours> Hours { get; set; }
@@ -68,6 +69,17 @@ namespace AlvTime.Persistence.DataBaseModels
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_AssociatedTasks_User");
+            });
+
+            modelBuilder.Entity<CompensationRate>(entity =>
+            {
+                entity.Property(e => e.Value).HasColumnType("decimal(4, 2)");
+
+                entity.HasOne(d => d.Task)
+                    .WithMany(p => p.CompensationRate)
+                    .HasForeignKey(d => d.TaskId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_CompensationRate_Task");
             });
 
             modelBuilder.Entity<Customer>(entity =>
@@ -159,10 +171,6 @@ namespace AlvTime.Persistence.DataBaseModels
 
             modelBuilder.Entity<Task>(entity =>
             {
-                entity.Property(e => e.CompensationRate)
-                    .HasColumnType("decimal(3, 2)")
-                    .HasDefaultValueSql("((1.00))");
-
                 entity.Property(e => e.Description)
                     .IsRequired()
                     .HasMaxLength(300);

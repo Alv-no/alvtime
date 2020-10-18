@@ -164,7 +164,6 @@ namespace Tests.UnitTests
                 Id = 1,
                 Description = "",
                 Project = 1,
-                CompensationRate = 1.0M,
                 Name = "ExampleTask",
                 Locked = false
             });
@@ -174,9 +173,20 @@ namespace Tests.UnitTests
                 Id = 2,
                 Description = "",
                 Project = 2,
-                CompensationRate = 1.5M,
                 Name = "ExampleTaskTwo",
                 Locked = true
+            });
+
+            _context.CompensationRate.Add(new CompensationRate
+            {
+                TaskId = 1,
+                Value = 1.0M
+            });
+
+            _context.CompensationRate.Add(new CompensationRate
+            {
+                TaskId = 2,
+                Value = 1.0M
             });
 
             _context.SaveChanges();

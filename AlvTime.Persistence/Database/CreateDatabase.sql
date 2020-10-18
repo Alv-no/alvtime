@@ -118,9 +118,6 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-
-
-
 CREATE VIEW [dbo].[V_DataDump]
 AS 
 select
@@ -292,6 +289,8 @@ REFERENCES [dbo].[User] ([Id])
 GO
 ALTER TABLE [dbo].[CompensationRate]  WITH CHECK ADD  CONSTRAINT [FK_CompensationRate_Task] FOREIGN KEY([TaskId])
 REFERENCES [dbo].[Task] ([Id])
+GO
+ALTER TABLE [dbo].[CompensationRate] CHECK CONSTRAINT [FK_CompensationRate_Task]
 GO
 ALTER TABLE [dbo].[AccessTokens] CHECK CONSTRAINT [FK_AccessTokens_User]
 GO

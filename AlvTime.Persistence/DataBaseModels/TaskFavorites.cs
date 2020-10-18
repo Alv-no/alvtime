@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace AlvTime.Persistence.DataBaseModels
+﻿namespace AlvTime.Persistence.DataBaseModels
 {
     public partial class TaskFavorites
     {

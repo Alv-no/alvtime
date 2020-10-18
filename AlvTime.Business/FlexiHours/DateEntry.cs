@@ -10,6 +10,6 @@ public class DateEntry
 
     public decimal GetWorkingHours()
     {
-        return Entries.Where(e => e.TaskId != 14).Sum(e => e.Value);
+        return Entries.Sum(e => e.Value);
     }
 }

@@ -22,7 +22,5 @@ namespace AlvTime.Business.Tasks
         public int? Project { get; set; }
 
         public bool? Locked { get; set; }
-
-        public decimal? CompensationRate { get; set; }
     }
 }
