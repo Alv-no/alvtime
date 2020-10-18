@@ -47,6 +47,8 @@ namespace AlvTime.Persistence.Repositories
                 .Filter(criterias)
                 .ToList();
 
+            var compensationRates = _context.CompensationRate.OrderByDescending(cr => cr.FromDate);
+
             return hours.GroupBy(
                 entry => entry.Date,
                 entry => entry,
@@ -57,7 +59,7 @@ namespace AlvTime.Persistence.Repositories
                     {
                         TaskId = e.TaskId,
                         Value = e.Value,
-                        CompensationRate = e.Task.CompensationRate.SingleOrDefault(cr => cr.TaskId == e.TaskId).Value,
+                        CompensationRate = compensationRates.First(cr => cr.TaskId == e.TaskId).Value,
                     })
                 });
         }

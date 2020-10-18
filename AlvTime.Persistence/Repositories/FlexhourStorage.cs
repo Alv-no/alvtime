@@ -64,7 +64,7 @@ public class FlexhourStorage : IFlexhourStorage
             entriesByDate.Add(new DateEntry
             {
                 Date = day,
-                Entries = new[] { new Entry { Value = 0, } }
+                Entries = new[] { new Entry { Value = 0 } }
             });
         }
 
