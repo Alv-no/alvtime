@@ -4,6 +4,8 @@ using AlvTime.Business.HourRates;
 using AlvTime.Business.Projects;
 using AlvTime.Business.Tasks;
 using AlvTime.Persistence.DataBaseModels;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -44,51 +46,45 @@ namespace AlvTime.Persistence.Repositories
 
         public IEnumerable<HourRateResponseDto> GetHourRates(HourRateQuerySearch criterias)
         {
-            var compensationRates = _context.CompensationRate.ToList().OrderByDescending(cr => cr.FromDate);
-
-            var hourRates = _context.HourRate.AsQueryable()
+            return _context.HourRate
+                .Include(h => h.Task).ThenInclude(t => t.CompensationRate)
+                .AsQueryable()
                 .Filter(criterias)
                 .Select(x => new HourRateResponseDto
                 {
                     FromDate = x.FromDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                     Id = x.Id,
                     Rate = x.Rate,
-                    Task = _context.Task
-                    .Where(y => y.Id == x.TaskId)
-                    .Select(y => new TaskResponseDto
+                    Task = new TaskResponseDto
                     {
-                        Description = y.Description,
-                        Id = y.Id,
+                        Description = x.Task.Description,
+                        Id = x.Task.Id,
                         Favorite = false,
-                        Locked = y.Locked,
-                        Name = y.Name,
+                        Locked = x.Task.Locked,
+                        Name = x.Task.Name,
+                        CompensationRate = EnsureCompensationRate(x.Task.CompensationRate),
                         Project = new ProjectResponseDto
                         {
-                            Id = y.ProjectNavigation.Id,
-                            Name = y.ProjectNavigation.Name,
+                            Id = x.Task.ProjectNavigation.Id,
+                            Name = x.Task.ProjectNavigation.Name,
                             Customer = new CustomerDto
                             {
-                                Id = y.ProjectNavigation.CustomerNavigation.Id,
-                                Name = y.ProjectNavigation.CustomerNavigation.Name,
-                                InvoiceAddress = y.ProjectNavigation.CustomerNavigation.InvoiceAddress,
-                                ContactPhone = y.ProjectNavigation.CustomerNavigation.ContactPhone,
-                                ContactEmail = y.ProjectNavigation.CustomerNavigation.ContactEmail,
-                                ContactPerson = y.ProjectNavigation.CustomerNavigation.ContactPerson
+                                Id = x.Task.ProjectNavigation.CustomerNavigation.Id,
+                                Name = x.Task.ProjectNavigation.CustomerNavigation.Name,
+                                InvoiceAddress = x.Task.ProjectNavigation.CustomerNavigation.InvoiceAddress,
+                                ContactPhone = x.Task.ProjectNavigation.CustomerNavigation.ContactPhone,
+                                ContactEmail = x.Task.ProjectNavigation.CustomerNavigation.ContactEmail,
+                                ContactPerson = x.Task.ProjectNavigation.CustomerNavigation.ContactPerson
                             }
-                        }
-                    })
-                    .FirstOrDefault()
+                        },
+                    }
                 })
                 .ToList();
+        }
 
-            foreach (var hourRate in hourRates)
-            {
-                hourRate.Task.CompensationRate = compensationRates.Any(cr => cr.TaskId == hourRate.Task.Id) ?
-                    compensationRates.FirstOrDefault(cr => cr.TaskId == hourRate.Task.Id).Value :
-                    0.0M;
-            }
-
-            return hourRates;
+        private static decimal EnsureCompensationRate(ICollection<CompensationRate> compensationRate)
+        {
+            return compensationRate.OrderByDescending(cr => cr.FromDate).FirstOrDefault()?.Value ?? 0.0M;
         }
     }
 }

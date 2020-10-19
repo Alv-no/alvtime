@@ -41,22 +41,7 @@ namespace AlvTimeWebApi.Controllers.Admin
 
             foreach (var task in tasksToBeCreated)
             {
-                var createdTask = _creator.CreateTask(task);
-
-                _compensationRateStorage.CreateCompensationRate(new CompensationRateDto
-                {
-                    FromDate = DateTime.UtcNow,
-                    TaskId = createdTask.Id,
-                    Value = task.CompensationRate
-                });
-
-                var taskWithCompRate = _taskStorage.GetTasks(new TaskQuerySearch
-                {
-                    Name = task.Name,
-                    Project = task.Project
-                }).Single();
-
-                response.Add(taskWithCompRate);
+                response.Add(_creator.CreateTask(task));
             }
 
             return Ok(response);

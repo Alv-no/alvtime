@@ -3,6 +3,8 @@ using AlvTime.Business.Projects;
 using AlvTime.Business.Tasks;
 using AlvTime.Business.Tasks.Admin;
 using AlvTime.Persistence.DataBaseModels;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -19,7 +21,8 @@ namespace AlvTime.Persistence.Repositories
 
         public IEnumerable<TaskResponseDto> GetTasks(TaskQuerySearch criterias)
         {
-            var tasks = _context.Task.AsQueryable()
+            var tasks = _context.Task
+                .Include(t => t.CompensationRate).AsQueryable()
                 .Filter(criterias)
                 .Select(x => new TaskResponseDto
                 {
@@ -28,6 +31,7 @@ namespace AlvTime.Persistence.Repositories
                     Name = x.Name,
                     Locked = x.Locked,
                     Favorite = false,
+                    CompensationRate = EnsureCompensationRate(x.CompensationRate),
                     Project = new ProjectResponseDto
                     {
                         Id = x.ProjectNavigation.Id,
@@ -44,16 +48,12 @@ namespace AlvTime.Persistence.Repositories
                     }
                 }).ToList();
 
-            var compensationRates = _context.CompensationRate.ToList().OrderByDescending(cr => cr.FromDate);
-
-            foreach (var task in tasks)
-            {
-                task.CompensationRate = compensationRates.Any(cr => cr.TaskId == task.Id) ?
-                    compensationRates.First(cr => cr.TaskId == task.Id).Value :
-                    0.0M;
-            }
-
             return tasks;
+        }
+
+        private static decimal EnsureCompensationRate(ICollection<CompensationRate> compensationRate)
+        {
+            return compensationRate.OrderByDescending(cr => cr.FromDate).FirstOrDefault()?.Value ?? 0.0M;
         }
 
         public IEnumerable<TaskResponseDto> GetUsersTasks(TaskQuerySearch criterias, int userId)
@@ -79,7 +79,15 @@ namespace AlvTime.Persistence.Repositories
                 Locked = task.Locked,
                 Name = task.Name,
                 Project = task.Project,
-                FillPriority = 1
+                FillPriority = 1,
+                CompensationRate = new List<CompensationRate>
+                {
+                    new CompensationRate
+                    {
+                        FromDate = DateTime.Now,
+                        Value = task.CompensationRate,
+                    }
+                }
             };
             _context.Task.Add(newTask);
             _context.SaveChanges();
