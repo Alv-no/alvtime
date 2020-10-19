@@ -3,6 +3,8 @@ using AlvTime.Business.Projects;
 using AlvTime.Business.Tasks;
 using AlvTime.Business.Tasks.Admin;
 using AlvTime.Persistence.DataBaseModels;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -19,7 +21,8 @@ namespace AlvTime.Persistence.Repositories
 
         public IEnumerable<TaskResponseDto> GetTasks(TaskQuerySearch criterias)
         {
-            var tasks = _context.Task.AsQueryable()
+            var tasks = _context.Task
+                .Include(t => t.CompensationRate).AsQueryable()
                 .Filter(criterias)
                 .Select(x => new TaskResponseDto
                 {
@@ -28,7 +31,7 @@ namespace AlvTime.Persistence.Repositories
                     Name = x.Name,
                     Locked = x.Locked,
                     Favorite = false,
-                    CompensationRate = x.CompensationRate,
+                    CompensationRate = EnsureCompensationRate(x.CompensationRate),
                     Project = new ProjectResponseDto
                     {
                         Id = x.ProjectNavigation.Id,
@@ -46,6 +49,11 @@ namespace AlvTime.Persistence.Repositories
                 }).ToList();
 
             return tasks;
+        }
+
+        private static decimal EnsureCompensationRate(ICollection<CompensationRate> compensationRate)
+        {
+            return compensationRate.OrderByDescending(cr => cr.FromDate).FirstOrDefault()?.Value ?? 0.0M;
         }
 
         public IEnumerable<TaskResponseDto> GetUsersTasks(TaskQuerySearch criterias, int userId)
@@ -71,8 +79,15 @@ namespace AlvTime.Persistence.Repositories
                 Locked = task.Locked,
                 Name = task.Name,
                 Project = task.Project,
-                CompensationRate = task.CompensationRate,
-                FillPriority = 1
+                FillPriority = 1,
+                CompensationRate = new List<CompensationRate>
+                {
+                    new CompensationRate
+                    {
+                        FromDate = DateTime.Now,
+                        Value = task.CompensationRate,
+                    }
+                }
             };
             _context.Task.Add(newTask);
             _context.SaveChanges();
@@ -92,13 +107,15 @@ namespace AlvTime.Persistence.Repositories
             {
                 existingTask.Locked = (bool)taskToBeUpdated.Locked;
             }
-            if (taskToBeUpdated.CompensationRate != null)
-            {
-                existingTask.CompensationRate = (decimal)taskToBeUpdated.CompensationRate;
-            }
             if (taskToBeUpdated.Name != null)
             {
                 existingTask.Name = taskToBeUpdated.Name;
+            }
+            if (taskToBeUpdated.CompensationRate != null)
+            {
+                var compensationRates = _context.CompensationRate.ToList().OrderByDescending(cr => cr.FromDate);
+                var compRateToBeUpdated = compensationRates.First(cr => cr.TaskId == taskToBeUpdated.Id);
+                compRateToBeUpdated.Value = (decimal)taskToBeUpdated.CompensationRate;
             }
 
             _context.SaveChanges();

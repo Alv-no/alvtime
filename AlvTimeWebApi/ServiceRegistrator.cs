@@ -2,6 +2,7 @@
 using AlvTime.Business.AccessToken;
 using AlvTime.Business.AccessToken.PersonalAccessToken;
 using AlvTime.Business.AssociatedTask;
+using AlvTime.Business.CompensationRate;
 using AlvTime.Business.Customers;
 using AlvTime.Business.Economy;
 using AlvTime.Business.FlexiHours;
@@ -44,6 +45,7 @@ namespace AlvTimeWebApi
             services.AddScoped<IFlexhourStorage, FlexhourStorage>();
             services.AddScoped<IAccessTokenStorage, AccessTokenStorage>();
             services.AddScoped<IAssociatedTaskStorage, AssociatedTaskStorage>();
+            services.AddScoped<ICompensationRateStorage, CompensationRateStorage>();
         }
     }
 }

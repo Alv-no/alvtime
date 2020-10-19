@@ -19,7 +19,7 @@ namespace AlvTimeWebApi.Controllers.Utils
         {
             var username = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "name").Value;
             var email = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "preferred_username").Value;
-            var alvUser = _database.User.FirstOrDefault(x => x.Email.Equals(email));
+            var alvUser = _database.User.FirstOrDefault(x => x.Email.ToLower().Equals(email.ToLower()));
 
             return alvUser;
         }

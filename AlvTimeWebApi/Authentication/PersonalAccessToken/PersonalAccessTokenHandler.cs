@@ -1,5 +1,6 @@
 ﻿using AlvTime.Business.AccessToken;
 using AlvTime.Business.AccessToken.PersonalAccessToken;
+using AlvTime.Persistence.DataBaseModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -50,7 +51,7 @@ namespace AlvTimeWebApi.Authentication.PersonalAccessToken
         private static AuthenticationTicket CreateTicket(Claim[] claims)
             => new AuthenticationTicket(new ClaimsPrincipal(new ClaimsIdentity(claims, "PersonalAccessToken")), "PersonalAccessTokenScheme");
 
-        private static Claim[] CreateClaims(User user)
+        private static Claim[] CreateClaims(AlvTime.Business.AccessToken.User user)
             => new Claim[]
             {
                 new Claim("preferred_username", user.Email),

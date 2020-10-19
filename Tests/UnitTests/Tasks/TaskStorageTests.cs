@@ -1,6 +1,5 @@
 ﻿using AlvTime.Business.Tasks;
 using AlvTime.Business.Tasks.Admin;
-using AlvTime.Persistence.DataBaseModels;
 using AlvTime.Persistence.Repositories;
 using System.Linq;
 using Xunit;
@@ -41,24 +40,6 @@ namespace Tests.UnitTests.Tasks
             }, 1);
 
             Assert.True(1 == tasks.Single().Project.Id);
-        }
-
-        [Fact]
-        public void GetTasks_CompensationRateIsGiven_AllTasksWithSpecifiedCompensationRate()
-        {
-            var context = new AlvTimeDbContextBuilder()
-                .WithTasks()
-                .WithProjects()
-                .WithCustomers()
-                .CreateDbContext();
-
-            var storage = new TaskStorage(context);
-            var tasks = storage.GetUsersTasks(new TaskQuerySearch
-            {
-                CompensationRate = 1.0M
-            }, 1);
-
-            Assert.True(tasks.Single().CompensationRate == 1.0M);
         }
 
         [Fact]
@@ -131,7 +112,6 @@ namespace Tests.UnitTests.Tasks
             {
                 Id = 2,
                 Favorite = true,
-                CompensationRate = 2.5M
             }, 1);
 
             var task = context.Task.FirstOrDefault(x => x.Id == 2);
@@ -186,10 +166,9 @@ namespace Tests.UnitTests.Tasks
             creator.CreateTask(new CreateTaskDto
             {
                 Name = "Prosjektleder",
-                CompensationRate = 1.0M,
                 Description = "",
                 Locked = false,
-                Project = 1
+                Project = 1,
             });
 
             Assert.Equal(previousNumberOfTasks+1, context.Task.Count());
@@ -212,36 +191,12 @@ namespace Tests.UnitTests.Tasks
             creator.CreateTask(new CreateTaskDto
             {
                 Name = "ExampleTask",
-                CompensationRate = 1.0M,
                 Description = "",
                 Locked = false,
                 Project = 1
             });
 
             Assert.Equal(previousNumberOfTasks, context.Task.Count());
-        }
-
-        [Fact]
-        public void TaskCreator_UpdateOnlyCompensationRate_CompensationRateIsUpdated()
-        {
-            var context = new AlvTimeDbContextBuilder()
-                .WithTasks()
-                .WithProjects()
-                .WithCustomers()
-                .CreateDbContext();
-
-            var storage = new TaskStorage(context);
-            var creator = new TaskCreator(storage);
-
-            creator.UpdateTask(new UpdateTasksDto
-            {
-                Id = 1,
-                CompensationRate = 1.5M
-            });
-
-            var task = context.Task.FirstOrDefault(x => x.Id == 1);
-
-            Assert.True(task.CompensationRate == 1.5M);
         }
 
         [Fact]

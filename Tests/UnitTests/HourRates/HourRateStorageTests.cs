@@ -42,7 +42,7 @@ namespace Tests.UnitTests.HourRates
         [Fact]
         public void CreateHourRate_NewHourRate_HourRateIsCreated()
         {
-            var context = new AlvTimeDbContextBuilder().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder().WithCustomers().WithProjects().WithTasks().CreateDbContext();
 
             var storage = new HourRateStorage(context);
             var creator = new HourRateCreator(storage);
@@ -64,7 +64,7 @@ namespace Tests.UnitTests.HourRates
         [Fact]
         public void CreateHourRate_HourRateExists_RateIsUpdated()
         {
-            var context = new AlvTimeDbContextBuilder().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder().WithCustomers().WithProjects().WithTasks().CreateDbContext();
 
             var storage = new HourRateStorage(context);
             var creator = new HourRateCreator(storage);
