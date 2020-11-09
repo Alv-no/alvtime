@@ -4,13 +4,16 @@
       <div class="description">
         Her kan du bestille utbetaling av dine akkumulerte overtidstimer
       </div>
+      <div class="availableOvertime">
+        Tilgjengelige overtidstimer for 2020: {{ overtimeYTD }} timer
+      </div>
       <div class="input-container">
         <Input v-model="hours" :error="!isFloat" placeholder="Antall timer" />
         <YellowButton
           icon-id="add_circle_outline"
           :text="buttonText"
           :disabled="!isNumber"
-          @click="onButtonClick"
+          @click="orderHours"
         />
       </div>
 
@@ -26,7 +29,7 @@
       <div class="input-container">
         <div class="date-pickers">
           <div class="date-picker">
-            <md-datepicker v-model="fromDate" md-immediately>
+            <md-datepicker v-model="monthStart" md-immediately>
               <label>Fra</label>
             </md-datepicker>
           </div>
@@ -45,7 +48,7 @@
         />
 
         <div class="overtime">
-          <div class="sum">Total flex: {{ total }}</div>
+          <div class="sum">Total flex: {{ totalFlexHours }}</div>
           <div class="sum">Total overtid: {{ overtimeEquivalents }}</div>
         </div>
 
@@ -92,11 +95,19 @@ export default Vue.extend({
       flexihours: [],
       hours: null,
       overtimeEquivalents: 0,
-      fromDate: moment()
+      overtimeYTD: 0,
+      monthStart: moment()
         .startOf("month")
         .format("YYYY-MM-DD"),
-      toDate: moment().format("YYYY-MM-DD"),
+      toDate: moment()
+        .format("YYYY-MM-DD"),
+      yearStart: moment()
+        .startOf("year")
+        .format("YYYY-MM-DD")
     };
+  },
+  created() {
+    this.getOvertimeYTD(this.yearStart, this.toDate);
   },
   computed: {
     formattedFlexihours(): { date: string; value: number }[] {
@@ -105,12 +116,12 @@ export default Vue.extend({
         value,
       }));
     },
-    total: function(): number {
+    totalFlexHours: function(): number {
       return this.flexihours.reduce(function(
-        total: number,
+        totalFlexHours: number,
         item: { value: number }
       ) {
-        return total + item.value;
+        return totalFlexHours + item.value;
       },
       0);
     },
@@ -137,8 +148,8 @@ export default Vue.extend({
       console.log("button clicked");
     },
     async getFlexihours() {
-      await this.fetchFlexiHours(this.fromDate, this.toDate);
-      await this.fetchOvertimeEquivalents(this.fromDate, this.toDate);
+      await this.fetchFlexiHours(this.monthStart, this.toDate);
+      await this.fetchOvertimeEquivalents(this.monthStart, this.toDate);
       console.log("button clicked");
       console.log(JSON.stringify(this.flexihours));
     },
@@ -178,6 +189,50 @@ export default Vue.extend({
           throw res.statusText;
         }
         this.overtimeEquivalents = await res.json();
+      } catch (e) {
+        console.error(e);
+        this.$store.commit("ADD_TO_ERROR_LIST", e);
+      }
+    },
+    async getOvertimeYTD(
+      fromDateInclusive: string,
+      toDateInclusive: string
+    ) {
+      try {
+        const url = new URL(config.API_HOST + "/api/user/OvertimeEquivalents");
+        url.search = new URLSearchParams({
+          fromDateInclusive,
+          toDateInclusive,
+        }).toString();
+        const res = await adAuthenticatedFetch(url.toString());
+        if (res.status !== 200) {
+          throw res.statusText;
+        }
+        this.overtimeYTD = await res.json();
+      } catch (e) {
+        console.error(e);
+        this.$store.commit("ADD_TO_ERROR_LIST", e);
+      }
+    },
+    async orderHours(
+    ) {
+      try {
+        const method = "post";
+        const headers = { "Content-Type": "application/json" };
+        const body = JSON.stringify({ date: this.toDate, value: parseFloat(this.hours) });
+        const options = { method, headers, body };
+
+        const response = await adAuthenticatedFetch(
+          config.API_HOST + "/api/user/OvertimePayout",
+          options
+        );
+
+        if (response.status !== 200) {
+          throw response.statusText;
+        }
+
+        const payoutResponse = await response.json();
+        console.log(payoutResponse);
       } catch (e) {
         console.error(e);
         this.$store.commit("ADD_TO_ERROR_LIST", e);
