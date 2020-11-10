@@ -32,7 +32,7 @@
       <div class="input-container">
         <div class="date-pickers">
           <div class="date-picker">
-            <md-datepicker v-model="monthStart" md-immediately>
+            <md-datepicker v-model="fromDate" md-immediately>
               <label>Fra</label>
             </md-datepicker>
           </div>
@@ -100,7 +100,7 @@ export default Vue.extend({
       overtimeEquivalents: 0,
       overtimeYTD: 0,
       payoutsYTD: [],
-      monthStart: moment()
+      fromDate: moment()
         .startOf("month")
         .format("YYYY-MM-DD"),
       toDate: moment().format("YYYY-MM-DD"),
@@ -145,9 +145,6 @@ export default Vue.extend({
     isNumber(): boolean {
       return this.isFloat && !!this.hours;
     },
-    showHours(): number | null {
-      return this.hours ? this.hours : 99;
-    },
     buttonText(): string {
       // @ts-ignore
       return this.$mq === "sm" ? "" : "bestill";
@@ -162,8 +159,8 @@ export default Vue.extend({
       console.log("button clicked");
     },
     async getFlexihours() {
-      await this.fetchFlexiHours(this.monthStart, this.toDate);
-      await this.fetchOvertimeEquivalents(this.monthStart, this.toDate);
+      await this.fetchFlexiHours(this.fromDate, this.toDate);
+      await this.fetchOvertimeEquivalents(this.fromDate, this.toDate);
       console.log("button clicked");
       console.log(JSON.stringify(this.flexihours));
     },
