@@ -211,7 +211,7 @@ namespace Tests.UnitTests.Flexihours
             FlexhourStorage calculator = CreateStorage();
 
             var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 01), new DateTime(2020, 01, 03), 1);
-            Assert.Equal(3.75M, OTequivalents);
+            Assert.Equal(6.25M, OTequivalents);
         }
 
         [Fact]

@@ -176,9 +176,9 @@ public class FlexhourStorage : IFlexhourStorage
 
             OvertimeEntry overtimeEntry = new OvertimeEntry
             {
-                Value = -Math.Min(registeredPayoutsTotal, entry.Hours),
-                CompensationRate = entry.CompensationRate,
-                Date = new DateTime(2020, 01, 01)
+                Value = -Math.Min(registeredPayoutsTotal, entry.Hours * entry.CompensationRate),
+                CompensationRate = 1,
+                Date = DateTime.Now
             };
 
             overtimeEntries.Add(overtimeEntry);
@@ -199,9 +199,16 @@ public class FlexhourStorage : IFlexhourStorage
 
     public RegisterPaidOvertimeDto RegisterPaidOvertime(RegisterPaidOvertimeDto request, int userId)
     {
-        var currentYear = request.Date.Year;
+        var startOfYear = new DateTime(request.Date.Year, 01, 01);
 
-        var availableOvertimeEquivalents = GetOvertimeEquivalents(new DateTime(currentYear, 01, 01), request.Date, userId);
+        List<DateEntry> entriesByDate = GetTimeEntries(startOfYear, request.Date, userId);
+        var registeredPayouts = GetRegisteredPayouts(startOfYear, request.Date, userId);
+
+        List<OvertimeEntry> overtimeEntries = GetOvertimeEntries(entriesByDate, startOfYear, request.Date);
+        CompensateForOffTime(overtimeEntries, entriesByDate, startOfYear, request.Date, userId);
+        CompensateForRegisteredPayouts(overtimeEntries, registeredPayouts);
+
+        var availableOvertimeEquivalents = GetOvertimeEquivalents(startOfYear, request.Date, userId);
 
         if (request.Value <= availableOvertimeEquivalents)
         {
