@@ -7,6 +7,9 @@
       <div class="availableOvertime">
         Tilgjengelige overtidstimer for 2020: {{ overtimeYTD }} timer
       </div>
+      <div class="registeredPayouts">
+        Tidligere utbetalte timer i 2020: {{ totalPayout }} timer
+      </div>
       <div class="input-container">
         <Input v-model="hours" :error="!isFloat" placeholder="Antall timer" />
         <YellowButton
@@ -96,6 +99,7 @@ export default Vue.extend({
       hours: null,
       overtimeEquivalents: 0,
       overtimeYTD: 0,
+      payoutsYTD: [],
       monthStart: moment()
         .startOf("month")
         .format("YYYY-MM-DD"),
@@ -107,6 +111,7 @@ export default Vue.extend({
   },
   created() {
     this.getOvertimeYTD(this.yearStart, this.toDate);
+    this.getPayoutsYTD(this.yearStart, this.toDate);
   },
   computed: {
     formattedFlexihours(): { date: string; value: number }[] {
@@ -121,6 +126,15 @@ export default Vue.extend({
         item: { value: number }
       ) {
         return totalFlexHours + item.value;
+      },
+      0);
+    },
+    totalPayout: function(): number {
+      return this.payoutsYTD.reduce(function(
+        totalHoursPaid: number,
+        item: { value: number }
+      ) {
+        return totalHoursPaid + item.value;
       },
       0);
     },
@@ -205,6 +219,23 @@ export default Vue.extend({
           throw res.statusText;
         }
         this.overtimeYTD = await res.json();
+      } catch (e) {
+        console.error(e);
+        this.$store.commit("ADD_TO_ERROR_LIST", e);
+      }
+    },
+    async getPayoutsYTD(fromDateInclusive: string, toDateInclusive: string) {
+      try {
+        const url = new URL(config.API_HOST + "/api/user/OvertimePayouts");
+        url.search = new URLSearchParams({
+          fromDateInclusive,
+          toDateInclusive,
+        }).toString();
+        const res = await adAuthenticatedFetch(url.toString());
+        if (res.status !== 200) {
+          throw res.statusText;
+        }
+        this.payoutsYTD = await res.json();
       } catch (e) {
         console.error(e);
         this.$store.commit("ADD_TO_ERROR_LIST", e);
