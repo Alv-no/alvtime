@@ -222,6 +222,23 @@ namespace Tests.UnitTests.Flexihours
             Assert.Empty(flexhours);
         }
 
+        [Fact]
+        public void GetFlexhours_NotRecordedBeforeStarting_EmptyFlexHourList()
+        {
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 04, 01), value: 7.5M, out int taskid));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
+
+            var dbUser = _context.User.First();
+            dbUser.StartDate = new DateTime(2020, 04, 01);
+
+            _context.SaveChanges();
+
+            var calculator = CreateStorage();
+            var flexhours = calculator.GetFlexihours(new DateTime(2020, 01, 01), new DateTime(2020, 04, 01), 1);
+
+            Assert.Empty(flexhours);
+        }
+
         private FlexhourStorage CreateStorage()
         {
             return new FlexhourStorage(new TimeEntryStorage(_context), _context);

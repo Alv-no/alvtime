@@ -2,6 +2,7 @@
 using AlvTime.Persistence.DataBaseModels;
 using AlvTime.Persistence.Repositories;
 using System;
+using System.Linq;
 using Xunit;
 
 namespace Tests.UnitTests.Flexihours
@@ -211,6 +212,22 @@ namespace Tests.UnitTests.Flexihours
 
             var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 01), new DateTime(2020, 01, 03), 1);
             Assert.Equal(3.75M, OTequivalents);
+        }
+
+        [Fact]
+        public void GetOvertime_NotRecordedBeforeStarting_5Overtime()
+        {
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 04, 01), value: 12.5M, out int taskId));
+            _context.CompensationRate.Add(CreateCompensationRate(taskId, compRate: 1M));
+
+            _context.User.First().StartDate = new DateTime(2020, 04, 01);
+
+            _context.SaveChanges();
+
+            FlexhourStorage calculator = CreateStorage();
+
+            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 01), new DateTime(2020, 04, 01), 1);
+            Assert.Equal(5M, OTequivalents);
         }
 
         private FlexhourStorage CreateStorage()

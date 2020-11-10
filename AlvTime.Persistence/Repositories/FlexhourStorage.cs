@@ -21,13 +21,14 @@ public class FlexhourStorage : IFlexhourStorage
     public IEnumerable<FlexiHours> GetFlexihours(DateTime startDate, DateTime endDate, int userId)
     {
         var flexHours = new List<FlexiHours>();
+        var dbUser = _context.User.SingleOrDefault(u => u.Id == userId);
         var entriesByDate = GetTimeEntries(startDate, endDate, userId);
 
         foreach (var currentDate in GetWorkingDaysInPeriod(startDate, endDate))
         {
             var day = entriesByDate.SingleOrDefault(entryDate => entryDate.Date == currentDate);
 
-            if (day.GetWorkingHours() != HoursInRegularWorkday)
+            if (day.GetWorkingHours() != HoursInRegularWorkday && dbUser.StartDate <= day.Date)
             {
                 flexHours.Add(new FlexiHours
                 {
@@ -46,7 +47,7 @@ public class FlexhourStorage : IFlexhourStorage
         var registeredPayouts = GetRegisteredPayouts(startDate, endDate, userId);
 
         List<OvertimeEntry> overtimeEntries = GetOvertimeEntries(entriesByDate, startDate, endDate);
-        CompensateForOffTime(overtimeEntries, entriesByDate, startDate, endDate);
+        CompensateForOffTime(overtimeEntries, entriesByDate, startDate, endDate, userId);
         CompensateForRegisteredPayouts(overtimeEntries, registeredPayouts);
 
         return overtimeEntries.Sum(h => h.CompensationRate * h.Value);
@@ -109,13 +110,15 @@ public class FlexhourStorage : IFlexhourStorage
         return overtimeEntries;
     }
 
-    private void CompensateForOffTime(List<OvertimeEntry> overtimeEntries, IEnumerable<DateEntry> entriesByDate, DateTime startDate, DateTime endDate)
+    private void CompensateForOffTime(List<OvertimeEntry> overtimeEntries, IEnumerable<DateEntry> entriesByDate, DateTime startDate, DateTime endDate, int userId)
     {
+        var dbUser = _context.User.SingleOrDefault(u => u.Id == userId);
+
         foreach (var currentDate in GetWorkingDaysInPeriod(startDate, endDate))
         {
             var day = entriesByDate.SingleOrDefault(entryDate => entryDate.Date == currentDate);
 
-            if (day != null && day.GetWorkingHours() < HoursInRegularWorkday)
+            if (day != null && day.GetWorkingHours() < HoursInRegularWorkday && dbUser.StartDate <= day.Date)
             {
                 var hoursOff = HoursInRegularWorkday - day.GetWorkingHours();
 
