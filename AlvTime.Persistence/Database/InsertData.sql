@@ -32,7 +32,7 @@ values
 ('Ansatt Atte', 'ansattatte@alv.no', '2019-10-01'),
 ('Ansatt Ni', 'ansattni@alv.no', '2019-11-01'),
 ('Ansatt Ti', 'ansatti@alv.no', '2019-12-01'),
-('Ahre Ketil Lillehagen', 'ahre-ketil.lillehagen@alvno.onmicrosoft.com', '2020-01-01')
+('Ahre Ketil Lillehagen', 'ahre-ketil.lillehagen@alvno.onmicrosoft.com', '2020-11-01')
 
 
 insert into [dbo].[Task]

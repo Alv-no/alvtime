@@ -1,6 +1,8 @@
-﻿using AlvTime.Persistence.DataBaseModels;
+﻿using AlvTime.Business.FlexiHours;
+using AlvTime.Persistence.DataBaseModels;
 using AlvTime.Persistence.Repositories;
 using System;
+using System.Linq;
 using Xunit;
 
 namespace Tests.UnitTests.Flexihours
@@ -148,7 +150,7 @@ namespace Tests.UnitTests.Flexihours
         }
 
         [Fact]
-        public void GetOvertime_OvertimeAndTimeOff_6P75Overtime()
+        public void GetOvertime_OvertimeAndTimeOff_0Overtime()
         {
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 10, 12), value: 10M, out int taskId));
             _context.CompensationRate.Add(CreateCompensationRate(taskId, compRate: 2.0M));
@@ -166,17 +168,66 @@ namespace Tests.UnitTests.Flexihours
         }
 
         [Fact]
-        public void GetOvertime_OvertimeAndTimdwadwaeOff_6P75Overtime()
+        public void GetOvertime_OvertimeAndRegisteredPayout_5OvertimeLeft()
         {
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 10, 12), value: 15M, out int taskId));
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 17.5M, out int taskId));
             _context.CompensationRate.Add(CreateCompensationRate(taskId ,compRate: 1M));
 
             _context.SaveChanges();
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 10, 12), new DateTime(2020, 10, 13), 1);
-            Assert.Equal(0M, OTequivalents);
+            calculator.RegisterPaidOvertime(new RegisterPaidOvertimeDto
+            {
+                Date = new DateTime(2020, 01, 01),
+                Value = 5
+            }, 1);
+
+            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
+            Assert.Equal(5M, OTequivalents);
+        }
+
+        [Fact]
+        public void GetOvertime_OvertimeAndRegisteredPayoutVariousCompRates_5OvertimeLeft()
+        {
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 17.5M, out int taskId));
+            _context.CompensationRate.Add(CreateCompensationRate(taskId, compRate: 1M));
+
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 02), value: 12.5M, out int taskId2));
+            _context.CompensationRate.Add(CreateCompensationRate(taskId2, compRate: 1.5M));
+
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 03), value: 9M, out int taskId3));
+            _context.CompensationRate.Add(CreateCompensationRate(taskId3, compRate: 0.5M));
+
+            _context.PaidOvertime.Add(new PaidOvertime
+            {
+                Date = new DateTime(2020, 01, 01),
+                User = 1,
+                Value = 12
+            });
+
+            _context.SaveChanges();
+
+            FlexhourStorage calculator = CreateStorage();
+
+            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 01), new DateTime(2020, 01, 03), 1);
+            Assert.Equal(6.25M, OTequivalents);
+        }
+
+        [Fact]
+        public void GetOvertime_NotRecordedBeforeStarting_5Overtime()
+        {
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 04, 01), value: 12.5M, out int taskId));
+            _context.CompensationRate.Add(CreateCompensationRate(taskId, compRate: 1M));
+
+            _context.User.First().StartDate = new DateTime(2020, 04, 01);
+
+            _context.SaveChanges();
+
+            FlexhourStorage calculator = CreateStorage();
+
+            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 01), new DateTime(2020, 04, 01), 1);
+            Assert.Equal(5M, OTequivalents);
         }
 
         private FlexhourStorage CreateStorage()
