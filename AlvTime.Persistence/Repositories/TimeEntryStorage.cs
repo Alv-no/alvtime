@@ -2,7 +2,6 @@
 using AlvTime.Persistence.DataBaseModels;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 
 namespace AlvTime.Persistence.Repositories
