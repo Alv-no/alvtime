@@ -99,11 +99,10 @@ export default Vue.extend({
       monthStart: moment()
         .startOf("month")
         .format("YYYY-MM-DD"),
-      toDate: moment()
-        .format("YYYY-MM-DD"),
+      toDate: moment().format("YYYY-MM-DD"),
       yearStart: moment()
         .startOf("year")
-        .format("YYYY-MM-DD")
+        .format("YYYY-MM-DD"),
     };
   },
   created() {
@@ -194,10 +193,7 @@ export default Vue.extend({
         this.$store.commit("ADD_TO_ERROR_LIST", e);
       }
     },
-    async getOvertimeYTD(
-      fromDateInclusive: string,
-      toDateInclusive: string
-    ) {
+    async getOvertimeYTD(fromDateInclusive: string, toDateInclusive: string) {
       try {
         const url = new URL(config.API_HOST + "/api/user/OvertimeEquivalents");
         url.search = new URLSearchParams({
@@ -214,12 +210,14 @@ export default Vue.extend({
         this.$store.commit("ADD_TO_ERROR_LIST", e);
       }
     },
-    async orderHours(
-    ) {
+    async orderHours() {
       try {
         const method = "post";
         const headers = { "Content-Type": "application/json" };
-        const body = JSON.stringify({ date: this.toDate, value: parseFloat(this.hours) });
+        const body = JSON.stringify({
+          date: this.toDate,
+          value: parseFloat(this.hours.replace(/,/g, ".")),
+        });
         const options = { method, headers, body };
 
         const response = await adAuthenticatedFetch(
