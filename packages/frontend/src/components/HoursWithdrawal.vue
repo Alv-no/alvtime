@@ -32,13 +32,12 @@
       <div class="input-container">
         <div class="date-pickers">
           <div class="date-picker">
-            <md-datepicker v-model="fromDate" md-immediately>
+            <md-datepicker v-model="fromDate" md-immediately :md-model-type="String">
               <label>Fra</label>
             </md-datepicker>
           </div>
-
           <div class="date-picker">
-            <md-datepicker v-model="toDate" md-immediately>
+            <md-datepicker v-model="toDate" md-immediately :md-model-type="String">
               <label>Til</label>
             </md-datepicker>
           </div>
