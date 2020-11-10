@@ -104,14 +104,15 @@ export default Vue.extend({
         .startOf("month")
         .format("YYYY-MM-DD"),
       toDate: moment().format("YYYY-MM-DD"),
+      today: moment().format("YYYY-MM-DD"),
       yearStart: moment()
         .startOf("year")
         .format("YYYY-MM-DD"),
     };
   },
   created() {
-    this.getOvertimeYTD(this.yearStart, this.toDate);
-    this.getPayoutsYTD(this.yearStart, this.toDate);
+    this.getOvertimeYTD(this.yearStart, this.today);
+    this.getPayoutsYTD(this.yearStart, this.today);
   },
   computed: {
     formattedFlexihours(): { date: string; value: number }[] {
@@ -120,7 +121,7 @@ export default Vue.extend({
         value,
       }));
     },
-    totalFlexHours: function(): number {
+    totalFlexHours(): number {
       return this.flexihours.reduce(function(
         totalFlexHours: number,
         item: { value: number }
@@ -129,7 +130,7 @@ export default Vue.extend({
       },
       0);
     },
-    totalPayout: function(): number {
+    totalPayout(): number {
       return this.payoutsYTD.reduce(function(
         totalHoursPaid: number,
         item: { value: number }
