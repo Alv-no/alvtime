@@ -9,11 +9,4 @@ namespace AlvTime.Business.FlexiHours
         PayoutsDto GetRegisteredPayouts(int userId);
         RegisterPaidOvertimeDto RegisterPaidOvertime(RegisterPaidOvertimeDto request, int userId);
     }
-
-    public class OvertimePayoutQuerySearch
-    {
-        public int? UserId { get; set; }
-        public DateTime? FromDateInclusive { get; set; }
-        public DateTime? ToDateInclusive { get; set; }
-    }
 }
