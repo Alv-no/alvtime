@@ -19,7 +19,6 @@ namespace AlvTime.Persistence.DataBaseModels
         public int Project { get; set; }
         public bool Locked { get; set; }
         public bool Favorite { get; set; }
-        public int FillPriority { get; set; }
 
         public virtual Project ProjectNavigation { get; set; }
         public virtual ICollection<AssociatedTasks> AssociatedTasks { get; set; }

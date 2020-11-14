@@ -1,10 +1,7 @@
 ﻿using AlvTime.Business.FlexiHours;
-using AlvTime.Persistence.DataBaseModels;
 using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace AlvTimeWebApi.Controllers
@@ -24,52 +21,73 @@ namespace AlvTimeWebApi.Controllers
 
         [HttpGet("AvailableHours")]
         [Authorize]
-        public ActionResult<IEnumerable<AvailableHoursDto>> FetchFlexiHour()
+        public ActionResult<AvailableHoursDto> FetchAvailableHours()
         {
             var user = _userRetriever.RetrieveUser();
 
-            return Ok(_storage
-                .FetchAvailableHours(user.Id)
-                .Select(f => new AvailableHoursDto
+            var availableHours = _storage.GetAvailableHours(user.Id);
+
+            return Ok(new
+            {
+                TotalHours = availableHours.TotalHours,
+                TotalHoursIncludingCompensationRate = availableHours.TotalHoursIncludingCompensationRate,
+                Entries = availableHours.Entries.Select(entry => new
                 {
-                    Date = f.Date.ToDateOnly(),
-                    Value = f.Value
-                }));
+                    Date = entry.Date.ToDateOnly(),
+                    TaskId = entry.TaskId,
+                    Hours = entry.Hours,
+                    CompensationRate = entry.CompensationRate
+                })
+            });
         }
 
         [HttpGet("FlexedHours")]
         [Authorize]
-        public ActionResult<decimal> FetchOvertimeEquivalents(DateTime fromDateInclusive, DateTime toDateInclusive)
+        public ActionResult<FlexedHoursDto> FetchFlexedHours()
         {
             var user = _userRetriever.RetrieveUser();
 
-            return Ok(_storage.GetOvertimeEquivalents(fromDateInclusive, toDateInclusive, user.Id));
+            var flexedHours = _storage.GetFlexedHours(user.Id);
+
+            return Ok(new
+            {
+                TotalHours = flexedHours.TotalHours,
+                Entries = flexedHours.Entries.Select(entry => new
+                {
+                    Date = entry.Date.ToDateOnly(),
+                    Hours = entry.Hours
+                })
+            });
         }
 
         [HttpGet("Payouts")]
         [Authorize]
-        public ActionResult<IEnumerable<RegisterPaidOvertimeDto>> FetchPaidOvertime(DateTime fromDateInclusive, DateTime toDateInclusive)
+        public ActionResult<PayoutsDto> FetchPaidOvertime()
         {
             var user = _userRetriever.RetrieveUser();
 
-            var response = _storage.GetRegisteredPayouts(fromDateInclusive, toDateInclusive, user.Id);
+            var payouts = _storage.GetRegisteredPayouts(user.Id);
 
-            return Ok(response.Select(r => new RegisterPaidOvertimeResponseDto
+            return Ok(new
             {
-                Date = r.Date.ToDateOnly(),
-                Value = r.Value
-            }));
+                TotalHours = payouts.TotalHours,
+                Entries = payouts.Entries.Select(entry => new
+                {
+                    Date = entry.Date.ToDateOnly(),
+                    Hours = entry.Hours
+                })
+            });
         }
 
         [HttpPost("Payouts")]
         [Authorize]
-        public ActionResult<RegisterPaidOvertimeResponseDto> RegisterPaidOvertime([FromBody] RegisterPaidOvertimeDto request)
+        public ActionResult<RegisterPaidOvertimeDto> RegisterPaidOvertime([FromBody] RegisterPaidOvertimeDto request)
         {
             var user = _userRetriever.RetrieveUser();
 
             var response = _storage.RegisterPaidOvertime(request, user.Id);
 
-            return Ok(new RegisterPaidOvertimeResponseDto
+            return Ok(new
             {
                 Date = response.Date.ToDateOnly(),
                 Value = response.Value

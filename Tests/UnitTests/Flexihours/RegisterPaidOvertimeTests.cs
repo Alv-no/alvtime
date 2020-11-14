@@ -16,13 +16,16 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void RegisterpaidOvertime_10HoursAvailable_AbleToRegister10Hours()
         {
+            var dbUser = _context.User.First();
+            var startDate = dbUser.StartDate;
+
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 17.5M, out int taskid));
             _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
 
             _context.SaveChanges();
 
             FlexhourStorage calculator = CreateStorage();
-            var flexhours = calculator.GetHoursWorkedMoreThanWorkday(1);
+            var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, new DateTime(2020, 01, 01), 1);
 
             var registerOvertimeResponse = calculator.RegisterPaidOvertime(new RegisterPaidOvertimeDto
             {
@@ -37,13 +40,16 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void RegisterpaidOvertime_10HoursAvailable_UnAbleToRegister11Hours()
         {
+            var dbUser = _context.User.First();
+            var startDate = dbUser.StartDate;
+
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 17.5M, out int taskid));
             _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
 
             _context.SaveChanges();
 
             FlexhourStorage calculator = CreateStorage();
-            var flexhours = calculator.GetHoursWorkedMoreThanWorkday(1);
+            var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, new DateTime(2020, 01, 01), 1);
 
             var registerOvertimeResponse = calculator.RegisterPaidOvertime(new RegisterPaidOvertimeDto
             {
@@ -58,13 +64,16 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetRegisteredPayouts_Registered10Hours_10HoursRegistered()
         {
+            var dbUser = _context.User.First();
+            var startDate = dbUser.StartDate;
+
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 17.5M, out int taskid));
             _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
 
             _context.SaveChanges();
 
             FlexhourStorage calculator = CreateStorage();
-            var flexhours = calculator.GetHoursWorkedMoreThanWorkday(1);
+            var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, new DateTime(2020, 01, 01), 1);
 
             var registerOvertimeResponse = calculator.RegisterPaidOvertime(new RegisterPaidOvertimeDto
             {
@@ -72,15 +81,18 @@ namespace Tests.UnitTests.Flexihours
                 Value = 10
             }, 1);
 
-            var registeredPayouts = calculator.GetRegisteredPayouts(new DateTime(2020, 01, 01), new DateTime(2020, 12, 31), 1);
+            var registeredPayouts = calculator.GetRegisteredPayouts(1);
 
             Assert.Equal(10, registerOvertimeResponse.Value);
-            Assert.Equal(10, registeredPayouts.First().Value);
+            Assert.Equal(10, registeredPayouts.TotalHours);
         }
 
         [Fact]
         public void GetRegisteredPayouts_Registered3Times_ListWith5Items()
         {
+            var dbUser = _context.User.First();
+            var startDate = dbUser.StartDate;
+
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 17.5M, out int taskid));
             _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
 
@@ -104,9 +116,9 @@ namespace Tests.UnitTests.Flexihours
                 Value = 4
             }, 1);
 
-            var registeredPayouts = calculator.GetRegisteredPayouts(new DateTime(2020, 01, 01), new DateTime(2020, 12, 31), 1);
+            var registeredPayouts = calculator.GetRegisteredPayouts(1);
 
-            Assert.Equal(3, registeredPayouts.Count());
+            Assert.Equal(3, registeredPayouts.Entries.Count());
         }
 
         private FlexhourStorage CreateStorage()

@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace AlvTime.Business.FlexiHours
 {
     public interface IFlexhourStorage
     {
         AvailableHoursDto GetAvailableHours(int userId);
-        decimal GetOvertimeEquivalents(DateTime fromDate, DateTime toDate, int userId);
+        FlexedHoursDto GetFlexedHours(int userId);
+        PayoutsDto GetRegisteredPayouts(int userId);
         RegisterPaidOvertimeDto RegisterPaidOvertime(RegisterPaidOvertimeDto request, int userId);
-        IEnumerable<RegisterPaidOvertimeDto> GetRegisteredPayouts(DateTime fromDateInclusive, DateTime toDateInclusive, int userId);
     }
 
     public class OvertimePayoutQuerySearch

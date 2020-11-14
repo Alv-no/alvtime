@@ -79,7 +79,6 @@ namespace AlvTime.Persistence.Repositories
                 Locked = task.Locked,
                 Name = task.Name,
                 Project = task.Project,
-                FillPriority = 1,
                 CompensationRate = new List<CompensationRate>
                 {
                     new CompensationRate
@@ -99,10 +98,6 @@ namespace AlvTime.Persistence.Repositories
                    .Where(x => x.Id == taskToBeUpdated.Id)
                    .FirstOrDefault();
 
-            if (taskToBeUpdated.FillPriority != null)
-            {
-                existingTask.FillPriority = (int)taskToBeUpdated.FillPriority;
-            }
             if (taskToBeUpdated.Locked != null)
             {
                 existingTask.Locked = (bool)taskToBeUpdated.Locked;
