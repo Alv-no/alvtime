@@ -31,7 +31,6 @@ CREATE TABLE [dbo].[Task](
 	[Project] [int] NOT NULL,
 	[Locked] [bit] NOT NULL,
 	[Favorite] [bit] NOT NULL,
-	[FillPriority] [int] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -277,10 +276,6 @@ GO
 ALTER TABLE [dbo].[Task] ADD  DEFAULT ((0)) FOR [Locked]
 GO
 ALTER TABLE [dbo].[Task] ADD  DEFAULT ((0)) FOR [Favorite]
-GO
-ALTER TABLE [dbo].[Task] ADD  DEFAULT ((1.00)) FOR [CompensationRate]
-GO
-ALTER TABLE [dbo].[Task] ADD  DEFAULT ((1)) FOR [FillPriority]
 GO
 ALTER TABLE [dbo].[User] ADD  DEFAULT ('') FOR [StartDate]
 GO
