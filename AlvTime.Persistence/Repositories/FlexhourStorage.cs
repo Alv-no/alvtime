@@ -1,6 +1,7 @@
 ﻿using AlvTime.Business.FlexiHours;
 using AlvTime.Business.TimeEntries;
 using AlvTime.Persistence.DataBaseModels;
+using AlvTime.Persistence.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,12 +18,15 @@ public class FlexhourStorage : IFlexhourStorage
         _context = context;
     }
 
-    public IEnumerable<FlexiHours> GetFlexihours(DateTime startDate, DateTime endDate, int userId)
+    public List<FlexiHours> FetchAvailableHours(int userId)
     {
-        var flexHours = new List<FlexiHours>();
-        var entriesByDate = GetTimeEntries(startDate, endDate, userId);
+        var hoursWorkedOver = GetHoursWorkedMoreThanWorkday(userId).Sum(e => e.Value);
 
-        foreach (var currentDate in GetWorkingDaysInPeriod(startDate, endDate))
+        var flexHours = new List<FlexiHours>();
+        var dbUser = _context.User.SingleOrDefault(u => u.Id == userId);
+        var entriesByDate = GetTimeEntries(dbUser.StartDate, DateTime.Now.Date, userId);
+
+        foreach (var currentDate in GetWorkingDaysInPeriod(dbUser.StartDate, DateTime.Now.Date))
         {
             var day = entriesByDate.SingleOrDefault(entryDate => entryDate.Date == currentDate);
 
@@ -39,12 +43,37 @@ public class FlexhourStorage : IFlexhourStorage
         return flexHours;
     }
 
+    public List<FlexiHours> GetHoursWorkedMoreThanWorkday(int userId)
+    {
+        var flexHours = new List<FlexiHours>();
+        var dbUser = _context.User.SingleOrDefault(u => u.Id == userId);
+        var entriesByDate = GetTimeEntries(dbUser.StartDate, DateTime.Now.Date, userId);
+
+        foreach (var currentDate in GetWorkingDaysInPeriod(dbUser.StartDate, DateTime.Now.Date))
+        {
+            var day = entriesByDate.SingleOrDefault(entryDate => entryDate.Date == currentDate);
+
+            if (day.GetWorkingHours() > HoursInRegularWorkday)
+            {
+                flexHours.Add(new FlexiHours
+                {
+                    Value = day.GetWorkingHours() - HoursInRegularWorkday,
+                    Date = day.Date
+                });
+            }
+        }
+
+        return flexHours;
+    }
+
     public decimal GetOvertimeEquivalents(DateTime startDate, DateTime endDate, int userId)
     {
         List<DateEntry> entriesByDate = GetTimeEntries(startDate, endDate, userId);
+        var registeredPayouts = GetRegisteredPayouts(startDate, endDate, userId);
 
         List<OvertimeEntry> overtimeEntries = GetOvertimeEntries(entriesByDate, startDate, endDate);
-        CompensateForOffTime(overtimeEntries, entriesByDate, startDate, endDate);
+        CompensateForOffTime(overtimeEntries, entriesByDate, startDate, endDate, userId);
+        CompensateForRegisteredPayouts(overtimeEntries, registeredPayouts);
 
         return overtimeEntries.Sum(h => h.CompensationRate * h.Value);
     }
@@ -106,15 +135,17 @@ public class FlexhourStorage : IFlexhourStorage
         return overtimeEntries;
     }
 
-    private void CompensateForOffTime(List<OvertimeEntry> overtimeEntries, IEnumerable<DateEntry> entriesByDate, DateTime startDate, DateTime endDate)
+    private void CompensateForOffTime(List<OvertimeEntry> overtimeEntries, IEnumerable<DateEntry> entriesByDate, DateTime startDate, DateTime endDate, int userId)
     {
+        var dbUser = _context.User.SingleOrDefault(u => u.Id == userId);
+
         foreach (var currentDate in GetWorkingDaysInPeriod(startDate, endDate))
         {
             var day = entriesByDate.SingleOrDefault(entryDate => entryDate.Date == currentDate);
 
-            if (day != null && day.GetWorkingHours() < HoursInRegularWorkday)
+            if (day != null && day.GetWorkingHours() < HoursInRegularWorkday && dbUser.StartDate <= day.Date)
             {
-                var hoursOff = (HoursInRegularWorkday - day.GetWorkingHours());
+                var hoursOff = HoursInRegularWorkday - day.GetWorkingHours();
 
                 var orderedOverTime = overtimeEntries.GroupBy(
                     hours => hours.CompensationRate,
@@ -147,6 +178,39 @@ public class FlexhourStorage : IFlexhourStorage
         }
     }
 
+    private void CompensateForRegisteredPayouts(List<OvertimeEntry> overtimeEntries, IEnumerable<RegisterPaidOvertimeDto> registeredPayouts)
+    {
+        var registeredPayoutsTotal = registeredPayouts.Sum(payout => payout.Value);
+
+        var orderedOverTime = overtimeEntries.GroupBy(
+            hours => hours.CompensationRate,
+            hours => hours,
+            (cr, hours) => new
+            {
+                CompensationRate = cr,
+                Hours = hours.Sum(h => h.Value)
+            })
+            .OrderByDescending(h => h.CompensationRate);
+
+        foreach (var entry in orderedOverTime)
+        {
+            if (registeredPayoutsTotal <= 0)
+            {
+                break;
+            }
+
+            OvertimeEntry overtimeEntry = new OvertimeEntry
+            {
+                Value = -Math.Min(registeredPayoutsTotal, entry.Hours * entry.CompensationRate),
+                CompensationRate = 1,
+                Date = DateTime.Now
+            };
+
+            overtimeEntries.Add(overtimeEntry);
+            registeredPayoutsTotal += overtimeEntry.Value;
+        }
+    }
+
     private IEnumerable<DateTime> GetWorkingDaysInPeriod(DateTime from, DateTime to)
     {
         for (DateTime currentDate = from; currentDate <= to; currentDate += TimeSpan.FromDays(1))
@@ -158,23 +222,54 @@ public class FlexhourStorage : IFlexhourStorage
         }
     }
 
-    public RegisterPaidOvertimeDto RegisterPaidOvertime(DateTime date, decimal valueRegistered, int userId)
+    public RegisterPaidOvertimeDto RegisterPaidOvertime(RegisterPaidOvertimeDto request, int userId)
     {
-        PaidOvertime paidOvertime = new PaidOvertime
-        {
-            Date = date,
-            User = userId,
-            Value = valueRegistered
-        };
+        var startOfYear = new DateTime(request.Date.Year, 01, 01);
 
-        _context.PaidOvertime.Add(paidOvertime);
-        _context.SaveChanges();
+        List<DateEntry> entriesByDate = GetTimeEntries(startOfYear, request.Date, userId);
+        var registeredPayouts = GetRegisteredPayouts(startOfYear, request.Date, userId);
 
-        return new RegisterPaidOvertimeDto
+        List<OvertimeEntry> overtimeEntries = GetOvertimeEntries(entriesByDate, startOfYear, request.Date);
+        CompensateForOffTime(overtimeEntries, entriesByDate, startOfYear, request.Date, userId);
+        CompensateForRegisteredPayouts(overtimeEntries, registeredPayouts);
+
+        var availableOvertimeEquivalents = GetOvertimeEquivalents(startOfYear, request.Date, userId);
+
+        if (request.Value <= availableOvertimeEquivalents)
         {
-            Date = paidOvertime.Date,
-            Value = paidOvertime.Value
-        };
+            PaidOvertime paidOvertime = new PaidOvertime
+            {
+                Date = request.Date,
+                User = userId,
+                Value = request.Value
+            };
+
+            _context.PaidOvertime.Add(paidOvertime);
+            _context.SaveChanges();
+
+            return request;
+        }
+
+        return new RegisterPaidOvertimeDto();
+    }
+
+    public IEnumerable<RegisterPaidOvertimeDto> GetRegisteredPayouts(DateTime fromDateInclusive, DateTime toDateInclusive, int userId)
+    {
+        var hours = _context.PaidOvertime.AsQueryable()
+                    .Filter(new OvertimePayoutQuerySearch
+                    {
+                        FromDateInclusive = fromDateInclusive,
+                        ToDateInclusive = toDateInclusive,
+                        UserId = userId
+                    })
+                    .Select(x => new RegisterPaidOvertimeDto
+                    {
+                        Value = x.Value,
+                        Date = x.Date,
+                    })
+                    .ToList();
+
+        return hours;
     }
 
     private class OvertimeEntry

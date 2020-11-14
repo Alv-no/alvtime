@@ -53,7 +53,8 @@ values
 ('Syk', '',	8, 0, 0, 14),
 ('Sykt barn', '', 8, 0, 0, 15),
 ('Youtube serie', '', 8, 0, 0, 16),
-('AlvTimeUtvikling', '', 8, 0, 0, 17)
+('AlvTimeUtvikling', '', 8, 0, 0, 17),
+('Avspasering', '', 8, 0, 0, 17)
 
 insert into [dbo].[TaskFavorites]
 select id as UserId, 12 as TaskId

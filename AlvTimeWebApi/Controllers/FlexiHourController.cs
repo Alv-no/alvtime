@@ -22,37 +22,52 @@ namespace AlvTimeWebApi.Controllers
             _userRetriever = userRetriever;
         }
 
-        [HttpGet("FlexiHours")]
+        [HttpGet("AvailableHours")]
         [Authorize]
-        public ActionResult<IEnumerable<FlexiHoursResponseDto>> FetchFlexiHour(DateTime fromDateInclusive, DateTime toDateInclusive)
+        public ActionResult<IEnumerable<AvailableHoursDto>> FetchFlexiHour()
         {
             var user = _userRetriever.RetrieveUser();
 
             return Ok(_storage
-                .GetFlexihours(fromDateInclusive, toDateInclusive, user.Id)
-                .Select(f => new FlexiHoursResponseDto
+                .FetchAvailableHours(user.Id)
+                .Select(f => new AvailableHoursDto
                 {
                     Date = f.Date.ToDateOnly(),
                     Value = f.Value
                 }));
         }
 
-        [HttpGet("OvertimeEquivalents")]
+        [HttpGet("FlexedHours")]
         [Authorize]
-        public ActionResult<IEnumerable<FlexiHoursResponseDto>> FetchOvertimeEquivalents(DateTime fromDateInclusive, DateTime toDateInclusive)
+        public ActionResult<decimal> FetchOvertimeEquivalents(DateTime fromDateInclusive, DateTime toDateInclusive)
         {
             var user = _userRetriever.RetrieveUser();
 
             return Ok(_storage.GetOvertimeEquivalents(fromDateInclusive, toDateInclusive, user.Id));
         }
 
-        [HttpPost("Overtime")]
+        [HttpGet("Payouts")]
+        [Authorize]
+        public ActionResult<IEnumerable<RegisterPaidOvertimeDto>> FetchPaidOvertime(DateTime fromDateInclusive, DateTime toDateInclusive)
+        {
+            var user = _userRetriever.RetrieveUser();
+
+            var response = _storage.GetRegisteredPayouts(fromDateInclusive, toDateInclusive, user.Id);
+
+            return Ok(response.Select(r => new RegisterPaidOvertimeResponseDto
+            {
+                Date = r.Date.ToDateOnly(),
+                Value = r.Value
+            }));
+        }
+
+        [HttpPost("Payouts")]
         [Authorize]
         public ActionResult<RegisterPaidOvertimeResponseDto> RegisterPaidOvertime([FromBody] RegisterPaidOvertimeDto request)
         {
             var user = _userRetriever.RetrieveUser();
 
-            var response = _storage.RegisterPaidOvertime(request.Date, request.Value, user.Id);
+            var response = _storage.RegisterPaidOvertime(request, user.Id);
 
             return Ok(new RegisterPaidOvertimeResponseDto
             {
