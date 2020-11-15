@@ -263,6 +263,29 @@ namespace Tests.UnitTests.Flexihours
             Assert.Empty(flexhours);
         }
 
+        [Fact]
+        public void GetEntriesbyDate_Worked2TasksSameDay_2Entries()
+        {
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 5M, out int taskid));
+
+            _context.Hours.Add(new Hours
+            {
+                Date = new DateTime(2020, 01, 01),
+                Task = new Task { Id = 18 },
+                User = 1,
+                Value = 2.5M
+            });
+            _context.CompensationRate.Add(CreateCompensationRate(18, 1.0M));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
+
+            _context.SaveChanges();
+
+            var calculator = CreateStorage();
+            var flexhours = calculator.GetTimeEntries(new DateTime(2020, 01, 01), new DateTime(2020, 01, 01), 1);
+
+            Assert.Equal(2, flexhours.First().Entries.Count());
+        }
+
         private FlexhourStorage CreateStorage()
         {
             return new FlexhourStorage(new TimeEntryStorage(_context), _context);

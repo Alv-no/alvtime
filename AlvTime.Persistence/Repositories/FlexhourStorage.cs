@@ -111,7 +111,7 @@ public class FlexhourStorage : IFlexhourStorage
         return overtimeEntries.Sum(h => h.CompensationRate * h.Hours);
     }
 
-    private List<DateEntry> GetTimeEntries(DateTime startDate, DateTime endDate, int userId)
+    public List<DateEntry> GetTimeEntries(DateTime startDate, DateTime endDate, int userId)
     {
         var entriesByDate = _storage.GetDateEntries(new TimeEntryQuerySearch
         {
@@ -176,10 +176,11 @@ public class FlexhourStorage : IFlexhourStorage
         foreach (var currentDate in GetWorkingDaysInPeriod(startDate, endDate))
         {
             var day = entriesByDate.SingleOrDefault(entryDate => entryDate.Date == currentDate);
+            var entriesWithTimeOff = day.Entries.Where(e => e.TaskId == 18);
 
-            if (day != null && day.GetWorkingHours() < HoursInRegularWorkday && dbUser.StartDate <= day.Date)
+            if (day != null && entriesWithTimeOff.Any())
             {
-                var hoursOff = HoursInRegularWorkday - day.GetWorkingHours();
+                var hoursOff = entriesWithTimeOff.Sum(e => e.Value);
 
                 var orderedOverTime = overtimeEntries.GroupBy(
                     hours => hours.CompensationRate,

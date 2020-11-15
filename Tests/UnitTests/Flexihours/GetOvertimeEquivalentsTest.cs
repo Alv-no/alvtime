@@ -28,7 +28,7 @@ namespace Tests.UnitTests.Flexihours
         }
 
         [Fact]
-        public void GetOvertime_Worked10HoursDay1And5HoursDay2_0Overtime()
+        public void GetOvertime_Worked10HoursDay1And5HoursDay2NoFlexRecorded_2AndAHalfOvertime()
         {
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 10M, out int taskId));
             _context.CompensationRate.Add(CreateCompensationRate(taskId, compRate: 1.0M));
@@ -41,7 +41,7 @@ namespace Tests.UnitTests.Flexihours
             FlexhourStorage calculator = CreateStorage();
 
             var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 01), new DateTime(2020, 01, 02), 1);
-            Assert.Equal(0M, OTequivalents);
+            Assert.Equal(2.5M, OTequivalents);
         }
 
         [Fact]
@@ -152,18 +152,25 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetOvertime_OvertimeAndTimeOff_0Overtime()
         {
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 10, 12), value: 10M, out int taskId));
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 10M, out int taskId));
             _context.CompensationRate.Add(CreateCompensationRate(taskId, compRate: 2.0M));
 
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 10, 13), value: 5M, out int taskId2));
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 02), value: 5M, out int taskId2));
+            _context.Hours.Add(new Hours
+            {
+                Task = new Task { Id = 18 },
+                User = 1,
+                Date = new DateTime(2020, 01, 02),
+                Value = 2.5M
+            });
+            _context.CompensationRate.Add(CreateCompensationRate(18, compRate: 1.0M));
             _context.CompensationRate.Add(CreateCompensationRate(taskId2, compRate: 1.0M));
-
 
             _context.SaveChanges();
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 10, 12), new DateTime(2020, 10, 13), 1);
+            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 01), new DateTime(2020, 01, 02), 1);
             Assert.Equal(0M, OTequivalents);
         }
 
