@@ -1,6 +1,5 @@
 ﻿using AlvTime.Persistence.DataBaseModels;
 using AlvTime.Persistence.Repositories;
-using Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore;
 using System;
 using System.Linq;
 using Xunit;
@@ -22,36 +21,7 @@ namespace Tests.UnitTests.Flexihours
             FlexhourStorage calculator = CreateStorage();
             var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, DateTime.Now, 1);
 
-            Assert.Contains(flexhours, hour => hour.Value == -7.5M);
-        }
-
-        [Fact]
-        public void GetFlexhours_NoWorkFor2Days_Minus2WorkDaysInFlexhour()
-        {
-            var dbUser = _context.User.First();
-            var startDate = dbUser.StartDate;
-
-            FlexhourStorage calculator = CreateStorage();
-            var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, DateTime.Now, 1);
-
-            Assert.True(flexhours.Sum(item => item.Value) == -15.0M);
-        }
-
-        [Fact]
-        public void GetFlexhours_NoWorkFor2DaysAndRecorded0ForOneOfThem_Minus2WorkDaysInFlexhour()
-        {
-            var dbUser = _context.User.First();
-            var startDate = dbUser.StartDate;
-
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 0M, out int taskid));
-            _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
-
-            _context.SaveChanges();
-
-            FlexhourStorage calculator = CreateStorage();
-            var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, new DateTime(2020, 01, 01), 1);
-
-            Assert.True(flexhours.Sum(item => item.Value) == -15.0M);
+            Assert.Empty(flexhours);
         }
 
         [Fact]
@@ -91,18 +61,47 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhours_Worked5Hours_Minus2AndAHalfHourInFlex()
         {
-            var dbUser = _context.User.First();
-            var startDate = dbUser.StartDate;
-
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 5M, out int taskid));
+
+            _context.Hours.Add(new Hours
+            {
+                Date = new DateTime(2020, 01, 01),
+                TaskId = 18,
+                User = 1,
+                Value = 2.5M
+            });
+
             _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
 
             _context.SaveChanges();
 
             var calculator = CreateStorage();
-            var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, new DateTime(2020, 01, 01), 1);
+            var flexhours = calculator.GetAvailableHours(1);
 
-            Assert.Contains(flexhours, hour => hour.Value == -2.5M);
+            Assert.Equal(-2.5M, flexhours.TotalHours);
+        }
+
+        [Fact]
+        public void GetFlexedhours_Flexed2AndAHalfHours_2AndAHalfHoursFlexed()
+        {
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 5M, out int taskid));
+
+            _context.Hours.Add(new Hours
+            {
+                Date = new DateTime(2020, 01, 01),
+                TaskId = 18,
+                User = 1,
+                Value = 2.5M
+            });
+
+            _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
+
+            _context.SaveChanges();
+
+            var calculator = CreateStorage();
+            var flexhours = calculator.GetFlexedHours(1);
+
+            Assert.Equal(2.5M, flexhours.TotalHours);
         }
 
         [Fact]
@@ -200,35 +199,15 @@ namespace Tests.UnitTests.Flexihours
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 10M, out int taskid));
             _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
 
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2019, 12, 31), value: 10M, out int taskid2));
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 02), value: 10M, out int taskid2));
             _context.CompensationRate.Add(CreateCompensationRate(taskid2, 1.0M));
 
             _context.SaveChanges();
 
             var calculator = CreateStorage();
-            var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, new DateTime(2020, 01, 01), 1);
+            var flexhours = calculator.GetAvailableHours(1);
 
-            Assert.Equal(5.0M, flexhours.Sum(item => item.Value));
-        }
-
-        [Fact]
-        public void GetFlexhours_Worked15HoursOneDayAndTakeOneDayOff_NoFlexHours()
-        {
-            var dbUser = _context.User.First();
-            var startDate = dbUser.StartDate;
-
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 15M, out int taskid));
-            _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
-
-            _context.SaveChanges();
-
-            var calculator = CreateStorage();
-            var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, new DateTime(2020, 01, 01), 1);
-
-            Assert.Equal(2, flexhours.Count());
-            Assert.Equal(7.5M, flexhours.First().Value);
-            Assert.Equal(-7.5M, flexhours.Last().Value);
-            Assert.Equal(0M, flexhours.Sum(item => item.Value));
+            Assert.Equal(5.0M, flexhours.TotalHours);
         }
 
         [Fact]
