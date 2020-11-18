@@ -173,41 +173,43 @@ public class FlexhourStorage : IFlexhourStorage
     {
         var dbUser = _context.User.SingleOrDefault(u => u.Id == userId);
 
-        foreach (var currentDate in GetWorkingDaysInPeriod(startDate, endDate))
+        foreach (var currentWorkDay in GetWorkingDaysInPeriod(startDate, endDate))
         {
-            var day = entriesByDate.SingleOrDefault(entryDate => entryDate.Date == currentDate);
+            var day = entriesByDate.SingleOrDefault(entryDate => entryDate.Date == currentWorkDay);
             var entriesWithTimeOff = day.Entries.Where(e => e.TaskId == 18);
 
             if (day != null && entriesWithTimeOff.Any())
             {
-                var hoursOff = entriesWithTimeOff.Sum(e => e.Value);
+                var hoursOffThisDay = entriesWithTimeOff.Sum(e => e.Value);
 
-                var orderedOverTime = overtimeEntries.GroupBy(
-                    hours => hours.CompensationRate,
-                    hours => hours,
-                    (cr, hours) => new
-                    {
-                        CompensationRate = cr,
-                        Hours = hours.Sum(h => h.Hours)
-                    })
+                var orderedOverTime = overtimeEntries
+                    .Where(o => o.Date < currentWorkDay)
+                    .GroupBy(
+                        hours => hours.CompensationRate,
+                        hours => hours,
+                        (cr, hours) => new
+                        {
+                            CompensationRate = cr,
+                            Hours = hours.Sum(h => h.Hours)
+                        })
                     .OrderByDescending(h => h.CompensationRate);
 
                 foreach (var entry in orderedOverTime)
                 {
-                    if (hoursOff <= 0)
+                    if (hoursOffThisDay <= 0)
                     {
                         break;
                     }
 
                     OvertimeEntry overtimeEntry = new OvertimeEntry
                     {
-                        Hours = -Math.Min(hoursOff, entry.Hours),
+                        Hours = -Math.Min(hoursOffThisDay, entry.Hours),
                         CompensationRate = entry.CompensationRate,
                         Date = day.Date
                     };
 
                     overtimeEntries.Add(overtimeEntry);
-                    hoursOff -= overtimeEntry.Hours;
+                    hoursOffThisDay -= overtimeEntry.Hours;
                 }
             }
         }
