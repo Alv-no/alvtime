@@ -3,12 +3,11 @@ name: Docker push
 on:
   push:
     paths:
-      - 'packages/slack-app'
-    paths-ignore:
-      - "**.md"
-      - ".gitignore"
-      - "LICENCE"
-      - "CODEOWNERS"
+      - "packages/slack-app"
+      - "!**.md"
+      - "!.gitignore"
+      - "!LICENCE"
+      - "!CODEOWNERS"
     branches:
       - releases/*
 
