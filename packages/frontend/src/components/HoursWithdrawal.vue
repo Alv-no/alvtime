@@ -68,7 +68,7 @@ export default Vue.extend({
   },
   data() {
     return {
-      hours: null,
+      hours: '',
 			transactions: [],
       today: moment().format("YYYY-MM-DD")
     };
@@ -90,7 +90,7 @@ export default Vue.extend({
       return this.$mq === "sm" ? "" : "bestill";
     },
     isNumber(): boolean {
-			if (this.hours && this.hours.length > 0) {
+			if (this.hours.length > 0) {
 				 return !Number.isNaN(parseFloat(this.hours));
 			}
 			return false;
@@ -104,23 +104,26 @@ export default Vue.extend({
   methods: {
 		processTransactions() {
 			const transactions = this.$store.getters.getTransactionList as MappedTransaction[];
-			this.transactions = transactions.map(transaction => {
+			const mapped = transactions.map(transaction => {
 					return {
 						date: transaction.transaction.date,
-						hours: transaction.transaction.hours,
+						hours: this.getTranslatedValue(transaction.transaction.hours, transaction.type),
 						type: this.getTranslatedType(transaction.type),
 						rate: transaction.transaction.rate ? `${transaction.transaction.rate * 100}%` : ''
 					};
 			});
+			this.transactions = mapped as never[];
 		},
 		getTranslatedValue(value: number, type: string): number {
 			switch(type) {
 				case 'available':
 					return value;
 				case 'payout':
+					return (value*-1);
 				case 'flex':
 					return value*-1;
 			}
+			return value;
 		},
 		getTranslatedType(type: string): string {
 			switch(type) {
@@ -130,6 +133,7 @@ export default Vue.extend({
 					return 'Utbetalt';
 				case 'flex':
 					return 'Flex';
+				default: return '';
 			}
 		},
 		async orderHours() {
