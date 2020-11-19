@@ -2,9 +2,6 @@ trigger:
   branches:
     include:
       - master
-  paths:
-    include:
-      - packages/adminpanel/*
 
 pr: none
 

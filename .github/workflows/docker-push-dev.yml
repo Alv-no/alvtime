@@ -2,13 +2,6 @@ name: Docker push dev
 
 on:
   push:
-    paths:
-      - 'packages/frontend/**'
-      - '!packages/frontend/**.md'
-      - '!packages/frontend/.gitignore'
-      - '!packages/frontend/LICENCE'
-      - '!packages/frontend/CODEOWNERS'
-
     branches:
       - master
 
