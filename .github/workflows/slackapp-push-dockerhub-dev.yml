@@ -1,0 +1,32 @@
+name: Docker push dev
+
+on:
+  push:
+    paths:
+      - 'packages/slack-app'
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - 'LICENCE'
+      - 'CODEOWNERS'
+    branches:
+      - dev
+
+env:
+  IMAGE_NAME: alvnoas/alvtime-slack-app-dev
+
+jobs:
+  push_to_docker_hub:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build image
+        run: docker build ./packages/slack-app --tag $IMAGE_NAME:latest
+
+      - name: Log into registry
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+
+      - name: Push image
+        run: docker push $IMAGE_NAME:latest
