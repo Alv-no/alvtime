@@ -1,0 +1,86 @@
+version: "3.7"
+services:
+  alvtime-slack-app:
+    user: vscode
+
+    tty: true
+    image: alvtime-slack-app
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/usr/src/app:delegated
+      - /usr/src/app/node_modules/
+    links:
+      - dotnet-backend
+      - mongo
+    environment:
+      - ALVTIME_API_URI=http://dotnet-backend
+    expose:
+      - 3000
+
+  ngrok:
+    ports:
+      - "0.0.0.0:4040:4040"
+    image: wernight/ngrok
+    links:
+      - alvtime-slack-app
+    env_file:
+      - ../.env
+    environment:
+      - NGROK_REGION=eu
+      - NGROK_PORT=alvtime-slack-app:3000
+
+  nginx-reverse-proxy:
+    build: ../nginx/
+    command: nginx -g 'daemon off;'
+    ports:
+      - "3000:80"
+    links:
+      - dotnet-backend
+      - alvtime-vue-pwa
+
+  alvtime-vue-pwa:
+    image: alvnoas/alvtime-vue-pwa-local:latest
+    expose:
+      - 80
+
+  dotnet-backend:
+    image: alvnoas/alvtime-web-api:latest
+    links:
+      - mssql-db
+    environment:
+      - ConnectionStrings__AlvTime_db=Data Source=tcp:mssql-db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32
+    expose:
+      - "80"
+
+  mssql-db:
+    image: alvnoas/alvtime-database:latest
+    ports:
+      - "1433:1433"
+    command:
+      - /bin/bash
+      - -c
+      - |
+        # Launch MSSQL and send to background
+        /opt/mssql/bin/sqlservr &
+        # So that the container doesn't shut down, sleep this thread
+        sleep infinity
+
+  mongo:
+    image: mongo:3
+    restart: always
+    expose:
+      - "27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=example
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=example
