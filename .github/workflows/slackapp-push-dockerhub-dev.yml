@@ -4,11 +4,10 @@ on:
   push:
     paths:
       - 'packages/slack-app'
-    paths-ignore:
-      - '**.md'
-      - '.gitignore'
-      - 'LICENCE'
-      - 'CODEOWNERS'
+      - '!**.md'
+      - '!.gitignore'
+      - '!LICENCE'
+      - '!CODEOWNERS'
     branches:
       - master
 
