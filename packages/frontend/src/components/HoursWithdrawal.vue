@@ -47,7 +47,7 @@
 		</div>
   </CenterColumnWrapper>
 </template>
-​
+
 <script lang="ts">
 import Vue from "vue";
 import YellowButton from "./YellowButton.vue";
@@ -56,14 +56,12 @@ import Input from "./Input.vue";
 import moment, { Moment } from "moment";
 import { adAuthenticatedFetch } from "@/services/auth";
 import config from "@/config";
-import DatePicker from "./DatePicker.vue";
 import CenterColumnWrapper from "@/components/CenterColumnWrapper.vue";
 import { MappedTransaction } from "../store/overtime";
 export default Vue.extend({
   components: {
     YellowButton,
     Input,
-    DatePicker,
     CenterColumnWrapper,
   },
   data() {
@@ -144,7 +142,7 @@ export default Vue.extend({
   },
 });
 </script>
-​
+
 <style scoped>
 .padding {
   padding: 1rem;

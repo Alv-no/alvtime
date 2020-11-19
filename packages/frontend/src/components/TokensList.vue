@@ -16,13 +16,13 @@
       </div>
       <div class="line" />
     </div>
-    <div v-for="token in prettyTokens" :key="token.id" class="row">
-      <div class="friendly-name">{{ token.friendlyName }}</div>
-      <div class="expiry-date">{{ token.expiryDate }}</div>
+    <div v-for="tkn in prettyTokens" :key="tkn.id" class="row">
+      <div class="friendly-name">{{ tkn.friendlyName }}</div>
+      <div class="expiry-date">{{ tkn.expiryDate }}</div>
       <YellowButton
         icon-id="delete_forever"
         tooltip="Slett"
-        @click="() => onDeleteClick(token)"
+        @click="() => onDeleteClick(tkn)"
       />
     </div>
     <md-dialog-confirm
