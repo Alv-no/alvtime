@@ -10,7 +10,7 @@ on:
       - 'LICENCE'
       - 'CODEOWNERS'
     branches:
-      - dev
+      - master
 
 env:
   IMAGE_NAME: alvnoas/alvtime-slack-app-dev

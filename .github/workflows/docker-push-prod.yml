@@ -10,7 +10,7 @@ on:
       - '!packages/frontend/CODEOWNERS'
 
     branches:
-      - master
+      - releases/*
 
 env:
   IMAGE_NAME: alvnoas/alvtime-vue-pwa
