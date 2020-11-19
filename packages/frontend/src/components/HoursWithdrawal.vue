@@ -1,16 +1,26 @@
 <template>
   <CenterColumnWrapper>
     <div class="padding">
-      <div class="description">
-        Her kan du bestille utbetaling av dine akkumulerte overtidstimer
-      </div>
-      <div class="availableOvertime">
-        Tilgjengelige overtidstimer for 2020: {{ overtimeYTD }} timer
-      </div>
-      <div class="registeredPayouts">
-        Tidligere utbetalte timer i 2020: {{ totalPayout }} timer
-      </div>
-      <div class="input-container">
+				<div class="availablehours">
+					<div class="available available-flex">
+						<h4>Timer tilgjengelig for flex</h4>
+						<div class="badge">
+							{{overtime}}	
+						</div>						
+					</div>
+					<div class="available available-flex">
+						<h4>Kompenserte timer</h4>
+						<div class="badge">
+							{{overtimeCompensated}}
+						</div> 
+					</div>
+				</div>
+			
+			<hr>
+			
+			<small style="padding: 10px">Tast inn antall timer du ønsker å ta ut. Maks antall timer er dine kompanserte timer</small>
+
+      <div class="order-payout-field">
         <Input v-model="hours" :error="!isFloat" placeholder="Antall timer" />
         <YellowButton
           icon-id="add_circle_outline"
@@ -20,58 +30,21 @@
         />
       </div>
 
-      <div class="list">
-        <transition name="expand">
-          <div v-if="isNumber" class="row">
-            <div class="date">{{ today }}</div>
-            <div class="hours">{{ hours }}</div>
-          </div>
-        </transition>
-      </div>
+			<hr>
 
-      <div class="input-container">
-        <div class="date-pickers">
-          <div class="date-picker">
-            <md-datepicker v-model="fromDate" md-immediately :md-model-type="String">
-              <label>Fra</label>
-            </md-datepicker>
-          </div>
-          <div class="date-picker">
-            <md-datepicker v-model="toDate" md-immediately :md-model-type="String">
-              <label>Til</label>
-            </md-datepicker>
-          </div>
-        </div>
+			<md-table md-fixed-header v-model="transactions">
+				<md-table-toolbar>
+					<h2 class="md-title">Transaksjoner</h2>
+				</md-table-toolbar>
+				<md-table-row slot="md-table-row" slot-scope="{item}">
+					<md-table-cell md-sort-by="date" md-label="Dato">{{item.date}}</md-table-cell>
+					<md-table-cell md-sort-by="type" md-label="Type">{{item.type}}</md-table-cell>
+					<md-table-cell md-sort-by="hours" md-label="Timer">{{item.hours}}</md-table-cell>
+					<md-table-cell md-sort-by="rate" md-label="Rate">{{item.rate}}</md-table-cell>
+				</md-table-row>
+			</md-table>			
 
-        <YellowButton
-          icon-id="add_circle_outline"
-          text="Hent overtidstimer"
-          @click="getFlexihours"
-        />
-
-        <div class="overtime">
-          <div class="sum">Total flex: {{ totalFlexHours }}</div>
-          <div class="sum">Total overtid: {{ overtimeEquivalents }}</div>
-        </div>
-
-        <div class="row header">
-          <div class="overtime-date">Dato</div>
-          <div class="overtime-value">Overtidstimer</div>
-        <div />
-      </div>
-      <div class="line" />
-    </div>
-
-        <div
-          class="row"
-          v-for="flexihour in formattedFlexihours"
-          :key="flexihour.date"
-        >
-          <div class="date">{{ flexihour.date }}</div>
-          <div class="hours">{{ flexihour.value }}</div>
-        </div>
-      </div>
-    </div>
+		</div>
   </CenterColumnWrapper>
 </template>
 ​
@@ -85,6 +58,7 @@ import { adAuthenticatedFetch } from "@/services/auth";
 import config from "@/config";
 import DatePicker from "./DatePicker.vue";
 import CenterColumnWrapper from "@/components/CenterColumnWrapper.vue";
+import { MappedTransaction } from "../store/overtime";
 export default Vue.extend({
   components: {
     YellowButton,
@@ -94,59 +68,33 @@ export default Vue.extend({
   },
   data() {
     return {
-      flexihours: [],
       hours: null,
-      overtimeEquivalents: 0,
-      overtimeYTD: 0,
-      payoutsYTD: [],
-      fromDate: moment()
-        .startOf("month")
-        .format("YYYY-MM-DD"),
-      toDate: moment().format("YYYY-MM-DD"),
-      today: moment().format("YYYY-MM-DD"),
-      yearStart: moment()
-        .startOf("year")
-        .format("YYYY-MM-DD"),
+			transactions: [],
+      today: moment().format("YYYY-MM-DD")
     };
   },
-  created() {
-    this.getOvertimeYTD(this.yearStart, this.today);
-    this.getPayoutsYTD(this.yearStart, this.today);
+  async created() {
+		// TODO FETCH Most data here
+		await this.$store.dispatch("FETCH_TRANSACTIONS");
+		this.processTransactions();
   },
   computed: {
-    formattedFlexihours(): { date: string; value: number }[] {
-      return this.flexihours.map(({ date, value }) => ({
-        date: this.formatDate(moment(date)),
-        value,
-      }));
-    },
-    totalFlexHours(): number {
-      return this.flexihours.reduce(function(
-        totalFlexHours: number,
-        item: { value: number }
-      ) {
-        return totalFlexHours + item.value;
-      },
-      0);
-    },
-    totalPayout(): number {
-      return this.payoutsYTD.reduce(function(
-        totalHoursPaid: number,
-        item: { value: number }
-      ) {
-        return totalHoursPaid + item.value;
-      },
-      0);
-    },
-    today(): string {
-      return this.formatDate(moment());
-    },
-    isNumber(): boolean {
-      return this.isFloat && !!this.hours;
-    },
+		overtime(): number {
+			return this.$store.getters.getAvailableHours;
+		},
+		overtimeCompensated(): number {
+			return this.$store.getters.getAvailableCompensated;
+		},
     buttonText(): string {
       // @ts-ignore
       return this.$mq === "sm" ? "" : "bestill";
+    },
+    isNumber(): boolean {
+			if (this.hours && this.hours.length > 0) {
+				 return !Number.isNaN(parseFloat(this.hours));
+			}
+			return false;
+
     },
     isFloat(): boolean {
       const hours = this.hours ? this.hours : "";
@@ -154,115 +102,40 @@ export default Vue.extend({
     },
   },
   methods: {
-    onButtonClick() {
-      console.log("button clicked");
-    },
-    async getFlexihours() {
-      await this.fetchFlexiHours(this.fromDate, this.toDate);
-      await this.fetchOvertimeEquivalents(this.fromDate, this.toDate);
-      console.log("button clicked");
-      console.log(JSON.stringify(this.flexihours));
-    },
-    formatDate(d: Moment): string {
-      const s = d.format("dddd D. MMMM");
-      return s.charAt(0).toUpperCase() + s.slice(1);
-    },
-    async fetchFlexiHours(fromDateInclusive: string, toDateInclusive: string) {
-      try {
-        const url = new URL(config.API_HOST + "/api/user/FlexiHours");
-        url.search = new URLSearchParams({
-          fromDateInclusive,
-          toDateInclusive,
-        }).toString();
-        const res = await adAuthenticatedFetch(url.toString());
-        if (res.status !== 200) {
-          throw res.statusText;
-        }
-        this.flexihours = await res.json();
-      } catch (e) {
-        console.error(e);
-        this.$store.commit("ADD_TO_ERROR_LIST", e);
-      }
-    },
-    async fetchOvertimeEquivalents(
-      fromDateInclusive: string,
-      toDateInclusive: string
-    ) {
-      try {
-        const url = new URL(config.API_HOST + "/api/user/OvertimeEquivalents");
-        url.search = new URLSearchParams({
-          fromDateInclusive,
-          toDateInclusive,
-        }).toString();
-        const res = await adAuthenticatedFetch(url.toString());
-        if (res.status !== 200) {
-          throw res.statusText;
-        }
-        this.overtimeEquivalents = await res.json();
-      } catch (e) {
-        console.error(e);
-        this.$store.commit("ADD_TO_ERROR_LIST", e);
-      }
-    },
-    async getOvertimeYTD(fromDateInclusive: string, toDateInclusive: string) {
-      try {
-        const url = new URL(config.API_HOST + "/api/user/OvertimeEquivalents");
-        url.search = new URLSearchParams({
-          fromDateInclusive,
-          toDateInclusive,
-        }).toString();
-        const res = await adAuthenticatedFetch(url.toString());
-        if (res.status !== 200) {
-          throw res.statusText;
-        }
-        this.overtimeYTD = await res.json();
-      } catch (e) {
-        console.error(e);
-        this.$store.commit("ADD_TO_ERROR_LIST", e);
-      }
-    },
-    async getPayoutsYTD(fromDateInclusive: string, toDateInclusive: string) {
-      try {
-        const url = new URL(config.API_HOST + "/api/user/OvertimePayouts");
-        url.search = new URLSearchParams({
-          fromDateInclusive,
-          toDateInclusive,
-        }).toString();
-        const res = await adAuthenticatedFetch(url.toString());
-        if (res.status !== 200) {
-          throw res.statusText;
-        }
-        this.payoutsYTD = await res.json();
-      } catch (e) {
-        console.error(e);
-        this.$store.commit("ADD_TO_ERROR_LIST", e);
-      }
-    },
-    async orderHours() {
-      try {
-        const method = "post";
-        const headers = { "Content-Type": "application/json" };
-        const body = JSON.stringify({
-          date: this.toDate,
-          value: parseFloat(this.hours.replace(/,/g, ".")),
-        });
-        const options = { method, headers, body };
-
-        const response = await adAuthenticatedFetch(
-          config.API_HOST + "/api/user/OvertimePayout",
-          options
-        );
-
-        if (response.status !== 200) {
-          throw response.statusText;
-        }
-
-        const payoutResponse = await response.json();
-        console.log(payoutResponse);
-      } catch (e) {
-        console.error(e);
-        this.$store.commit("ADD_TO_ERROR_LIST", e);
-      }
+		processTransactions() {
+			const transactions = this.$store.getters.getTransactionList as MappedTransaction[];
+			this.transactions = transactions.map(transaction => {
+					return {
+						date: transaction.transaction.date,
+						hours: transaction.transaction.hours,
+						type: this.getTranslatedType(transaction.type),
+						rate: transaction.transaction.rate ? `${transaction.transaction.rate * 100}%` : ''
+					};
+			});
+		},
+		getTranslatedValue(value: number, type: string): number {
+			switch(type) {
+				case 'available':
+					return value;
+				case 'payout':
+				case 'flex':
+					return value*-1;
+			}
+		},
+		getTranslatedType(type: string): string {
+			switch(type) {
+				case 'available':
+					return 'Opptjent';
+				case 'payout':
+					return 'Utbetalt';
+				case 'flex':
+					return 'Flex';
+			}
+		},
+		async orderHours() {
+			await this.$store.dispatch("POST_ORDER_PAYOUT", {hours: parseFloat(this.hours), date: this.today});
+			await this.$store.dispatch("FETCH_TRANSACTIONS");
+			this.processTransactions();
     },
   },
 });
@@ -272,54 +145,17 @@ export default Vue.extend({
 .padding {
   padding: 1rem;
 }
-.overtime-value {
-  font-weight: 600;
-  white-space: nowrap;
+
+.order-payout-field {
+	display: flex;
+	justify-content: left;
 }
-.overtime-date {
-  font-weight: 600;
-  text-transform: capitalize;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+
+hr {
+	margin: 20px 0 20px 0;
 }
-.overtime {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-.line {
-  border: 0.5px solid #008dcf;
-  margin: 0.3rem 0.3rem;
-}
-​.input-container {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-}
-​.description {
-  margin: 0.5rem 0;
-}
-​.expand-enter-active {
-  animation: enter 0.1s;
-  animation-timing-function: linear;
-}
-​ .expand-leave-active {
-  animation: enter 0.1s reverse;
-  animation-timing-function: linear;
-}
-.row {
-  display: grid;
-  grid-template-columns: 1fr 60px;
-  align-items: center;
-  color: #000;
-  padding: 0 1rem;
-  grid-gap: 0.5rem;
-}
-.date-pickers {
-  display: flex;
-  justify-content: space-between;
-}
-​ @keyframes enter {
+
+@keyframes enter {
   0% {
     height: 0;
     padding: 0;
@@ -330,5 +166,33 @@ export default Vue.extend({
     padding: 0.5rem 0;
     transform: scale(1, 1);
   }
+}
+
+.md-table-fixed-header-container table {
+	width: 100%;
+}
+
+.availablehours {
+	display: flex;
+	justify-content: space-between;
+}
+
+.md-table-head-label i:hover {
+	background-color: #fff;
+}
+
+.badge {
+  display: grid;
+  align-content: center;
+	font-weight: 600;
+	text-align: center;
+  background-color: #008dcf;
+  color: white;
+  height: 1.55rem;
+	width: 100%;
+  padding: 0.1rem;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  line-height: 1.5rem;
 }
 </style>

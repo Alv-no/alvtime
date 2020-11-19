@@ -8,6 +8,7 @@ import "vue-material/dist/vue-material.min.css";
 import "vue-material/dist/theme/default.css";
 import {
   MdButton,
+	MdTable,
   MdSnackbar,
   MdIcon,
   MdCheckbox,
@@ -37,6 +38,7 @@ Vue.use(MdTooltip);
 Vue.use(MdProgress);
 Vue.use(MdApp);
 Vue.use(MdToolbar);
+Vue.use(MdTable);
 Vue.use(MdContent);
 Vue.use(MdDrawer);
 Vue.use(MdList);
