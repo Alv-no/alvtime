@@ -1,6 +1,7 @@
 ﻿using AlvTime.Business.FlexiHours;
 using AlvTime.Business.TimeEntries;
 using AlvTime.Persistence.DataBaseModels;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -257,7 +258,7 @@ public class FlexhourStorage : IFlexhourStorage
         }
     }
 
-    public RegisterPaidOvertimeDto RegisterPaidOvertime(RegisterPaidOvertimeDto request, int userId)
+    public ObjectResult RegisterPaidOvertime(RegisterPaidOvertimeDto request, int userId)
     {
         var user = _context.User.SingleOrDefault(u => u.Id == userId);
         var startDate = user.StartDate;
@@ -283,9 +284,9 @@ public class FlexhourStorage : IFlexhourStorage
             _context.PaidOvertime.Add(paidOvertime);
             _context.SaveChanges();
 
-            return request;
+            return new OkObjectResult(paidOvertime);
         }
 
-        return new RegisterPaidOvertimeDto();
+        return new BadRequestObjectResult("Not enough available hours");
     }
 }
