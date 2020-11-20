@@ -237,6 +237,38 @@ namespace Tests.UnitTests.Flexihours
             Assert.Equal(5M, OTequivalents);
         }
 
+        [Fact]
+        public void GetOvertime_FlexingBeforeWorkingWithHighCompRate_WillNotSpendHighCompRateWhenFlexing()
+        {
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 06), value: 8.5M, out int taskWithNormalCompensation));
+            _context.CompensationRate.Add(CreateCompensationRate(taskWithNormalCompensation, compRate: 1M));
+
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 07), value: 6.5M, out int sometask));
+            _context.CompensationRate.Add(CreateCompensationRate(sometask, compRate: 1M));
+
+            _context.Hours.Add(new Hours
+            {
+                Date = new DateTime(2020, 01, 07),
+                Task = new Task
+                {
+                    Id = 18,
+                },
+                TaskId = 18,
+                User = 1,
+                Value = 1M
+            });
+
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 08), value: 8.5M, out int taskWith5TimesCompensation));
+            _context.CompensationRate.Add(CreateCompensationRate(taskWith5TimesCompensation, compRate: 6M));
+
+            _context.SaveChanges();
+
+            FlexhourStorage calculator = CreateStorage();
+
+            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 06), new DateTime(2020, 01, 08), 1);
+            Assert.Equal(6M, OTequivalents);
+        }
+
         private FlexhourStorage CreateStorage()
         {
             return new FlexhourStorage(new TimeEntryStorage(_context), _context);
