@@ -300,6 +300,43 @@ namespace Tests.UnitTests.Flexihours
             Assert.Equal(6M, OTequivalents);
         }
 
+        [Fact]
+        public void GetOvertime_Worked10HoursOnWorkdayAnd1HourWeekend()
+        {
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 03), value: 10M, out int taskWithNormalCompensation2));
+            _context.CompensationRate.Add(CreateCompensationRate(taskWithNormalCompensation2, compRate: 2M));
+
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 04), value: 4M, out int taskWithNormalCompensation));
+            _context.CompensationRate.Add(CreateCompensationRate(taskWithNormalCompensation, compRate: 0.5M));
+
+            _context.SaveChanges();
+
+            FlexhourStorage calculator = CreateStorage();
+
+            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 02), new DateTime(2020, 01, 04), 1);
+            Assert.Equal(7M, OTequivalents);
+        }
+
+        [Fact]
+        public void GetOvertime_WorkedPinse2021AndChristmas2022AndNewYearsDay2023_7AndAHalfHoursOvertime()
+        {
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2021, 05, 23), value: 2M, out int taskWithCompensation2));
+            _context.CompensationRate.Add(CreateCompensationRate(taskWithCompensation2, compRate: 2M));
+
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2022, 12, 24), value: 4M, out int taskWithCompensation));
+            _context.CompensationRate.Add(CreateCompensationRate(taskWithCompensation, compRate: 0.5M));
+
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2023, 01, 01), value: 1M, out int taskWithCompensation3));
+            _context.CompensationRate.Add(CreateCompensationRate(taskWithCompensation3, compRate: 1.5M));
+
+            _context.SaveChanges();
+
+            FlexhourStorage calculator = CreateStorage();
+
+            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 02), new DateTime(2023, 01, 01), 1);
+            Assert.Equal(7.5M, OTequivalents);
+        }
+
         private FlexhourStorage CreateStorage()
         {
             return new FlexhourStorage(new TimeEntryStorage(_context), _context);

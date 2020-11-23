@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 
 public class FlexhourStorage : IFlexhourStorage
 {
@@ -140,7 +139,6 @@ public class FlexhourStorage : IFlexhourStorage
     {
         var overtimeEntries = new List<OvertimeEntry>();
         var years = entriesByDate.Select(x => x.Date.Year).Distinct();
-
         var allRedDays = new List<DateTime>();
 
         foreach (var year in years)
@@ -154,53 +152,41 @@ public class FlexhourStorage : IFlexhourStorage
 
             if (day != null && WorkedOnRedDay(day, allRedDays))
             {
-                var overtimeHours = day.GetWorkingHours();
-
-                foreach (var entry in day.Entries.OrderBy(task => task.CompensationRate))
-                {
-                    if (overtimeHours <= 0)
-                    {
-                        break;
-                    }
-
-                    OvertimeEntry overtimeEntry = new OvertimeEntry
-                    {
-                        Hours = Math.Min(overtimeHours, entry.Value),
-                        CompensationRate = entry.CompensationRate,
-                        Date = day.Date,
-                        TaskId = entry.TaskId
-                    };
-
-                    overtimeEntries.Add(overtimeEntry);
-                    overtimeHours -= overtimeEntry.Hours;
-                }
+                overtimeEntries.AddRange(CreateOvertimeEntries(day, isRedDay: true));
             }
             else if (day != null && day.GetWorkingHours() > HoursInRegularWorkday)
             {
-                var overtimeHours = day.GetWorkingHours() - HoursInRegularWorkday;
-
-                foreach (var entry in day.Entries.OrderBy(task => task.CompensationRate))
-                {
-                    if (overtimeHours <= 0)
-                    {
-                        break;
-                    }
-
-                    OvertimeEntry overtimeEntry = new OvertimeEntry
-                    {
-                        Hours = Math.Min(overtimeHours, entry.Value),
-                        CompensationRate = entry.CompensationRate,
-                        Date = day.Date,
-                        TaskId = entry.TaskId
-                    };
-
-                    overtimeEntries.Add(overtimeEntry);
-                    overtimeHours -= overtimeEntry.Hours;
-                }
+                overtimeEntries.AddRange(CreateOvertimeEntries(day, isRedDay: false));
             }
         }
-
         return overtimeEntries;
+    }
+
+    private IEnumerable<OvertimeEntry> CreateOvertimeEntries(DateEntry day, bool isRedDay)
+    {
+        var overtimeEntries = new List<OvertimeEntry>();
+
+        var overtimeHours = isRedDay ? day.GetWorkingHours() : day.GetWorkingHours() - HoursInRegularWorkday;
+
+        foreach (var entry in day.Entries.OrderBy(task => task.CompensationRate))
+        {
+            if (overtimeHours <= 0)
+            {
+                break;
+            }
+
+            OvertimeEntry overtimeEntry = new OvertimeEntry
+            {
+                Hours = Math.Min(overtimeHours, entry.Value),
+                CompensationRate = entry.CompensationRate,
+                Date = day.Date,
+                TaskId = entry.TaskId
+            };
+
+            overtimeHours -= overtimeEntry.Hours;
+
+            yield return overtimeEntry;
+        }
     }
 
     private bool WorkedOnRedDay(DateEntry day, List<DateTime> redDays)
