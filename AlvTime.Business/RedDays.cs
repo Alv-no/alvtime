@@ -38,6 +38,8 @@ namespace AlvTime.Business
             };
         }
 
+        // This calculation was found in a StackOverflow post: 
+        // https://stackoverflow.com/questions/2510383/how-can-i-calculate-what-date-good-friday-falls-on-given-a-year
         public DateTime EasterSunday(int year)
         {
             int g = year % 19;
