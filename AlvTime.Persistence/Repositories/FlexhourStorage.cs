@@ -1,4 +1,5 @@
-﻿using AlvTime.Business.FlexiHours;
+﻿using AlvTime.Business;
+using AlvTime.Business.FlexiHours;
 using AlvTime.Business.TimeEntries;
 using AlvTime.Persistence.DataBaseModels;
 using Microsoft.AspNetCore.Mvc;
@@ -66,7 +67,7 @@ public class FlexhourStorage : IFlexhourStorage
         var payouts = _context.PaidOvertime.Where(po => po.User == userId);
         var sumPayouts = payouts.Sum(po => po.Value);
 
-        return new PayoutsDto 
+        return new PayoutsDto
         {
             TotalHours = sumPayouts,
             Entries = payouts.Select(po => new GenericPayoutEntry
@@ -79,13 +80,13 @@ public class FlexhourStorage : IFlexhourStorage
         };
     }
 
-    public List<FlexiHours> GetHoursWorkedMoreThanWorkday(DateTime startDate,DateTime endDate, int userId)
+    public List<FlexiHours> GetHoursWorkedMoreThanWorkday(DateTime startDate, DateTime endDate, int userId)
     {
         var flexHours = new List<FlexiHours>();
         var dbUser = _context.User.SingleOrDefault(u => u.Id == userId);
         var entriesByDate = GetTimeEntries(startDate, endDate, userId);
 
-        foreach (var currentDate in GetWorkingDaysInPeriod(startDate, endDate))
+        foreach (var currentDate in GetDaysInPeriod(startDate, endDate))
         {
             var day = entriesByDate.SingleOrDefault(entryDate => entryDate.Date == currentDate);
 
@@ -123,7 +124,7 @@ public class FlexhourStorage : IFlexhourStorage
             ToDateInclusive = endDate
         }).ToList();
 
-        var daysNotRecorded = GetWorkingDaysInPeriod(startDate, endDate).Where(day => !entriesByDate.Select(e => e.Date).Contains(day));
+        var daysNotRecorded = GetDaysInPeriod(startDate, endDate).Where(day => !entriesByDate.Select(e => e.Date).Contains(day));
         foreach (var day in daysNotRecorded)
         {
             entriesByDate.Add(new DateEntry
@@ -139,44 +140,74 @@ public class FlexhourStorage : IFlexhourStorage
     private List<OvertimeEntry> GetOvertimeEntries(IEnumerable<DateEntry> entriesByDate, DateTime startDate, DateTime endDate)
     {
         var overtimeEntries = new List<OvertimeEntry>();
+        var years = entriesByDate.Select(x => x.Date.Year).Distinct();
+        var allRedDays = new List<DateTime>();
 
-        foreach (var currentDate in GetWorkingDaysInPeriod(startDate, endDate))
+        foreach (var year in years)
+        {
+            allRedDays.AddRange(new RedDays(year).Dates);
+        }
+
+        foreach (var currentDate in GetDaysInPeriod(startDate, endDate))
         {
             var day = entriesByDate.SingleOrDefault(entryDate => entryDate.Date == currentDate);
 
-            if (day != null && day.GetWorkingHours() > HoursInRegularWorkday)
+            if (day != null && WorkedOnRedDay(day, allRedDays))
             {
-                var overtimeHours = day.GetWorkingHours() - HoursInRegularWorkday;
-
-                foreach (var entry in day.Entries.OrderBy(task => task.CompensationRate))
-                {
-                    if (overtimeHours <= 0)
-                    {
-                        break;
-                    }
-
-                    OvertimeEntry overtimeEntry = new OvertimeEntry
-                    {
-                        Hours = Math.Min(overtimeHours, entry.Value),
-                        CompensationRate = entry.CompensationRate,
-                        Date = day.Date,
-                        TaskId = entry.TaskId
-                    };
-
-                    overtimeEntries.Add(overtimeEntry);
-                    overtimeHours -= overtimeEntry.Hours;
-                }
+                overtimeEntries.AddRange(CreateOvertimeEntries(day, isRedDay: true));
+            }
+            else if (day != null && day.GetWorkingHours() > HoursInRegularWorkday)
+            {
+                overtimeEntries.AddRange(CreateOvertimeEntries(day, isRedDay: false));
             }
         }
-
         return overtimeEntries;
+    }
+
+    private IEnumerable<OvertimeEntry> CreateOvertimeEntries(DateEntry day, bool isRedDay)
+    {
+        var overtimeEntries = new List<OvertimeEntry>();
+
+        var overtimeHours = isRedDay ? day.GetWorkingHours() : day.GetWorkingHours() - HoursInRegularWorkday;
+
+        foreach (var entry in day.Entries.OrderBy(task => task.CompensationRate))
+        {
+            if (overtimeHours <= 0)
+            {
+                break;
+            }
+
+            OvertimeEntry overtimeEntry = new OvertimeEntry
+            {
+                Hours = Math.Min(overtimeHours, entry.Value),
+                CompensationRate = entry.CompensationRate,
+                Date = day.Date,
+                TaskId = entry.TaskId
+            };
+
+            overtimeHours -= overtimeEntry.Hours;
+
+            yield return overtimeEntry;
+        }
+    }
+
+    private bool WorkedOnRedDay(DateEntry day, List<DateTime> redDays)
+    {
+        if ((day.Date.DayOfWeek == DayOfWeek.Sunday || 
+            day.Date.DayOfWeek == DayOfWeek.Saturday || 
+            redDays.Contains(day.Date)) && 
+            day.GetWorkingHours() > 0)
+        {
+            return true;
+        }
+        return false;
     }
 
     private void CompensateForOffTime(List<OvertimeEntry> overtimeEntries, IEnumerable<DateEntry> entriesByDate, DateTime startDate, DateTime endDate, int userId)
     {
         var dbUser = _context.User.SingleOrDefault(u => u.Id == userId);
 
-        foreach (var currentWorkDay in GetWorkingDaysInPeriod(startDate, endDate))
+        foreach (var currentWorkDay in GetDaysInPeriod(startDate, endDate))
         {
             var day = entriesByDate.SingleOrDefault(entryDate => entryDate.Date == currentWorkDay);
             var entriesWithTimeOff = day.Entries.Where(e => e.TaskId == 18);
@@ -251,14 +282,11 @@ public class FlexhourStorage : IFlexhourStorage
         }
     }
 
-    private IEnumerable<DateTime> GetWorkingDaysInPeriod(DateTime from, DateTime to)
+    private IEnumerable<DateTime> GetDaysInPeriod(DateTime from, DateTime to)
     {
         for (DateTime currentDate = from; currentDate <= to; currentDate += TimeSpan.FromDays(1))
         {
-            if (!(currentDate.DayOfWeek == DayOfWeek.Sunday || currentDate.DayOfWeek == DayOfWeek.Saturday))
-            {
-                yield return currentDate;
-            }
+            yield return currentDate;
         }
     }
 
