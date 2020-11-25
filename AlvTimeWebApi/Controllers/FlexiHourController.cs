@@ -74,18 +74,19 @@ namespace AlvTimeWebApi.Controllers
                 TotalHours = payouts.TotalHours,
                 Entries = payouts.Entries.Select(entry => new
                 {
+                    Id = entry.Id,
                     Date = entry.Date.ToDateOnly(),
                     Hours = entry.Hours,
-                    Active = entry.Date.Month >= DateTime.Now.Month && entry.Date.Year == DateTime.Now.Year ? true : false
+                    Active = entry.Active
                 })
             });
         }
 
         [HttpPost("Payouts")]
         [Authorize]
-        public ActionResult<RegisterPaidOvertimeDto> RegisterPaidOvertime([FromBody] RegisterPaidOvertimeDto request)
+        public ActionResult<GenericHourEntry> RegisterPaidOvertime([FromBody] GenericHourEntry request)
         {
-            if (request.Value % 0.5M != 0)
+            if (request.Hours % 0.5M != 0)
             {
                 return BadRequest("Input value must be a multiple of a half hour (0.5)");
             }
@@ -99,7 +100,7 @@ namespace AlvTimeWebApi.Controllers
                 return Ok(new
                 {
                     Date = request.Date.ToDateOnly(),
-                    Value = request.Value
+                    Value = request.Hours
                 });
             }
 
@@ -108,11 +109,18 @@ namespace AlvTimeWebApi.Controllers
 
         [HttpDelete("Payouts")]
         [Authorize]
-        public ActionResult<RegisterPaidOvertimeDto> CancelPaidOvertime(int payoutId)
+        public ActionResult<PaidOvertimeEntry> CancelPaidOvertime([FromQuery] int payoutId)
         {
             var user = _userRetriever.RetrieveUser();
 
-            return new RegisterPaidOvertimeDto();
+            var response = _storage.CancelPayout(user.Id, payoutId);
+
+            if (response.Id == 0)
+            {
+                return BadRequest($"No payout cancelled for payout id {payoutId} for user: {user.Email}. Has the payout been locked?");
+            }
+
+            return Ok(response);
         }
     }
 }

@@ -27,10 +27,10 @@ namespace Tests.UnitTests.Flexihours
             FlexhourStorage calculator = CreateStorage();
             var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, new DateTime(2020, 01, 01), 1);
 
-            var registerOvertimeResponse = calculator.RegisterPaidOvertime(new RegisterPaidOvertimeDto
+            var registerOvertimeResponse = calculator.RegisterPaidOvertime(new GenericHourEntry
             {
                 Date = new DateTime(2020, 01, 01),
-                Value = 10
+                Hours = 10
             }, 1).Value as PaidOvertime;
 
             Assert.Equal(10, registerOvertimeResponse.Value);
@@ -51,10 +51,10 @@ namespace Tests.UnitTests.Flexihours
             FlexhourStorage calculator = CreateStorage();
             var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, new DateTime(2020, 01, 01), 1);
 
-            var registerOvertimeResponse = calculator.RegisterPaidOvertime(new RegisterPaidOvertimeDto
+            var registerOvertimeResponse = calculator.RegisterPaidOvertime(new GenericHourEntry
             {
                 Date = new DateTime(2020, 01, 01),
-                Value = 11
+                Hours = 11
             }, 1).StatusCode;
 
             Assert.Equal(400, registerOvertimeResponse);
@@ -71,10 +71,10 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var registerOvertimeResponse = calculator.RegisterPaidOvertime(new RegisterPaidOvertimeDto
+            var registerOvertimeResponse = calculator.RegisterPaidOvertime(new GenericHourEntry
             {
                 Date = new DateTime(2020, 01, 01),
-                Value = 10
+                Hours = 10
             }, 1).Value as PaidOvertime;
 
             var registeredPayouts = calculator.GetRegisteredPayouts(1);
@@ -93,20 +93,20 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            calculator.RegisterPaidOvertime(new RegisterPaidOvertimeDto
+            calculator.RegisterPaidOvertime(new GenericHourEntry
             {
                 Date = new DateTime(2020, 01, 01),
-                Value = 3
+                Hours = 3
             }, 1);
-            calculator.RegisterPaidOvertime(new RegisterPaidOvertimeDto
+            calculator.RegisterPaidOvertime(new GenericHourEntry
             {
                 Date = new DateTime(2020, 01, 01),
-                Value = 3
+                Hours = 3
             }, 1);
-            calculator.RegisterPaidOvertime(new RegisterPaidOvertimeDto
+            calculator.RegisterPaidOvertime(new GenericHourEntry
             {
                 Date = new DateTime(2020, 01, 01),
-                Value = 4
+                Hours = 4
             }, 1);
 
             var registeredPayouts = calculator.GetRegisteredPayouts(1);
