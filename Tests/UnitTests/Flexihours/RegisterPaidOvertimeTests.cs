@@ -19,17 +19,17 @@ namespace Tests.UnitTests.Flexihours
             var dbUser = _context.User.First();
             var startDate = dbUser.StartDate;
 
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 17.5M, out int taskid));
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 02), value: 17.5M, out int taskid));
             _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
 
             _context.SaveChanges();
 
             FlexhourStorage calculator = CreateStorage();
-            var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, new DateTime(2020, 01, 01), 1);
+            var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, new DateTime(2020, 01, 02), 1);
 
             var registerOvertimeResponse = calculator.RegisterPaidOvertime(new RegisterPaidOvertimeDto
             {
-                Date = new DateTime(2020, 01, 01),
+                Date = new DateTime(2020, 01, 02),
                 Value = 10
             }, 1).Value as PaidOvertime;
 
@@ -43,17 +43,17 @@ namespace Tests.UnitTests.Flexihours
             var dbUser = _context.User.First();
             var startDate = dbUser.StartDate;
 
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 17.5M, out int taskid));
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 02), value: 17.5M, out int taskid));
             _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
 
             _context.SaveChanges();
 
             FlexhourStorage calculator = CreateStorage();
-            var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, new DateTime(2020, 01, 01), 1);
+            var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, new DateTime(2020, 01, 02), 1);
 
             var registerOvertimeResponse = calculator.RegisterPaidOvertime(new RegisterPaidOvertimeDto
             {
-                Date = new DateTime(2020, 01, 01),
+                Date = new DateTime(2020, 01, 02),
                 Value = 11
             }, 1).StatusCode;
 
@@ -64,7 +64,7 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetRegisteredPayouts_Registered10Hours_10HoursRegistered()
         {
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 17.5M, out int taskid));
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 02), value: 17.5M, out int taskid));
             _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
 
             _context.SaveChanges();
@@ -73,7 +73,7 @@ namespace Tests.UnitTests.Flexihours
 
             var registerOvertimeResponse = calculator.RegisterPaidOvertime(new RegisterPaidOvertimeDto
             {
-                Date = new DateTime(2020, 01, 01),
+                Date = new DateTime(2020, 01, 02),
                 Value = 10
             }, 1).Value as PaidOvertime;
 
@@ -86,7 +86,7 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetRegisteredPayouts_Registered3Times_ListWith5Items()
         {
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 17.5M, out int taskid));
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 02), value: 17.5M, out int taskid));
             _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
 
             _context.SaveChanges();
@@ -95,17 +95,17 @@ namespace Tests.UnitTests.Flexihours
 
             calculator.RegisterPaidOvertime(new RegisterPaidOvertimeDto
             {
-                Date = new DateTime(2020, 01, 01),
+                Date = new DateTime(2020, 01, 02),
                 Value = 3
             }, 1);
             calculator.RegisterPaidOvertime(new RegisterPaidOvertimeDto
             {
-                Date = new DateTime(2020, 01, 01),
+                Date = new DateTime(2020, 01, 02),
                 Value = 3
             }, 1);
             calculator.RegisterPaidOvertime(new RegisterPaidOvertimeDto
             {
-                Date = new DateTime(2020, 01, 01),
+                Date = new DateTime(2020, 01, 02),
                 Value = 4
             }, 1);
 
