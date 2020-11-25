@@ -12,18 +12,18 @@ namespace AlvTime.Business
             Dates = new List<DateTime>
             {
                 new DateTime(year, 01, 01),
-                EasterSunday(year).AddDays(-7),
-                EasterSunday(year).AddDays(-6),
-                EasterSunday(year).AddDays(-5),
-                EasterSunday(year).AddDays(-4),
-                EasterSunday(year).AddDays(-3),
-                EasterSunday(year).AddDays(-2),
-                EasterSunday(year).AddDays(-1),
-                EasterSunday(year),
-                EasterSunday(year).AddDays(1),
-                EasterSunday(year).AddDays(39),
-                EasterSunday(year).AddDays(49),
-                EasterSunday(year).AddDays(50),
+                GetPalmeSondag(year),
+                GetMondayInEaster(year),
+                GetTuesdayInEaster(year),
+                GetWednesdayInEaster(year),
+                GetSkjaerTorsdag(year),
+                GetLangfredag(year),
+                GetPaskeAften(year),
+                GetEasterSunday(year),
+                GetAndrePaskeDag(year),
+                GetKristiHimmelfart(year),
+                GetForstePinsedag(year),
+                GetAndrePinsedag(year),
                 new DateTime(year, 05, 01),
                 new DateTime(year, 05, 17),
                 new DateTime(year, 12, 24),
@@ -38,9 +38,60 @@ namespace AlvTime.Business
             };
         }
 
+        public DateTime GetPalmeSondag(int year)
+        {
+            return GetEasterSunday(year).AddDays(-7);
+        }
+
+        public DateTime GetMondayInEaster(int year)
+        {
+            return GetEasterSunday(year).AddDays(-6);
+        }
+        public DateTime GetTuesdayInEaster(int year)
+        {
+            return GetEasterSunday(year).AddDays(-5);
+        }
+
+        public DateTime GetWednesdayInEaster(int year)
+        {
+            return GetEasterSunday(year).AddDays(-4);
+        }
+
+        public DateTime GetSkjaerTorsdag(int year)
+        {
+            return GetEasterSunday(year).AddDays(-3);
+        }
+
+        public DateTime GetLangfredag(int year)
+        {
+            return GetEasterSunday(year).AddDays(-2);
+        }
+
+        public DateTime GetPaskeAften(int year)
+        {
+            return GetEasterSunday(year).AddDays(-1);
+        }
+
+        public DateTime GetAndrePaskeDag(int year)
+        {
+            return GetEasterSunday(year).AddDays(1);
+        }
+        public DateTime GetKristiHimmelfart(int year)
+        {
+            return GetEasterSunday(year).AddDays(39);
+        }
+        public DateTime GetForstePinsedag(int year)
+        {
+            return GetEasterSunday(year).AddDays(49);
+        }
+        public DateTime GetAndrePinsedag(int year)
+        {
+            return GetEasterSunday(year).AddDays(50);
+        }
+
         // This calculation was found in a StackOverflow post: 
         // https://stackoverflow.com/questions/2510383/how-can-i-calculate-what-date-good-friday-falls-on-given-a-year
-        public DateTime EasterSunday(int year)
+        public DateTime GetEasterSunday(int year)
         {
             int g = year % 19;
             int c = year / 100;
