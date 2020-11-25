@@ -2,6 +2,7 @@
 using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Linq;
 
 namespace AlvTimeWebApi.Controllers
@@ -74,7 +75,8 @@ namespace AlvTimeWebApi.Controllers
                 Entries = payouts.Entries.Select(entry => new
                 {
                     Date = entry.Date.ToDateOnly(),
-                    Hours = entry.Hours
+                    Hours = entry.Hours,
+                    Active = entry.Date.Month >= DateTime.Now.Month && entry.Date.Year == DateTime.Now.Year ? true : false
                 })
             });
         }
@@ -92,6 +94,15 @@ namespace AlvTimeWebApi.Controllers
                 Date = response.Date.ToDateOnly(),
                 Value = response.Value
             });
+        }
+
+        [HttpDelete("Payouts")]
+        [Authorize]
+        public ActionResult<RegisterPaidOvertimeDto> CancelPaidOvertime(int payoutId)
+        {
+            var user = _userRetriever.RetrieveUser();
+
+            return new RegisterPaidOvertimeDto();
         }
     }
 }
