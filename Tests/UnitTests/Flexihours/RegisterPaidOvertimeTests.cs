@@ -31,7 +31,7 @@ namespace Tests.UnitTests.Flexihours
             {
                 Date = new DateTime(2020, 01, 01),
                 Value = 10
-            }, 1);
+            }, 1).Value as PaidOvertime;
 
             Assert.Equal(10, registerOvertimeResponse.Value);
             Assert.Contains(flexhours, hour => hour.Value == 10M);
@@ -55,31 +55,27 @@ namespace Tests.UnitTests.Flexihours
             {
                 Date = new DateTime(2020, 01, 01),
                 Value = 11
-            }, 1);
+            }, 1).StatusCode;
 
-            Assert.Equal(0, registerOvertimeResponse.Value);
+            Assert.Equal(400, registerOvertimeResponse);
             Assert.Contains(flexhours, hour => hour.Value == 10M);
         }
 
         [Fact]
         public void GetRegisteredPayouts_Registered10Hours_10HoursRegistered()
         {
-            var dbUser = _context.User.First();
-            var startDate = dbUser.StartDate;
-
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 17.5M, out int taskid));
             _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
 
             _context.SaveChanges();
 
             FlexhourStorage calculator = CreateStorage();
-            var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, new DateTime(2020, 01, 01), 1);
 
             var registerOvertimeResponse = calculator.RegisterPaidOvertime(new RegisterPaidOvertimeDto
             {
                 Date = new DateTime(2020, 01, 01),
                 Value = 10
-            }, 1);
+            }, 1).Value as PaidOvertime;
 
             var registeredPayouts = calculator.GetRegisteredPayouts(1);
 
@@ -90,9 +86,6 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetRegisteredPayouts_Registered3Times_ListWith5Items()
         {
-            var dbUser = _context.User.First();
-            var startDate = dbUser.StartDate;
-
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 01), value: 17.5M, out int taskid));
             _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
 

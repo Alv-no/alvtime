@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace AlvTime.Business.FlexiHours
 {
@@ -7,6 +7,6 @@ namespace AlvTime.Business.FlexiHours
         AvailableHoursDto GetAvailableHours(int userId);
         FlexedHoursDto GetFlexedHours(int userId);
         PayoutsDto GetRegisteredPayouts(int userId);
-        RegisterPaidOvertimeDto RegisterPaidOvertime(RegisterPaidOvertimeDto request, int userId);
+        ObjectResult RegisterPaidOvertime(RegisterPaidOvertimeDto request, int userId);
     }
 }

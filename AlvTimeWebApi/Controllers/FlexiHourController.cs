@@ -85,15 +85,25 @@ namespace AlvTimeWebApi.Controllers
         [Authorize]
         public ActionResult<RegisterPaidOvertimeDto> RegisterPaidOvertime([FromBody] RegisterPaidOvertimeDto request)
         {
+            if (request.Value % 0.5M != 0)
+            {
+                return BadRequest("Input value must be a multiple of a half hour (0.5)");
+            }
+
             var user = _userRetriever.RetrieveUser();
 
             var response = _storage.RegisterPaidOvertime(request, user.Id);
 
-            return Ok(new
+            if (response is OkObjectResult)
             {
-                Date = response.Date.ToDateOnly(),
-                Value = response.Value
-            });
+                return Ok(new
+                {
+                    Date = request.Date.ToDateOnly(),
+                    Value = request.Value
+                });
+            }
+
+            return BadRequest(response.Value);
         }
 
         [HttpDelete("Payouts")]
