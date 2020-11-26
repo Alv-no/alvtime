@@ -1,0 +1,74 @@
+version: "3.7"
+
+services:
+  alvtime-slack-app:
+    tty: true
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+    volumes:
+      - .:/usr/src/app:delegated
+      - /usr/src/app/node_modules/
+    links:
+      - dotnet-backend
+      - mongo
+    expose:
+      - 3000
+
+  ngrok:
+    ports:
+      - "0.0.0.0:4040:4040"
+    image: wernight/ngrok
+    links:
+      - alvtime-slack-app
+    env_file:
+      - .env
+    environment:
+      - NGROK_REGION=eu
+      - NGROK_PORT=alvtime-slack-app:3000
+
+  dotnet-backend:
+    image: alvnoas/alvtime-web-api:latest
+    links:
+      - mssql-db
+    environment:
+      - ConnectionStrings__AlvTime_db=Data Source=tcp:mssql-db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32
+    ports:
+      - "8080:80"
+    expose:
+      - "80"
+
+  mssql-db:
+    image: alvnoas/alvtime-database:latest
+    ports:
+      - "1433:1433"
+    command:
+      - /bin/bash
+      - -c
+      - |
+        # Launch MSSQL and send to background
+        /opt/mssql/bin/sqlservr &
+        # So that the container doesn't shut down, sleep this thread
+        sleep infinity
+
+  mongo:
+    image: mongo:3
+    restart: always
+    expose:
+      - "27017"
+    env_file:
+      - .env
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=example
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    env_file:
+      - .env
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=example

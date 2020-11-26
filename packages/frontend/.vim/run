@@ -1,0 +1,44 @@
+#!/usr/bin/env sh
+
+[ "start" = $1 ] && \
+  docker-compose --file .devcontainer/docker-compose.yaml --project-name alvtime-vue-pwa up --detach && \
+  docker-compose --file .devcontainer/docker-compose.yaml --project-name alvtime-vue-pwa exec alvtime-vue-dev npx vue-cli-service serve
+
+[ "up" = $1 ] && \
+  docker-compose --file .devcontainer/docker-compose.yaml --project-name alvtime-vue-pwa up --detach
+
+[ "serve" = $1 ] && \
+  docker-compose --file .devcontainer/docker-compose.yaml --project-name alvtime-vue-pwa exec alvtime-vue-dev npx vue-cli-service serve
+
+[ "down" = $1 ] && \
+  docker-compose --file .devcontainer/docker-compose.yaml --project-name alvtime-vue-pwa down --volumes
+
+[ "logs" = $1 ] && \
+  docker-compose --file .devcontainer/docker-compose.yaml --project-name alvtime-vue-pwa logs --follow
+
+[ "pull" = $1 ] && \
+  docker-compose --file .devcontainer/docker-compose.yaml --project-name alvtime-vue-pwa pull
+
+[ "build" = $1 ] && \
+  docker-compose --file .devcontainer/docker-compose.yaml --project-name alvtime-vue-pwa build
+
+[ "test" = $1 ] && \
+  docker-compose --file .devcontainer/docker-compose.yaml --project-name alvtime-vue-pwa exec alvtime-vue-dev npx vue-cli-service test:unit
+
+[ "test:e2e" = $1 ] && \
+  docker-compose --file .devcontainer/docker-compose.yaml --project-name alvtime-vue-pwa exec alvtime-vue-dev npx vue-cli-service test:e2e
+
+[ "lint" = $1 ] && \
+  docker-compose --file .devcontainer/docker-compose.yaml --project-name alvtime-vue-pwa exec alvtime-vue-dev npx vue-cli-service lint run lint
+
+[ "local-up" = $1 ] && \
+  docker-compose up --build
+
+[ "local-down" = $1 ] && \
+  docker-compose down --volumes
+
+[ "local-logs" = $1 ] && \
+  docker-compose logs --follow
+
+[ "prune" = $1 ] && \
+  docker system prune --force

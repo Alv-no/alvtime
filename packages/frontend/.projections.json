@@ -1,0 +1,14 @@
+{
+  "src/store/*.ts": {
+    "alternate": ["src/store/__tests__/{}.ts"]
+  },
+  "src/store/__tests__/*.ts": {
+    "alternate": ["src/store/{}.ts"]
+  },
+  "src/services/*.ts": {
+    "alternate": ["src/services/__tests__/{}.ts"]
+  },
+  "src/services/__tests__/*.ts": {
+    "alternate": ["src/services/{}.ts"]
+  }
+}

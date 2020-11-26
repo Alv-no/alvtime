@@ -1,0 +1,17 @@
+{
+  "name": "alvtime-admin-react-pwa",
+  "dockerComposeFile": ["../../docker-compose.yaml"],
+  "service": "alvtime-admin-react-pwa",
+  "workspaceFolder": "/src/packages/adminpanel",
+  "settings": {
+    "terminal.integrated.shell.linux": null
+  },
+  "extensions": [
+    "dbaeumer.vscode-eslint",
+    "octref.vetur",
+    "esbenp.prettier-vscode",
+    "ms-azuretools.vscode-docker"
+  ],
+  "remoteUser": "vscode",
+  "shutdownAction": "none"
+}
