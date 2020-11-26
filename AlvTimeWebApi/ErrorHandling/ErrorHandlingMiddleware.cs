@@ -26,7 +26,7 @@ namespace AlvTimeWebApi.ErrorHandling
             catch (Exception e)
             {
                 context.Response.StatusCode = 500;
-                context.Response.ContentType = "application/problem+json";
+                context.Response.ContentType = "application/json";
 
                 var problem = new ProblemDetails
                 {

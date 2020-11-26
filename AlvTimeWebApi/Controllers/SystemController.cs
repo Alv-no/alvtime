@@ -12,6 +12,7 @@ namespace AlvTimeWebApi.Controllers
             return Ok(DateTime.Now);
         }
 
+        [Obsolete]
         [HttpGet("api/throw")]
         public ActionResult Throw()
         {
