@@ -1,0 +1,48 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "sites_alvtime_api_name": {
+      "value": null
+    },
+    "serverfarms_AlvTime_api_name": {
+      "value": null
+    },
+    "ConnectionStrings__AlvTime_db": {
+      "value": null
+    },
+    "ASPNETCORE_ENVIRONMENT": {
+      "value": null
+    },
+    "Environment": {
+      "value": null
+    },
+    "EnvironmentShortHand": {
+      "value": null
+    },
+    "sites_alvtime_vue_pwa_name": {
+      "value": null
+    },
+    "AzureAd__Instance": {
+      "value": null
+    },
+    "AzureAd__Domain": {
+      "value": null
+    },
+    "AzureAd__TenantId": {
+      "value": null
+    },
+    "AzureAd__IssuerId": {
+      "value": null
+    },
+    "AzureAd__ClientId": {
+      "value": null
+    },
+    "AdminGroup": {
+      "value": null
+    },
+    "ReportGroup": {
+      "value": null 
+    }
+  }
+}

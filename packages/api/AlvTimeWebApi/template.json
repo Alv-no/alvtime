@@ -1,0 +1,263 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "sites_alvtime_api_name": {
+      "type": "String"
+    },
+    "serverfarms_AlvTime_api_name": {
+      "type": "String"
+    },
+    "sites_alvtime_vue_pwa_name": {
+      "type": "String"
+    },
+    "ConnectionStrings__AlvTime_db": {
+      "type": "String"
+    },
+    "ASPNETCORE_ENVIRONMENT": {
+      "type": "String"
+    },
+    "Environment": {
+      "type": "String"
+    },
+    "EnvironmentShortHand": {
+      "type": "String"
+    },
+    "AzureAd__Instance": {
+      "type": "String"
+    },
+    "AzureAd__Domain": {
+      "type": "String"
+    }, 
+    "AzureAd__TenantId": {
+      "type": "String"
+    },
+    "AzureAd__IssuerId": {
+      "type": "String"
+    },
+    "AzureAd__ClientId": {
+      "type": "String"
+    },
+    "AdminGroup": {
+      "type": "String"
+    },
+    "ReportGroup": {
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2018-02-01",
+      "name": "[parameters('serverfarms_AlvTime_api_name')]",
+      "location": "West Europe",
+      "tags": {
+        "Environment": "[parameters('Environment')]"
+      },
+      "sku": {
+        "name": "B1",
+        "tier": "Basic",
+        "size": "B1",
+        "family": "B",
+        "capacity": 1
+      },
+      "kind": "linux",
+      "properties": {
+        "perSiteScaling": false,
+        "maximumElasticWorkerCount": 1,
+        "isSpot": false,
+        "reserved": true,
+        "isXenon": false,
+        "hyperV": false,
+        "targetWorkerCount": 0,
+        "targetWorkerSizeId": 0
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2018-11-01",
+      "name": "[parameters('sites_alvtime_api_name')]",
+      "location": "West Europe",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_AlvTime_api_name'))]"
+      ],
+      "tags": {
+        "Environment": "[parameters('Environment')]"
+      },
+      "kind": "app,linux,container",
+      "properties": {
+        "enabled": true,
+        "hostNameSslStates": [
+          {
+            "name": "[concat(parameters('sites_alvtime_api_name'), '.azurewebsites.net')]",
+            "sslState": "Disabled",
+            "hostType": "Standard"
+          },
+          {
+            "name": "[concat(parameters('sites_alvtime_api_name'), '.scm.azurewebsites.net')]",
+            "sslState": "Disabled",
+            "hostType": "Repository"
+          }
+        ],
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_AlvTime_api_name'))]",
+        "reserved": true,
+        "isXenon": false,
+        "hyperV": false,
+        "scmSiteAlsoStopped": false,
+        "clientAffinityEnabled": false,
+        "clientCertEnabled": false,
+        "hostNamesDisabled": false,
+        "containerSize": 0,
+        "dailyMemoryTimeQuota": 0,
+        "httpsOnly": false,
+        "redundancyMode": "None",
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "ASPNETCORE_ENVIRONMENT",
+              "value": "[parameters('ASPNETCORE_ENVIRONMENT')]"
+            },
+            {
+              "name": "Environment",
+              "value": "[parameters('Environment')]"
+            },
+            {
+              "name": "EnvironmentShortHand",
+              "value": "[parameters('EnvironmentShortHand')]"
+            },
+            {
+              "name": "AzureAd__Instance",
+              "value": "[parameters('AzureAd__Instance')]"
+            },
+            {
+              "name": "AzureAd__Domain",
+              "value": "[parameters('AzureAd__Domain')]"
+            },
+            {
+              "name": "AzureAd__TenantId",
+              "value": "[parameters('AzureAd__TenantId')]"
+            },
+            {
+              "name": "AzureAd__ClientId",
+              "value": "[parameters('AzureAd__ClientId')]"
+            },
+            {
+              "name": "AzureAd__IssuerId",
+              "value": "[parameters('AzureAd__IssuerId')]"
+            },
+            {
+              "name": "AdminGroup",
+              "value": "[parameters('AdminGroup')]"
+            }
+          ],
+          "connectionStrings": [
+            {
+              "name": "Alvtime_db",
+              "connectionString": "[parameters('ConnectionStrings__AlvTime_db')]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2018-11-01",
+      "name": "[concat(parameters('sites_alvtime_api_name'), '/web')]",
+      "location": "West Europe",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('sites_alvtime_api_name'))]"
+      ],
+      "tags": {
+        "Environment": "[parameters('Environment')]"
+      },
+      "properties": {
+        "numberOfWorkers": 1,
+        "defaultDocuments": [
+          "Default.htm",
+          "Default.html",
+          "Default.asp",
+          "index.htm",
+          "index.html",
+          "iisstart.htm",
+          "default.aspx",
+          "index.php",
+          "hostingstart.html"
+        ],
+        "netFrameworkVersion": "v4.0",
+        "linuxFxVersion": "[concat('DOCKER|', parameters('sites_alvtime_api_name'), ':latest')]",
+        "requestTracingEnabled": false,
+        "remoteDebuggingEnabled": false,
+        "remoteDebuggingVersion": "VS2019",
+        "httpLoggingEnabled": true,
+        "logsDirectorySizeLimit": 35,
+        "detailedErrorLoggingEnabled": false,
+        "publishingUsername": "$alvtime-api-[parameters('EnvironmentShortHand')]",
+        "scmType": "VSTSRM",
+        "use32BitWorkerProcess": true,
+        "webSocketsEnabled": false,
+        "alwaysOn": false,
+        "managedPipelineMode": "Integrated",
+        "virtualApplications": [
+          {
+            "virtualPath": "/",
+            "physicalPath": "site\\wwwroot",
+            "preloadEnabled": false
+          }
+        ],
+        "loadBalancing": "LeastRequests",
+        "experiments": {
+          "rampUpRules": []
+        },
+        "autoHealEnabled": false,
+        "cors": {
+          "allowedOrigins": [
+            "[concat('https://', parameters('sites_alvtime_vue_pwa_name'), '.azurewebsites.net')]",
+            "https://www.alvtime.no",
+            "https://alvtime.no",
+            "https://alvtime-admin-react-pwa-as.azurewebsites.net",
+            "https://alvtime-admin-react-pwa-dev-as.azurewebsites.net"
+          ],
+          "supportCredentials": false
+        },
+        "localMySqlEnabled": false,
+        "ipSecurityRestrictions": [
+          {
+            "ipAddress": "Any",
+            "action": "Allow",
+            "priority": 1,
+            "name": "Allow all",
+            "description": "Allow all access"
+          }
+        ],
+        "scmIpSecurityRestrictions": [
+          {
+            "ipAddress": "Any",
+            "action": "Allow",
+            "priority": 1,
+            "name": "Allow all",
+            "description": "Allow all access"
+          }
+        ],
+        "scmIpSecurityRestrictionsUseMain": false,
+        "http20Enabled": false,
+        "minTlsVersion": "1.2",
+        "ftpsState": "AllAllowed",
+        "reservedInstanceCount": 0
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/hostNameBindings",
+      "apiVersion": "2018-11-01",
+      "name": "[concat(parameters('sites_alvtime_api_name'), '/', parameters('sites_alvtime_api_name'), '.azurewebsites.net')]",
+      "location": "West Europe",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('sites_alvtime_api_name'))]"
+      ],
+      "properties": {
+        "siteName": "parameters('sites_alvtime_api_name')",
+        "hostNameType": "Verified"
+      }
+    }
+  ]
+}
