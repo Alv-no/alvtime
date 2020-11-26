@@ -86,6 +86,10 @@ namespace AlvTimeWebApi.Controllers
         [Authorize]
         public ActionResult<GenericHourEntry> RegisterPaidOvertime([FromBody] GenericHourEntry request)
         {
+            if (request.Hours < 0)
+            {
+                return BadRequest("Input value must be positive number");
+            }
             if (request.Hours % 0.5M != 0)
             {
                 return BadRequest("Input value must be a multiple of a half hour (0.5)");
