@@ -70,10 +70,12 @@ public class FlexhourStorage : IFlexhourStorage
         return new PayoutsDto
         {
             TotalHours = sumPayouts,
-            Entries = payouts.Select(po => new GenericHourEntry
+            Entries = payouts.Select(po => new GenericPayoutEntry
             {
+                Id = po.Id,
                 Date = po.Date,
-                Hours = po.Value
+                Hours = po.Value,
+                Active = po.Date.Month >= DateTime.Now.Month && po.Date.Year == DateTime.Now.Year ? true : false
             }).ToList()
         };
     }
@@ -288,7 +290,7 @@ public class FlexhourStorage : IFlexhourStorage
         }
     }
 
-    public ObjectResult RegisterPaidOvertime(RegisterPaidOvertimeDto request, int userId)
+    public ObjectResult RegisterPaidOvertime(GenericHourEntry request, int userId)
     {
         var user = _context.User.SingleOrDefault(u => u.Id == userId);
         var startDate = user.StartDate;
@@ -302,13 +304,13 @@ public class FlexhourStorage : IFlexhourStorage
 
         var availableOvertimeEquivalents = GetOvertimeEquivalents(startDate, request.Date, userId);
 
-        if (request.Value <= availableOvertimeEquivalents)
+        if (request.Hours <= availableOvertimeEquivalents)
         {
             PaidOvertime paidOvertime = new PaidOvertime
             {
                 Date = request.Date,
                 User = userId,
-                Value = request.Value
+                Value = request.Hours
             };
 
             _context.PaidOvertime.Add(paidOvertime);
@@ -318,5 +320,26 @@ public class FlexhourStorage : IFlexhourStorage
         }
 
         return new BadRequestObjectResult("Not enough available hours");
+    }
+
+    public PaidOvertimeEntry CancelPayout(int userId, int id)
+    {
+        var payout = _context.PaidOvertime.FirstOrDefault(po => po.Id == id && po.User == userId);
+
+        if (payout != null && payout.Date.Month >= DateTime.Now.Month && payout.Date.Year == DateTime.Now.Year)
+        {
+            _context.PaidOvertime.Remove(payout);
+            _context.SaveChanges();
+
+            return new PaidOvertimeEntry
+            {
+                Date = payout.Date,
+                Id = payout.Id,
+                UserId = payout.User,
+                Value = payout.Value
+            };
+        }
+
+        return new PaidOvertimeEntry();
     }
 }

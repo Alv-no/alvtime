@@ -2,6 +2,7 @@
 using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Linq;
 
 namespace AlvTimeWebApi.Controllers
@@ -73,17 +74,23 @@ namespace AlvTimeWebApi.Controllers
                 TotalHours = payouts.TotalHours,
                 Entries = payouts.Entries.Select(entry => new
                 {
+                    Id = entry.Id,
                     Date = entry.Date.ToDateOnly(),
-                    Hours = entry.Hours
+                    Hours = entry.Hours,
+                    Active = entry.Active
                 })
             });
         }
 
         [HttpPost("Payouts")]
         [Authorize]
-        public ActionResult<RegisterPaidOvertimeDto> RegisterPaidOvertime([FromBody] RegisterPaidOvertimeDto request)
+        public ActionResult<GenericHourEntry> RegisterPaidOvertime([FromBody] GenericHourEntry request)
         {
-            if (request.Value % 0.5M != 0)
+            if (request.Hours < 0)
+            {
+                return BadRequest("Input value must be positive number");
+            }
+            if (request.Hours % 0.5M != 0)
             {
                 return BadRequest("Input value must be a multiple of a half hour (0.5)");
             }
@@ -97,11 +104,27 @@ namespace AlvTimeWebApi.Controllers
                 return Ok(new
                 {
                     Date = request.Date.ToDateOnly(),
-                    Value = request.Value
+                    Value = request.Hours
                 });
             }
 
             return BadRequest(response.Value);
+        }
+
+        [HttpDelete("Payouts")]
+        [Authorize]
+        public ActionResult<PaidOvertimeEntry> CancelPaidOvertime([FromQuery] int payoutId)
+        {
+            var user = _userRetriever.RetrieveUser();
+
+            var response = _storage.CancelPayout(user.Id, payoutId);
+
+            if (response.Id == 0)
+            {
+                return BadRequest($"No payout cancelled for payout id {payoutId} for user: {user.Email}. Has the payout been locked?");
+            }
+
+            return Ok(response);
         }
     }
 }
