@@ -1,0 +1,26 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": ".NET Core Launch (console)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/AlvTimeWebApi/bin/Debug/netcoreapp3.0/AlvTimeWebApi.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "http://0.0.0.0:5000",
+                "ASPNETCORE_DETAILEDERRORS": "1",
+                "ASPNETCORE_SHUTDOWNTIMEOUTSECONDS": "3",
+                "ConnectionStrings__AlvTime_db": "Data Source=tcp:mssql-db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32"
+            },
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        }
+    ]
+}

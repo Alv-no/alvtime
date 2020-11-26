@@ -32,6 +32,11 @@ namespace AlvTimeWebApi.Controllers
             return Ok(tasks);
         }
 
+        [HttpGet("ping")]
+        public ActionResult<string> Ping() {
+            return Ok("hei");
+        }
+
         [HttpPost("Tasks")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<IEnumerable<TaskResponseDto>> UpdateFavoriteTasks([FromBody] IEnumerable<UpdateTasksDto> tasksToBeUpdated)

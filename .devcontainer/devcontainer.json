@@ -1,0 +1,13 @@
+{
+  "name": "C# (.NET Core)",
+  "dockerComposeFile": ["docker-compose.yaml"],
+
+  "service": "alvtime-web-api",
+  "workspaceFolder": "/usr/src/app",
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash"
+  },
+  "forwardPorts": [5000],
+
+  "extensions": ["ms-dotnettools.csharp"]
+}
