@@ -1,8 +1,8 @@
 {
-  "name": "alvtime-vue-pwa",
+  "name": "frontend",
   "dockerComposeFile": ["../../docker-compose.yaml"],
-  "service": "alvtime-vue-pwa",
-  "workspaceFolder": "/src/packages/frontend",
+  "service": "frontend",
+  "workspaceFolder": "/src",
   "settings": {
     "terminal.integrated.shell.linux": null
   },

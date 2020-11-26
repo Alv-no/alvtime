@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+[ "up" = $1 ] && \
+  docker-compose up --detach
+
+if [ "frontend" = $1 ]; then
+  docker-compose up -d && \
+  docker-compose exec frontend npm start
+fi
+
+if [ "adminpanel" = $1 ]; then
+  docker-compose up -d && \
+  docker-compose exec frontend npm start
+fi
+
+[ "down" = $1 ] && \
+  docker-compose down --volumes
+
+[ "logs" = $1 ] && \
+  docker-compose logs --follow
+
+[ "test" = $1 ] && \
+  docker-compose exec alvtime-admin-react-pwa npm test
+
+[ "prune" = $1 ] && \
+  docker system prune --force

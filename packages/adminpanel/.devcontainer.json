@@ -1,10 +1,10 @@
 {
-  "name": "alvtime-admin-react-pwa",
+  "name": "adminpanel",
   "dockerComposeFile": ["../../docker-compose.yaml"],
-  "service": "alvtime-admin-react-pwa",
-  "workspaceFolder": "/src/packages/adminpanel",
+  "service": "adminpanel",
+  "workspaceFolder": "/src",
   "settings": {
-    "terminal.integrated.shell.linux": null
+    "terminal.integrated.shell.linux": "/bin/bash"
   },
   "extensions": [
     "dbaeumer.vscode-eslint",

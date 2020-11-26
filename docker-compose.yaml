@@ -1,37 +1,32 @@
 version: "3.7"
 
 services:
-  alvtime-admin-react-pwa:
+  adminpanel:
     user: vscode
     tty: true
     build:
       context: ./packages/adminpanel
-      dockerfile: Dockerfile
       target: dev
-    working_dir: /src/packages/adminpanel
     volumes:
-      - .:/src:cached
-      - /src/node_modules/
-    environment:
-      - CHOKIDAR_USEPOLLING=true
+      - ./packages/adminpanel:/src
+      - /src/node_modules
     expose:
       - "3000"
     environment:
+      - CHOKIDAR_USEPOLLING=true
       - REACT_APP_API_HOST=http://localhost:3000
       - REACT_APP_ACCESS_SCOPE=https://d8aedd.alvtime-ap-alvtime-api-dev-f9b4e4.westeurope.cloudapp.azure.com/access_as_user
       - REACT_APP_CLIENT_ID=373a7768-6d2a-4b20-b671-bc1089104a3a
 
-  alvtime-vue-pwa:
+  frontend:
     user: vscode
     tty: true
     build:
       context: ./packages/frontend
-      dockerfile: Dockerfile
       target: dev
-    working_dir: /src/packages/frontend
     volumes:
-      - .:/src:cached
-      - /src/node_modules/
+      - ./packages/frontend:/src
+      - /src/node_modules
     expose:
       - 8080
     environment:
@@ -43,26 +38,28 @@ services:
     build: ./reverse-proxy/
     ports:
       - "3000:3000"
-    links:
-      - alvtime-web-api
-      - alvtime-vue-pwa
-      - alvtime-admin-react-pwa
+    depends_on:
+      - api
+      - frontend
+      - adminpanel
     command: nginx -g 'daemon off;'
 
-  alvtime-web-api:
-    image: alvnoas/alvtime-web-api:latest
+  api:
+    build:
+      context: ./packages/api
     links:
-      - alvtime-database
+      - db
     environment:
-      - ConnectionStrings__AlvTime_db=Data Source=tcp:alvtime-database,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32
+      - ConnectionStrings__AlvTime_db=Data Source=tcp:db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32
       - AdminGroup=5850c192-c101-4b64-9c45-cbbf73542805
     expose:
       - "80"
     ports:
       - "8000:80"
 
-  alvtime-database:
-    image: alvnoas/alvtime-database:latest
+  db:
+    build:
+      context: ./packages/api/AlvTime.Persistence/Database
     expose:
       - "1433"
     ports:
