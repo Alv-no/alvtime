@@ -2,7 +2,6 @@
 using AlvTime.Persistence.DataBaseModels;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 
 namespace AlvTime.Persistence.Repositories
@@ -59,7 +58,7 @@ namespace AlvTime.Persistence.Repositories
                     {
                         TaskId = e.TaskId,
                         Value = e.Value,
-                        CompensationRate = compensationRates.FirstOrDefault(cr => cr.TaskId == e.TaskId).Value,
+                        CompensationRate = compensationRates.FirstOrDefault(cr => cr.TaskId == e.TaskId)?.Value ?? 1M,
                     })
                 });
         }

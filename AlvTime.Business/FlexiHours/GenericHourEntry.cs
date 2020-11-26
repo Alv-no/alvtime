@@ -2,9 +2,9 @@
 
 namespace AlvTime.Business.FlexiHours
 {
-    public class RegisterPaidOvertimeDto
+    public class GenericHourEntry
     {
         public DateTime Date { get; set; }
-        public decimal Value { get; set; }
+        public decimal Hours { get; set; }
     }
 }

@@ -175,8 +175,6 @@ namespace AlvTime.Persistence.DataBaseModels
                     .IsRequired()
                     .HasMaxLength(300);
 
-                entity.Property(e => e.FillPriority).HasDefaultValueSql("((1))");
-
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(100);

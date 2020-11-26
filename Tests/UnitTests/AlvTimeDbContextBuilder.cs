@@ -200,7 +200,7 @@ namespace Tests.UnitTests
                 Id = 1,
                 Email = "someone@alv.no",
                 Name = "Someone",
-                StartDate = DateTime.Now
+                StartDate = new DateTime(2020, 01, 02)
             });
 
             _context.User.Add(new User
