@@ -4,11 +4,11 @@ namespace AlvTime.Business.TimeEntries
 {
     public class TimeEntryCreator
     {
-        private readonly ITimeEntryStorage _storage;
+        private readonly ITimeEntryStorage _timeEntryStorage;
 
         public TimeEntryCreator(ITimeEntryStorage storage)
         {
-            _storage = storage;
+            _timeEntryStorage = storage;
         }
 
         public IEnumerable<TimeEntriesResponseDto> UpsertTimeEntry(IEnumerable<CreateTimeEntryDto> timeEntries, int userId)
@@ -27,11 +27,11 @@ namespace AlvTime.Business.TimeEntries
 
                 if (GetTimeEntry(criterias) == null)
                 {
-                    response.Add(_storage.CreateTimeEntry(timeEntry, userId));
+                    response.Add(_timeEntryStorage.CreateTimeEntry(timeEntry, userId));
                 }
                 else
                 {
-                    response.Add(_storage.UpdateTimeEntry(timeEntry, userId));
+                    response.Add(_timeEntryStorage.UpdateTimeEntry(timeEntry, userId));
                 }
             }
 
@@ -40,7 +40,7 @@ namespace AlvTime.Business.TimeEntries
 
         public TimeEntriesResponseDto GetTimeEntry(TimeEntryQuerySearch criterias)
         {
-            return _storage.GetTimeEntry(criterias);
+            return _timeEntryStorage.GetTimeEntry(criterias);
         } 
     }
 }
