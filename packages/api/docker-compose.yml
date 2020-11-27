@@ -5,8 +5,6 @@ services:
     build: ./
     links:
       - mssql-db
-    env_file:
-      - ../AlvTimeWebApi/.env
     ports:
       - "8000:80"
     environment:
