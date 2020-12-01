@@ -161,6 +161,20 @@ namespace Tests.UnitTests.Flexihours
             Assert.Equal(0, flexhours.TotalHoursIncludingCompensationRate);
         }
 
+        [Fact]
+        public void GetFlexedhours_FlexingMoreThanAvailable_NegativeFlex()
+        {
+            _context.Hours.Add(CreateTimeEntry(date: _startDate, value: 8.5M, out int taskid));
+            _context.Hours.Add(CreateFlexEntry(date: _startDate.AddDays(1), value: 2M));
+            _context.SaveChanges();
+
+            var calculator = CreateStorage();
+            var flexhours = calculator.GetAvailableHours(1);
+
+            Assert.Equal(-1M, flexhours.TotalHours);
+            Assert.Equal(0, flexhours.TotalHoursIncludingCompensationRate);
+        }
+
         private FlexhourStorage CreateStorage()
         {
             return new FlexhourStorage(new TimeEntryStorage(_context), _context);

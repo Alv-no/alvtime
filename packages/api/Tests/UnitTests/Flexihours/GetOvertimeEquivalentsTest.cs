@@ -23,7 +23,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 02), new DateTime(2020, 01, 02), 1);
+            var OTequivalents = calculator.GetOvertimeEquivalents2(new DateTime(2020, 01, 02), new DateTime(2020, 01, 02), 1).overtime;
             Assert.Equal(0, OTequivalents);
         }
 
@@ -40,7 +40,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 02), new DateTime(2020, 01, 03), 1);
+            var OTequivalents = calculator.GetOvertimeEquivalents2(new DateTime(2020, 01, 02), new DateTime(2020, 01, 03), 1).overtime;
             Assert.Equal(2.5M, OTequivalents);
         }
 
@@ -57,7 +57,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 02), new DateTime(2020, 01, 02), 1);
+            var OTequivalents = calculator.GetOvertimeEquivalents2(new DateTime(2020, 01, 02), new DateTime(2020, 01, 02), 1).overtime;
             Assert.Equal(1.25M, OTequivalents);
         }
 
@@ -71,7 +71,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 02), new DateTime(2020, 01, 02), 1);
+            var OTequivalents = calculator.GetOvertimeEquivalents2(new DateTime(2020, 01, 02), new DateTime(2020, 01, 02), 1).overtime;
             Assert.Equal(3M, OTequivalents);
         }
 
@@ -88,7 +88,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 02), new DateTime(2020, 01, 02), 1);
+            var OTequivalents = calculator.GetOvertimeEquivalents2(new DateTime(2020, 01, 02), new DateTime(2020, 01, 02), 1).overtime;
             Assert.Equal(1.25M, OTequivalents);
         }
 
@@ -108,7 +108,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 02), new DateTime(2020, 01, 02), 1);
+            var OTequivalents = calculator.GetOvertimeEquivalents2(new DateTime(2020, 01, 02), new DateTime(2020, 01, 02), 1).overtime;
             Assert.Equal(7.5M, OTequivalents);
         }
 
@@ -128,7 +128,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 02), new DateTime(2020, 01, 06), 1);
+            var OTequivalents = calculator.GetOvertimeEquivalents2(new DateTime(2020, 01, 02), new DateTime(2020, 01, 06), 1).overtime;
             Assert.Equal(7.5M, OTequivalents);
         }
 
@@ -145,7 +145,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 02), new DateTime(2020, 01, 02), 1);
+            var OTequivalents = calculator.GetOvertimeEquivalents2(new DateTime(2020, 01, 02), new DateTime(2020, 01, 02), 1).overtime;
             Assert.Equal(1.25M, OTequivalents);
         }
 
@@ -170,7 +170,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 02), new DateTime(2020, 01, 03), 1);
+            var OTequivalents = calculator.GetOvertimeEquivalents2(new DateTime(2020, 01, 02), new DateTime(2020, 01, 03), 1).overtime;
             Assert.Equal(0M, OTequivalents);
         }
 
@@ -190,7 +190,7 @@ namespace Tests.UnitTests.Flexihours
                 Hours = 5
             }, 1);
 
-            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 02), new DateTime(2020, 01, 02), 1);
+            var OTequivalents = calculator.GetOvertimeEquivalents2(new DateTime(2020, 01, 02), new DateTime(2020, 01, 02), 1).overtime;
             Assert.Equal(5M, OTequivalents);
         }
 
@@ -233,7 +233,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 01), new DateTime(2020, 04, 01), 1);
+            var OTequivalents = calculator.GetOvertimeEquivalents2(new DateTime(2020, 01, 01), new DateTime(2020, 04, 01), 1).overtime;
             Assert.Equal(5M, OTequivalents);
         }
 
@@ -265,7 +265,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 06), new DateTime(2020, 01, 08), 1);
+            var OTequivalents = calculator.GetOvertimeEquivalents2(new DateTime(2020, 01, 06), new DateTime(2020, 01, 08), 1).overtime;
             Assert.Equal(6M, OTequivalents);
         }
 
@@ -279,7 +279,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 02), new DateTime(2020, 05, 21), 1);
+            var OTequivalents = calculator.GetOvertimeEquivalents2(new DateTime(2020, 01, 02), new DateTime(2020, 05, 21), 1).overtime;
             Assert.Equal(3M, OTequivalents);
         }
 
@@ -296,7 +296,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 02), new DateTime(2020, 05, 21), 1);
+            var OTequivalents = calculator.GetOvertimeEquivalents2(new DateTime(2020, 01, 02), new DateTime(2020, 05, 21), 1).overtime;
             Assert.Equal(6M, OTequivalents);
         }
 
@@ -313,7 +313,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 02), new DateTime(2020, 01, 04), 1);
+            var OTequivalents = calculator.GetOvertimeEquivalents2(new DateTime(2020, 01, 02), new DateTime(2020, 01, 04), 1).overtime;
             Assert.Equal(7M, OTequivalents);
         }
 
@@ -333,7 +333,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 02), new DateTime(2023, 01, 01), 1);
+            var OTequivalents = calculator.GetOvertimeEquivalents2(new DateTime(2020, 01, 02), new DateTime(2023, 01, 01), 1).overtime;
             Assert.Equal(7.5M, OTequivalents);
         }
 
