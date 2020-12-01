@@ -28,7 +28,7 @@ public class FlexhourStorage : IFlexhourStorage
 
         var entriesByDate = GetTimeEntries(startDate, endDate, userId);
         var overtimeEntries = GetOvertimeEntries(entriesByDate, startDate, endDate);
-        (var overtime, var flex) = GetOvertimeEquivalents2(startDate, endDate, userId);
+        (var overtime, var flex) = GetFlexAndOvertime(startDate, endDate, userId);
 
         return new AvailableHoursDto
         {
@@ -76,7 +76,7 @@ public class FlexhourStorage : IFlexhourStorage
         };
     }
 
-    public (decimal overtime, decimal flex) GetOvertimeEquivalents2(DateTime startDate, DateTime endDate, int userId)
+    public (decimal overtime, decimal flex) GetFlexAndOvertime(DateTime startDate, DateTime endDate, int userId)
     {
         List<DateEntry> entriesByDate = GetTimeEntries(startDate, endDate, userId);
         var registeredPayouts = GetRegisteredPayouts(userId);
@@ -288,7 +288,7 @@ public class FlexhourStorage : IFlexhourStorage
         CompensateForOffTime(overtimeEntries, entriesByDate, startDate, request.Date, userId);
         CompensateForRegisteredPayouts(overtimeEntries, registeredPayouts);
 
-        var availableOvertimeEquivalents = GetOvertimeEquivalents2(startDate, request.Date, userId).overtime;
+        var availableOvertimeEquivalents = GetFlexAndOvertime(startDate, request.Date, userId).overtime;
 
         if (request.Hours <= availableOvertimeEquivalents)
         {
