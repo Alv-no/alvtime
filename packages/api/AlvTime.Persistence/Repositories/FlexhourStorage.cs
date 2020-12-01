@@ -12,6 +12,7 @@ public class FlexhourStorage : IFlexhourStorage
     private const decimal HoursInRegularWorkday = 7.5M;
     private readonly ITimeEntryStorage _storage;
     private readonly AlvTime_dbContext _context;
+    private readonly int _flexTask;
 
     public FlexhourStorage(ITimeEntryStorage storage, AlvTime_dbContext context)
     {
@@ -25,18 +26,8 @@ public class FlexhourStorage : IFlexhourStorage
         var startDate = dbUser.StartDate;
         var endDate = DateTime.Now.Date;
 
-        var flexedHours = _context.Hours.Where(h => h.User == userId && h.TaskId == 18).Sum(h => h.Value);
-        var payedHours = _context.PaidOvertime.Where(h => h.User == userId && startDate <= h.Date && h.Date <= endDate).ToList();
-        var totalPayout = payedHours.Sum(ph => ph.Value);
-
-        var hoursWorkedOver = GetHoursWorkedMoreThanWorkday(startDate, endDate, userId).Sum(e => e.Value) - flexedHours - totalPayout;
-
-        var hoursWithCompRate = GetOvertimeEquivalents(startDate, endDate, userId);
-
         var entriesByDate = GetTimeEntries(startDate, endDate, userId);
-
         var overtimeEntries = GetOvertimeEntries(entriesByDate, startDate, endDate);
-
         (var overtime, var flex) = GetOvertimeEquivalents2(startDate, endDate, userId);
 
         return new AvailableHoursDto
@@ -85,9 +76,9 @@ public class FlexhourStorage : IFlexhourStorage
         };
     }
 
-    public List<FlexiHours> GetHoursWorkedMoreThanWorkday(DateTime startDate, DateTime endDate, int userId)
+    public List<GenericHourEntry> GetHoursWorkedMoreThanWorkday(DateTime startDate, DateTime endDate, int userId)
     {
-        var flexHours = new List<FlexiHours>();
+        var overtimeEntries = new List<GenericHourEntry>();
         var dbUser = _context.User.SingleOrDefault(u => u.Id == userId);
         var entriesByDate = GetTimeEntries(startDate, endDate, userId);
 
@@ -97,15 +88,15 @@ public class FlexhourStorage : IFlexhourStorage
 
             if (day.GetWorkingHours() > HoursInRegularWorkday)
             {
-                flexHours.Add(new FlexiHours
+                overtimeEntries.Add(new GenericHourEntry
                 {
-                    Value = day.GetWorkingHours() - HoursInRegularWorkday,
+                    Hours = day.GetWorkingHours() - HoursInRegularWorkday,
                     Date = day.Date
                 });
             }
         }
 
-        return flexHours;
+        return overtimeEntries;
     }
 
     public decimal GetOvertimeEquivalents(DateTime startDate, DateTime endDate, int userId)
@@ -129,7 +120,10 @@ public class FlexhourStorage : IFlexhourStorage
         CompensateForOffTime(overtimeEntries, entriesByDate, startDate, endDate, userId);
         CompensateForRegisteredPayouts(overtimeEntries, registeredPayouts);
 
-        return (overtimeEntries.Sum(h => h.CompensationRate * h.Hours), overtimeEntries.Sum(o => o.Hours));
+        var sumCompensatedHours = overtimeEntries.Sum(o => o.CompensationRate * o.Hours);
+        var sumFlexHours = overtimeEntries.Sum(o => o.Hours);
+
+        return (sumCompensatedHours > 0 ? sumCompensatedHours : 0, sumFlexHours);
     }
 
     public List<DateEntry> GetTimeEntries(DateTime startDate, DateTime endDate, int userId)
@@ -262,6 +256,16 @@ public class FlexhourStorage : IFlexhourStorage
                     overtimeEntries.Add(overtimeEntry);
                     hoursOffThisDay -= overtimeEntry.Hours;
                 }
+                if (!orderedOverTime.Any())
+                {
+                    OvertimeEntry overtimeEntry = new OvertimeEntry
+                    {
+                        Hours = -hoursOffThisDay,
+                        CompensationRate = 1,
+                        Date = day.Date
+                    };
+                    overtimeEntries.Add(overtimeEntry);
+                }
             }
         }
     }
@@ -278,7 +282,7 @@ public class FlexhourStorage : IFlexhourStorage
                 CompensationRate = cr,
                 Hours = hours.Sum(h => h.Hours)
             })
-            .OrderByDescending(h => h.CompensationRate);
+            .OrderBy(h => h.CompensationRate);
 
         foreach (var entry in orderedOverTime)
         {
@@ -289,13 +293,13 @@ public class FlexhourStorage : IFlexhourStorage
 
             OvertimeEntry overtimeEntry = new OvertimeEntry
             {
-                Hours = -Math.Min(registeredPayoutsTotal, entry.Hours * entry.CompensationRate),
-                CompensationRate = 1,
+                Hours = -Math.Min(registeredPayoutsTotal, entry.Hours),
+                CompensationRate = entry.CompensationRate,
                 Date = DateTime.Now
             };
 
             overtimeEntries.Add(overtimeEntry);
-            registeredPayoutsTotal += overtimeEntry.Hours;
+            registeredPayoutsTotal += overtimeEntry.Hours * entry.CompensationRate;
         }
     }
 

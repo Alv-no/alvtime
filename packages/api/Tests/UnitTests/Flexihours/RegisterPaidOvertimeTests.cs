@@ -34,7 +34,7 @@ namespace Tests.UnitTests.Flexihours
             }, 1).Value as PaidOvertime;
 
             Assert.Equal(10, registerOvertimeResponse.Value);
-            Assert.Contains(flexhours, hour => hour.Value == 10M);
+            Assert.Contains(flexhours, hour => hour.Hours == 10M);
         }
 
         [Fact]
@@ -58,7 +58,7 @@ namespace Tests.UnitTests.Flexihours
             }, 1).StatusCode;
 
             Assert.Equal(400, registerOvertimeResponse);
-            Assert.Contains(flexhours, hour => hour.Value == 10M);
+            Assert.Contains(flexhours, hour => hour.Hours == 10M);
         }
 
         [Fact]

@@ -195,7 +195,7 @@ namespace Tests.UnitTests.Flexihours
         }
 
         [Fact]
-        public void GetOvertime_OvertimeAndRegisteredPayoutVariousCompRates_5OvertimeLeft()
+        public void GetOvertime_OvertimeAndRegisteredPayoutVariousCompRates_10OvertimeLeft()
         {
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 06), value: 17.5M, out int taskId));
             _context.CompensationRate.Add(CreateCompensationRate(taskId, compRate: 1M));
@@ -217,8 +217,8 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetOvertimeEquivalents(new DateTime(2020, 01, 02), new DateTime(2020, 01, 08), 1);
-            Assert.Equal(10M, OTequivalents);
+            var OTequivalents = calculator.GetOvertimeEquivalents2(new DateTime(2020, 01, 02), new DateTime(2020, 01, 09), 1);
+            Assert.Equal(10M, OTequivalents.overtime);
         }
 
         [Fact]

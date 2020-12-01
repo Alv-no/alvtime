@@ -55,30 +55,7 @@ namespace Tests.UnitTests.Flexihours
             var calculator = CreateStorage();
             var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, new DateTime(2020, 01, 02), 1);
 
-            Assert.Contains(flexhours, hour => hour.Value == 2.5M);
-        }
-
-        [Fact]
-        public void GetFlexhours_Worked5Hours_Minus2AndAHalfHourInFlex()
-        {
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 02), value: 5M, out int taskid));
-
-            _context.Hours.Add(new Hours
-            {
-                Date = new DateTime(2020, 01, 01),
-                TaskId = 18,
-                User = 1,
-                Value = 2.5M
-            });
-
-            _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
-
-            _context.SaveChanges();
-
-            var calculator = CreateStorage();
-            var flexhours = calculator.GetAvailableHours(1);
-
-            Assert.Equal(-2.5M, flexhours.TotalHours);
+            Assert.Contains(flexhours, hour => hour.Hours == 2.5M);
         }
 
         [Fact]
@@ -121,8 +98,8 @@ namespace Tests.UnitTests.Flexihours
             var calculator = CreateStorage();
             var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, new DateTime(2020, 01, 03), 1);
 
-            Assert.Contains(flexhours, hour => hour.Value == 2.5M && hour.Date == new DateTime(2020, 01, 02));
-            Assert.Contains(flexhours, hour => hour.Value == 2.5M && hour.Date == new DateTime(2020, 01, 03));
+            Assert.Contains(flexhours, hour => hour.Hours == 2.5M && hour.Date == new DateTime(2020, 01, 02));
+            Assert.Contains(flexhours, hour => hour.Hours == 2.5M && hour.Date == new DateTime(2020, 01, 03));
         }
 
         [Fact]
@@ -166,7 +143,7 @@ namespace Tests.UnitTests.Flexihours
             var calculator = CreateStorage();
             var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, new DateTime(2020, 01, 02), 1);
 
-            Assert.Contains(flexhours, hour => hour.Value == 2.5M);
+            Assert.Contains(flexhours, hour => hour.Hours == 2.5M);
         }
 
         [Fact]
@@ -187,7 +164,7 @@ namespace Tests.UnitTests.Flexihours
             var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, new DateTime(2020, 01, 02),  1);
 
             Assert.Single(flexhours);
-            Assert.Contains(flexhours, hour => hour.Value == 2.5M);
+            Assert.Contains(flexhours, hour => hour.Hours == 2.5M);
         }
 
         [Fact]
