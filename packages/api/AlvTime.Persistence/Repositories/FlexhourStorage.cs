@@ -25,8 +25,11 @@ public class FlexhourStorage : IFlexhourStorage
         var startDate = dbUser.StartDate;
         var endDate = DateTime.Now.Date;
 
-        var timeOff = _context.Hours.Where(h => h.User == userId && h.TaskId == 18).Sum(h => h.Value);
-        var hoursWorkedOver = GetHoursWorkedMoreThanWorkday(startDate, endDate, userId).Sum(e => e.Value) - timeOff;
+        var flexedHours = _context.Hours.Where(h => h.User == userId && h.TaskId == 18).Sum(h => h.Value);
+        var payedHours = _context.PaidOvertime.Where(h => h.User == userId && startDate <= h.Date && h.Date <= endDate).ToList();
+        var totalPayout = payedHours.Sum(ph => ph.Value);
+
+        var hoursWorkedOver = GetHoursWorkedMoreThanWorkday(startDate, endDate, userId).Sum(e => e.Value) - flexedHours - totalPayout;
 
         var hoursWithCompRate = GetOvertimeEquivalents(startDate, endDate, userId);
 
@@ -34,10 +37,12 @@ public class FlexhourStorage : IFlexhourStorage
 
         var overtimeEntries = GetOvertimeEntries(entriesByDate, startDate, endDate);
 
+        (var overtime, var flex) = GetOvertimeEquivalents2(startDate, endDate, userId);
+
         return new AvailableHoursDto
         {
-            TotalHours = hoursWorkedOver,
-            TotalHoursIncludingCompensationRate = hoursWithCompRate,
+            TotalHours = flex,
+            TotalHoursIncludingCompensationRate = overtime,
             Entries = overtimeEntries
         };
     }
@@ -113,6 +118,18 @@ public class FlexhourStorage : IFlexhourStorage
         CompensateForRegisteredPayouts(overtimeEntries, registeredPayouts);
 
         return overtimeEntries.Sum(h => h.CompensationRate * h.Hours);
+    }
+
+    public (decimal overtime, decimal flex) GetOvertimeEquivalents2(DateTime startDate, DateTime endDate, int userId)
+    {
+        List<DateEntry> entriesByDate = GetTimeEntries(startDate, endDate, userId);
+        var registeredPayouts = GetRegisteredPayouts(userId);
+
+        List<OvertimeEntry> overtimeEntries = GetOvertimeEntries(entriesByDate, startDate, endDate);
+        CompensateForOffTime(overtimeEntries, entriesByDate, startDate, endDate, userId);
+        CompensateForRegisteredPayouts(overtimeEntries, registeredPayouts);
+
+        return (overtimeEntries.Sum(h => h.CompensationRate * h.Hours), overtimeEntries.Sum(o => o.Hours));
     }
 
     public List<DateEntry> GetTimeEntries(DateTime startDate, DateTime endDate, int userId)
