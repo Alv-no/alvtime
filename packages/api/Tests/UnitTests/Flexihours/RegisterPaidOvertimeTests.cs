@@ -14,54 +14,6 @@ namespace Tests.UnitTests.Flexihours
         .CreateDbContext();
 
         [Fact]
-        public void RegisterpaidOvertime_10HoursAvailable_AbleToRegister10Hours()
-        {
-            var dbUser = _context.User.First();
-            var startDate = dbUser.StartDate;
-
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 02), value: 17.5M, out int taskid));
-            _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
-
-            _context.SaveChanges();
-
-            FlexhourStorage calculator = CreateStorage();
-            var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, new DateTime(2020, 01, 02), 1);
-
-            var registerOvertimeResponse = calculator.RegisterPaidOvertime(new GenericHourEntry
-            {
-                Date = new DateTime(2020, 01, 02),
-                Hours = 10
-            }, 1).Value as PaidOvertime;
-
-            Assert.Equal(10, registerOvertimeResponse.Value);
-            Assert.Contains(flexhours, hour => hour.Hours == 10M);
-        }
-
-        [Fact]
-        public void RegisterpaidOvertime_10HoursAvailable_UnAbleToRegister11Hours()
-        {
-            var dbUser = _context.User.First();
-            var startDate = dbUser.StartDate;
-
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 02), value: 17.5M, out int taskid));
-            _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
-
-            _context.SaveChanges();
-
-            FlexhourStorage calculator = CreateStorage();
-            var flexhours = calculator.GetHoursWorkedMoreThanWorkday(startDate, new DateTime(2020, 01, 02), 1);
-
-            var registerOvertimeResponse = calculator.RegisterPaidOvertime(new GenericHourEntry
-            {
-                Date = new DateTime(2020, 01, 02),
-                Hours = 11
-            }, 1).StatusCode;
-
-            Assert.Equal(400, registerOvertimeResponse);
-            Assert.Contains(flexhours, hour => hour.Hours == 10M);
-        }
-
-        [Fact]
         public void GetRegisteredPayouts_Registered10Hours_10HoursRegistered()
         {
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 02), value: 17.5M, out int taskid));
