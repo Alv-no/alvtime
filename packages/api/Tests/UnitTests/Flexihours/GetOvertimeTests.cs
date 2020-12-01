@@ -55,7 +55,7 @@ namespace Tests.UnitTests.Flexihours
         public void GetFlexhours_ExhangedHoursIntoPayout_AvailableHoursAreCompensatedForPayout()
         {
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 02), value: 15M, out int taskid));
-            _context.CompensationRate.Add(CreateCompensationRate(taskid, 2.0M)); // 15 hours overtime, 7.5 hours to flex
+            _context.CompensationRate.Add(CreateCompensationRate(taskid, 2.0M));
             _context.SaveChanges();
 
             var calculator = CreateStorage();
@@ -65,7 +65,6 @@ namespace Tests.UnitTests.Flexihours
                 Hours = 3M
             }, userId: 1);
 
-            // 4.5 hours to flex, 3 * 2 = 6h. 15 - 6 = 9 hours available overtime.
             var flexhours = calculator.GetAvailableHours(1);
 
             Assert.Equal(4.5M, flexhours.TotalHours);
