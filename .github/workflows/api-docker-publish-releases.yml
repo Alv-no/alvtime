@@ -1,0 +1,45 @@
+name: api-docker-publish-releases
+
+on:
+  push:
+    branches:
+      - releases/*
+
+env:
+  IMAGE_NAME_API: alvnoas/alvtime-web-api
+
+jobs:
+  # Push image to Docker Hub
+  push_to_docker_hub:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build api image
+        working-directory: "./packages/api"
+        run: |
+          docker build . --file Dockerfile --tag api-image \
+
+      - uses: anchore/scan-action@master
+        with:
+          image-reference: $IMAGE_NAME_API:latest
+          dockerfile-path: "./packages/slack-app/Dockerfile"
+          fail-build: true
+          include-app-packages: true
+
+      - name: Anchore inline scan JSON results
+        run: for j in `ls ./anchore-reports/*.json`; do echo "---- ${j} ----"; cat ${j}; echo; done
+
+      - name: Log into registry
+        working-directory: "./packages/frontend"
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+
+      - name: Push api image
+        working-directory: "./packages/api"
+        run: |
+
+          echo IMAGE_NAME=$IMAGE_NAME_API
+
+          docker tag api-image $IMAGE_NAME_API:latest
+          docker push $IMAGE_NAME_API:latest

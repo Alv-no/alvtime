@@ -1,4 +1,4 @@
-name: Docker push dev
+name: slackapp-docker-publish-master
 
 on:
   push:

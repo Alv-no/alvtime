@@ -1,4 +1,4 @@
-name: Docker push dev
+name: frontend-docker-publish
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - master
 
 env:
-  IMAGE_NAME: alvnoas/alvtime-vue-pwa-dev
+  IMAGE_NAME_VUE: alvnoas/alvtime-vue-pwa-dev
 
 jobs:
   # Push image to Docker Hub
@@ -16,10 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Build image
+      - name: Build frontend image
         working-directory: "./packages/frontend"
         run: |
-          docker build . --file Dockerfile --tag image \
+          docker build . --file Dockerfile --tag vue-image \
           --build-arg VUE_APP_API_HOST=https://alvtime-api-dev.azurewebsites.net \
           --build-arg VUE_APP_ACCESS_SCOPE=https://d8aedd.alvtime-ap-alvtime-api-dev-f9b4e4.westeurope.cloudapp.azure.com/access_as_user \
           --build-arg VUE_APP_CLIENT_ID=373a7768-6d2a-4b20-b671-bc1089104a3a
@@ -28,11 +28,11 @@ jobs:
         working-directory: "./packages/frontend"
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
-      - name: Push image
+      - name: Push frontend image
         working-directory: "./packages/frontend"
         run: |
 
-          echo IMAGE_NAME=$IMAGE_NAME
+          echo IMAGE_NAME=$IMAGE_NAME_VUE
 
-          docker tag image $IMAGE_NAME:latest
-          docker push $IMAGE_NAME:latest
+          docker tag vue-image $IMAGE_NAME_VUE:latest
+          docker push $IMAGE_NAME_VUE:latest
