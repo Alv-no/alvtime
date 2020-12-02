@@ -210,14 +210,15 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            calculator.RegisterPaidOvertime(new GenericHourEntry
+            var result = calculator.RegisterPaidOvertime(new GenericHourEntry
             {
                 Date = new DateTime(2020, 01, 09),
-                Hours = 5
-            }, 1);
+                Hours = 11
+            }, 1).Value as PaidOvertime;
 
             var OTequivalents = calculator.GetFlexAndOvertime(new DateTime(2020, 01, 02), new DateTime(2020, 01, 09), 1);
-            Assert.Equal(11.25M, OTequivalents.overtime);
+            Assert.Equal(15.5M, OTequivalents.overtime);
+            Assert.Equal(6.5M, result.HoursAfterCompRate);
         }
 
         [Fact]
