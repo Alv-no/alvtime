@@ -206,19 +206,18 @@ namespace Tests.UnitTests.Flexihours
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 07), value: 9M, out int taskId3));
             _context.CompensationRate.Add(CreateCompensationRate(taskId3, compRate: 0.5M));
 
-            _context.PaidOvertime.Add(new PaidOvertime
-            {
-                Date = new DateTime(2020, 01, 09),
-                User = 1,
-                Value = 12
-            });
-
             _context.SaveChanges();
 
             FlexhourStorage calculator = CreateStorage();
 
+            calculator.RegisterPaidOvertime(new GenericHourEntry
+            {
+                Date = new DateTime(2020, 01, 09),
+                Hours = 5
+            }, 1);
+
             var OTequivalents = calculator.GetFlexAndOvertime(new DateTime(2020, 01, 02), new DateTime(2020, 01, 09), 1);
-            Assert.Equal(10M, OTequivalents.overtime);
+            Assert.Equal(11.25M, OTequivalents.overtime);
         }
 
         [Fact]

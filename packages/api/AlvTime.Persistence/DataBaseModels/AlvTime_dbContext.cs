@@ -147,7 +147,8 @@ namespace AlvTime.Persistence.DataBaseModels
 
             modelBuilder.Entity<PaidOvertime>(entity =>
             {
-                entity.Property(e => e.Value).HasColumnType("decimal(6, 2)");
+                entity.Property(e => e.HoursBeforeCompRate).HasColumnType("decimal(6, 2)");
+                entity.Property(e => e.HoursAfterCompRate).HasColumnType("decimal(6, 2)");
 
                 entity.HasOne(d => d.UserNavigation)
                     .WithMany(p => p.PaidOvertime)

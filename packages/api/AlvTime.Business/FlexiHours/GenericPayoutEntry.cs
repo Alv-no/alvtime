@@ -6,7 +6,8 @@ namespace AlvTime.Business.FlexiHours
     {
         public int Id { get; set; }
         public DateTime Date { get; set; }
-        public decimal Hours { get; set; }
+        public decimal HoursBeforeCompRate { get; set; }
+        public decimal HoursAfterCompRate { get; set; }
         public bool Active { get; set; }
     }
 }
