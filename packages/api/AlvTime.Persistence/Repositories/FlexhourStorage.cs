@@ -291,7 +291,7 @@ public class FlexhourStorage : IFlexhourStorage
 
         var availableForPayout = overtimeEntries.Sum(ot => ot.Hours);
 
-        var hoursAfterCompRate = HoursAfterCompRate(overtimeEntries, request.Hours);
+        var hoursAfterCompRate = GetHoursAfterCompRate(overtimeEntries, request.Hours);
 
         if (request.Hours <= availableForPayout)
         {
@@ -333,9 +333,9 @@ public class FlexhourStorage : IFlexhourStorage
         return new PaidOvertimeEntry();
     }
 
-    private decimal HoursAfterCompRate(List<OvertimeEntry> overtimeEntries, decimal orderedHours)
+    private decimal GetHoursAfterCompRate(List<OvertimeEntry> overtimeEntries, decimal orderedHours)
     {
-        var calculatedHours = 0M;
+        var totalPayout = 0M;
 
         var orderedOverTime = overtimeEntries.GroupBy(
             hours => hours.CompensationRate,
@@ -354,13 +354,13 @@ public class FlexhourStorage : IFlexhourStorage
                 break;
             }
 
-            var smallerValue = Math.Min(orderedHours * entry.CompensationRate, entry.Hours * entry.CompensationRate);
+            var amountForPayout = Math.Min(orderedHours * entry.CompensationRate, entry.Hours * entry.CompensationRate);
 
-            calculatedHours += smallerValue;
+            totalPayout += amountForPayout;
 
-            orderedHours -= smallerValue / entry.CompensationRate;
+            orderedHours -= amountForPayout / entry.CompensationRate;
         }
 
-        return calculatedHours;
+        return totalPayout;
     }
 }
