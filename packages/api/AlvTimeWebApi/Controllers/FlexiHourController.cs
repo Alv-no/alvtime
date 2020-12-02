@@ -76,7 +76,8 @@ namespace AlvTimeWebApi.Controllers
                 {
                     Id = entry.Id,
                     Date = entry.Date.ToDateOnly(),
-                    Hours = entry.Hours,
+                    HoursBeforeCompRate = entry.HoursBeforeCompRate,
+                    HoursAfterCompRate = entry.HoursAfterCompRate,
                     Active = entry.Active
                 })
             });
