@@ -1,4 +1,4 @@
-name: Docker push
+name: slackapp-docker-publish-releases
 
 on:
   push:
@@ -21,7 +21,7 @@ jobs:
       - uses: anchore/scan-action@master
         with:
           image-reference: $IMAGE_NAME:latest
-          dockerfile-path: "./pacakges/slack-app/Dockerfile"
+          dockerfile-path: "./packages/slack-app/Dockerfile"
           fail-build: true
           include-app-packages: true
 

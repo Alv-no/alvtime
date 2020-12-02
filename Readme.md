@@ -1,17 +1,15 @@
 # AlvTime
 
-> Welcome to the Alvtime monorepo. Alvtime is the internal tumekeeping system for Alv AS. Below you can find a list of the servises that make up the system.
+> Welcome to the Alvtime monorepo. Alvtime is the internal timekeeping system for Alv AS. Below you can find a list of the services that make up the system.
 
 ## Projects
 
-
-Project                                        | Type | Description
--------                                        | ---- | -----------
-[Adminpanel](./packages/adminpanel)   | Frontend | Admin panel for Alvtime
-[Frontend](./packages/frontend) | Frontend | Enduser frontend for Alvtime
-[Slack-app](./packages/slack-app) | Slack-app | Slack app
-[Api](./packages/api) | Backend | Backend api
-
+| Project                             | Type      | Description                  |
+| ----------------------------------- | --------- | ---------------------------- |
+| [Adminpanel](./packages/adminpanel) | Frontend  | Admin panel for Alvtime      |
+| [Frontend](./packages/frontend)     | Frontend  | Enduser frontend for Alvtime |
+| [Slack-app](./packages/slack-app)   | Slack-app | Slack app                    |
+| [Api](./packages/api)               | Backend   | Backend api                  |
 
 ## Development / Contribution
 

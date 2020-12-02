@@ -1,33 +1,25 @@
-name: Test
+name: Frontend Build And Test
 
 on:
   pull_request:
     paths:
       - "packages/frontend/**"
-      - "!**.md"
-      - "!.gitignore"
-      - "!LICENCE"
-      - "!CODEOWNERS"
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v1
-      - name: Build the Docker image
-        working-directory: "./packages/frontend"
-        run: docker build . --file Dockerfile --tag image
-
-  test:
+  build_and_test:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
 
+      - name: Build the Docker image
+        working-directory: "./packages/frontend"
+        run: docker build . --file Dockerfile --tag image
+
       - name: Run tests
         working-directory: "./packages/frontend"
         run: |
           docker build . --file Dockerfile --target dev --tag image
-          docker run image npx vue-cli-service lint
-          docker run image npx vue-cli-service test:unit
+          docker run image npm run build
+          docker run image npm run test
+          docker run image npm run lint

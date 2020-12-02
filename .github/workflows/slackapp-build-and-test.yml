@@ -1,0 +1,23 @@
+name: Slack-App Build And Test
+
+on:
+  pull_request:
+    paths:
+      - "packages/slack-app/**"
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build the Docker image
+        working-directory: "./packages/slack-app"
+        run: docker build . --file Dockerfile --tag image
+
+      - name: Run tests
+        working-directory: "./packages/slack-app"
+        run: |
+          docker build . --file Dockerfile --target dev --tag image
+          docker run image npm run build
+          docker run image npm run test

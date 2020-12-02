@@ -1,4 +1,4 @@
-name: Docker push prod
+name: frontend-docker-publish-releases
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Build images
+      - name: Build frontend images
         working-directory: "./packages/frontend"
         run: |
           docker build . --file Dockerfile --tag image \
@@ -30,11 +30,21 @@ jobs:
           --build-arg VUE_APP_ACCESS_SCOPE=https://d8aedd.alvtime-ap-alvtime-api-dev-f9b4e4.westeurope.cloudapp.azure.com/access_as_user \
           --build-arg VUE_APP_CLIENT_ID=373a7768-6d2a-4b20-b671-bc1089104a3a
 
+      - uses: anchore/scan-action@master
+        with:
+          image-reference: $IMAGE_NAME:latest
+          dockerfile-path: "./packages/frontend/Dockerfile"
+          fail-build: true
+          include-app-packages: true
+
+      - name: Anchore inline scan JSON results
+        run: for j in `ls ./anchore-reports/*.json`; do echo "---- ${j} ----"; cat ${j}; echo; done
+
       - name: Log into registry
         working-directory: "./packages/frontend"
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
-      - name: Push image
+      - name: Push frontend images
         working-directory: "./packages/frontend"
         run: |
 
