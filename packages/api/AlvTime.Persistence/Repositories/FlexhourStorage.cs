@@ -265,7 +265,7 @@ public class FlexhourStorage : IFlexhourStorage
             };
 
             overtimeEntries.Add(overtimeEntry);
-            registeredPayoutsTotal += overtimeEntry.Hours * entry.CompensationRate;
+            registeredPayoutsTotal += overtimeEntry.Hours;
         }
     }
 
