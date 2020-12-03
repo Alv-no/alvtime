@@ -96,12 +96,12 @@ export default Vue.extend({
 				return false;
 			}
 
-			if (hours < 0) {
+			if (Number(hours) < 0) {
 				this.errorMessage = 'Antall timer må være større enn 0';
 				return false;
 			}
 
-			if (hours % 0.5 !== 0) {
+			if (Number(hours) % 0.5 !== 0) {
 				this.errorMessage = 'Kun utbetaling i halve timer';
 				return false;
 			}
