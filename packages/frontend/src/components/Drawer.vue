@@ -52,7 +52,7 @@ export default Vue.extend({
       items: [
         { text: "Timeføring", routeName: "hours" },
         { text: "Favorittaktiviteter", routeName: "tasks" },
-        //{ text: "Overtid og avspasering", routeName: "accumulated-hours" },
+        { text: "Overtid og avspasering", routeName: "accumulated-hours" },
         { text: "Personal access tokens", routeName: "tokens" },
       ],
     };

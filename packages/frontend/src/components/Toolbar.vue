@@ -2,6 +2,9 @@
   <div class="grid">
     <div class="hour_sums"><HourSums /></div>
     <div class="title"><Title /></div>
+    <mq-layout mq="sm">
+      <AvailableHours small />
+    </mq-layout>
     <div class="nav_buttons"><NavButtons /></div>
   </div>
 </template>
@@ -11,12 +14,14 @@ import Vue from "vue";
 import NavButtons from "@/components/NavButtons.vue";
 import Title from "@/components/Title.vue";
 import HourSums from "@/components/HourSums.vue";
+import AvailableHours from "@/components/AvailableHours.vue";
 
 export default Vue.extend({
   components: {
     NavButtons,
     Title,
     HourSums,
+    AvailableHours,
   },
 });
 </script>
@@ -38,6 +43,10 @@ export default Vue.extend({
 }
 
 .nav_buttons {
+  margin-right: 1rem;
+}
+
+.available_hours {
   margin-right: 1rem;
 }
 
