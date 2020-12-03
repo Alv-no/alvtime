@@ -21,8 +21,8 @@ namespace Tests.UnitTests.Flexihours
             FlexhourStorage calculator = CreateStorage();
             var flexhours = calculator.GetAvailableHours(1);
 
-            Assert.Equal(0, flexhours.TotalHours);
-            Assert.Equal(0, flexhours.TotalHoursIncludingCompensationRate);
+            Assert.Equal(0, flexhours.AvailableHoursBeforeCompensation);
+            Assert.Equal(0, flexhours.AvailableHoursAfterCompensation);
         }
 
         [Fact]
@@ -34,8 +34,8 @@ namespace Tests.UnitTests.Flexihours
             FlexhourStorage calculator = CreateStorage();
             var flexhours = calculator.GetAvailableHours(1);
 
-            Assert.Equal(0, flexhours.TotalHours);
-            Assert.Equal(0, flexhours.TotalHoursIncludingCompensationRate);
+            Assert.Equal(0, flexhours.AvailableHoursBeforeCompensation);
+            Assert.Equal(0, flexhours.AvailableHoursAfterCompensation);
         }
 
         [Fact]
@@ -47,8 +47,8 @@ namespace Tests.UnitTests.Flexihours
             var calculator = CreateStorage();
             var flexhours = calculator.GetAvailableHours(1);
 
-            Assert.Equal(2.5M, flexhours.TotalHours);
-            Assert.Equal(2.5M, flexhours.TotalHoursIncludingCompensationRate);
+            Assert.Equal(2.5M, flexhours.AvailableHoursBeforeCompensation);
+            Assert.Equal(2.5M, flexhours.AvailableHoursAfterCompensation);
         }
 
         [Fact]
@@ -67,8 +67,8 @@ namespace Tests.UnitTests.Flexihours
 
             var flexhours = calculator.GetAvailableHours(1);
 
-            Assert.Equal(4.5M, flexhours.TotalHours);
-            Assert.Equal(9M, flexhours.TotalHoursIncludingCompensationRate);
+            Assert.Equal(4.5M, flexhours.AvailableHoursBeforeCompensation);
+            Assert.Equal(9M, flexhours.AvailableHoursAfterCompensation);
         }
 
         [Fact]
@@ -81,8 +81,8 @@ namespace Tests.UnitTests.Flexihours
             var calculator = CreateStorage();
             var flexhours = calculator.GetAvailableHours(1);
 
-            Assert.Equal(-2.5M, flexhours.TotalHours);
-            Assert.Equal(0, flexhours.TotalHoursIncludingCompensationRate);
+            Assert.Equal(-2.5M, flexhours.AvailableHoursBeforeCompensation);
+            Assert.Equal(0, flexhours.AvailableHoursAfterCompensation);
         }
 
         [Fact]
@@ -95,8 +95,8 @@ namespace Tests.UnitTests.Flexihours
             var calculator = CreateStorage();
             var flexhours = calculator.GetAvailableHours(1);
 
-            Assert.Equal(5, flexhours.TotalHours);
-            Assert.Equal(5, flexhours.TotalHoursIncludingCompensationRate);
+            Assert.Equal(5, flexhours.AvailableHoursBeforeCompensation);
+            Assert.Equal(5, flexhours.AvailableHoursAfterCompensation);
         }
 
         [Fact]
@@ -114,8 +114,8 @@ namespace Tests.UnitTests.Flexihours
             var calculator = CreateStorage();
             var flexhours = calculator.GetAvailableHours(userId: 1);
          
-            Assert.Equal(2.5M, flexhours.TotalHours);
-            Assert.Equal(2.5M, flexhours.TotalHoursIncludingCompensationRate);
+            Assert.Equal(2.5M, flexhours.AvailableHoursBeforeCompensation);
+            Assert.Equal(2.5M, flexhours.AvailableHoursAfterCompensation);
         }
 
         [Fact]
@@ -128,8 +128,8 @@ namespace Tests.UnitTests.Flexihours
             var calculator = CreateStorage();
             var flexhours = calculator.GetAvailableHours(1);
 
-            Assert.Equal(2.5M, flexhours.TotalHours);
-            Assert.Equal(2.5M, flexhours.TotalHoursIncludingCompensationRate);
+            Assert.Equal(2.5M, flexhours.AvailableHoursBeforeCompensation);
+            Assert.Equal(2.5M, flexhours.AvailableHoursAfterCompensation);
         }
 
         [Fact]
@@ -143,8 +143,8 @@ namespace Tests.UnitTests.Flexihours
             var calculator = CreateStorage();
             var flexhours = calculator.GetAvailableHours(1);
 
-            Assert.Equal(0, flexhours.TotalHours);
-            Assert.Equal(0, flexhours.TotalHours);
+            Assert.Equal(0, flexhours.AvailableHoursBeforeCompensation);
+            Assert.Equal(0, flexhours.AvailableHoursBeforeCompensation);
         }
 
         [Fact]
@@ -157,8 +157,8 @@ namespace Tests.UnitTests.Flexihours
             var calculator = CreateStorage();
             var flexhours = calculator.GetAvailableHours(1);
 
-            Assert.Equal(0, flexhours.TotalHours);
-            Assert.Equal(0, flexhours.TotalHoursIncludingCompensationRate);
+            Assert.Equal(0, flexhours.AvailableHoursBeforeCompensation);
+            Assert.Equal(0, flexhours.AvailableHoursAfterCompensation);
         }
 
         [Fact]
@@ -171,8 +171,8 @@ namespace Tests.UnitTests.Flexihours
             var calculator = CreateStorage();
             var flexhours = calculator.GetAvailableHours(1);
 
-            Assert.Equal(-1M, flexhours.TotalHours);
-            Assert.Equal(0, flexhours.TotalHoursIncludingCompensationRate);
+            Assert.Equal(-1M, flexhours.AvailableHoursBeforeCompensation);
+            Assert.Equal(0, flexhours.AvailableHoursAfterCompensation);
         }
 
         private FlexhourStorage CreateStorage()
