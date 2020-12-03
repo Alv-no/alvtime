@@ -30,8 +30,8 @@ namespace AlvTimeWebApi.Controllers
 
             return Ok(new
             {
-                TotalHours = availableHours.TotalHours,
-                TotalHoursIncludingCompensationRate = availableHours.TotalHoursIncludingCompensationRate,
+                TotalHours = availableHours.AvailableHoursBeforeCompensation,
+                TotalHoursIncludingCompensationRate = availableHours.AvailableHoursAfterCompensation,
                 Entries = availableHours.Entries.Select(entry => new
                 {
                     Date = entry.Date.ToDateOnly(),
