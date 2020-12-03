@@ -1,5 +1,4 @@
 <template>
-
   <CenterColumnWrapper>
     <div class="center">
       <div class="row">
