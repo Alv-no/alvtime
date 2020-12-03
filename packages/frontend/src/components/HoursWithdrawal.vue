@@ -64,7 +64,6 @@ export default Vue.extend({
       hours: '',
 			transactions: [],
       today: moment().format("YYYY-MM-DD"),
-			errorMessage: ''
     };
   },
   async created() {
@@ -92,22 +91,33 @@ export default Vue.extend({
     isValidationError(): boolean {
       const hours = this.hours ? this.hours : "";
 			if(!isFloat(hours as string)) {
-				this.errorMessage = 'Skriv inn gyldig tall';
 				return false;
 			}
 
 			if (Number(hours) < 0) {
-				this.errorMessage = 'Antall timer må være større enn 0';
 				return false;
 			}
 
 			if (Number(hours) % 0.5 !== 0) {
-				this.errorMessage = 'Kun utbetaling i halve timer';
 				return false;
 			}
-			this.errorMessage = '';
 			return true;
     },
+    errorMessage(): string {
+      const hours = this.hours ? this.hours : "";
+            if(!isFloat(hours as string)) {
+                return 'Skriv inn gyldig tall';
+            }
+
+            if (Number(hours) < 0) {
+                return 'Antall timer må være større enn 0';
+            }
+
+            if (Number(hours) % 0.5 !== 0) {
+                return 'Kun utbetaling i halve timer';
+            }
+            return "";
+    }
   },
   methods: {
 		processTransactions() {
