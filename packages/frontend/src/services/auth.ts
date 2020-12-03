@@ -31,6 +31,7 @@ function createRedirectCallback(
     if (error) {
       if (cb) cb(error);
     } else {
+			console.log(cb);
       if (msalApp.getAccount()) {
         if (setAccount) setAccount(msalApp.getAccount());
       }
@@ -82,8 +83,10 @@ export async function adAuthenticatedFetch(
 }
 
 async function getAccessToken() {
+	console.log(getAccount());
   if (getAccount()) {
     const res = await getTokenRedirect();
+		console.log(res);
     return res ? res.accessToken : "";
   } else {
     return config.TEST_ACCESS_TOKEN;

@@ -9,8 +9,8 @@ export interface OvertimeState {
 
 export interface OvertimeStateModel {
 	availableHours: CompansatedTransactions[];
-	payoutTransactions: Transaction[];
-	flexTransactions: Transaction[];
+	payoutTransactions: PayoutTransaction[];
+	flexTransactions: FlexHoursTransaction[];
 	totalHours: number;
 	compansatedHours: number;	
 	totalFlexedHours: number;
@@ -30,10 +30,18 @@ export interface AvailableHoursResponse {
 		entries: CompansatedTransactions[];
 }
 
+export interface FlexHoursTransaction {
+		date: Date;
+		hours: number;
+		rate: number;
+}
+
 export interface Transaction {
 		date: Date;
 		hours: number;
+		id?: number;
 		rate?: number;
+		active?: boolean;
 }
 
 export interface MappedTransaction {
@@ -41,9 +49,22 @@ export interface MappedTransaction {
 	type: string;
 }
 
-export interface TransactionsResponse {
+export interface FlexedHoursReponse {
 		totalHours: number;
-		entries: Transaction[];
+		entries: FlexHoursTransaction[];
+}
+
+export interface PayoutReponse {
+		totalHours: number;
+		entries: PayoutTransaction[];
+}
+
+
+export interface PayoutTransaction {
+		date: Date;
+		hours: number;
+		id: number;
+		active: boolean;
 }
 
 const initState: OvertimeStateModel = {
@@ -71,8 +92,13 @@ const getters = {
 												rate: transaction.compensationRate
 											}}}))
 		transactions.push(...state.overtimeState.payoutTransactions
-											.map(transaction => { return {type: 'payout', transaction: transaction}}))
-		transactions.push(...state.overtimeState.flexTransactions
+											.map(transaction => { return {type: 'payout', transaction: {
+												date: transaction.date,
+												hours: transaction.hours,
+												active: transaction.active,
+												id: transaction.id
+											}}}))
+		transactions.push(...state.overtimeState.flexTransactions.filter(transaction => transaction.hours != 0)
 											.map(transaction => { return {type: 'flex', transaction: transaction}}))
 		return transactions;
 
@@ -148,10 +174,10 @@ const actions = {
 }
 
 const mutations = {
-	SET_FLEXHOURS(state: State, transactions: TransactionsResponse) {
+	SET_FLEXHOURS(state: State, transactions: FlexedHoursReponse) {
 		state.overtimeState.flexTransactions = transactions.entries;
 	},
-	SET_PAYED_HOURS(state: State, transactions: TransactionsResponse) {
+	SET_PAYED_HOURS(state: State, transactions: PayoutReponse) {
 		state.overtimeState.payoutTransactions = transactions.entries;
 	},
 	SET_AVAILABLEHOURS(state: State, transactions: AvailableHoursResponse) {

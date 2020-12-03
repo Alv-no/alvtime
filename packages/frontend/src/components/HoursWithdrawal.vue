@@ -3,12 +3,6 @@
     <div class="padding">
 				<div class="availablehours">
 					<div class="available available-flex">
-						<h4>Timer tilgjengelig for flex</h4>
-						<div class="badge">
-							{{overtime}}	
-						</div>						
-					</div>
-					<div class="available available-flex">
 						<h4>Kompenserte timer</h4>
 						<div class="badge">
 							{{overtimeCompensated}}
@@ -41,9 +35,10 @@
 					<md-table-cell md-sort-by="type" md-label="Type">{{item.type}}</md-table-cell>
 					<md-table-cell md-sort-by="hours" md-label="Timer">{{item.hours}}</md-table-cell>
 					<md-table-cell md-sort-by="rate" md-label="Rate">{{item.rate}}</md-table-cell>
+					<md-table-cell md-sort-by="rate" md-label="Total">{{item.sum}}</md-table-cell>
+					<md-table-cell md-sort-by="rate" md-label=""><md-icon v-on:click.native="removeHourOrder(item.id)" class="delete-transaction" v-if="item.active">delete</md-icon></md-table-cell>
 				</md-table-row>
-			</md-table>			
-
+			</md-table>
 		</div>
   </CenterColumnWrapper>
 </template>
@@ -92,7 +87,6 @@ export default Vue.extend({
 				 return !Number.isNaN(parseFloat(this.hours));
 			}
 			return false;
-
     },
     isFloat(): boolean {
       const hours = this.hours ? this.hours : "";
@@ -102,12 +96,15 @@ export default Vue.extend({
   methods: {
 		processTransactions() {
 			const transactions = this.$store.getters.getTransactionList as MappedTransaction[];
+			console.log(transactions);
 			const mapped = transactions.map(transaction => {
 					return {
 						date: transaction.transaction.date,
 						hours: this.getTranslatedValue(transaction.transaction.hours, transaction.type),
 						type: this.getTranslatedType(transaction.type),
-						rate: transaction.transaction.rate ? `${transaction.transaction.rate * 100}%` : ''
+						rate: transaction.transaction.rate ? `${transaction.transaction.rate * 100}%` : '',
+						sum: transaction.transaction.rate ? transaction.transaction.hours * (transaction.transaction.rate + 1) : undefined,
+						active: transaction.transaction.active
 					};
 			});
 			this.transactions = mapped as never[];
@@ -139,6 +136,9 @@ export default Vue.extend({
 			await this.$store.dispatch("FETCH_TRANSACTIONS");
 			this.processTransactions();
     },
+		async removeHourOrder(id: number) {
+			console.log(id);
+		}
   },
 });
 </script>
@@ -176,7 +176,7 @@ hr {
 
 .availablehours {
 	display: flex;
-	justify-content: space-between;
+	justify-content: center;
 }
 
 .md-table-head-label i:hover {
@@ -196,5 +196,12 @@ hr {
   border-radius: 5px;
   font-size: 0.7rem;
   line-height: 1.5rem;
+}
+
+.delete-transaction {
+	cursor: pointer;
+}
+.delete-transaction:hover {
+	color: #000!important;
 }
 </style>
