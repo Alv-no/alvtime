@@ -33,7 +33,6 @@ export interface AvailableHoursResponse {
 export interface FlexHoursTransaction {
 		date: Date;
 		hours: number;
-		rate: number;
 }
 
 export interface Transaction {
@@ -61,9 +60,10 @@ export interface PayoutReponse {
 
 
 export interface PayoutTransaction {
-		date: Date;
-		hours: number;
 		id: number;
+		date: Date;
+		hoursBeforeCompRate: number;
+		hoursAfterCompRate: number;
 		active: boolean;
 }
 
@@ -94,7 +94,7 @@ const getters = {
 		transactions.push(...state.overtimeState.payoutTransactions
 											.map(transaction => { return {type: 'payout', transaction: {
 												date: transaction.date,
-												hours: transaction.hours,
+												hours: transaction.hoursBeforeCompRate,
 												active: transaction.active,
 												id: transaction.id
 											}}}))
@@ -160,8 +160,24 @@ const actions = {
 				headers: {'Content-Type' : 'application/json'},
 				body: JSON.stringify({
 					date: parameters.date,
-					value: parameters.hours
+					hours: parameters.hours
 				})
+			});
+			if (response.status !== 200)
+				throw Error(`${response.statusText}`);
+
+		} catch(e) {
+			console.error(e);
+			commit("ADD_TO_ERROR_LIST", e);
+		}
+	},
+	CANCEL_PAYOUT_ORDER:  async ({ commit }: ActionContext<State, State>, parameters: {payoutId: number}) => {
+		try {
+
+			let url = new URL(config.API_HOST + `/api/user/Payouts?payoutId=${parameters.payoutId}`).toString();
+			const response = await adAuthenticatedFetch(url, {
+				method: 'delete',
+				headers: {'Content-Type' : 'application/json'},
 			});
 			if (response.status !== 200)
 				throw Error(`${response.statusText}`);

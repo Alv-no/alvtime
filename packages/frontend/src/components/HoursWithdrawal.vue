@@ -15,7 +15,7 @@
 			<small style="padding: 10px">Tast inn antall timer du ønsker å ta ut. Maks antall timer er dine kompanserte timer</small>
 
       <div class="order-payout-field">
-        <Input v-model="hours" :error="!isFloat" placeholder="Antall timer" />
+        <Input v-model="hours" :error="!isValidationError" placeholder="Antall timer" />
         <YellowButton
           icon-id="add_circle_outline"
           :text="buttonText"
@@ -23,6 +23,7 @@
           @click="orderHours"
         />
       </div>
+			<small class="validationtext">{{errorMessage}}</small>
 
 			<hr>
 
@@ -35,7 +36,6 @@
 					<md-table-cell md-sort-by="type" md-label="Type">{{item.type}}</md-table-cell>
 					<md-table-cell md-sort-by="hours" md-label="Timer">{{item.hours}}</md-table-cell>
 					<md-table-cell md-sort-by="rate" md-label="Rate">{{item.rate}}</md-table-cell>
-					<md-table-cell md-sort-by="rate" md-label="Total">{{item.sum}}</md-table-cell>
 					<md-table-cell md-sort-by="rate" md-label=""><md-icon v-on:click.native="removeHourOrder(item.id)" class="delete-transaction" v-if="item.active">delete</md-icon></md-table-cell>
 				</md-table-row>
 			</md-table>
@@ -63,7 +63,8 @@ export default Vue.extend({
     return {
       hours: '',
 			transactions: [],
-      today: moment().format("YYYY-MM-DD")
+      today: moment().format("YYYY-MM-DD"),
+			errorMessage: ''
     };
   },
   async created() {
@@ -88,9 +89,24 @@ export default Vue.extend({
 			}
 			return false;
     },
-    isFloat(): boolean {
+    isValidationError(): boolean {
       const hours = this.hours ? this.hours : "";
-      return isFloat(hours as string);
+			if(!isFloat(hours as string)) {
+				this.errorMessage = 'Skriv inn gyldig tall';
+				return false;
+			}
+
+			if (hours < 0) {
+				this.errorMessage = 'Antall timer må være større enn 0';
+				return false;
+			}
+
+			if (hours % 0.5 !== 0) {
+				this.errorMessage = 'Kun utbetaling i halve timer';
+				return false;
+			}
+			this.errorMessage = '';
+			return true;
     },
   },
   methods: {
@@ -99,9 +115,10 @@ export default Vue.extend({
 			console.log(transactions);
 			const mapped = transactions.map(transaction => {
 					return {
+						id: transaction.transaction.id,
 						date: transaction.transaction.date,
 						hours: this.getTranslatedValue(transaction.transaction.hours, transaction.type),
-						type: this.getTranslatedType(transaction.type),
+						type: this.getTranslatedType(transaction.type, transaction.transaction.active),
 						rate: transaction.transaction.rate ? `${transaction.transaction.rate * 100}%` : '',
 						sum: transaction.transaction.rate ? transaction.transaction.hours * (transaction.transaction.rate + 1) : undefined,
 						active: transaction.transaction.active
@@ -120,12 +137,12 @@ export default Vue.extend({
 			}
 			return value;
 		},
-		getTranslatedType(type: string): string {
+		getTranslatedType(type: string, active: boolean = false): string {
 			switch(type) {
 				case 'available':
 					return 'Opptjent';
 				case 'payout':
-					return 'Utbetalt';
+					return active ?  'Til utbetaling' : 'Utbetalt';
 				case 'flex':
 					return 'Flex';
 				default: return '';
@@ -136,8 +153,11 @@ export default Vue.extend({
 			await this.$store.dispatch("FETCH_TRANSACTIONS");
 			this.processTransactions();
     },
+
 		async removeHourOrder(id: number) {
-			console.log(id);
+			await this.$store.dispatch("CANCEL_PAYOUT_ORDER", {payoutId: id});
+			await this.$store.dispatch("FETCH_TRANSACTIONS");
+			this.processTransactions();
 		}
   },
 });
@@ -203,5 +223,9 @@ hr {
 }
 .delete-transaction:hover {
 	color: #000!important;
+}
+
+.validationtext {
+	color: #A22;
 }
 </style>
