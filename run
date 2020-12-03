@@ -10,7 +10,7 @@ fi
 
 if [ "adminpanel" = $1 ]; then
   docker-compose up -d && \
-  docker-compose exec frontend npm start
+  docker-compose exec adminpanel npm start
 fi
 
 [ "down" = $1 ] && \
