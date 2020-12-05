@@ -4,6 +4,8 @@ using System;
 using System.Linq;
 using AlvTime.Business.FlexiHours;
 using Xunit;
+using Microsoft.Extensions.Options;
+using AlvTime.Business.Options;
 
 namespace Tests.UnitTests.Flexihours
 {
@@ -14,12 +16,13 @@ namespace Tests.UnitTests.Flexihours
                 .CreateDbContext();
 
         private readonly DateTime _startDate = new DateTime(2020, 01, 02);
+        private readonly DateTime _endDate = DateTime.Now.Date;
 
         [Fact]
         public void GetFlexhours_NoWorkAtAll_AvailableIs0Overtime0Flex()
         {
-            FlexhourStorage calculator = CreateStorage();
-            var flexhours = calculator.GetAvailableHours(1);
+            FlexhourStorage flexhourStorage = CreateStorage();
+            var flexhours = flexhourStorage.GetAvailableHours(1, _startDate, _endDate);
 
             Assert.Equal(0, flexhours.AvailableHoursBeforeCompensation);
             Assert.Equal(0, flexhours.AvailableHoursAfterCompensation);
@@ -31,8 +34,8 @@ namespace Tests.UnitTests.Flexihours
             _context.Hours.Add(CreateTimeEntry(date: _startDate, value: 7.5M, out int taskid));
             _context.SaveChanges();
 
-            FlexhourStorage calculator = CreateStorage();
-            var flexhours = calculator.GetAvailableHours(1);
+            FlexhourStorage flexhourStorage = CreateStorage();
+            var flexhours = flexhourStorage.GetAvailableHours(1, _startDate, _endDate);
 
             Assert.Equal(0, flexhours.AvailableHoursBeforeCompensation);
             Assert.Equal(0, flexhours.AvailableHoursAfterCompensation);
@@ -44,8 +47,8 @@ namespace Tests.UnitTests.Flexihours
             _context.Hours.Add(CreateTimeEntry(date: _startDate, value: 10M, out int taskid));
             _context.SaveChanges();
 
-            var calculator = CreateStorage();
-            var flexhours = calculator.GetAvailableHours(1);
+            var flexhourStorage = CreateStorage();
+            var flexhours = flexhourStorage.GetAvailableHours(1, _startDate, _endDate);
 
             Assert.Equal(2.5M, flexhours.AvailableHoursBeforeCompensation);
             Assert.Equal(2.5M, flexhours.AvailableHoursAfterCompensation);
@@ -58,31 +61,17 @@ namespace Tests.UnitTests.Flexihours
             _context.CompensationRate.Add(CreateCompensationRate(taskid, 2.0M));
             _context.SaveChanges();
 
-            var calculator = CreateStorage();
-            calculator.RegisterPaidOvertime(new GenericHourEntry
+            var flexhourStorage = CreateStorage();
+            flexhourStorage.RegisterPaidOvertime(new GenericHourEntry
             {
                 Date = new DateTime(2020, 01, 02),
                 Hours = 3M
             }, userId: 1);
 
-            var flexhours = calculator.GetAvailableHours(1);
+            var flexhours = flexhourStorage.GetAvailableHours(1, _startDate, _endDate);
 
             Assert.Equal(4.5M, flexhours.AvailableHoursBeforeCompensation);
             Assert.Equal(9M, flexhours.AvailableHoursAfterCompensation);
-        }
-
-        [Fact]
-        public void GetFlexedhours_WorkedLessThanFullDay_NegativeFlex()
-        {
-            _context.Hours.Add(CreateTimeEntry(date: _startDate, value: 5M, out int taskid));
-            _context.Hours.Add(CreateFlexEntry(date: _startDate, value: 2.5M));
-            _context.SaveChanges();
-
-            var calculator = CreateStorage();
-            var flexhours = calculator.GetAvailableHours(1);
-
-            Assert.Equal(-2.5M, flexhours.AvailableHoursBeforeCompensation);
-            Assert.Equal(0, flexhours.AvailableHoursAfterCompensation);
         }
 
         [Fact]
@@ -92,8 +81,8 @@ namespace Tests.UnitTests.Flexihours
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 03), value: 10M, out int taskid2));
             _context.SaveChanges();
 
-            var calculator = CreateStorage();
-            var flexhours = calculator.GetAvailableHours(1);
+            var flexhourStorage = CreateStorage();
+            var flexhours = flexhourStorage.GetAvailableHours(1, _startDate, _endDate);
 
             Assert.Equal(5, flexhours.AvailableHoursBeforeCompensation);
             Assert.Equal(5, flexhours.AvailableHoursAfterCompensation);
@@ -111,9 +100,9 @@ namespace Tests.UnitTests.Flexihours
             _context.Hours.Add(entry2);
             _context.SaveChanges();
 
-            var calculator = CreateStorage();
-            var flexhours = calculator.GetAvailableHours(userId: 1);
-         
+            var flexhourStorage = CreateStorage();
+            var flexhours = flexhourStorage.GetAvailableHours(1, _startDate, _endDate);
+
             Assert.Equal(2.5M, flexhours.AvailableHoursBeforeCompensation);
             Assert.Equal(2.5M, flexhours.AvailableHoursAfterCompensation);
         }
@@ -125,8 +114,8 @@ namespace Tests.UnitTests.Flexihours
             _context.Hours.Add(CreateTimeEntry(date: _startDate.AddDays(-1), value: 10M, out int taskid2));
             _context.SaveChanges();
 
-            var calculator = CreateStorage();
-            var flexhours = calculator.GetAvailableHours(1);
+            var flexhourStorage = CreateStorage();
+            var flexhours = flexhourStorage.GetAvailableHours(1, _startDate, _endDate);
 
             Assert.Equal(2.5M, flexhours.AvailableHoursBeforeCompensation);
             Assert.Equal(2.5M, flexhours.AvailableHoursAfterCompensation);
@@ -140,8 +129,8 @@ namespace Tests.UnitTests.Flexihours
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 05), value: 0M, out _));
             _context.SaveChanges();
 
-            var calculator = CreateStorage();
-            var flexhours = calculator.GetAvailableHours(1);
+            var flexHourStorage = CreateStorage();
+            var flexhours = flexHourStorage.GetAvailableHours(1, _startDate, _endDate);
 
             Assert.Equal(0, flexhours.AvailableHoursBeforeCompensation);
             Assert.Equal(0, flexhours.AvailableHoursBeforeCompensation);
@@ -154,30 +143,70 @@ namespace Tests.UnitTests.Flexihours
             _context.Hours.Add(CreateTimeEntry(date: _startDate, value: 2.5M, out _));
             _context.SaveChanges();
 
-            var calculator = CreateStorage();
-            var flexhours = calculator.GetAvailableHours(1);
+            var flexHourStorage = CreateStorage();
+            var flexhours = flexHourStorage.GetAvailableHours(1, _startDate, _endDate);
 
             Assert.Equal(0, flexhours.AvailableHoursBeforeCompensation);
             Assert.Equal(0, flexhours.AvailableHoursAfterCompensation);
         }
 
         [Fact]
-        public void GetFlexedhours_FlexingMoreThanAvailable_NegativeFlex()
+        public void GetFlexedhours_FlexingMoreThanAvailable_CannotFlex()
         {
             _context.Hours.Add(CreateTimeEntry(date: _startDate, value: 8.5M, out int taskid));
             _context.Hours.Add(CreateFlexEntry(date: _startDate.AddDays(1), value: 2M));
             _context.SaveChanges();
 
-            var calculator = CreateStorage();
-            var flexhours = calculator.GetAvailableHours(1);
+            var flexhourStorage = CreateStorage();
+            var flexhours = flexhourStorage.GetAvailableHours(1, _startDate, _endDate);
 
-            Assert.Equal(-1M, flexhours.AvailableHoursBeforeCompensation);
+            Assert.Equal(0M, flexhours.AvailableHoursBeforeCompensation);
+            Assert.Equal(0, flexhours.AvailableHoursAfterCompensation);
+        }
+
+        [Fact]
+        public void GetFlexedhours_FlexingBeforeRecordedHours_CannotFlex()
+        {
+            _context.Hours.Add(CreateFlexEntry(date: _startDate, value: 2M));
+            _context.SaveChanges();
+
+            var flexHourStorage = CreateStorage();
+            var flexhours = flexHourStorage.GetAvailableHours(1, _startDate, _endDate);
+
+            Assert.Equal(0M, flexhours.AvailableHoursBeforeCompensation);
+            Assert.Equal(0, flexhours.AvailableHoursAfterCompensation);
+        }
+
+        [Fact]
+        public void GetFlexedhours_RecordingHoursBeforeStartOfOvertimeSystem_NoOvertime()
+        {
+            var user = _context.User.First();
+            user.StartDate = new DateTime(2020, 11, 01);
+
+            _context.Hours.Add(CreateTimeEntry(new DateTime(2020, 11, 02), 9, out int taskId));
+            _context.SaveChanges();
+
+            var flexHourStorage = new FlexhourStorage(new TimeEntryStorage(_context), _context, new TestTimeEntryOptions(
+                new TimeEntryOptions
+                {
+                    FlexTask = 18,
+                    ReportUser = 11,
+                    StartOfOvertimeSystem = new DateTime(2020, 12, 01)
+                }));
+            var flexhours = flexHourStorage.GetAvailableHours(1, _startDate, _endDate);
+
+            Assert.Equal(0M, flexhours.AvailableHoursBeforeCompensation);
             Assert.Equal(0, flexhours.AvailableHoursAfterCompensation);
         }
 
         private FlexhourStorage CreateStorage()
         {
-            return new FlexhourStorage(new TimeEntryStorage(_context), _context);
+            return new FlexhourStorage(new TimeEntryStorage(_context), _context, new TestTimeEntryOptions(
+                new TimeEntryOptions { 
+                    FlexTask = 18, 
+                    ReportUser = 11, 
+                    StartOfOvertimeSystem = new DateTime(2020, 01, 01) 
+                }));
         }
 
         private static Hours CreateTimeEntry(DateTime date, decimal value, out int taskId)
@@ -213,6 +242,26 @@ namespace Tests.UnitTests.Flexihours
                 Value = compRate,
                 TaskId = taskId
             };
+        }
+
+        public class TestTimeEntryOptions : IOptionsMonitor<TimeEntryOptions>
+        {
+            public TimeEntryOptions CurrentValue { get; }
+
+            public TestTimeEntryOptions(TimeEntryOptions currentValue)
+            {
+                CurrentValue = currentValue;
+            }
+
+            public TimeEntryOptions Get(string name)
+            {
+                return CurrentValue;
+            }
+
+            public IDisposable OnChange(Action<TimeEntryOptions, string> listener)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

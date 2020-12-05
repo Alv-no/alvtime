@@ -1,8 +1,10 @@
 ﻿using AlvTime.Business;
 using AlvTime.Business.FlexiHours;
+using AlvTime.Business.Options;
 using AlvTime.Business.TimeEntries;
 using AlvTime.Persistence.DataBaseModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,24 +14,27 @@ public class FlexhourStorage : IFlexhourStorage
     private const decimal HoursInRegularWorkday = 7.5M;
     private readonly ITimeEntryStorage _timeEntryStorage;
     private readonly AlvTime_dbContext _context;
-    private const int _flexTask = 18; //To be implemented as env variable
+    private readonly IOptionsMonitor<TimeEntryOptions> _timeEntryOptions;
+    private readonly int _flexTask;
+    private readonly DateTime _startOfOvertimeSystem;
 
-    public FlexhourStorage(ITimeEntryStorage timeEntryStorage, AlvTime_dbContext context)
+    public FlexhourStorage(ITimeEntryStorage timeEntryStorage, AlvTime_dbContext context, IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
     {
         _timeEntryStorage = timeEntryStorage;
         _context = context;
+        _timeEntryOptions = timeEntryOptions;
+        _flexTask = _timeEntryOptions.CurrentValue.FlexTask;
+        _startOfOvertimeSystem = _timeEntryOptions.CurrentValue.StartOfOvertimeSystem;
     }
 
-    public AvailableHoursDto GetAvailableHours(int userId)
+    public AvailableHoursDto GetAvailableHours(int userId, DateTime userStartDate, DateTime endDate)
     {
         var dbUser = _context.User.SingleOrDefault(u => u.Id == userId);
-        var startDate = dbUser.StartDate;
-        var endDate = DateTime.Now.Date;
 
-        var overtimeEntries = GetOvertimeEntriesAfterOffTimeAndPayouts(startDate, endDate, userId);
+        var overtimeEntries = GetOvertimeEntriesAfterOffTimeAndPayouts(userStartDate, endDate, userId);
 
         var sumFlexHours = overtimeEntries.Sum(o => o.Hours);
-        var sumCompensatedHours = overtimeEntries.Sum(o => o.CompensationRate * o.Hours) > 0 ? overtimeEntries.Sum(o => o.CompensationRate * o.Hours) : 0;
+        var sumCompensatedHours = overtimeEntries.Sum(o => o.CompensationRate * o.Hours);
 
         return new AvailableHoursDto
         {
@@ -112,18 +117,19 @@ public class FlexhourStorage : IFlexhourStorage
         return entriesByDate;
     }
 
-    private List<OvertimeEntry> GetOvertimeEntries(IEnumerable<DateEntry> entriesByDate, DateTime startDate, DateTime endDate)
+    private List<OvertimeEntry> GetOvertimeEntries(IEnumerable<DateEntry> entriesByDate, DateTime userStartDate, DateTime endDate)
     {
         var overtimeEntries = new List<OvertimeEntry>();
         var years = entriesByDate.Select(x => x.Date.Year).Distinct();
         var allRedDays = new List<DateTime>();
+        var dateToStartCalculation = userStartDate > _startOfOvertimeSystem ? userStartDate : _startOfOvertimeSystem;
 
         foreach (var year in years)
         {
             allRedDays.AddRange(new RedDays(year).Dates);
         }
 
-        foreach (var currentDate in GetDaysInPeriod(startDate, endDate))
+        foreach (var currentDate in GetDaysInPeriod(dateToStartCalculation, endDate))
         {
             var day = entriesByDate.SingleOrDefault(entryDate => entryDate.Date == currentDate);
 
@@ -220,16 +226,6 @@ public class FlexhourStorage : IFlexhourStorage
                     overtimeEntries.Add(overtimeEntry);
                     hoursOffThisDay += overtimeEntry.Hours;
                 }
-                if (!orderedOverTime.Any() || hoursOffThisDay > 0)
-                {
-                    OvertimeEntry overtimeEntry = new OvertimeEntry
-                    {
-                        Hours = -hoursOffThisDay,
-                        CompensationRate = 1,
-                        Date = day.Date
-                    };
-                    overtimeEntries.Add(overtimeEntry);
-                }
             }
         }
     }
@@ -278,9 +274,9 @@ public class FlexhourStorage : IFlexhourStorage
     public ObjectResult RegisterPaidOvertime(GenericHourEntry request, int userId)
     {
         var user = _context.User.SingleOrDefault(u => u.Id == userId);
-        var startDate = user.StartDate;
+        var userStartDate = user.StartDate;
 
-        var overtimeEntries = GetOvertimeEntriesAfterOffTimeAndPayouts(startDate, request.Date, userId);
+        var overtimeEntries = GetOvertimeEntriesAfterOffTimeAndPayouts(userStartDate, request.Date, userId);
 
         var availableForPayout = overtimeEntries.Sum(ot => ot.Hours);
 

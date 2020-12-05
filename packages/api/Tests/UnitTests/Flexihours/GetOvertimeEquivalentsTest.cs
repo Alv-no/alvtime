@@ -1,9 +1,11 @@
 ﻿using AlvTime.Business.FlexiHours;
+using AlvTime.Business.Options;
 using AlvTime.Persistence.DataBaseModels;
 using AlvTime.Persistence.Repositories;
 using System;
 using System.Linq;
 using Xunit;
+using static Tests.UnitTests.Flexihours.GetOvertimeTests;
 
 namespace Tests.UnitTests.Flexihours
 {
@@ -12,6 +14,9 @@ namespace Tests.UnitTests.Flexihours
         private AlvTime_dbContext _context = new AlvTimeDbContextBuilder()
         .WithUsers()
         .CreateDbContext();
+
+        private readonly DateTime _startDate = new DateTime(2020, 01, 02);
+        private readonly DateTime _endDate = DateTime.Now.Date;
 
         [Fact]
         public void GetOvertime_Worked7AndAHalfHours_NoOvertime()
@@ -23,7 +28,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetAvailableHours(1).AvailableHoursAfterCompensation;
+            var OTequivalents = calculator.GetAvailableHours(1, _startDate, _endDate).AvailableHoursAfterCompensation;
             Assert.Equal(0, OTequivalents);
         }
 
@@ -40,7 +45,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetAvailableHours(1).AvailableHoursAfterCompensation;
+            var OTequivalents = calculator.GetAvailableHours(1, _startDate, _endDate).AvailableHoursAfterCompensation;
             Assert.Equal(2.5M, OTequivalents);
         }
 
@@ -57,7 +62,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetAvailableHours(1).AvailableHoursAfterCompensation;
+            var OTequivalents = calculator.GetAvailableHours(1, _startDate, _endDate).AvailableHoursAfterCompensation;
             Assert.Equal(1.25M, OTequivalents);
         }
 
@@ -71,7 +76,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetAvailableHours(1).AvailableHoursAfterCompensation;
+            var OTequivalents = calculator.GetAvailableHours(1, _startDate, _endDate).AvailableHoursAfterCompensation;
             Assert.Equal(3M, OTequivalents);
         }
 
@@ -88,7 +93,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetAvailableHours(1).AvailableHoursAfterCompensation;
+            var OTequivalents = calculator.GetAvailableHours(1, _startDate, _endDate).AvailableHoursAfterCompensation;
             Assert.Equal(1.25M, OTequivalents);
         }
 
@@ -108,7 +113,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetAvailableHours(1).AvailableHoursAfterCompensation;
+            var OTequivalents = calculator.GetAvailableHours(1, _startDate, _endDate).AvailableHoursAfterCompensation;
             Assert.Equal(7.5M, OTequivalents);
         }
 
@@ -128,7 +133,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetAvailableHours(1).AvailableHoursAfterCompensation;
+            var OTequivalents = calculator.GetAvailableHours(1, _startDate, _endDate).AvailableHoursAfterCompensation;
             Assert.Equal(7.5M, OTequivalents);
         }
 
@@ -145,7 +150,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetAvailableHours(1).AvailableHoursAfterCompensation;
+            var OTequivalents = calculator.GetAvailableHours(1, _startDate, _endDate).AvailableHoursAfterCompensation;
             Assert.Equal(1.25M, OTequivalents);
         }
 
@@ -170,7 +175,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetAvailableHours(1).AvailableHoursAfterCompensation;
+            var OTequivalents = calculator.GetAvailableHours(1, _startDate, _endDate).AvailableHoursAfterCompensation;
             Assert.Equal(0M, OTequivalents);
         }
 
@@ -190,7 +195,7 @@ namespace Tests.UnitTests.Flexihours
                 Hours = 5
             }, 1);
 
-            var OTequivalents = calculator.GetAvailableHours(1).AvailableHoursAfterCompensation;
+            var OTequivalents = calculator.GetAvailableHours(1, _startDate, _endDate).AvailableHoursAfterCompensation;
             Assert.Equal(5M, OTequivalents);
         }
 
@@ -216,7 +221,7 @@ namespace Tests.UnitTests.Flexihours
                 Hours = 11
             }, 1).Value as PaidOvertime;
 
-            var OTequivalents = calculator.GetAvailableHours(1).AvailableHoursAfterCompensation;
+            var OTequivalents = calculator.GetAvailableHours(1, _startDate, _endDate).AvailableHoursAfterCompensation;
             Assert.Equal(15.5M, OTequivalents);
             Assert.Equal(6.5M, result.HoursAfterCompRate);
         }
@@ -233,7 +238,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetAvailableHours(1).AvailableHoursAfterCompensation;
+            var OTequivalents = calculator.GetAvailableHours(1, _startDate, _endDate).AvailableHoursAfterCompensation;
             Assert.Equal(5M, OTequivalents);
         }
 
@@ -265,7 +270,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetAvailableHours(1).AvailableHoursAfterCompensation;
+            var OTequivalents = calculator.GetAvailableHours(1, _startDate, _endDate).AvailableHoursAfterCompensation;
             Assert.Equal(6M, OTequivalents);
         }
 
@@ -279,7 +284,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetAvailableHours(1).AvailableHoursAfterCompensation;
+            var OTequivalents = calculator.GetAvailableHours(1, _startDate, _endDate).AvailableHoursAfterCompensation;
             Assert.Equal(3M, OTequivalents);
         }
 
@@ -296,7 +301,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetAvailableHours(1).AvailableHoursAfterCompensation;
+            var OTequivalents = calculator.GetAvailableHours(1, _startDate, _endDate).AvailableHoursAfterCompensation;
             Assert.Equal(6M, OTequivalents);
         }
 
@@ -313,7 +318,7 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var OTequivalents = calculator.GetAvailableHours(1).AvailableHoursAfterCompensation;
+            var OTequivalents = calculator.GetAvailableHours(1, _startDate, _endDate).AvailableHoursAfterCompensation;
             Assert.Equal(7M, OTequivalents);
         }
 
@@ -332,15 +337,27 @@ namespace Tests.UnitTests.Flexihours
 
             _context.SaveChanges();
 
-            FlexhourStorage calculator = CreateStorage();
+            FlexhourStorage calculator = new FlexhourStorage(new TimeEntryStorage(_context), _context, new TestTimeEntryOptions(
+                new TimeEntryOptions
+                {
+                    FlexTask = 18,
+                    ReportUser = 11,
+                    StartOfOvertimeSystem = new DateTime(2019, 01, 01)
+                }));
 
-            var OTequivalents = calculator.GetAvailableHours(1).AvailableHoursAfterCompensation;
+            var OTequivalents = calculator.GetAvailableHours(1, user.StartDate, _endDate).AvailableHoursAfterCompensation;
             Assert.Equal(6M, OTequivalents);
         }
 
         private FlexhourStorage CreateStorage()
         {
-            return new FlexhourStorage(new TimeEntryStorage(_context), _context);
+            return new FlexhourStorage(new TimeEntryStorage(_context), _context, new TestTimeEntryOptions(
+                new TimeEntryOptions
+                {
+                    FlexTask = 18,
+                    ReportUser = 11,
+                    StartOfOvertimeSystem = new DateTime(2020, 01, 01)
+                }));
         }
 
         private static Hours CreateTimeEntry(DateTime date, decimal value, out int taskId)
