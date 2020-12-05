@@ -1,3 +1,4 @@
+using AlvTime.Business.Options;
 using AlvTime.Persistence.DataBaseModels;
 using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Authorization;
@@ -31,6 +32,7 @@ namespace AlvTimeWebApi
             services.AddDbContext<AlvTime_dbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("AlvTime_db")), contextLifetime: ServiceLifetime.Scoped, optionsLifetime: ServiceLifetime.Scoped);
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddAlvtimeAuthentication(Configuration);
+            services.Configure<TimeEntryOptions>(Configuration.GetSection("TimeEntryOptions"));
             services.AddAlvtimeAuthorization();
             services.AddSwaggerGen(c =>
             {

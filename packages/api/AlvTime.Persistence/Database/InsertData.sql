@@ -127,12 +127,6 @@ values
 (10, 17, '2019-09-01', ''),
 (11, 17, '2019-12-01', '')
 
-insert into [dbo].[PaidOvertime]
-values
-('2020-01-01', 1, 15),
-('2019-03-01', 10, 10),
-('2019-04-01', 9, 2)
-
 insert into [dbo].[CompensationRate]
 values
 ('2019-01-01', 1.5, 1),

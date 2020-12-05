@@ -1,10 +1,12 @@
 ﻿using AlvTime.Business.FlexiHours;
+using AlvTime.Business.Options;
 using AlvTime.Persistence.DataBaseModels;
 using AlvTime.Persistence.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using Xunit;
+using static Tests.UnitTests.Flexihours.GetOvertimeTests;
 
 namespace Tests.UnitTests.Flexihours
 {
@@ -158,7 +160,13 @@ namespace Tests.UnitTests.Flexihours
 
         private FlexhourStorage CreateStorage()
         {
-            return new FlexhourStorage(new TimeEntryStorage(_context), _context);
+            return new FlexhourStorage(new TimeEntryStorage(_context), _context, new TestTimeEntryOptions(
+                new TimeEntryOptions
+                {
+                    FlexTask = 18,
+                    ReportUser = 11,
+                    StartOfOvertimeSystem = new DateTime(2020, 01, 01)
+                }));
         }
 
         private static Hours CreateTimeEntry(DateTime date, decimal value, out int taskId)
