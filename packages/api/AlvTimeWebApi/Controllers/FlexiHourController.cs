@@ -94,7 +94,7 @@ namespace AlvTimeWebApi.Controllers
 
             var user = _userRetriever.RetrieveUser();
 
-            var response = _storage.RegisterPaidOvertime(request, user.Id);
+            /*var response = _storage.RegisterPaidOvertime(request, user.Id);
 
             if (response is OkObjectResult)
             {
@@ -106,6 +106,11 @@ namespace AlvTimeWebApi.Controllers
             }
 
             return BadRequest(response.Value);
+            */
+            return Ok(new {
+              Date = DateTime.Now,
+              Value = request.Hours
+            });
         }
 
         [HttpDelete("Payouts")]
