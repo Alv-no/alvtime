@@ -3,18 +3,15 @@
     <div class="padding">
       <div class="availablehours">
         <div class="available available-flex">
-          <h4>Kompenserte timer</h4>
-          <div class="badge">
-            {{ overtime }}
-          </div>
+          <OvertimeVisualizer :subtract="hours"></OvertimeVisualizer>
         </div>
       </div>
-
       <hr />
 
       <small style="padding: 10px"
-        >Tast inn antall timer du ønsker å ta ut. Maks antall timer er dine
-        kompanserte timer</small
+        >Du har <b>{{ overtime }}</b> tilgjengelig i timebanken. Tast inn antall
+        timer du ønsker å ta ut. Maks antall timer er dine kompanserte
+        timer</small
       >
 
       <div class="order-payout-field">
@@ -34,7 +31,7 @@
 
       <hr />
 
-      <md-table v-model="transactions" md-fixed-header>
+      <md-table v-model="sortedTransactions" md-fixed-header>
         <md-table-toolbar>
           <h2 class="md-title">Transaksjoner</h2>
         </md-table-toolbar>
@@ -72,11 +69,22 @@ import { isFloat } from "@/store/timeEntries";
 import Input from "./Input.vue";
 import moment, { Moment } from "moment";
 import CenterColumnWrapper from "@/components/CenterColumnWrapper.vue";
+import OvertimeVisualizer from "@/components/OvertimeVisualizer.vue";
 import { MappedOvertimeTransaction } from "../store/overtime";
 
 interface ValidationRule {
   errorMessage: string;
   validator: (hours: string) => boolean;
+}
+
+interface InternalTransaction {
+  id: number;
+  date: string;
+  hours: number;
+  type: string;
+  rate?: number;
+  sum?: number;
+  active?: boolean;
 }
 
 const rules: ValidationRule[] = [
@@ -99,6 +107,7 @@ export default Vue.extend({
     YellowButton,
     Input,
     CenterColumnWrapper,
+    OvertimeVisualizer,
   },
   data() {
     return {
@@ -110,6 +119,17 @@ export default Vue.extend({
   computed: {
     overtime(): number {
       return this.$store.getters.getAvailableHours;
+    },
+    sortedTransactions(): InternalTransaction[] {
+      if (this.transactions) {
+        return (this.transactions as InternalTransaction[]).sort((a, b) => {
+          let aDate = new Date(a.date);
+          let bDate = new Date(b.date);
+          if (a.active) return 0 - aDate.getTime();
+          return bDate.getTime() - aDate.getTime();
+        });
+      }
+      return [];
     },
     buttonText(): string {
       // @ts-ignore
@@ -198,6 +218,7 @@ export default Vue.extend({
       });
       await this.$store.dispatch("FETCH_TRANSACTIONS");
       this.processTransactions();
+      this.hours = "";
     },
 
     async removeHourOrder(id: number) {
@@ -241,8 +262,7 @@ hr {
 }
 
 .availablehours {
-  display: flex;
-  justify-content: center;
+  width: 100%;
 }
 
 .md-table-head-label i:hover {

@@ -1,7 +1,10 @@
 <template>
   <div class="text">
     <p>{{ task.project.customer.name }}</p>
-    <p class="activity_name_text">{{ task.name }} {{ task.project.name }}</p>
+    <p class="activity_name_text">
+      {{ task.name }} {{ task.project.name }}
+      <small>{{ task.compensationRate }}</small>
+    </p>
   </div>
 </template>
 
