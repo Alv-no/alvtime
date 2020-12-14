@@ -1,7 +1,9 @@
+using AlvTime.Business.Options;
 using AlvTime.Business.TimeEntries;
 using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,15 +17,17 @@ namespace AlvTimeWebApi.Controllers
         private readonly ITimeEntryStorage _storage;
         private readonly TimeEntryCreator _creator;
         private RetrieveUsers _userRetriever;
+        private readonly IOptionsMonitor<TimeEntryOptions> _timeEntryOptions;
 
-        private readonly int TEST_USER = 11;
-        private readonly int REPORT_USER = 17;
+        private readonly int _reportUser;
 
-        public TimeEntriesController(RetrieveUsers userRetriever, ITimeEntryStorage storage, TimeEntryCreator creator)
+        public TimeEntriesController(RetrieveUsers userRetriever, ITimeEntryStorage storage, TimeEntryCreator creator, IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
         {
             _userRetriever = userRetriever;
             _storage = storage;
             _creator = creator;
+            _timeEntryOptions = timeEntryOptions;
+            _reportUser = _timeEntryOptions.CurrentValue.ReportUser;
         }
 
         [HttpGet("TimeEntries")]
@@ -64,9 +68,14 @@ namespace AlvTimeWebApi.Controllers
         [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<List<TimeEntriesResponseDto>> UpsertTimeEntry([FromBody] List<CreateTimeEntryDto> requests)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState.Values);
+            }
+
             var user = _userRetriever.RetrieveUser();
 
-            return Ok(_creator.UpsertTimeEntry(requests, user.Id)
+            return Ok(_creator.UpsertTimeEntry(requests, user.Id, user.StartDate)
                 .Select(timeEntry => new
                 {
                     User = timeEntry.User,
@@ -84,7 +93,7 @@ namespace AlvTimeWebApi.Controllers
         {
             var user = _userRetriever.RetrieveUser();
 
-            if (user.Id == TEST_USER || user.Id == REPORT_USER)
+            if (user.Id == _reportUser)
             {
                 var report = _storage.GetTimeEntries(new TimeEntryQuerySearch
                 {

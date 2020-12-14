@@ -1,3 +1,4 @@
+using AlvTime.Business.Options;
 using AlvTime.Persistence.DataBaseModels;
 using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Authorization;
@@ -10,7 +11,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using System;
 
 namespace AlvTimeWebApi
 {
@@ -23,6 +23,8 @@ namespace AlvTimeWebApi
 
         public IConfiguration Configuration { get; }
 
+        private const string DevCorsPolicyName = "devCorsPolicyName";
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -30,6 +32,7 @@ namespace AlvTimeWebApi
             services.AddDbContext<AlvTime_dbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("AlvTime_db")), contextLifetime: ServiceLifetime.Scoped, optionsLifetime: ServiceLifetime.Scoped);
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddAlvtimeAuthentication(Configuration);
+            services.Configure<TimeEntryOptions>(Configuration.GetSection("TimeEntryOptions"));
             services.AddAlvtimeAuthorization();
             services.AddSwaggerGen(c =>
             {
@@ -37,6 +40,18 @@ namespace AlvTimeWebApi
             });
 
             services.AddRazorPages();
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: DevCorsPolicyName,
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin();
+                        builder.AllowAnyMethod();
+                        builder.AllowAnyHeader();
+                    }
+                );
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -45,6 +60,9 @@ namespace AlvTimeWebApi
             if (!env.IsDevelopment())
             {
                 app.UseHsts(); // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+            } else
+            {
+                app.UseCors(DevCorsPolicyName);
             }
 
             app.UseHttpsRedirection();

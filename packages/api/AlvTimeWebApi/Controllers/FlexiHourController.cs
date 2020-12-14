@@ -26,12 +26,12 @@ namespace AlvTimeWebApi.Controllers
         {
             var user = _userRetriever.RetrieveUser();
 
-            var availableHours = _storage.GetAvailableHours(user.Id);
+            var availableHours = _storage.GetAvailableHours(user.Id, user.StartDate, DateTime.Now.Date);
 
             return Ok(new
             {
-                TotalHours = availableHours.TotalHours,
-                TotalHoursIncludingCompensationRate = availableHours.TotalHoursIncludingCompensationRate,
+                AvailableHoursBeforeCompensation = availableHours.AvailableHoursBeforeCompensation,
+                AvailableHoursAfterCompensation = availableHours.AvailableHoursAfterCompensation,
                 Entries = availableHours.Entries.Select(entry => new
                 {
                     Date = entry.Date.ToDateOnly(),
@@ -76,7 +76,8 @@ namespace AlvTimeWebApi.Controllers
                 {
                     Id = entry.Id,
                     Date = entry.Date.ToDateOnly(),
-                    Hours = entry.Hours,
+                    HoursBeforeCompRate = entry.HoursBeforeCompRate,
+                    HoursAfterCompRate = entry.HoursAfterCompRate,
                     Active = entry.Active
                 })
             });
@@ -86,13 +87,9 @@ namespace AlvTimeWebApi.Controllers
         [Authorize]
         public ActionResult<GenericHourEntry> RegisterPaidOvertime([FromBody] GenericHourEntry request)
         {
-            if (request.Hours < 0)
+            if (!ModelState.IsValid)
             {
-                return BadRequest("Input value must be positive number");
-            }
-            if (request.Hours % 0.5M != 0)
-            {
-                return BadRequest("Input value must be a multiple of a half hour (0.5)");
+                return BadRequest(ModelState.Values);
             }
 
             var user = _userRetriever.RetrieveUser();

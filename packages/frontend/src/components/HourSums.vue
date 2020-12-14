@@ -3,7 +3,11 @@
     <mq-layout mq="sm">
       <div>{{ daySum }}/{{ dayGoal }}</div>
     </mq-layout>
+
     <div>{{ weekSum }}/{{ weekGoal }}</div>
+    <mq-layout mq="md+">
+      <AvailableHours />
+    </mq-layout>
   </div>
 </template>
 
@@ -13,8 +17,12 @@ import config from "@/config";
 import { FrontendTimentrie } from "@/store/timeEntries";
 import { createWeek } from "@/mixins/date";
 import { Moment } from "moment";
+import AvailableHours from "./AvailableHours.vue";
 
 export default Vue.extend({
+  components: {
+    AvailableHours,
+  },
   computed: {
     daySum(): string {
       let sum = 0;
