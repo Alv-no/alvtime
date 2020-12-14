@@ -1,7 +1,7 @@
 <template>
   <div>
     <template v-if="!small">
-      Timer til avspasering:
+      Timebanken:
     </template>
     <template v-if="small">+</template>{{ availableHours }}
   </div>
