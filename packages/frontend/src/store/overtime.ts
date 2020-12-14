@@ -2,6 +2,7 @@ import { State } from "./index";
 import config from "@/config";
 import { adAuthenticatedFetch } from "@/services/auth";
 import { ActionContext } from "vuex";
+import { groupBy } from "lodash";
 
 export interface OvertimeState {
   overtimeState: OvertimeStateModel;
@@ -66,6 +67,14 @@ export interface PayoutTransaction {
   active: boolean;
 }
 
+export interface CategorizedFlexHours {
+  key: string;
+  name: string;
+  colorValue: string;
+  value: number;
+  priority: number;
+}
+
 const initState: OvertimeStateModel = {
   availableHours: [],
   payoutTransactions: [],
@@ -81,6 +90,51 @@ const state: OvertimeState = {
 };
 
 const getters = {
+  getCategorizedFlexHours: (state: State) => {
+    const categorizedHours: CategorizedFlexHours[] = [];
+
+    const groupedTransactions = groupBy(
+      state.overtimeState.availableHours,
+      transaction => transaction.compensationRate
+    );
+
+    for (let key in groupedTransactions) {
+      let category: CategorizedFlexHours = {
+        key: "",
+        priority: 1,
+        colorValue: "",
+        value: 0,
+        name: "",
+      };
+
+      switch (key) {
+        case "0.5":
+          category.key = "internal";
+          category.colorValue = "#E8B925";
+          category.name = "Frivillig";
+          category.priority = 3;
+          break;
+        case "1":
+          category.key = "internal";
+          category.colorValue = "#1D92CE";
+          category.name = "Alvtimer";
+          category.priority = 2;
+          break;
+        case "1.5":
+          category.key = "billable";
+          category.colorValue = "#00B050";
+          category.name = "Fakturerbar";
+          category.priority = 1;
+          break;
+        default:
+          console.error("Unknown hours-rate", key);
+      }
+      categorizedHours.push(category);
+      groupedTransactions[key].forEach(item => (category.value += item.hours));
+    }
+
+    return categorizedHours;
+  },
   getTransactionList: (state: State) => {
     const transactions: MappedOvertimeTransaction[] = [];
 
