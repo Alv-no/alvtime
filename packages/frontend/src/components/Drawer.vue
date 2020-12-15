@@ -44,6 +44,7 @@
 import Vue from "vue";
 import YellowButton from "@/components/YellowButton.vue";
 import { logout, login } from "../services/auth";
+import config from "@/config";
 
 export default Vue.extend({
   components: {
@@ -95,9 +96,9 @@ export default Vue.extend({
 
     navToAdminpanel() {
       if (process.env.NODE_ENV === 'development') {
-        window.open('http://localhost:3000/adminpanel/');
+        window.open(config.BASE_URL_DEV + '/adminpanel');
       } else {
-        window.open('https://alvtime-admin-react-pwa-as.azurewebsites.net/adminpanel');
+        window.open(config.BASE_URL_ADMINPANEL_PROD + '/adminpanel');
       }
     }
   },
