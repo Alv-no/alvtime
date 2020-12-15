@@ -39,21 +39,15 @@ const state = {
   timeEntriesMap: {},
 };
 
+
+
 const mutations = {
   UPDATE_TIME_ENTRIES(state: State, paramEntries: FrontendTimentrie[]) {
-    let newTimeEntriesMap = { ...state.timeEntriesMap };
-    for (const paramEntrie of paramEntries) {
-      newTimeEntriesMap = updateTimeEntrieMap(newTimeEntriesMap, paramEntrie);
-    }
-    state.timeEntriesMap = { ...state.timeEntriesMap, ...newTimeEntriesMap };
-
-    let newTimeEntries = state.timeEntries ? [...state.timeEntries] : [];
-    for (const paramEntrie of paramEntries) {
-      newTimeEntries = updateArrayWith(newTimeEntries, paramEntrie);
-    }
-    state.timeEntries = newTimeEntries;
+    updateTimeEntries(state, paramEntries);
   },
-
+  UPDATE_TIME_ENTRIES_AFTER_UPDATE (state: State, paramEntries: FrontendTimentrie[]) {
+    updateTimeEntries(state, paramEntries);
+  },
   ADD_TO_PUSH_QUEUE(state: State, paramEntrie: FrontendTimentrie) {
     state.pushQueue = updateArrayWith(state.pushQueue, paramEntrie);
   },
@@ -103,7 +97,7 @@ ${timeEntries.title}`);
           throw Error(timeEntries.message);
         }
         if (Array.isArray(timeEntries)) {
-          commit("UPDATE_TIME_ENTRIES", timeEntries.map(createTimeEntrie));
+          commit("UPDATE_TIME_ENTRIES_AFTER_UPDATE", timeEntries.map(createTimeEntrie));
         }
       } catch (e) {
         console.error(e);
@@ -206,4 +200,18 @@ function shouldBeStoredServerSide(paramEntrie: ServerSideTimeEntrie) {
 
 function isNonEntrieSetToZero(paramEntrie: ServerSideTimeEntrie) {
   return paramEntrie.value === 0 && paramEntrie.id === 0;
+}
+
+function updateTimeEntries(state: State, paramEntries: FrontendTimentrie[]) {
+    let newTimeEntriesMap = { ...state.timeEntriesMap };
+    for (const paramEntrie of paramEntries) {
+      newTimeEntriesMap = updateTimeEntrieMap(newTimeEntriesMap, paramEntrie);
+    }
+    state.timeEntriesMap = { ...state.timeEntriesMap, ...newTimeEntriesMap };
+
+    let newTimeEntries = state.timeEntries ? [...state.timeEntries] : [];
+    for (const paramEntrie of paramEntries) {
+      newTimeEntries = updateArrayWith(newTimeEntries, paramEntrie);
+    }
+    state.timeEntries = newTimeEntries;
 }

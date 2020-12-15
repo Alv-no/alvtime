@@ -8,7 +8,7 @@ export interface TaskState {
 }
 export interface Task {
   id: number;
-  compansationRate: number;
+  compensationRate: number;
   name: string;
   description: string;
   hourRate: number;
