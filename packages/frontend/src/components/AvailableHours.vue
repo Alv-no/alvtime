@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="$store.state.currentRoute.name === 'hours'" class="sums">
     <template v-if="!small">
       Timebanken:
     </template>
