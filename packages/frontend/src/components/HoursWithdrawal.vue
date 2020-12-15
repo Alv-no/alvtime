@@ -8,11 +8,7 @@
       </div>
       <hr />
 
-      <small style="padding: 10px"
-        >Du har <b>{{ overtime }}</b> tilgjengelig i timebanken. Tast inn antall
-        timer du ønsker å ta ut. Maks antall timer er dine kompanserte
-        timer</small
-      >
+      <small style="padding: 10px">Du har <b>{{ overtime }}</b> {{ hoursText }} tilgjengelig i timebanken. Tast inn antall timer du ønsker å ta ut.</small>
 
       <div class="order-payout-field">
         <Input
@@ -119,6 +115,9 @@ export default Vue.extend({
   computed: {
     overtime(): number {
       return this.$store.getters.getAvailableHours;
+    },
+    hoursText(): string {
+      return this.overtime === 1 ? "time" : "timer";
     },
     sortedTransactions(): InternalTransaction[] {
       if (this.transactions) {
