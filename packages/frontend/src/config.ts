@@ -9,6 +9,13 @@ export default Object.freeze({
   SLACK_TEAM_ID: "TJ70QLJRL",
   SLACK_CHANNEL_ID: "CNEHG527J",
   TEST_ACCESS_TOKEN: "5801gj90-jf39-5j30-fjk3-480fj39kl409",
-  BASE_URL_DEV: "http://localhost:3000",
-  BASE_URL_ADMINPANEL_PROD: "https://alvtime-admin-react-pwa-as.azurewebsites.net",
+  BASE_URL_ADMINPANEL: fetchBaseUrl(),
 });
+
+function fetchBaseUrl() {
+  if (process.env.NODE_ENV === 'development') {
+    return "http://localhost:3000";
+  } else {
+    return "https://alvtime-admin-react-pwa-as.azurewebsites.net";
+  }
+}

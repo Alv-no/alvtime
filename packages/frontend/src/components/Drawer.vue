@@ -95,11 +95,7 @@ export default Vue.extend({
     },
 
     navToAdminpanel() {
-      if (process.env.NODE_ENV === 'development') {
-        window.open(config.BASE_URL_DEV + '/adminpanel');
-      } else {
-        window.open(config.BASE_URL_ADMINPANEL_PROD + '/adminpanel');
-      }
+      window.open(config.BASE_URL_ADMINPANEL + '/adminpanel');
     }
   },
 });
