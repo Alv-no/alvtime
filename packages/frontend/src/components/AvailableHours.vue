@@ -31,7 +31,8 @@ export default Vue.extend({
   async created() {
     this.unsubscribe = (this.$store as Store<State>).subscribe(
       (mutation, state) => {
-        if (mutation.type === "UPDATE_TIME_ENTRIES") {
+        console.log(mutation.type);
+        if (mutation.type === "UPDATE_TIME_ENTRIES_AFTER_UPDATE" || mutation.type === "SET_SWIPER") {
           this.$store.dispatch("FETCH_AVAILABLE_HOURS");
         }
       }
