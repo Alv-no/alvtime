@@ -29,9 +29,9 @@ public class FlexhourStorage : IFlexhourStorage
 
     public AvailableHoursDto GetAvailableHours(int userId, DateTime userStartDate, DateTime endDate)
     {
-        var dbUser = _context.User.SingleOrDefault(u => u.Id == userId);
+        var dateToStartCalculation = userStartDate > _startOfOvertimeSystem ? userStartDate : _startOfOvertimeSystem;
 
-        var overtimeEntries = GetOvertimeEntriesAfterOffTimeAndPayouts(userStartDate, endDate, userId);
+        var overtimeEntries = GetOvertimeEntriesAfterOffTimeAndPayouts(dateToStartCalculation, endDate, userId);
 
         var sumFlexHours = overtimeEntries.Sum(o => o.Hours);
         var sumCompensatedHours = overtimeEntries.Sum(o => o.CompensationRate * o.Hours);
@@ -117,19 +117,18 @@ public class FlexhourStorage : IFlexhourStorage
         return entriesByDate;
     }
 
-    private List<OvertimeEntry> GetOvertimeEntries(IEnumerable<DateEntry> entriesByDate, DateTime userStartDate, DateTime endDate)
+    private List<OvertimeEntry> GetOvertimeEntries(IEnumerable<DateEntry> entriesByDate, DateTime startDate, DateTime endDate)
     {
         var overtimeEntries = new List<OvertimeEntry>();
         var years = entriesByDate.Select(x => x.Date.Year).Distinct();
         var allRedDays = new List<DateTime>();
-        var dateToStartCalculation = userStartDate > _startOfOvertimeSystem ? userStartDate : _startOfOvertimeSystem;
 
         foreach (var year in years)
         {
             allRedDays.AddRange(new RedDays(year).Dates);
         }
 
-        foreach (var currentDate in GetDaysInPeriod(dateToStartCalculation, endDate))
+        foreach (var currentDate in GetDaysInPeriod(startDate, endDate))
         {
             var day = entriesByDate.SingleOrDefault(entryDate => entryDate.Date == currentDate);
 
