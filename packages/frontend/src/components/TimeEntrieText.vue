@@ -2,8 +2,8 @@
   <div class="text">
     <p>{{ task.project.customer.name }}</p>
     <p class="activity_name_text">
-      {{ task.name }} {{ task.project.name }}
-      <small>{{ task.compensationRate }}</small>
+      {{ task.name }} {{ task.project.name }} 
+        <small class="rate-text">{{ compansationRatePercentage }}</small>
     </p>
   </div>
 </template>
@@ -21,6 +21,11 @@ export default Vue.extend({
       },
     },
   },
+  computed: {
+    compansationRatePercentage(): string {
+      return `${this.task.compensationRate * 100}%`;
+    },
+  }
 });
 </script>
 
@@ -37,4 +42,8 @@ export default Vue.extend({
 .activity_name_text {
   font-weight: 600;
 }
+.rate-text {
+  font-weight: 100;
+}
+
 </style>
