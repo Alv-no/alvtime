@@ -2,8 +2,11 @@
   <div v-if="$store.state.currentRoute.name === 'hours'" class="sums">
     <template v-if="!small">
       Timebanken:
+      {{ availableHours }}
     </template>
-    <template v-if="small">+</template>{{ availableHours }}
+    <template v-if="small">
+      {{ smallAvailableHoursText }}
+    </template>
   </div>
 </template>
 
@@ -27,6 +30,9 @@ export default Vue.extend({
     availableHours(): number {
       return this.$store.getters.getAvailableHours;
     },
+    smallAvailableHoursText(): string {
+      return this.availableHours > 0 ? `+${this.availableHours}` : '';
+    }
   },
   async created() {
     this.unsubscribe = (this.$store as Store<State>).subscribe(
