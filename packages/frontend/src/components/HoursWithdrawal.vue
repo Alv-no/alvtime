@@ -15,6 +15,7 @@
           v-model="hours"
           :error="erroneousInput"
           placeholder="Antall timer"
+          type="number"
         />
         <YellowButton
           icon-id="add_circle_outline"

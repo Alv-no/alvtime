@@ -5,6 +5,7 @@
     :value="value"
     :placeholder="placeholder"
     @input="update"
+    :type="type"
   />
 </template>
 
@@ -24,6 +25,10 @@ export default Vue.extend({
       type: Boolean,
       default: false,
     },
+    type: {
+      type: String,
+      default: "text"
+    }
   },
 
   methods: {
