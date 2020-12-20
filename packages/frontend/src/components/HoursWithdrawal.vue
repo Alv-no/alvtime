@@ -44,7 +44,10 @@
           <md-table-cell md-sort-by="rate" md-label="Rate">{{
             item.rate
           }}</md-table-cell>
-          <md-table-cell md-sort-by="rate" md-label=""
+          <md-table-cell md-sort-by="total" md-label="Total">{{
+            item.sum
+          }}</md-table-cell>
+          <md-table-cell md-sort-by="remove" md-label=""
             ><md-icon
               v-if="item.active"
               class="delete-transaction"
@@ -70,7 +73,7 @@ import { MappedOvertimeTransaction } from "../store/overtime";
 
 interface ValidationRule {
   errorMessage: string;
-  validator: (hours: string) => boolean;
+  validator: (hours: string, available: number) => boolean;
 }
 
 interface InternalTransaction {
@@ -86,16 +89,20 @@ interface InternalTransaction {
 const rules: ValidationRule[] = [
   {
     errorMessage: "Skriv inn gyldig tall",
-    validator: hours => isFloat(hours as string),
+    validator: (hours, _)=> isFloat(hours as string),
   },
   {
     errorMessage: "Antall timer må være større enn 0",
-    validator: hours => Number(hours) > 0,
+    validator: (hours, _) => Number(hours) > 0,
   },
   {
     errorMessage: "Kun utbetaling i halve timer",
-    validator: hours => Number(hours) % 0.5 === 0,
+    validator: (hours, _) => Number(hours) % 0.5 === 0,
   },
+  {
+    errorMessage: "Du kan ikke ta ut flere timer enn du har i banken",
+    validator: (hours, available) => Number(hours) <= available
+  }
 ];
 
 export default Vue.extend({
@@ -142,7 +149,7 @@ export default Vue.extend({
 
       let error = "";
       for (let rule of rules) {
-        if (!rule.validator(this.hours)) {
+        if (!rule.validator(this.hours, this.overtime)) {
           error = rule.errorMessage;
           break;
         }
@@ -151,7 +158,7 @@ export default Vue.extend({
     },
     disabled(): boolean {
       for (let rule of rules) {
-        if (!rule.validator(this.hours)) return true;
+        if (!rule.validator(this.hours, this.overtime)) return true;
       }
       return false;
     },
@@ -180,7 +187,7 @@ export default Vue.extend({
             ? `${transaction.transaction.rate * 100}%`
             : "",
           sum: transaction.transaction.rate
-            ? transaction.transaction.hours * (transaction.transaction.rate + 1)
+            ? transaction.transaction.hours * (transaction.transaction.rate)
             : undefined,
           active: transaction.transaction.active,
         };
@@ -254,14 +261,6 @@ hr {
     padding: 0.5rem 0;
     transform: scale(1, 1);
   }
-}
-
-.md-table-fixed-header-container table {
-  width: 100%;
-}
-
-.availablehours {
-  width: 100%;
 }
 
 .md-table-head-label i:hover {
