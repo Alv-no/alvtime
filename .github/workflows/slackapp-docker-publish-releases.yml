@@ -18,15 +18,15 @@ jobs:
       - name: Build image
         run: docker build ./packages/slack-app --tag $IMAGE_NAME:latest
 
-      - uses: anchore/scan-action@master
-        with:
-          image-reference: $IMAGE_NAME:latest
-          dockerfile-path: "./packages/slack-app/Dockerfile"
-          fail-build: true
-          include-app-packages: true
+      # - uses: anchore/scan-action@master
+      #   with:
+      #     image-reference: $IMAGE_NAME:latest
+      #     dockerfile-path: "./packages/slack-app/Dockerfile"
+      #     fail-build: true
+      #     include-app-packages: true
 
-      - name: Anchore inline scan JSON results
-        run: for j in `ls ./anchore-reports/*.json`; do echo "---- ${j} ----"; cat ${j}; echo; done
+      # - name: Anchore inline scan JSON results
+      #   run: for j in `ls ./anchore-reports/*.json`; do echo "---- ${j} ----"; cat ${j}; echo; done
 
       - name: Log into registry
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin

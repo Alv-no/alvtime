@@ -21,15 +21,15 @@ jobs:
         run: |
           docker build . --file Dockerfile --tag api-image \
 
-      - uses: anchore/scan-action@master
-        with:
-          image-reference: $IMAGE_NAME_API:latest
-          dockerfile-path: "./packages/slack-app/Dockerfile"
-          fail-build: true
-          include-app-packages: true
+      # - uses: anchore/scan-action@master
+      #   with:
+      #     image-reference: $IMAGE_NAME_API:latest
+      #     dockerfile-path: "./packages/slack-app/Dockerfile"
+      #     fail-build: true
+      #     include-app-packages: true
 
-      - name: Anchore inline scan JSON results
-        run: for j in `ls ./anchore-reports/*.json`; do echo "---- ${j} ----"; cat ${j}; echo; done
+      # - name: Anchore inline scan JSON results
+      #   run: for j in `ls ./anchore-reports/*.json`; do echo "---- ${j} ----"; cat ${j}; echo; done
 
       - name: Log into registry
         working-directory: "./packages/frontend"
