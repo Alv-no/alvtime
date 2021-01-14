@@ -16,9 +16,11 @@ export default Vue.extend({
     text(): string {
       if (!this.$store.getters.isValidUser) return "Alvtime";
       if (this.$store.state.currentRoute.name === "tasks")
-        return "Select Favorite Tasks";
+        return "Velg aktiviteter";
       if (this.$store.state.currentRoute.name === "tokens")
-        return "Personal access tokens";
+        return "Personlige tilgangstokener";
+      if (this.$store.state.currentRoute.name === "accumulated-hours")
+        return "Overtid og avspasering";
       // @ts-ignore
       const screenSize = this.$mq;
       if (screenSize === "sm") return this.day;

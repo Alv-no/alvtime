@@ -1,6 +1,7 @@
 <template>
   <div class="slide" :class="{ 'day-off': isDayOff }">
     <HolidayPill v-if="holiday" :holiday="holiday" />
+    <ZeroSelectedTasks v-if="rows.length < 1"/>
     <div v-for="row in rows" :key="row.task.id" class="grid">
       <TimeEntrieText :task="row.task" />
       <HourInput :time-entrie="row.timeEntrie" />
@@ -13,6 +14,7 @@ import Vue from "vue";
 import TimeEntrieText from "./TimeEntrieText.vue";
 import HourInput from "./HourInput.vue";
 import HolidayPill from "./HolidayPill.vue";
+import ZeroSelectedTasks from "./ZeroSelectedTasks.vue"
 import config from "@/config";
 import { Task } from "@/store/tasks";
 import { FrontendTimentrie } from "@/store/timeEntries";
@@ -28,6 +30,7 @@ export default Vue.extend({
     TimeEntrieText,
     HourInput,
     HolidayPill,
+    ZeroSelectedTasks
   },
   props: {
     date: {
