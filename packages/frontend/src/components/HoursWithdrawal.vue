@@ -8,7 +8,7 @@
       </div>
       <hr />
 
-      <small style="padding: 10px">Du har <b>{{ overtime }}</b> {{ hoursText }} tilgjengelig i timebanken. Tast inn antall timer du ønsker å ta ut.</small>
+      <small>Du har <b>{{ overtime }}</b> {{ hoursText }} tilgjengelig i timebanken. Tast inn antall timer du ønsker å ta ut.</small>
 
       <div class="order-payout-field">
         <Input
@@ -243,8 +243,10 @@ export default Vue.extend({
 }
 
 .order-payout-field {
-  display: flex;
-  justify-content: left;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  max-width: 50rem;
 }
 
 hr {
