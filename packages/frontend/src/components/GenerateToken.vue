@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="description">
-      Personal access tokens fungerer akkurat som OAuth access tokens for å
+      Personlige tilgangstokener fungerer akkurat som OAuth tilgangstokenerfor å
       autentisere deg mot alvtime web api. Bruk de som bearer tokens i
       applikasjoner der det ikke er mulig eller praktisk å implementere login
       mot Azure Ad.

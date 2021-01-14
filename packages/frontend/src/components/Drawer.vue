@@ -20,7 +20,7 @@
         :key="item.routeName"
         @click="navTo(item.routeName)"
       >
-        <md-icon>query_builder</md-icon>
+        <md-icon>{{ item.icon }}</md-icon>
 
         <span
           :class="{ active: $store.state.currentRoute.name === item.routeName }"
@@ -54,10 +54,10 @@ export default Vue.extend({
   data() {
     return {
       items: [
-        { text: "Timeføring", routeName: "hours" },
-        { text: "Favorittaktiviteter", routeName: "tasks" },
-        { text: "Overtid og avspasering", routeName: "accumulated-hours" },
-        { text: "Personal access tokens", routeName: "tokens" },
+        { text: "Timeføring", routeName: "hours", icon: "query_builder" },
+        { text: "Aktiviteter", routeName: "tasks", icon: "local_activity"  },
+        { text: "Overtid og avspasering", routeName: "accumulated-hours", icon: "watch_later"  },
+        { text: "Personal access tokens", routeName: "tokens", icon: "lock_open"  },
       ],
     };
   },
