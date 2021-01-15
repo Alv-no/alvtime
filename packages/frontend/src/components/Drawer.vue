@@ -57,7 +57,7 @@ export default Vue.extend({
         { text: "Timeføring", routeName: "hours", icon: "query_builder" },
         { text: "Aktiviteter", routeName: "tasks", icon: "local_activity"  },
         { text: "Overtid og avspasering", routeName: "accumulated-hours", icon: "watch_later"  },
-        { text: "Personal access tokens", routeName: "tokens", icon: "lock_open"  },
+        { text: "Personlige access token", routeName: "tokens", icon: "lock_open"  },
       ],
     };
   },
