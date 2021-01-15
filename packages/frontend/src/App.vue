@@ -11,7 +11,6 @@
                   src="/img/logo_white.svg"
                   alt="Hvit Alv-logo"
                 />
-                <div class="logo_text">time</div>
               </div>
             </router-link>
           </div>
