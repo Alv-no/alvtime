@@ -14,10 +14,3 @@ jobs:
       - name: Build the Docker image
         working-directory: "./packages/adminpanel"
         run: docker build . --file Dockerfile --tag image
-
-      - name: Run tests
-        working-directory: "./packages/adminpanel"
-        run: |
-          docker build . --file Dockerfile --target dev --tag image
-          docker run image npm run build
-          docker run image npm run test
