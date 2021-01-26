@@ -5,37 +5,15 @@ import { AlvtimeContext } from "../App";
 import { norsk } from "./norsk";
 import tableIcons from "./tableIcons";
 import { globalTableOptions, setCache } from "./Tables";
-import { TextField } from "@material-ui/core";
-import Autocomplete from "@material-ui/lab/Autocomplete";
+import TasksTable from "./TasksTable";
 
-export default function ProjectsTable() {
+export default function ProjectsTable(props: { customer: object }) {
+  const customer: { id: number } = (props.customer as unknown) as {
+    id: number;
+  };
   const { alvtimeFetcher } = useContext(AlvtimeContext);
-  const { data: customers, error: customersLoadError } = useSWR(
-    "/api/admin/Customers"
-  );
   const columns: Column<object>[] = [
     { title: "Navn", field: "name", editable: "always", type: "string" },
-    {
-      title: "Kunde",
-      field: "customer.name",
-      editable: "onAdd",
-      type: "string",
-      editComponent: (props: any) => (
-        <Autocomplete
-          options={customers}
-          getOptionLabel={(option: { name: string }) => option.name}
-          onChange={(
-            _event: any,
-            newValue: { name: string; id: number } | null
-          ) => {
-            props.onChange(newValue ? newValue.id : 0);
-          }}
-          renderInput={(params: any) => {
-            return <TextField {...params} />;
-          }}
-        />
-      ),
-    },
   ];
 
   const path = "/api/admin/Projects";
@@ -43,14 +21,14 @@ export default function ProjectsTable() {
   const { data, error } = useSWR(path);
 
   const handleRowAdd = async (newData: any) => {
-    setCache(path, [...data, newData]);
+    setCache(path, [...data, { ...newData, customer: { id: customer.id } }]);
     const addedData = await alvtimeFetcher(path, {
       method: "post",
       body: [
         {
           id: newData.id,
           name: newData.name,
-          customer: newData.customer.name, // The Id is set in the name field in the Autocomplete
+          customer: customer.id, // The Id is set in the name field in the Autocomplete
         },
       ],
     });
@@ -59,7 +37,7 @@ export default function ProjectsTable() {
 
   const handleRowUpdate = async (newData: any, oldData: any) => {
     const dataUpdate = [...data];
-    const index = oldData.tableData.id;
+    const index = dataUpdate.findIndex((x) => x.id === oldData.id);
     dataUpdate[index] = newData;
     setCache(path, [...dataUpdate]);
     const updatedData = await alvtimeFetcher(path, {
@@ -73,19 +51,34 @@ export default function ProjectsTable() {
   };
 
   if (error) return <div>Error...</div>;
+  const isLoading = !data;
+  const filteredData = !data
+    ? data
+    : data.filter(
+        (project: { customer: { id: number } }) =>
+          project.customer.id === ((customer.id as unknown) as number)
+      );
+
   return (
     <MaterialTable
       icons={tableIcons}
       title="Prosjekter"
       columns={columns}
-      data={data}
-      isLoading={!data}
+      data={filteredData}
+      isLoading={isLoading}
       options={{ ...globalTableOptions }}
       editable={{
         onRowAdd: handleRowAdd,
         onRowUpdate: handleRowUpdate,
       }}
       localization={norsk}
+      detailPanel={(rowData) => {
+        return (
+          <div style={{ paddingLeft: "1rem" }}>
+            <TasksTable project={rowData} />
+          </div>
+        );
+      }}
     />
   );
 }
