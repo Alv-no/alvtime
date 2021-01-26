@@ -52,7 +52,10 @@ function App() {
             }}
           >
             <SWRConfig
-              value={{ fetcher: createAlvtimeFetcher(adAuthenticatedFetch) }}
+              value={{
+                fetcher: createAlvtimeFetcher(adAuthenticatedFetch),
+                revalidateOnFocus: false,
+              }}
             >
               <Tables />
             </SWRConfig>
