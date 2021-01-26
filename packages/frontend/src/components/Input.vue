@@ -4,8 +4,8 @@
     :class="{ error }"
     :value="value"
     :placeholder="placeholder"
-    @input="update"
     :type="type"
+    @input="update"
   />
 </template>
 
@@ -27,8 +27,8 @@ export default Vue.extend({
     },
     type: {
       type: String,
-      default: "text"
-    }
+      default: "text",
+    },
   },
 
   methods: {

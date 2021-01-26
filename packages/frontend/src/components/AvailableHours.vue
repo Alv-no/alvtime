@@ -31,13 +31,16 @@ export default Vue.extend({
       return this.$store.getters.getAvailableHours;
     },
     smallAvailableHoursText(): string {
-      return this.availableHours > 0 ? `+${this.availableHours}` : '';
-    }
+      return this.availableHours > 0 ? `+${this.availableHours}` : "";
+    },
   },
   async created() {
     this.unsubscribe = (this.$store as Store<State>).subscribe(
       (mutation, state) => {
-        if (mutation.type === "UPDATE_TIME_ENTRIES_AFTER_UPDATE" || mutation.type === "SET_SWIPER") {
+        if (
+          mutation.type === "UPDATE_TIME_ENTRIES_AFTER_UPDATE" ||
+          mutation.type === "SET_SWIPER"
+        ) {
           this.$store.dispatch("FETCH_AVAILABLE_HOURS");
         }
       }

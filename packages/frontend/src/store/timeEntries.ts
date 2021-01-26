@@ -39,13 +39,14 @@ const state = {
   timeEntriesMap: {},
 };
 
-
-
 const mutations = {
   UPDATE_TIME_ENTRIES(state: State, paramEntries: FrontendTimentrie[]) {
     updateTimeEntries(state, paramEntries);
   },
-  UPDATE_TIME_ENTRIES_AFTER_UPDATE (state: State, paramEntries: FrontendTimentrie[]) {
+  UPDATE_TIME_ENTRIES_AFTER_UPDATE(
+    state: State,
+    paramEntries: FrontendTimentrie[]
+  ) {
     updateTimeEntries(state, paramEntries);
   },
   ADD_TO_PUSH_QUEUE(state: State, paramEntrie: FrontendTimentrie) {
@@ -97,7 +98,10 @@ ${timeEntries.title}`);
           throw Error(timeEntries.message);
         }
         if (Array.isArray(timeEntries)) {
-          commit("UPDATE_TIME_ENTRIES_AFTER_UPDATE", timeEntries.map(createTimeEntrie));
+          commit(
+            "UPDATE_TIME_ENTRIES_AFTER_UPDATE",
+            timeEntries.map(createTimeEntrie)
+          );
         }
       } catch (e) {
         console.error(e);
@@ -203,15 +207,15 @@ function isNonEntrieSetToZero(paramEntrie: ServerSideTimeEntrie) {
 }
 
 function updateTimeEntries(state: State, paramEntries: FrontendTimentrie[]) {
-    let newTimeEntriesMap = { ...state.timeEntriesMap };
-    for (const paramEntrie of paramEntries) {
-      newTimeEntriesMap = updateTimeEntrieMap(newTimeEntriesMap, paramEntrie);
-    }
-    state.timeEntriesMap = { ...state.timeEntriesMap, ...newTimeEntriesMap };
+  let newTimeEntriesMap = { ...state.timeEntriesMap };
+  for (const paramEntrie of paramEntries) {
+    newTimeEntriesMap = updateTimeEntrieMap(newTimeEntriesMap, paramEntrie);
+  }
+  state.timeEntriesMap = { ...state.timeEntriesMap, ...newTimeEntriesMap };
 
-    let newTimeEntries = state.timeEntries ? [...state.timeEntries] : [];
-    for (const paramEntrie of paramEntries) {
-      newTimeEntries = updateArrayWith(newTimeEntries, paramEntrie);
-    }
-    state.timeEntries = newTimeEntries;
+  let newTimeEntries = state.timeEntries ? [...state.timeEntries] : [];
+  for (const paramEntrie of paramEntries) {
+    newTimeEntries = updateArrayWith(newTimeEntries, paramEntrie);
+  }
+  state.timeEntries = newTimeEntries;
 }

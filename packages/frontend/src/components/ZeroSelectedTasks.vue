@@ -2,7 +2,8 @@
   <md-empty-state
     md-icon="devices_other"
     md-label="Ingen valgte aktiviteter"
-    md-description="Trykk på knappen under for å navigere til listen over aktiviteter">
+    md-description="Trykk på knappen under for å navigere til listen over aktiviteter"
+  >
     <YellowButton
       icon-id="arrow_forward"
       tooltip="Gå til aktiviteter"
