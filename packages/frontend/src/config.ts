@@ -13,9 +13,11 @@ export default Object.freeze({
 });
 
 function fetchBaseUrl() {
-  if (process.env.NODE_ENV === 'development') {
-    return "http://localhost:3000";
+  if (process.env.NODE_ENV === "development") {
+    return "http://localhost:3000/adminpanel";
+  } else if (window.location.host.includes("dev")) {
+    return "https://alvtime-admin-react-pwa-dev-as.azurewebsites.net/adminpanel#";
   } else {
-    return "https://alvtime-admin-react-pwa-as.azurewebsites.net";
+    return "https://alvtime-admin-react-pwa-as.azurewebsites.net/adminpanel";
   }
 }
