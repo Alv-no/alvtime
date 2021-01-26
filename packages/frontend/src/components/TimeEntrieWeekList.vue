@@ -9,7 +9,7 @@
           </div>
         </div>
       </div>
-      <ZeroSelectedTasks v-if="tasks.length < 1"/>
+      <ZeroSelectedTasks v-if="tasks.length < 1" />
       <div v-for="task in tasks" :key="task.id" class="row">
         <TimeEntrieText :task="task" />
         <TimeEntrieWeek :task="task" :week="week" />
@@ -23,7 +23,7 @@ import Vue from "vue";
 import TimeEntrieWeek from "./TimeEntrieWeek.vue";
 import TimeEntrieText from "./TimeEntrieText.vue";
 import DayPill from "./DayPill.vue";
-import ZeroSelectedTasks from "./ZeroSelectedTasks.vue"
+import ZeroSelectedTasks from "./ZeroSelectedTasks.vue";
 import { Task } from "@/store/tasks";
 import { FrontendTimentrie } from "@/store/timeEntries";
 import config from "@/config";
@@ -36,7 +36,7 @@ export default Vue.extend({
     TimeEntrieText,
     DayPill,
     CenterColumnWrapper,
-    ZeroSelectedTasks
+    ZeroSelectedTasks,
   },
   props: { week: { type: Array as () => Moment[], default: () => [] } },
 

@@ -166,12 +166,13 @@ const getters = {
       })
     );
     transactions.push(
-      ...state.overtimeState.flexTransactions
-        .map(transaction => {
-          return { type: "flex", transaction: transaction };
-        })
+      ...state.overtimeState.flexTransactions.map(transaction => {
+        return { type: "flex", transaction: transaction };
+      })
     );
-    return transactions.filter(transaction => transaction.transaction.hours != 0)
+    return transactions.filter(
+      transaction => transaction.transaction.hours != 0
+    );
   },
   getAvailableHours: (state: State) => {
     return state.overtimeState.totalHours;

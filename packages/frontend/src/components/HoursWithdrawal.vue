@@ -8,7 +8,10 @@
       </div>
       <hr />
 
-      <small>Du har <b>{{ overtime }}</b> {{ hoursText }} tilgjengelig i timebanken. Tast inn antall timer du ønsker å ta ut.</small>
+      <small
+        >Du har <b>{{ overtime }}</b> {{ hoursText }} tilgjengelig i timebanken.
+        Tast inn antall timer du ønsker å ta ut.</small
+      >
 
       <div class="order-payout-field">
         <Input
@@ -90,7 +93,7 @@ interface InternalTransaction {
 const rules: ValidationRule[] = [
   {
     errorMessage: "Skriv inn gyldig tall",
-    validator: (hours, _)=> isFloat(hours as string),
+    validator: (hours, _) => isFloat(hours as string),
   },
   {
     errorMessage: "Antall timer må være større enn 0",
@@ -102,8 +105,8 @@ const rules: ValidationRule[] = [
   },
   {
     errorMessage: "Du kan ikke ta ut flere timer enn du har i banken",
-    validator: (hours, available) => Number(hours) <= available
-  }
+    validator: (hours, available) => Number(hours) <= available,
+  },
 ];
 
 export default Vue.extend({
@@ -188,7 +191,7 @@ export default Vue.extend({
             ? `${transaction.transaction.rate * 100}%`
             : "",
           sum: transaction.transaction.rate
-            ? transaction.transaction.hours * (transaction.transaction.rate)
+            ? transaction.transaction.hours * transaction.transaction.rate
             : undefined,
           active: transaction.transaction.active,
         };
