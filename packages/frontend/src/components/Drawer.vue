@@ -95,7 +95,7 @@ export default Vue.extend({
     },
 
     navToAdminpanel() {
-      window.open(config.BASE_URL_ADMINPANEL + '/adminpanel');
+      window.open(config.BASE_URL_ADMINPANEL);
     }
   },
 });
