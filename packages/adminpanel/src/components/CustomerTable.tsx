@@ -3,6 +3,7 @@ import React, { useContext } from "react";
 import useSWR from "swr";
 import { AlvtimeContext } from "../App";
 import { norsk } from "./norsk";
+import ProjectsTable from "./ProjectsTable";
 import tableIcons from "./tableIcons";
 import { globalTableOptions, setCache } from "./Tables";
 
@@ -31,7 +32,7 @@ export default function CustomerTable() {
 
   const handleRowUpdate = async (newData: any, oldData: any) => {
     const dataUpdate = [...data];
-    const index = oldData.tableData.id;
+    const index = dataUpdate.findIndex((x) => x.id === oldData.id);
     dataUpdate[index] = newData;
     setCache(path, [...dataUpdate]);
     const updatedData = await alvtimeFetcher(path, {
@@ -56,6 +57,13 @@ export default function CustomerTable() {
         onRowUpdate: handleRowUpdate,
       }}
       localization={norsk}
+      detailPanel={(rowData) => {
+        return (
+          <div style={{ paddingLeft: "1rem" }}>
+            <ProjectsTable customer={rowData} />
+          </div>
+        );
+      }}
     />
   );
 }

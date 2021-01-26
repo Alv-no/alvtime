@@ -34,7 +34,7 @@ export default function UserTable() {
 
   const handleRowUpdate = async (newData: any, oldData: any) => {
     const dataUpdate = [...data];
-    const index = oldData.tableData.id;
+    const index = dataUpdate.findIndex((x) => x.id === oldData.id);
     dataUpdate[index] = newData;
     setCache(path, [...dataUpdate]);
     const updatedData = await alvtimeFetcher(path, {

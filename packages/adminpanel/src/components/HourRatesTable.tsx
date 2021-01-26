@@ -5,49 +5,15 @@ import { AlvtimeContext } from "../App";
 import { norsk } from "./norsk";
 import tableIcons from "./tableIcons";
 import { globalTableOptions, setCache } from "./Tables";
-import Autocomplete from "@material-ui/lab/Autocomplete";
-import { TextField } from "@material-ui/core";
+import { format, getUnixTime } from "date-fns";
 
-export default function HourRates() {
+export default function HourRates(props: { task: object }) {
+  const task = (props.task as unknown) as {
+    id: number;
+  };
   const { alvtimeFetcher } = useContext(AlvtimeContext);
-  const { data: tasks, error: tasksLoadError } = useSWR("/api/admin/Tasks");
 
   const columns: Column<object>[] = [
-    {
-      title: "Aktivitet",
-      field: "task.name",
-      editable: "onAdd",
-      type: "string",
-      editComponent: (props: any) => {
-        return (
-          <Autocomplete
-            options={tasks}
-            getOptionLabel={(option: { name: string }) => option.name}
-            onChange={(
-              _event: any,
-              newValue: { name: string; id: number } | null
-            ) => {
-              props.onChange(newValue ? newValue.id : 0);
-            }}
-            renderInput={(params: any) => {
-              return <TextField {...params} />;
-            }}
-          />
-        );
-      },
-    },
-    {
-      title: "Prosjektnavn",
-      field: "task.project.name",
-      editable: "never",
-      type: "string",
-    },
-    {
-      title: "Kundenavn",
-      field: "task.project.customer.name",
-      editable: "never",
-      type: "string",
-    },
     { title: "Timerate", field: "rate", editable: "always", type: "numeric" },
     {
       title: "Gjelder fra",
@@ -62,13 +28,13 @@ export default function HourRates() {
   const { data, error } = useSWR(path);
 
   const handleRowAdd = async (newData: any) => {
-    setCache(path, [...data, newData]);
+    setCache(path, [...data, { ...newData, task: { id: task.id } }]);
     const addedData = await alvtimeFetcher(path, {
       method: "post",
       body: [
         {
-          taskId: newData.task.name, // The Id is set in the name field in the Autocomplete
-          fromDate: newData.fromDate,
+          taskId: task.id, // The Id is set in the name field in the Autocomplete
+          fromDate: format(newData.fromDate, "yyyy-MM-dd"),
           rate: newData.rate,
         },
       ],
@@ -78,7 +44,7 @@ export default function HourRates() {
 
   const handleRowUpdate = async (newData: any, oldData: any) => {
     const dataUpdate = [...data];
-    const index = oldData.tableData.id;
+    const index = dataUpdate.findIndex((x) => x.id === oldData.id);
     dataUpdate[index] = newData;
     setCache(path, [...dataUpdate]);
     const updatedData = await alvtimeFetcher(path, {
@@ -96,13 +62,27 @@ export default function HourRates() {
   };
 
   if (error) return <div>Error...</div>;
+  const isLoading = !data;
+  const filteredData = !data
+    ? data
+    : data
+        .filter(
+          (rate: { task: { id: number } }) =>
+            rate.task.id === ((task.id as unknown) as number)
+        )
+        .sort((rateA: { fromDate: string }, rateB: { fromDate: string }) => {
+          const dateA = new Date(rateA.fromDate);
+          const dateB = new Date(rateB.fromDate);
+          return dateB.getTime() - dateA.getTime();
+        });
+
   return (
     <MaterialTable
       icons={tableIcons}
       title="Timerater"
       columns={columns}
-      data={data}
-      isLoading={!data}
+      data={filteredData}
+      isLoading={isLoading}
       options={{ ...globalTableOptions }}
       editable={{
         onRowAdd: handleRowAdd,
