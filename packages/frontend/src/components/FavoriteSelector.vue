@@ -43,9 +43,6 @@ export default Vue.extend({
   data() {
     return {
       searchphrase: "",
-      fuse: new Fuse(this.$store.state.tasks, {
-        keys: ["name", "project.name", "project.customer.name"],
-      }),
     };
   },
 
@@ -54,7 +51,10 @@ export default Vue.extend({
       if (this.searchphrase.length === 0) {
         return this.$store.state.tasks;
       }
-      const result = (this.fuse.search(this.searchphrase) as unknown) as {
+      const fuse = new Fuse(this.$store.state.tasks, {
+        keys: ["name", "project.name", "project.customer.name"],
+      });
+      const result = (fuse.search(this.searchphrase) as unknown) as {
         item: Task;
       }[];
       return result.map((x: { item: Task }) => x.item);
