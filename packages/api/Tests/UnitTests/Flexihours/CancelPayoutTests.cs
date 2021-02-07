@@ -3,9 +3,7 @@ using AlvTime.Business.Options;
 using AlvTime.Persistence.DataBaseModels;
 using AlvTime.Persistence.Repositories;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Xunit;
 using static Tests.UnitTests.Flexihours.GetOvertimeTests;
 
@@ -22,8 +20,9 @@ namespace Tests.UnitTests.Flexihours
             dbUser.StartDate = new DateTime(2020, 11, 01);
 
             var currentMonth = DateTime.Now.Month;
+            var currentYear = DateTime.Now.Year;
 
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, currentMonth, 02), value: 17.5M, out int taskid));
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(currentYear, currentMonth, 02), value: 17.5M, out int taskid));
             _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
 
             _context.SaveChanges();
@@ -32,7 +31,7 @@ namespace Tests.UnitTests.Flexihours
 
             var registerOvertimeResponse = calculator.RegisterPaidOvertime(new GenericHourEntry
             {
-                Date = new DateTime(2020, currentMonth, 02),
+                Date = new DateTime(currentYear, currentMonth, 02),
                 Hours = 10
             }, 1).Value as PaidOvertime;
 
