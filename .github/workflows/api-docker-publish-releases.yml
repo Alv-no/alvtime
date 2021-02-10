@@ -18,7 +18,7 @@ jobs:
 
       - name: Build api image
         working-directory: "./packages/api"
-        run: docker build . --file Dockerfile --tag image
+        run: docker build . Dockerfile --tag image
 
       - uses: anchore/scan-action@v2
         with:
