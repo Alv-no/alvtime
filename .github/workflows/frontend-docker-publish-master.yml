@@ -25,7 +25,6 @@ jobs:
           --build-arg VUE_APP_CLIENT_ID=373a7768-6d2a-4b20-b671-bc1089104a3a
 
       - name: Log into registry
-        working-directory: "./packages/frontend"
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
       - name: Push frontend image

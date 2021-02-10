@@ -18,13 +18,14 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build frontend images
+        working-directory: "./packages/frontend"
         run: |
-          docker build ./packages/frontend --file Dockerfile --tag image \
+          docker build --file Dockerfile --tag image
           --build-arg VUE_APP_API_HOST=https://alvtime-api-prod.azurewebsites.net \
           --build-arg VUE_APP_ACCESS_SCOPE=api://3644a03b-f801-4b67-b487-3353684fe7fc/access_as_user \
           --build-arg VUE_APP_CLIENT_ID=3644a03b-f801-4b67-b487-3353684fe7fc
 
-          docker build ./packages/frontend --file Dockerfile --tag image-local \
+          docker build --file Dockerfile --tag image-local
           --build-arg VUE_APP_API_HOST=http://localhost:3000 \
           --build-arg VUE_APP_ACCESS_SCOPE=https://d8aedd.alvtime-ap-alvtime-api-dev-f9b4e4.westeurope.cloudapp.azure.com/access_as_user \
           --build-arg VUE_APP_CLIENT_ID=373a7768-6d2a-4b20-b671-bc1089104a3a
@@ -42,6 +43,7 @@ jobs:
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
       - name: Push frontend images
+        working-directory: "./packages/frontend"
         run: |
 
           echo IMAGE_NAME=$IMAGE_NAME
