@@ -274,8 +274,9 @@ public class FlexhourStorage : IFlexhourStorage
     {
         var user = _context.User.SingleOrDefault(u => u.Id == userId);
         var userStartDate = user.StartDate;
+        var dateToStartCalculation = userStartDate > _startOfOvertimeSystem ? userStartDate : _startOfOvertimeSystem;
 
-        var overtimeEntries = GetOvertimeEntriesAfterOffTimeAndPayouts(userStartDate, request.Date, userId);
+        var overtimeEntries = GetOvertimeEntriesAfterOffTimeAndPayouts(dateToStartCalculation, request.Date, userId);
 
         var availableForPayout = overtimeEntries.Sum(ot => ot.Hours);
 
