@@ -111,7 +111,7 @@ export default Vue.extend({
 
 <style scoped>
 .close_button {
-  margin: 0.4rem 0.8rem;
+  margin: 0.4rem 0rem;
 }
 
 .active {
