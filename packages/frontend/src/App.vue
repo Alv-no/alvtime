@@ -15,7 +15,7 @@
             </router-link>
           </div>
           <div class="md-toolbar-section-end">
-            <hamburger />
+            <hamburger v-if="userFound" />
           </div>
         </div>
 
@@ -84,6 +84,10 @@ export default Vue.extend({
 
     interactionState(): { oldState: string; newState: string } {
       return this.$store.state.interactionState;
+    },
+
+    userFound(): boolean {
+      return this.$store.getters.isValidUser;
     },
   },
 
