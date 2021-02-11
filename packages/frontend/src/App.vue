@@ -15,7 +15,7 @@
             </router-link>
           </div>
           <div class="md-toolbar-section-end">
-            <Avatar />
+            <hamburger />
           </div>
         </div>
 
@@ -49,7 +49,7 @@ import ErrorSnackbar from "@/components/ErrorSnackbar.vue";
 import UpdateSnackbar from "@/components/UpdateSnackbar.vue";
 import OnlineSnackbar from "@/components/OnlineSnackbar.vue";
 import Toolbar from "@/components/Toolbar.vue";
-import Avatar from "@/components/Avatar.vue";
+import Hamburger from "@/components/Hamburger.vue";
 import Drawer from "@/components/Drawer.vue";
 import DayFooter from "@/components/DayFooter.vue";
 import CenterColumnWrapper from "@/components/CenterColumnWrapper.vue";
@@ -60,7 +60,7 @@ export default Vue.extend({
     UpdateSnackbar,
     OnlineSnackbar,
     Toolbar,
-    Avatar,
+    Hamburger,
     Drawer,
     DayFooter,
     CenterColumnWrapper,
