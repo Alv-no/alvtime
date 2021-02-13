@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 
-TOKEN=
-ENDPOINT_URL='https://alvtime-api-prod.azurewebsites.net'
+test -z "$ALVTIME_TOKEN" && \
+  echo "ALVTIME_TOKEN must be set"
+
+URL="${ALVTIME_URL:-https://alvtime-api-prod.azurewebsites.net}"
 
 function fetch() {
   curl --silent \
     --header "Accept: application/json" \
-    --header "Authorization: Bearer $TOKEN" \
+    --header "Authorization: Bearer $ALVTIME_TOKEN" \
     "$@"
 }
 
@@ -21,7 +23,7 @@ function post() {
 function timeEntriesPost() {
   local TODAY=$(date +'%Y-%m-%d')
   local DATE=${3:-"$TODAY"}
-  post "$ENDPOINT_URL/api/user/TimeEntries" \
+  post "$URL/api/user/TimeEntries" \
     "[{\"date\": \"$DATE\", \"value\": $2, \"taskId\": $1 }]"
 }
 
@@ -37,23 +39,23 @@ function multiTimeEntriesPost() {
     OBJECTS="$OBJECTS,{\"date\": \"${args[0]}\", \"value\": ${args[2]}, \"taskId\": ${args[1]} }"
   done < <(cat -- "$file")
 
-  post "$ENDPOINT_URL/api/user/TimeEntries" \
+  post "$URL/api/user/TimeEntries" \
     "[${OBJECTS:1}]"
 }
 
-[ "tasks" = $1 ] && \
-  fetch "$ENDPOINT_URL/api/user/tasks"
+test "tasks" = "$1"  && \
+  fetch "$URL/api/user/tasks"
 
 # Example:
 # ./alvtime.sh hours 2019-11-18 2021-11-21
 # Returns your registered hours between the two dates
-[ "hours" = $1 ] && \
-  fetch "$ENDPOINT_URL/api/user/TimeEntries?fromDateInclusive=$2&toDateInclusive=$3"
+test "hours" = "$1"  && \
+  fetch "$URL/api/user/TimeEntries?fromDateInclusive=$2&toDateInclusive=$3"
 
 # Example:
 # ./alvtime.sh register 14 3.5 2021-02-11
 # Registers 3.5 hours to task id 14 on date 2021-02-11
-[ "register" = $1 ] && \
+test "register" = "$1"  && \
   timeEntriesPost $2 $3 $4
 
 # Example:
@@ -68,7 +70,7 @@ function multiTimeEntriesPost() {
 # Registers 1.5 hours to task id 14 on date 2021-02-10
 # Registers 3 hours to task id 14 on date 2021-02-11
 # Registers 5 hours to task id 14 on date 2021-02-12
-[ "multiregister" = $1 ] && \
+test "multiregister" = "$1"  && \
   multiTimeEntriesPost $2
 
 exit 0
