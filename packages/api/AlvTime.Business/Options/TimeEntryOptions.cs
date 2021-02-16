@@ -7,5 +7,7 @@ namespace AlvTime.Business.Options
         public int FlexTask { get; set; }
         public DateTime StartOfOvertimeSystem { get; set; }
         public int ReportUser { get; set; }
+        public int PaidHolidayTask { get; set; }
+        public int UnpaidHolidayTask { get; set; }
     }
 }

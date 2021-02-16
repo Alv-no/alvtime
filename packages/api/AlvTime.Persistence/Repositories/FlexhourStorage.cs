@@ -16,6 +16,8 @@ public class FlexhourStorage : IFlexhourStorage
     private readonly AlvTime_dbContext _context;
     private readonly IOptionsMonitor<TimeEntryOptions> _timeEntryOptions;
     private readonly int _flexTask;
+    private readonly int _paidHolidayTask;
+    private readonly int _unpaidHolidayTask;
     private readonly DateTime _startOfOvertimeSystem;
 
     public FlexhourStorage(ITimeEntryStorage timeEntryStorage, AlvTime_dbContext context, IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
@@ -24,6 +26,8 @@ public class FlexhourStorage : IFlexhourStorage
         _context = context;
         _timeEntryOptions = timeEntryOptions;
         _flexTask = _timeEntryOptions.CurrentValue.FlexTask;
+        _paidHolidayTask = _timeEntryOptions.CurrentValue.PaidHolidayTask;
+        _unpaidHolidayTask = _timeEntryOptions.CurrentValue.UnpaidHolidayTask;
         _startOfOvertimeSystem = _timeEntryOptions.CurrentValue.StartOfOvertimeSystem;
     }
 
@@ -157,6 +161,11 @@ public class FlexhourStorage : IFlexhourStorage
                 break;
             }
 
+            if ((isRedDay || IsWeekend(day)) && (entry.TaskId == _paidHolidayTask || entry.TaskId == _unpaidHolidayTask))
+            {
+                continue;
+            }
+
             OvertimeEntry overtimeEntry = new OvertimeEntry
             {
                 Hours = Math.Min(overtimeHours, entry.Value),
@@ -171,10 +180,14 @@ public class FlexhourStorage : IFlexhourStorage
         }
     }
 
+    private bool IsWeekend(DateEntry entry)
+    {
+        return entry.Date.DayOfWeek == DayOfWeek.Saturday || entry.Date.DayOfWeek == DayOfWeek.Saturday;
+    }
+
     private bool WorkedOnRedDay(DateEntry day, List<DateTime> redDays)
     {
-        if ((day.Date.DayOfWeek == DayOfWeek.Sunday ||
-            day.Date.DayOfWeek == DayOfWeek.Saturday ||
+        if ((IsWeekend(day) ||
             redDays.Contains(day.Date)) &&
             day.GetWorkingHours() > 0)
         {
