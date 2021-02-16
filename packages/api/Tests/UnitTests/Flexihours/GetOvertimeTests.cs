@@ -15,7 +15,7 @@ namespace Tests.UnitTests.Flexihours
                 .WithUsers()
                 .CreateDbContext();
 
-        private readonly DateTime _startDate = new DateTime(2020, 01, 02);
+        private readonly DateTime _startDate = new DateTime(2021, 01, 05);
         private readonly DateTime _endDate = DateTime.Now.Date;
 
         [Fact]
@@ -57,14 +57,14 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhours_ExhangedHoursIntoPayout_AvailableHoursAreCompensatedForPayout()
         {
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 02), value: 15M, out int taskid));
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2021, 01, 06), value: 15M, out int taskid));
             _context.CompensationRate.Add(CreateCompensationRate(taskid, 2.0M));
             _context.SaveChanges();
 
             var flexhourStorage = CreateStorage();
             flexhourStorage.RegisterPaidOvertime(new GenericHourEntry
             {
-                Date = new DateTime(2020, 01, 02),
+                Date = new DateTime(2026, 01, 06),
                 Hours = 3M
             }, userId: 1);
 
@@ -77,8 +77,8 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhours_WorkedMultipleDays_FlexForMultipleDaysAreSummed()
         {
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 02), value: 10M, out int taskid));
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 03), value: 10M, out int taskid2));
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2021, 01, 06), value: 10M, out int taskid));
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2021, 01, 07), value: 10M, out int taskid2));
             _context.SaveChanges();
 
             var flexhourStorage = CreateStorage();
@@ -186,13 +186,49 @@ namespace Tests.UnitTests.Flexihours
             _context.Hours.Add(CreateTimeEntry(new DateTime(2020, 11, 02), 9, out int taskId));
             _context.SaveChanges();
 
-            var flexHourStorage = new FlexhourStorage(new TimeEntryStorage(_context), _context, new TestTimeEntryOptions(
-                new TimeEntryOptions
-                {
-                    FlexTask = 18,
-                    ReportUser = 11,
-                    StartOfOvertimeSystem = new DateTime(2020, 12, 01)
-                }));
+            var flexHourStorage = CreateStorage();
+            var flexhours = flexHourStorage.GetAvailableHours(1, _startDate, _endDate);
+
+            Assert.Equal(0M, flexhours.AvailableHoursBeforeCompensation);
+            Assert.Equal(0, flexhours.AvailableHoursAfterCompensation);
+        }
+
+        [Fact]
+        public void GetFlexedhours_RecordedVacationOnRedDay_NoFlexHours()
+        {
+            var user = _context.User.First();
+
+            _context.Hours.Add(new Hours
+            {
+                User = 1,
+                Date = new DateTime(2021, 01, 01),
+                Value = 7.5M,
+                Task = new Task { Id = 13 }
+            });
+            _context.SaveChanges();
+
+            var flexHourStorage = CreateStorage();
+            var flexhours = flexHourStorage.GetAvailableHours(1, _startDate, _endDate);
+
+            Assert.Equal(0M, flexhours.AvailableHoursBeforeCompensation);
+            Assert.Equal(0, flexhours.AvailableHoursAfterCompensation);
+        }
+
+        [Fact]
+        public void GetFlexedhours_RecordedVacationOnWeekend_NoFlexHours()
+        {
+            var user = _context.User.First();
+
+            _context.Hours.Add(new Hours
+            {
+                User = 1,
+                Date = new DateTime(2021, 02, 06),
+                Value = 7.5M,
+                Task = new Task { Id = 13 }
+            });
+            _context.SaveChanges();
+
+            var flexHourStorage = CreateStorage();
             var flexhours = flexHourStorage.GetAvailableHours(1, _startDate, _endDate);
 
             Assert.Equal(0M, flexhours.AvailableHoursBeforeCompensation);
@@ -203,9 +239,11 @@ namespace Tests.UnitTests.Flexihours
         {
             return new FlexhourStorage(new TimeEntryStorage(_context), _context, new TestTimeEntryOptions(
                 new TimeEntryOptions { 
-                    FlexTask = 18, 
+                    FlexTask = 18,
+                    PaidHolidayTask = 13,
+                    UnpaidHolidayTask = 19,
                     ReportUser = 11, 
-                    StartOfOvertimeSystem = new DateTime(2020, 01, 01) 
+                    StartOfOvertimeSystem = new DateTime(2021, 01, 01) 
                 }));
         }
 
