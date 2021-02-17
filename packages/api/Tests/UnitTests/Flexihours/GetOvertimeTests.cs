@@ -222,7 +222,7 @@ namespace Tests.UnitTests.Flexihours
             _context.Hours.Add(new Hours
             {
                 User = 1,
-                Date = new DateTime(2021, 02, 06),
+                Date = new DateTime(2021, 02, 07),
                 Value = 7.5M,
                 Task = new Task { Id = 13 }
             });

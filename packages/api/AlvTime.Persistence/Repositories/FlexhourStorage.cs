@@ -161,7 +161,7 @@ public class FlexhourStorage : IFlexhourStorage
                 break;
             }
 
-            if ((isRedDay || IsWeekend(day)) && (entry.TaskId == _paidHolidayTask || entry.TaskId == _unpaidHolidayTask))
+            if (isRedDay && (entry.TaskId == _paidHolidayTask || entry.TaskId == _unpaidHolidayTask))
             {
                 continue;
             }
@@ -180,10 +180,6 @@ public class FlexhourStorage : IFlexhourStorage
         }
     }
 
-    private bool IsWeekend(DateEntry entry)
-    {
-        return entry.Date.DayOfWeek == DayOfWeek.Saturday || entry.Date.DayOfWeek == DayOfWeek.Saturday;
-    }
 
     private bool WorkedOnRedDay(DateEntry day, List<DateTime> redDays)
     {
@@ -194,6 +190,11 @@ public class FlexhourStorage : IFlexhourStorage
             return true;
         }
         return false;
+    }
+
+    private bool IsWeekend(DateEntry entry)
+    {
+        return entry.Date.DayOfWeek == DayOfWeek.Saturday || entry.Date.DayOfWeek == DayOfWeek.Sunday;
     }
 
     private void CompensateForOffTime(List<OvertimeEntry> overtimeEntries, IEnumerable<DateEntry> entriesByDate, DateTime startDate, DateTime endDate, int userId)
