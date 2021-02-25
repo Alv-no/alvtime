@@ -17,7 +17,7 @@ namespace AlvTimeWebApi.Controllers
         }
 
         [HttpGet("Profile")]
-        [Authorize]
+        [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<User> GetUserProfile()
         {
             return Ok(_userRetriever.RetrieveUser());
