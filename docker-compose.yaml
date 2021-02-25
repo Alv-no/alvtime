@@ -4,14 +4,14 @@ services:
   adminpanel:
     user: vscode
     tty: true
+    ports:
+      - "3000:3000"
     build:
       context: ./packages/adminpanel
       target: dev
     volumes:
       - ./packages/adminpanel:/src
       - /src/node_modules
-    expose:
-      - "3000"
     environment:
       - CHOKIDAR_USEPOLLING=true
       - REACT_APP_API_HOST=http://localhost:8081
@@ -24,11 +24,11 @@ services:
     build:
       context: ./packages/frontend
       target: dev
+    ports:
+      - "8080:8080"
     volumes:
       - ./packages/frontend:/src
       - /src/node_modules
-    expose:
-      - 8080
     environment:
       - VUE_APP_API_HOST=http://localhost:8081
       - VUE_APP_ACCESS_SCOPE=https://d8aedd.alvtime-ap-alvtime-api-dev-f9b4e4.westeurope.cloudapp.azure.com/access_as_user
@@ -40,22 +40,18 @@ services:
     links:
       - db
     environment:
-      - ConnectionStrings__AlvTime_db=Data Source=tcp:db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32
+      - ConnectionStrings__AlvTime_db=Data Source=tcp:db,1434;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32
       - AdminGroup=5850c192-c101-4b64-9c45-cbbf73542805
-    expose:
-      - "8081"
+      - DOTNET_ENVIRONMENT=Development
     ports:
       - "8081:80"
-    environment:
-      - DOTNET_ENVIRONMENT=Development
+      - "8082:443"
 
   db:
     build:
       context: ./packages/api/AlvTime.Persistence/Database
-    expose:
-      - "1433"
     ports:
-      - "1433:1433"
+      - "1434:1433"
     command:
       - /bin/bash
       - -c
