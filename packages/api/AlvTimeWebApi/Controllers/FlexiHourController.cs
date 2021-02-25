@@ -21,7 +21,7 @@ namespace AlvTimeWebApi.Controllers
         }
 
         [HttpGet("AvailableHours")]
-        [Authorize]
+        [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<AvailableHoursDto> FetchAvailableHours()
         {
             var user = _userRetriever.RetrieveUser();
@@ -43,7 +43,7 @@ namespace AlvTimeWebApi.Controllers
         }
 
         [HttpGet("FlexedHours")]
-        [Authorize]
+        [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<FlexedHoursDto> FetchFlexedHours()
         {
             var user = _userRetriever.RetrieveUser();
@@ -62,7 +62,7 @@ namespace AlvTimeWebApi.Controllers
         }
 
         [HttpGet("Payouts")]
-        [Authorize]
+        [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<PayoutsDto> FetchPaidOvertime()
         {
             var user = _userRetriever.RetrieveUser();
