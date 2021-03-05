@@ -41,7 +41,7 @@ FROM dev as build
 ARG REACT_APP_API_HOST
 ARG REACT_APP_ACCESS_SCOPE
 ARG REACT_APP_CLIENT_ID
-RUN npx react-scripts build
+RUN npm run build
 
 # Stage 2 - the production environment
 FROM nginx:stable-alpine as production

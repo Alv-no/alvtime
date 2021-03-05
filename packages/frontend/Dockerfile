@@ -41,7 +41,7 @@ FROM dev as build
 ARG VUE_APP_API_HOST
 ARG VUE_APP_ACCESS_SCOPE
 ARG VUE_APP_CLIENT_ID
-RUN npx vue-cli-service build
+RUN npm run build
 
 FROM nginx:stable-alpine as production
 COPY --from=build /src/dist /usr/share/nginx/html
