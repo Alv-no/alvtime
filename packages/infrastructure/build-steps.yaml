@@ -1,0 +1,53 @@
+steps:
+  - checkout: self
+    fetchDepth: 1
+
+  - task: TerraformInstaller@0
+    displayName: Install Terraform v0.14.0
+    inputs:
+      terraformVersion: "0.14.0"
+
+  - task: TerraformTaskV1@0
+    displayName: Terraform init
+    inputs:
+      provider: "azurerm"
+      workingDirectory: packages/infrastructure
+      command: "init"
+      backendServiceArm: "$(subscription)"
+      backendAzureRmResourceGroupName: "Alvtime-common"
+      backendAzureRmStorageAccountName: "$(storageAccount)"
+      backendAzureRmContainerName: "terraformstate"
+      backendAzureRmKey: "tf.tfstate"
+
+  - task: TerraformTaskV1@0
+    displayName: Terraform validate
+    inputs:
+      provider: "azurerm"
+      workingDirectory: packages/infrastructure
+      command: "validate"
+
+  # - bash: docker run -t -v "$(System.DefaultWorkingDirectory)":/tf bridgecrew/checkov -d /tf
+  #   displayName: Checkov Static Code Analysis
+  #   workingDirectory: packages/infrastructure
+
+  - task: TerraformTaskV1@0
+    displayName: Terraform plan -out=tfplan
+    inputs:
+      provider: "azurerm"
+      workingDirectory: packages/infrastructure
+      command: "plan"
+      commandOptions: >
+        -input=false
+        -var "aks_service_principal_client_id=$(aks-service-principal-client-id)"
+        -var "aks_service_principal_client_secret=$(aks-service-principal-client-secret)"
+        -var "sql_server_administrator_login=$(sql-server-administrator-login)"
+        -var "sql_server_administrator_login_password=$(sql-server-administrator-login-password)"
+        -var "api_sql_firewall_rule_ip=$(api-sql-firewall-rule-ip)"
+        -out=tfplan
+      environmentServiceNameAzureRM: "$(subscription)"
+
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish Build Artifacts"
+    inputs:
+      pathtoPublish: packages/infrastructure
+      artifactName: infrastructure

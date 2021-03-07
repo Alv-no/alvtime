@@ -1,0 +1,19 @@
+steps:
+  - checkout: self
+    fetchDepth: 1
+
+  - task: Docker@2
+    displayName: Build
+    inputs:
+      command: "build"
+      Dockerfile: "packages/slack-app/Dockerfile"
+      repository: "alvnoas/alvtime-slack-app"
+      tags: "$(shortHash)"
+
+  - task: Docker@2
+    displayName: Push
+    inputs:
+      command: "push"
+      containerRegistry: "alvdockerdev"
+      repository: "alvnoas/alvtime-slack-app"
+      tags: "$(shortHash)"

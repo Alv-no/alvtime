@@ -1,31 +1,17 @@
 output "resource_group_name" {
-  value = azurerm_resource_group.aks.name
+  value = azurerm_resource_group.this.name
 }
 
 output "kubernetes_cluster_name" {
-  value = azurerm_kubernetes_cluster.aks.name
+  value = azurerm_kubernetes_cluster.this.name
 }
 
-output "host" {
-  value = azurerm_kubernetes_cluster.aks.kube_config.0.host
+output "slack_db_connection_strings" {
+  sensitive = true
+  value     = azurerm_cosmosdb_account.slack_db.connection_strings
 }
 
-output "client_key" {
-  value = azurerm_kubernetes_cluster.aks.kube_config.0.client_key
-}
-
-output "client_certificate" {
-  value = azurerm_kubernetes_cluster.aks.kube_config.0.client_certificate
-}
-
-output "kube_config" {
-  value = azurerm_kubernetes_cluster.aks.kube_config_raw
-}
-
-output "cluster_username" {
-  value = azurerm_kubernetes_cluster.aks.kube_config.0.username
-}
-
-output "cluster_password" {
-  value = azurerm_kubernetes_cluster.aks.kube_config.0.password
+output "slack_db_primary_key" {
+  sensitive = true
+  value     = azurerm_cosmosdb_account.slack_db.primary_key
 }

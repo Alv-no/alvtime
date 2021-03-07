@@ -1,0 +1,87 @@
+name: $(BuildDefinitionName)_$(date:yyyyMMdd)$(rev:.r)
+
+trigger:
+  - master
+
+pr: none
+
+pool:
+  vmImage: ubuntu-16.04
+
+variables:
+  subscription: "Dev-Alv-Subscription-Azure-Service-Connection"
+  storageAccount: "terraformstatealvdev"
+  shortHash: ""
+
+stages:
+  - stage: Build
+    jobs:
+      - job: common
+        steps:
+          - task: Bash@3
+            name: setvarStep
+            displayName: Set variables
+            inputs:
+              targetType: inline
+              script: |
+                ## At least 7 digits, more if needed for uniqueness
+                SHORT_HASH=`git rev-parse --short=7 HEAD`
+                echo "Short hash set to $SHORT_HASH"
+                echo "##vso[task.setvariable variable=shortHash;isOutput=true]$SHORT_HASH"
+
+      - job: infrastructure
+        variables:
+          - group: alvtime-test
+        steps:
+          - template: packages/infrastructure/build-steps.yaml
+
+      - job: frontend
+        dependsOn: common
+        variables:
+          shortHash: $[ dependencies.common.outputs['setvarStep.shortHash'] ]
+        steps:
+          - template: packages/frontend/build-steps.yaml
+
+      - job: adminpanel
+        dependsOn: common
+        variables:
+          shortHash: $[ dependencies.common.outputs['setvarStep.shortHash'] ]
+        steps:
+          - template: packages/adminpanel/build-steps.yaml
+
+      - job: api
+        dependsOn: common
+        variables:
+          shortHash: $[ dependencies.common.outputs['setvarStep.shortHash'] ]
+        steps:
+          - template: packages/api/build-steps.yaml
+
+      - job: slack
+        dependsOn: common
+        variables:
+          shortHash: $[ dependencies.common.outputs['setvarStep.shortHash'] ]
+        steps:
+          - template: packages/slack-app/build-steps.yaml
+
+      - job: chart
+        dependsOn: common
+        variables:
+          shortHash: $[ dependencies.common.outputs['setvarStep.shortHash'] ]
+        steps:
+          - template: packages/chart/build-steps.yaml
+
+  - stage: test
+    jobs:
+      - deployment: test
+        variables:
+          - group: alvtime-test
+          - name: shortHash
+            value: $[ stageDependencies.Build.common.outputs['setvarStep.shortHash'] ]
+        displayName: Test
+        environment: Test
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: packages/infrastructure/deploy-steps.yaml
+                - template: packages/chart/deploy-steps.yaml

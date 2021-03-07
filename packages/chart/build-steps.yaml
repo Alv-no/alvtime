@@ -1,0 +1,9 @@
+steps:
+  - checkout: self
+    fetchDepth: 1
+
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish Build Artifacts"
+    inputs:
+      pathtoPublish: packages/chart
+      artifactName: chart

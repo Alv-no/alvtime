@@ -1,0 +1,79 @@
+steps:
+  - task: HelmInstaller@0
+    inputs:
+      helmVersion: "3.5.2"
+
+  - task: HelmDeploy@0
+    displayName: Deploy api
+    inputs:
+      connectionType: "Azure Resource Manager"
+      azureSubscription: "$(subscription)"
+      azureResourceGroup: "$(RESOURCE_GROUP)"
+      kubernetesCluster: "$(CLUSTER_NAME)"
+      command: "upgrade"
+      chartType: "FilePath"
+      chartPath: "$(Agent.BuildDirectory)/chart"
+      valueFile: "$(Agent.BuildDirectory)/chart/data/api/$(System.StageName)-env.yaml"
+      overrideValues: |
+        image.tag="$(shortHash)"
+        secrets.ConnectionStrings__AlvTime_db="$(SQL_CONNECTION_STRING)"
+      releaseName: "api"
+      arguments: "--install"
+
+  - task: HelmDeploy@0
+    displayName: Deploy slack-api
+    inputs:
+      connectionType: "Azure Resource Manager"
+      azureSubscription: "$(subscription)"
+      azureResourceGroup: "$(RESOURCE_GROUP)"
+      kubernetesCluster: "$(CLUSTER_NAME)"
+      command: "upgrade"
+      chartType: "FilePath"
+      chartPath: "$(Agent.BuildDirectory)/chart"
+      valueFile: "$(Agent.BuildDirectory)/chart/data/slack-api/$(System.StageName)-env.yaml"
+      overrideValues: |
+        image.tag="$(shortHash)"
+        secrets.ADMIN_USERS="$(slack-admin-users)"
+        secrets.AZURE_AD_CLIENT_SECTRET="$(azure-ad-client-secret)"
+        secrets.DB_CONNECTION_STRING="$(DB_CONNECTION_STRING)"
+        secrets.DB_USER="$(DB_USER)"
+        secrets.DB_PASSWORD="$(DB_PASSWORD)"
+        secrets.DB_ENCRYPTION_KEY="$(DB_ENCRYPTION_KEY)"
+        secrets.REPORT_USER_PERSONAL_ACCESS_TOKEN="$(report-user-personal-access-token)"
+        secrets.SLACK_BOT_TOKEN="$(slack-bot-token)"
+        secrets.SLACK_SIGNING_SECRET="$(slack-signing-secret)"
+      releaseName: "slack-api"
+      arguments: "--install"
+
+  - task: HelmDeploy@0
+    displayName: Deploy frontend
+    inputs:
+      connectionType: "Azure Resource Manager"
+      azureSubscription: "$(subscription)"
+      azureResourceGroup: "$(RESOURCE_GROUP)"
+      kubernetesCluster: "$(CLUSTER_NAME)"
+      command: "upgrade"
+      chartType: "FilePath"
+      chartPath: "$(Agent.BuildDirectory)/chart"
+      valueFile: "$(Agent.BuildDirectory)/chart/data/frontend/$(System.StageName)-env.yaml"
+      overrideValues: |
+        image.tag="$(shortHash)"
+      releaseName: "frontend"
+      arguments: "--install"
+
+  - task: HelmDeploy@0
+    displayName: Deploy admin
+    inputs:
+      connectionType: "Azure Resource Manager"
+      azureSubscription: "$(subscription)"
+      azureResourceGroup: "$(RESOURCE_GROUP)"
+      kubernetesCluster: "$(CLUSTER_NAME)"
+      command: "upgrade"
+      chartType: "FilePath"
+      chartPath: "$(Agent.BuildDirectory)/chart"
+      valueFile: "$(Agent.BuildDirectory)/chart/data/admin/$(System.StageName)-env.yaml"
+      overrideValues: |
+        image.tag="$(shortHash)"
+      releaseName: "admin"
+      arguments: "--install"
+
