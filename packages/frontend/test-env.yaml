@@ -1,0 +1,7 @@
+image:
+  repository: alvnoas/alvtime-frontend
+
+configFilePath: test-config.json
+
+hosts:
+  - test.alvtime.app

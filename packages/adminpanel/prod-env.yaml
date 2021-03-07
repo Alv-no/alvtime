@@ -1,0 +1,7 @@
+image:
+  repository: alvnoas/alvtime-admin
+
+configFilePath: prod-config.json
+
+hosts:
+  - admin.alvtime.app
