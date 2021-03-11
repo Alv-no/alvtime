@@ -12,6 +12,7 @@ export interface OvertimeStateModel {
   availableHours: CompansatedTransactions[];
   payoutTransactions: PayoutTransaction[];
   flexTransactions: FlexHoursTransaction[];
+  holidayTransaction: HolidayTransaction[];
   totalHours: number;
   compansatedHours: number;
   totalFlexedHours: number;
@@ -42,6 +43,15 @@ export interface OvertimeEntry {
   id?: number;
   rate?: number;
   active?: boolean;
+}
+
+export interface HolidayTransaction {
+  user: number;
+  userEmail: string;
+  id: int;
+  date: Date;
+  value: number;
+  taskId: number;
 }
 
 export interface MappedOvertimeTransaction {
@@ -242,7 +252,23 @@ const actions = {
       dispatch("FETCH_AVAILABLE_HOURS"),
       dispatch("FETCH_PAYED_HOURS"),
       dispatch("FETCH_FLEX_TRANSACTIONS"),
+      dispatch("FETCH_SPEND_HOLIDAY_TRANSACTIONS"),
     ]);
+  },
+
+  FETCH_SPEND_HOLIDAY_TRANSACTIONS: async ({dispatch} : ActionContext<State, State>) => {
+    try {
+      const url = new URL(`${config.API_HOST}/api/UserVacationDays`).toString();
+      const response = await adAuthenticatedFetch(url);
+      if (response.status !== 200) throw Error(`${response.statusText}`);
+
+      const transactions = await res.json();
+      commit("SET_HOLIDAY_TRANSACTIONS", transactions);
+      
+    } catch (e) {
+      console.error(e);
+      commit("ADD_TO_ERROR_LIST", e);
+    }
   },
 
   POST_ORDER_PAYOUT: async (
@@ -299,6 +325,9 @@ const mutations = {
     state.overtimeState.compansatedHours =
       transactions.availableHoursAfterCompensation;
   },
+  SET_HOLIDAY_TRANSACTIONS(state: State, transactions: HolidayTransaction[]) {
+    state.holidayTransactions = transactions;
+  }
 };
 
 export default {
