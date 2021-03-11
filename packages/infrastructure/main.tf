@@ -40,6 +40,26 @@ resource "azurerm_cosmosdb_account" "slack_db" {
   timeouts {}
 }
 
+resource "azurerm_cosmosdb_mongo_database" "this" {
+  name                = "cosmos-${var.name}-${var.env}"
+  account_name        = azurerm_cosmosdb_account.slack_db.name
+  resource_group_name = azurerm_cosmosdb_account.slack_db.resource_group_name
+}
+
+resource "azurerm_cosmosdb_mongo_collection" "this" {
+  name                = "users"
+  resource_group_name = azurerm_cosmosdb_account.slack_db.resource_group_name
+  database_name       = azurerm_cosmosdb_mongo_database.this.name
+  account_name        = azurerm_cosmosdb_account.slack_db.name
+
+  index {
+    keys = [
+      "_id",
+    ]
+    unique = true
+  }
+}
+
 resource "azurerm_sql_server" "this" {
   name                         = "sql-${var.name}-${var.env}-${var.location}" # Unique
   administrator_login          = var.sql_server_administrator_login

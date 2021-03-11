@@ -24,17 +24,3 @@ fi
 
 [ "prune" = "$1" ] && \
   docker system prune --force
-
-# export ARM_ACCESS_KEY=$(run get-access-key)
-[ "get-access-key" = "$1" ] && \
-  az storage account keys list \
-  --subscription 'Dev-Alv' \
-  --resource-group 'Alvtime-common' \
-  --account-name 'terraformstatealvdev' \
-  | jq -r '.[0].value'
-
-[ "configure-kubectl" = "$1" ] && \
-  az aks get-credentials \
-  --subscription 'Dev-Alv' \
-  --resource-group 'aks-resource-group' \
-  --name 'alvtime-aks'
