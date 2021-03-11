@@ -24,7 +24,6 @@ namespace AlvTimeWebApi.Controllers
             _userRetriever = userRetriever;
             _timeEntryOptions = timeEntryOptions;
             _timeEntryStorage = timeEntryStorage;
-
         }
 
         [HttpGet("Holidays")]
