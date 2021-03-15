@@ -16,6 +16,21 @@ export interface OvertimeStateModel {
   compansatedHours: number;
   totalFlexedHours: number;
   totalPayoutHours: number;
+  vacationEntries: VacationTimeModel,
+}
+
+interface VacationTimeModel {
+  totalHours: number;
+  entries: EntriesModel[];
+}
+
+interface EntriesModel {
+  user: number;
+  userEmail: string;
+  id: number;
+  date: Date;
+  value: number;
+  taskId: number;
 }
 
 export interface CompansatedTransactions {
@@ -83,6 +98,10 @@ const initState: OvertimeStateModel = {
   compansatedHours: 0,
   totalFlexedHours: 0,
   totalPayoutHours: 0,
+  vacationEntries: {
+    totalHours: 0,
+    entries: [],
+  },
 };
 
 const state: OvertimeState = {
@@ -180,9 +199,28 @@ const getters = {
   getAvailableCompensated: (state: State) => {
     return state.overtimeState.compansatedHours;
   },
+  getUsedVacation: (state: State) => {
+    return state.overtimeState.compansatedHours;
+  },
 };
 
 const actions = {
+  FETCH_USED_VACATION: async ({ commit }: ActionContext<State, State>, parameters: { year: number }) => {
+try {
+        let url = new URL(
+          config.API_HOST + `/api/user/UsedVacationHours?year=${parameters.year}`
+        ).toString();
+        const response = await adAuthenticatedFetch(url);
+        const data = await response.json();
+              if (response.status === 404) {
+        commit("SET_USER_NOT_FOUND");
+        throw response.statusText;
+      }
+        commit("SET_USEDVACATION", data);
+      } catch (e) {
+        console.error(e);
+      }
+    },
   FETCH_AVAILABLE_HOURS: async ({ commit }: ActionContext<State, State>) => {
     try {
       let url = new URL(
@@ -298,6 +336,10 @@ const mutations = {
       transactions.availableHoursBeforeCompensation;
     state.overtimeState.compansatedHours =
       transactions.availableHoursAfterCompensation;
+  },
+    SET_USEDVACATION(state: State, transactions: AvailableHoursResponse) {
+    state.overtimeState.totalHours =
+      transactions.availableHoursBeforeCompensation;
   },
 };
 
