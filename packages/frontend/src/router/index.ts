@@ -7,6 +7,7 @@ import AccumulatedHours from "../views/AccumulatedHours.vue";
 import Tokens from "../views/Tokens.vue";
 import UnAutherized from "../views/UnAutherized.vue";
 import Login from "../views/Login.vue";
+import Summarizedhours from "../views/Summarizedhours.vue";
 import store from "@/store";
 import authService from "@/services/auth";
 
@@ -49,6 +50,11 @@ const routes = [
     name: "dashboard",
     component: Dashboard,
   },
+  {
+    path: "/summarizedhours",
+    name: "summarizedhours",
+    component: Summarizedhours,
+  }
 ];
 
 const router = new VueRouter({

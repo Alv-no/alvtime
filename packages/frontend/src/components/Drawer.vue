@@ -56,6 +56,7 @@ export default Vue.extend({
       items: [
         { text: "Timeføring", routeName: "hours", icon: "query_builder" },
         { text: "Aktiviteter", routeName: "tasks", icon: "local_activity" },
+        { text: "Statistikk", routeName: "summarizedhours", icon: "insights" },
         {
           text: "Overtid og ferie",
           routeName: "accumulated-hours",

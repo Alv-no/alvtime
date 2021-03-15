@@ -1,4 +1,4 @@
-import { mutations, State, state as initialState } from "@/store";
+import { mutations, getters, State, state as initialState } from "@/store";
 
 jest.mock("@azure/msal-browser");
 jest.mock("../../config.ts");

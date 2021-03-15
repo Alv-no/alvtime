@@ -23,6 +23,8 @@ export default Vue.extend({
         return "Overtid og ferie";
       if (this.$store.state.currentRoute.name === "dashboard")
         return "Dashboard";
+      if (this.$store.state.currentRoute.name === "summarizedhours")
+        return "Statistikk";
       // @ts-ignore
       const screenSize = this.$mq;
       if (screenSize === "sm") return this.day;
