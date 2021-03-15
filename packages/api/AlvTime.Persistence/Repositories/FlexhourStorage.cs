@@ -245,34 +245,40 @@ public class FlexhourStorage : IFlexhourStorage
 
     private void CompensateForRegisteredPayouts(List<OvertimeEntry> overtimeEntries, PayoutsDto registeredPayouts)
     {
-        var registeredPayoutsTotal = registeredPayouts.TotalHours;
+        var payoutEntries = registeredPayouts.Entries.GroupBy(e => e.Date);
 
-        var orderedOverTime = overtimeEntries.GroupBy(
-            hours => hours.CompensationRate,
-            hours => hours,
-            (cr, hours) => new
-            {
-                CompensationRate = cr,
-                Hours = hours.Sum(h => h.Hours)
-            })
-            .OrderBy(h => h.CompensationRate);
-
-        foreach (var entry in orderedOverTime)
+        foreach (var payoutEntry in payoutEntries)
         {
-            if (registeredPayoutsTotal <= 0)
+            var date = payoutEntry.Key;
+            var registeredPayoutsTotal = payoutEntry.Sum(e => e.HoursBeforeCompRate);
+
+            var orderedOverTime = overtimeEntries.Where(e => e.Date <= date).GroupBy(
+                hours => hours.CompensationRate,
+                hours => hours,
+                (cr, hours) => new
+                {
+                    CompensationRate = cr,
+                    Hours = hours.Sum(h => h.Hours)
+                })
+                .OrderBy(h => h.CompensationRate);
+
+            foreach (var entry in orderedOverTime)
             {
-                break;
+                if (registeredPayoutsTotal <= 0)
+                {
+                    break;
+                }
+
+                OvertimeEntry overtimeEntry = new OvertimeEntry
+                {
+                    Hours = -Math.Min(registeredPayoutsTotal, entry.Hours),
+                    CompensationRate = entry.CompensationRate,
+                    Date = DateTime.Now
+                };
+
+                overtimeEntries.Add(overtimeEntry);
+                registeredPayoutsTotal += overtimeEntry.Hours;
             }
-
-            OvertimeEntry overtimeEntry = new OvertimeEntry
-            {
-                Hours = -Math.Min(registeredPayoutsTotal, entry.Hours),
-                CompensationRate = entry.CompensationRate,
-                Date = DateTime.Now
-            };
-
-            overtimeEntries.Add(overtimeEntry);
-            registeredPayoutsTotal += overtimeEntry.Hours;
         }
     }
 
