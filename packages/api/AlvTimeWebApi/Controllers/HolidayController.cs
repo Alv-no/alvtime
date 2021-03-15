@@ -41,9 +41,9 @@ namespace AlvTimeWebApi.Controllers
             return Ok(dates);
         }
 
-        [HttpGet("user/UsedVacationDays")]
+        [HttpGet("user/UsedVacationHours")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
-        public ActionResult<IEnumerable<TimeEntriesResponseDto>> FetchUsedVacationDays([FromQuery] int year)
+        public ActionResult<IEnumerable<TimeEntriesResponseDto>> FetchUsedVacationHours([FromQuery] int year)
         {
             var user = _userRetriever.RetrieveUser();
 
