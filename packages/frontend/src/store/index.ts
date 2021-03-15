@@ -18,13 +18,13 @@ Vue.use(Vuex);
 
 export interface State
   extends TaskState,
-    TimeEntrieState,
-    AuthState,
-    ErrorState,
-    SwiperState,
-    OvertimeState,
-    AbsenseState,
-    AppState {}
+  TimeEntrieState,
+  AuthState,
+  ErrorState,
+  SwiperState,
+  OvertimeState,
+  AbsenseState,
+  AppState { }
 
 export const state = {
   ...timeEntrie.state,
@@ -48,13 +48,14 @@ export const mutations = {
   ...absense.mutations,
 };
 
-const getters = {
+export const getters = {
   ...task.getters,
   ...swiper.getters,
   ...auth.getters,
   ...overtime.getters,
   ...absense.getters,
   ...error.getters,
+  ...timeEntrie.getters,
 };
 
 const actions = {
@@ -94,7 +95,7 @@ authService.addCallback((message: EventMessage) => {
   }
 });
 
-lifecycle.addEventListener("statechange", function(event: any) {
+lifecycle.addEventListener("statechange", function (event: any) {
   store.commit("UPDATE_INTERACTION_STATE", event);
 });
 
