@@ -158,6 +158,48 @@ namespace Tests.UnitTests.Flexihours
             Assert.Equal("Not enough available hours", result);
         }
 
+        [Fact]
+        public void RegisterPayout_WorkingOvertimeAfterPayout_OnlyConsiderOvertimeWorkedBeforePayout()
+        {
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 06), value: 7.5M, out int taskid));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.5M));
+
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 06), value: 3M, out int taskid2));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid2, 0.5M));
+
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 07), value: 9.5M, out int taskid3));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid3, 1.5M));
+
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 07), value: 1.5M, out int taskid4));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid4, 1.0M));
+
+            _context.SaveChanges();
+
+            FlexhourStorage storage = CreateStorage();
+
+            var result = storage.RegisterPaidOvertime(new GenericHourEntry
+            {
+                Date = new DateTime(2020, 01, 08),
+                Hours = 4
+            }, 1).Value;
+
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 09), value: 7.5M, out int taskid5));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid5, 1.5M));
+
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 09), value: 1.5M, out int taskid6));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid6, 0.5M));
+
+            _context.SaveChanges();
+
+            var overtimeEntriesAtPayoutDate = storage.GetAvailableHours(1, new DateTime(2020, 01, 01), new DateTime(2020, 01, 08));
+            var payoutEntriesAtPayoutDate = overtimeEntriesAtPayoutDate.Entries.Where(e => e.Hours < 0).GroupBy(e => e.CompensationRate);
+
+            var overtimeEntriesAfterPayoutDate = storage.GetAvailableHours(1, new DateTime(2020, 01, 01), new DateTime(2020, 01, 09));
+            var payoutEntriesAfterPayoutDate = overtimeEntriesAfterPayoutDate.Entries.Where(e => e.Hours < 0).GroupBy(e => e.CompensationRate);
+
+            Assert.Equal("Not enough available hours", result);
+        }
+
         private FlexhourStorage CreateStorage()
         {
             return new FlexhourStorage(new TimeEntryStorage(_context), _context, new TestTimeEntryOptions(
