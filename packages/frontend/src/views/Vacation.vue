@@ -2,7 +2,7 @@
   <CenterColumnWrapper>
     <div class="padding">
       <div class="vacation-used">
-        <div><b>Ferietimer tatt ut så langt i år:</b> {{ hoursUsed2 }}</div>
+        <div><b>Ferietimer tatt ut så langt i år:</b> {{ hoursUsed }}</div>
         <div><b>Feriedager tatt ut så langt i år:</b> {{ daysUsed }}</div>
       </div>
     </div>
@@ -16,12 +16,12 @@ import config from "@/config";
 import CenterColumnWrapper from "@/components/CenterColumnWrapper.vue";
 import { adAuthenticatedFetch } from "@/services/auth";
 
-export interface VacationTimeModel {
+interface VacationTimeModel {
   totalHours: number;
   entries: EntriesModel[];
 }
 
-export interface EntriesModel {
+interface EntriesModel {
   user: number;
   userEmail: string;
   id: number;
@@ -36,24 +36,20 @@ export default Vue.extend({
   },
   data() {
     return {
-      hoursUsed: 0,
+      entries: {},
     };
   },
   computed: {
-    hoursUsed2(): any {
-      const hours = this.fetchUsedVacation(2021).then(response => {
-        return response?.totalHours;
-      });
-      return hours;
+    hoursUsed(): number {
+      return this.$store.getters.getUsedVacation;
     },
     daysUsed(): number {
       return this.hoursUsed / 7.5;
     },
   },
 
-  created(): void {
-    const x = this.fetchUsedVacation(2021).then(data => data?.totalHours);
-    //console.log(x);
+  async created() {
+    await this.$store.dispatch("FETCH_USED_VACATION", { year: 2021 });
   },
 
   methods: {
@@ -64,8 +60,7 @@ export default Vue.extend({
         ).toString();
         const response = await adAuthenticatedFetch(url);
         const data = await response.json();
-        //console.log(data);
-        if (response.status !== 200) throw Error(`${response.statusText}`);
+        // if (response.status !== 200) throw Error(`${response.statusText}`);
         return formatResponse(data);
       } catch (e) {
         console.error(e);
@@ -74,7 +69,7 @@ export default Vue.extend({
   },
 });
 
-function formatResponse(entries: any): VacationTimeModel {
+function formatResponse(entries: EntriesModel[]): VacationTimeModel {
   return {
     totalHours: entries.reduce(
       (sum: number, { value }: { value: number }) => sum + value,
