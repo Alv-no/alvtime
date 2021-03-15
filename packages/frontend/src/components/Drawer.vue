@@ -76,7 +76,7 @@ export default Vue.extend({
     },
 
     authText(): string {
-      return this.account ? "Logg ut" : "Logg in";
+      return this.account ? "Logg ut" : "Logg inn";
     },
 
     account(): Account {
