@@ -56,9 +56,9 @@ namespace AlvTimeWebApi.Controllers
                 TaskId = _timeEntryOptions.CurrentValue.PaidHolidayTask
             });
 
-            var response = VacationExtension.CalculateVacationOverview(entries);
+            var vacationOverview = VacationExtension.CalculateVacationOverview(entries);
 
-            return Ok(response);
+            return Ok(vacationOverview);
         }
     }
 }

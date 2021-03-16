@@ -8,7 +8,7 @@ namespace Tests.UnitTests.BusinessLogic
     public class VacationExtensionTest
     {
         [Fact]
-        public void CalculateVacationOverView_ListOfTimeEntries_CalculatesCorrectOverview()
+        public void CalculateVacationOverView_2DaysVacation_OverviewHas2TotalDays0Hours()
         {
             var timeEntries = new List<TimeEntriesResponseDto>
             {
@@ -33,7 +33,7 @@ namespace Tests.UnitTests.BusinessLogic
         }
 
         [Fact]
-        public void CalculateVacationOverView_ListOfTimeEntries_CalculatesCorrectOverview2()
+        public void CalculateVacationOverView_1Day5HoursVacation_OverviewHas1Day5Hours()
         {
             var timeEntries = new List<TimeEntriesResponseDto>
             {
