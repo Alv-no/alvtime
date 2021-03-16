@@ -16,11 +16,14 @@ export interface OvertimeStateModel {
   compansatedHours: number;
   totalFlexedHours: number;
   totalPayoutHours: number;
-  vacationEntries: VacationTimeModel,
+  vacationEntries: EntriesModel[],
+  totalVacationHoursUsed: number,
+  totalVacationDaysUsed: number
 }
 
 interface VacationTimeModel {
-  totalHours: number;
+  totalHoursUsed: number;
+  totalDaysUsed: number;
   entries: EntriesModel[];
 }
 
@@ -98,10 +101,9 @@ const initState: OvertimeStateModel = {
   compansatedHours: 0,
   totalFlexedHours: 0,
   totalPayoutHours: 0,
-  vacationEntries: {
-    totalHours: 0,
-    entries: [],
-  },
+  vacationEntries: [],
+  totalVacationDaysUsed: 0,
+  totalVacationHoursUsed: 0,
 };
 
 const state: OvertimeState = {
@@ -199,16 +201,22 @@ const getters = {
   getAvailableCompensated: (state: State) => {
     return state.overtimeState.compansatedHours;
   },
-  getUsedVacation: (state: State) => {
-    return state.overtimeState.compansatedHours;
+  getUsedVacationEntries: (state: State) => {
+    return state.overtimeState.vacationEntries;
+  },
+  getUsedVacationHours: (state: State) => {
+    return state.overtimeState.totalVacationHoursUsed;
+  },
+  getUsedVacationDays: (state: State) => {
+    return state.overtimeState.totalVacationDaysUsed;
   },
 };
 
 const actions = {
   FETCH_USED_VACATION: async ({ commit }: ActionContext<State, State>, parameters: { year: number }) => {
-try {
+    try {
         let url = new URL(
-          config.API_HOST + `/api/user/UsedVacationHours?year=${parameters.year}`
+          config.API_HOST + `/api/user/UsedVacation?year=${parameters.year}`
         ).toString();
         const response = await adAuthenticatedFetch(url);
         const data = await response.json();
@@ -337,9 +345,10 @@ const mutations = {
     state.overtimeState.compansatedHours =
       transactions.availableHoursAfterCompensation;
   },
-    SET_USEDVACATION(state: State, transactions: AvailableHoursResponse) {
-    state.overtimeState.totalHours =
-      transactions.availableHoursBeforeCompensation;
+    SET_USEDVACATION(state: State, transactions: VacationTimeModel) {
+    state.overtimeState.vacationEntries = transactions.entries;
+    state.overtimeState.totalVacationHoursUsed = transactions.totalHoursUsed;
+    state.overtimeState.totalVacationDaysUsed = transactions.totalDaysUsed;
   },
 };
 
