@@ -186,7 +186,7 @@ namespace Tests.UnitTests.Flexihours
 
             _context.SaveChanges();
 
-            var overtimeEntriesAtPayoutDate = storage.GetAvailableHours(1, new DateTime(2020, 01, 01), new DateTime(2020, 01, 08));
+            var overtimeEntriesAtPayoutDate = storage.GetAvailableHours(1, new DateTime(2020, 01, 01), new DateTime(2020, 01, 07));
             var payoutEntriesAtPayoutDate = overtimeEntriesAtPayoutDate.Entries.Where(e => e.Hours < 0).GroupBy(
                 hours => hours.CompensationRate,
                 hours => hours,
@@ -196,7 +196,7 @@ namespace Tests.UnitTests.Flexihours
                     Hours = hours.Sum(h => h.Hours)
                 });
 
-            var overtimeEntriesAfterPayoutDate = storage.GetAvailableHours(1, new DateTime(2020, 01, 01), new DateTime(2020, 01, 09));
+            var overtimeEntriesAfterPayoutDate = storage.GetAvailableHours(1, new DateTime(2020, 01, 01), new DateTime(2020, 01, 08));
             var payoutEntriesAfterPayoutDate = overtimeEntriesAfterPayoutDate.Entries.Where(e => e.Hours < 0).GroupBy(
                 hours => hours.CompensationRate,
                 hours => hours,
