@@ -1,4 +1,5 @@
 ﻿using AlvTime.Business;
+using AlvTime.Business.Helpers;
 using AlvTime.Business.Options;
 using AlvTime.Business.TimeEntries;
 using AlvTimeWebApi.Controllers.Utils;
@@ -41,28 +42,23 @@ namespace AlvTimeWebApi.Controllers
             return Ok(dates);
         }
 
-        [HttpGet("user/UsedVacationHours")]
+        [HttpGet("user/UsedVacation")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
-        public ActionResult<IEnumerable<TimeEntriesResponseDto>> FetchUsedVacationHours([FromQuery] int year)
+        public ActionResult<VacationOverviewDto> FetchUsedVacationHours([FromQuery] int year)
         {
             var user = _userRetriever.RetrieveUser();
 
-            return Ok(_timeEntryStorage.GetTimeEntries(new TimeEntryQuerySearch
+            var entries = _timeEntryStorage.GetTimeEntries(new TimeEntryQuerySearch
             {
                 FromDateInclusive = new DateTime(year, 01, 01),
                 ToDateInclusive = new DateTime(year, 12, 31),
                 UserId = user.Id,
                 TaskId = _timeEntryOptions.CurrentValue.PaidHolidayTask
-            })
-            .Select(timeEntry => new
-            {
-                User = timeEntry.User,
-                UserEmail = timeEntry.UserEmail,
-                Id = timeEntry.Id,
-                Date = timeEntry.Date.ToDateOnly(),
-                Value = timeEntry.Value,
-                TaskId = timeEntry.TaskId
-            }));
+            });
+
+            var response = VacationExtension.CalculateVacationOverview(entries);
+
+            return Ok(response);
         }
     }
 }

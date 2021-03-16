@@ -2,7 +2,7 @@
 using System;
 using Xunit;
 
-namespace Tests.UnitTests
+namespace Tests.UnitTests.BusinessLogic
 {
     public class RedDaysTests
     {
