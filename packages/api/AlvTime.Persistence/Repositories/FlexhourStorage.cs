@@ -245,7 +245,7 @@ public class FlexhourStorage : IFlexhourStorage
 
     private void CompensateForRegisteredPayouts(List<OvertimeEntry> overtimeEntries, PayoutsDto registeredPayouts)
     {
-        var payoutEntriesGroupedByDate = registeredPayouts.Entries.GroupBy(e => e.Date);
+        var payoutEntriesGroupedByDate = registeredPayouts.Entries.GroupBy(e => e.Date).OrderBy(g => g.Key);
 
         foreach (var payoutEntryGroup in payoutEntriesGroupedByDate)
         {
@@ -273,7 +273,7 @@ public class FlexhourStorage : IFlexhourStorage
                 {
                     Hours = -Math.Min(registeredPayoutsTotal, entry.Hours),
                     CompensationRate = entry.CompensationRate,
-                    Date = DateTime.Now
+                    Date = payoutDate
                 };
 
                 overtimeEntries.Add(overtimeEntry);
