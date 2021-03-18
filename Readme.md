@@ -10,6 +10,8 @@
 | [Frontend](./packages/frontend)     | Frontend  | Enduser frontend for Alvtime |
 | [Slack-app](./packages/slack-app)   | Slack-app | Slack app                    |
 | [Api](./packages/api)               | Backend   | Backend api                  |
+| [Infrastructure](./packages/infrastructure) | Infrastructure | Terraform infrastructure setup |
+| [Shell](./packages/shell) | Terminal CLI | Terminal ClI tool for interacting with Alvtime |
 
 ## Development / Contribution
 
