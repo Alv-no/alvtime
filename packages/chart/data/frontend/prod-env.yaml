@@ -1,0 +1,8 @@
+image:
+  repository: alvnoas/alvtime-frontend
+
+configFilePath: data/frontend/prod-config.json
+
+hosts:
+  - www.alvtime.app
+  - alvtime.app

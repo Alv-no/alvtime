@@ -1,0 +1,8 @@
+{
+  "API_HOST": "https://api.alvtime.app",
+  "ACCESS_SCOPE": "api://3644a03b-f801-4b67-b487-3353684fe7fc/access_as_user",
+  "CLIENT_ID": "3644a03b-f801-4b67-b487-3353684fe7fc",
+  "DATE_FORMAT": "YYYY-MM-DD",
+  "AUTHORITY": "https://login.microsoftonline.com/",
+  "TENANT_ID": "76749190-4427-4b08-a3e4-161767dd1b73"
+}
