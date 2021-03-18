@@ -2,7 +2,7 @@
   "name": "alvtime-admin-react-pwa",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://www.alvtime.no/adminpanel",
+  "homepage": ".",
   "dependencies": {
     "@azure/msal-browser": "^2.1.0",
     "@material-ui/core": "^4.11.0",

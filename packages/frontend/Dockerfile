@@ -38,9 +38,6 @@ COPY . .
 CMD sh
 
 FROM dev as build
-ARG VUE_APP_API_HOST
-ARG VUE_APP_ACCESS_SCOPE
-ARG VUE_APP_CLIENT_ID
 RUN npm run build
 
 FROM nginx:stable-alpine as production
