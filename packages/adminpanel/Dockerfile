@@ -38,15 +38,11 @@ COPY . .
 CMD sh
 
 FROM dev as build
-ARG REACT_APP_API_HOST
-ARG REACT_APP_ACCESS_SCOPE
-ARG REACT_APP_CLIENT_ID
 RUN npm run build
 
 # Stage 2 - the production environment
 FROM nginx:stable-alpine as production
 
-COPY --from=build /src/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /src/build /usr/share/nginx/html/adminpanel
+COPY --from=build /src/build /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
