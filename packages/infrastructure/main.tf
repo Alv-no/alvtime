@@ -25,10 +25,10 @@ provider "azurerm" {
 
 provider "helm" {
   kubernetes {
-    host                   = module.kubernetes.kubernetes_host
-    client_key             = module.kubernetes.kubernetes_client_key
-    client_certificate     = module.kubernetes.kubernetes_client_certificate
-    cluster_ca_certificate = module.kubernetes.kubernetes_cluster_ca_certificate
+    host                   = azurerm_kubernetes_cluster.this.kube_config.0.host
+    client_key             = base64decode(azurerm_kubernetes_cluster.this.kube_config.0.client_key)
+    client_certificate     = base64decode(azurerm_kubernetes_cluster.this.kube_config.0.client_certificate)
+    cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.this.kube_config.0.cluster_ca_certificate)
   }
 }
 
@@ -37,18 +37,97 @@ resource "azurerm_resource_group" "this" {
   location = local.location
 }
 
-module "kubernetes" {
-	source = "./modules/kubernetes"
-	name                                = local.name
-	location                            = local.location
-	resource_group_name                 = azurerm_resource_group.this.name
-	aks_service_principal_client_id     = var.aks_service_principal_client_id
-	aks_service_principal_client_secret = var.aks_service_principal_client_secret
+resource "azurerm_kubernetes_cluster" "this" {
+  name                = "aks-kubernetes-${local.name}"
+	location            = azurerm_resource_group.this.location
+  resource_group_name = azurerm_resource_group.this.name
+  dns_prefix          = "${local.name}-k8s"
+
+  default_node_pool {
+    name            = "default"
+    node_count      = 2
+    vm_size         = "Standard_D2_v2"
+    os_disk_size_gb = 30
+  }
+
+  service_principal {
+    client_id     = var.aks_service_principal_client_id
+    client_secret = var.aks_service_principal_client_secret
+  }
+
+  role_based_access_control {
+    enabled = true
+  }
+
+  addon_profile {
+    kube_dashboard {
+      enabled = false
+    }
+  }
 }
 
-module "letsecrypt" {
-	source = "./modules/letsencrypt"
+resource "helm_release" "nginx_ingress" {
+  name       = "nginx-ingress"
+  repository = "https://kubernetes.github.io/ingress-nginx"
+  chart      = "ingress-nginx"
+
+  set {
+    name  = "controller.replicaCount"
+    value = "1"
+    type  = "string"
+  }
+
+  set {
+    name  = "controller.nodeSelector.beta\\.kubernetes\\.io/os"
+    value = "linux"
+    type  = "string"
+  }
+
+  set {
+    name  = "defaultBackend.nodeSelector.beta\\.kubernetes\\.io/os"
+    value = "linux"
+    type  = "string"
+  }
+
+  set {
+    name  = "controller.admissionWebhooks.patch.nodeSelector.beta\\.kubernetes\\.io/os"
+    value = "linux"
+    type  = "string"
+  }
 }
+
+resource "helm_release" "cert-manager" {
+  name       = "cert-manager"
+  repository = "https://charts.jetstack.io"
+  chart      = "cert-manager"
+  version    = "v0.16.1"
+
+  set {
+    name  = "installCRDs"
+    value = "true"
+    type  = "string"
+  }
+
+  set {
+    name  = "nodeSelector.kubernetes\\.io/os"
+    value = "linux"
+    type  = "string"
+  }
+
+  set {
+    name  = "webhook.nodeSelector.kubernetes\\.io/os"
+    value = "linux"
+    type  = "string"
+  }
+
+  set {
+    name  = "cainjector.nodeSelector.kubernetes\\.io/os"
+    value = "linux"
+    type  = "string"
+  }
+}
+
+# Modules
 
 module "api" {
 	source = "./modules/api"
