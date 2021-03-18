@@ -4,6 +4,7 @@
 
 - [azure cli](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) version 2.20.0 or later
 - [terraform cli](https://learn.hashicorp.com/tutorials/terraform/install-cli) version 0.14.0 or later
+- [kubectl](https://v1-18.docs.kubernetes.io/docs/tasks/tools/install-kubectl/) version 1.19.7 or later
 
 # How to provision infrastructure
 
@@ -25,3 +26,5 @@ api_sql_firewall_rule_ip = "0.0.0.0"
    1. `terraform init -backend-config="test-backend.tfvars"` to download terraform dependencies
    1. `terraform plan` to see what actions terraform will take on the infrastructure if `terraform apply` is ran.
    1. `terraform apply` to apply changes
+   1. `az aks get-credentials --resource-group $(terraform output -raw resource_group_name) --name $(terraform output -raw kubernetes_cluster_name)` to retrieve the access credentials for your cluster and automatically configure kubectl
+   1. `kubectl apply -f cluster-issuer.yaml` to finish the setup of letsencrypt
