@@ -1,7 +1,13 @@
 <script lang="ts">
 import { Bar } from "vue-chartjs";
+import Vue from "vue";
 
-export default {
+export default Vue.extend({
+  props: {
+    data: {
+      type: Object as () => number[],
+    },
+  },
   extends: Bar,
   mounted() {
     // Overwriting base render method with actual data.
@@ -22,12 +28,12 @@ export default {
       ],
       datasets: [
         {
-          label: "GitHub Commits",
+          label: "Hours recorded",
           backgroundColor: "#f87979",
-          data: [40, 20, 12, 39, 10, 40, 39, 80, 40, 20, 12, 11],
+          data: this.data,
         },
       ],
     });
   },
-};
+});
 </script>
