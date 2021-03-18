@@ -1,20 +1,10 @@
-variable "location" {
-  type        = string
-  description = "Primary Location"
-  default     = "westeurope"
-}
-
-variable "name" {
-  type        = string
-  description = "name"
-  default     = "alvtime"
-}
-
 variable "env" {
   type        = string
   description = "environment"
+	default     = "dev"
 }
 
+# TODO: refactor these variables away, either store them in a keyvault or use terraform data source
 variable "aks_service_principal_client_id" {
   type    = string
   description = "Azure Active Directory App registration (service principal) id"
