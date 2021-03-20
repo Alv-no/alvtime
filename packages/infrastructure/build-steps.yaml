@@ -46,6 +46,9 @@ steps:
         -var "sql_server_administrator_login_password=$(sql-server-administrator-login-password)"
         -var "api_sql_firewall_rule_ip=$(api-sql-firewall-rule-ip)"
 
+  - bash: rm -rf .terraform .terraform.lock.hcl
+    displayName: Delete terraform state before publish
+    workingDirectory: packages/infrastructure
 
   - task: PublishBuildArtifacts@1
     displayName: Publish folder as build artifact
