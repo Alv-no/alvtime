@@ -15,15 +15,15 @@ output "sql_database_name" {
 }
 
 output "slack_db_name" {
-  value = azurerm_cosmosdb_account.slack_db.name
+  value = azurerm_cosmosdb_account.this.name
 }
 
 output "slack_db_connection_strings" {
   sensitive = true
-  value     = azurerm_cosmosdb_account.slack_db.connection_strings
+  value     = azurerm_cosmosdb_account.this.connection_strings
 }
 
 output "slack_db_primary_key" {
   sensitive = true
-  value     = azurerm_cosmosdb_account.slack_db.primary_key
+  value     = azurerm_cosmosdb_account.this.primary_key
 }
