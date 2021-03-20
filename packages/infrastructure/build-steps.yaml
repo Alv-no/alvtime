@@ -40,7 +40,6 @@ steps:
       commandOptions: >
         -input=false
         -var "env=$(env)"
-        -var "state_storage_account_name=$(state_storage_account_name)"
         -var "aks_service_principal_client_id=$(aks-service-principal-client-id)"
         -var "aks_service_principal_client_secret=$(aks-service-principal-client-secret)"
         -var "sql_server_administrator_login=$(sql-server-administrator-login)"
