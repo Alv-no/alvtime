@@ -48,7 +48,7 @@ export interface OvertimeEntry {
 export interface HolidayTransaction {
   user: number;
   userEmail: string;
-  id: int;
+  id: number;
   date: Date;
   value: number;
   taskId: number;
@@ -86,6 +86,7 @@ export interface CategorizedFlexHours {
 }
 
 const initState: OvertimeStateModel = {
+  holidayTransaction: [],
   availableHours: [],
   payoutTransactions: [],
   flexTransactions: [],
@@ -256,13 +257,14 @@ const actions = {
     ]);
   },
 
-  FETCH_SPEND_HOLIDAY_TRANSACTIONS: async ({dispatch} : ActionContext<State, State>) => {
+  FETCH_SPEND_HOLIDAY_TRANSACTIONS: async ({commit} : ActionContext<State, State>) => {
     try {
-      const url = new URL(`${config.API_HOST}/api/UserVacationDays`).toString();
+      const currentYear: number = new Date().getFullYear();
+      const url = new URL(`${config.API_HOST}/api/user/UsedVacationDays?year=${currentYear}`).toString();
       const response = await adAuthenticatedFetch(url);
       if (response.status !== 200) throw Error(`${response.statusText}`);
 
-      const transactions = await res.json();
+      const transactions = await response.json();
       commit("SET_HOLIDAY_TRANSACTIONS", transactions);
       
     } catch (e) {
@@ -270,7 +272,6 @@ const actions = {
       commit("ADD_TO_ERROR_LIST", e);
     }
   },
-
   POST_ORDER_PAYOUT: async (
     { commit }: ActionContext<State, State>,
     parameters: { hours: number; date: string }
@@ -326,7 +327,7 @@ const mutations = {
       transactions.availableHoursAfterCompensation;
   },
   SET_HOLIDAY_TRANSACTIONS(state: State, transactions: HolidayTransaction[]) {
-    state.holidayTransactions = transactions;
+    state.overtimeState.holidayTransaction = transactions;
   }
 };
 
