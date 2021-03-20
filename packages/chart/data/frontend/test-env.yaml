@@ -4,4 +4,4 @@ image:
 configFilePath: data/frontend/test-config.json
 
 hosts:
-  - test.alvtime.app
+  - test.alvtime.no
