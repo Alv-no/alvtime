@@ -102,3 +102,26 @@ stages:
               steps:
                 - template: ../../packages/infrastructure/deploy-steps.yaml
                 - template: ../../packages/chart/deploy-steps.yaml
+
+  - stage: prod
+    displayName: Deploy to Production
+    jobs:
+      - deployment: prod
+        variables:
+          - group: alvtime-prod
+          - name: env
+            value: prod
+          - name: tf-state-storage-account
+            value: terraformstatealvprod
+          - name: subscription
+            value: Pay-As-You-Go (f9b4e4d2-39a5-4c35-876c-303dc3de03d2)
+          - name: git-short-hash
+            value: $[ stageDependencies.Build.githash.outputs['createHash.git-short-hash'] ]
+        displayName: Prod
+        environment: Prod
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: ../../packages/infrastructure/deploy-steps.yaml
+                # - template: ../../packages/chart/deploy-steps.yaml
