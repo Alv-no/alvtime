@@ -3,7 +3,7 @@ resource "azurerm_resource_group" "this" {
   location = var.location
 }
 
-resource "azurerm_cosmosdb_account" "slack_db" {
+resource "azurerm_cosmosdb_account" "this" {
   name                = "cosmos-${var.name}-${var.env}" #Unique
   enable_free_tier    = true
   kind                = "MongoDB"
@@ -42,15 +42,15 @@ resource "azurerm_cosmosdb_account" "slack_db" {
 
 resource "azurerm_cosmosdb_mongo_database" "this" {
   name                = "cosmos-${var.name}-${var.env}"
-  account_name        = azurerm_cosmosdb_account.slack_db.name
-  resource_group_name = azurerm_cosmosdb_account.slack_db.resource_group_name
+  account_name        = azurerm_cosmosdb_account.this.name
+  resource_group_name = azurerm_cosmosdb_account.this.resource_group_name
 }
 
 resource "azurerm_cosmosdb_mongo_collection" "this" {
   name                = "users"
-  resource_group_name = azurerm_cosmosdb_account.slack_db.resource_group_name
+  resource_group_name = azurerm_cosmosdb_account.this.resource_group_name
   database_name       = azurerm_cosmosdb_mongo_database.this.name
-  account_name        = azurerm_cosmosdb_account.slack_db.name
+  account_name        = azurerm_cosmosdb_account.this.name
 
   index {
     keys = [
