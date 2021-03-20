@@ -7,24 +7,24 @@ steps:
   - task: TerraformTaskV1@0
     displayName: Terraform init
     inputs:
-      provider: "azurerm"
+      provider: azurerm
       workingDirectory: "$(Agent.BuildDirectory)/infrastructure"
-      command: "init"
+      command: init
       backendServiceArm: "$(subscription)"
-      backendAzureRmResourceGroupName: "Alvtime-common"
+      backendAzureRmResourceGroupName: Alvtime-common
       backendAzureRmStorageAccountName: "$(tf-state-storage-account)"
-      backendAzureRmContainerName: "terraformstate"
-      backendAzureRmKey: "tf.tfstate"
-      commandOptions: "-upgrade=true"
+      backendAzureRmContainerName: terraformstate
+      backendAzureRmKey: tf.tfstate
+      commandOptions: -upgrade=true
 
   - task: TerraformTaskV1@0
     name: TerraformOutputs
-    displayName: Terraform apply tfplan
+    displayName: Terraform apply
     inputs:
-      provider: "azurerm"
+      provider: azurerm
       workingDirectory: "$(Agent.BuildDirectory)/infrastructure"
       environmentServiceNameAzureRM: "$(subscription)"
-      command: "apply"
+      command: apply
       commandOptions: >
         -input=false
         -var "env=$(env)"
@@ -56,11 +56,11 @@ steps:
 
   - task: Kubernetes@1
     inputs:
-      connectionType: "Azure Resource Manager"
+      connectionType: Azure Resource Manager
       azureSubscriptionEndpoint: "$(subscription)"
       azureResourceGroup: "$(RESOURCE_GROUP)"
       kubernetesCluster: "$(CLUSTER_NAME)"
       useClusterAdmin: true
-      command: "apply"
+      command: apply
       useConfigurationFile: true
       configuration: "$(Agent.BuildDirectory)/infrastructure/cluster-issuer.yaml"

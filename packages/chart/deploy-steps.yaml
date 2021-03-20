@@ -4,31 +4,31 @@ steps:
       helmVersion: "3.5.2"
 
   - task: HelmDeploy@0
-    displayName: Deploy api
+    displayName: API
     inputs:
-      connectionType: "Azure Resource Manager"
+      connectionType: Azure Resource Manager
       azureSubscription: "$(subscription)"
       azureResourceGroup: "$(RESOURCE_GROUP)"
       kubernetesCluster: "$(CLUSTER_NAME)"
-      command: "upgrade"
-      chartType: "FilePath"
+      command: upgrade
+      chartType: FilePath
       chartPath: "$(Agent.BuildDirectory)/chart"
       valueFile: "$(Agent.BuildDirectory)/chart/data/api/$(env)-env.yaml"
       overrideValues: |
         image.tag="$(git-short-hash)"
         secrets.ConnectionStrings__AlvTime_db="$(SQL_CONNECTION_STRING)"
-      releaseName: "api"
-      arguments: "--install"
+      releaseName: api
+      arguments: --install
 
   - task: HelmDeploy@0
-    displayName: Deploy slack-api
+    displayName: Slack API
     inputs:
-      connectionType: "Azure Resource Manager"
+      connectionType: Azure Resource Manager
       azureSubscription: "$(subscription)"
       azureResourceGroup: "$(RESOURCE_GROUP)"
       kubernetesCluster: "$(CLUSTER_NAME)"
-      command: "upgrade"
-      chartType: "FilePath"
+      command: upgrade
+      chartType: FilePath
       chartPath: "$(Agent.BuildDirectory)/chart"
       valueFile: "$(Agent.BuildDirectory)/chart/data/slack-api/$(env)-env.yaml"
       overrideValues: |
@@ -42,38 +42,37 @@ steps:
         secrets.REPORT_USER_PERSONAL_ACCESS_TOKEN="$(report-user-personal-access-token)"
         secrets.SLACK_BOT_TOKEN="$(slack-bot-token)"
         secrets.SLACK_SIGNING_SECRET="$(slack-signing-secret)"
-      releaseName: "slack-api"
-      arguments: "--install"
+      releaseName: slack-api
+      arguments: --install
 
   - task: HelmDeploy@0
-    displayName: Deploy frontend
+    displayName: Frontend
     inputs:
-      connectionType: "Azure Resource Manager"
+      connectionType: Azure Resource Manager
       azureSubscription: "$(subscription)"
       azureResourceGroup: "$(RESOURCE_GROUP)"
       kubernetesCluster: "$(CLUSTER_NAME)"
-      command: "upgrade"
-      chartType: "FilePath"
+      command: upgrade
+      chartType: FilePath
       chartPath: "$(Agent.BuildDirectory)/chart"
       valueFile: "$(Agent.BuildDirectory)/chart/data/frontend/$(env)-env.yaml"
       overrideValues: |
         image.tag="$(git-short-hash)"
-      releaseName: "frontend"
-      arguments: "--install"
+      releaseName: frontend
+      arguments: --install
 
   - task: HelmDeploy@0
-    displayName: Deploy admin
+    displayName: Admin
     inputs:
-      connectionType: "Azure Resource Manager"
+      connectionType: Azure Resource Manager
       azureSubscription: "$(subscription)"
       azureResourceGroup: "$(RESOURCE_GROUP)"
       kubernetesCluster: "$(CLUSTER_NAME)"
-      command: "upgrade"
-      chartType: "FilePath"
+      command: upgrade
+      chartType: FilePath
       chartPath: "$(Agent.BuildDirectory)/chart"
       valueFile: "$(Agent.BuildDirectory)/chart/data/admin/$(env)-env.yaml"
       overrideValues: |
         image.tag="$(git-short-hash)"
-      releaseName: "admin"
-      arguments: "--install"
-
+      releaseName: admin
+      arguments: --install

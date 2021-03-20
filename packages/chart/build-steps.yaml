@@ -3,7 +3,7 @@ steps:
     fetchDepth: 1
 
   - task: PublishBuildArtifacts@1
-    displayName: "Publish Build Artifacts"
+    displayName: Publish folder as build artifact
     inputs:
       pathtoPublish: packages/chart
       artifactName: chart

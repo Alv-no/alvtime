@@ -5,15 +5,15 @@ steps:
   - task: Docker@2
     displayName: Build
     inputs:
-      command: "build"
-      Dockerfile: "packages/slack-app/Dockerfile"
-      repository: "alvnoas/alvtime-slack-app"
+      command: build
+      Dockerfile: packages/slack-app/Dockerfile
+      repository: alvnoas/alvtime-slack-app
       tags: "$(git-short-hash)"
 
   - task: Docker@2
     displayName: Push
     inputs:
-      command: "push"
-      containerRegistry: "alvdockerdev"
-      repository: "alvnoas/alvtime-slack-app"
+      command: push
+      containerRegistry: alvdockerdev
+      repository: alvnoas/alvtime-slack-app
       tags: "$(git-short-hash)"

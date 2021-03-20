@@ -9,16 +9,18 @@ pool:
   vmImage: ubuntu-16.04
 
 variables:
-  subscription: "Dev-Alv-Subscription-Azure-Service-Connection"
+  subscription: Dev-Alv-Subscription-Azure-Service-Connection
 
 stages:
-  - stage: Build
+  - stage: build
+    displayName: Build & Test
     jobs:
-      - job: common
+      - job: githash
+        displayName: Create hash
         steps:
           - task: Bash@3
-            name: setvarStep
-            displayName: Set variables
+            name: createHash
+            displayName: Create hash
             inputs:
               targetType: inline
               script: |
@@ -28,51 +30,58 @@ stages:
                 echo "##vso[task.setvariable variable=git-short-hash;isOutput=true]$SHORT_HASH"
 
       - job: infrastructure
+        displayName: Terraform Config
         variables:
           - group: alvtime-test
           - name: env
             value: test
           - name: tf-state-storage-account
-            value: "terraformstatealvtest"
+            value: terraformstatealvtest
         steps:
           - template: ../../packages/infrastructure/build-steps.yaml
 
       - job: frontend
-        dependsOn: common
+        displayName: Frontend
+        dependsOn: githash
         variables:
-          git-short-hash: $[ dependencies.common.outputs['setvarStep.git-short-hash'] ]
+          git-short-hash: $[ dependencies.githash.outputs['createHash.git-short-hash'] ]
         steps:
           - template: ../../packages/frontend/build-steps.yaml
 
       - job: adminpanel
-        dependsOn: common
+        displayName: Adminpanel
+        dependsOn: githash
         variables:
-          git-short-hash: $[ dependencies.common.outputs['setvarStep.git-short-hash'] ]
+          git-short-hash: $[ dependencies.githash.outputs['createHash.git-short-hash'] ]
         steps:
           - template: ../../packages/adminpanel/build-steps.yaml
 
       - job: api
-        dependsOn: common
+        displayName: API
+        dependsOn: githash
         variables:
-          git-short-hash: $[ dependencies.common.outputs['setvarStep.git-short-hash'] ]
+          git-short-hash: $[ dependencies.githash.outputs['createHash.git-short-hash'] ]
         steps:
           - template: ../../packages/api/build-steps.yaml
 
       - job: slack
-        dependsOn: common
+        displayName: Slack API
+        dependsOn: githash
         variables:
-          git-short-hash: $[ dependencies.common.outputs['setvarStep.git-short-hash'] ]
+          git-short-hash: $[ dependencies.githash.outputs['createHash.git-short-hash'] ]
         steps:
           - template: ../../packages/slack-app/build-steps.yaml
 
       - job: chart
-        dependsOn: common
+        displayName: Helm Chart
+        dependsOn: githash
         variables:
-          git-short-hash: $[ dependencies.common.outputs['setvarStep.git-short-hash'] ]
+          git-short-hash: $[ dependencies.githash.outputs['createHash.git-short-hash'] ]
         steps:
           - template: ../../packages/chart/build-steps.yaml
 
   - stage: test
+    displayName: Deploy to Test
     jobs:
       - deployment: test
         variables:
@@ -80,11 +89,11 @@ stages:
           - name: env
             value: test
           - name: tf-state-storage-account
-            value: "terraformstatealvtest"
+            value: terraformstatealvtest
           - name: subscription
-            value: "Dev-Alv-Subscription-Azure-Service-Connection"
+            value: Dev-Alv-Subscription-Azure-Service-Connection
           - name: git-short-hash
-            value: $[ stageDependencies.Build.common.outputs['setvarStep.git-short-hash'] ]
+            value: $[ stageDependencies.Build.githash.outputs['createHash.git-short-hash'] ]
         displayName: Test
         environment: Test
         strategy:
