@@ -6,7 +6,7 @@ variable "location" {
 
 variable "name" {
   type        = string
-  description = "name"
+  description = "Name given to the cluster of services"
   default     = "alvtime"
 }
 
