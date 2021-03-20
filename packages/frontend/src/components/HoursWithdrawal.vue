@@ -3,7 +3,7 @@
     <div class="padding">
       <div class="availablehours">
         <div class="available available-flex">
-          <OvertimeVisualizer :subtract="hours"></OvertimeVisualizer>
+          <OvertimeVisualizer :barData="overtimeData" :subtract="hours"></OvertimeVisualizer>
         </div>
       </div>
       <hr />
@@ -73,6 +73,8 @@ import { isFloat } from "@/store/timeEntries";
 import Input from "./Input.vue";
 import moment, { Moment } from "moment";
 import CenterColumnWrapper from "@/components/CenterColumnWrapper.vue";
+import { Store } from "vuex";
+import { State } from "../store/index";
 import OvertimeVisualizer from "@/components/OvertimeVisualizer.vue";
 import { MappedOvertimeTransaction } from "../store/overtime";
 
@@ -122,6 +124,9 @@ export default Vue.extend({
       hours: "",
       transactions: [],
       today: moment().format("YYYY-MM-DD"),
+      overtimeData: [],
+      holidayData: [],
+      unsubscribe: () => {}
     };
   },
   computed: {
@@ -171,6 +176,17 @@ export default Vue.extend({
   async created() {
     await this.$store.dispatch("FETCH_TRANSACTIONS");
     this.processTransactions();
+    await this.$store.dispatch("FETCH_AVAILABLE_HOURS");
+    this.overtimeData = (this.$store as Store<State>).getters.getCategorizedFlexHours;
+    this.unsubscribe = (this.$store as Store<State>).subscribe(
+      (mutation, _) => {
+        if (mutation.type === "SET_AVAILABLEHOURS") {
+          this.overtimeData = (this.$store as Store<
+            State
+          >).getters.getCategorizedFlexHours;
+        }
+      }
+    );
   },
   methods: {
     processTransactions() {

@@ -23,7 +23,7 @@ import Vue from "vue";
 // eslint-disable-next-line
 import { State } from "../store/index";
 import { CategorizedFlexHours } from "../store/overtime";
-import { mapState, Store } from "vuex";
+import { Store } from "vuex";
 
 export default Vue.extend({
   props: {
@@ -31,6 +31,10 @@ export default Vue.extend({
       default: "",
       type: String,
     },
+    barData: {
+      default: () => [],
+      type: Array as () => CategorizedFlexHours[]
+    }
   },
   data() {
     return {
@@ -47,10 +51,10 @@ export default Vue.extend({
     },
   },
   async created() {
-    await this.$store.dispatch("FETCH_AVAILABLE_HOURS");
-    this.colors = (this.$store as Store<State>).getters.getCategorizedFlexHours;
+    //await this.$store.dispatch("FETCH_AVAILABLE_HOURS");
+    //this.colors = (this.$store as Store<State>).getters.getCategorizedFlexHours;
     this.unsubscribe = (this.$store as Store<State>).subscribe(
-      (mutation, state) => {
+      (mutation, _) => {
         if (mutation.type === "SET_AVAILABLEHOURS") {
           this.colors = (this.$store as Store<
             State

@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { mapState, Store } from "vuex";
+import { Store } from "vuex";
 import { State } from "../store/index";
 export default Vue.extend({
   props: {
@@ -23,6 +23,7 @@ export default Vue.extend({
   },
   data: function() {
     return {
+      colors: [],
       unsubscribe: () => {},
     };
   },
@@ -35,8 +36,10 @@ export default Vue.extend({
     },
   },
   async created() {
+    await this.$store.dispatch("FETCH_AVAILABLE_HOURS");
+    this.colors = (this.$store as Store<State>).getters.getCategorizedFlexHours;
     this.unsubscribe = (this.$store as Store<State>).subscribe(
-      (mutation, state) => {
+      (mutation, _) => {
         if (
           mutation.type === "UPDATE_TIME_ENTRIES_AFTER_UPDATE" ||
           mutation.type === "SET_SWIPER"
