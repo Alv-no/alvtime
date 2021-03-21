@@ -93,7 +93,7 @@ stages:
           - name: subscription
             value: Dev-Alv-Subscription-Azure-Service-Connection
           - name: git-short-hash
-            value: $[ stageDependencies.Build.githash.outputs['createHash.git-short-hash'] ]
+            value: $[ stageDependencies.build.githash.outputs['createHash.git-short-hash'] ]
         displayName: Test
         environment: Test
         strategy:
@@ -116,7 +116,7 @@ stages:
           - name: subscription
             value: Pay-As-You-Go (f9b4e4d2-39a5-4c35-876c-303dc3de03d2)
           - name: git-short-hash
-            value: $[ stageDependencies.Build.githash.outputs['createHash.git-short-hash'] ]
+            value: $[ stageDependencies.build.githash.outputs['createHash.git-short-hash'] ]
         displayName: Prod
         environment: Prod
         strategy:
