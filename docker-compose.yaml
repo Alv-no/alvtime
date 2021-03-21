@@ -30,6 +30,7 @@ services:
   api:
     build:
       context: ./packages/api
+      target: base
     links:
       - db
     environment:
@@ -37,7 +38,8 @@ services:
       - AzureAd__Domain=api://c9126a83-01c3-43c0-8bb3-298d352d2d7f
       - AzureAd__ClientId=c9126a83-01c3-43c0-8bb3-298d352d2d7f
       - AdminGroup=5850c192-c101-4b64-9c45-cbbf73542805
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=development
+      - ASPNETCORE_URLS=http://localhost:80
     ports:
       - "8081:80"
       - "8082:443"

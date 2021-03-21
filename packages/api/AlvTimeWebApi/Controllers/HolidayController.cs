@@ -48,21 +48,31 @@ namespace AlvTimeWebApi.Controllers
 
         [HttpGet("user/UsedVacation")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
-        public ActionResult<VacationOverviewDto> FetchUsedVacationHours([FromQuery] int year)
+        public ActionResult<IEnumerable<TimeEntriesResponseDto>> FetchUsedVacationDays([FromQuery] int? year)
         {
             var user = _userRetriever.RetrieveUser();
 
-            var entries = _timeEntryStorage.GetTimeEntries(new TimeEntryQuerySearch
+            if (!year.HasValue) {
+                year = DateTime.Now.Year;
+            }
+
+            return Ok(_timeEntryStorage.GetTimeEntries(new TimeEntryQuerySearch
             {
-                FromDateInclusive = new DateTime(year, 01, 01),
-                ToDateInclusive = new DateTime(year, 12, 31),
+                FromDateInclusive = new DateTime(year.Value, 01, 01),
+                ToDateInclusive = new DateTime(year.Value, 12, 31),
                 UserId = user.Id,
                 TaskId = _timeEntryOptions.CurrentValue.PaidHolidayTask
-            });
 
-            var vacationOverview = VacationExtension.CalculateVacationOverview(entries);
-
-            return Ok(vacationOverview);
+            })
+            .Select(timeEntry => new
+            {
+                User = timeEntry.User,
+                UserEmail = timeEntry.UserEmail,
+                Id = timeEntry.Id,
+                Date = timeEntry.Date.ToDateOnly(),
+                Value = timeEntry.Value,
+                TaskId = timeEntry.TaskId
+            }));
         }
     }
 }
