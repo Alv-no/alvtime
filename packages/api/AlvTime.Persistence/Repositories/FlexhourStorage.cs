@@ -291,7 +291,7 @@ public class FlexhourStorage : IFlexhourStorage
         }
     }
 
-    public GenericHourEntry RegisterPaidOvertime(GenericHourEntry request, int userId)
+    public PaidOvertimeEntry RegisterPaidOvertime(GenericHourEntry request, int userId)
     {
         var user = _context.User.SingleOrDefault(u => u.Id == userId);
         var userStartDate = user.StartDate;
@@ -316,10 +316,12 @@ public class FlexhourStorage : IFlexhourStorage
             _context.PaidOvertime.Add(paidOvertime);
             _context.SaveChanges();
 
-            return new GenericHourEntry()
+            return new PaidOvertimeEntry()
             {
+                UserId = paidOvertime.Id,
                 Date = paidOvertime.Date,
-                Hours = paidOvertime.HoursBeforeCompRate
+                HoursBeforeCompensation = paidOvertime.HoursBeforeCompRate,
+                HoursAfterCompensation = paidOvertime.HoursAfterCompRate
             };
         }
 

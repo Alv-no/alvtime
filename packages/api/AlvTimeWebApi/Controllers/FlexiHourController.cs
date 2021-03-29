@@ -96,7 +96,11 @@ namespace AlvTimeWebApi.Controllers
 
             var response = _storage.RegisterPaidOvertime(request, user.Id);
 
-            return Ok(response);
+            return Ok(new GenericHourEntry
+            {
+                Date = response.Date,
+                Hours = response.HoursBeforeCompensation
+            });
         }
 
         [HttpDelete("Payouts")]

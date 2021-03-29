@@ -7,7 +7,7 @@ namespace AlvTime.Business.FlexiHours
         AvailableHoursDto GetAvailableHours(int userId, DateTime startDate, DateTime endDate);
         FlexedHoursDto GetFlexedHours(int userId);
         PayoutsDto GetRegisteredPayouts(int userId);
-        GenericHourEntry RegisterPaidOvertime(GenericHourEntry request, int userId);
+        PaidOvertimeEntry RegisterPaidOvertime(GenericHourEntry request, int userId);
         PaidOvertimeEntry CancelPayout(int userId, int id);
 
     }
