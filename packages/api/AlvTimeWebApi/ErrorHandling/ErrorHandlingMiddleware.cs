@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;
+using FluentValidation;
 
 namespace AlvTimeWebApi.ErrorHandling
 {
@@ -22,6 +23,24 @@ namespace AlvTimeWebApi.ErrorHandling
             try
             {
                 await _next(context);
+            }
+            catch (ValidationException ve)
+            {
+                context.Response.StatusCode = 400;
+                context.Response.ContentType = "application/json";
+
+                var problem = new ProblemDetails
+                {
+                    Status = context.Response.StatusCode,
+                    Title = ve.Message,
+                    Extensions =
+                    {
+                        { "traceId", context.TraceIdentifier }
+                    },
+                    Detail = _options.ShowStackTrace ? ve.ToString() : string.Empty,
+                };
+
+                await context.Response.WriteAsync(JsonSerializer.Serialize(problem));
             }
             catch (Exception e)
             {
