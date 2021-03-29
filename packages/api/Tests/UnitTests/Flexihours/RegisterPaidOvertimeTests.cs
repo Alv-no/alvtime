@@ -166,6 +166,8 @@ namespace Tests.UnitTests.Flexihours
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 06), value: 1.5M, out int taskid4));
             _context.CompensationRate.Add(CreateCompensationRate(taskid4, 1.0M));
 
+            _context.SaveChanges();
+
             FlexhourStorage storage = CreateStorage();
 
             var result = storage.RegisterPaidOvertime(new GenericHourEntry
