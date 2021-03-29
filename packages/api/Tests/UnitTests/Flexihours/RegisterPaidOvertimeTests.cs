@@ -2,9 +2,9 @@
 using AlvTime.Business.Options;
 using AlvTime.Persistence.DataBaseModels;
 using AlvTime.Persistence.Repositories;
-using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
+using FluentValidation;
 using Xunit;
 using static Tests.UnitTests.Flexihours.GetOvertimeTests;
 
@@ -30,11 +30,11 @@ namespace Tests.UnitTests.Flexihours
             {
                 Date = new DateTime(2020, 01, 02),
                 Hours = 10
-            }, 1).Value as PaidOvertime;
+            }, 1);
 
             var registeredPayouts = calculator.GetRegisteredPayouts(1);
 
-            Assert.Equal(10, registerOvertimeResponse.HoursBeforeCompRate);
+            Assert.Equal(10, registerOvertimeResponse.HoursBeforeCompensation);
             Assert.Equal(10, registeredPayouts.TotalHours);
         }
 
@@ -86,9 +86,9 @@ namespace Tests.UnitTests.Flexihours
             {
                 Date = new DateTime(2020, 01, 03),
                 Hours = 10
-            }, 1).Value as PaidOvertime;
+            }, 1);
 
-            Assert.Equal(5, registeredPayout.HoursAfterCompRate);
+            Assert.Equal(5, registeredPayout.HoursAfterCompensation);
         }
 
         [Fact]
@@ -114,10 +114,10 @@ namespace Tests.UnitTests.Flexihours
             {
                 Date = new DateTime(2020, 01, 07),
                 Hours = 6
-            }, 1).Value as PaidOvertime;
+            }, 1);
 
-            Assert.Equal(3.5M, registeredPayout.HoursAfterCompRate);
-            Assert.Equal(6M, registeredPayout.HoursBeforeCompRate);
+            Assert.Equal(3.5M, registeredPayout.HoursAfterCompensation);
+            Assert.Equal(6M, registeredPayout.HoursBeforeCompensation);
         }
 
         [Fact]
@@ -130,13 +130,11 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var result = calculator.RegisterPaidOvertime(new GenericHourEntry
+            Assert.Throws<ValidationException>(() => calculator.RegisterPaidOvertime(new GenericHourEntry
             {
                 Date = new DateTime(2020, 01, 02),
                 Hours = 7
-            }, 1).Value;
-
-            Assert.Equal("Not enough available hours", result);
+            }, 1));
         }
 
         [Fact]
@@ -149,13 +147,11 @@ namespace Tests.UnitTests.Flexihours
 
             FlexhourStorage calculator = CreateStorage();
 
-            var result = calculator.RegisterPaidOvertime(new GenericHourEntry
+            Assert.Throws<ValidationException>(() => calculator.RegisterPaidOvertime(new GenericHourEntry
             {
                 Date = new DateTime(2020, 01, 02),
                 Hours = 1
-            }, 1).Value;
-
-            Assert.Equal("Not enough available hours", result);
+            }, 1));
         }
 
         [Fact]
@@ -176,7 +172,7 @@ namespace Tests.UnitTests.Flexihours
             {
                 Date = new DateTime(2020, 01, 07),
                 Hours = 4
-            }, 1).Value;
+            }, 1);
 
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 08), value: 7.5M, out int taskid5));
             _context.CompensationRate.Add(CreateCompensationRate(taskid5, 1.5M));
