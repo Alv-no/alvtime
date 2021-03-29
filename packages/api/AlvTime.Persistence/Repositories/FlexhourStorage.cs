@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FluentValidation;
 
 public class FlexhourStorage : IFlexhourStorage
 {
@@ -290,7 +291,7 @@ public class FlexhourStorage : IFlexhourStorage
         }
     }
 
-    public ObjectResult RegisterPaidOvertime(GenericHourEntry request, int userId)
+    public GenericHourEntry RegisterPaidOvertime(GenericHourEntry request, int userId)
     {
         var user = _context.User.SingleOrDefault(u => u.Id == userId);
         var userStartDate = user.StartDate;
@@ -315,15 +316,24 @@ public class FlexhourStorage : IFlexhourStorage
             _context.PaidOvertime.Add(paidOvertime);
             _context.SaveChanges();
 
-            return new OkObjectResult(paidOvertime);
+            return new GenericHourEntry()
+            {
+                Date = paidOvertime.Date,
+                Hours = paidOvertime.HoursBeforeCompRate
+            };
         }
 
-        return new BadRequestObjectResult("Not enough available hours");
+        throw new ValidationException("Not enough available hours");
     }
 
     public PaidOvertimeEntry CancelPayout(int userId, int id)
     {
         var payout = _context.PaidOvertime.FirstOrDefault(po => po.Id == id && po.User == userId);
+
+        if (!CanBeDeleted(payout))
+        {
+            throw new ValidationException("Selected payout must be latest ordered payout");
+        }
 
         if (payout != null && payout.Date.Month >= DateTime.Now.Month && payout.Date.Year == DateTime.Now.Year)
         {
@@ -335,11 +345,33 @@ public class FlexhourStorage : IFlexhourStorage
                 Date = payout.Date,
                 Id = payout.Id,
                 UserId = payout.User,
-                Value = payout.HoursBeforeCompRate
+                HoursBeforeCompensation = payout.HoursBeforeCompRate,
+                HoursAfterCompensation = payout.HoursAfterCompRate
             };
         }
 
-        return new PaidOvertimeEntry();
+        throw new ValidationException("Selected payout is not active");
+    }
+
+    private bool CanBeDeleted(PaidOvertime payout)
+    {
+        var allActivePayouts = _context.PaidOvertime
+            .Where(p => p.Date.Month >= DateTime.Now.Month &&
+                                    p.Date.Year == DateTime.Now.Year).ToList();
+
+        if (!allActivePayouts.Any())
+        {
+            throw new ValidationException("There are no active payouts");
+        }
+
+        var latestId = allActivePayouts.OrderBy(p => p.Id).Last().Id;
+
+        if (payout.Id < latestId)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     private decimal GetHoursAfterCompRate(List<OvertimeEntry> overtimeEntries, decimal orderedHours)
