@@ -33,7 +33,7 @@ namespace Tests.UnitTests.Flexihours
             {
                 Date = new DateTime(currentYear, currentMonth, 02),
                 Hours = 10
-            }, 1).Value as PaidOvertime;
+            }, 1).Value;
 
             var canceledPayout = calculator.CancelPayout(1, 1);
 
@@ -59,7 +59,7 @@ namespace Tests.UnitTests.Flexihours
             {
                 Date = new DateTime(2020, previousMonth, 02),
                 Hours = 10
-            }, 1).Value as PaidOvertime;
+            }, 1);
 
             var canceledPayout = calculator.CancelPayout(1, 1);
 

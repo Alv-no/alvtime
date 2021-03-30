@@ -284,7 +284,7 @@ public class FlexhourStorage : IFlexhourStorage
         }
     }
 
-    public ObjectResult RegisterPaidOvertime(GenericHourEntry request, int userId)
+    public PaidOvertimeEntry RegisterPaidOvertime(GenericHourEntry request, int userId)
     {
         var user = _context.User.SingleOrDefault(u => u.Id == userId);
         var userStartDate = user.StartDate;
@@ -309,10 +309,16 @@ public class FlexhourStorage : IFlexhourStorage
             _context.PaidOvertime.Add(paidOvertime);
             _context.SaveChanges();
 
-            return new OkObjectResult(paidOvertime);
+            return new PaidOvertimeEntry
+            {
+                Date = paidOvertime.Date,
+                Value = request.Hours,
+                ValueAfterCompRate = hoursAfterCompRate
+            };
+
         }
 
-        return new BadRequestObjectResult("Not enough available hours");
+        return null;
     }
 
     public PaidOvertimeEntry CancelPayout(int userId, int id)

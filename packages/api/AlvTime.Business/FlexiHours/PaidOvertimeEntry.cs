@@ -8,5 +8,7 @@ namespace AlvTime.Business.FlexiHours
         public int UserId { get; set; }
         public DateTime Date { get; set; }
         public decimal Value { get; set; }
+        // Primarily used for unit-tests
+        public decimal ValueAfterCompRate { get; set; }
     }
 }

@@ -219,11 +219,11 @@ namespace Tests.UnitTests.Flexihours
             {
                 Date = new DateTime(2020, 01, 09),
                 Hours = 11
-            }, 1).Value as PaidOvertime;
+            }, 1);
 
             var OTequivalents = calculator.GetAvailableHours(1, _startDate, _endDate).AvailableHoursAfterCompensation;
             Assert.Equal(15.5M, OTequivalents);
-            Assert.Equal(6.5M, result.HoursAfterCompRate);
+            Assert.Equal(6.5M, result.ValueAfterCompRate);
         }
 
         [Fact]

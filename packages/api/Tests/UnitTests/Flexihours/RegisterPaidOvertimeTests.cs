@@ -28,13 +28,13 @@ namespace Tests.UnitTests.Flexihours
 
             var registerOvertimeResponse = calculator.RegisterPaidOvertime(new GenericHourEntry
             {
-                Date = new DateTime(2020, 01, 02),
+                Date = new DateTime(2020, 1, 2),
                 Hours = 10
-            }, 1).Value as PaidOvertime;
+            }, 1);
 
             var registeredPayouts = calculator.GetRegisteredPayouts(1);
 
-            Assert.Equal(10, registerOvertimeResponse.HoursBeforeCompRate);
+            Assert.Equal(10, registerOvertimeResponse.Value);
             Assert.Equal(10, registeredPayouts.TotalHours);
         }
 
@@ -86,9 +86,9 @@ namespace Tests.UnitTests.Flexihours
             {
                 Date = new DateTime(2020, 01, 03),
                 Hours = 10
-            }, 1).Value as PaidOvertime;
+            }, 1).ValueAfterCompRate;
 
-            Assert.Equal(5, registeredPayout.HoursAfterCompRate);
+            Assert.Equal(5, registeredPayout);
         }
 
         [Fact]
@@ -114,10 +114,10 @@ namespace Tests.UnitTests.Flexihours
             {
                 Date = new DateTime(2020, 01, 07),
                 Hours = 6
-            }, 1).Value as PaidOvertime;
+            }, 1);
 
-            Assert.Equal(3.5M, registeredPayout.HoursAfterCompRate);
-            Assert.Equal(6M, registeredPayout.HoursBeforeCompRate);
+            Assert.Equal(3.5M, registeredPayout.ValueAfterCompRate);
+            Assert.Equal(6M, registeredPayout.Value);
         }
 
         [Fact]
@@ -134,9 +134,9 @@ namespace Tests.UnitTests.Flexihours
             {
                 Date = new DateTime(2020, 01, 02),
                 Hours = 7
-            }, 1).Value;
+            }, 1);
 
-            Assert.Equal("Not enough available hours", result);
+            Assert.Equal(null, result);
         }
 
         [Fact]
@@ -153,9 +153,9 @@ namespace Tests.UnitTests.Flexihours
             {
                 Date = new DateTime(2020, 01, 02),
                 Hours = 1
-            }, 1).Value;
+            }, 1);
 
-            Assert.Equal("Not enough available hours", result);
+            Assert.Equal(null, result);
         }
 
         private FlexhourStorage CreateStorage()
