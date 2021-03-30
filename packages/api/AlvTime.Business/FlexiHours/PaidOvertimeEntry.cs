@@ -9,5 +9,8 @@ namespace AlvTime.Business.FlexiHours
         public DateTime Date { get; set; }
         public decimal HoursBeforeCompensation { get; set; }
         public decimal HoursAfterCompensation { get; set; }
+        public decimal Value { get; set; }
+        // Primarily used for unit-tests
+        public decimal ValueAfterCompRate { get; set; }
     }
 }

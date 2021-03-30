@@ -10,6 +10,7 @@ namespace AlvTimeWebApi.Controllers
     [ApiController]
     public class AccessTokenController : Controller
     {
+
         private readonly IAccessTokenStorage _storage;
         private RetrieveUsers _userRetriever;
 

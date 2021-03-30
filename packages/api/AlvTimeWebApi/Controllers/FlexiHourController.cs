@@ -1,5 +1,6 @@
 ﻿using AlvTime.Business.FlexiHours;
 using AlvTimeWebApi.Controllers.Utils;
+using AlvTimeWebApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -16,6 +17,7 @@ namespace AlvTimeWebApi.Controllers
 
         public FlexiHourController(RetrieveUsers userRetriever, IFlexhourStorage storage)
         {
+
             _storage = storage;
             _userRetriever = userRetriever;
         }
@@ -85,7 +87,7 @@ namespace AlvTimeWebApi.Controllers
 
         [HttpPost("Payouts")]
         [Authorize]
-        public ActionResult<GenericHourEntry> RegisterPaidOvertime([FromBody] GenericHourEntry request)
+        public ActionResult<GenericHourEntry> RegisterPaidOvertime([FromBody] HourEntryRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -94,13 +96,22 @@ namespace AlvTimeWebApi.Controllers
 
             var user = _userRetriever.RetrieveUser();
 
-            var response = _storage.RegisterPaidOvertime(request, user.Id);
+            var response = _storage.RegisterPaidOvertime(new GenericHourEntry 
+                    {
+                        Hours = request.Hours,
+                        Date = request.Date
+                    }, user.Id);
 
-            return Ok(new GenericHourEntry
+            if (response != null)
             {
-                Date = response.Date,
-                Hours = response.HoursBeforeCompensation
-            });
+                return Ok(new
+                {
+                    Date = request.Date.ToDateOnly(),
+                    Value = request.Hours
+                });
+            }
+
+            return BadRequest("Not enough available hours");
         }
 
         [HttpDelete("Payouts")]
@@ -110,6 +121,11 @@ namespace AlvTimeWebApi.Controllers
             var user = _userRetriever.RetrieveUser();
 
             var response = _storage.CancelPayout(user.Id, payoutId);
+
+            if (response.Id == 0)
+            {
+                return BadRequest($"No payout cancelled for payout id {payoutId} for user: {user.Email}. Has the payout been locked?");
+            }
 
             return Ok(response);
         }

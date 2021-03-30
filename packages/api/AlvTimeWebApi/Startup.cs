@@ -1,8 +1,9 @@
+using System;
+using System.Linq;
 using AlvTime.Business.Options;
-using AlvTime.Persistence.DataBaseModels;
+using AlvTime.Persistence.DataBaseModels; 
 using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Authorization;
-using AlvTimeWebApi.Cors;
 using AlvTimeWebApi.ErrorHandling;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -17,9 +18,15 @@ namespace AlvTimeWebApi
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IHostEnvironment env)
         {
-            Configuration = configuration;
+             var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddEnvironmentVariables();
+
+            Configuration = builder.Build();
         }
 
         public IConfiguration Configuration { get; }

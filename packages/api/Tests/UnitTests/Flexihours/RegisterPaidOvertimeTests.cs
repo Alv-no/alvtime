@@ -28,13 +28,13 @@ namespace Tests.UnitTests.Flexihours
 
             var registerOvertimeResponse = calculator.RegisterPaidOvertime(new GenericHourEntry
             {
-                Date = new DateTime(2020, 01, 02),
+                Date = new DateTime(2020, 1, 2),
                 Hours = 10
             }, 1);
 
             var registeredPayouts = calculator.GetRegisteredPayouts(1);
 
-            Assert.Equal(10, registerOvertimeResponse.HoursBeforeCompensation);
+            Assert.Equal(10, registerOvertimeResponse.Value);
             Assert.Equal(10, registeredPayouts.TotalHours);
         }
 
@@ -86,9 +86,9 @@ namespace Tests.UnitTests.Flexihours
             {
                 Date = new DateTime(2020, 01, 03),
                 Hours = 10
-            }, 1);
+            }, 1).ValueAfterCompRate;
 
-            Assert.Equal(5, registeredPayout.HoursAfterCompensation);
+            Assert.Equal(5, registeredPayout);
         }
 
         [Fact]
@@ -116,8 +116,8 @@ namespace Tests.UnitTests.Flexihours
                 Hours = 6
             }, 1);
 
-            Assert.Equal(3.5M, registeredPayout.HoursAfterCompensation);
-            Assert.Equal(6M, registeredPayout.HoursBeforeCompensation);
+            Assert.Equal(3.5M, registeredPayout.ValueAfterCompRate);
+            Assert.Equal(6M, registeredPayout.Value);
         }
 
         [Fact]
@@ -134,7 +134,9 @@ namespace Tests.UnitTests.Flexihours
             {
                 Date = new DateTime(2020, 01, 02),
                 Hours = 7
-            }, 1));
+            }, 1);
+
+            Assert.Equal(null, result);
         }
 
         [Fact]
@@ -151,60 +153,9 @@ namespace Tests.UnitTests.Flexihours
             {
                 Date = new DateTime(2020, 01, 02),
                 Hours = 1
-            }, 1));
-        }
-
-        [Fact]
-        public void RegisterPayout_WorkingOvertimeAfterPayout_OnlyConsiderOvertimeWorkedBeforePayout()
-        {
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 06), value: 7.5M, out int taskid));
-            _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.5M));
-
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 06), value: 3M, out int taskid2));
-            _context.CompensationRate.Add(CreateCompensationRate(taskid2, 0.5M));
-
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 06), value: 1.5M, out int taskid4));
-            _context.CompensationRate.Add(CreateCompensationRate(taskid4, 1.0M));
-
-            _context.SaveChanges();
-
-            FlexhourStorage storage = CreateStorage();
-
-            var result = storage.RegisterPaidOvertime(new GenericHourEntry
-            {
-                Date = new DateTime(2020, 01, 07),
-                Hours = 4
             }, 1);
 
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 08), value: 7.5M, out int taskid5));
-            _context.CompensationRate.Add(CreateCompensationRate(taskid5, 1.5M));
-
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 08), value: 1.5M, out int taskid6));
-            _context.CompensationRate.Add(CreateCompensationRate(taskid6, 0.5M));
-
-            _context.SaveChanges();
-
-            var overtimeEntriesAtPayoutDate = storage.GetAvailableHours(1, new DateTime(2020, 01, 01), new DateTime(2020, 01, 07));
-            var payoutEntriesAtPayoutDate = overtimeEntriesAtPayoutDate.Entries.Where(e => e.Hours < 0).GroupBy(
-                hours => hours.CompensationRate,
-                hours => hours,
-                (cr, hours) => new
-                {
-                    CompensationRate = cr,
-                    Hours = hours.Sum(h => h.Hours)
-                });
-
-            var overtimeEntriesAfterPayoutDate = storage.GetAvailableHours(1, new DateTime(2020, 01, 01), new DateTime(2020, 01, 08));
-            var payoutEntriesAfterPayoutDate = overtimeEntriesAfterPayoutDate.Entries.Where(e => e.Hours < 0).GroupBy(
-                hours => hours.CompensationRate,
-                hours => hours,
-                (cr, hours) => new
-                {
-                    CompensationRate = cr,
-                    Hours = hours.Sum(h => h.Hours)
-                });
-
-            Assert.Equal(payoutEntriesAfterPayoutDate, payoutEntriesAtPayoutDate);
+            Assert.Equal(null, result);
         }
 
         private FlexhourStorage CreateStorage()

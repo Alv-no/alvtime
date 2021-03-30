@@ -223,7 +223,7 @@ namespace Tests.UnitTests.Flexihours
 
             var OTequivalents = calculator.GetAvailableHours(1, _startDate, _endDate).AvailableHoursAfterCompensation;
             Assert.Equal(15.5M, OTequivalents);
-            Assert.Equal(6.5M, result.HoursAfterCompensation);
+            Assert.Equal(6.5M, result.ValueAfterCompRate);
         }
 
         [Fact]

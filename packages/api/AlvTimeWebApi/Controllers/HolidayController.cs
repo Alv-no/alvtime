@@ -6,9 +6,13 @@ using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using System;
 using System.Collections.Generic;
-using AlvTime.Business.Holidays;
+using System.Linq;
+using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using AlvTime.Business.AbsenseDays;
+using Microsoft.Extensions.Logging;
 
 namespace AlvTimeWebApi.Controllers
 {
@@ -19,14 +23,17 @@ namespace AlvTimeWebApi.Controllers
         private readonly IOptionsMonitor<TimeEntryOptions> _timeEntryOptions;
         private readonly RetrieveUsers _userRetriever;
         private readonly ITimeEntryStorage _timeEntryStorage;
-        private readonly IRedDaysService _redDaysService;
+        private readonly ILogger<HolidayController> logger;
+        private readonly IAbsenseDaysService absenseDaysService;
 
-        public HolidayController(
-            RetrieveUsers userRetriever, 
-            IOptionsMonitor<TimeEntryOptions> timeEntryOptions, 
-            ITimeEntryStorage timeEntryStorage,
-            IRedDaysService redDaysService)
+        public HolidayController(RetrieveUsers userRetriever,
+                IOptionsMonitor<TimeEntryOptions> timeEntryOptions,
+                ITimeEntryStorage timeEntryStorage,
+                ILogger<HolidayController> logger,
+                IAbsenseDaysService absenseDaysService)
         {
+            this.absenseDaysService = absenseDaysService;
+            this.logger = logger;
             _userRetriever = userRetriever;
             _timeEntryOptions = timeEntryOptions;
             _timeEntryStorage = timeEntryStorage;
@@ -54,6 +61,7 @@ namespace AlvTimeWebApi.Controllers
 
             if (!year.HasValue) {
                 year = DateTime.Now.Year;
+                var st = new Stopwatch();
             }
 
             return Ok(_timeEntryStorage.GetTimeEntries(new TimeEntryQuerySearch
@@ -62,7 +70,6 @@ namespace AlvTimeWebApi.Controllers
                 ToDateInclusive = new DateTime(year.Value, 12, 31),
                 UserId = user.Id,
                 TaskId = _timeEntryOptions.CurrentValue.PaidHolidayTask
-
             })
             .Select(timeEntry => new
             {
@@ -73,6 +80,27 @@ namespace AlvTimeWebApi.Controllers
                 Value = timeEntry.Value,
                 TaskId = timeEntry.TaskId
             }));
+        }
+
+        [HttpGet("/user/RemainingVacationDays")]
+        [Authorize(Policy = "AllowPersonalAccessToken")]
+        public ActionResult<AbsenseDaysDto> FetchRemainingAbsenseDays(int ?year, DateTime? intervalStart)
+        {
+
+            if (!year.HasValue)
+            {
+                year = DateTime.Now.Year;
+            }
+            try
+            {
+                AbsenseDaysDto absenseDays = absenseDaysService.GetAbsenseDays(_userRetriever.RetrieveUser().Id, year.Value, intervalStart);
+                return Ok(absenseDays);
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Could not resolve remaining vacationdays for user {userid} on year {year} with error {error}", _userRetriever.RetrieveUser().Id, year, e.Message);
+                throw;
+            }
         }
     }
 }

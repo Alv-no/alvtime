@@ -1,6 +1,4 @@
-﻿using AlvTime.Business.Validators;
-using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System;
 
 namespace AlvTime.Business.FlexiHours
 {
@@ -8,8 +6,6 @@ namespace AlvTime.Business.FlexiHours
     {
         public DateTime Date { get; set; }
 
-        [HalfHour]
-        [Range(0, int.MaxValue, ErrorMessage = "Only positive values allowed")]
         public decimal Hours { get; set; }
     }
 }

@@ -34,7 +34,7 @@ namespace Tests.UnitTests.Flexihours
             {
                 Date = new DateTime(currentYear, currentMonth, 02),
                 Hours = 10
-            }, 1);
+            }, 1).Value;
 
             var canceledPayout = calculator.CancelPayout(1, 1);
 
@@ -58,8 +58,8 @@ namespace Tests.UnitTests.Flexihours
 
             var registerOvertimeResponse = calculator.RegisterPaidOvertime(new GenericHourEntry
             {
-                Date = new DateTime(2021, previousMonth, 02),
-                Hours = 5
+                Date = new DateTime(2020, previousMonth, 02),
+                Hours = 10
             }, 1);
 
             Assert.Throws<ValidationException>(() => calculator.CancelPayout(1, 1));
