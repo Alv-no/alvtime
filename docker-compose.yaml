@@ -14,12 +14,9 @@ services:
       - /src/node_modules
     environment:
       - CHOKIDAR_USEPOLLING=true
-<<<<<<< HEAD
       - REACT_APP_API_HOST=https://localhost:8082
       - REACT_APP_ACCESS_SCOPE=api://c9126a83-01c3-43c0-8bb3-298d352d2d7f/access_as_user
       - REACT_APP_CLIENT_ID=c9126a83-01c3-43c0-8bb3-298d352d2d7f
-=======
->>>>>>> e3b43768dbcc54ce8be62322ac0ea0975c50e333
 
   frontend:
     user: vscode
@@ -32,13 +29,10 @@ services:
     volumes:
       - ./packages/frontend:/src
       - /src/node_modules
-<<<<<<< HEAD
     environment:
       - VUE_APP_API_HOST=https://localhost:8082
       - VUE_APP_ACCESS_SCOPE=api://c9126a83-01c3-43c0-8bb3-298d352d2d7f/access_as_user
       - VUE_APP_CLIENT_ID=c9126a83-01c3-43c0-8bb3-298d352d2d7f
-=======
->>>>>>> e3b43768dbcc54ce8be62322ac0ea0975c50e333
 
   api:
     build:
