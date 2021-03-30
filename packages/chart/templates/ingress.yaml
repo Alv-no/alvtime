@@ -1,0 +1,29 @@
+{{- $fullName := .Release.Name -}}
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  {{- if .Values.hosts }}
+  tls:
+    {{- range .Values.hosts }}
+    - hosts:
+        - {{ . | quote }}
+      secretName: {{ . }}-tls-secret
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.hosts }}
+    - host: {{ . | quote }}
+      http:
+        paths:
+          - backend:
+              serviceName: {{ $fullName }}
+              servicePort: 80
+            path: /(.*)
+    {{- end }}

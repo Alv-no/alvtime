@@ -1,0 +1,19 @@
+image:
+  repository: alvnoas/alvtime-web-api
+
+config:
+  AdminGroup: "d2bff530-4037-4a53-823e-a29dac3905ef"
+  ASPNETCORE_ENVIRONMENT: "Production"
+  AzureAd__ClientId: "3644a03b-f801-4b67-b487-3353684fe7fc"
+  AzureAd__Domain: "api://3644a03b-f801-4b67-b487-3353684fe7fc"
+  AzureAd__Instance: "https://login.microsoftonline.com/"
+  AzureAd__IssuerId: "https://login.microsoftonline.com/76749190-4427-4b08-a3e4-161767dd1b73"
+  AzureAd__TenantId: "76749190-4427-4b08-a3e4-161767dd1b73"
+  TimeEntryOptions__FlexTask: "55"
+  TimeEntryOptions__PaidHolidayTask: "13"
+  TimeEntryOptions__ReportUser: "17"
+  TimeEntryOptions__StartOfOvertimeSystem: "2021-01-01"
+  TimeEntryOptions__UnpaidHolidayTask: "25"
+
+hosts:
+  - api.alvtime.app

@@ -1,0 +1,127 @@
+name: $(BuildDefinitionName)_$(date:yyyyMMdd)$(rev:.r)
+
+trigger:
+  - master
+
+pr: none
+
+pool:
+  vmImage: ubuntu-16.04
+
+variables:
+  subscription: Dev-Alv-Subscription-Azure-Service-Connection
+
+stages:
+  - stage: build
+    displayName: Build & Test
+    jobs:
+      - job: githash
+        displayName: Create hash
+        steps:
+          - task: Bash@3
+            name: createHash
+            displayName: Create hash
+            inputs:
+              targetType: inline
+              script: |
+                ## At least 7 digits, more if needed for uniqueness
+                SHORT_HASH=`git rev-parse --short=7 HEAD`
+                echo "Short hash set to $SHORT_HASH"
+                echo "##vso[task.setvariable variable=git-short-hash;isOutput=true]$SHORT_HASH"
+
+      - job: infrastructure
+        displayName: Terraform Config
+        variables:
+          - group: alvtime-test
+          - name: env
+            value: test
+          - name: tf-state-storage-account
+            value: terraformstatealvtest
+        steps:
+          - template: ../../packages/infrastructure/build-steps.yaml
+
+      - job: frontend
+        displayName: Frontend
+        dependsOn: githash
+        variables:
+          git-short-hash: $[ dependencies.githash.outputs['createHash.git-short-hash'] ]
+        steps:
+          - template: ../../packages/frontend/build-steps.yaml
+
+      - job: adminpanel
+        displayName: Adminpanel
+        dependsOn: githash
+        variables:
+          git-short-hash: $[ dependencies.githash.outputs['createHash.git-short-hash'] ]
+        steps:
+          - template: ../../packages/adminpanel/build-steps.yaml
+
+      - job: api
+        displayName: API
+        dependsOn: githash
+        variables:
+          git-short-hash: $[ dependencies.githash.outputs['createHash.git-short-hash'] ]
+        steps:
+          - template: ../../packages/api/build-steps.yaml
+
+      - job: slack
+        displayName: Slack API
+        dependsOn: githash
+        variables:
+          git-short-hash: $[ dependencies.githash.outputs['createHash.git-short-hash'] ]
+        steps:
+          - template: ../../packages/slack-app/build-steps.yaml
+
+      - job: chart
+        displayName: Helm Chart
+        dependsOn: githash
+        variables:
+          git-short-hash: $[ dependencies.githash.outputs['createHash.git-short-hash'] ]
+        steps:
+          - template: ../../packages/chart/build-steps.yaml
+
+  - stage: test
+    displayName: Deploy to Test
+    jobs:
+      - deployment: test
+        variables:
+          - group: alvtime-test
+          - name: env
+            value: test
+          - name: tf-state-storage-account
+            value: terraformstatealvtest
+          - name: subscription
+            value: Dev-Alv-Subscription-Azure-Service-Connection
+          - name: git-short-hash
+            value: $[ stageDependencies.build.githash.outputs['createHash.git-short-hash'] ]
+        displayName: Test
+        environment: Test
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: ../../packages/infrastructure/deploy-steps.yaml
+                - template: ../../packages/chart/deploy-steps.yaml
+
+  - stage: prod
+    displayName: Deploy to Production
+    jobs:
+      - deployment: prod
+        variables:
+          - group: alvtime-prod
+          - name: env
+            value: prod
+          - name: tf-state-storage-account
+            value: terraformstatealvprod
+          - name: subscription
+            value: Pay-As-You-Go (f9b4e4d2-39a5-4c35-876c-303dc3de03d2)
+          - name: git-short-hash
+            value: $[ stageDependencies.build.githash.outputs['createHash.git-short-hash'] ]
+        displayName: Prod
+        environment: Prod
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: ../../packages/infrastructure/deploy-steps.yaml
+                # - template: ../../packages/chart/deploy-steps.yaml

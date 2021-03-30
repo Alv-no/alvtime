@@ -18,7 +18,7 @@ const dbOptions = {
     user: env.DB_USER,
     password: env.DB_PASSWORD,
   },
-  dbName: "alvtime-slack-app",
+  dbName: env.DB_USER,
 };
 
 mongoose

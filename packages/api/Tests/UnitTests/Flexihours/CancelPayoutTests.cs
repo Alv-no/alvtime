@@ -4,6 +4,7 @@ using AlvTime.Persistence.DataBaseModels;
 using AlvTime.Persistence.Repositories;
 using System;
 using System.Linq;
+using FluentValidation;
 using Xunit;
 using static Tests.UnitTests.Flexihours.GetOvertimeTests;
 
@@ -33,7 +34,7 @@ namespace Tests.UnitTests.Flexihours
             {
                 Date = new DateTime(currentYear, currentMonth, 02),
                 Hours = 10
-            }, 1).Value;
+            }, 1);
 
             var canceledPayout = calculator.CancelPayout(1, 1);
 
@@ -48,7 +49,7 @@ namespace Tests.UnitTests.Flexihours
 
             var previousMonth = DateTime.Now.AddMonths(-1).Month;
 
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, previousMonth, 02), value: 17.5M, out int taskid));
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2021, previousMonth, 02), value: 17.5M, out int taskid));
             _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
 
             _context.SaveChanges();
@@ -57,13 +58,11 @@ namespace Tests.UnitTests.Flexihours
 
             var registerOvertimeResponse = calculator.RegisterPaidOvertime(new GenericHourEntry
             {
-                Date = new DateTime(2020, previousMonth, 02),
-                Hours = 10
+                Date = new DateTime(2021, previousMonth, 02),
+                Hours = 5
             }, 1);
 
-            var canceledPayout = calculator.CancelPayout(1, 1);
-
-            Assert.Equal(0, canceledPayout.Id);
+            Assert.Throws<ValidationException>(() => calculator.CancelPayout(1, 1));
         }
 
         private FlexhourStorage CreateStorage()

@@ -86,7 +86,7 @@ async function getAccessToken() {
     const res = await getTokenRedirect();
     return res ? res.accessToken : "";
   } else {
-    return config.TEST_ACCESS_TOKEN;
+    return "5801gj90-jf39-5j30-fjk3-480fj39kl409";
   }
 }
 

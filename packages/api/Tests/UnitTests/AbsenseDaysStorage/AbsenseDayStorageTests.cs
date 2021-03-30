@@ -36,7 +36,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
         public void CheckRemainingHolidays_NoWithDrawls()
         {
             var absenseService = new AbsenseDaysService(new TimeEntryStorage(context), options);
-            var days = absenseService.GetAbsenseDays(1, 2020);
+            var days = absenseService.GetAbsenseDays(1, 2020, null);
 
             Assert.Equal(25, days.VacationDaysLeft);
             Assert.Equal(12, days.SickLeaveDaysLeft);
@@ -57,7 +57,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
                 }, 1);
             
 
-            var days = absenseService.GetAbsenseDays(1, 2021);
+            var days = absenseService.GetAbsenseDays(1, 2021, null);
 
             Assert.Equal(25, days.VacationDaysLeft);
             // We withdraw three whole days
@@ -87,7 +87,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
 
                 }, 1);
             
-            var days = absenseService.GetAbsenseDays(1, 2021);
+            var days = absenseService.GetAbsenseDays(1, 2021, null);
 
             Assert.Equal(25, days.VacationDaysLeft);
             // We withdraw three whole days
@@ -124,7 +124,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
 
                 }, 1);
             
-            var days = absenseService.GetAbsenseDays(1, 2021);
+            var days = absenseService.GetAbsenseDays(1, 2021, null);
 
             Assert.Equal(25, days.VacationDaysLeft);
             // We withdraw three whole days

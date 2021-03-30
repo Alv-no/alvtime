@@ -1,0 +1,16 @@
+{{- if or .Values.config .Values.configFilePath }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+data:
+  {{- if .Values.config }}
+  {{- range $key, $val := .Values.config }}
+  {{ $key }}: {{ $val | quote }}
+  {{- end }}
+  {{- end }}
+  {{- if .Values.configFilePath }}
+  config.json: |
+    {{- .Files.Get .Values.configFilePath | nindent 4 }}
+  {{- end }}
+{{- end }}

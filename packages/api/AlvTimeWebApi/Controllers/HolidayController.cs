@@ -1,4 +1,5 @@
 ﻿using AlvTime.Business;
+using AlvTime.Business.Helpers;
 using AlvTime.Business.Options;
 using AlvTime.Business.TimeEntries;
 using AlvTimeWebApi.Controllers.Utils;
@@ -53,34 +54,27 @@ namespace AlvTimeWebApi.Controllers
             return Ok(dates);
         }
 
-        [Obsolete("Klingen - I dont think this is needed after new endpoint is implemented")]
-        [HttpGet("user/UsedVacationDays")]
+        [HttpGet("user/UsedVacation")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
-        public ActionResult<IEnumerable<TimeEntriesResponseDto>> FetchUsedVacationDays([FromQuery] int? year)
+        public ActionResult<VacationOverviewDto> FetchUsedVacationHours([FromQuery] int? year)
         {
+            if (!year.HasValue) 
+            {
+                year = DateTime.Now.Year;
+            }
             var user = _userRetriever.RetrieveUser();
 
-            if (!year.HasValue) {
-                year = DateTime.Now.Year;
-                var st = new Stopwatch();
-            }
-
-            return Ok(_timeEntryStorage.GetTimeEntries(new TimeEntryQuerySearch
+            var entries = _timeEntryStorage.GetTimeEntries(new TimeEntryQuerySearch
             {
                 FromDateInclusive = new DateTime(year.Value, 01, 01),
                 ToDateInclusive = new DateTime(year.Value, 12, 31),
                 UserId = user.Id,
                 TaskId = _timeEntryOptions.CurrentValue.PaidHolidayTask
-            })
-            .Select(timeEntry => new
-            {
-                User = timeEntry.User,
-                UserEmail = timeEntry.UserEmail,
-                Id = timeEntry.Id,
-                Date = timeEntry.Date.ToDateOnly(),
-                Value = timeEntry.Value,
-                TaskId = timeEntry.TaskId
-            }));
+            });
+
+            var vacationOverview = VacationExtension.CalculateVacationOverview(entries);
+
+            return Ok(vacationOverview);
         }
 
         [HttpGet("/user/RemainingVacationDays")]

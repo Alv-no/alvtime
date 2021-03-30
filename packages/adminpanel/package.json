@@ -2,7 +2,7 @@
   "name": "alvtime-admin-react-pwa",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://www.alvtime.no/adminpanel",
+  "homepage": ".",
   "dependencies": {
     "@azure/msal-browser": "^2.1.0",
     "@material-ui/core": "^4.11.0",
@@ -26,9 +26,9 @@
     "typescript": "^3.7.5"
   },
   "scripts": {
-    "start": "npx react-scripts start",
-    "build": "npx react-scripts build",
-    "test": "npx react-scripts test"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test"
   },
   "eslintConfig": {
     "extends": "react-app"

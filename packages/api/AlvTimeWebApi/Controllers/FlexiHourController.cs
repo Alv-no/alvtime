@@ -102,16 +102,11 @@ namespace AlvTimeWebApi.Controllers
                         Date = request.Date
                     }, user.Id);
 
-            if (response != null)
+            return Ok(new GenericHourEntry
             {
-                return Ok(new
-                {
-                    Date = request.Date.ToDateOnly(),
-                    Value = request.Hours
-                });
-            }
-
-            return BadRequest("Not enough available hours");
+                Date = response.Date,
+                Hours = response.HoursBeforeCompensation
+            });
         }
 
         [HttpDelete("Payouts")]
@@ -121,11 +116,6 @@ namespace AlvTimeWebApi.Controllers
             var user = _userRetriever.RetrieveUser();
 
             var response = _storage.CancelPayout(user.Id, payoutId);
-
-            if (response.Id == 0)
-            {
-                return BadRequest($"No payout cancelled for payout id {payoutId} for user: {user.Email}. Has the payout been locked?");
-            }
 
             return Ok(response);
         }

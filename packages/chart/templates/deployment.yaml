@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Release.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          ports:
+            - containerPort: 80
+          {{- if or .Values.config .Values.secrets }}
+          envFrom:
+            {{- if .Values.secrets }}
+            - secretRef:
+                name: {{ .Release.Name }}-secrets
+            {{- end }}
+            {{- if .Values.config }}
+            - configMapRef:
+                name: {{ .Release.Name }}-config
+            {{- end }}
+          {{- end }}
+      {{- if .Values.configFilePath }}
+          volumeMounts:
+            - name: config
+              mountPath: /usr/share/nginx/html/config.json
+              subPath: config.json
+      volumes:
+        - name: config
+          configMap:
+            name: {{ .Release.Name }}-config
+      {{- end }}

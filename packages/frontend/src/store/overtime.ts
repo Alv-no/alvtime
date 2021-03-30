@@ -19,25 +19,30 @@ export interface OvertimeStateModel {
   totalPayoutHours: number;
 }
 
-export interface CompansatedTransactions {
+export interface MappedOvertimeTransaction {
+  transaction: OvertimeEntry;
+  type: string;
+}
+
+interface CompansatedTransactions {
   date: Date;
   hours: number;
   taskId: number;
   compensationRate: number;
 }
 
-export interface AvailableHoursResponse {
+interface AvailableHoursResponse {
   availableHoursBeforeCompensation: number;
   availableHoursAfterCompensation: number;
   entries: CompansatedTransactions[];
 }
 
-export interface FlexHoursTransaction {
+interface FlexHoursTransaction {
   date: Date;
   hours: number;
 }
 
-export interface OvertimeEntry {
+interface OvertimeEntry {
   date: Date;
   hours: number;
   id?: number;
@@ -59,17 +64,17 @@ export interface MappedOvertimeTransaction {
   type: string;
 }
 
-export interface FlexedHoursReponse {
+interface FlexedHoursReponse {
   totalHours: number;
   entries: FlexHoursTransaction[];
 }
 
-export interface PayoutReponse {
+interface PayoutReponse {
   totalHours: number;
   entries: PayoutTransaction[];
 }
 
-export interface PayoutTransaction {
+interface PayoutTransaction {
   id: number;
   date: Date;
   hoursBeforeCompRate: number;
