@@ -1,6 +1,5 @@
 ﻿using AlvTime.Business.FlexiHours;
 using AlvTimeWebApi.Controllers.Utils;
-using AlvTimeWebApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -87,7 +86,7 @@ namespace AlvTimeWebApi.Controllers
 
         [HttpPost("Payouts")]
         [Authorize]
-        public ActionResult<GenericHourEntry> RegisterPaidOvertime([FromBody] HourEntryRequest request)
+        public ActionResult<GenericHourEntry> RegisterPaidOvertime([FromBody] GenericHourEntry request)
         {
             if (!ModelState.IsValid)
             {

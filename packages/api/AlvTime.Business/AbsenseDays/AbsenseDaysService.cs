@@ -46,7 +46,7 @@ namespace AlvTime.Business.AbsenseDays
 
             return new AbsenseDaysDto
             {
-                VacationDaysLeft = vacationDays - vacationEntries.Count(),
+                PayedVacationDaysLeft = vacationDays - vacationEntries.Where(d => d.Value > 0).Count(),
                 SickLeaveDaysLeft = CalculateRemainingSickDays(sickLeaveDays)
             };
         }

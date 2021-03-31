@@ -50,19 +50,6 @@ export default Vue.extend({
       );
     },
   },
-  async created() {
-    //await this.$store.dispatch("FETCH_AVAILABLE_HOURS");
-    //this.colors = (this.$store as Store<State>).getters.getCategorizedFlexHours;
-    this.unsubscribe = (this.$store as Store<State>).subscribe(
-      (mutation, _) => {
-        if (mutation.type === "SET_AVAILABLEHOURS") {
-          this.colors = (this.$store as Store<
-            State
-          >).getters.getCategorizedFlexHours;
-        }
-      }
-    );
-  },
   beforeDestroy() {
     this.unsubscribe();
   },
