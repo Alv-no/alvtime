@@ -77,7 +77,7 @@ namespace AlvTimeWebApi.Controllers
             return Ok(vacationOverview);
         }
 
-        [HttpGet("/user/RemainingVacationDays")]
+        [HttpGet("/user/RemainingAbsenseDays")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<AbsenseDaysDto> FetchRemainingAbsenseDays(int ?year, DateTime? intervalStart)
         {
