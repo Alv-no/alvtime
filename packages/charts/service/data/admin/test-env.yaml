@@ -4,4 +4,4 @@ image:
 configFilePath: data/admin/test-config.json
 
 hosts:
-  - test-admin.alvtime.no
+  - admin.test-alvtime.no

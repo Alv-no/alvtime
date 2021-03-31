@@ -1,0 +1,12 @@
+# Default values for letsencryptClusterIssuer.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+email: ""
+client:
+  id: ""
+  secret: ""
+subscriptionID: ""
+tenantID: ""
+resourceGroupName: ""
+hostedZoneName: ""

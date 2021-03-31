@@ -16,4 +16,4 @@ config:
   TimeEntryOptions__UnpaidHolidayTask: "19"
 
 hosts:
-  - test-api.alvtime.no
+  - api.test-alvtime.no

@@ -1,5 +1,5 @@
 {
-  "API_HOST": "https://api.alvtime.app",
+  "API_HOST": "https://api.alvtime.no",
   "ACCESS_SCOPE": "api://3644a03b-f801-4b67-b487-3353684fe7fc/access_as_user",
   "CLIENT_ID": "3644a03b-f801-4b67-b487-3353684fe7fc",
   "DATE_FORMAT": "YYYY-MM-DD",

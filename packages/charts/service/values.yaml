@@ -9,6 +9,7 @@ image:
   tag: ""
 
 configFile: ""
+configFilePath: ""
 config: {}
 secrets: {}
 
