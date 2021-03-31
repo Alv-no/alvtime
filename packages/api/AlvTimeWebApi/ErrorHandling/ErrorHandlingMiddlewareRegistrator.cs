@@ -10,7 +10,7 @@ namespace AlvTimeWebApi.ErrorHandling
         {
             var options = new ErrorHandlingOptions { ShowStackTrace = false };
 
-            if (env.IsDevelopment())
+            if (!env.IsProduction())
             {
                 options.ShowStackTrace = true;
             }

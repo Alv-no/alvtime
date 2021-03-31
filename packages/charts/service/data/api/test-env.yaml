@@ -3,7 +3,7 @@ image:
 
 config:
   AdminGroup: "5850c192-c101-4b64-9c45-cbbf73542805"
-  ASPNETCORE_ENVIRONMENT: "Development"
+  ASPNETCORE_ENVIRONMENT: "Staging"
   AzureAd__ClientId: "c9126a83-01c3-43c0-8bb3-298d352d2d7f"
   AzureAd__Domain: "api://c9126a83-01c3-43c0-8bb3-298d352d2d7f"
   AzureAd__Instance: "https://login.microsoftonline.com/"
@@ -14,6 +14,7 @@ config:
   TimeEntryOptions__ReportUser: "11"
   TimeEntryOptions__StartOfOvertimeSystem: "2020-11-01"
   TimeEntryOptions__UnpaidHolidayTask: "19"
+  AllowedOrigins: "https://test-alvtime.no,https://admin.alvtime.no"
 
 hosts:
   - api.test-alvtime.no
