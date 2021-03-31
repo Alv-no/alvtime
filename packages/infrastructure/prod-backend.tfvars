@@ -1,4 +1,3 @@
-resource_group_name  = "Alvtime-common"
-storage_account_name = "terraformstatealvprod"
+resource_group_name  = "rg-alvtime-common"
 container_name       = "terraformstate"
-key                  = "tf.tfstate"
+storage_account_name = "terraformstatealvprod"

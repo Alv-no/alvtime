@@ -1,13 +1,11 @@
 variable "location" {
   type        = string
   description = "Primary Location"
-  default     = "westeurope"
 }
 
 variable "name" {
   type        = string
   description = "Name given to the cluster of services"
-  default     = "alvtime"
 }
 
 variable "env" {
@@ -15,30 +13,35 @@ variable "env" {
   description = "environment"
 }
 
-variable "aks_service_principal_client_id" {
-  type    = string
+variable "sp_alvtime_admin_client_id" {
+  type        = string
   description = "Azure Active Directory App registration (service principal) id"
 }
 
-variable "aks_service_principal_client_secret" {
-  type      = string
+variable "sp_alvtime_admin_rbac_secret" {
+  type        = string
   description = "Azure Active Directory App registration (service principal) client secret"
-  sensitive = true
+  sensitive   = true
 }
 
 variable "sql_server_administrator_login" {
-  type = string
+  type        = string
   description = "Chosen SQL dateabase server admin username"
 }
 
 variable "sql_server_administrator_login_password" {
-  type      = string
+  type        = string
   description = "Chosen SQL dateabase server admin password"
-  sensitive = true
+  sensitive   = true
 }
 
 variable "api_sql_firewall_rule_ip" {
-  type = string
+  type        = string
   description = "IP that the api service connects to the sql dateabase from (available after a full deploy)"
-  default = ""
+  default = "0.0.0.0"
+}
+
+variable "hostname" {
+  type        = string
+  description = "Hostname"
 }
