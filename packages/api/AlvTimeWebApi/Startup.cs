@@ -2,6 +2,7 @@ using AlvTime.Business.Options;
 using AlvTime.Persistence.DataBaseModels;
 using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Authorization;
+using AlvTimeWebApi.Cors;
 using AlvTimeWebApi.ErrorHandling;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -23,8 +24,6 @@ namespace AlvTimeWebApi
 
         public IConfiguration Configuration { get; }
 
-        private const string DevCorsPolicyName = "devCorsPolicyName";
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -38,20 +37,8 @@ namespace AlvTimeWebApi
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Example API", Version = "v1" });
             });
-
             services.AddRazorPages();
-
-            services.AddCors(options =>
-            {
-                options.AddPolicy(name: DevCorsPolicyName,
-                    builder =>
-                    {
-                        builder.AllowAnyOrigin();
-                        builder.AllowAnyMethod();
-                        builder.AllowAnyHeader();
-                    }
-                );
-            });
+            services.AddAlvtimeCorsPolicys(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -60,9 +47,6 @@ namespace AlvTimeWebApi
             if (!env.IsDevelopment())
             {
                 app.UseHsts(); // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-            } else
-            {
-                app.UseCors(DevCorsPolicyName);
             }
 
             app.UseHttpsRedirection();
@@ -76,6 +60,15 @@ namespace AlvTimeWebApi
             });
 
             app.UseRouting();
+
+            if (env.IsDevelopment())
+            {
+                app.UseCors(CorsExtensions.DevCorsPolicyName);
+            }
+            else
+            {
+                app.UseCors();
+            }
 
             app.UseAuthentication();
             app.UseAuthorization();
