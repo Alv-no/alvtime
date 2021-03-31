@@ -7,6 +7,7 @@ using AlvTime.Business.AbsenseDays;
 using AlvTime.Persistence.Repositories;
 using AlvTime.Business.TimeEntries;
 using System;
+using AlvTime.Business;
 
 namespace Tests.UnitTests.AbsenseDaysStorage
 {
@@ -26,7 +27,8 @@ namespace Tests.UnitTests.AbsenseDaysStorage
             var entryOptions = new TimeEntryOptions 
             {
                 SickDaysTask = 14,
-                PaidHolidayTask = 13
+                PaidHolidayTask = 13,
+                UnpaidHolidayTask = 12
             };
             options = Mock.Of<IOptionsMonitor<TimeEntryOptions>>(options => options.CurrentValue == entryOptions);
 
@@ -38,8 +40,10 @@ namespace Tests.UnitTests.AbsenseDaysStorage
             var absenseService = new AbsenseDaysService(new TimeEntryStorage(context), options);
             var days = absenseService.GetAbsenseDays(1, 2020);
 
-            Assert.Equal(25, days.PayedVacationDaysLeft);
-            Assert.Equal(12, days.SickLeaveDaysLeft);
+            Assert.Equal(25, days.VacationDays);
+            Assert.Equal(0, days.UsedAbsenseDays);
+            Assert.Equal(0, days.UsedAlvDays);
+            Assert.Equal(6, days.AlvDaysInAYear);
         }
 
         [Fact]
@@ -59,9 +63,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
 
             var days = absenseService.GetAbsenseDays(1, 2021);
 
-            Assert.Equal(25, days.PayedVacationDaysLeft);
-            // We withdraw three whole days
-            Assert.Equal(9, days.SickLeaveDaysLeft);
+            Assert.Equal(3, days.UsedAbsenseDays);
 
             
             // These two withdrawals of sick days should also count as 3 as they are concurrent
@@ -89,9 +91,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
             
             var days = absenseService.GetAbsenseDays(1, 2021);
 
-            Assert.Equal(25, days.PayedVacationDaysLeft);
-            // We withdraw three whole days
-            Assert.Equal(9, days.SickLeaveDaysLeft);
+            Assert.Equal(3, days.UsedAbsenseDays);
         }
 
         [Fact]
@@ -126,10 +126,29 @@ namespace Tests.UnitTests.AbsenseDaysStorage
             
             var days = absenseService.GetAbsenseDays(1, 2021);
 
-            Assert.Equal(25, days.PayedVacationDaysLeft);
             // We withdraw three whole days
-            Assert.Equal(6, days.SickLeaveDaysLeft);
+            Assert.Equal(6, days.UsedAbsenseDays);
+        }
+
+        [Fact]
+        public void TestCalculationOfAlvDays() {
+            var redDays = new RedDays(2021);
+            var timeEntryStorage = new TimeEntryStorage(context);
+            var absenseService = new AbsenseDaysService(timeEntryStorage, options);
+            timeEntryStorage.CreateTimeEntry(new CreateTimeEntryDto {
+                Date = redDays.GetTuesdayInEaster(2021),
+                Value = 5,
+                TaskId = options.CurrentValue.PaidHolidayTask
+            }, 1);
+
+            var days = absenseService.GetAbsenseDays(1, 2021, null);
+
+            Assert.Equal(7, days.AlvDaysInAYear);
+            // Important that ordinary vacaition days are not withdrawn
+            Assert.Equal(0, days.UsedVacationDays);
+            Assert.Equal(1, days.UsedAlvDays);
         }
 
     }
 }
+
