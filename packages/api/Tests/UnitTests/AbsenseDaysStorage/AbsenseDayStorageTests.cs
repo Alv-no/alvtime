@@ -38,7 +38,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
             var absenseService = new AbsenseDaysService(new TimeEntryStorage(context), options);
             var days = absenseService.GetAbsenseDays(1, 2020, null);
 
-            Assert.Equal(25, days.VacationDaysLeft);
+            Assert.Equal(25, days.PayedVacationDaysLeft);
             Assert.Equal(12, days.SickLeaveDaysLeft);
         }
 
@@ -59,7 +59,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
 
             var days = absenseService.GetAbsenseDays(1, 2021, null);
 
-            Assert.Equal(25, days.VacationDaysLeft);
+            Assert.Equal(25, days.PayedVacationDaysLeft);
             // We withdraw three whole days
             Assert.Equal(9, days.SickLeaveDaysLeft);
 
@@ -89,7 +89,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
             
             var days = absenseService.GetAbsenseDays(1, 2021, null);
 
-            Assert.Equal(25, days.VacationDaysLeft);
+            Assert.Equal(25, days.PayedVacationDaysLeft);
             // We withdraw three whole days
             Assert.Equal(9, days.SickLeaveDaysLeft);
         }
@@ -126,7 +126,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
             
             var days = absenseService.GetAbsenseDays(1, 2021, null);
 
-            Assert.Equal(25, days.VacationDaysLeft);
+            Assert.Equal(25, days.PayedVacationDaysLeft);
             // We withdraw three whole days
             Assert.Equal(6, days.SickLeaveDaysLeft);
         }
