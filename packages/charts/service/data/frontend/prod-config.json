@@ -1,5 +1,5 @@
 {
-  "API_HOST": "https://api.alvtime.app",
+  "API_HOST": "https://api.alvtime.no",
   "DATE_FORMAT": "YYYY-MM-DD",
   "HOURS_IN_WORKDAY": 7.5,
   "AUTHORITY": "https://login.microsoftonline.com/",
@@ -8,5 +8,5 @@
   "ACCESS_SCOPE": "api://3644a03b-f801-4b67-b487-3353684fe7fc/access_as_user",
   "SLACK_TEAM_ID": "TJ70QLJRL",
   "SLACK_CHANNEL_ID": "CNEHG527J",
-  "BASE_URL_ADMINPANEL": "https://admin.alvtime.app"
+  "BASE_URL_ADMINPANEL": "https://admin.alvtime.no"
 }

@@ -4,4 +4,4 @@ image:
 configFilePath: data/admin/prod-config.json
 
 hosts:
-  - admin.alvtime.app
+  - admin.alvtime.no

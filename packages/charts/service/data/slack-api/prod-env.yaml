@@ -5,8 +5,8 @@ config:
   ALVTIME_API_URI: "http://api"
   AZURE_AD_ACCESS_AS_USER_SCOPE: "api://3644a03b-f801-4b67-b487-3353684fe7fc/access_as_user"
   AZURE_AD_CLIENT_ID: "3644a03b-f801-4b67-b487-3353684fe7fc"
-  HOST: "https://slack-api.alvtime.app"
+  HOST: "https://slack-app.alvtime.no"
   PORT: "80"
 
 hosts:
-  - slack-api.alvtime.app
+  - slack-app.alvtime.no

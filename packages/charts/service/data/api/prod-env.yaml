@@ -16,4 +16,4 @@ config:
   TimeEntryOptions__UnpaidHolidayTask: "25"
 
 hosts:
-  - api.alvtime.app
+  - api.alvtime.no
