@@ -5,3 +5,4 @@ configFilePath: data/frontend/test-config.json
 
 hosts:
   - test-alvtime.no
+  - www.test-alvtime.no

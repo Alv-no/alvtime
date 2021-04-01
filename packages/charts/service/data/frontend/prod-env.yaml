@@ -5,3 +5,4 @@ configFilePath: data/frontend/prod-config.json
 
 hosts:
   - alvtime.no
+  - www.alvtime.no
