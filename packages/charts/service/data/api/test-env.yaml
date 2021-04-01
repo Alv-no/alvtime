@@ -14,7 +14,7 @@ config:
   TimeEntryOptions__ReportUser: "11"
   TimeEntryOptions__StartOfOvertimeSystem: "2020-11-01"
   TimeEntryOptions__UnpaidHolidayTask: "19"
-  AllowedOrigins: "https://test-alvtime.no,https://admin.alvtime.no"
+  AllowedOrigins: "https://test-alvtime.no,https://www.test-alvtime.no,https://admin.alvtime.no"
 
 hosts:
   - api.test-alvtime.no

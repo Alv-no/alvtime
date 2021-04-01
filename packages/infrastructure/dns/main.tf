@@ -24,6 +24,14 @@ resource "azurerm_dns_a_record" "dnsarecordtest" {
   records             = [var.ip_address]
 }
 
+resource "azurerm_dns_a_record" "dnsarecordtestwww" {
+  name                = "www"
+  zone_name           = azurerm_dns_zone.this.name
+  resource_group_name = azurerm_dns_zone.this.resource_group_name
+  ttl                 = 3600
+  records             = [var.ip_address]
+}
+
 resource "azurerm_dns_a_record" "dnsarecordadmin" {
   name                = "admin"
   zone_name           = azurerm_dns_zone.this.name
