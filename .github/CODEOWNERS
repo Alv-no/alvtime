@@ -2,6 +2,8 @@
 /packages/adminpanel/ @trulsaa @theknarf
 /packages/api/ @palbock90 @martiskj
 /packages/slack-app/ @trulsaa
-.AzureDevOps/ @trulsaa
+/packages/charts/ @trulsaa @klyngen
+/packages/infrastructure/ @trulsaa @theknarf
+/packages/shell/ @trulsaa
+.AzureDevOps/ @trulsaa @lnordhus
 .github/ @theknarf @trulsaa
-reverse-proxy/ @trulsaa @lundatic
