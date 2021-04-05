@@ -1,5 +1,5 @@
 image:
-  repository: alvnoas/alvtime-web-api
+  repository: acralvtime.azurecr.io/alvtime-web-api
 
 config:
   AdminGroup: "d2bff530-4037-4a53-823e-a29dac3905ef"

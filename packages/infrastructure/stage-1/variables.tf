@@ -38,10 +38,15 @@ variable "sql_server_administrator_login_password" {
 variable "api_sql_firewall_rule_ip" {
   type        = string
   description = "IP that the api service connects to the sql dateabase from (available after a full deploy)"
-  default = "0.0.0.0"
+  default     = "0.0.0.0"
 }
 
 variable "hostname" {
   type        = string
   description = "Hostname"
+}
+
+variable "sp_alvtime_admin_prod_object_id" {
+  type        = string
+  description = "Production Azure Active Directory App registration (service principal) id"
 }

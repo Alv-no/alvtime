@@ -28,3 +28,8 @@ variable "resource_group_name" {
   type        = string
   description = "Resource group name"
 }
+
+variable "sp_alvtime_admin_prod_object_id" {
+  type        = string
+  description = "Production Azure Active Directory App registration (service principal) id"
+}

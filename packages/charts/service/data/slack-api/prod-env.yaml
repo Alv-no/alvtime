@@ -1,5 +1,5 @@
 image:
-  repository: alvnoas/alvtime-slack-app
+  repository: acralvtime.azurecr.io/alvtime-slack-app
 
 config:
   ALVTIME_API_URI: "http://api"

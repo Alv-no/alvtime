@@ -25,12 +25,13 @@ data "azurerm_subscription" "current" {}
 module "kubernetes_cluster" {
   source = "../kubernetes"
 
-  name                         = "aks-${var.name}-${var.env}-${var.location}"
-  location                     = var.location
-  dns_prefix                   = "${var.name}-k8s"
-  sp_alvtime_admin_client_id   = var.sp_alvtime_admin_client_id
-  sp_alvtime_admin_rbac_secret = var.sp_alvtime_admin_rbac_secret
-  resource_group_name          = azurerm_resource_group.this.name
+  name                            = "aks-${var.name}-${var.env}-${var.location}"
+  location                        = var.location
+  dns_prefix                      = "${var.name}-k8s"
+  sp_alvtime_admin_client_id      = var.sp_alvtime_admin_client_id
+  sp_alvtime_admin_rbac_secret    = var.sp_alvtime_admin_rbac_secret
+  resource_group_name             = azurerm_resource_group.this.name
+  sp_alvtime_admin_prod_object_id = var.sp_alvtime_admin_prod_object_id
 }
 
 module "mongo_db" {

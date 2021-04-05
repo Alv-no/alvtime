@@ -1,5 +1,5 @@
 image:
-  repository: alvnoas/alvtime-frontend
+  repository: acralvtime.azurecr.io/alvtime-frontend
 
 configFilePath: data/frontend/prod-config.json
 
