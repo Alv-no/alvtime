@@ -36,26 +36,6 @@ output "kubernetes_cluster_name" {
   value = module.kubernetes_cluster.kubernetes_cluster_name
 }
 
-output "kubernetes_cluster_host" {
-  sensitive = true
-  value     = module.kubernetes_cluster.kubernetes_cluster_host
-}
-
-output "kubernetes_cluster_client_key" {
-  sensitive = true
-  value     = module.kubernetes_cluster.kubernetes_cluster_client_key
-}
-
-output "kubernetes_cluster_client_certificate" {
-  sensitive = true
-  value     = module.kubernetes_cluster.kubernetes_cluster_client_certificate
-}
-
-output "kubernetes_cluster_ca_certificate" {
-  sensitive = true
-  value     = module.kubernetes_cluster.kubernetes_cluster_ca_certificate
-}
-
 output "effective_outbound_ips" {
   value = module.kubernetes_cluster.effective_outbound_ips
 }
