@@ -58,9 +58,9 @@ namespace AlvTime.Business.AbsenseDays
 
             return new AbsenseDaysDto
             {
-                VacationDays = 25,
+                VacationDays = vacationDays,
                 UsedVacationDays = SubtractRedDays(paidVacationEntries.Concat(unpaidVacationEntries), redDays.Dates).Where(d => d.Value > 0).Count(),
-                AbsenseDaysInAYear = vacationDays,
+                AbsenseDaysInAYear = sickLeaveGroupSize * sickLeaveGroupAmount,
                 UsedAbsenseDays = CalculateUsedSickDays(sickLeaveDays.Where(day => day.Value > 0)),
                 AlvDaysInAYear = alvDays.Count(),
                 UsedAlvDays = AmountOfUsedAlvDays(alvDays, paidVacationEntries)
@@ -69,6 +69,7 @@ namespace AlvTime.Business.AbsenseDays
 
         private IEnumerable<TimeEntriesResponseDto> SubtractRedDays(IEnumerable<TimeEntriesResponseDto> entries, List<DateTime> redDays)
         {
+            // Get entries that does not overlap with red 
             return entries.Where(item => !redDays.Any(day => day.DayOfYear == item.Date.DayOfYear));
         }
 

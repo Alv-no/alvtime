@@ -1,6 +1,7 @@
 import { State } from "./index";
 import config from "@/config";
 import { adAuthenticatedFetch } from "@/services/auth";
+import { OvertimeData } from '../components/OvertimeVisualizer.vue';
 import { ActionContext } from "vuex";
 import { groupBy } from "lodash";
 
@@ -12,7 +13,6 @@ export interface OvertimeStateModel {
   availableHours: CompansatedTransactions[];
   payoutTransactions: PayoutTransaction[];
   flexTransactions: FlexHoursTransaction[];
-  holidayTransaction: HolidayTransaction[];
   totalHours: number;
   compansatedHours: number;
   totalFlexedHours: number;
@@ -82,16 +82,8 @@ interface PayoutTransaction {
   active: boolean;
 }
 
-export interface CategorizedFlexHours {
-  key: string;
-  name: string;
-  colorValue: string;
-  value: number;
-  priority: number;
-}
 
 const initState: OvertimeStateModel = {
-  holidayTransaction: [],
   availableHours: [],
   payoutTransactions: [],
   flexTransactions: [],
@@ -107,7 +99,7 @@ const state: OvertimeState = {
 
 const getters = {
   getCategorizedFlexHours: (state: State) => {
-    const categorizedHours: CategorizedFlexHours[] = [];
+    const categorizedHours: OvertimeData[] = [];
 
     const groupedTransactions = groupBy(
       state.overtimeState.availableHours,
@@ -115,7 +107,7 @@ const getters = {
     );
 
     for (let key in groupedTransactions) {
-      let category: CategorizedFlexHours = {
+      let category: OvertimeData = {
         key: "",
         priority: 1,
         colorValue: "",
@@ -258,25 +250,9 @@ const actions = {
       dispatch("FETCH_AVAILABLE_HOURS"),
       dispatch("FETCH_PAYED_HOURS"),
       dispatch("FETCH_FLEX_TRANSACTIONS"),
-      dispatch("FETCH_SPEND_HOLIDAY_TRANSACTIONS"),
     ]);
   },
 
-  FETCH_SPEND_HOLIDAY_TRANSACTIONS: async ({commit} : ActionContext<State, State>) => {
-    try {
-      const currentYear: number = new Date().getFullYear();
-      const url = new URL(`${config.API_HOST}/api/user/UsedVacationDays?year=${currentYear}`).toString();
-      const response = await adAuthenticatedFetch(url);
-      if (response.status !== 200) throw Error(`${response.statusText}`);
-
-      const transactions = await response.json();
-      commit("SET_HOLIDAY_TRANSACTIONS", transactions);
-      
-    } catch (e) {
-      console.error(e);
-      commit("ADD_TO_ERROR_LIST", e);
-    }
-  },
   POST_ORDER_PAYOUT: async (
     { commit }: ActionContext<State, State>,
     parameters: { hours: number; date: string }
@@ -330,9 +306,6 @@ const mutations = {
       transactions.availableHoursBeforeCompensation;
     state.overtimeState.compansatedHours =
       transactions.availableHoursAfterCompensation;
-  },
-  SET_HOLIDAY_TRANSACTIONS(state: State, transactions: HolidayTransaction[]) {
-    state.overtimeState.holidayTransaction = transactions;
   }
 };
 
