@@ -19,10 +19,22 @@
 </template>
 
 <script lang="ts">
+
+export interface OvertimeData {
+  key: string;
+  name: string;
+  colorValue: string;
+  value: number;
+  priority: number;
+}
+
+export interface TargetedSubtract {
+  key: string;
+  value: number;
+}
+
 import Vue from "vue";
-// eslint-disable-next-line
 import { State } from "../store/index";
-import { CategorizedFlexHours } from "../store/overtime";
 import { Store } from "vuex";
 
 export default Vue.extend({
@@ -33,31 +45,41 @@ export default Vue.extend({
     },
     barData: {
       default: () => [],
-      type: Array as () => CategorizedFlexHours[]
+      type: Array as () => OvertimeData[]
+    },
+    targetedSubtract: {
+      default: () => [],
+      type: Array as () => TargetedSubtract[]
     }
   },
   data() {
     return {
-      colors: [],
       unsubscribe: () => {},
+      targetSubtract: [] as TargetedSubtract[]
     };
   },
   computed: {
-    filteredColors(): CategorizedFlexHours[] {
+    filteredColors(): OvertimeData[] {
       return this.withDrawFromList(
-        this.colors as CategorizedFlexHours[],
-        Number.parseInt(this.subtract, 10)
+        this.barData as OvertimeData[],
+        Number.parseInt(this.subtract, 10),
+        this.targetSubtract as TargetedSubtract[]
       );
     },
   },
   beforeDestroy() {
     this.unsubscribe();
   },
+  mounted() {
+    setTimeout(() => {
+      this.targetSubtract= this.targetedSubtract as TargetedSubtract[];
+    }, 750);
+  },
   methods: {
-    createColorString(colorConfig: CategorizedFlexHours): string {
+    createColorString(colorConfig: OvertimeData): string {
       return `background: ${colorConfig.colorValue};`;
     },
-    createWidthString(colorConfig: CategorizedFlexHours): string {
+    createWidthString(colorConfig: OvertimeData): string {
       return this.createCalculatedWidthString(colorConfig.value);
     },
     createFlexWidthString(value: number): string {
@@ -72,9 +94,10 @@ export default Vue.extend({
       );
       return `width: ${pixelWidth}px;`;
     },
+
     getValuePercentage(): number {
       let valueSum = 0;
-      (this.colors as CategorizedFlexHours[]).forEach(item => {
+      (this.barData as OvertimeData[]).forEach(item => {
         valueSum += item.value;
       });
 
@@ -85,11 +108,28 @@ export default Vue.extend({
       else return window.innerWidth;
     },
     withDrawFromList(
-      colorConfigs: CategorizedFlexHours[],
-      value: number
-    ): CategorizedFlexHours[] {
-      const newItems: CategorizedFlexHours[] = [];
-      var sortedConfig = colorConfigs.sort((a, b) => b.priority - a.priority);
+      colorConfigs: OvertimeData[],
+      value: number,
+      targetValues: TargetedSubtract[]
+    ): OvertimeData[] {
+      const newItems: OvertimeData[] = [];
+      var sortedConfig = colorConfigs
+        .sort((a, b) => b.priority - a.priority)
+        .map(item => {
+          return { ...item };
+        });
+
+      // Subtract by targetedValues
+      for (var targetValue of targetValues) {
+        console.log(targetValue);
+        for (var config of sortedConfig) {
+          if (targetValue.key == config.key) {
+            config.value -= targetValue.value;
+          }
+        }
+      }
+
+      // Subtract by priority and inserted
       for (var item of sortedConfig) {
         const clone = { ...item };
         if (value > 0) {

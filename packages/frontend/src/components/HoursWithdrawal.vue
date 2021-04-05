@@ -2,7 +2,12 @@
   <CenterColumnWrapper>
     <div class="padding">
       <div class="availablehours">
+        <div class="absense available-flex">
+          <h2>Fraværsdager</h2>
+          <OvertimeVisualizer :barData="holidayData" :targetedSubtract="holidaySubtractions"></OvertimeVisualizer>
+        </div>
         <div class="available available-flex">
+          <h2>Overtidstimer</h2>
           <OvertimeVisualizer :barData="overtimeData" :subtract="hours"></OvertimeVisualizer>
         </div>
       </div>
@@ -126,6 +131,7 @@ export default Vue.extend({
       today: moment().format("YYYY-MM-DD"),
       overtimeData: [],
       holidayData: [],
+      holidaySubtractions: [],
       unsubscribe: () => {}
     };
   },
@@ -187,6 +193,10 @@ export default Vue.extend({
         }
       }
     );
+    await this.$store.dispatch("FETCH_ABSENSEDATA")
+    this.holidayData = (this.$store as Store<State>).getters.getAbsenseOverview;
+    this.holidaySubtractions = (this.$store as Store<State>).getters.getAbsenseOverviewSubtractions;
+
   },
   methods: {
     processTransactions() {
@@ -288,6 +298,10 @@ hr {
 
 .md-table-head-label i:hover {
   background-color: #fff;
+}
+
+.availablehours .absense {
+  margin-bottom: 50px;
 }
 
 .badge {

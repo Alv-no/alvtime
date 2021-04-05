@@ -1,5 +1,5 @@
 {
-  "API_HOST": "http://localhost:8081",
+  "API_HOST": "https://localhost:8082",
   "DATE_FORMAT": "YYYY-MM-DD",
   "HOURS_IN_WORKDAY": 7.5,
   "AUTHORITY": "https://login.microsoftonline.com/",
