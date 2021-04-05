@@ -1,5 +1,5 @@
 image:
-  repository: alvnoas/alvtime-admin
+  repository: acralvtime.azurecr.io/alvtime-admin
 
 configFilePath: data/admin/test-config.json
 
