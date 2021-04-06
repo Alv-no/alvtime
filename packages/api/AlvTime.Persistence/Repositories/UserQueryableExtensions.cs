@@ -22,7 +22,11 @@ namespace AlvTime.Persistence.Repositories
             }
             if (criterias.StartDate != null)
             {
-                query = query.Where(user => user.StartDate == criterias.StartDate);
+                query = query.Where(user => user.StartDate >= criterias.StartDate);
+            }
+            if (criterias.EndDate != null)
+            {
+                query = query.Where(user => user.EndDate <= criterias.EndDate);
             }
 
             return query;

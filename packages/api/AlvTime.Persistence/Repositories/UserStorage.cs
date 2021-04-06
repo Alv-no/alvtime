@@ -38,15 +38,14 @@ namespace AlvTime.Persistence.Repositories
                     Email = u.Email,
                     Id = u.Id,
                     Name = u.Name,
-                    StartDate = u.StartDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                    StartDate = u.StartDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                    EndDate = u.EndDate != null ? ((DateTime)u.EndDate).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : null
                 }).ToList();
         }
 
         public void UpdateUser(CreateUserDto userToBeUpdated)
         {
-            var existingUser = _context.User
-                   .Where(x => x.Id == userToBeUpdated.Id)
-                   .FirstOrDefault();
+            var existingUser = _context.User.FirstOrDefault(u => u.Id == userToBeUpdated.Id);
 
             if (userToBeUpdated.Name != null)
             {
@@ -59,6 +58,10 @@ namespace AlvTime.Persistence.Repositories
             if (userToBeUpdated.StartDate != null)
             {
                 existingUser.StartDate = (DateTime)userToBeUpdated.StartDate;
+            }
+            if (userToBeUpdated.EndDate != null)
+            {
+                existingUser.EndDate = (DateTime)userToBeUpdated.EndDate;
             }
 
             _context.SaveChanges();
