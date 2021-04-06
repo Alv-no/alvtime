@@ -12,8 +12,14 @@ export default function UserTable() {
     { title: "Navn", field: "name", editable: "always" },
     { title: "E-post", field: "email", editable: "always" },
     {
-      title: "Start dato",
+      title: "Startdato",
       field: "startDate",
+      editable: "always",
+      type: "date",
+    },
+    {
+      title: "Sluttdato",
+      field: "endDate",
       editable: "always",
       type: "date",
     },

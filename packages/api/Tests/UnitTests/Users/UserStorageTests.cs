@@ -108,13 +108,15 @@ namespace Tests.UnitTests.Users
                 Id = 1,
                 Email = "someoneElse@alv.no",
                 Name = "SomeoneElse",
-                StartDate = DateTime.UtcNow
+                StartDate = DateTime.UtcNow,
+                EndDate = DateTime.UtcNow.Date
             });
 
             var user = context.User.FirstOrDefault(u => u.Id == 1);
 
             Assert.Equal("someoneElse@alv.no", user.Email);
             Assert.Equal("SomeoneElse", user.Name);
+            Assert.Equal(DateTime.UtcNow.Date, user.EndDate);
         }
     }
 }

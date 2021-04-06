@@ -217,6 +217,10 @@ namespace AlvTime.Persistence.DataBaseModels
                 entity.Property(e => e.StartDate)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("('')");
+
+                entity.Property(e => e.EndDate)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql(null);
             });
 
             modelBuilder.Entity<VDataDump>(entity =>
