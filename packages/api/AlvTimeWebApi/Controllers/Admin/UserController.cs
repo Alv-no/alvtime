@@ -37,7 +37,8 @@ namespace AlvTimeWebApi.Controllers.Admin
                 {
                     Email = user.Email,
                     Name = user.Name,
-                    StartDate = user.StartDate
+                    StartDate = user.StartDate,
+                    EndDate = user.EndDate
                 }));
             }
 

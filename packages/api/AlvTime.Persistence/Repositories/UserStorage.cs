@@ -22,7 +22,8 @@ namespace AlvTime.Persistence.Repositories
             {
                 Name = user.Name,
                 Email = user.Email,
-                StartDate = (DateTime)user.StartDate
+                StartDate = (DateTime)user.StartDate,
+                EndDate = user.EndDate ?? null
             };
 
             _context.User.Add(newUser);
