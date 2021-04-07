@@ -2,16 +2,17 @@
 
 > Welcome to the Alvtime monorepo. Alvtime is the internal timekeeping system for Alv AS. Below you can find a list of the services that make up the system.
 
-## Projects
+## Packages
 
-| Project                             | Type      | Description                  |
-| ----------------------------------- | --------- | ---------------------------- |
-| [Adminpanel](./packages/adminpanel) | Frontend  | Admin panel for Alvtime      |
-| [Frontend](./packages/frontend)     | Frontend  | Enduser frontend for Alvtime |
-| [Slack-app](./packages/slack-app)   | Slack-app | Slack app                    |
-| [Api](./packages/api)               | Backend   | Backend api                  |
-| [Infrastructure](./packages/infrastructure) | Infrastructure | Terraform infrastructure setup |
-| [Shell](./packages/shell) | Terminal CLI | Terminal ClI tool for interacting with Alvtime |
+| Packages                                    | Type           | Description                                    |
+| ------------------------------------------- | -------------- | ---------------------------------------------- |
+| [Adminpanel](./packages/adminpanel)         | Frontend       | Admin panel for Alvtime                        |
+| [Frontend](./packages/frontend)             | Frontend       | Enduser frontend for Alvtime                   |
+| [Slack-app](./packages/slack-app)           | Slack-app      | Slack app                                      |
+| [Api](./packages/api)                       | Backend        | Backend api                                    |
+| [Charts](./packages/charts)                 | Charts         | Helm charts                                    |
+| [Infrastructure](./packages/infrastructure) | Infrastructure | Terraform infrastructure setup                 |
+| [Shell](./packages/shell)                   | Terminal CLI   | Terminal ClI tool for interacting with Alvtime |
 
 ## Development / Contribution
 
