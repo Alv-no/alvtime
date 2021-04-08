@@ -164,8 +164,8 @@ stages:
                       export ARM_SUBSCRIPTION_ID="$(az account show | jq '.id' -r)"
                       export ARM_TENANT_ID="$tenantId"
 
-                      mv $(Pipeline.Workspace)/testPlans/stage1 packages/infrastructure/stage-1/plan
-                      mv $(Pipeline.Workspace)/testPlans/stage2 packages/infrastructure/stage-2/plan
+                      mv $(Pipeline.Workspace)/prodPlans/stage1 packages/infrastructure/stage-1/plan
+                      mv $(Pipeline.Workspace)/prodPlans/stage2 packages/infrastructure/stage-2/plan
 
                       # Run build script for production env
                       source scripts/setup.sh prod --no-input
