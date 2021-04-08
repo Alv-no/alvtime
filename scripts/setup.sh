@@ -21,7 +21,7 @@ fi
 SUBSCRIPTION_NAME="$(az account show | jq '.name' -r)"
 echo "Using $SUBSCRIPTION_NAME subscription"
 if [ "$2" != "--no-input" ]; then
-  echo "Is $SUBSCRIPTION_NAME the correct subscription? (yes/n)"
+  echo "Is $SUBSCRIPTION_NAME the correct subscription? (yes/no)"
   read ANSWER
   if [ "$ANSWER" != 'yes' ]; then
     echo ""
