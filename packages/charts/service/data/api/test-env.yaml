@@ -9,7 +9,7 @@ config:
   AzureAd__Instance: "https://login.microsoftonline.com/"
   AzureAd__IssuerId: "https://login.microsoftonline.com/76749190-4427-4b08-a3e4-161767dd1b73"
   AzureAd__TenantId: "76749190-4427-4b08-a3e4-161767dd1b73"
-  TimeEntryOptions__FlexTask: "22"
+  TimeEntryOptions__FlexTask: "18"
   TimeEntryOptions__PaidHolidayTask: "13"
   TimeEntryOptions__ReportUser: "11"
   TimeEntryOptions__StartOfOvertimeSystem: "2020-11-01"
