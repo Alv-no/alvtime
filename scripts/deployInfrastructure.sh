@@ -27,11 +27,12 @@ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 
 # Use Helm to deploy an NGINX ingress controller
 helm upgrade nginx-ingress ingress-nginx/ingress-nginx \
-    --install \
-    --set controller.replicaCount=2 \
-    --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
-    --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux \
-    --set controller.admissionWebhooks.patch.nodeSelector."beta\.kubernetes\.io/os"=linux
+  --version 3.25.0 \
+  --install \
+  --set controller.replicaCount=2 \
+  --set controller.nodeSelector."beta\.kubernetes\.io/os"=linux \
+  --set defaultBackend.nodeSelector."beta\.kubernetes\.io/os"=linux \
+  --set controller.admissionWebhooks.patch.nodeSelector."beta\.kubernetes\.io/os"=linux
 
 # Add the Jetstack Helm repository
 helm repo add jetstack https://charts.jetstack.io
@@ -41,6 +42,7 @@ helm repo update
 
 # Install the cert-manager Helm chart
 helm upgrade cert-manager jetstack/cert-manager \
+  --version v1.2.0 \
   --install \
   --set installCRDs=true \
   --set nodeSelector."kubernetes\.io/os"=linux \
