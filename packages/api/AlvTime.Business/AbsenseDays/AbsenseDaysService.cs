@@ -28,22 +28,6 @@ namespace AlvTime.Business.AbsenseDays
 
         public AbsenseDaysDto GetAbsenseDays(int userId, int year, DateTime? intervalStart)
         {
-            IEnumerable<TimeEntriesResponseDto> paidVacationEntries = timeEntryStorage.GetTimeEntries(new TimeEntryQuerySearch
-            {
-                FromDateInclusive = new DateTime(year, 01, 01),
-                ToDateInclusive = new DateTime(year, 12, 31),
-                UserId = userId,
-                TaskId = timeEntryOptions.CurrentValue.PaidHolidayTask
-            });
-
-            IEnumerable<TimeEntriesResponseDto> unpaidVacationEntries = timeEntryStorage.GetTimeEntries(new TimeEntryQuerySearch
-            {
-                FromDateInclusive = new DateTime(year, 01, 01),
-                ToDateInclusive = new DateTime(year, 12, 31),
-                UserId = userId,
-                TaskId = timeEntryOptions.CurrentValue.UnpaidHolidayTask
-            });
-
             IEnumerable<TimeEntriesResponseDto> sickLeaveDays = timeEntryStorage.GetTimeEntries(new TimeEntryQuerySearch
             {
                 FromDateInclusive = intervalStart ?? DateTime.Now.AddMonths(-12),
@@ -58,19 +42,9 @@ namespace AlvTime.Business.AbsenseDays
 
             return new AbsenseDaysDto
             {
-                VacationDays = vacationDays,
-                UsedVacationDays = SubtractRedDays(paidVacationEntries.Concat(unpaidVacationEntries), redDays.Dates).Where(d => d.Value > 0).Count(),
                 AbsenseDaysInAYear = sickLeaveGroupSize * sickLeaveGroupAmount,
                 UsedAbsenseDays = CalculateUsedSickDays(sickLeaveDays.Where(day => day.Value > 0)),
-                AlvDaysInAYear = alvDays.Count(),
-                UsedAlvDays = AmountOfUsedAlvDays(alvDays, paidVacationEntries)
             };
-        }
-
-        private IEnumerable<TimeEntriesResponseDto> SubtractRedDays(IEnumerable<TimeEntriesResponseDto> entries, List<DateTime> redDays)
-        {
-            // Get entries that does not overlap with red 
-            return entries.Where(item => !redDays.Any(day => day.DayOfYear == item.Date.DayOfYear));
         }
 
         private IEnumerable<DateTime> GetAlvDays(RedDays redDays, int year) {
@@ -145,6 +119,45 @@ namespace AlvTime.Business.AbsenseDays
             if (a.Year == b.Value.Year && (a.DayOfYear == b.Value.DayOfYear + 1 || a.DayOfYear == b.Value.DayOfYear -1))
                 return true;
             return false;
+        }
+
+        public VacationDaysDTO GetVacationDays(int userId, int year)
+        {
+            IEnumerable<TimeEntriesResponseDto> paidVacationEntries = timeEntryStorage.GetTimeEntries(new TimeEntryQuerySearch
+            {
+                FromDateInclusive = new DateTime(year, 01, 01),
+                ToDateInclusive = new DateTime(year, 12, 31),
+                UserId = userId,
+                TaskId = timeEntryOptions.CurrentValue.PaidHolidayTask
+            });
+
+            IEnumerable<TimeEntriesResponseDto> unpaidVacationEntries = timeEntryStorage.GetTimeEntries(new TimeEntryQuerySearch
+            {
+                FromDateInclusive = new DateTime(year, 01, 01),
+                ToDateInclusive = new DateTime(year, 12, 31),
+                UserId = userId,
+                TaskId = timeEntryOptions.CurrentValue.UnpaidHolidayTask
+            });
+
+            var redDays = new RedDays(year);
+
+            var now = DateTime.Now;
+
+            var vacationTransactions = paidVacationEntries.Concat(unpaidVacationEntries);
+            var alvdays = GetAlvDays(redDays, year);
+
+            var planned = vacationTransactions.Where(item => item.Value > 0 && item.Date.CompareTo(now) > 0);
+            var used = vacationTransactions.Where(item => item.Value > 0 && item.Date.CompareTo(now) <= 0);
+            
+            var usedAlvdays = alvdays.Where(item => item.CompareTo(now) < 0);
+
+            return new VacationDaysDTO {
+                PlannedVacationDays = planned.Count(),
+                UsedVacationDays = used.Count() + usedAlvdays.Count(),
+                AvailableVacationDays = vacationDays + alvdays.Count() - usedAlvdays.Count() - planned.Count() - used.Count(),
+                PlannedTransactions = planned,
+                UsedTransactions = used
+            };
         }
     }
 }
