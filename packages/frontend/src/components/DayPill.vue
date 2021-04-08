@@ -4,6 +4,7 @@
     :class="{ 'day-off': isDayOff, holiday: isHoliday, today: isToday }"
     @mouseover="mouseOver"
     @mouseleave="mouseLeave"
+
   >
     <div v-if="hover || !holiday">{{ text }}</div>
     <div v-if="!hover && holiday" class="holiday-text">{{ text }}</div>

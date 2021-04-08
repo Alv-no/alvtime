@@ -1,7 +1,5 @@
-using System;
-using System.Linq;
 using AlvTime.Business.Options;
-using AlvTime.Persistence.DataBaseModels; 
+using AlvTime.Persistence.DataBaseModels;
 using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.ErrorHandling;

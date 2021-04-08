@@ -77,7 +77,26 @@ namespace AlvTimeWebApi.Controllers
             return Ok(vacationOverview);
         }
 
-        [HttpGet("/user/RemainingAbsenseDays")]
+        [HttpGet("user/VacationOverview")]
+        [Authorize(Policy = "AllowPersonalAccessToken")]
+        public ActionResult<VacationDaysDTO> FetchVacationOverview([FromQuery] int ? year) {
+            if (!year.HasValue) 
+            {
+                year = DateTime.Now.Year;
+            }
+
+            var user = _userRetriever.RetrieveUser();
+
+            try {
+                return Ok(absenseDaysService.GetVacationDays(user.Id, year.Value));
+            } catch (Exception e) {
+                logger.LogError("Could not resolve remaining vacationdays for user {userid} on year {year} with error {error}", user.Id, year, e.Message);
+                throw;
+            }
+        }
+
+
+        [HttpGet("/user/AbsenseDays")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<AbsenseDaysDto> FetchRemainingAbsenseDays(int ?year, DateTime? intervalStart)
         {
@@ -93,7 +112,7 @@ namespace AlvTimeWebApi.Controllers
             }
             catch (Exception e)
             {
-                logger.LogError("Could not resolve remaining vacationdays for user {userid} on year {year} with error {error}", _userRetriever.RetrieveUser().Id, year, e.Message);
+                logger.LogError("Could not resolve absense-days for user {userid} on year {year} with error {error}", _userRetriever.RetrieveUser().Id, year, e.Message);
                 throw;
             }
         }
