@@ -3,7 +3,7 @@
 test -z "$ALVTIME_TOKEN" && \
   echo "ALVTIME_TOKEN must be set"
 
-URL="${ALVTIME_URL:-https://alvtime-api-prod.azurewebsites.net}"
+URL="${ALVTIME_URL:-https://api.alvtime.no}"
 
 function fetch() {
   curl --silent \
@@ -72,5 +72,3 @@ test "register" = "$1"  && \
 # Registers 5 hours to task id 14 on date 2021-02-12
 test "multiregister" = "$1"  && \
   multiTimeEntriesPost $2
-
-exit 0
