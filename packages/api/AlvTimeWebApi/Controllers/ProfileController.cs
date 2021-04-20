@@ -1,4 +1,5 @@
-﻿using AlvTime.Business.Options;
+﻿using System;
+using AlvTime.Business.Options;
 using AlvTime.Business.Users;
 using AlvTime.Persistence.DataBaseModels;
 using AlvTimeWebApi.Controllers.Utils;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace AlvTimeWebApi.Controllers
 {
@@ -28,7 +30,16 @@ namespace AlvTimeWebApi.Controllers
         [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<User> GetUserProfile()
         {
-            return Ok(_userRetriever.RetrieveUser());
+            var user = _userRetriever.RetrieveUser();
+
+            return Ok(new UserResponseDto()
+            {
+                Id = user.Id,
+                StartDate = user.StartDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                EndDate = user.EndDate != null ? ((DateTime)user.EndDate).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : null,
+                Email = user.Email,
+                Name = user.Name
+            });
         }
 
         [HttpGet("UsersReport")]
