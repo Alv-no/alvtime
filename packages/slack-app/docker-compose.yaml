@@ -1,7 +1,7 @@
 version: "3.7"
 
 services:
-  alvtime-slack-app:
+  slack-app:
     tty: true
     build:
       context: .
@@ -10,38 +10,61 @@ services:
       - .:/usr/src/app:delegated
       - /usr/src/app/node_modules/
     links:
-      - dotnet-backend
+      - api
       - mongo
     expose:
       - 3000
+    environment:
+      - AZURE_AD_CLIENT_ID=c9126a83-01c3-43c0-8bb3-298d352d2d7f
+      - AZURE_AD_ACCESS_AS_USER_SCOPE=api://c9126a83-01c3-43c0-8bb3-298d352d2d7f/access_as_user
+      - REPORT_USER_PERSONAL_ACCESS_TOKEN=5801gj90-jf39-5j30-fjk3-480fj39kl409
+      - ADMIN_USERS=U013CDC0VTQ
+      - ALVTIME_API_URI=http://api
+      - DB_ENCRYPTION_KEY=dbencryptionkey
+      - DB_PASSWORD=example
+      - DB_USER=root
+      - PORT=3000
+      - DB_CONNECTION_STRING=mongodb://mongo
+      - HOST
+      - AZURE_AD_CLIENT_SECTRET
+      - SLACK_BOT_TOKEN
+      - SLACK_SIGNING_SECRET
 
   ngrok:
     ports:
       - "0.0.0.0:4040:4040"
     image: wernight/ngrok
     links:
-      - alvtime-slack-app
-    env_file:
-      - .env
+      - slack-app
     environment:
       - NGROK_REGION=eu
-      - NGROK_PORT=alvtime-slack-app:3000
+      - NGROK_PORT=slack-app:3000
+      - NGROK_AUTH
+      - NGROK_HOSTNAME
 
-  dotnet-backend:
-    image: alvnoas/alvtime-web-api:latest
+  api:
+    build:
+      context: ../api
     links:
-      - mssql-db
+      - db
     environment:
-      - ConnectionStrings__AlvTime_db=Data Source=tcp:mssql-db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32
+      - ConnectionStrings__AlvTime_db=Data Source=tcp:db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32
+      - AzureAd__Domain=api://c9126a83-01c3-43c0-8bb3-298d352d2d7f
+      - AzureAd__ClientId=c9126a83-01c3-43c0-8bb3-298d352d2d7f
+      - AdminGroup=5850c192-c101-4b64-9c45-cbbf73542805
+      - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "8080:80"
     expose:
       - "80"
 
-  mssql-db:
-    image: alvnoas/alvtime-database:latest
+  db:
+    build:
+      context: ../api/AlvTime.Persistence/Database
     ports:
       - "1433:1433"
+    expose:
+      - "1433"
     command:
       - /bin/bash
       - -c
@@ -56,8 +79,6 @@ services:
     restart: always
     expose:
       - "27017"
-    env_file:
-      - .env
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=example
@@ -67,8 +88,6 @@ services:
     restart: always
     ports:
       - 8081:8081
-    env_file:
-      - .env
     environment:
       - ME_CONFIG_MONGODB_ADMINUSERNAME=root
       - ME_CONFIG_MONGODB_ADMINPASSWORD=example
