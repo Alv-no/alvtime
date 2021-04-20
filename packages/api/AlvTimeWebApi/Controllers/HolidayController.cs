@@ -28,7 +28,6 @@ namespace AlvTimeWebApi.Controllers
         }
 
         [HttpGet("Holidays")]
-        [Authorize]
         public ActionResult<IEnumerable<string>> FetchRedDays([FromQuery] int year)
         {
             var redDays = new RedDays(year);
