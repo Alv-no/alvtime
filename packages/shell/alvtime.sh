@@ -72,3 +72,21 @@ test "register" = "$1"  && \
 # Registers 5 hours to task id 14 on date 2021-02-12
 test "multiregister" = "$1"  && \
   multiTimeEntriesPost $2
+
+test "ping" = "$1"  && \
+  fetch "$URL/api/ping"
+
+test "profile" = "$1"  && \
+  fetch "$URL/api/user/profile"
+
+test "availableHours" = "$1"  && \
+  fetch "$URL/api/user/availableHours"
+
+test "flexedHours" = "$1"  && \
+  fetch "$URL/api/user/flexedHours"
+
+test "payouts" = "$1"  && \
+  fetch "$URL/api/user/payouts"
+
+test "holidays" = "$1"  && \
+  fetch "$URL/api/holidays"
