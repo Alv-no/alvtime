@@ -41,4 +41,10 @@ helm upgrade admin service \
   --set image.tag="$SHORT_HASH" \
   --values "service/data/admin/$ENV-env.yaml" \
 
+sleep 20
+curl "https://api.$HOSTNAME/api/ping"
+curl "https://slack-app.$HOSTNAME"
+curl "https://admin.$HOSTNAME"
+curl "https://$HOSTNAME"
+
 cd ../..
