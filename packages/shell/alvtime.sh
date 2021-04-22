@@ -43,6 +43,13 @@ function multiTimeEntriesPost() {
     "[${OBJECTS:1}]"
 }
 
+function holidays() {
+  local CURRENT_YEAR
+  CURRENT_YEAR=$(date +%Y)
+  local YEAR=${1:-"$CURRENT_YEAR"}
+  fetch "$URL/api/holidays?year=$YEAR"
+}
+
 test "tasks" = "$1"  && \
   fetch "$URL/api/user/tasks"
 
@@ -89,4 +96,4 @@ test "payouts" = "$1"  && \
   fetch "$URL/api/user/payouts"
 
 test "holidays" = "$1"  && \
-  fetch "$URL/api/holidays"
+  holidays "$2"
