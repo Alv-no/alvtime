@@ -21,7 +21,8 @@ function post() {
 }
 
 function timeEntriesPost() {
-  local TODAY=$(date +'%Y-%m-%d')
+  local TODAY
+  TODAY=$(date +'%Y-%m-%d')
   local DATE=${3:-"$TODAY"}
   post "$URL/api/user/TimeEntries" \
     "[{\"date\": \"$DATE\", \"value\": $2, \"taskId\": $1 }]"
@@ -35,7 +36,7 @@ function multiTimeEntriesPost() {
   # Read each line of file or stdin
   while IFS= read -r line; do
     # Create array of each value in the line
-    local args=( $line )
+    local args=( "$line" )
     OBJECTS="$OBJECTS,{\"date\": \"${args[0]}\", \"value\": ${args[2]}, \"taskId\": ${args[1]} }"
   done < <(cat -- "$file")
 
@@ -63,7 +64,7 @@ test "hours" = "$1"  && \
 # ./alvtime.sh register 14 3.5 2021-02-11
 # Registers 3.5 hours to task id 14 on date 2021-02-11
 test "register" = "$1"  && \
-  timeEntriesPost $2 $3 $4
+  timeEntriesPost "$2" "$3" "$4"
 
 # Example:
 # ./alvtime.sh multiregister data.txt
@@ -78,7 +79,7 @@ test "register" = "$1"  && \
 # Registers 3 hours to task id 14 on date 2021-02-11
 # Registers 5 hours to task id 14 on date 2021-02-12
 test "multiregister" = "$1"  && \
-  multiTimeEntriesPost $2
+  multiTimeEntriesPost "$2"
 
 test "ping" = "$1"  && \
   fetch "$URL/api/ping"
