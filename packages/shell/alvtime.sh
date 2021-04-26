@@ -34,10 +34,10 @@ function multiTimeEntriesPost() {
   local OBJECTS=''
 
   # Read each line of file or stdin
-  while IFS= read -r line; do
+  while IFS= read -r LINE; do
     # Create array of each value in the line
-    local args=( "$line" )
-    OBJECTS="$OBJECTS,{\"date\": \"${args[0]}\", \"value\": ${args[2]}, \"taskId\": ${args[1]} }"
+    read -ra ARGS <<< "$LINE"
+    OBJECTS="$OBJECTS,{\"date\": \"${ARGS[0]}\", \"value\": ${ARGS[2]}, \"taskId\": ${ARGS[1]} }"
   done < <(cat -- "$file")
 
   post "$URL/api/user/TimeEntries" \
