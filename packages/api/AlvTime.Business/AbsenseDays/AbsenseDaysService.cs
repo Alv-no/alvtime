@@ -47,22 +47,25 @@ namespace AlvTime.Business.AbsenseDays
             };
         }
 
-        private IEnumerable<DateTime> GetAlvDays(RedDays redDays, int year) {
+        private IEnumerable<DateTime> GetAlvDays(RedDays redDays, int year)
+        {
             // Get the amount of days in romjula that is not a wekkend day
             // The 3 represents the three days of easter
-            return redDays.Dates.Where(days => days.Month == 12 && 
-                    days.Day > 26 && 
-                    days.Day < 31 && 
-                    days.DayOfWeek != DayOfWeek.Saturday && 
-                    days.DayOfWeek != DayOfWeek.Sunday).Concat(new List<DateTime> {redDays.GetMondayInEaster(year), redDays.GetTuesdayInEaster(year), redDays.GetWednesdayInEaster(year)});
+            return redDays.Dates.Where(days => days.Month == 12 &&
+                    days.Day > 26 &&
+                    days.Day < 31 &&
+                    days.DayOfWeek != DayOfWeek.Saturday &&
+                    days.DayOfWeek != DayOfWeek.Sunday).Concat(new List<DateTime> { redDays.GetMondayInEaster(year), redDays.GetTuesdayInEaster(year), redDays.GetWednesdayInEaster(year) });
         }
 
-        private int AmountOfUsedAlvDays(IEnumerable<DateTime> alvDays, IEnumerable<TimeEntriesResponseDto> days) {
+        private int AmountOfUsedAlvDays(IEnumerable<DateTime> alvDays, IEnumerable<TimeEntriesResponseDto> days)
+        {
             return days.Count(day => alvDays.Any(alvDay => alvDay.DayOfYear == day.Date.DayOfYear));
         }
 
 
-        private int CalculateUsedSickDays(IEnumerable<TimeEntriesResponseDto> entries) {
+        private int CalculateUsedSickDays(IEnumerable<TimeEntriesResponseDto> entries)
+        {
 
             // Group by coherence
             var groups = FindGroupedSickDays(entries.OrderBy(en => en.Date));
@@ -116,13 +119,14 @@ namespace AlvTime.Business.AbsenseDays
             if (!b.HasValue)
                 return false;
 
-            if (a.Year == b.Value.Year && (a.DayOfYear == b.Value.DayOfYear + 1 || a.DayOfYear == b.Value.DayOfYear -1))
+            if (a.Year == b.Value.Year && (a.DayOfYear == b.Value.DayOfYear + 1 || a.DayOfYear == b.Value.DayOfYear - 1))
                 return true;
             return false;
         }
 
-        public VacationDaysDTO GetVacationDays(int userId, int year)
+        public VacationDaysDTO GetVacationDays(int userId, int year, int month, int day)
         {
+
             IEnumerable<TimeEntriesResponseDto> paidVacationEntries = timeEntryStorage.GetTimeEntries(new TimeEntryQuerySearch
             {
                 FromDateInclusive = new DateTime(year, 01, 01),
@@ -141,20 +145,21 @@ namespace AlvTime.Business.AbsenseDays
 
             var redDays = new RedDays(year);
 
-            var now = DateTime.Now;
+            var now = new DateTime(year, month, day);
 
             var vacationTransactions = paidVacationEntries.Concat(unpaidVacationEntries);
             var alvdays = GetAlvDays(redDays, year);
 
             var planned = vacationTransactions.Where(item => item.Value > 0 && item.Date.CompareTo(now) > 0);
             var used = vacationTransactions.Where(item => item.Value > 0 && item.Date.CompareTo(now) <= 0);
-            
+
             var usedAlvdays = alvdays.Where(item => item.CompareTo(now) < 0);
 
-            return new VacationDaysDTO {
-                PlannedVacationDays = planned.Count(),
+            return new VacationDaysDTO
+            {
+                PlannedVacationDays = planned.Count() + alvdays.Count() - usedAlvdays.Count(),
                 UsedVacationDays = used.Count() + usedAlvdays.Count(),
-                AvailableVacationDays = vacationDays + alvdays.Count() - usedAlvdays.Count() - planned.Count() - used.Count(),
+                AvailableVacationDays = vacationDays - planned.Count() - used.Count(),
                 PlannedTransactions = planned,
                 UsedTransactions = used
             };

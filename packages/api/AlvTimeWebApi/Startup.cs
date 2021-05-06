@@ -18,11 +18,11 @@ namespace AlvTimeWebApi
     {
         public Startup(IHostEnvironment env)
         {
-             var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables();
+            var builder = new ConfigurationBuilder()
+               .SetBasePath(env.ContentRootPath)
+               .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+               .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+               .AddEnvironmentVariables();
 
             Configuration = builder.Build();
         }
@@ -66,12 +66,13 @@ namespace AlvTimeWebApi
             if (!env.IsDevelopment())
             {
                 app.UseHsts(); // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-            } else
+                app.UseHttpsRedirection();
+            }
+            else
             {
                 app.UseCors(DevCorsPolicyName);
             }
 
-            app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseErrorHandling(env);
 
@@ -93,6 +94,7 @@ namespace AlvTimeWebApi
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
+
         }
     }
 }
