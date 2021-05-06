@@ -7,10 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
-using System.Linq;
 using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
 using AlvTime.Business.AbsenseDays;
 using Microsoft.Extensions.Logging;
 
@@ -84,26 +81,40 @@ namespace AlvTimeWebApi.Controllers
 
         [HttpGet("user/VacationOverview")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
-        public ActionResult<VacationDaysDTO> FetchVacationOverview([FromQuery] int ? year) {
-            if (!year.HasValue) 
+        public ActionResult<VacationDaysDTO> FetchVacationOverview([FromQuery] int? year, int? month, int? day)
+        {
+            if (!year.HasValue)
             {
                 year = DateTime.Now.Year;
             }
 
+            if (!month.HasValue)
+            {
+                month = DateTime.Now.Month;
+            }
+
+            if (!day.HasValue)
+            {
+                day = DateTime.Now.Day;
+            }
+
             var user = _userRetriever.RetrieveUser();
 
-            try {
-                return Ok(absenseDaysService.GetVacationDays(user.Id, year.Value));
-            } catch (Exception e) {
+            try
+            {
+                return Ok(absenseDaysService.GetVacationDays(user.Id, year.Value, month.Value, day.Value));
+            }
+            catch (Exception e)
+            {
                 logger.LogError("Could not resolve remaining vacationdays for user {userid} on year {year} with error {error}", user.Id, year, e.Message);
                 throw;
             }
         }
 
 
-        [HttpGet("/user/AbsenseDays")]
+        [HttpGet("user/AbsenseOverview")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
-        public ActionResult<AbsenseDaysDto> FetchRemainingAbsenseDays(int ?year, DateTime? intervalStart)
+        public ActionResult<AbsenseDaysDto> FetchRemainingAbsenseDays(int? year, DateTime? intervalStart)
         {
 
             if (!year.HasValue)
