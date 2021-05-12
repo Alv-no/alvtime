@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using AlvTime.Business.Holidays;
 
 namespace AlvTimeWebApi.Controllers
 {
@@ -17,28 +17,26 @@ namespace AlvTimeWebApi.Controllers
     public class HolidayController : Controller
     {
         private readonly IOptionsMonitor<TimeEntryOptions> _timeEntryOptions;
-        private RetrieveUsers _userRetriever;
+        private readonly RetrieveUsers _userRetriever;
         private readonly ITimeEntryStorage _timeEntryStorage;
+        private readonly IRedDaysService _redDaysService;
 
-        public HolidayController(RetrieveUsers userRetriever, IOptionsMonitor<TimeEntryOptions> timeEntryOptions, ITimeEntryStorage timeEntryStorage)
+        public HolidayController(
+            RetrieveUsers userRetriever, 
+            IOptionsMonitor<TimeEntryOptions> timeEntryOptions, 
+            ITimeEntryStorage timeEntryStorage,
+            IRedDaysService redDaysService)
         {
             _userRetriever = userRetriever;
             _timeEntryOptions = timeEntryOptions;
             _timeEntryStorage = timeEntryStorage;
+            _redDaysService = redDaysService;
         }
 
         [HttpGet("Holidays")]
-        public ActionResult<IEnumerable<string>> FetchRedDays([FromQuery] int year)
+        public ActionResult<IEnumerable<string>> FetchRedDays(int year = 0, int fromYearInclusive = 0, int toYearInclusive = 0)
         {
-            var redDays = new RedDays(year);
-            var dates = new List<string>();
-
-            foreach (var date in redDays.Dates)
-            {
-                dates.Add(date.ToDateOnly());
-            }
-
-            return Ok(dates);
+            return Ok(_redDaysService.GetRedDays(year, fromYearInclusive, toYearInclusive));
         }
 
         [HttpGet("user/UsedVacation")]

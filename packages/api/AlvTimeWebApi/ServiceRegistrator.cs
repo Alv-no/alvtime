@@ -6,6 +6,7 @@ using AlvTime.Business.CompensationRate;
 using AlvTime.Business.Customers;
 using AlvTime.Business.Economy;
 using AlvTime.Business.FlexiHours;
+using AlvTime.Business.Holidays;
 using AlvTime.Business.HourRates;
 using AlvTime.Business.Projects;
 using AlvTime.Business.Tasks;
@@ -46,6 +47,7 @@ namespace AlvTimeWebApi
             services.AddScoped<IAccessTokenStorage, AccessTokenStorage>();
             services.AddScoped<IAssociatedTaskStorage, AssociatedTaskStorage>();
             services.AddScoped<ICompensationRateStorage, CompensationRateStorage>();
+            services.AddScoped<IRedDaysService, RedDaysService>();
         }
     }
 }
