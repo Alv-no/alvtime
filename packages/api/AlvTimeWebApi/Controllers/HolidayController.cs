@@ -33,10 +33,17 @@ namespace AlvTimeWebApi.Controllers
             _redDaysService = redDaysService;
         }
 
+        [Obsolete("Use GET Holidays/Years")]
         [HttpGet("Holidays")]
-        public ActionResult<IEnumerable<string>> FetchRedDays(int year = 0, int fromYearInclusive = 0, int toYearInclusive = 0)
+        public ActionResult<IEnumerable<string>> FetchRedDays(int year)
         {
-            return Ok(_redDaysService.GetRedDays(year, fromYearInclusive, toYearInclusive));
+            return Ok(_redDaysService.GetRedDaysFromYear(year));
+        }
+
+        [HttpGet("Holidays/Years")]
+        public ActionResult<IEnumerable<string>> FetchRedDaysFromPeriod(int fromYearInclusive, int toYearInclusive)
+        {
+            return Ok(_redDaysService.GetRedDaysFromYears(fromYearInclusive, toYearInclusive));
         }
 
         [HttpGet("user/UsedVacation")]
