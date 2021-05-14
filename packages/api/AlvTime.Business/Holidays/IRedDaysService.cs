@@ -4,6 +4,7 @@ namespace AlvTime.Business.Holidays
 {
     public interface IRedDaysService
     {
-        List<string> GetRedDays(int year, int fromYearInclusive, int toYearInclusive);
+        List<string> GetRedDaysFromYear(int year);
+        List<string> GetRedDaysFromYears(int fromYearInclusive, int toYearInclusive);
     }
 }

@@ -6,22 +6,24 @@ namespace AlvTime.Business.Holidays
 {
     public class RedDaysService : IRedDaysService
     {
-        public List<string> GetRedDays(int year, int fromYearInclusive, int toYearInclusive)
+        public List<string> GetRedDaysFromYear(int year)
         {
             var dates = new List<string>();
 
-            if (year != 0)
-            {
                 var redDays = new RedDays(year);
 
                 foreach (var date in redDays.Dates)
                 {
                     dates.Add(date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
                 }
-            }
 
-            if (fromYearInclusive != 0 && toYearInclusive != 0)
-            {
+            return dates;
+        }
+
+        public List<string> GetRedDaysFromYears(int fromYearInclusive, int toYearInclusive)
+        {
+            var dates = new List<string>();
+
                 var yearsToInclude = toYearInclusive - fromYearInclusive + 1;
                 var years = Enumerable.Range(fromYearInclusive, yearsToInclude);
 
@@ -33,7 +35,6 @@ namespace AlvTime.Business.Holidays
                     {
                         dates.Add(date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
                     }
-                }
             }
 
             return dates;
