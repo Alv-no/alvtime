@@ -1,4 +1,5 @@
 ﻿using AlvTime.Business;
+using AlvTime.Business.AbsenseDays;
 using AlvTime.Business.AccessToken;
 using AlvTime.Business.AccessToken.PersonalAccessToken;
 using AlvTime.Business.AssociatedTask;
@@ -48,6 +49,7 @@ namespace AlvTimeWebApi
             services.AddScoped<IAssociatedTaskStorage, AssociatedTaskStorage>();
             services.AddScoped<ICompensationRateStorage, CompensationRateStorage>();
             services.AddScoped<IRedDaysService, RedDaysService>();
+            services.AddScoped<IAbsenseDaysService, AbsenseDaysService>();
         }
     }
 }
