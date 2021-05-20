@@ -156,8 +156,8 @@ namespace Tests.UnitTests.AbsenseDaysStorage
             var holidayOverview = absenseService.GetVacationDays(1, 2020, 2, 1);
 
             Assert.Equal(6, holidayOverview.UsedVacationDays);
-            Assert.Equal(4, holidayOverview.PlannedVacationDays);
-            Assert.Equal(21, holidayOverview.AvailableVacationDays);
+            Assert.Equal(10, holidayOverview.PlannedVacationDays);
+            Assert.Equal(15, holidayOverview.AvailableVacationDays);
         }
 
         [Fact]
@@ -180,8 +180,8 @@ namespace Tests.UnitTests.AbsenseDaysStorage
             var holidayOverview = absenseService.GetVacationDays(1, 2020, 6, 1);
 
             Assert.Equal(9, holidayOverview.UsedVacationDays);
-            Assert.Equal(4, holidayOverview.PlannedVacationDays);
-            Assert.Equal(18, holidayOverview.AvailableVacationDays);
+            Assert.Equal(7, holidayOverview.PlannedVacationDays);
+            Assert.Equal(15, holidayOverview.AvailableVacationDays);
         }
     }
 }
