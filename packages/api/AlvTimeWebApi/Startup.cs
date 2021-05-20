@@ -59,7 +59,7 @@ namespace AlvTimeWebApi
             }
             else
             {
-                app.UseCors(DevCorsPolicyName);
+                app.UseCors(CorsExtensions.DevCorsPolicyName);
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
