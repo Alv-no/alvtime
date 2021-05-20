@@ -61,7 +61,6 @@ const getters = {
         priority: 3,
       },
     ];
-    //return state.absenseState.absenseOverview;
   },
 };
 

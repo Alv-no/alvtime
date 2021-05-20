@@ -19,7 +19,6 @@
 </template>
 
 <script lang="ts">
-
 export interface OvertimeData {
   key: string;
   name: string;
@@ -45,17 +44,17 @@ export default Vue.extend({
     },
     barData: {
       default: () => [],
-      type: Array as () => OvertimeData[]
+      type: Array as () => OvertimeData[],
     },
     targetedSubtract: {
       default: () => [],
-      type: Array as () => TargetedSubtract[]
-    }
+      type: Array as () => TargetedSubtract[],
+    },
   },
   data() {
     return {
       unsubscribe: () => {},
-      targetSubtract: [] as TargetedSubtract[]
+      targetSubtract: [] as TargetedSubtract[],
     };
   },
   computed: {
@@ -72,7 +71,7 @@ export default Vue.extend({
   },
   mounted() {
     setTimeout(() => {
-      this.targetSubtract= this.targetedSubtract as TargetedSubtract[];
+      this.targetSubtract = this.targetedSubtract as TargetedSubtract[];
     }, 750);
   },
   methods: {
@@ -113,15 +112,10 @@ export default Vue.extend({
       targetValues: TargetedSubtract[]
     ): OvertimeData[] {
       const newItems: OvertimeData[] = [];
-      var sortedConfig = colorConfigs
-        .sort((a, b) => b.priority - a.priority)
-        .map(item => {
-          return { ...item };
-        });
+      var sortedConfig = colorConfigs.sort((a, b) => b.priority - a.priority);
 
       // Subtract by targetedValues
       for (var targetValue of targetValues) {
-        console.log(targetValue);
         for (var config of sortedConfig) {
           if (targetValue.key == config.key) {
             config.value -= targetValue.value;
