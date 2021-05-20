@@ -1,0 +1,20 @@
+image:
+  repository: acralvtime.azurecr.io/alvtime-web-api
+
+config:
+  AdminGroup: "5850c192-c101-4b64-9c45-cbbf73542805"
+  ASPNETCORE_ENVIRONMENT: "Staging"
+  AzureAd__ClientId: "c9126a83-01c3-43c0-8bb3-298d352d2d7f"
+  AzureAd__Domain: "api://c9126a83-01c3-43c0-8bb3-298d352d2d7f"
+  AzureAd__Instance: "https://login.microsoftonline.com/"
+  AzureAd__IssuerId: "https://login.microsoftonline.com/76749190-4427-4b08-a3e4-161767dd1b73"
+  AzureAd__TenantId: "76749190-4427-4b08-a3e4-161767dd1b73"
+  TimeEntryOptions__FlexTask: "18"
+  TimeEntryOptions__PaidHolidayTask: "13"
+  TimeEntryOptions__ReportUser: "11"
+  TimeEntryOptions__StartOfOvertimeSystem: "2020-11-01"
+  TimeEntryOptions__UnpaidHolidayTask: "19"
+  AllowedOrigins: "https://test-alvtime.no,https://www.test-alvtime.no,https://admin.test-alvtime.no"
+
+hosts:
+  - api.test-alvtime.no

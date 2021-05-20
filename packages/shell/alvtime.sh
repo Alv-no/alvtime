@@ -3,7 +3,7 @@
 test -z "$ALVTIME_TOKEN" && \
   echo "ALVTIME_TOKEN must be set"
 
-URL="${ALVTIME_URL:-https://alvtime-api-prod.azurewebsites.net}"
+URL="${ALVTIME_URL:-https://api.alvtime.no}"
 
 function fetch() {
   curl --silent \
@@ -21,7 +21,8 @@ function post() {
 }
 
 function timeEntriesPost() {
-  local TODAY=$(date +'%Y-%m-%d')
+  local TODAY
+  TODAY=$(date +'%Y-%m-%d')
   local DATE=${3:-"$TODAY"}
   post "$URL/api/user/TimeEntries" \
     "[{\"date\": \"$DATE\", \"value\": $2, \"taskId\": $1 }]"
@@ -33,14 +34,21 @@ function multiTimeEntriesPost() {
   local OBJECTS=''
 
   # Read each line of file or stdin
-  while IFS= read -r line; do
+  while IFS= read -r LINE; do
     # Create array of each value in the line
-    local args=( $line )
-    OBJECTS="$OBJECTS,{\"date\": \"${args[0]}\", \"value\": ${args[2]}, \"taskId\": ${args[1]} }"
+    read -ra ARGS <<< "$LINE"
+    OBJECTS="$OBJECTS,{\"date\": \"${ARGS[0]}\", \"value\": ${ARGS[2]}, \"taskId\": ${ARGS[1]} }"
   done < <(cat -- "$file")
 
   post "$URL/api/user/TimeEntries" \
     "[${OBJECTS:1}]"
+}
+
+function holidays() {
+  local CURRENT_YEAR
+  CURRENT_YEAR=$(date +%Y)
+  local YEAR=${1:-"$CURRENT_YEAR"}
+  fetch "$URL/api/holidays?year=$YEAR"
 }
 
 test "tasks" = "$1"  && \
@@ -56,7 +64,7 @@ test "hours" = "$1"  && \
 # ./alvtime.sh register 14 3.5 2021-02-11
 # Registers 3.5 hours to task id 14 on date 2021-02-11
 test "register" = "$1"  && \
-  timeEntriesPost $2 $3 $4
+  timeEntriesPost "$2" "$3" "$4"
 
 # Example:
 # ./alvtime.sh multiregister data.txt
@@ -71,6 +79,22 @@ test "register" = "$1"  && \
 # Registers 3 hours to task id 14 on date 2021-02-11
 # Registers 5 hours to task id 14 on date 2021-02-12
 test "multiregister" = "$1"  && \
-  multiTimeEntriesPost $2
+  multiTimeEntriesPost "$2"
 
-exit 0
+test "ping" = "$1"  && \
+  fetch "$URL/api/ping"
+
+test "profile" = "$1"  && \
+  fetch "$URL/api/user/profile"
+
+test "availableHours" = "$1"  && \
+  fetch "$URL/api/user/availableHours"
+
+test "flexedHours" = "$1"  && \
+  fetch "$URL/api/user/flexedHours"
+
+test "payouts" = "$1"  && \
+  fetch "$URL/api/user/payouts"
+
+test "holidays" = "$1"  && \
+  holidays "$2"

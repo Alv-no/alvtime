@@ -37,7 +37,8 @@ namespace AlvTimeWebApi.Controllers.Admin
                 {
                     Email = user.Email,
                     Name = user.Name,
-                    StartDate = user.StartDate
+                    StartDate = user.StartDate,
+                    EndDate = user.EndDate
                 }));
             }
 
@@ -51,13 +52,7 @@ namespace AlvTimeWebApi.Controllers.Admin
             List<UserResponseDto> response = new List<UserResponseDto>();
             foreach (var user in usersToBeUpdated)
             {
-                response.Add(_creator.UpdateUser(new CreateUserDto
-                {
-                    Id = user.Id,
-                    Email = user.Email,
-                    Name = user.Name,
-                    StartDate = user.StartDate
-                }));
+                response.Add(_creator.UpdateUser(user));
             }
 
             return Ok(response);

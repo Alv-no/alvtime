@@ -18,6 +18,7 @@ namespace AlvTime.Persistence.DataBaseModels
         public string Name { get; set; }
         public string Email { get; set; }
         public DateTime StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         public virtual ICollection<AccessTokens> AccessTokens { get; set; }
         public virtual ICollection<AssociatedTasks> AssociatedTasks { get; set; }

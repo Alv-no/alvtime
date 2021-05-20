@@ -6,122 +6,168 @@ trigger:
 pr: none
 
 pool:
-  vmImage: ubuntu-16.04
-
-variables:
-  subscription: Dev-Alv-Subscription-Azure-Service-Connection
+  vmImage: ubuntu-18.04
 
 stages:
-  - stage: build
-    displayName: Build & Test
+  - stage: testbuild
+    displayName: Test environment
     jobs:
-      - job: githash
-        displayName: Create hash
+      - job: testbuild
+        displayName: Plan and build
         steps:
-          - task: Bash@3
-            name: createHash
-            displayName: Create hash
+          - checkout: self
+            fetchDepth: 1
+
+          - template: installDependencies.yaml
+
+          - task: AzureCLI@2
+            displayName: Run build.sh test ---no-input
             inputs:
-              targetType: inline
-              script: |
-                ## At least 7 digits, more if needed for uniqueness
-                SHORT_HASH=`git rev-parse --short=7 HEAD`
-                echo "Short hash set to $SHORT_HASH"
-                echo "##vso[task.setvariable variable=git-short-hash;isOutput=true]$SHORT_HASH"
+              azureSubscription: Dev-Alv-Subscription-Azure-Service-Connection
+              addSpnToEnvironment: true
+              workingDirectory: "$(System.DefaultWorkingDirectory)"
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                # Authenticate terraform
+                export ARM_CLIENT_ID="$servicePrincipalId"
+                export ARM_CLIENT_SECRET="$servicePrincipalKey"
+                export ARM_SUBSCRIPTION_ID="$(az account show | jq '.id' -r)"
+                export ARM_TENANT_ID="$tenantId"
 
-      - job: infrastructure
-        displayName: Terraform Config
-        variables:
-          - group: alvtime-test
-          - name: env
-            value: test
-          - name: tf-state-storage-account
-            value: terraformstatealvtest
-        steps:
-          - template: ../../packages/infrastructure/build-steps.yaml
+                # Authenticate Acure container registry
+                docker login acralvtime.azurecr.io \
+                  --username $servicePrincipalId \
+                  --password $servicePrincipalKey
 
-      - job: frontend
-        displayName: Frontend
-        dependsOn: githash
-        variables:
-          git-short-hash: $[ dependencies.githash.outputs['createHash.git-short-hash'] ]
-        steps:
-          - template: ../../packages/frontend/build-steps.yaml
+                # Run scripts to build for test environment
+                source scripts/setup.sh test --no-input
+                source scripts/planInfrastructure.sh
 
-      - job: adminpanel
-        displayName: Adminpanel
-        dependsOn: githash
-        variables:
-          git-short-hash: $[ dependencies.githash.outputs['createHash.git-short-hash'] ]
-        steps:
-          - template: ../../packages/adminpanel/build-steps.yaml
+                mkdir $(Build.ArtifactStagingDirectory)/testPlans
+                cp packages/infrastructure/stage-1/plan $(Build.ArtifactStagingDirectory)/testPlans/stage1
+                cp packages/infrastructure/stage-2/plan $(Build.ArtifactStagingDirectory)/testPlans/stage2
 
-      - job: api
-        displayName: API
-        dependsOn: githash
-        variables:
-          git-short-hash: $[ dependencies.githash.outputs['createHash.git-short-hash'] ]
-        steps:
-          - template: ../../packages/api/build-steps.yaml
+                source scripts/buildServices.sh
+                source scripts/pushServices.sh
 
-      - job: slack
-        displayName: Slack API
-        dependsOn: githash
-        variables:
-          git-short-hash: $[ dependencies.githash.outputs['createHash.git-short-hash'] ]
-        steps:
-          - template: ../../packages/slack-app/build-steps.yaml
-
-      - job: chart
-        displayName: Helm Chart
-        dependsOn: githash
-        variables:
-          git-short-hash: $[ dependencies.githash.outputs['createHash.git-short-hash'] ]
-        steps:
-          - template: ../../packages/chart/build-steps.yaml
+          - task: PublishBuildArtifacts@1
+            displayName: Publish test plans
+            inputs:
+              pathToPublish: "$(Build.ArtifactStagingDirectory)/testPlans"
+              ArtifactName: testPlans
 
   - stage: test
-    displayName: Deploy to Test
+    displayName: Test environment
     jobs:
       - deployment: test
-        variables:
-          - group: alvtime-test
-          - name: env
-            value: test
-          - name: tf-state-storage-account
-            value: terraformstatealvtest
-          - name: subscription
-            value: Dev-Alv-Subscription-Azure-Service-Connection
-          - name: git-short-hash
-            value: $[ stageDependencies.build.githash.outputs['createHash.git-short-hash'] ]
-        displayName: Test
+        displayName: Deploy
         environment: Test
         strategy:
           runOnce:
             deploy:
               steps:
-                - template: ../../packages/infrastructure/deploy-steps.yaml
-                - template: ../../packages/chart/deploy-steps.yaml
+                - checkout: self
+                  fetchDepth: 1
+
+                - template: installDependencies.yaml
+
+                - task: AzureCLI@2
+                  displayName: Run deployment scripts
+                  inputs:
+                    azureSubscription: Dev-Alv-Subscription-Azure-Service-Connection
+                    addSpnToEnvironment: true
+                    workingDirectory: "$(System.DefaultWorkingDirectory)"
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      # Authenticate terraform
+                      export ARM_CLIENT_ID="$servicePrincipalId"
+                      export ARM_CLIENT_SECRET="$servicePrincipalKey"
+                      export ARM_SUBSCRIPTION_ID="$(az account show | jq '.id' -r)"
+                      export ARM_TENANT_ID="$tenantId"
+
+                      mv $(Pipeline.Workspace)/testPlans/stage1 packages/infrastructure/stage-1/plan
+                      mv $(Pipeline.Workspace)/testPlans/stage2 packages/infrastructure/stage-2/plan
+
+                      source scripts/setup.sh test --no-input
+                      source scripts/deployInfrastructure.sh
+                      source scripts/deployServices.sh
+
+  - stage: prodbuild
+    displayName: Prod environment
+    jobs:
+      - job: prodbuild
+        displayName: Plan infrastructure
+        steps:
+          - checkout: self
+            fetchDepth: 1
+
+          - template: installDependencies.yaml
+
+          - task: AzureCLI@2
+            displayName: Run build.sh prod ---no-input
+            inputs:
+              azureSubscription: Pay-As-You-Go (f9b4e4d2-39a5-4c35-876c-303dc3de03d2)
+              addSpnToEnvironment: true
+              workingDirectory: "$(System.DefaultWorkingDirectory)"
+              scriptType: bash
+              scriptLocation: inlineScript
+              inlineScript: |
+                # Authenticate terraform
+                export ARM_CLIENT_ID="$servicePrincipalId"
+                export ARM_CLIENT_SECRET="$servicePrincipalKey"
+                export ARM_SUBSCRIPTION_ID="$(az account show | jq '.id' -r)"
+                export ARM_TENANT_ID="$tenantId"
+
+                # Run build script for test env
+                source scripts/setup.sh prod --no-input
+                source scripts/planInfrastructure.sh
+
+                mkdir $(Build.ArtifactStagingDirectory)/prodPlans
+                cp packages/infrastructure/stage-1/plan $(Build.ArtifactStagingDirectory)/prodPlans/stage1
+                cp packages/infrastructure/stage-2/plan $(Build.ArtifactStagingDirectory)/prodPlans/stage2
+
+          - task: PublishBuildArtifacts@1
+            displayName: Publish production plans
+            inputs:
+              pathToPublish: "$(Build.ArtifactStagingDirectory)/prodPlans"
+              ArtifactName: prodPlans
 
   - stage: prod
-    displayName: Deploy to Production
+    displayName: Production environment
     jobs:
       - deployment: prod
-        variables:
-          - group: alvtime-prod
-          - name: env
-            value: prod
-          - name: tf-state-storage-account
-            value: terraformstatealvprod
-          - name: subscription
-            value: Pay-As-You-Go (f9b4e4d2-39a5-4c35-876c-303dc3de03d2)
-          - name: git-short-hash
-            value: $[ stageDependencies.build.githash.outputs['createHash.git-short-hash'] ]
-        displayName: Prod
+        displayName: Deploy
         environment: Prod
         strategy:
           runOnce:
             deploy:
               steps:
-                - template: ../../packages/infrastructure/deploy-steps.yaml
-                # - template: ../../packages/chart/deploy-steps.yaml
+                - checkout: self
+                  fetchDepth: 1
+
+                - template: installDependencies.yaml
+
+                - task: AzureCLI@2
+                  displayName: Run deploy.sh prod ---no-input
+                  inputs:
+                    azureSubscription: Pay-As-You-Go (f9b4e4d2-39a5-4c35-876c-303dc3de03d2)
+                    addSpnToEnvironment: true
+                    workingDirectory: "$(System.DefaultWorkingDirectory)"
+                    scriptType: bash
+                    scriptLocation: inlineScript
+                    inlineScript: |
+                      # Authenticate terraform
+                      export ARM_CLIENT_ID="$servicePrincipalId"
+                      export ARM_CLIENT_SECRET="$servicePrincipalKey"
+                      export ARM_SUBSCRIPTION_ID="$(az account show | jq '.id' -r)"
+                      export ARM_TENANT_ID="$tenantId"
+
+                      mv $(Pipeline.Workspace)/prodPlans/stage1 packages/infrastructure/stage-1/plan
+                      mv $(Pipeline.Workspace)/prodPlans/stage2 packages/infrastructure/stage-2/plan
+
+                      # Run build script for production env
+                      source scripts/setup.sh prod --no-input
+                      source scripts/deployInfrastructure.sh
+                      source scripts/deployServices.sh

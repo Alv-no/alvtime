@@ -15,7 +15,8 @@
 
       <small
         >Du har <b>{{ overtime }}</b> {{ hoursText }} tilgjengelig i timebanken.
-        Tast inn antall timer du ønsker å ta ut.</small
+        Tast inn antall timer du ønsker å ta ut som overtidsbetaling.
+        Utbetalingen kommer på neste lønning.</small
       >
 
       <div class="order-payout-field">

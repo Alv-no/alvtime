@@ -1,0 +1,8 @@
+image:
+  repository: acralvtime.azurecr.io/alvtime-frontend
+
+configFilePath: data/frontend/prod-config.json
+
+hosts:
+  - alvtime.no
+  - www.alvtime.no

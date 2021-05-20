@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System;
 using AlvTime.Business.AbsenseDays;
 using Microsoft.Extensions.Logging;
+using AlvTime.Business.Holidays;
 
 namespace AlvTimeWebApi.Controllers
 {
@@ -18,8 +19,9 @@ namespace AlvTimeWebApi.Controllers
     public class HolidayController : Controller
     {
         private readonly IOptionsMonitor<TimeEntryOptions> _timeEntryOptions;
-        private RetrieveUsers _userRetriever;
+        private readonly RetrieveUsers _userRetriever;
         private readonly ITimeEntryStorage _timeEntryStorage;
+        private readonly IRedDaysService _redDaysService;
         private readonly ILogger<HolidayController> logger;
         private readonly IAbsenseDaysService absenseDaysService;
 
@@ -27,28 +29,29 @@ namespace AlvTimeWebApi.Controllers
                 IOptionsMonitor<TimeEntryOptions> timeEntryOptions,
                 ITimeEntryStorage timeEntryStorage,
                 ILogger<HolidayController> logger,
-                IAbsenseDaysService absenseDaysService)
+                IAbsenseDaysService absenseDaysService,
+                IRedDaysService redDaysService)
+
         {
             this.absenseDaysService = absenseDaysService;
             this.logger = logger;
             _userRetriever = userRetriever;
             _timeEntryOptions = timeEntryOptions;
             _timeEntryStorage = timeEntryStorage;
+            _redDaysService = redDaysService;
         }
 
+        [Obsolete("Use GET Holidays/Years")]
         [HttpGet("Holidays")]
-        [Authorize]
-        public ActionResult<IEnumerable<string>> FetchRedDays([FromQuery] int year)
+        public ActionResult<IEnumerable<string>> FetchRedDays(int year)
         {
-            var redDays = new RedDays(year);
-            var dates = new List<string>();
+            return Ok(_redDaysService.GetRedDaysFromYear(year));
+        }
 
-            foreach (var date in redDays.Dates)
-            {
-                dates.Add(date.ToDateOnly());
-            }
-
-            return Ok(dates);
+        [HttpGet("Holidays/Years")]
+        public ActionResult<IEnumerable<string>> FetchRedDaysFromPeriod(int fromYearInclusive, int toYearInclusive)
+        {
+            return Ok(_redDaysService.GetRedDaysFromYears(fromYearInclusive, toYearInclusive));
         }
 
         [HttpGet("user/UsedVacation")]

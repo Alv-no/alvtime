@@ -3,7 +3,7 @@
     <Progress :visible="progressBarVisible" />
     <div class="grid">
       <md-button v-if="!$store.state.account" @click="login"
-        >Login with Azure Ad</md-button
+        >Logg inn med SSO</md-button
       >
     </div>
   </div>
