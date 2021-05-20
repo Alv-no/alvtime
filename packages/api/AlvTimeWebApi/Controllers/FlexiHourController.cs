@@ -16,6 +16,7 @@ namespace AlvTimeWebApi.Controllers
 
         public FlexiHourController(RetrieveUsers userRetriever, IFlexhourStorage storage)
         {
+
             _storage = storage;
             _userRetriever = userRetriever;
         }
@@ -94,7 +95,11 @@ namespace AlvTimeWebApi.Controllers
 
             var user = _userRetriever.RetrieveUser();
 
-            var response = _storage.RegisterPaidOvertime(request, user.Id);
+            var response = _storage.RegisterPaidOvertime(new GenericHourEntry
+            {
+                Hours = request.Hours,
+                Date = request.Date
+            }, user.Id);
 
             return Ok(new GenericHourEntry
             {

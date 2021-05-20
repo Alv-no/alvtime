@@ -149,6 +149,7 @@ public class FlexhourStorage : IFlexhourStorage
         return overtimeEntries;
     }
 
+
     private IEnumerable<OvertimeEntry> CreateOvertimeEntries(DateEntry day, bool isRedDay)
     {
         var overtimeEntries = new List<OvertimeEntry>();
