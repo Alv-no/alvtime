@@ -1,11 +1,11 @@
 <template>
   <div class="grid">
-    <div class="hour_sums"><HourSums /></div>
-    <div class="title"><Title /></div>
+    <div class="hour_sums"><HourSums v-if="userFound" /></div>
+    <div class="title"><Title v-if="userFound" /></div>
     <mq-layout mq="sm">
       <AvailableHours small />
     </mq-layout>
-    <div class="nav_buttons"><NavButtons /></div>
+    <div class="nav_buttons"><NavButtons v-if="userFound" /></div>
   </div>
 </template>
 
@@ -23,12 +23,19 @@ export default Vue.extend({
     HourSums,
     AvailableHours,
   },
+
+  computed: {
+    userFound(): boolean {
+      return this.$store.getters.isValidUser;
+    },
+  },
 });
 </script>
 
 <style scoped>
 .grid {
   display: grid;
+  height: 2.75rem;
   grid-template-columns: 210px auto 210px;
   align-items: center;
   justify-content: space-between;
