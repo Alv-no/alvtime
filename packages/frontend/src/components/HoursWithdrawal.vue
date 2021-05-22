@@ -2,8 +2,16 @@
   <CenterColumnWrapper>
     <div class="padding">
       <div class="availablehours">
+        <div class="absense available-flex">
+          <h2>Feriedager</h2>
+          <OvertimeVisualizer :barData="holidayData"></OvertimeVisualizer>
+        </div>
         <div class="available available-flex">
-          <OvertimeVisualizer :subtract="hours"></OvertimeVisualizer>
+          <h2>Overtidstimer</h2>
+          <OvertimeVisualizer
+            :barData="overtimeData"
+            :subtract="hours"
+          ></OvertimeVisualizer>
         </div>
       </div>
       <hr />
@@ -72,6 +80,8 @@ import YellowButton from "./YellowButton.vue";
 import { isFloat } from "@/store/timeEntries";
 import Input from "./Input.vue";
 import moment, { Moment } from "moment";
+import { Store } from "vuex";
+import { State } from "../store/index";
 import CenterColumnWrapper from "@/components/CenterColumnWrapper.vue";
 import OvertimeVisualizer from "@/components/OvertimeVisualizer.vue";
 import { MappedOvertimeTransaction } from "../store/overtime";
@@ -122,6 +132,10 @@ export default Vue.extend({
       hours: "",
       transactions: [],
       today: moment().format("YYYY-MM-DD"),
+      overtimeData: [],
+      holidayData: [],
+      holidaySubtractions: [],
+      unsubscribe: () => {},
     };
   },
   computed: {
@@ -171,12 +185,27 @@ export default Vue.extend({
   async created() {
     await this.$store.dispatch("FETCH_TRANSACTIONS");
     this.processTransactions();
+    await this.$store.dispatch("FETCH_AVAILABLE_HOURS");
+    this.overtimeData = (this
+      .$store as Store<State>).getters.getCategorizedFlexHours;
+    this.unsubscribe = (this.$store as Store<State>).subscribe(
+      (mutation, _) => {
+        if (mutation.type === "SET_AVAILABLEHOURS") {
+          this.overtimeData = (this
+            .$store as Store<State>).getters.getCategorizedFlexHours;
+        }
+      }
+    );
+    await this.$store.dispatch("FETCH_VACATIONOVERVIEW");
+    this.holidayData = (this.$store as Store<State>).getters.getAbsenseOverview;
+    this.holidaySubtractions = (this
+      .$store as Store<State>).getters.getAbsenseOverviewSubtractions;
   },
   methods: {
     processTransactions() {
       const transactions = this.$store.getters
         .getTransactionList as MappedOvertimeTransaction[];
-      const mapped = transactions.map(transaction => {
+      const mapped = transactions.map((transaction) => {
         return {
           id: transaction.transaction.id,
           date: transaction.transaction.date,
@@ -272,6 +301,10 @@ hr {
 
 .md-table-head-label i:hover {
   background-color: #fff;
+}
+
+.availablehours .absense {
+  margin-bottom: 50px;
 }
 
 .badge {

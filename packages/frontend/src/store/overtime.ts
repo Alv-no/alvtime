@@ -1,8 +1,17 @@
 import { State } from "./index";
 import config from "@/config";
 import { adAuthenticatedFetch } from "@/services/auth";
+// import { OvertimeData } from "../components/OvertimeVisualizer.vue";
 import { ActionContext } from "vuex";
 import { groupBy } from "lodash";
+
+export interface OvertimeData {
+  key: string;
+  name: string;
+  colorValue: string;
+  value: number;
+  priority: number;
+}
 
 export interface OvertimeState {
   overtimeState: OvertimeStateModel;
@@ -49,6 +58,20 @@ interface OvertimeEntry {
   active?: boolean;
 }
 
+export interface HolidayTransaction {
+  user: number;
+  userEmail: string;
+  id: number;
+  date: Date;
+  value: number;
+  taskId: number;
+}
+
+export interface MappedOvertimeTransaction {
+  transaction: OvertimeEntry;
+  type: string;
+}
+
 interface FlexedHoursReponse {
   totalHours: number;
   entries: FlexHoursTransaction[];
@@ -67,14 +90,6 @@ interface PayoutTransaction {
   active: boolean;
 }
 
-export interface CategorizedFlexHours {
-  key: string;
-  name: string;
-  colorValue: string;
-  value: number;
-  priority: number;
-}
-
 const initState: OvertimeStateModel = {
   availableHours: [],
   payoutTransactions: [],
@@ -91,7 +106,7 @@ const state: OvertimeState = {
 
 const getters = {
   getCategorizedFlexHours: (state: State) => {
-    const categorizedHours: CategorizedFlexHours[] = [];
+    const categorizedHours: OvertimeData[] = [];
 
     const groupedTransactions = groupBy(
       state.overtimeState.availableHours,
@@ -99,7 +114,7 @@ const getters = {
     );
 
     for (let key in groupedTransactions) {
-      let category: CategorizedFlexHours = {
+      let category: OvertimeData = {
         key: "",
         priority: 1,
         colorValue: "",

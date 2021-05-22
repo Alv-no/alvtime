@@ -10,6 +10,7 @@ import task, { TaskState } from "./tasks";
 import timeEntrie, { TimeEntrieState } from "./timeEntries";
 import router from "@/router";
 import overtime, { OvertimeState } from "./overtime";
+import absense, { AbsenseState } from "./absense";
 import vacation, { VacationState } from "./vacation";
 
 Vue.use(Vuex);
@@ -22,6 +23,7 @@ export interface State
     SwiperState,
     OvertimeState,
     VacationState,
+    AbsenseState,
     AppState {}
 
 export const state = {
@@ -33,6 +35,7 @@ export const state = {
   ...overtime.state,
   ...vacation.state,
   ...app.state,
+  ...absense.state,
 };
 
 export const mutations = {
@@ -44,6 +47,7 @@ export const mutations = {
   ...overtime.mutations,
   ...vacation.mutations,
   ...app.mutations,
+  ...absense.mutations,
 };
 
 const getters = {
@@ -52,6 +56,7 @@ const getters = {
   ...auth.getters,
   ...overtime.getters,
   ...vacation.getters,
+  ...absense.getters,
 };
 
 const actions = {
@@ -60,6 +65,7 @@ const actions = {
   ...swiper.actions,
   ...overtime.actions,
   ...vacation.actions,
+  ...absense.actions,
 };
 
 const storeOptions = {

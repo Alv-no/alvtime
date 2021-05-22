@@ -20,10 +20,19 @@
 
 <script lang="ts">
 import Vue from "vue";
-// eslint-disable-next-line
-import { State } from "../store/index";
-import { CategorizedFlexHours } from "../store/overtime";
-import { mapState, Store } from "vuex";
+import { Store } from "vuex";
+
+export interface OvertimeData {
+  key: string;
+  name: string;
+  colorValue: string;
+  value: number;
+  priority: number;
+}
+export interface TargetedSubtract {
+  key: string;
+  value: number;
+}
 
 export default Vue.extend({
   props: {
@@ -31,42 +40,43 @@ export default Vue.extend({
       default: "",
       type: String,
     },
+    barData: {
+      default: () => [],
+      type: Array as () => OvertimeData[],
+    },
+    targetedSubtract: {
+      default: () => [],
+      type: Array as () => TargetedSubtract[],
+    },
   },
   data() {
     return {
-      colors: [],
       unsubscribe: () => {},
+      targetSubtract: [] as TargetedSubtract[],
     };
   },
   computed: {
-    filteredColors(): CategorizedFlexHours[] {
+    filteredColors(): OvertimeData[] {
       return this.withDrawFromList(
-        this.colors as CategorizedFlexHours[],
-        Number.parseInt(this.subtract, 10)
+        this.barData as OvertimeData[],
+        Number.parseInt(this.subtract, 10),
+        this.targetSubtract as TargetedSubtract[]
       );
     },
-  },
-  async created() {
-    await this.$store.dispatch("FETCH_AVAILABLE_HOURS");
-    this.colors = (this.$store as Store<State>).getters.getCategorizedFlexHours;
-    this.unsubscribe = (this.$store as Store<State>).subscribe(
-      (mutation, state) => {
-        if (mutation.type === "SET_AVAILABLEHOURS") {
-          this.colors = (this.$store as Store<
-            State
-          >).getters.getCategorizedFlexHours;
-        }
-      }
-    );
   },
   beforeDestroy() {
     this.unsubscribe();
   },
+  mounted() {
+    setTimeout(() => {
+      this.targetSubtract = this.targetedSubtract as TargetedSubtract[];
+    }, 750);
+  },
   methods: {
-    createColorString(colorConfig: CategorizedFlexHours): string {
+    createColorString(colorConfig: OvertimeData): string {
       return `background: ${colorConfig.colorValue};`;
     },
-    createWidthString(colorConfig: CategorizedFlexHours): string {
+    createWidthString(colorConfig: OvertimeData): string {
       return this.createCalculatedWidthString(colorConfig.value);
     },
     createFlexWidthString(value: number): string {
@@ -83,10 +93,9 @@ export default Vue.extend({
     },
     getValuePercentage(): number {
       let valueSum = 0;
-      (this.colors as CategorizedFlexHours[]).forEach(item => {
+      (this.barData as OvertimeData[]).forEach((item) => {
         valueSum += item.value;
       });
-
       return valueSum;
     },
     getElementWidth(): number {
@@ -94,11 +103,26 @@ export default Vue.extend({
       else return window.innerWidth;
     },
     withDrawFromList(
-      colorConfigs: CategorizedFlexHours[],
-      value: number
-    ): CategorizedFlexHours[] {
-      const newItems: CategorizedFlexHours[] = [];
-      var sortedConfig = colorConfigs.sort((a, b) => b.priority - a.priority);
+      colorConfigs: OvertimeData[],
+      value: number,
+      targetValues: TargetedSubtract[]
+    ): OvertimeData[] {
+      const newItems: OvertimeData[] = [];
+      var sortedConfig = colorConfigs
+        .sort((a, b) => b.priority - a.priority)
+        .map((item) => {
+          return { ...item };
+        });
+      // Subtract by targetedValues
+      for (var targetValue of targetValues) {
+        console.log(targetValue);
+        for (var config of sortedConfig) {
+          if (targetValue.key == config.key) {
+            config.value -= targetValue.value;
+          }
+        }
+      }
+      // Subtract by priority and inserted
       for (var item of sortedConfig) {
         const clone = { ...item };
         if (value > 0) {
@@ -123,11 +147,9 @@ export default Vue.extend({
   display: flex;
   align-content: stretch;
 }
-
 .color-bar {
   transition: width 0.5s;
 }
-
 .color-bar-value {
   height: 30px;
   display: flex;
@@ -135,7 +157,6 @@ export default Vue.extend({
   align-items: center;
   font-weight: 600;
 }
-
 .color-bar-name {
   text-align: center;
   font-weight: 600;
