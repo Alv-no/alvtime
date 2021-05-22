@@ -62,11 +62,6 @@ export default Vue.extend({
           icon: "watch_later",
         },
         {
-          text: "Ferieoversikt",
-          routeName: "vacation",
-          icon: "wb_sunny",
-        },
-        {
           text: "Personlige access token",
           routeName: "tokens",
           icon: "lock_open",
