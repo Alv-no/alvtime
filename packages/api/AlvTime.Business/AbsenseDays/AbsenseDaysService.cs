@@ -18,8 +18,6 @@ namespace AlvTime.Business.AbsenseDays
         private const int sickLeaveGroupAmount = 4;
         private const int sickLeaveGroupSize = 3;
 
-
-
         public AbsenseDaysService(ITimeEntryStorage timeEntryStorage, IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
         {
             this.timeEntryStorage = timeEntryStorage;
@@ -36,10 +34,6 @@ namespace AlvTime.Business.AbsenseDays
                 TaskId = timeEntryOptions.CurrentValue.SickDaysTask
             });
 
-            var redDays = new RedDays(year);
-
-            var alvDays = GetAlvDays(redDays, year);
-
             return new AbsenseDaysDto
             {
                 AbsenseDaysInAYear = sickLeaveGroupSize * sickLeaveGroupAmount,
@@ -53,16 +47,10 @@ namespace AlvTime.Business.AbsenseDays
             // The 3 represents the three days of easter
             return redDays.Dates.Where(days => days.Month == 12 &&
                     days.Day > 26 &&
-                    days.Day < 31 &&
+                    days.Day <= 31 &&
                     days.DayOfWeek != DayOfWeek.Saturday &&
                     days.DayOfWeek != DayOfWeek.Sunday).Concat(new List<DateTime> { redDays.GetMondayInEaster(year), redDays.GetTuesdayInEaster(year), redDays.GetWednesdayInEaster(year) });
         }
-
-        private int AmountOfUsedAlvDays(IEnumerable<DateTime> alvDays, IEnumerable<TimeEntriesResponseDto> days)
-        {
-            return days.Count(day => alvDays.Any(alvDay => alvDay.DayOfYear == day.Date.DayOfYear));
-        }
-
 
         private int CalculateUsedSickDays(IEnumerable<TimeEntriesResponseDto> entries)
         {
@@ -150,7 +138,7 @@ namespace AlvTime.Business.AbsenseDays
             var vacationTransactions = paidVacationEntries.Concat(unpaidVacationEntries);
             var alvdays = GetAlvDays(redDays, year);
 
-            var planned = vacationTransactions.Where(item => item.Value > 0 && item.Date.CompareTo(now) > 0);
+            var planned = vacationTransactions.Where(item => !alvdays.Contains(item.Date) && item.Value > 0 && item.Date.CompareTo(now) > 0);
             var used = vacationTransactions.Where(item => item.Value > 0 && item.Date.CompareTo(now) <= 0);
 
             var usedAlvdays = alvdays.Where(item => item.CompareTo(now) < 0);
