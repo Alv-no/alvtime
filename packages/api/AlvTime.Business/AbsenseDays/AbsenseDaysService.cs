@@ -142,11 +142,12 @@ namespace AlvTime.Business.AbsenseDays
             var used = vacationTransactions.Where(item => item.Value > 0 && item.Date.CompareTo(now) <= 0);
 
             var usedAlvdays = alvdays.Where(item => item.CompareTo(now) < 0);
+            var usedVacationExcludingAlvdays = used.Select(used => used.Date).Where(u => !usedAlvdays.Contains(u));
 
             return new VacationDaysDTO
             {
                 PlannedVacationDays = planned.Count() + alvdays.Count() - usedAlvdays.Count(),
-                UsedVacationDays = used.Count() + usedAlvdays.Count(),
+                UsedVacationDays = usedVacationExcludingAlvdays.Count() + usedAlvdays.Count(),
                 AvailableVacationDays = vacationDays - planned.Count() - used.Count(),
                 PlannedTransactions = planned,
                 UsedTransactions = used
