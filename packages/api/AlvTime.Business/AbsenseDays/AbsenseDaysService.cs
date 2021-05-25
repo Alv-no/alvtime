@@ -138,19 +138,20 @@ namespace AlvTime.Business.AbsenseDays
             var vacationTransactions = paidVacationEntries.Concat(unpaidVacationEntries);
             var alvdays = GetAlvDays(redDays, year);
 
-            var planned = vacationTransactions.Where(item => !alvdays.Contains(item.Date) && item.Value > 0 && item.Date.CompareTo(now) > 0);
-            var used = vacationTransactions.Where(item => item.Value > 0 && item.Date.CompareTo(now) <= 0);
+            var plannedVacation = vacationTransactions.Where(item => item.Value > 0 && item.Date.CompareTo(now) > 0);
+            var plannedVacationExcludingAlvdays = plannedVacation.Where(item => !alvdays.Contains(item.Date));
+            var usedVacation = vacationTransactions.Where(item => item.Value > 0 && item.Date.CompareTo(now) <= 0);
 
             var usedAlvdays = alvdays.Where(item => item.CompareTo(now) < 0);
-            var usedVacationExcludingAlvdays = used.Select(used => used.Date).Where(u => !usedAlvdays.Contains(u));
+            var usedVacationExcludingAlvdays = usedVacation.Select(used => used.Date).Where(u => !usedAlvdays.Contains(u));
 
             return new VacationDaysDTO
             {
-                PlannedVacationDays = planned.Count() + alvdays.Count() - usedAlvdays.Count(),
+                PlannedVacationDays = plannedVacationExcludingAlvdays.Count() + alvdays.Count() - usedAlvdays.Count(),
                 UsedVacationDays = usedVacationExcludingAlvdays.Count() + usedAlvdays.Count(),
-                AvailableVacationDays = vacationDays - planned.Count() - used.Count(),
-                PlannedTransactions = planned,
-                UsedTransactions = used
+                AvailableVacationDays = vacationDays - plannedVacationExcludingAlvdays.Count() - usedVacationExcludingAlvdays.Count(),
+                PlannedTransactions = plannedVacation,
+                UsedTransactions = usedVacation
             };
         }
     }
