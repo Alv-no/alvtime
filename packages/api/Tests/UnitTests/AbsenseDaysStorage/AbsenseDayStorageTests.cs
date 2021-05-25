@@ -182,6 +182,38 @@ namespace Tests.UnitTests.AbsenseDaysStorage
             Assert.Equal(8, holidayOverview.PlannedVacationDays);
             Assert.Equal(15, holidayOverview.AvailableVacationDays);
         }
+
+        [Fact]
+        public void Test_VacationOnAlvDayShouldNotCountDouble_3VacationDaysUsed()
+        {
+            var timeEntryStorage = new TimeEntryStorage(context);
+            var absenseService = new AbsenseDaysService(timeEntryStorage, options);
+
+            timeEntryStorage.CreateTimeEntry(new CreateTimeEntryDto
+            {
+                Date = new DateTime(2021, 3, 29),
+                Value = 7.5M,
+                TaskId = options.CurrentValue.PaidHolidayTask
+            }, 1);
+
+            timeEntryStorage.CreateTimeEntry(new CreateTimeEntryDto
+            {
+                Date = new DateTime(2021, 3, 30),
+                Value = 7.5M,
+                TaskId = options.CurrentValue.PaidHolidayTask
+            }, 1);
+
+            timeEntryStorage.CreateTimeEntry(new CreateTimeEntryDto
+            {
+                Date = new DateTime(2021, 3, 31),
+                Value = 7.5M,
+                TaskId = options.CurrentValue.PaidHolidayTask
+            }, 1);
+
+            var holidayOverview = absenseService.GetVacationDays(1, 2021, 6, 1);
+
+            Assert.Equal(3, holidayOverview.UsedVacationDays);
+        }
     }
 }
 
