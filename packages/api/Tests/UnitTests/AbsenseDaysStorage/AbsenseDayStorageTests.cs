@@ -278,6 +278,29 @@ namespace Tests.UnitTests.AbsenseDaysStorage
             Assert.Equal(10, holidayOverview.PlannedVacationDays);
             Assert.Equal(20, holidayOverview.AvailableVacationDays);
         }
+
+        [Fact]
+        public void Test_PlannedVacationDayOnAlvDay_PlannedDaysNotDoubled()
+        {
+            var timeEntryStorage = new TimeEntryStorage(context);
+            var absenseService = new AbsenseDaysService(timeEntryStorage, options);
+
+            for (int i = 0; i < 5; i++)
+            {
+                timeEntryStorage.CreateTimeEntry(new CreateTimeEntryDto
+                {
+                    Date = new DateTime(2021, 12, 27).AddDays(i),
+                    Value = 7.5M,
+                    TaskId = options.CurrentValue.PaidHolidayTask
+                }, 1);
+            }
+
+            var holidayOverview = absenseService.GetVacationDays(1, 2021, 6, 1);
+
+            Assert.Equal(3, holidayOverview.UsedVacationDays);
+            Assert.Equal(5, holidayOverview.PlannedVacationDays);
+            Assert.Equal(25, holidayOverview.AvailableVacationDays);
+        }
     }
 }
 
