@@ -184,7 +184,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
         }
 
         [Fact]
-        public void Test_VacationOnAlvDayShouldNotCountDouble_3VacationDaysUsed()
+        public void Test_3VacationDaysOnAlvDays_3VacationDaysUsed()
         {
             var timeEntryStorage = new TimeEntryStorage(context);
             var absenseService = new AbsenseDaysService(timeEntryStorage, options);
@@ -217,7 +217,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
         }
 
         [Fact]
-        public void Test_VacationOnAlvDayDoesNotAffectAvailableDays_3VacationDaysOnAlvDays1NormalDayUsed()
+        public void Test_3VacationDaysOnAlvDaysAnd1NormalDay_1LessAvailableDay()
         {
             var timeEntryStorage = new TimeEntryStorage(context);
             var absenseService = new AbsenseDaysService(timeEntryStorage, options);
