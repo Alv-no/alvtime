@@ -85,7 +85,7 @@ namespace AlvTimeWebApi.Controllers
         }
 
         [HttpPost("Payouts")]
-        [Authorize]
+        [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<GenericHourEntry> RegisterPaidOvertime([FromBody] GenericHourEntry request)
         {
             if (!ModelState.IsValid)
