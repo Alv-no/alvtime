@@ -8,7 +8,6 @@
   },
   "extensions": [
     "dbaeumer.vscode-eslint",
-    "octref.vetur",
     "esbenp.prettier-vscode",
     "ms-azuretools.vscode-docker"
   ],
