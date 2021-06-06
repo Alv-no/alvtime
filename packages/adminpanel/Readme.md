@@ -1,37 +1,19 @@
 # Alvtime-admin-react-pwa
 
-## Start Development environment
+## Setting up the development environment locally
 
-The first time this command is ran it will download and start the local developmment environment. As well as start the development server in the alvtime-admin-react-pwa container. The development server recompiles and refreshes the browser on every detected change to the source code.
+Dependencies:
 
-```
-./run start
-```
+- [Node.js 14](https://nodejs.org/en/)
 
-If you are using windows you can replace ``./run`` with ``npm run``
+Make sure that the backend api is up and running. For the adminpanel to work it needs contact with a backend api service. Have a look in the `packages/api/Readme.md` file for instructions on how to set this up. From this folder run `npm install`, then `npm start` and open the adminpanel in your browser at `localhost:3000`. This page will be redirected to Azure Ad for login. Ask your colleagues for the username and password for the currently used development account. The development server recompiles automatically when the code is changed.
 
-```
-npm run start 
-```
+Before submitting your code through a pull request, make sure to run the tests. This is done by running `npm test`.
 
-- The web app is available on `localhost:3000`
-- Swagger documentation is available on `localhost:8000/swagger`
-- The api is available on `localhost:8000/api`
+## Setting up the development container using VsCode Remote containers
 
-To stop and remove the containers run
+Follow these steps to open this project in a development container:
 
-```
-./run down
-```
+1. If this is your first time using a development container, please follow the [getting started steps](https://aka.ms/vscode-remote/containers/getting-started).
 
-To view the backend logs run.
-
-```
-./run logs
-```
-
-Download the latest backend api and database images
-
-```
-./run pull
-```
+2. In Visual Studio Code, press <kbd>F1</kbd> and select the **Remote-Containers: Open Folder in Container...** command. Select the cloned copy of this folder, wait for the container to start, and try things out!
