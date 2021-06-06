@@ -93,7 +93,7 @@ export default Vue.extend({
     },
     getValuePercentage(): number {
       let valueSum = 0;
-      (this.barData as OvertimeData[]).forEach((item) => {
+      (this.barData as OvertimeData[]).forEach(item => {
         valueSum += item.value;
       });
       return valueSum;
@@ -110,7 +110,7 @@ export default Vue.extend({
       const newItems: OvertimeData[] = [];
       var sortedConfig = colorConfigs
         .sort((a, b) => b.priority - a.priority)
-        .map((item) => {
+        .map(item => {
           return { ...item };
         });
       // Subtract by targetedValues

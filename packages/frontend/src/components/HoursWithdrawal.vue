@@ -4,12 +4,12 @@
       <div class="availablehours">
         <div class="absense available-flex">
           <h2>Feriedager</h2>
-          <OvertimeVisualizer :barData="holidayData"></OvertimeVisualizer>
+          <OvertimeVisualizer :bar-data="holidayData"></OvertimeVisualizer>
         </div>
         <div class="available available-flex">
           <h2>Overtidstimer</h2>
           <OvertimeVisualizer
-            :barData="overtimeData"
+            :bar-data="overtimeData"
             :subtract="hours"
           ></OvertimeVisualizer>
         </div>
@@ -186,26 +186,29 @@ export default Vue.extend({
     await this.$store.dispatch("FETCH_TRANSACTIONS");
     this.processTransactions();
     await this.$store.dispatch("FETCH_AVAILABLE_HOURS");
-    this.overtimeData = (this
-      .$store as Store<State>).getters.getCategorizedFlexHours;
+    this.overtimeData = (this.$store as Store<
+      State
+    >).getters.getCategorizedFlexHours;
     this.unsubscribe = (this.$store as Store<State>).subscribe(
       (mutation, _) => {
         if (mutation.type === "SET_AVAILABLEHOURS") {
-          this.overtimeData = (this
-            .$store as Store<State>).getters.getCategorizedFlexHours;
+          this.overtimeData = (this.$store as Store<
+            State
+          >).getters.getCategorizedFlexHours;
         }
       }
     );
     await this.$store.dispatch("FETCH_VACATIONOVERVIEW");
     this.holidayData = (this.$store as Store<State>).getters.getAbsenseOverview;
-    this.holidaySubtractions = (this
-      .$store as Store<State>).getters.getAbsenseOverviewSubtractions;
+    this.holidaySubtractions = (this.$store as Store<
+      State
+    >).getters.getAbsenseOverviewSubtractions;
   },
   methods: {
     processTransactions() {
       const transactions = this.$store.getters
         .getTransactionList as MappedOvertimeTransaction[];
-      const mapped = transactions.map((transaction) => {
+      const mapped = transactions.map(transaction => {
         return {
           id: transaction.transaction.id,
           date: transaction.transaction.date,
