@@ -14,6 +14,10 @@
 | [Infrastructure](./packages/infrastructure) | Infrastructure | Terraform infrastructure setup                 |
 | [Shell](./packages/shell)                   | Terminal CLI   | Terminal ClI tool for interacting with Alvtime |
 
+## Architecture
+
+![Alvtime architecture](images/architecture.jpg)
+
 ## Development / Contribution
 
 The following is adapted from [Release Flow - Azure DevOps | Microsoft Docs](https://docs.microsoft.com/en-us/azure/devops/learn/devops-at-microsoft/release-flow)
