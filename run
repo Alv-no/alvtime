@@ -4,12 +4,12 @@
   docker-compose up --detach
 
 if [ "frontend" = "$1" ]; then
-  docker-compose up -d && \
+  docker-compose up --detach && \
     docker-compose exec frontend npm start
 fi
 
 if [ "adminpanel" = "$1" ]; then
-  docker-compose up -d && \
+  docker-compose up --detach && \
     docker-compose exec adminpanel npm start
 fi
 
@@ -18,9 +18,6 @@ fi
 
 [ "logs" = "$1" ] && \
   docker-compose logs --follow
-
-[ "test" = "$1" ] && \
-  docker-compose exec alvtime-admin-react-pwa npm test
 
 [ "prune" = "$1" ] && \
   docker system prune --force
