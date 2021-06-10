@@ -1,9 +1,9 @@
 <template>
   <div class="grid">
     <div class="hour_sums"><HourSums v-if="userFound" /></div>
-    <div class="title"><Title v-if="userFound" /></div>
+    <div class="title"><Title /></div>
     <mq-layout mq="sm">
-      <AvailableHours small />
+      <AvailableHours v-if="userFound" small />
     </mq-layout>
     <div class="nav_buttons"><NavButtons v-if="userFound" /></div>
   </div>
