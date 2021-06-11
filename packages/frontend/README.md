@@ -6,7 +6,7 @@ Dependencies:
 
 - [Node.js 14](https://nodejs.org/en/)
 
-From this folder run `npm install` and `npm start`, then open the frontend in your browser at `localhost:8080`. This starts a development server that recompiles when the code is changed. For the frontend to work it needs contact with a backend api service. Have a look in the `packages/api/Readme.md` file for instructions on how to set this up.
+From this folder run `npm install` and `npm start`, then open the frontend in your browser at `localhost:8080`. This starts a development server that recompiles when the code is changed. For the frontend to work it needs contact with a backend api service. Have a look in the [packages/api/Readme.md](../api/Readme.md) file for instructions on how to set this up. The configuration file for the frontend is located in [public/config.json](public/config.json). Edit the `API_HOST` value to make sure it is pointing to the correct backend  
 
 Before submitting your code through a pull request, make sure to run the tests and the linter. This is done by running `npm test` and `npm run lint` respectively.
 
