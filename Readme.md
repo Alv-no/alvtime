@@ -35,7 +35,7 @@ This can be done in several different ways. Select the method that suits you and
 Dependencies:
 
 - [Node.js 14](https://nodejs.org/en/)
-- [.NET Core 14](https://dotnet.microsoft.com/download/dotnet/3.1)
+- [.NET Core 3.1](https://dotnet.microsoft.com/download/dotnet/3.1)
 - [MsSQL](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
 - [MongoDB](https://www.mongodb.com/try/download/enterprise)
 
