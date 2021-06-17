@@ -2,7 +2,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "2.48"
+      version = ">= 2.63.0"
     }
   }
 }
@@ -17,12 +17,14 @@ resource "azurerm_kubernetes_cluster" "this" {
   resource_group_name = var.resource_group_name
   dns_prefix          = "${var.name}-k8s"
   sku_tier            = "Free"
+  kubernetes_version  = "1.19.11"
 
   default_node_pool {
-    name            = "default"
-    node_count      = 2
-    vm_size         = "Standard_D2_v2"
-    os_disk_size_gb = 30
+    name                 = "default"
+    node_count           = 2
+    vm_size              = "Standard_D2_v2"
+    os_disk_size_gb      = 30
+    orchestrator_version = "1.19.11"
   }
 
   service_principal {
