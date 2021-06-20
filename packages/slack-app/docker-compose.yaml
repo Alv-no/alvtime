@@ -7,8 +7,8 @@ services:
       context: .
       dockerfile: Dockerfile-dev
     volumes:
-      - .:/usr/src/app:delegated
-      - /usr/src/app/node_modules/
+      - .:/src:delegated
+      - /src/node_modules/
     links:
       - api
       - mongo
