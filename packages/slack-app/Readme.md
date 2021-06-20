@@ -7,14 +7,6 @@ This app i built using [node slack sdk](https://slack.dev/node-slack-sdk/). Read
 - `src/app.ts` contains the primary app. It imports the SDK and starts the app/server. It's where you'll add your app's listeners.
 - `.env` is where you'll put your Slack app's authorization token and signing secret.
 
-## Setting up the development container using VsCode Remote containers
-
-Follow these steps to open this project in a development container:
-
-1. If this is your first time using a development container, please follow the [getting started steps](https://aka.ms/vscode-remote/containers/getting-started).
-
-2. In Visual Studio Code, press <kbd>F1</kbd> and select the **Remote-Containers: Open Folder in Container...** command. Select the cloned copy of this folder, wait for the container to start, and try things out!
-
 ## Start Development environment using docker-compose
 
 The first time this command is ran it will download and start the local developmment environment.
