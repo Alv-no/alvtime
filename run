@@ -1,16 +1,36 @@
 #!/usr/bin/env bash
 
+set -e
+
+KEY_VAULT="alvtimedev"
+
+function getSecret() {
+  az keyvault secret show --vault-name $KEY_VAULT --name $1 | jq '.value' -r
+}
+
 [ "up" = "$1" ] && \
-  docker-compose up --detach
+  docker-compose up
 
 if [ "frontend" = "$1" ]; then
-  docker-compose up --detach && \
-    docker-compose exec frontend npm start
+  docker-compose up --detach frontend
+  docker-compose exec frontend npm start
 fi
 
 if [ "adminpanel" = "$1" ]; then
-  docker-compose up --detach && \
-    docker-compose exec adminpanel npm start
+  docker-compose up --detach adminpanel
+  docker-compose exec adminpanel npm start
+fi
+
+if [ "slack-app" = "$1" ]; then
+  export NGROK_AUTH="$(getSecret ngrok-auth)"
+  export AZURE_AD_CLIENT_SECTRET="$(getSecret azure-ad-client-sectret)"
+  export HOST="$(getSecret host)"
+  export NGROK_HOSTNAME="$(getSecret ngrok-hostname)"
+  export SLACK_BOT_TOKEN="$(getSecret slack-bot-token)"
+  export SLACK_SIGNING_SECRET="$(getSecret slack-signing-secret)"
+
+  docker-compose up --detach slack-app
+  docker-compose exec slack-app bash
 fi
 
 [ "down" = "$1" ] && \

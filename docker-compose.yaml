@@ -6,6 +6,8 @@ services:
     tty: true
     ports:
       - "3000:3000"
+    depends_on:
+      - api
     build:
       context: ./packages/adminpanel
       target: dev
@@ -18,6 +20,8 @@ services:
   frontend:
     user: vscode
     tty: true
+    depends_on:
+      - api
     build:
       context: ./packages/frontend
       target: dev
@@ -30,7 +34,7 @@ services:
   api:
     build:
       context: ./packages/api
-    links:
+    depends_on:
       - db
     environment:
       - ConnectionStrings__AlvTime_db=Data Source=tcp:db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32
@@ -41,6 +45,8 @@ services:
     ports:
       - "8081:80"
       - "8082:443"
+    expose:
+      - "80"
 
   db:
     build:
@@ -57,3 +63,64 @@ services:
         /opt/mssql/bin/sqlservr &
         # So that the container doesn't shut down, sleep this thread
         sleep infinity
+
+  slack-app:
+    tty: true
+    build:
+      context: ./packages/slack-app
+      target: dev
+    volumes:
+      - ./packages/slack-app:/src:delegated
+      - /src/node_modules/
+    depends_on:
+      - api
+      - ngrok
+      - mongo
+      - mongo-express
+    expose:
+      - 1337
+    ports:
+      - 9229:9229
+    environment:
+      - AZURE_AD_CLIENT_ID=c9126a83-01c3-43c0-8bb3-298d352d2d7f
+      - AZURE_AD_ACCESS_AS_USER_SCOPE=api://c9126a83-01c3-43c0-8bb3-298d352d2d7f/access_as_user
+      - REPORT_USER_PERSONAL_ACCESS_TOKEN=5801gj90-jf39-5j30-fjk3-480fj39kl409
+      - ADMIN_USERS=U013CDC0VTQ
+      - ALVTIME_API_URI=http://api
+      - DB_ENCRYPTION_KEY=dbencryptionkey
+      - DB_PASSWORD=example
+      - DB_USER=root
+      - PORT=1337
+      - DB_CONNECTION_STRING=mongodb://mongo
+      - HOST
+      - AZURE_AD_CLIENT_SECTRET
+      - SLACK_BOT_TOKEN
+      - SLACK_SIGNING_SECRET
+
+  ngrok:
+    ports:
+      - "0.0.0.0:4040:4040"
+    image: wernight/ngrok
+    environment:
+      - NGROK_REGION=eu
+      - NGROK_PORT=slack-app:1337
+      - NGROK_AUTH
+      - NGROK_HOSTNAME
+
+  mongo:
+    image: mongo:3
+    restart: always
+    expose:
+      - "27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=example
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8083:8081
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=example
