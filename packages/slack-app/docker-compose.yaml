@@ -5,7 +5,7 @@ services:
     tty: true
     build:
       context: .
-      dockerfile: Dockerfile-dev
+      target: dev
     volumes:
       - .:/src:delegated
       - /src/node_modules/
