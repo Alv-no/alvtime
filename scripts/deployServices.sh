@@ -2,21 +2,13 @@
 
 set -e
 
-cd packages/infrastructure/stage-1
-
-MONGO_DB_CONNECTION_STRING="$(terraform output -json mongo_db_connection_strings | jq '.[0]' -r)"
-MONGO_DB_PRIMARY_KEY="$(terraform output -raw mongo_db_primary_key)"
-SQL_DATABASE_NAME="$(terraform output -raw sql_database_name)"
-SQL_SERVER_NAME="$(terraform output -raw sql_server_name)"
-SQL_CONNECTION_STRING="Server=tcp:$SQL_SERVER_NAME.database.windows.net\,1433;Initial Catalog=$SQL_DATABASE_NAME;Persist Security Info=False;User ID=$SQL_SERVER_ADMINISTRATOR_LOGIN;Password=$SQL_SERVER_ADMINISTRATOR_LOGIN_PASSWORD;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-
-cd ../../charts
+cd packages/charts
 
 helm upgrade api service \
   --install \
   --values "service/data/api/$ENV-env.yaml" \
   --set image.tag="$SHORT_HASH" \
-  --set secrets.ConnectionStrings__AlvTime_db="$SQL_CONNECTION_STRING" \
+  --set secrets.ConnectionStrings__AlvTime_db="${SQL_CONNECTION_STRING/,/\\,}" \
 
 helm upgrade slack-api service \
   --install \

@@ -49,6 +49,9 @@ SP_ALVTIME_AUTH_SLACK_APP_SECRET="$(getSecret sp-alvtime-auth-slack-app-secret)"
 SQL_SERVER_ADMINISTRATOR_LOGIN="$(getSecret sql-server-administrator-login)"
 SQL_SERVER_ADMINISTRATOR_LOGIN_PASSWORD="$(getSecret sql-server-administrator-login-password)"
 MONGO_DB_ENCRYPTION_KEY="$(getSecret mongo-db-encryption-key)"
+MONGO_DB_CONNECTION_STRING="$(getSecret mongo-db-connection-string)"
+MONGO_DB_PRIMARY_KEY="$(getSecret mongo-db-primary-key)"
+SQL_CONNECTION_STRING="$(getSecret sql-connection-string)"
 
 if [ "$ENV" == 'test' ]; then
   SP_ALVTIME_ADMIN_PROD_OBJECT_ID="$(getSecret sp-alvtime-admin-prod-object-id)"
