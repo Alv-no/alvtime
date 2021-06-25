@@ -6,24 +6,6 @@ output "sql_server_name" {
   value = module.sql_db.sql_server_name
 }
 
-output "sql_database_name" {
-  value = module.sql_db.sql_database_name
-}
-
-output "mongo_db_name" {
-  value = module.mongo_db.mongo_db_name
-}
-
-output "mongo_db_connection_strings" {
-  sensitive = true
-  value     = module.mongo_db.mongo_db_connection_strings
-}
-
-output "mongo_db_primary_key" {
-  sensitive = true
-  value     = module.mongo_db.mongo_db_primary_key
-}
-
 output "tenant_id" {
   value = data.azurerm_subscription.current.tenant_id
 }

@@ -53,18 +53,22 @@ if [ "plan" = "$1" ]; then
   source packages/infrastructure/cleanup.sh
 fi
 
-if [ "deploy" = "$1" ]; then
+if [ "deploy-services" = "$1" ]; then
   shift
   source scripts/setup.sh "$1"
-  source scripts/planInfrastructure.sh
   if [ "$1" == 'test' ]
   then
     source scripts/buildServices.sh
     az acr login --name acralvtime
     source scripts/pushServices.sh
   fi
-  source scripts/deployInfrastructure.sh
   source scripts/deployServices.sh
+fi
 
+if [ "deploy-infrastructure" = "$1" ]; then
+  shift
+  source scripts/setup.sh "$1"
+  source scripts/planInfrastructure.sh
+  source scripts/deployInfrastructure.sh
   source packages/infrastructure/cleanup.sh
 fi
