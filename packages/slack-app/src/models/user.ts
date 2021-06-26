@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import mongooseFieldEncryption from "mongoose-field-encryption";
 import env from "../environment";
-import { logger } from "../createLogger"
+import { logger } from "../createLogger";
 
 const userSchema = new mongoose.Schema({
   _id: String,

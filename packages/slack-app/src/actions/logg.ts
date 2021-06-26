@@ -23,4 +23,3 @@ function thisWeek() {
     toDateInclusive: sunday.format(config.DATE_FORMAT),
   };
 }
-
