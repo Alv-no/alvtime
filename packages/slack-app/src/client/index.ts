@@ -21,10 +21,16 @@ interface PrivateMethods {
 
 interface State extends Attributes, PrivateMethods {}
 
-interface DateRange {
+export interface DateRange {
   [key: string]: string;
   fromDateInclusive: string;
   toDateInclusive: string;
+}
+
+interface YearRange {
+  [key: string]: number;
+  fromYearInclusive: number;
+  toYearInclusive: number;
 }
 
 export interface Task {
@@ -74,6 +80,7 @@ export interface Client {
     dateRange: DateRange,
     accessToken: string
   ) => Promise<ReportTimeEntrie[]>;
+  getHolidays: (yearRange: YearRange) => Promise<string[]>;
 }
 
 type FetchFunc = (
@@ -138,6 +145,16 @@ export default function createAlvtimeClient(
     getTimeEntriesReport(dateRange: DateRange, accessToken: string) {
       return fetcher(concatURL("/api/user/TimeEntriesReport", dateRange), {
         ...getHeaders(accessToken),
+      });
+    },
+
+    getHolidays(yearRange: YearRange) {
+      const _yearRange = {
+        fromYearInclusive: yearRange.fromYearInclusive.toString(),
+        toYearInclusive: yearRange.toYearInclusive.toString(),
+      };
+      return fetcher(concatURL("/api/Holidays/Years", _yearRange), {
+        ...getHeaders(""),
       });
     },
   };

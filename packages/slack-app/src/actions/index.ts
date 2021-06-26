@@ -3,7 +3,7 @@ import getAccessToken from "../routes/auth/getAccessToken";
 import { CommandBody } from "../routes/slack/slashCommand";
 import { admin } from "./admin";
 import { logg } from "./logg";
-import { register, registerWeek } from "./register";
+import { register, registerWeek, registerVacation } from "./register";
 import { tasks } from "./tasks";
 
 export interface State {
@@ -39,6 +39,9 @@ export default async function createCommands(
     },
     registerWeek() {
       registerWeek(state);
+    },
+    registerVacation() {
+      registerVacation(state);
     },
     admin() {
       admin(state);
