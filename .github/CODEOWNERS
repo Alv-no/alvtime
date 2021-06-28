@@ -3,7 +3,6 @@
 /packages/api/ @palbock90 @martiskj
 /packages/slack-app/ @trulsaa
 /packages/charts/ @trulsaa @klyngen
-/packages/infrastructure/ @trulsaa @theknarf
 /packages/shell/ @trulsaa
 .AzureDevOps/ @trulsaa @lnordhus
 .github/ @theknarf @trulsaa

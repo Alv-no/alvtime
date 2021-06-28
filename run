@@ -46,14 +46,7 @@ if [ "build" = "$1" ]; then
   source scripts/buildServices.sh
 fi
 
-if [ "plan" = "$1" ]; then
-  shift
-  source scripts/setup.sh "$1"
-  source scripts/planInfrastructure.sh
-  source packages/infrastructure/cleanup.sh
-fi
-
-if [ "deploy-services" = "$1" ]; then
+if [ "deploy" = "$1" ]; then
   shift
   source scripts/setup.sh "$1"
   if [ "$1" == 'test' ]
@@ -63,12 +56,4 @@ if [ "deploy-services" = "$1" ]; then
     source scripts/pushServices.sh
   fi
   source scripts/deployServices.sh
-fi
-
-if [ "deploy-infrastructure" = "$1" ]; then
-  shift
-  source scripts/setup.sh "$1"
-  source scripts/planInfrastructure.sh
-  source scripts/deployInfrastructure.sh
-  source packages/infrastructure/cleanup.sh
 fi

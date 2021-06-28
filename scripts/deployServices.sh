@@ -4,6 +4,11 @@ set -e
 
 cd packages/charts
 
+# Retrieve the access credentials for your cluster and automatically configure kubectl
+az aks get-credentials \
+  --resource-group "$RESOURCE_GROUP_NAME" \
+  --name "$KUBERNETES_CLUSTER_NAME" \
+
 helm upgrade api service \
   --install \
   --values "service/data/api/$ENV-env.yaml" \
