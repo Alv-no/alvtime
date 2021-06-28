@@ -1,8 +1,4 @@
 steps:
-  - task: TerraformInstaller@0
-    inputs:
-      terraformVersion: "1.0.0"
-
   - task: HelmInstaller@0
     inputs:
       helmVersion: "3.5.3"

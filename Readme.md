@@ -11,7 +11,6 @@
 | [Slack-app](./packages/slack-app)           | Slack-app      | Slack app                                      |
 | [Api](./packages/api)                       | Backend        | Backend api                                    |
 | [Charts](./packages/charts)                 | Charts         | Helm charts                                    |
-| [Infrastructure](./packages/infrastructure) | Infrastructure | Terraform infrastructure setup                 |
 | [Shell](./packages/shell)                   | Terminal CLI   | Terminal ClI tool for interacting with Alvtime |
 
 ## Architecture
@@ -55,10 +54,6 @@ Whenever a dependency is added to the frontend or the backend code is changed yo
 
 Run `./run build` from the root of the project.
 
-### 4. Plan the infrastructure
-
-Run `az login` to login to your azure account and then run `./run plan test` from the root of the project.
-
 ### 5. Push
 
 When the developer is ready to get their changes integrated and ship their changes to the rest of the team, they push their local branch to a branch on the server, and open a pull request.
@@ -73,4 +68,4 @@ Once all the build policies are satisfied and reviewers have signed off, then th
 
 # Deployment from local machine
 
-Run `az login` to login to your azure account and then run `./run deploy test` or `./run deploy prod` from the root of the project. This will deploy both the infrastructure and the services.
+Run `az login` to login to your azure account and then run `./run deploy test` or `./run deploy prod` from the root of the project.

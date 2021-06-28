@@ -29,12 +29,6 @@ stages:
               scriptType: bash
               scriptLocation: inlineScript
               inlineScript: |
-                # Authenticate terraform
-                export ARM_CLIENT_ID="$servicePrincipalId"
-                export ARM_CLIENT_SECRET="$servicePrincipalKey"
-                export ARM_SUBSCRIPTION_ID="$(az account show | jq '.id' -r)"
-                export ARM_TENANT_ID="$tenantId"
-
                 # Authenticate Acure container registry
                 docker login acralvtime.azurecr.io \
                   --username $servicePrincipalId \
@@ -42,20 +36,8 @@ stages:
 
                 # Run scripts to build for test environment
                 source scripts/setup.sh test --no-input
-                source scripts/planInfrastructure.sh
-
-                mkdir $(Build.ArtifactStagingDirectory)/testPlans
-                cp packages/infrastructure/stage-1/plan $(Build.ArtifactStagingDirectory)/testPlans/stage1
-                cp packages/infrastructure/stage-2/plan $(Build.ArtifactStagingDirectory)/testPlans/stage2
-
                 source scripts/buildServices.sh
                 source scripts/pushServices.sh
-
-          - task: PublishBuildArtifacts@1
-            displayName: Publish test plans
-            inputs:
-              pathToPublish: "$(Build.ArtifactStagingDirectory)/testPlans"
-              ArtifactName: testPlans
 
   - stage: test
     displayName: Test environment
@@ -81,58 +63,8 @@ stages:
                     scriptType: bash
                     scriptLocation: inlineScript
                     inlineScript: |
-                      # Authenticate terraform
-                      export ARM_CLIENT_ID="$servicePrincipalId"
-                      export ARM_CLIENT_SECRET="$servicePrincipalKey"
-                      export ARM_SUBSCRIPTION_ID="$(az account show | jq '.id' -r)"
-                      export ARM_TENANT_ID="$tenantId"
-
-                      mv $(Pipeline.Workspace)/testPlans/stage1 packages/infrastructure/stage-1/plan
-                      mv $(Pipeline.Workspace)/testPlans/stage2 packages/infrastructure/stage-2/plan
-
                       source scripts/setup.sh test --no-input
-                      source scripts/deployInfrastructure.sh
                       source scripts/deployServices.sh
-
-  - stage: prodbuild
-    displayName: Prod environment
-    jobs:
-      - job: prodbuild
-        displayName: Plan infrastructure
-        steps:
-          - checkout: self
-            fetchDepth: 1
-
-          - template: installDependencies.yaml
-
-          - task: AzureCLI@2
-            displayName: Run build.sh prod ---no-input
-            inputs:
-              azureSubscription: Pay-As-You-Go (f9b4e4d2-39a5-4c35-876c-303dc3de03d2)
-              addSpnToEnvironment: true
-              workingDirectory: "$(System.DefaultWorkingDirectory)"
-              scriptType: bash
-              scriptLocation: inlineScript
-              inlineScript: |
-                # Authenticate terraform
-                export ARM_CLIENT_ID="$servicePrincipalId"
-                export ARM_CLIENT_SECRET="$servicePrincipalKey"
-                export ARM_SUBSCRIPTION_ID="$(az account show | jq '.id' -r)"
-                export ARM_TENANT_ID="$tenantId"
-
-                # Run build script for test env
-                source scripts/setup.sh prod --no-input
-                source scripts/planInfrastructure.sh
-
-                mkdir $(Build.ArtifactStagingDirectory)/prodPlans
-                cp packages/infrastructure/stage-1/plan $(Build.ArtifactStagingDirectory)/prodPlans/stage1
-                cp packages/infrastructure/stage-2/plan $(Build.ArtifactStagingDirectory)/prodPlans/stage2
-
-          - task: PublishBuildArtifacts@1
-            displayName: Publish production plans
-            inputs:
-              pathToPublish: "$(Build.ArtifactStagingDirectory)/prodPlans"
-              ArtifactName: prodPlans
 
   - stage: prod
     displayName: Production environment
@@ -158,16 +90,6 @@ stages:
                     scriptType: bash
                     scriptLocation: inlineScript
                     inlineScript: |
-                      # Authenticate terraform
-                      export ARM_CLIENT_ID="$servicePrincipalId"
-                      export ARM_CLIENT_SECRET="$servicePrincipalKey"
-                      export ARM_SUBSCRIPTION_ID="$(az account show | jq '.id' -r)"
-                      export ARM_TENANT_ID="$tenantId"
-
-                      mv $(Pipeline.Workspace)/prodPlans/stage1 packages/infrastructure/stage-1/plan
-                      mv $(Pipeline.Workspace)/prodPlans/stage2 packages/infrastructure/stage-2/plan
-
                       # Run build script for production env
                       source scripts/setup.sh prod --no-input
-                      source scripts/deployInfrastructure.sh
                       source scripts/deployServices.sh
