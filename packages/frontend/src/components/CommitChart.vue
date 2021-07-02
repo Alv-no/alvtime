@@ -13,22 +13,22 @@ export default Vue.extend({
     // Overwriting base render method with actual data.
     this.renderChart({
       labels: [
-        "January",
-        "February",
-        "March",
+        "Januar",
+        "Februar",
+        "Mars",
         "April",
-        "May",
-        "June",
-        "July",
+        "Mai",
+        "Juni",
+        "Juli",
         "August",
         "September",
-        "October",
+        "Oktober",
         "November",
-        "December",
+        "Desember",
       ],
       datasets: [
         {
-          label: "Hours recorded",
+          label: "Timer registrert",
           backgroundColor: "#f87979",
           data: this.data,
         },
