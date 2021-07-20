@@ -19,9 +19,6 @@ export default Vue.extend({
     Chart,
     CenterColumnWrapper,
   },
-  beforeCreate() {
-    this.$store.dispatch("FETCH_WEEK_ENTRIES");
-  },
   data() {
     return {
       year: moment().year(),
@@ -45,6 +42,9 @@ export default Vue.extend({
       }
       return monthSums;
     },
+  },
+  beforeCreate() {
+    this.$store.dispatch("FETCH_WEEK_ENTRIES");
   },
 });
 </script>

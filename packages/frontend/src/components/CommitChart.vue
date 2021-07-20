@@ -11,7 +11,7 @@ export default Vue.extend({
   extends: Bar,
   mounted() {
     // Overwriting base render method with actual data.
-    this.renderChart({
+    (this as any).renderChart({
       labels: [
         "Januar",
         "Februar",
