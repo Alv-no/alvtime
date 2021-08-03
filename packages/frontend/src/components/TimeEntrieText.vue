@@ -1,10 +1,10 @@
 <template>
-  <div class="text">
-    <p>{{ task.project.customer.name }}</p>
-    <p class="activity_name_text">
-      {{ task.name }} {{ task.project.name }}
+  <div class="entry">
+    <p class="customer-name">{{ task.project.customer.name }}</p>
+    <div class="activity-name-container">
+      <p class="activity-name">{{ task.name }} {{ task.project.name }}</p>
       <small class="rate-text">{{ compansationRatePercentage }}</small>
-    </p>
+    </div>
   </div>
 </template>
 
@@ -30,19 +30,33 @@ export default Vue.extend({
 </script>
 
 <style scoped>
-.text {
-  display: block;
-  line-height: 0.3rem;
-  text-align: left;
+.entry {
   white-space: nowrap;
   overflow: hidden;
   font-size: 0.8rem;
 }
 
-.activity_name_text {
-  font-weight: 600;
+.customer-name {
+  margin: 0;
 }
+
+.activity-name-container {
+  display: flex;
+
+  /* Prevent percentage values from touching the hour input */
+  padding-right: 0.5rem;
+}
+
+.activity-name {
+  font-weight: 600;
+  margin: 0;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .rate-text {
-  font-weight: 100;
+  font-weight: lighter;
+  margin-left: 0.25rem;
 }
 </style>
