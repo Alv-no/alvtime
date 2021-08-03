@@ -127,13 +127,18 @@ export function sortList(a: Task, b: Task) {
   grid-template-columns: repeat(7, auto);
   gap: 1.51rem;
   text-align: center;
-  margin-bottom: 0.55rem;
 }
 
 .center {
   padding-top: 1rem;
   display: grid;
   justify-content: center;
+
+  row-gap: 1rem;
+}
+
+.center .row:first-child {
+  margin-bottom: 0.25rem;
 }
 
 @media only screen and (max-width: 1000px) {
@@ -153,7 +158,6 @@ export function sortList(a: Task, b: Task) {
 .week-number {
   display: grid;
   align-items: center;
-  margin-bottom: 0.55rem;
   font-size: 0.8rem;
 }
 </style>
