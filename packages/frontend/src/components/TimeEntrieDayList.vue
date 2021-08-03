@@ -141,6 +141,10 @@ function sortList(a: Row, b: Row) {
   background-color: white;
 }
 
+.slide > div:not(:last-child) {
+  margin-bottom: 0.5rem;
+}
+
 .grid {
   display: grid;
   grid-template-columns: 1fr auto;
