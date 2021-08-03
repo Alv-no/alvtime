@@ -50,6 +50,10 @@ A docker compose development environment has been defined for this project in `d
 
 Whenever a dependency is added to the frontend or the backend code is changed you have to rebuild the container to see the changes. This is done by shutting down the environment `./run down` and running `docker-compose build <service name>`. For example running `docker-compose build frontend` will download all the dependencies inside the container and make them available to the development server. Make sure to run `docker-compose build api` to rebuild the api backend service and include changes.
 
+##### Mac with ARM processor
+
+The MSSQL server doesn't compile on the new ARM processors for Mac. A workaruond can be found [here](https://github.com/Alv-no/alvtime/issues/368#issuecomment-892052356).
+
 ### 3. Run Tests and build all the services
 
 Run `./run build` from the root of the project.
