@@ -14,6 +14,7 @@ helm upgrade api service \
   --values "service/data/api/$ENV-env.yaml" \
   --set image.tag="$SHORT_HASH" \
   --set secrets.ConnectionStrings__AlvTime_db="${SQL_CONNECTION_STRING/,/\\,}" \
+  --namespace "alvtime"
 
 helm upgrade slack-api service \
   --install \
@@ -27,16 +28,19 @@ helm upgrade slack-api service \
   --set secrets.REPORT_USER_PERSONAL_ACCESS_TOKEN="$REPORT_USER_PERSONAL_ACCESS_TOKEN" \
   --set secrets.SLACK_BOT_TOKEN="$SLACK_BOT_TOKEN" \
   --set secrets.SLACK_SIGNING_SECRET="$SLACK_SIGNING_SECRET" \
+  --namespace "alvtime"
 
 helm upgrade frontend service \
   --install \
   --set image.tag="$SHORT_HASH" \
   --values "service/data/frontend/$ENV-env.yaml" \
+  --namespace "alvtime"
 
 helm upgrade admin service \
   --install \
   --set image.tag="$SHORT_HASH" \
   --values "service/data/admin/$ENV-env.yaml" \
+  --namespace "alvtime"
 
 sleep 20
 curl "https://api.$HOSTNAME/api/ping"
