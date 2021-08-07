@@ -1,6 +1,3 @@
-image:
-  repository: acralvtime.azurecr.io/alvtime-web-api
-
 config:
   AdminGroup: "5850c192-c101-4b64-9c45-cbbf73542805"
   ASPNETCORE_ENVIRONMENT: "Staging"
