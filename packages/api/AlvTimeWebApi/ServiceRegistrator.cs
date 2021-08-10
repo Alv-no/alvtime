@@ -6,6 +6,7 @@ using AlvTime.Business.AssociatedTask;
 using AlvTime.Business.CompensationRate;
 using AlvTime.Business.Customers;
 using AlvTime.Business.Economy;
+using AlvTime.Business.EconomyData;
 using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Holidays;
 using AlvTime.Business.HourRates;
@@ -15,6 +16,7 @@ using AlvTime.Business.Tasks.Admin;
 using AlvTime.Business.TimeEntries;
 using AlvTime.Business.Users;
 using AlvTime.Persistence.Repositories;
+using AlvTime.Persistence.Repositories.AlvEconomy;
 using AlvTimeWebApi.Controllers.Utils;
 using AlvTimeWebApi.Persistence.Repositories;
 using Microsoft.Extensions.Configuration;
@@ -50,6 +52,7 @@ namespace AlvTimeWebApi
             services.AddScoped<ICompensationRateStorage, CompensationRateStorage>();
             services.AddScoped<IRedDaysService, RedDaysService>();
             services.AddScoped<IAbsenseDaysService, AbsenseDaysService>();
+            services.AddScoped<IEmployeeHourlySalaryStorage, EmployeeHourlySalaryStorage>();
         }
     }
 }
