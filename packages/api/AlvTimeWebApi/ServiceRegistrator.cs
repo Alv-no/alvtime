@@ -16,7 +16,7 @@ using AlvTime.Business.Tasks.Admin;
 using AlvTime.Business.TimeEntries;
 using AlvTime.Business.Users;
 using AlvTime.Persistence.Repositories;
-using AlvTime.Persistence.Repositories.AlvEconomy;
+using AlvTime.Persistence.Repositories.AlvEconomyData;
 using AlvTimeWebApi.Controllers.Utils;
 using AlvTimeWebApi.Persistence.Repositories;
 using Microsoft.Extensions.Configuration;
@@ -53,6 +53,7 @@ namespace AlvTimeWebApi
             services.AddScoped<IRedDaysService, RedDaysService>();
             services.AddScoped<IAbsenseDaysService, AbsenseDaysService>();
             services.AddScoped<IEmployeeHourlySalaryStorage, EmployeeHourlySalaryStorage>();
+            services.AddScoped<IOvertimePayoutStorage, OvertimePayoutStorage>();
         }
     }
 }

@@ -18,13 +18,14 @@ namespace AlvTime.Persistence.EconomyDataDBModels
         }
 
         public virtual DbSet<EmployeeHourlySalary> EmployeeHourlySalaries { get; set; }
+        public virtual DbSet<OvertimePayout> OvertimePayouts { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=AlvEconomyData;persist security info=True; Integrated Security=SSPI;");
+                optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=AlvEconomyData;Integrated Security=SSPI;Trusted_Connection=True;");
             }
         }
 
@@ -35,6 +36,13 @@ namespace AlvTime.Persistence.EconomyDataDBModels
             modelBuilder.Entity<EmployeeHourlySalary>(entity =>
             {
                 entity.Property(e => e.HourlySalary).HasColumnType("decimal(18, 9)");
+            });
+
+            modelBuilder.Entity<OvertimePayout>(entity =>
+            {
+                entity.ToTable("OvertimePayout");
+
+                entity.Property(e => e.TotalPayout).HasColumnType("decimal(18, 9)");
             });
 
             OnModelCreatingPartial(modelBuilder);

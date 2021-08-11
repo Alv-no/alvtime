@@ -3,7 +3,7 @@ using System.Linq;
 using AlvTime.Business.EconomyData;
 using AlvTime.Persistence.EconomyDataDBModels;
 
-namespace AlvTime.Persistence.Repositories.AlvEconomy
+namespace AlvTime.Persistence.Repositories.AlvEconomyData
 {
     public class EmployeeHourlySalaryStorage: IEmployeeHourlySalaryStorage
     {

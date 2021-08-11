@@ -1,11 +1,11 @@
 ﻿using System;
 using AlvTime.Persistence.EconomyDataDBModels;
-using AlvTime.Persistence.Repositories.AlvEconomy;
+using AlvTime.Persistence.Repositories.AlvEconomyData;
 using Xunit;
 
-namespace Tests.UnitTests.EconomyDataTests
+namespace Tests.UnitTests.EconomyDataTests.Overtime
 {
-    public class SalaryTests
+    public class EmployeeHourlySalaryStorageTests
     {
         [Fact]
         public void GetSalary_ReturnSalary()
