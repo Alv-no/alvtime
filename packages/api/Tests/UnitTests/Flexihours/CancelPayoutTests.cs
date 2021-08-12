@@ -4,6 +4,8 @@ using AlvTime.Persistence.DataBaseModels;
 using AlvTime.Persistence.Repositories;
 using System;
 using System.Linq;
+using AlvTime.Persistence.EconomyDataDBModels;
+using AlvTime.Persistence.Repositories.AlvEconomyData;
 using FluentValidation;
 using Xunit;
 using static Tests.UnitTests.Flexihours.GetOvertimeTests;
@@ -13,6 +15,7 @@ namespace Tests.UnitTests.Flexihours
     public class CancelPayoutTests
     {
         private AlvTime_dbContext _context = new AlvTimeDbContextBuilder().WithUsers().CreateDbContext();
+        private AlvEconomyDataContext _economyDataContext = new AlvEconomyDataDbContextBuilder().WithEmployeeSalary().CreateDbContext();
 
         [Fact]
         public void CancelPayout_PayoutIsRegisteredInSameMonth_PayoutIsCanceled()
@@ -73,7 +76,8 @@ namespace Tests.UnitTests.Flexihours
                     FlexTask = 18,
                     ReportUser = 11,
                     StartOfOvertimeSystem = new DateTime(2020, 01, 01)
-                }));
+                }),
+                new OvertimePayoutStorage(_economyDataContext, new EmployeeHourlySalaryStorage(_economyDataContext)));
         }
 
         private static Hours CreateTimeEntry(DateTime date, decimal value, out int taskId)

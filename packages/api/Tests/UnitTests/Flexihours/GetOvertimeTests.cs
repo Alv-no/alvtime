@@ -6,6 +6,8 @@ using AlvTime.Business.FlexiHours;
 using Xunit;
 using Microsoft.Extensions.Options;
 using AlvTime.Business.Options;
+using AlvTime.Persistence.EconomyDataDBModels;
+using AlvTime.Persistence.Repositories.AlvEconomyData;
 
 namespace Tests.UnitTests.Flexihours
 {
@@ -14,6 +16,8 @@ namespace Tests.UnitTests.Flexihours
         private readonly AlvTime_dbContext _context = new AlvTimeDbContextBuilder()
                 .WithUsers()
                 .CreateDbContext();
+
+        private AlvEconomyDataContext _economyDataContext = new AlvEconomyDataDbContextBuilder().WithEmployeeSalary().CreateDbContext();
 
         private readonly DateTime _startDate = new DateTime(2021, 01, 05);
         private readonly DateTime _endDate = DateTime.Now.Date;
@@ -244,7 +248,9 @@ namespace Tests.UnitTests.Flexihours
                     UnpaidHolidayTask = 19,
                     ReportUser = 11, 
                     StartOfOvertimeSystem = new DateTime(2021, 01, 01) 
-                }));
+                }),  
+                
+                new OvertimePayoutStorage(_economyDataContext, new EmployeeHourlySalaryStorage(_economyDataContext)));
         }
 
         private static Hours CreateTimeEntry(DateTime date, decimal value, out int taskId)

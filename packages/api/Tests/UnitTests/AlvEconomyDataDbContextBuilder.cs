@@ -6,8 +6,7 @@ namespace Tests.UnitTests
 {
     public class AlvEconomyDataDbContextBuilder
     {
-
-        private AlvEconomyDataContext _context;
+        private readonly AlvEconomyDataContext _context;
 
         public AlvEconomyDataDbContextBuilder()
         {

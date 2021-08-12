@@ -9,5 +9,6 @@ namespace AlvTime.Business.FlexiHours
         public DateTime Date { get; set; }
         public decimal HoursBeforeCompensation { get; set; }
         public decimal HoursAfterCompensation { get; set; }
+        public decimal CompensationSalary { get; set; }
     }
 }

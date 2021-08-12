@@ -3,11 +3,11 @@ using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Options;
 using AlvTime.Business.TimeEntries;
 using AlvTime.Persistence.DataBaseModels;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AlvTime.Business.EconomyData;
 using FluentValidation;
 
 public class FlexhourStorage : IFlexhourStorage
@@ -20,8 +20,9 @@ public class FlexhourStorage : IFlexhourStorage
     private readonly int _paidHolidayTask;
     private readonly int _unpaidHolidayTask;
     private readonly DateTime _startOfOvertimeSystem;
+    private readonly IOvertimePayoutStorage _overtimePayoutStorage;
 
-    public FlexhourStorage(ITimeEntryStorage timeEntryStorage, AlvTime_dbContext context, IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
+    public FlexhourStorage(ITimeEntryStorage timeEntryStorage, AlvTime_dbContext context, IOptionsMonitor<TimeEntryOptions> timeEntryOptions, IOvertimePayoutStorage overtimePayoutStorage)
     {
         _timeEntryStorage = timeEntryStorage;
         _context = context;
@@ -30,6 +31,7 @@ public class FlexhourStorage : IFlexhourStorage
         _paidHolidayTask = _timeEntryOptions.CurrentValue.PaidHolidayTask;
         _unpaidHolidayTask = _timeEntryOptions.CurrentValue.UnpaidHolidayTask;
         _startOfOvertimeSystem = _timeEntryOptions.CurrentValue.StartOfOvertimeSystem;
+        _overtimePayoutStorage = overtimePayoutStorage;
     }
 
     public AvailableHoursDto GetAvailableHours(int userId, DateTime userStartDate, DateTime endDate)
@@ -51,10 +53,6 @@ public class FlexhourStorage : IFlexhourStorage
 
     public FlexedHoursDto GetFlexedHours(int userId)
     {
-        var dbUser = _context.User.SingleOrDefault(u => u.Id == userId);
-        var startDate = dbUser.StartDate;
-        var endDate = DateTime.Now.Date;
-
         var timeOffEntries = _context.Hours.Where(h => h.User == userId && h.TaskId == _flexTask);
         var timeOffSum = _context.Hours.Where(h => h.User == userId && h.TaskId == _flexTask).Sum(h => h.Value);
 
@@ -152,8 +150,6 @@ public class FlexhourStorage : IFlexhourStorage
 
     private IEnumerable<OvertimeEntry> CreateOvertimeEntries(DateEntry day, bool isRedDay)
     {
-        var overtimeEntries = new List<OvertimeEntry>();
-
         var overtimeHours = isRedDay ? day.GetWorkingHours() : day.GetWorkingHours() - HoursInRegularWorkday;
 
         foreach (var entry in day.Entries.OrderBy(task => task.CompensationRate))
@@ -296,16 +292,16 @@ public class FlexhourStorage : IFlexhourStorage
     {
         var user = _context.User.SingleOrDefault(u => u.Id == userId);
         var userStartDate = user.StartDate;
+
         var dateToStartCalculation = userStartDate > _startOfOvertimeSystem ? userStartDate : _startOfOvertimeSystem;
-
         var overtimeEntries = GetOvertimeEntriesAfterOffTimeAndPayouts(dateToStartCalculation, request.Date, userId);
-
         var availableForPayout = overtimeEntries.Sum(ot => ot.Hours);
-
         var hoursAfterCompRate = GetHoursAfterCompRate(overtimeEntries, request.Hours);
 
         if (request.Hours <= availableForPayout)
         {
+            var paidOvertimeSalary = _overtimePayoutStorage.RegisterOvertimePayoutSalary(overtimeEntries, userId, request);
+
             PaidOvertime paidOvertime = new PaidOvertime
             {
                 Date = request.Date,
@@ -322,12 +318,15 @@ public class FlexhourStorage : IFlexhourStorage
                 UserId = paidOvertime.Id,
                 Date = paidOvertime.Date,
                 HoursBeforeCompensation = paidOvertime.HoursBeforeCompRate,
-                HoursAfterCompensation = paidOvertime.HoursAfterCompRate
+                HoursAfterCompensation = paidOvertime.HoursAfterCompRate,
+                CompensationSalary = paidOvertimeSalary
             };
         }
 
         throw new ValidationException("Not enough available hours");
     }
+
+   
 
     public PaidOvertimeEntry CancelPayout(int userId, int id)
     {
@@ -337,11 +336,14 @@ public class FlexhourStorage : IFlexhourStorage
         {
             throw new ValidationException("Selected payout must be latest ordered payout");
         }
+        //TODO: slett overtimepayout også
 
         if (payout != null && payout.Date.Month >= DateTime.Now.Month && payout.Date.Year == DateTime.Now.Year)
         {
             _context.PaidOvertime.Remove(payout);
             _context.SaveChanges();
+
+            _overtimePayoutStorage.DeleteOvertimePayout(userId, payout.Date);
 
             return new PaidOvertimeEntry
             {

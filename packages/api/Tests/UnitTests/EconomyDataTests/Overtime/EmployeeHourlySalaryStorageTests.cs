@@ -60,25 +60,29 @@ namespace Tests.UnitTests.EconomyDataTests.Overtime
             var context = new AlvEconomyDataDbContextBuilder().CreateDbContext();
             var storage = new EmployeeHourlySalaryStorage(context);
 
-            context.EmployeeHourlySalaries.Add(new EmployeeHourlySalary
-            {
-                UserId = 1,
-                HourlySalary = 200.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2019),
-                ToDate = new DateTime(day: 30, month: 06, year: 2020)
-            });
-            context.EmployeeHourlySalaries.Add(new EmployeeHourlySalary
+            var firstSalary =
+                new EmployeeHourlySalary
+                {
+                    UserId = 1,
+                    HourlySalary = 200.0M,
+                    FromDateInclusive = new DateTime(day: 01, month: 07, year: 2019),
+                    ToDate = new DateTime(day: 30, month: 06, year: 2020)
+                };
+            var secondSalary = new EmployeeHourlySalary
             {
                 UserId = 1,
                 HourlySalary = 300.0M,
                 FromDateInclusive = new DateTime(day: 01, month: 07, year: 2020),
                 ToDate = null
-            });
+            };
+            context.EmployeeHourlySalaries.Add(firstSalary);
+            context.EmployeeHourlySalaries.Add(secondSalary);
+
             context.SaveChanges();
 
             var salary = storage.GetHouerlySalary(1, new DateTime(day: 08, month: 09, year: 2021));
 
-            Assert.Equal(200.0M, salary);
+            Assert.Equal(secondSalary.HourlySalary, salary);
         }
     }
 }
