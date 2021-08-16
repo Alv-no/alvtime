@@ -336,7 +336,6 @@ public class FlexhourStorage : IFlexhourStorage
         {
             throw new ValidationException("Selected payout must be latest ordered payout");
         }
-        //TODO: slett overtimepayout også
 
         if (payout != null && payout.Date.Month >= DateTime.Now.Month && payout.Date.Year == DateTime.Now.Year)
         {

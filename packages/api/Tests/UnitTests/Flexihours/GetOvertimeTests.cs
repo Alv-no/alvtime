@@ -250,7 +250,7 @@ namespace Tests.UnitTests.Flexihours
                     StartOfOvertimeSystem = new DateTime(2021, 01, 01) 
                 }),  
                 
-                new OvertimePayoutStorage(_economyDataContext, new EmployeeHourlySalaryStorage(_economyDataContext)));
+                new OvertimePayoutStorage(_economyDataContext, new EmployeeHourlySalaryStorage(_economyDataContext, _context)));
         }
 
         private static Hours CreateTimeEntry(DateTime date, decimal value, out int taskId)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AlvTime.Business.EconomyData;
 using AlvTime.Business.FlexiHours;
+using AlvTime.Persistence.DataBaseModels;
 using AlvTime.Persistence.EconomyDataDBModels;
 using AlvTime.Persistence.Repositories.AlvEconomyData;
 using Xunit;
@@ -13,6 +14,8 @@ namespace Tests.UnitTests.EconomyDataTests.Overtime
     {
         private readonly AlvEconomyDataContext _economyDataContext =
             new AlvEconomyDataDbContextBuilder().CreateDbContext();
+
+        private readonly AlvTime_dbContext _context = new AlvTimeDbContextBuilder().CreateDbContext();
 
         [Fact]
         public void AddTotalPayoutForOvertime_TotalPayoutIsAdded()
@@ -233,7 +236,7 @@ namespace Tests.UnitTests.EconomyDataTests.Overtime
 
         private OvertimePayoutStorage CreateStorage()
         {
-            return new(_economyDataContext, new EmployeeHourlySalaryStorage(_economyDataContext));
+            return new(_economyDataContext, new EmployeeHourlySalaryStorage(_economyDataContext, _context));
         }
     }
 }

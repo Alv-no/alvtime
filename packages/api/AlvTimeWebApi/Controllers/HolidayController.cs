@@ -1,5 +1,4 @@
-﻿using AlvTime.Business;
-using AlvTime.Business.Helpers;
+﻿using AlvTime.Business.Helpers;
 using AlvTime.Business.Options;
 using AlvTime.Business.TimeEntries;
 using AlvTimeWebApi.Controllers.Utils;

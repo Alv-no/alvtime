@@ -1,5 +1,6 @@
 using AlvTime.Business.Options;
 using AlvTime.Persistence.DataBaseModels;
+using AlvTime.Persistence.EconomyDataDBModels;
 using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.Cors;
@@ -35,6 +36,7 @@ namespace AlvTimeWebApi
         {
             services.AddAlvtimeServices(Configuration);
             services.AddDbContext<AlvTime_dbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("AlvTime_db")), contextLifetime: ServiceLifetime.Scoped, optionsLifetime: ServiceLifetime.Scoped);
+            services.AddDbContext<AlvEconomyDataContext>(options => options.UseSqlServer(Configuration.GetConnectionString("AlvEconomyData_db")), contextLifetime: ServiceLifetime.Scoped, optionsLifetime: ServiceLifetime.Scoped);
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddAlvtimeAuthentication(Configuration);
             services.Configure<TimeEntryOptions>(Configuration.GetSection("TimeEntryOptions"));
