@@ -18,7 +18,7 @@ namespace Tests.UnitTests.EconomyDataTests.Overtime
         private readonly AlvTime_dbContext _context = new AlvTimeDbContextBuilder().CreateDbContext();
 
         [Fact]
-        public void AddTotalPayoutForOvertime_TotalPayoutIsAdded()
+        public void SaveTotalOvertimePayout_TotalPayoutIsAdded()
         {
             var storage = CreateStorage();
             var overtimePayout = new OvertimePayout
@@ -28,7 +28,7 @@ namespace Tests.UnitTests.EconomyDataTests.Overtime
                 TotalPayout = 1200.5M
             };
 
-            storage.RegisterTotalOvertimePayout(new RegisterOvertimePayoutDto
+            storage.SaveTotalOvertimePayout(new RegisterOvertimePayoutDto
             {
                 Date = overtimePayout.Date,
                 UserId = overtimePayout.UserId,
@@ -45,7 +45,7 @@ namespace Tests.UnitTests.EconomyDataTests.Overtime
         }
 
         [Fact]
-        public void DeleteTotalPayoutForOvertime_TotalPayoutIsDeleted()
+        public void DeleteOvertimePayout_TotalPayoutIsDeleted()
         {
             var storage = CreateStorage();
 

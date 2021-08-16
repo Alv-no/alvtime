@@ -42,7 +42,7 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
             };
         }
 
-        public void RegisterTotalOvertimePayout(RegisterOvertimePayoutDto overtimePayout)
+        public void SaveTotalOvertimePayout(RegisterOvertimePayoutDto overtimePayout)
         {
             _economyContext.OvertimePayouts.Add(new OvertimePayout
             {
@@ -58,7 +58,7 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
             var overtimeEntriesForPayout = GetOvertimeEntriesForPayout(overtimeEntries, requestedPayout.Hours);
             var overtimeSalary = GetOvertimeSalaryPayout(overtimeEntriesForPayout, userId);
 
-            RegisterTotalOvertimePayout(new RegisterOvertimePayoutDto
+            SaveTotalOvertimePayout(new RegisterOvertimePayoutDto
             {
                 TotalPayout = overtimeSalary,
                 UserId = userId,
