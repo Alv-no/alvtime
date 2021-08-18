@@ -26,7 +26,7 @@ namespace Tests.UnitTests.EconomyDataTests.Overtime
             });
             economyContext.SaveChanges();
 
-            var salary = storage.GetHouerlySalary(1, new DateTime(2021,08,08));
+            var salary = storage.GetHourlySalary(1, new DateTime(2021,08,08));
 
             Assert.Equal(500.0M, salary);
         }
@@ -54,7 +54,7 @@ namespace Tests.UnitTests.EconomyDataTests.Overtime
             });
             economyContext.SaveChanges();
 
-            var salary = storage.GetHouerlySalary(1, new DateTime(2019,09,08));
+            var salary = storage.GetHourlySalary(1, new DateTime(2019,09,08));
 
             Assert.Equal(200.0M, salary);
         }
@@ -86,7 +86,7 @@ namespace Tests.UnitTests.EconomyDataTests.Overtime
 
             economyContext.SaveChanges();
 
-            var salary = storage.GetHouerlySalary(1, new DateTime(2021,09,08));
+            var salary = storage.GetHourlySalary(1, new DateTime(2021,09,08));
 
             Assert.Equal(secondSalary.HourlySalary, salary);
         }
@@ -176,7 +176,7 @@ namespace Tests.UnitTests.EconomyDataTests.Overtime
             var storage = new EmployeeHourlySalaryStorage(economyContext, context);
 
             var employeeSalary = new EmployeeSalaryDto
-                {FromDate = new DateTime(2020, 08, 12), HourlySalary = 120.0M, usiderId = 1};
+                {FromDate = new DateTime(2020, 08, 12), HourlySalary = 120.0M, UsiderId = 1};
             
             storage.RegisterHourlySalary(employeeSalary);
             
@@ -194,7 +194,7 @@ namespace Tests.UnitTests.EconomyDataTests.Overtime
             var storage = new EmployeeHourlySalaryStorage(economyContext, context);
 
             var employeeSalary = new EmployeeSalaryDto
-                { FromDate = new DateTime(2020, 08, 12), HourlySalary = 120.0M, usiderId = 1 };
+                { FromDate = new DateTime(2020, 08, 12), HourlySalary = 120.0M, UsiderId = 1 };
 
             Assert.Throws<ValidationException>(() => storage.RegisterHourlySalary(employeeSalary));
         }
@@ -218,7 +218,7 @@ namespace Tests.UnitTests.EconomyDataTests.Overtime
             economyContext.SaveChanges();
 
             var newSalary = new EmployeeSalaryDto
-                { FromDate = new DateTime(2020, 08, 12), HourlySalary = 120.0M, usiderId = 1 };
+                { FromDate = new DateTime(2020, 08, 12), HourlySalary = 120.0M, UsiderId = 1 };
 
             storage.RegisterHourlySalary(newSalary);
 
@@ -230,7 +230,7 @@ namespace Tests.UnitTests.EconomyDataTests.Overtime
                                                                           x.HourlySalary== oldSalary.HourlySalary && 
                                                                           x.ToDate == newSalary.FromDate.AddDays(-1)));
             //varifies that new salary is added with correct values
-            Assert.Single(economyContext.EmployeeHourlySalaries.Where(x => x.UserId == newSalary.usiderId &&
+            Assert.Single(economyContext.EmployeeHourlySalaries.Where(x => x.UserId == newSalary.UsiderId &&
                                                                            x.FromDateInclusive == newSalary.FromDate &&
                                                                            x.HourlySalary == newSalary.HourlySalary &&
                                                                            x.ToDate == null));

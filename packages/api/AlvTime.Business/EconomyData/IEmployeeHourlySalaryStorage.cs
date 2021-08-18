@@ -5,7 +5,7 @@ namespace AlvTime.Business.EconomyData
 {
     public interface IEmployeeHourlySalaryStorage
     {
-        decimal GetHouerlySalary(int userId, DateTime date);
+        decimal GetHourlySalary(int userId, DateTime date);
         void RegisterHourlySalary(EmployeeSalaryDto employeeSalaryData);
         List<EmployeeSalaryDto> GetEmployeeSalaryData(int userId);
     }

@@ -74,7 +74,7 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
 
             foreach (var overtimeEntry in overtimeEntriesForPayout)
             {
-                var hourlySalary = _employeeHourlySalaryStorage.GetHouerlySalary(userId, overtimeEntry.Date);
+                var hourlySalary = _employeeHourlySalaryStorage.GetHourlySalary(userId, overtimeEntry.Date);
 
                 salary += hourlySalary * overtimeEntry.Hours * overtimeEntry.CompensationRate;
             }
