@@ -11,6 +11,7 @@ using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Holidays;
 using AlvTime.Business.HourRates;
 using AlvTime.Business.Projects;
+using AlvTime.Business.Services;
 using AlvTime.Business.Tasks;
 using AlvTime.Business.Tasks.Admin;
 using AlvTime.Business.TimeEntries;
@@ -54,6 +55,7 @@ namespace AlvTimeWebApi
             services.AddScoped<IAbsenseDaysService, AbsenseDaysService>();
             services.AddScoped<IEmployeeHourlySalaryStorage, EmployeeHourlySalaryStorage>();
             services.AddScoped<IOvertimePayoutStorage, OvertimePayoutStorage>();
+            services.AddScoped<ISalaryService, SalaryService>();
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AlvTime.Business.EconomyData;
+using AlvTime.Business.FlexiHours;
 using AlvTime.Persistence.DataBaseModels;
 using AlvTime.Persistence.EconomyDataDBModels;
 using FluentValidation;
@@ -78,6 +79,20 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
             foreach (var hourlySalary in employeeWithSalaryData) returnSalary.Add(ToEmployeeSalaryDto(hourlySalary));
 
             return returnSalary;
+        }
+
+        public decimal CalculateOvertimeSalaryPayout(List<OvertimeEntry> overtimeEntriesForPayout, int userId)
+        {
+            var salary = 0.0M;
+
+            foreach (var overtimeEntry in overtimeEntriesForPayout)
+            {
+                var hourlySalary = GetHourlySalary(userId, overtimeEntry.Date);
+
+                salary += hourlySalary * overtimeEntry.Hours * overtimeEntry.CompensationRate;
+            }
+
+            return salary;
         }
 
         private EmployeeSalaryDto ToEmployeeSalaryDto(EmployeeHourlySalary employeeHourlySalary)

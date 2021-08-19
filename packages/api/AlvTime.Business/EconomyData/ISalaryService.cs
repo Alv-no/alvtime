@@ -4,11 +4,11 @@ using AlvTime.Business.FlexiHours;
 
 namespace AlvTime.Business.EconomyData
 {
-    public interface IEmployeeHourlySalaryStorage
+    public interface ISalaryService
     {
-        decimal GetHourlySalary(int userId, DateTime date);
+        decimal RegisterOvertimePayout(List<OvertimeEntry> overtimeEntries, int userId, GenericHourEntry requestedPayout);
         void RegisterHourlySalary(EmployeeSalaryDto employeeSalaryData);
         List<EmployeeSalaryDto> GetEmployeeSalaryData(int userId);
-        decimal CalculateOvertimeSalaryPayout(List<OvertimeEntry> overtimeEntriesForPayout, int userId);
+        OvertimePayoutResponsDto DeleteOvertimePayout(int userId, DateTime date);
     }
 }

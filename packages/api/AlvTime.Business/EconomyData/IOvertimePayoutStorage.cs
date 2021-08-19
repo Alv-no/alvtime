@@ -7,9 +7,7 @@ namespace AlvTime.Business.EconomyData
     public interface IOvertimePayoutStorage
     {
         OvertimePayoutResponsDto DeleteOvertimePayout(int userId, DateTime date);
-        void SaveTotalOvertimePayout(RegisterOvertimePayoutDto overtimePayout);
-
-        decimal RegisterOvertimePayoutSalary(List<OvertimeEntry> overtimeEntries, int userId,
-            GenericHourEntry requestedPayout);
+        void SaveOvertimePayout(RegisterOvertimePayoutDto overtimePayout);
+        List<OvertimeEntry> GetOvertimeEntriesForPayout(List<OvertimeEntry> overtimeEntries, decimal hoursForPayout);
     }
 }

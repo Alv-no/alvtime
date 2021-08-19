@@ -6,6 +6,7 @@ using AlvTime.Business.FlexiHours;
 using Xunit;
 using Microsoft.Extensions.Options;
 using AlvTime.Business.Options;
+using AlvTime.Business.Services;
 using AlvTime.Persistence.EconomyDataDBModels;
 using AlvTime.Persistence.Repositories.AlvEconomyData;
 
@@ -250,7 +251,7 @@ namespace Tests.UnitTests.Flexihours
                     StartOfOvertimeSystem = new DateTime(2021, 01, 01) 
                 }),  
                 
-                new OvertimePayoutStorage(_economyDataContext, new EmployeeHourlySalaryStorage(_economyDataContext, _context)));
+                new SalaryService(new OvertimePayoutStorage(_economyDataContext),new EmployeeHourlySalaryStorage(_economyDataContext, _context)));
         }
 
         private static Hours CreateTimeEntry(DateTime date, decimal value, out int taskId)

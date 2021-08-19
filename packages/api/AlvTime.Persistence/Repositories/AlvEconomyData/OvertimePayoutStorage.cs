@@ -11,12 +11,10 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
     public class OvertimePayoutStorage : IOvertimePayoutStorage
     {
         private readonly AlvEconomyDataContext _economyContext;
-        private readonly IEmployeeHourlySalaryStorage _employeeHourlySalaryStorage;
 
-        public OvertimePayoutStorage(AlvEconomyDataContext economyContext, IEmployeeHourlySalaryStorage employeeHourlySalaryStorage)
+        public OvertimePayoutStorage(AlvEconomyDataContext economyContext)
         {
             _economyContext = economyContext;
-            _employeeHourlySalaryStorage = employeeHourlySalaryStorage;
         }
 
         public OvertimePayoutResponsDto DeleteOvertimePayout(int userId, DateTime date)
@@ -42,7 +40,7 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
             };
         }
 
-        public void SaveTotalOvertimePayout(RegisterOvertimePayoutDto overtimePayout)
+        public void SaveOvertimePayout(RegisterOvertimePayoutDto overtimePayout)
         {
             _economyContext.OvertimePayouts.Add(new OvertimePayout
             {
@@ -52,36 +50,8 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
             });
             _economyContext.SaveChanges();
         }
-
-        public decimal RegisterOvertimePayoutSalary(List<OvertimeEntry> overtimeEntries, int userId, GenericHourEntry requestedPayout)
-        {
-            var overtimeEntriesForPayout = GetOvertimeEntriesForPayout(overtimeEntries, requestedPayout.Hours);
-            var overtimeSalary = GetOvertimeSalaryPayout(overtimeEntriesForPayout, userId);
-
-            SaveTotalOvertimePayout(new RegisterOvertimePayoutDto
-            {
-                TotalPayout = overtimeSalary,
-                UserId = userId,
-                Date = requestedPayout.Date
-            });
-
-            return overtimeSalary;
-        }
-
-        private decimal GetOvertimeSalaryPayout(List<OvertimeEntry> overtimeEntriesForPayout, int userId)
-        {
-            var salary = 0.0M;
-
-            foreach (var overtimeEntry in overtimeEntriesForPayout)
-            {
-                var hourlySalary = _employeeHourlySalaryStorage.GetHourlySalary(userId, overtimeEntry.Date);
-
-                salary += hourlySalary * overtimeEntry.Hours * overtimeEntry.CompensationRate;
-            }
-
-            return salary;
-        }
-        private List<OvertimeEntry> GetOvertimeEntriesForPayout(List<OvertimeEntry> overtimeEntries, decimal hoursForPayout)
+        
+        public List<OvertimeEntry> GetOvertimeEntriesForPayout(List<OvertimeEntry> overtimeEntries, decimal hoursForPayout)
         {
             var tempHourCounter = 0.0M;
             var overtimeEntriesForPayout = new List<OvertimeEntry>();

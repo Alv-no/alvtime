@@ -4,6 +4,7 @@ using AlvTime.Persistence.DataBaseModels;
 using AlvTime.Persistence.Repositories;
 using System;
 using System.Linq;
+using AlvTime.Business.Services;
 using AlvTime.Persistence.EconomyDataDBModels;
 using AlvTime.Persistence.Repositories.AlvEconomyData;
 using FluentValidation;
@@ -77,7 +78,7 @@ namespace Tests.UnitTests.Flexihours
                     ReportUser = 11,
                     StartOfOvertimeSystem = new DateTime(2020, 01, 01)
                 }),
-                new OvertimePayoutStorage(_economyDataContext, new EmployeeHourlySalaryStorage(_economyDataContext, _context)));
+                new SalaryService( new OvertimePayoutStorage(_economyDataContext), new EmployeeHourlySalaryStorage(_economyDataContext, _context)));
         }
 
         private static Hours CreateTimeEntry(DateTime date, decimal value, out int taskId)

@@ -20,9 +20,9 @@ public class FlexhourStorage : IFlexhourStorage
     private readonly int _paidHolidayTask;
     private readonly int _unpaidHolidayTask;
     private readonly DateTime _startOfOvertimeSystem;
-    private readonly IOvertimePayoutStorage _overtimePayoutStorage;
+    private readonly ISalaryService _salaryService;
 
-    public FlexhourStorage(ITimeEntryStorage timeEntryStorage, AlvTime_dbContext context, IOptionsMonitor<TimeEntryOptions> timeEntryOptions, IOvertimePayoutStorage overtimePayoutStorage)
+    public FlexhourStorage(ITimeEntryStorage timeEntryStorage, AlvTime_dbContext context, IOptionsMonitor<TimeEntryOptions> timeEntryOptions, ISalaryService salaryService)
     {
         _timeEntryStorage = timeEntryStorage;
         _context = context;
@@ -31,7 +31,7 @@ public class FlexhourStorage : IFlexhourStorage
         _paidHolidayTask = _timeEntryOptions.CurrentValue.PaidHolidayTask;
         _unpaidHolidayTask = _timeEntryOptions.CurrentValue.UnpaidHolidayTask;
         _startOfOvertimeSystem = _timeEntryOptions.CurrentValue.StartOfOvertimeSystem;
-        _overtimePayoutStorage = overtimePayoutStorage;
+        _salaryService = salaryService;
     }
 
     public AvailableHoursDto GetAvailableHours(int userId, DateTime userStartDate, DateTime endDate)
@@ -300,7 +300,7 @@ public class FlexhourStorage : IFlexhourStorage
 
         if (request.Hours <= availableForPayout)
         {
-            var paidOvertimeSalary = _overtimePayoutStorage.RegisterOvertimePayoutSalary(overtimeEntries, userId, request);
+            var paidOvertimeSalary = _salaryService.RegisterOvertimePayout(overtimeEntries, userId, request);
 
             PaidOvertime paidOvertime = new PaidOvertime
             {
@@ -342,7 +342,7 @@ public class FlexhourStorage : IFlexhourStorage
             _context.PaidOvertime.Remove(payout);
             _context.SaveChanges();
 
-            _overtimePayoutStorage.DeleteOvertimePayout(userId, payout.Date);
+            _salaryService.DeleteOvertimePayout(userId, payout.Date);
 
             return new PaidOvertimeEntry
             {

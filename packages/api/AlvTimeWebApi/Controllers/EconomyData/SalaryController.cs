@@ -9,18 +9,18 @@ namespace AlvTimeWebApi.Controllers.EconomyData
     [ApiController]
     public class SalaryController : Controller
     {
-        private readonly IEmployeeHourlySalaryStorage _employeeHourlySalaryStorage;
+        private readonly ISalaryService _salaryService;
 
-        public SalaryController(IEmployeeHourlySalaryStorage employeeHourlySalaryStorage)
+        public SalaryController(ISalaryService salaryService)
         {
-            _employeeHourlySalaryStorage = employeeHourlySalaryStorage;
+            _salaryService = salaryService;
         }
 
         [AuthorizeAdmin]
         [HttpPost("/EmployeeSalary")]
         public ActionResult RegisterHourlySalary([FromBody] EmployeeSalaryDto employeeSalaryData)
         {
-            _employeeHourlySalaryStorage.RegisterHourlySalary(employeeSalaryData);
+            _salaryService.RegisterHourlySalary(employeeSalaryData);
             return Ok();
         }
 
@@ -28,7 +28,7 @@ namespace AlvTimeWebApi.Controllers.EconomyData
         [HttpGet("/EmployeeSalary")]
         public ActionResult<List<EmployeeSalaryDto>> GetEmployeeSalaryData(int userId)
         {
-            return Ok(_employeeHourlySalaryStorage.GetEmployeeSalaryData(userId));
+            return Ok(_salaryService.GetEmployeeSalaryData(userId));
         }
     }
 }
