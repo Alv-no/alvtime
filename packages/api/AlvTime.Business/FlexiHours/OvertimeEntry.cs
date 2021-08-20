@@ -8,5 +8,6 @@ namespace AlvTime.Business.FlexiHours
         public decimal Hours { get; set; }
         public int TaskId { get; set; }
         public decimal CompensationRate { get; set; }
+        public decimal Salary { get; set; }
     }
 }
