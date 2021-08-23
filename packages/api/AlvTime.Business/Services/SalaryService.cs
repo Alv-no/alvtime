@@ -16,9 +16,9 @@ namespace AlvTime.Business.Services
             _employeeHourlySalaryStorage = employeeHourlySalaryStorage;
         }
         
-        public OvertimePayoutResponsDto DeleteOvertimePayout(int userId, DateTime date)
+        public OvertimePayoutResponsDto DeleteOvertimePayout(int userId, int paidOvertimeId)
         {
-            return _overtimePayoutStorage.DeleteOvertimePayout(userId, date);
+            return _overtimePayoutStorage.DeleteOvertimePayout(userId, paidOvertimeId);
         }
 
         public void SaveOvertimePayout(RegisterOvertimePayoutDto overtimePayout)

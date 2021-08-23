@@ -31,7 +31,7 @@ namespace Tests.UnitTests.Flexihours
             _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
 
             _context.SaveChanges();
-            _economyDataContext.OvertimePayouts.Add(new OvertimePayout{Date = new DateTime(currentYear, currentMonth, 02) , TotalPayout = 150M, UserId = dbUser.Id});
+            _economyDataContext.OvertimePayouts.Add(new OvertimePayout{Date = new DateTime(currentYear, currentMonth, 02) , TotalPayout = 150M, UserId = dbUser.Id, RegisteredPaidOvertimeId = 1});
 
             _economyDataContext.SaveChanges();
 

@@ -38,7 +38,8 @@ namespace Tests.UnitTests.Flexihours
                     new() {CompensationRate = 1.0M, Date = new DateTime(2020, 01, 01), Hours = 1, TaskId = 1}
                 },
                 1001,
-                new GenericHourEntry { Date = new DateTime(2020, 01, 02), Hours = 1.0M });
+                new GenericHourEntry { Date = new DateTime(2020, 01, 02), Hours = 1.0M }, 
+                1);
 
             Assert.Equal(300.0M, overtimeSalary);
         }
@@ -73,7 +74,8 @@ namespace Tests.UnitTests.Flexihours
                     new() {CompensationRate = 1.0M, Date = new DateTime(2021, 01, 01), Hours = 1, TaskId = 1}
                 },
                 1001,
-                new GenericHourEntry { Date = new DateTime(2021, 08, 02), Hours = 2.0M });
+                new GenericHourEntry { Date = new DateTime(2021, 08, 02), Hours = 2.0M },
+                1);
 
             Assert.Equal(700.0M, overtimeSalary);
         }
@@ -101,7 +103,8 @@ namespace Tests.UnitTests.Flexihours
                     new() {CompensationRate = 0.5M, Date = new DateTime(2020, 01, 01), Hours = 1, TaskId = 1}
                 },
                 1001,
-                new GenericHourEntry { Date = new DateTime(2020, 01, 02), Hours = 2.0M });
+                new GenericHourEntry { Date = new DateTime(2020, 01, 02), Hours = 2.0M },
+                1);
 
             Assert.Equal(450.0M, overtimeSalary);
         }
@@ -136,7 +139,8 @@ namespace Tests.UnitTests.Flexihours
                     new() {CompensationRate = 0.5M, Date = new DateTime(2021, 01, 01), Hours = 1, TaskId = 1}
                 },
                 1001,
-                new GenericHourEntry { Date = new DateTime(2020, 01, 02), Hours = 2.0M });
+                new GenericHourEntry { Date = new DateTime(2020, 01, 02), Hours = 2.0M },
+                1);
 
             Assert.Equal(500.0M, overtimeSalary);
         }
@@ -179,7 +183,8 @@ namespace Tests.UnitTests.Flexihours
                     new() {CompensationRate = 0.5M, Date = new DateTime(2020, 01, 03), Hours = 1, TaskId = 1}
                 },
                 1001,
-                new GenericHourEntry { Date = new DateTime(2021, 07, 02), Hours = 3.0M });
+                new GenericHourEntry { Date = new DateTime(2021, 07, 02), Hours = 3.0M },
+                1);
 
             Assert.Equal(600.0M, overtimeSalary);
         }

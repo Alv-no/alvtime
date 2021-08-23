@@ -7,5 +7,6 @@ namespace AlvTime.Business.EconomyData
         public int UserId { get; set; }
         public DateTime Date { get; set; }
         public decimal TotalPayout { get; set; }
+        public int PaidOvertimeId { get; set; }
     }
 }

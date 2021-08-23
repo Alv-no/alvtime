@@ -8,7 +8,7 @@ namespace AlvTime.Business.EconomyData
     {
         void RegisterHourlySalary(EmployeeSalaryDto employeeSalaryData);
         List<EmployeeSalaryDto> GetEmployeeSalaryData(int userId);
-        OvertimePayoutResponsDto DeleteOvertimePayout(int userId, DateTime date);
+        OvertimePayoutResponsDto DeleteOvertimePayout(int userId, int paidOvertimeId);
         void SaveOvertimePayout(RegisterOvertimePayoutDto overtimePayout);
     }
 }

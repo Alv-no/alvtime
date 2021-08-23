@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using AlvTime.Business.EconomyData;
 using AlvTime.Business.Services;
 using AlvTime.Persistence.DataBaseModels;
@@ -164,17 +165,18 @@ namespace Tests.UnitTests.EconomyDataTests.Salary
             {
                 Date = new DateTime(day: 11, month: 08, year: 2021),
                 UserId = 1,
-                TotalPayout = 10.0M
+                TotalPayout = 10.0M,
+                RegisteredPaidOvertimeId = 1
             };
 
             _economyDataContext.OvertimePayouts.Add(overTimePayoutForDeletion);
             _economyDataContext.SaveChanges();
 
             var deletedOvertimePayout =
-                sut.DeleteOvertimePayout(overTimePayoutForDeletion.UserId, overTimePayoutForDeletion.Date);
+                sut.DeleteOvertimePayout(overTimePayoutForDeletion.UserId, overTimePayoutForDeletion.RegisteredPaidOvertimeId);
 
             Assert.Equal(overTimePayoutForDeletion.UserId, deletedOvertimePayout.UserId);
-            Assert.Equal(overTimePayoutForDeletion.Date, deletedOvertimePayout.Date);
+            Assert.Equal(overTimePayoutForDeletion.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), deletedOvertimePayout.Date);
             Assert.Equal(overTimePayoutForDeletion.TotalPayout, deletedOvertimePayout.TotalPayout);
             Assert.Equal(1, deletedOvertimePayout.Id);
         }

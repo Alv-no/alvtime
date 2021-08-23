@@ -10,7 +10,8 @@ namespace AlvTime.Business.FlexiHours
         PayoutsDto GetRegisteredPayouts(int userId);
         PaidOvertimeEntry RegisterPaidOvertime(GenericHourEntry request, int userId);
         PaidOvertimeEntry CancelPayout(int userId, int id);
-        public decimal RegisterOvertimePayout(List<OvertimeEntry> overtimeEntries, int userId, GenericHourEntry requestedPayout);
 
+        decimal RegisterOvertimePayout(List<OvertimeEntry> overtimeEntries, int userId,
+            GenericHourEntry requestedPayout, int paidOvertimeId);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using AlvTime.Business.EconomyData;
 using AlvTime.Business.FlexiHours;
@@ -17,10 +18,10 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
             _economyContext = economyContext;
         }
 
-        public OvertimePayoutResponsDto DeleteOvertimePayout(int userId, DateTime date)
+        public OvertimePayoutResponsDto DeleteOvertimePayout(int userId, int paidOvertimeId)
         {
             var overtimePayout =
-                _economyContext.OvertimePayouts.FirstOrDefault(op => op.UserId == userId && op.Date.Equals(date));
+                _economyContext.OvertimePayouts.FirstOrDefault(op => op.UserId == userId && op.RegisteredPaidOvertimeId == paidOvertimeId);
 
             if (overtimePayout == null)
             {
@@ -34,9 +35,10 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
             {
                 
                 Id = overtimePayout.Id,
-                Date = overtimePayout.Date,
+                Date = overtimePayout.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                 UserId = overtimePayout.UserId,
-                TotalPayout = overtimePayout.TotalPayout
+                TotalPayout = overtimePayout.TotalPayout,
+                PaidOvertimeId = overtimePayout.RegisteredPaidOvertimeId
             };
         }
 
@@ -46,42 +48,10 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
             {
                 UserId = overtimePayout.UserId,
                 Date = overtimePayout.Date,
-                TotalPayout = overtimePayout.TotalPayout
+                TotalPayout = overtimePayout.TotalPayout,
+                RegisteredPaidOvertimeId = overtimePayout.PaidOvertimeId
             });
             _economyContext.SaveChanges();
-        }
-        
-        public List<OvertimeEntry> GetOvertimeEntriesForPayout(List<OvertimeEntry> overtimeEntries, decimal hoursForPayout)
-        {
-            var tempHourCounter = 0.0M;
-            var overtimeEntriesForPayout = new List<OvertimeEntry>();
-            var orderedOverTimeEntries = overtimeEntries.OrderBy(oe => oe.Date).ToList();
-            var indexOverTimeEntries = 0;
-
-            while (tempHourCounter < hoursForPayout)
-            {
-                tempHourCounter += orderedOverTimeEntries[indexOverTimeEntries].Hours;
-
-                if (tempHourCounter > hoursForPayout)
-                {
-                    overtimeEntriesForPayout.Add(new OvertimeEntry
-                    {
-                        CompensationRate = orderedOverTimeEntries[indexOverTimeEntries].CompensationRate,
-                        Date = orderedOverTimeEntries[indexOverTimeEntries].Date,
-                        TaskId = orderedOverTimeEntries[indexOverTimeEntries].TaskId,
-                        Hours = hoursForPayout - overtimeEntriesForPayout.Sum(oe => oe.Hours)
-                    });
-
-                }
-                else
-                {
-                    overtimeEntriesForPayout.Add(orderedOverTimeEntries[indexOverTimeEntries]);
-                }
-
-                indexOverTimeEntries++;
-            }
-
-            return overtimeEntriesForPayout;
         }
     }
 }

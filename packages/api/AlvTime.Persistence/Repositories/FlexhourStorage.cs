@@ -300,8 +300,6 @@ public class FlexhourStorage : IFlexhourStorage
 
         if (request.Hours <= availableForPayout)
         {
-            var paidOvertimeSalary = RegisterOvertimePayout(overtimeEntries, userId, request);
-
             PaidOvertime paidOvertime = new PaidOvertime
             {
                 Date = request.Date,
@@ -310,8 +308,10 @@ public class FlexhourStorage : IFlexhourStorage
                 HoursAfterCompRate = hoursAfterCompRate
             };
 
-            _context.PaidOvertime.Add(paidOvertime);
+            var paidOvertimeEntity = _context.PaidOvertime.Add(paidOvertime);
             _context.SaveChanges();
+
+            var paidOvertimeSalary = RegisterOvertimePayout(overtimeEntries, userId, request, paidOvertimeEntity.Entity.Id);
 
             return new PaidOvertimeEntry()
             {
@@ -330,27 +330,27 @@ public class FlexhourStorage : IFlexhourStorage
 
     public PaidOvertimeEntry CancelPayout(int userId, int id)
     {
-        var payout = _context.PaidOvertime.FirstOrDefault(po => po.Id == id && po.User == userId);
+        var paidOvertime = _context.PaidOvertime.FirstOrDefault(po => po.Id == id && po.User == userId);
 
-        if (!CanBeDeleted(payout))
+        if (!CanBeDeleted(paidOvertime))
         {
             throw new ValidationException("Selected payout must be latest ordered payout");
         }
 
-        if (payout != null && payout.Date.Month >= DateTime.Now.Month && payout.Date.Year == DateTime.Now.Year)
+        if (paidOvertime != null && paidOvertime.Date.Month >= DateTime.Now.Month && paidOvertime.Date.Year == DateTime.Now.Year)
         {
-            _context.PaidOvertime.Remove(payout);
+            _context.PaidOvertime.Remove(paidOvertime);
             _context.SaveChanges();
 
-            _salaryService.DeleteOvertimePayout(userId, payout.Date);
+            _salaryService.DeleteOvertimePayout(userId, paidOvertime.Id);
 
             return new PaidOvertimeEntry
             {
-                Date = payout.Date,
-                Id = payout.Id,
-                UserId = payout.User,
-                HoursBeforeCompensation = payout.HoursBeforeCompRate,
-                HoursAfterCompensation = payout.HoursAfterCompRate
+                Date = paidOvertime.Date,
+                Id = paidOvertime.Id,
+                UserId = paidOvertime.User,
+                HoursBeforeCompensation = paidOvertime.HoursBeforeCompRate,
+                HoursAfterCompensation = paidOvertime.HoursAfterCompRate
             };
         }
 
@@ -406,7 +406,7 @@ public class FlexhourStorage : IFlexhourStorage
 
         return totalPayout;
     }
-    public decimal RegisterOvertimePayout(List<OvertimeEntry> overtimeEntries, int userId, GenericHourEntry requestedPayout)
+    public decimal RegisterOvertimePayout(List<OvertimeEntry> overtimeEntries, int userId, GenericHourEntry requestedPayout, int paidOvertimeId)
     {
         var salaryData = _salaryService.GetEmployeeSalaryData(userId).OrderBy(x => x.FromDate).ToList();
 
@@ -434,9 +434,10 @@ public class FlexhourStorage : IFlexhourStorage
 
         _salaryService.SaveOvertimePayout(new RegisterOvertimePayoutDto
         {
-            TotalPayout = overtimeSalaryForPayout,
             UserId = userId,
-            Date = requestedPayout.Date
+            Date = requestedPayout.Date,
+            TotalPayout = overtimeSalaryForPayout,
+            PaidOvertimeId = paidOvertimeId
         });
         return overtimeSalaryForPayout;
     }
