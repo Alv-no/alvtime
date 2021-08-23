@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AlvTime.Business.EconomyData;
 
 namespace AlvTime.Business.Services

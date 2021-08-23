@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using AlvTime.Business.FlexiHours;
+﻿using System.Collections.Generic;
 
 namespace AlvTime.Business.EconomyData
 {

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Linq;
 using AlvTime.Business.EconomyData;
-using AlvTime.Business.FlexiHours;
 using AlvTime.Persistence.EconomyDataDBModels;
 using FluentValidation;
 
