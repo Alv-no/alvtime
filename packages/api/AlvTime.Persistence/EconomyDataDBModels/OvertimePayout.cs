@@ -11,5 +11,6 @@ namespace AlvTime.Persistence.EconomyDataDBModels
         public int UserId { get; set; }
         public DateTime Date { get; set; }
         public decimal TotalPayout { get; set; }
+        public int RegisteredPaidOvertimeId { get; set; }
     }
 }
