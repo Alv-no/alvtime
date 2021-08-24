@@ -24,7 +24,7 @@ namespace Tests.UnitTests.EconomyDataTests.Salary
                 RegisteredPaidOvertimeId = 1
             };
 
-            var savedOvertime = storage.SaveOvertimePayout(new RegisterOvertimePayoutDto
+            var savedOvertime = storage.SaveOvertimePayout(new RegisterOvertimePayout
             {
                 Date = overtimePayout.Date,
                 UserId = overtimePayout.UserId,

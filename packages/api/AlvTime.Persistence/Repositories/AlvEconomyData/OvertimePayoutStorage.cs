@@ -15,7 +15,7 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
             _economyContext = economyContext;
         }
 
-        public OvertimePayoutResponsDto DeleteOvertimePayout(int userId, int paidOvertimeId)
+        public OvertimePayoutRespons DeleteOvertimePayout(int userId, int paidOvertimeId)
         {
             var overtimePayout =
                 _economyContext.OvertimePayouts.FirstOrDefault(op => op.UserId == userId && op.RegisteredPaidOvertimeId == paidOvertimeId);
@@ -28,7 +28,7 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
             _economyContext.OvertimePayouts.Remove(overtimePayout);
             _economyContext.SaveChanges();
 
-            return new OvertimePayoutResponsDto
+            return new OvertimePayoutRespons
             {
                 
                 Id = overtimePayout.Id,
@@ -39,7 +39,7 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
             };
         }
 
-        public OvertimePayoutResponsDto SaveOvertimePayout(RegisterOvertimePayoutDto overtimePayout)
+        public OvertimePayoutRespons SaveOvertimePayout(RegisterOvertimePayout overtimePayout)
         {
             var overtimePayoutEntity = new OvertimePayout
             {
@@ -52,7 +52,7 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
             _economyContext.OvertimePayouts.Add(overtimePayoutEntity);
 
             _economyContext.SaveChanges();
-            return new OvertimePayoutResponsDto
+            return new OvertimePayoutRespons
             {
                 Id = overtimePayoutEntity.Id,
                 UserId = overtimePayoutEntity.UserId,

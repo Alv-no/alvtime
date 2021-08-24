@@ -18,7 +18,7 @@ namespace AlvTimeWebApi.Controllers.EconomyData
 
         [AuthorizeAdmin]
         [HttpPost("/EmployeeSalary")]
-        public ActionResult RegisterHourlySalary([FromBody] EmployeeSalaryDto employeeSalaryData)
+        public ActionResult RegisterHourlySalary([FromBody] EmployeeSalary employeeSalaryData)
         {
             _salaryService.RegisterHourlySalary(employeeSalaryData);
             return Ok();
@@ -26,7 +26,7 @@ namespace AlvTimeWebApi.Controllers.EconomyData
 
         [AuthorizeAdmin]
         [HttpGet("/EmployeeSalary")]
-        public ActionResult<List<EmployeeSalaryDto>> GetEmployeeSalaryData(int userId)
+        public ActionResult<List<EmployeeSalary>> GetEmployeeSalaryData(int userId)
         {
             return Ok(_salaryService.GetEmployeeSalaryData(userId));
         }

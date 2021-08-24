@@ -20,7 +20,7 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
             _context = context;
         }
 
-        public EmployeeSalaryDto RegisterHourlySalary(EmployeeSalaryDto employeeSalaryData)
+        public EmployeeSalary RegisterHourlySalary(EmployeeSalary employeeSalaryData)
         {
             var employee = _context.User.FirstOrDefault(e => e.Id == employeeSalaryData.UsiderId);
 
@@ -54,7 +54,7 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
             return ToEmployeeSalaryDto(hourlySalaryEntity);
         }
 
-        public List<EmployeeSalaryDto> GetEmployeeSalaryData(int userId)
+        public List<EmployeeSalary> GetEmployeeSalaryData(int userId)
         {
             var employeeWithSalaryData = _economyContext
                     .EmployeeHourlySalaries.Where(hs => hs.UserId == userId).ToList()
@@ -62,12 +62,12 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
             if (!employeeWithSalaryData.Any())
                 throw new ValidationException("Could not find a registered salary for this user");
 
-            var returnSalary = new List<EmployeeSalaryDto>();
+            var returnSalary = new List<EmployeeSalary>();
             foreach (var hourlySalary in employeeWithSalaryData) returnSalary.Add(ToEmployeeSalaryDto(hourlySalary));
 
             return returnSalary;
         }
-        private EmployeeSalaryDto ToEmployeeSalaryDto(EmployeeHourlySalary employeeHourlySalary)
+        private EmployeeSalary ToEmployeeSalaryDto(EmployeeHourlySalary employeeHourlySalary)
         {
             return new()
             {

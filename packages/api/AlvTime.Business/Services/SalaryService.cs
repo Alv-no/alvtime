@@ -15,22 +15,22 @@ namespace AlvTime.Business.Services
             _employeeHourlySalaryStorage = employeeHourlySalaryStorage;
         }
         
-        public OvertimePayoutResponsDto DeleteOvertimePayout(int userId, int paidOvertimeId)
+        public OvertimePayoutRespons DeleteOvertimePayout(int userId, int paidOvertimeId)
         {
             return _overtimePayoutStorage.DeleteOvertimePayout(userId, paidOvertimeId);
         }
 
-        public void SaveOvertimePayout(RegisterOvertimePayoutDto overtimePayout)
+        public void SaveOvertimePayout(RegisterOvertimePayout overtimePayout)
         {
             _overtimePayoutStorage.SaveOvertimePayout(overtimePayout);
         }
 
-        public EmployeeSalaryDto RegisterHourlySalary(EmployeeSalaryDto employeeSalaryData)
+        public EmployeeSalary RegisterHourlySalary(EmployeeSalary employeeSalaryData)
         {
             return _employeeHourlySalaryStorage.RegisterHourlySalary(employeeSalaryData);
         }
 
-        public List<EmployeeSalaryDto> GetEmployeeSalaryData(int userId)
+        public List<EmployeeSalary> GetEmployeeSalaryData(int userId)
         {
             return _employeeHourlySalaryStorage.GetEmployeeSalaryData(userId);
         }

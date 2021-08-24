@@ -4,7 +4,7 @@ namespace AlvTime.Business.EconomyData
 {
     public interface IEmployeeHourlySalaryStorage
     {
-        EmployeeSalaryDto RegisterHourlySalary(EmployeeSalaryDto employeeSalaryData);
-        List<EmployeeSalaryDto> GetEmployeeSalaryData(int userId);
+        EmployeeSalary RegisterHourlySalary(EmployeeSalary employeeSalaryData);
+        List<EmployeeSalary> GetEmployeeSalaryData(int userId);
     }
 }

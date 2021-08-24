@@ -23,7 +23,7 @@ namespace Tests.UnitTests.EconomyDataTests.Salary
         {
             var sut = CreateService();
 
-            var employeeSalary = new EmployeeSalaryDto
+            var employeeSalary = new EmployeeSalary
             { FromDate = new DateTime(2020, 08, 12), HourlySalary = 120.0M, UsiderId = 1 };
 
             sut.RegisterHourlySalary(employeeSalary);
@@ -41,7 +41,7 @@ namespace Tests.UnitTests.EconomyDataTests.Salary
             var context = new AlvTimeDbContextBuilder().CreateDbContext();
             var sut = new SalaryService(new OvertimePayoutStorage(economyContext), new EmployeeHourlySalaryStorage(economyContext, context));
 
-            var employeeSalary = new EmployeeSalaryDto
+            var employeeSalary = new EmployeeSalary
             { FromDate = new DateTime(2020, 08, 12), HourlySalary = 120.0M, UsiderId = 1 };
 
             Assert.Throws<ValidationException>(() => sut.RegisterHourlySalary(employeeSalary));
@@ -63,7 +63,7 @@ namespace Tests.UnitTests.EconomyDataTests.Salary
             _economyDataContext.EmployeeHourlySalaries.Add(oldSalary);
             _economyDataContext.SaveChanges();
 
-            var newSalary = new EmployeeSalaryDto
+            var newSalary = new EmployeeSalary
             { FromDate = new DateTime(2020, 08, 12), HourlySalary = 120.0M, UsiderId = 1 };
 
             sut.RegisterHourlySalary(newSalary);
