@@ -39,16 +39,27 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
             };
         }
 
-        public void SaveOvertimePayout(RegisterOvertimePayoutDto overtimePayout)
+        public OvertimePayoutResponsDto SaveOvertimePayout(RegisterOvertimePayoutDto overtimePayout)
         {
-            _economyContext.OvertimePayouts.Add(new OvertimePayout
+            var overtimePayoutEntity = new OvertimePayout
             {
                 UserId = overtimePayout.UserId,
                 Date = overtimePayout.Date,
                 TotalPayout = overtimePayout.TotalPayout,
                 RegisteredPaidOvertimeId = overtimePayout.PaidOvertimeId
-            });
+            };
+
+            _economyContext.OvertimePayouts.Add(overtimePayoutEntity);
+
             _economyContext.SaveChanges();
+            return new OvertimePayoutResponsDto
+            {
+                Id = overtimePayoutEntity.Id,
+                UserId = overtimePayoutEntity.UserId,
+                Date = overtimePayoutEntity.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                TotalPayout = overtimePayoutEntity.TotalPayout,
+                PaidOvertimeId = overtimePayoutEntity.RegisteredPaidOvertimeId
+            };
         }
     }
 }

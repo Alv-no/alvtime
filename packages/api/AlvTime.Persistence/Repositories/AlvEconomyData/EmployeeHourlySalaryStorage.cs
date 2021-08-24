@@ -20,22 +20,7 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
             _context = context;
         }
 
-
-        public decimal GetHourlySalary(int userId, DateTime date)
-        {
-            var employeeWithSalaryData = _economyContext
-                    .EmployeeHourlySalaries.Where(hs => hs.UserId == userId).ToList()
-                ;
-            if (!employeeWithSalaryData.Any())
-                throw new ValidationException("Could not find a registered salary for this user");
-
-            var salary = employeeWithSalaryData.FirstOrDefault(x =>
-                x.FromDateInclusive <= date && (x.ToDate.HasValue && x.ToDate > date || x.ToDate == null));
-
-            return salary.HourlySalary;
-        }
-
-        public void RegisterHourlySalary(EmployeeSalaryDto employeeSalaryData)
+        public EmployeeSalaryDto RegisterHourlySalary(EmployeeSalaryDto employeeSalaryData)
         {
             var employee = _context.User.FirstOrDefault(e => e.Id == employeeSalaryData.UsiderId);
 
@@ -55,16 +40,18 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
                 currentSalary.ToDate = employeeSalaryData.FromDate.AddDays(-1);
             }
 
-            _economyContext.EmployeeHourlySalaries.Add(new EmployeeHourlySalary
+            var hourlySalaryEntity = new EmployeeHourlySalary
             {
                 UserId = employeeSalaryData.UsiderId,
                 FromDateInclusive = employeeSalaryData.FromDate,
                 HourlySalary = employeeSalaryData.HourlySalary,
                 ToDate = employeeSalaryData.ToDate
-            });
+            };
 
-
+            _economyContext.EmployeeHourlySalaries.Add(hourlySalaryEntity);
             _economyContext.SaveChanges();
+            
+            return ToEmployeeSalaryDto(hourlySalaryEntity);
         }
 
         public List<EmployeeSalaryDto> GetEmployeeSalaryData(int userId)
@@ -80,21 +67,6 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
 
             return returnSalary;
         }
-
-        public decimal CalculateOvertimeSalaryPayout(List<OvertimeEntry> overtimeEntriesForPayout, int userId)
-        {
-            var salary = 0.0M;
-
-            foreach (var overtimeEntry in overtimeEntriesForPayout)
-            {
-                var hourlySalary = GetHourlySalary(userId, overtimeEntry.Date);
-
-                salary += hourlySalary * overtimeEntry.Hours * overtimeEntry.CompensationRate;
-            }
-
-            return salary;
-        }
-
         private EmployeeSalaryDto ToEmployeeSalaryDto(EmployeeHourlySalary employeeHourlySalary)
         {
             return new()

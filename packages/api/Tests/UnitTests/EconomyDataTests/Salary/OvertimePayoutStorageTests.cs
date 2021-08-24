@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Globalization;
 using AlvTime.Business.EconomyData;
 using AlvTime.Persistence.EconomyDataDBModels;
 using AlvTime.Persistence.Repositories.AlvEconomyData;
@@ -11,7 +11,7 @@ namespace Tests.UnitTests.EconomyDataTests.Salary
     {
         private readonly AlvEconomyDataContext _economyDataContext =
             new AlvEconomyDataDbContextBuilder().CreateDbContext();
-        
+
         [Fact]
         public void SaveOvertimePayout_TotalPayoutIsAdded()
         {
@@ -20,23 +20,23 @@ namespace Tests.UnitTests.EconomyDataTests.Salary
             {
                 UserId = 1,
                 Date = new DateTime(day: 11, month: 08, year: 2021),
-                TotalPayout = 1200.5M
+                TotalPayout = 1200.5M,
+                RegisteredPaidOvertimeId = 1
             };
 
-            storage.SaveOvertimePayout(new RegisterOvertimePayoutDto
+            var savedOvertime = storage.SaveOvertimePayout(new RegisterOvertimePayoutDto
             {
                 Date = overtimePayout.Date,
                 UserId = overtimePayout.UserId,
-                TotalPayout = overtimePayout.TotalPayout
+                TotalPayout = overtimePayout.TotalPayout,
+                PaidOvertimeId = overtimePayout.RegisteredPaidOvertimeId
             });
 
-            Assert.Equal(1, _economyDataContext.OvertimePayouts.FirstOrDefault(op => op.Id == 1).Id);
-            Assert.Equal(overtimePayout.UserId,
-                _economyDataContext.OvertimePayouts.FirstOrDefault(op => op.Id == 1).UserId);
-            Assert.Equal(overtimePayout.Date,
-                _economyDataContext.OvertimePayouts.FirstOrDefault(op => op.Id == 1).Date);
-            Assert.Equal(overtimePayout.TotalPayout,
-                _economyDataContext.OvertimePayouts.FirstOrDefault(op => op.Id == 1).TotalPayout);
+            Assert.Equal(1, savedOvertime.Id);
+            Assert.Equal(overtimePayout.UserId, savedOvertime.UserId);
+            Assert.Equal(overtimePayout.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), savedOvertime.Date);
+            Assert.Equal(overtimePayout.TotalPayout, savedOvertime.TotalPayout);
+            Assert.Equal(1, savedOvertime.PaidOvertimeId);
         }
 
         private OvertimePayoutStorage CreateStorage()

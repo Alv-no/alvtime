@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AlvTime.Business.EconomyData
+﻿namespace AlvTime.Business.EconomyData
 {
     public class OvertimePayoutResponsDto
     {

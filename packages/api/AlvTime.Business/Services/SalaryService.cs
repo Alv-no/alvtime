@@ -25,9 +25,9 @@ namespace AlvTime.Business.Services
             _overtimePayoutStorage.SaveOvertimePayout(overtimePayout);
         }
 
-        public void RegisterHourlySalary(EmployeeSalaryDto employeeSalaryData)
+        public EmployeeSalaryDto RegisterHourlySalary(EmployeeSalaryDto employeeSalaryData)
         {
-            _employeeHourlySalaryStorage.RegisterHourlySalary(employeeSalaryData);
+            return _employeeHourlySalaryStorage.RegisterHourlySalary(employeeSalaryData);
         }
 
         public List<EmployeeSalaryDto> GetEmployeeSalaryData(int userId)

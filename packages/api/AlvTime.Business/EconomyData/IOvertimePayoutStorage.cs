@@ -3,6 +3,6 @@
     public interface IOvertimePayoutStorage
     {
         OvertimePayoutResponsDto DeleteOvertimePayout(int userId, int paidOvertimeId);
-        void SaveOvertimePayout(RegisterOvertimePayoutDto overtimePayout);
+        OvertimePayoutResponsDto SaveOvertimePayout(RegisterOvertimePayoutDto overtimePayout);
     }
 }

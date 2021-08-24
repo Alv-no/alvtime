@@ -308,10 +308,10 @@ public class FlexhourStorage : IFlexhourStorage
                 HoursAfterCompRate = hoursAfterCompRate
             };
 
-            var paidOvertimeEntity = _context.PaidOvertime.Add(paidOvertime);
+            _context.PaidOvertime.Add(paidOvertime);
             _context.SaveChanges();
 
-            var paidOvertimeSalary = RegisterOvertimePayout(overtimeEntries, userId, request, paidOvertimeEntity.Entity.Id);
+            var paidOvertimeSalary = RegisterOvertimePayout(overtimeEntries, userId, request, paidOvertime.Id);
 
             return new PaidOvertimeEntry()
             {
