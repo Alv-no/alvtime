@@ -20,8 +20,8 @@ namespace AlvTimeWebApi.Controllers.EconomyData
         [HttpPost("/EmployeeSalary")]
         public ActionResult RegisterHourlySalary([FromBody] EmployeeSalary employeeSalaryData)
         {
-            _salaryService.RegisterHourlySalary(employeeSalaryData);
-            return Ok();
+            var salary = _salaryService.RegisterHourlySalary(employeeSalaryData);
+            return Ok(salary);
         }
 
         [AuthorizeAdmin]
