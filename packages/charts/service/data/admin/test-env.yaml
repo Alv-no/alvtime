@@ -1,7 +1,0 @@
-image:
-  repository: acralvtime.azurecr.io/alvtime-admin
-
-configFilePath: data/admin/test-config.json
-
-hosts:
-  - admin.test-alvtime.no
