@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using AlvTime.Business.EconomyData;
 using AlvTimeWebApi.Authentication;
 using Microsoft.AspNetCore.Mvc;
@@ -18,17 +20,33 @@ namespace AlvTimeWebApi.Controllers.EconomyData
 
         [AuthorizeAdmin]
         [HttpPost("/EmployeeSalary")]
-        public ActionResult RegisterHourlySalary([FromBody] EmployeeSalary employeeSalaryData)
+        public ActionResult RegisterHourlySalary([FromBody] EmployeeSalaryRequest employeeSalaryData)
         {
-            var salary = _salaryService.RegisterHourlySalary(employeeSalaryData);
+            var salary = ToEmployeeSalaryRespons(_salaryService.RegisterHourlySalary(employeeSalaryData));
             return Ok(salary);
         }
 
         [AuthorizeAdmin]
         [HttpGet("/EmployeeSalary")]
-        public ActionResult<List<EmployeeSalary>> GetEmployeeSalaryData(int userId)
+        public ActionResult<List<EmployeeSalaryRespons>> GetEmployeeSalaryData(int userId)
         {
-            return Ok(_salaryService.GetEmployeeSalaryData(userId));
+            var salaryData = _salaryService.GetEmployeeSalaryData(userId).Select(ToEmployeeSalaryRespons)
+                .ToList();
+            return Ok(salaryData);
+        }
+
+        private EmployeeSalaryRespons ToEmployeeSalaryRespons(EmployeeSalary employeeHourlySalary)
+        {
+            return new()
+            {
+                Id = employeeHourlySalary.Id,
+                UsiderId = employeeHourlySalary.UsiderId,
+                FromDate = employeeHourlySalary.FromDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                ToDate = employeeHourlySalary.ToDate.HasValue
+                    ? employeeHourlySalary.ToDate.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                    : null,
+                HourlySalary = employeeHourlySalary.HourlySalary
+            };
         }
     }
 }

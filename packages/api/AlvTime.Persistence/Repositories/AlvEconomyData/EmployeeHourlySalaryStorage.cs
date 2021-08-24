@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using AlvTime.Business.EconomyData;
-using AlvTime.Business.FlexiHours;
 using AlvTime.Persistence.DataBaseModels;
 using AlvTime.Persistence.EconomyDataDBModels;
 using FluentValidation;
@@ -23,7 +22,7 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
         public EmployeeSalary RegisterHourlySalary(EmployeeSalary employeeSalaryData)
         {
             var employee = _context.User.FirstOrDefault(e => e.Id == employeeSalaryData.UsiderId);
-
+            
             if (employee == null)
                 throw new ValidationException($"Could not find a an employee with id {employeeSalaryData.UsiderId}");
 
@@ -51,7 +50,7 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
             _economyContext.EmployeeHourlySalaries.Add(hourlySalaryEntity);
             _economyContext.SaveChanges();
             
-            return ToEmployeeSalaryDto(hourlySalaryEntity);
+            return ToEmployeeSalary(hourlySalaryEntity);
         }
 
         public List<EmployeeSalary> GetEmployeeSalaryData(int userId)
@@ -63,14 +62,15 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
                 throw new ValidationException("Could not find a registered salary for this user");
 
             var returnSalary = new List<EmployeeSalary>();
-            foreach (var hourlySalary in employeeWithSalaryData) returnSalary.Add(ToEmployeeSalaryDto(hourlySalary));
+            foreach (var hourlySalary in employeeWithSalaryData) returnSalary.Add(ToEmployeeSalary(hourlySalary));
 
             return returnSalary;
         }
-        private EmployeeSalary ToEmployeeSalaryDto(EmployeeHourlySalary employeeHourlySalary)
+        private EmployeeSalary ToEmployeeSalary(EmployeeHourlySalary employeeHourlySalary)
         {
             return new()
             {
+                Id = employeeHourlySalary.Id,
                 UsiderId = employeeHourlySalary.UserId, 
                 FromDate = employeeHourlySalary.FromDateInclusive,
                 ToDate = employeeHourlySalary.ToDate, 

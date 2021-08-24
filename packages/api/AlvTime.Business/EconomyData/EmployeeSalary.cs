@@ -1,12 +1,7 @@
-﻿using System;
-
-namespace AlvTime.Business.EconomyData
+﻿namespace AlvTime.Business.EconomyData
 {
-    public record EmployeeSalary
+    public record EmployeeSalary:EmployeeSalaryRequest
     {
-        public int UsiderId { get; init; }
-        public decimal HourlySalary { get; init; }
-        public DateTime FromDate { get; init; }
-        public DateTime? ToDate { get; init; }
+        public int Id { get; init; }
     }
 }

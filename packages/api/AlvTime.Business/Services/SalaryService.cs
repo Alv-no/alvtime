@@ -25,15 +25,25 @@ namespace AlvTime.Business.Services
             _overtimePayoutStorage.SaveOvertimePayout(overtimePayout);
         }
 
-        public EmployeeSalary RegisterHourlySalary(EmployeeSalary employeeSalaryData)
+        public EmployeeSalary RegisterHourlySalary(EmployeeSalaryRequest employeeSalaryData)
         {
-            return _employeeHourlySalaryStorage.RegisterHourlySalary(employeeSalaryData);
+            return _employeeHourlySalaryStorage.RegisterHourlySalary( ToEmployeeSalary( employeeSalaryData));
         }
 
         public List<EmployeeSalary> GetEmployeeSalaryData(int userId)
         {
             return _employeeHourlySalaryStorage.GetEmployeeSalaryData(userId);
         }
-       
+
+        public EmployeeSalary ToEmployeeSalary(EmployeeSalaryRequest employeeSalaryRequest)
+        {
+            return new EmployeeSalary
+            {
+                UsiderId = employeeSalaryRequest.UsiderId,
+                FromDate = employeeSalaryRequest.FromDate,
+                ToDate = employeeSalaryRequest.ToDate.HasValue ? employeeSalaryRequest.ToDate.Value : null,
+                HourlySalary = employeeSalaryRequest.HourlySalary
+            };
+        }
     }
 }
