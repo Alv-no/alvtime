@@ -57,12 +57,12 @@ namespace AlvTime.Persistence.Repositories
         public IEnumerable<AccessTokenFriendlyNameResponseDto> GetActiveTokens(int userId)
         {
             return _context.AccessTokens
-                .Where(x => x.UserId == userId && x.ExpiryDate >= DateTime.UtcNow)
-                .Select(x => new AccessTokenFriendlyNameResponseDto
+                .Where(token => token.UserId == userId)
+                .Select(token => new AccessTokenFriendlyNameResponseDto
                 {
-                    Id = x.Id,
-                    FriendlyName = x.FriendlyName,
-                    ExpiryDate = x.ExpiryDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                    Id = token.Id,
+                    FriendlyName = token.FriendlyName,
+                    ExpiryDate = token.ExpiryDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
                 })
                 .ToList();
         }

@@ -5,7 +5,7 @@ insert into [dbo].[Customer]
 values 
 ('SuperMat', 'Alvvegen 34', 'Supermann', 'supermann@supermat.no', '81549300'),                                                                                        
 ('Rutsjebaner AS', 'Alvvegen 21', 'Willy', 'willy@rutsjebaner.no', '53153162'),                                                                                        
-('Film og TV', 'Alvvegen 8', 'Halvstrøm', 'halvstrom@filmtv.no', '64136423'),                                                                                        
+('Film og TV', 'Alvvegen 8', 'Halvstr?m', 'halvstrom@filmtv.no', '64136423'),                                                                                        
 ('Datafabrikken', 'Alvvegen 52', 'Roboto', 'roboto@data.no', '53154753'),                                                                                                                                                                               
 ('Alv', 'Alvvegen 27', 'Sjefen', 'sjefen@alv.no', '53178685')        
 
@@ -112,7 +112,8 @@ values
 
 insert into [dbo].[AccessTokens]
 values
-(11, 'TestToken', '2200-01-01', '5801gj90-jf39-5j30-fjk3-480fj39kl409')
+(11, 'TestToken', '2200-01-01', '5801gj90-jf39-5j30-fjk3-480fj39kl409'),
+(11, 'Outdated', '2021-01-01', 'heiduder-jf39-5j30-fjk3-480fj39kl409')
 
 insert into [dbo].[AssociatedTasks]
 values

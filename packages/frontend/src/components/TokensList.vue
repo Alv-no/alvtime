@@ -17,9 +17,17 @@
       <div class="line" />
     </div>
     <div v-for="tkn in prettyTokens" :key="tkn.id" class="row">
-      <div class="friendly-name">{{ tkn.friendlyName }}</div>
-      <div class="expiry-date">{{ tkn.expiryDate }}</div>
+      <div
+        class="friendly-name"
+        :class="{ outdated: isExpired(tkn.expiryDate) }"
+      >
+        {{ tkn.friendlyName }}
+      </div>
+      <div class="expiry-date" :class="{ outdated: isExpired(tkn.expiryDate) }">
+        {{ tkn.expiryDate }}
+      </div>
       <YellowButton
+        v-if="!isExpired(tkn.expiryDate)"
         icon-id="delete_forever"
         tooltip="Slett"
         @click="() => onDeleteClick(tkn)"
@@ -79,6 +87,11 @@ export default Vue.extend({
   },
 
   methods: {
+    isExpired(date: string) {
+      const today = moment();
+      return moment(date, "dddd D. MMMM YYYY").isBefore(today);
+    },
+
     onDeleteClick(token: Token) {
       this.active = true;
       this.token = token;
@@ -155,6 +168,11 @@ export default Vue.extend({
   color: #000;
   padding: 0 1rem;
   grid-gap: 0.5rem;
+  height: 2.5rem;
+}
+
+.header {
+  height: 1rem;
 }
 
 .container {
@@ -171,6 +189,10 @@ export default Vue.extend({
 
 .expiry-date {
   text-transform: capitalize;
+}
+
+.outdated {
+  text-decoration-line: line-through;
 }
 
 .expiry-date-header {
