@@ -1,5 +1,7 @@
 ﻿using AlvTime.Persistence.Repositories;
 using System.Linq;
+using System.Globalization;
+using System;
 using Xunit;
 
 namespace Tests.UnitTests.AccessToken
@@ -47,11 +49,12 @@ namespace Tests.UnitTests.AccessToken
 
             var storage = new AccessTokenStorage(context);
 
+            var oldExpiryDate = context.AccessTokens.ToList().First().ExpiryDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
             storage.DeleteActiveTokens(1, 1);
 
-            var tokens = storage.GetActiveTokens(1);
-
-            Assert.Empty(tokens);
+            var newExpiryDate = storage.GetActiveTokens(1).Where(x => x.Id == 1).ToList().First().ExpiryDate;
+            Assert.NotEqual(newExpiryDate, oldExpiryDate);
         }
     }
 }
