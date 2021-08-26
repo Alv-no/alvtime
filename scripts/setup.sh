@@ -14,7 +14,7 @@ function getSecret() {
 }
 
 echo "Getting secrets from key vault $KEY_VAULT..."
-HOSTNAME="$(getSecret hostname)"
+HOSTNAME="$(getSecret alvtime-hostname)"
 REPORT_USER_PERSONAL_ACCESS_TOKEN="$(getSecret report-user-personal-access-token)"
 SLACK_ADMIN_USERS="$(getSecret slack-admin-users)"
 SLACK_BOT_TOKEN="$(getSecret slack-bot-token)"
