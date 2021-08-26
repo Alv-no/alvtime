@@ -33,7 +33,7 @@ helm upgrade slack-api ./chart \
   --install \
   --values "chart/env.yaml" \
   --set image.tag="$SHORT_HASH" \
-  --set image.repository="$CONTAINER_REGISTRY.azurecr.io/alvtime-slack-api" \
+  --set image.repository="$CONTAINER_REGISTRY.azurecr.io/alvtime-slack-app" \
   --set secrets.ADMIN_USERS="$SLACK_ADMIN_USERS" \
   --set secrets.AZURE_AD_CLIENT_SECTRET="$SP_ALVTIME_AUTH_SLACK_APP_SECRET" \
   --set secrets.DB_CONNECTION_STRING="$MONGO_DB_CONNECTION_STRING" \
