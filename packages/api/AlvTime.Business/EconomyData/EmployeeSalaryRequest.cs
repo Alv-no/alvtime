@@ -2,11 +2,7 @@
 
 namespace AlvTime.Business.EconomyData
 {
-    public record EmployeeSalaryRequest
+    public record EmployeeSalaryRequest (int UserId, decimal HourlySalary,  DateTime FromDate,DateTime? ToDate)
     {
-        public int UsiderId { get; init; }
-        public decimal HourlySalary { get; init; }
-        public DateTime FromDate { get; init; }
-        public DateTime? ToDate { get; init; }
     }
 }

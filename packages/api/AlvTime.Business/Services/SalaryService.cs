@@ -5,8 +5,8 @@ namespace AlvTime.Business.Services
 {
     public class SalaryService : ISalaryService
     {
-        private readonly IOvertimePayoutStorage _overtimePayoutStorage;
         private readonly IEmployeeHourlySalaryStorage _employeeHourlySalaryStorage;
+        private readonly IOvertimePayoutStorage _overtimePayoutStorage;
 
         public SalaryService(IOvertimePayoutStorage overtimePayoutStorage,
             IEmployeeHourlySalaryStorage employeeHourlySalaryStorage)
@@ -14,7 +14,7 @@ namespace AlvTime.Business.Services
             _overtimePayoutStorage = overtimePayoutStorage;
             _employeeHourlySalaryStorage = employeeHourlySalaryStorage;
         }
-        
+
         public OvertimePayoutRespons DeleteOvertimePayout(int userId, int paidOvertimeId)
         {
             return _overtimePayoutStorage.DeleteOvertimePayout(userId, paidOvertimeId);
@@ -27,7 +27,7 @@ namespace AlvTime.Business.Services
 
         public EmployeeSalary RegisterHourlySalary(EmployeeSalaryRequest employeeSalaryData)
         {
-            return _employeeHourlySalaryStorage.RegisterHourlySalary( ToEmployeeSalary( employeeSalaryData));
+            return _employeeHourlySalaryStorage.RegisterHourlySalary(ToEmployeeSalary(employeeSalaryData));
         }
 
         public List<EmployeeSalary> GetEmployeeSalaryData(int userId)
@@ -35,15 +35,13 @@ namespace AlvTime.Business.Services
             return _employeeHourlySalaryStorage.GetEmployeeSalaryData(userId);
         }
 
-        public EmployeeSalary ToEmployeeSalary(EmployeeSalaryRequest employeeSalaryRequest)
+        public EmployeeSalaryRequest ToEmployeeSalary(EmployeeSalaryRequest employeeSalaryRequest)
         {
-            return new EmployeeSalary
-            {
-                UsiderId = employeeSalaryRequest.UsiderId,
-                FromDate = employeeSalaryRequest.FromDate,
-                ToDate = employeeSalaryRequest.ToDate.HasValue ? employeeSalaryRequest.ToDate.Value : null,
-                HourlySalary = employeeSalaryRequest.HourlySalary
-            };
+            return new(
+                employeeSalaryRequest.UserId,
+                employeeSalaryRequest.HourlySalary,
+                employeeSalaryRequest.FromDate,
+                employeeSalaryRequest.ToDate.HasValue ? employeeSalaryRequest.ToDate.Value : null);
         }
     }
 }

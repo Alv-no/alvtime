@@ -24,13 +24,11 @@ namespace Tests.UnitTests.EconomyDataTests.Salary
                 RegisteredPaidOvertimeId = 1
             };
 
-            var savedOvertime = storage.SaveOvertimePayout(new RegisterOvertimePayout
-            {
-                Date = overtimePayout.Date,
-                UserId = overtimePayout.UserId,
-                TotalPayout = overtimePayout.TotalPayout,
-                PaidOvertimeId = overtimePayout.RegisteredPaidOvertimeId
-            });
+            var savedOvertime = storage.SaveOvertimePayout(new RegisterOvertimePayout(
+                overtimePayout.UserId,
+                overtimePayout.Date, 
+                overtimePayout.TotalPayout, 
+                overtimePayout.RegisteredPaidOvertimeId));
 
             Assert.Equal(1, savedOvertime.Id);
             Assert.Equal(overtimePayout.UserId, savedOvertime.UserId);

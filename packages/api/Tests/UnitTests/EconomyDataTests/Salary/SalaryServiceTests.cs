@@ -23,8 +23,7 @@ namespace Tests.UnitTests.EconomyDataTests.Salary
         {
             var sut = CreateService();
 
-            var employeeSalary = new EmployeeSalary
-            { FromDate = new DateTime(2020, 08, 12), HourlySalary = 120.0M, UsiderId = 1 };
+            var employeeSalary = new EmployeeSalaryRequest(1, 120.0M, new DateTime(2020, 08, 12), null);
 
             sut.RegisterHourlySalary(employeeSalary);
 
@@ -41,8 +40,7 @@ namespace Tests.UnitTests.EconomyDataTests.Salary
             var context = new AlvTimeDbContextBuilder().CreateDbContext();
             var sut = new SalaryService(new OvertimePayoutStorage(economyContext), new EmployeeHourlySalaryStorage(economyContext, context));
 
-            var employeeSalary = new EmployeeSalary
-            { FromDate = new DateTime(2020, 08, 12), HourlySalary = 120.0M, UsiderId = 1 };
+            var employeeSalary = new EmployeeSalaryRequest(1, 120.0M, new DateTime(2020, 08, 12), null);
 
             Assert.Throws<ValidationException>(() => sut.RegisterHourlySalary(employeeSalary));
         }
@@ -63,8 +61,7 @@ namespace Tests.UnitTests.EconomyDataTests.Salary
             _economyDataContext.EmployeeHourlySalaries.Add(oldSalary);
             _economyDataContext.SaveChanges();
 
-            var newSalary = new EmployeeSalary
-            { FromDate = new DateTime(2020, 08, 12), HourlySalary = 120.0M, UsiderId = 1 };
+            var newSalary = new EmployeeSalaryRequest(1,  120.0M, new DateTime(2020, 08, 12), null);
 
             sut.RegisterHourlySalary(newSalary);
 
@@ -76,7 +73,7 @@ namespace Tests.UnitTests.EconomyDataTests.Salary
                                                                           x.HourlySalary == oldSalary.HourlySalary &&
                                                                           x.ToDate == newSalary.FromDate.AddDays(-1)));
             //verifies that new salary is added with correct values
-            Assert.Single(_economyDataContext.EmployeeHourlySalaries.Where(x => x.UserId == newSalary.UsiderId &&
+            Assert.Single(_economyDataContext.EmployeeHourlySalaries.Where(x => x.UserId == newSalary.UserId &&
                                                                            x.FromDateInclusive == newSalary.FromDate &&
                                                                            x.HourlySalary == newSalary.HourlySalary &&
                                                                            x.ToDate == null));

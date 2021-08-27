@@ -37,16 +37,13 @@ namespace AlvTimeWebApi.Controllers.EconomyData
 
         private EmployeeSalaryRespons ToEmployeeSalaryRespons(EmployeeSalary employeeHourlySalary)
         {
-            return new()
-            {
-                Id = employeeHourlySalary.Id,
-                UsiderId = employeeHourlySalary.UsiderId,
-                FromDate = employeeHourlySalary.FromDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                ToDate = employeeHourlySalary.ToDate.HasValue
+            return new(employeeHourlySalary.Id, 
+                employeeHourlySalary.UserId, 
+                employeeHourlySalary.HourlySalary, 
+                employeeHourlySalary.FromDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                employeeHourlySalary.ToDate.HasValue
                     ? employeeHourlySalary.ToDate.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
-                    : null,
-                HourlySalary = employeeHourlySalary.HourlySalary
-            };
+                    : null);
         }
     }
 }

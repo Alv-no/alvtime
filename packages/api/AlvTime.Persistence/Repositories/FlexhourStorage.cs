@@ -432,13 +432,12 @@ public class FlexhourStorage : IFlexhourStorage
             overtimeSalaryForPayout += overtimeHoursAfterCompRate * salaryData[overtimeEntriesGruopedBySalary.IndexOf(overtimeEntriesForGivenSalary)].HourlySalary;
         }
 
-        _salaryService.SaveOvertimePayout(new RegisterOvertimePayout
-        {
-            UserId = userId,
-            Date = requestedPayout.Date,
-            TotalPayout = overtimeSalaryForPayout,
-            PaidOvertimeId = paidOvertimeId
-        });
+        _salaryService.SaveOvertimePayout(new RegisterOvertimePayout(
+            userId, 
+            requestedPayout.Date,
+            overtimeSalaryForPayout, 
+            paidOvertimeId));
+
         return overtimeSalaryForPayout;
     }
 }

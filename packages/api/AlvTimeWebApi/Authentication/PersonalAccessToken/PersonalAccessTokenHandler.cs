@@ -1,6 +1,4 @@
-﻿using AlvTime.Business.AccessToken;
-using AlvTime.Business.AccessToken.PersonalAccessToken;
-using AlvTime.Persistence.DataBaseModels;
+﻿using AlvTime.Business.AccessToken.PersonalAccessToken;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

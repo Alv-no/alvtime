@@ -2,11 +2,7 @@
 
 namespace AlvTime.Business.EconomyData
 {
-    public record RegisterOvertimePayout
+    public record RegisterOvertimePayout (int UserId, DateTime Date, decimal TotalPayout, int PaidOvertimeId)
     {
-        public int UserId { get; init; }
-        public DateTime Date { get; init; }
-        public decimal TotalPayout { get; init; }
-        public int PaidOvertimeId { get; init; }
     }
 }
