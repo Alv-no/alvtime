@@ -21,6 +21,8 @@ export default Vue.extend({
         return "Personlige access token";
       if (this.$store.state.currentRoute.name === "accumulated-hours")
         return "Overtid og ferie";
+      if (this.$store.state.currentRoute.name === "dashboard")
+        return "Dashboard";
       // @ts-ignore
       const screenSize = this.$mq;
       if (screenSize === "sm") return this.day;

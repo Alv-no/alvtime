@@ -47,7 +47,7 @@ const notHolidays = [{ date: moment("2020-12-27T00:00:00"), description: "" }];
 
 describe("isHoliday", () => {
   const norwegianHolidays = createNorwegianHolidays([2020, 2021, 2022]);
-  for (let holliday of norskeHelligdager) {
+  for (const holliday of norskeHelligdager) {
     it(
       "It returns true if date is " +
         holliday.description +
@@ -60,7 +60,7 @@ describe("isHoliday", () => {
   }
 
   it("It returns false if date is not a holiday", () => {
-    for (let day of notHolidays) {
+    for (const day of notHolidays) {
       expect(norwegianHolidays.isHoliday(day.date)).toBeFalsy();
     }
   });

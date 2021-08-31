@@ -66,7 +66,7 @@ function useBatching(data: any[], cb: (batch: any[]) => void, batchSize = 10) {
 }
 
 function removeImageRefs(profile: any) {
-  for (let key of Object.keys(profile)) {
+  for (const key of Object.keys(profile)) {
     if (key.includes("image")) {
       delete profile[key];
     }

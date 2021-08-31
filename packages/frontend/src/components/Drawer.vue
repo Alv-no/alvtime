@@ -62,6 +62,11 @@ export default Vue.extend({
           icon: "watch_later",
         },
         {
+          text: "Dashboard",
+          routeName: "dashboard",
+          icon: "bar_chart",
+        },
+        {
           text: "Personlige access token",
           routeName: "tokens",
           icon: "lock_open",

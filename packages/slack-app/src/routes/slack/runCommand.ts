@@ -3,12 +3,13 @@ import userDB from "../../models/user";
 import { logger } from "../../createLogger";
 import { CommandBody } from "./slashCommand";
 
-const { LOGG, TASKS, REG, UKE, ADMIN } = Object.freeze({
+const { LOGG, TASKS, REG, UKE, ADMIN, FERIE } = Object.freeze({
   TASKS: "TASKS",
   LOGG: "LOGG",
   REG: "REG",
   UKE: "UKE",
   ADMIN: "ADMIN",
+  FERIE: "FERIE",
 });
 
 export default async function runCommand(commandBody: CommandBody) {
@@ -34,6 +35,10 @@ export default async function runCommand(commandBody: CommandBody) {
 
       case UKE:
         commands.registerWeek();
+        break;
+
+      case FERIE:
+        commands.registerVacation();
         break;
 
       case ADMIN:

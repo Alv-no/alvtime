@@ -1,6 +1,6 @@
 import jwt from "jwt-simple";
 import { Moment } from "moment";
-import { Task, TimeEntrie } from "../client/index";
+import { Task, TimeEntrie, DateRange } from "../client/index";
 import config from "../config";
 import env from "../environment";
 import configuredMoment from "../moment";
@@ -37,8 +37,7 @@ export function reminderToRegisterHoursAndActivateMessage(
         elements: [
           {
             type: "mrkdwn",
-            text:
-              "Har du ført timene dine og ønsker kun å få denne beskjeden dersom du glemmer det? Koble Slack-kontoen din til Alvtime via knappen under.",
+            text: "Har du ført timene dine og ønsker kun å få denne beskjeden dersom du glemmer det? Koble Slack-kontoen din til Alvtime via knappen under.",
           },
         ],
       },
@@ -126,6 +125,16 @@ export function loggMessage(timeEntries: TimeEntrie[], tasks: Task[]) {
   }
 
   return message;
+}
+
+export function vacationLoggMessage({
+  fromDateInclusive,
+  toDateInclusive,
+}: DateRange) {
+  const fromDate = configuredMoment(fromDateInclusive).format("dddd D. YYYY");
+  const toDate = configuredMoment(toDateInclusive).format("dddd D. YYYY");
+
+  return { text: `Du har ført ferie fra og med ${fromDate} til og med ${toDate}` };
 }
 
 export function loginMessage(tokenPayload: TokenPayload) {
