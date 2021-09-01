@@ -15,6 +15,7 @@ export interface FrontendTimentrie {
   date: string;
   value: string;
   taskId: number;
+  locked: boolean;
 }
 
 export interface TimeEntrieMap {
@@ -31,6 +32,7 @@ export interface ServerSideTimeEntrie {
   date: string;
   value: number;
   taskId: number;
+  locked: boolean;
 }
 
 const state = {
