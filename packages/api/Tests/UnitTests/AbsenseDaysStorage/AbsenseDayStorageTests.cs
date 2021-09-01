@@ -19,6 +19,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
             context = new AlvTimeDbContextBuilder()
                 .WithUsers()
                 .WithTasks()
+                .WithLeaveTasks()
                 .WithTimeEntries()
                 .WithHourRates()
                 .CreateDbContext();
