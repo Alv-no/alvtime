@@ -9,8 +9,10 @@
     <input
       ref="inputRef"
       v-model="value"
-      :class="{ error, nonZero }"
+      :class="{ error, nonZero, hovered }"
       type="text"
+      @mouseover="hovered = !(!isOnline || isLocked)"
+      @mouseleave="hovered = false"
       novalidate
       inputmode="decimal"
       :disabled="!isOnline || isLocked"
@@ -42,6 +44,7 @@ export default {
       showHelperButtons: false,
       enableBlur: true,
       localValue: "0",
+      hovered: false,
     };
   },
 
@@ -53,9 +56,10 @@ export default {
     value: {
       get() {
         if (this.$store.state.editing) return this.localValue;
-        const obj = this.$store.state.timeEntriesMap[
-          `${this.timeEntrie.date}${this.timeEntrie.taskId}`
-        ];
+        const obj =
+          this.$store.state.timeEntriesMap[
+            `${this.timeEntrie.date}${this.timeEntrie.taskId}`
+          ];
         return obj && obj.value ? obj.value.toString().replace(".", ",") : "0";
       },
       set(str) {
@@ -68,6 +72,10 @@ export default {
 
     nonZero() {
       return Number(this.value.replace(",", "."));
+    },
+
+    inputHover() {
+      return !this.isOnline || this.isLocked;
     },
 
     error() {
@@ -160,7 +168,7 @@ input:focus {
   outline: none;
 }
 
-input:hover {
+.hovered {
   border-color: #008dcf;
   transition: border-color 500ms ease-out;
 }
