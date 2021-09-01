@@ -57,9 +57,7 @@ export default Vue.extend({
       const result = (fuse.search(this.searchphrase) as unknown) as {
         item: Task;
       }[];
-      return result
-        .map((x: { item: Task }) => x.item)
-        .filter(task => task.locked === true);
+      return result.map((x: { item: Task }) => x.item);
     },
 
     isOnline() {
