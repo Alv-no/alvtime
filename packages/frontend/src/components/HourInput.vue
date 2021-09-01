@@ -13,7 +13,7 @@
       type="text"
       novalidate
       inputmode="decimal"
-      :disabled="!isOnline"
+      :disabled="!isOnline || isLocked"
       @input="onInput"
       @touchstart="onTouchStart"
       @blur="onBlur"
@@ -24,7 +24,6 @@
 </template>
 
 <script>
-import { defer } from "lodash";
 import { isFloat } from "@/store/timeEntries";
 import config from "@/config";
 import TimeLeftInDayButton from "@/components/TimeLeftInDayButton";
@@ -34,7 +33,10 @@ export default {
     TimeLeftInDayButton,
   },
 
-  props: { timeEntrie: { type: Object, default: () => ({}) } },
+  props: {
+    timeEntrie: { type: Object, default: () => ({}) },
+    isLocked: { type: Boolean, default: false },
+  },
   data() {
     return {
       showHelperButtons: false,

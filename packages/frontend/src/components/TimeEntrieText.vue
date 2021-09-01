@@ -3,7 +3,10 @@
     <p class="customer-name">{{ task.project.customer.name }}</p>
     <div class="activity-name-container">
       <p class="activity-name">{{ task.name }} {{ task.project.name }}</p>
-      <small class="rate-text">{{ compansationRatePercentage }}</small>
+      <small class="rate-text">{{ compensationRatePercentage }}</small>
+      <div v-show="showPadlock" class="rate-text">
+        <md-icon>lock</md-icon>
+      </div>
     </div>
   </div>
 </template>
@@ -22,8 +25,11 @@ export default Vue.extend({
     },
   },
   computed: {
-    compansationRatePercentage(): string {
+    compensationRatePercentage(): string {
       return `${this.task.compensationRate * 100}%`;
+    },
+    showPadlock(): boolean {
+      return this.task.locked;
     },
   },
 });
