@@ -42,7 +42,7 @@ const getters = {
 
 const mutations = {
   SET_TASKS(state: State, paramTasks: Task[]) {
-    state.tasks = paramTasks;
+    state.tasks = paramTasks.filter(task => !task.locked);
   },
 
   UPDATE_TASKS(state: State, paramTasks: Task[]) {

@@ -1,4 +1,5 @@
-﻿using AlvTime.Business.TimeEntries;
+﻿using System;
+using AlvTime.Business.TimeEntries;
 using AlvTime.Persistence.DataBaseModels;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -80,27 +81,36 @@ namespace AlvTime.Persistence.Repositories
 
         public TimeEntriesResponseDto CreateTimeEntry(CreateTimeEntryDto timeEntry, int userId)
         {
-            Hours hour = new Hours
-            {
-                Date = timeEntry.Date.Date,
-                TaskId = timeEntry.TaskId,
-                User = userId,
-                Year = (short)timeEntry.Date.Year,
-                DayNumber = (short)timeEntry.Date.DayOfYear,
-                Value = timeEntry.Value
-            };
-            _context.Hours.Add(hour);
-            _context.SaveChanges();
+            var task = _context.Task
+                .Where(t => t.Id == timeEntry.TaskId)
+                .FirstOrDefault();
 
-            return new TimeEntriesResponseDto
+            if (!task.Locked)
             {
-                Id = hour.Id,
-                User = hour.User,
-                Date = hour.Date,
-                TaskId = hour.TaskId,
-                Value = hour.Value,
-                UserEmail = hour.UserNavigation.Email
-            };
+                Hours hour = new Hours
+                {
+                    Date = timeEntry.Date.Date,
+                    TaskId = timeEntry.TaskId,
+                    User = userId,
+                    Year = (short)timeEntry.Date.Year,
+                    DayNumber = (short)timeEntry.Date.DayOfYear,
+                    Value = timeEntry.Value
+                };
+                _context.Hours.Add(hour);
+                _context.SaveChanges();
+                
+                return new TimeEntriesResponseDto
+                {
+                    Id = hour.Id,
+                    User = hour.User,
+                    Date = hour.Date,
+                    TaskId = hour.TaskId,
+                    Value = hour.Value,
+                    UserEmail = hour.UserNavigation.Email
+                };
+            }
+
+            throw new Exception("Cannot create time entry. Task is locked");
         }
 
         public TimeEntriesResponseDto UpdateTimeEntry(CreateTimeEntryDto timeEntry, int userId)
@@ -119,7 +129,7 @@ namespace AlvTime.Persistence.Repositories
                 .Where(t => t.Id == timeEntry.TaskId)
                 .FirstOrDefault();
 
-            if (hour.Locked == false && task.Locked == false)
+            if (!hour.Locked && !task.Locked)
             {
                 hour.Value = timeEntry.Value;
                 _context.SaveChanges();
@@ -135,7 +145,7 @@ namespace AlvTime.Persistence.Repositories
                 };
             }
 
-            return new TimeEntriesResponseDto();
+            throw new Exception("Cannot update time entry. Task or time entry is locked");
         }
     }
 }
