@@ -1,6 +1,7 @@
 ﻿using AlvTime.Persistence.DataBaseModels;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 
 namespace Tests.UnitTests
 {
@@ -201,7 +202,7 @@ namespace Tests.UnitTests
                 Description = "",
                 Project = 1,
                 Name = "UnpaidHoliday",
-                Locked = false
+                Locked = false,
             });
 
             _context.Task.Add(new Task
@@ -220,24 +221,6 @@ namespace Tests.UnitTests
                 Project = 2,
                 Name = "SickDay",
                 Locked = false
-            });
-
-            _context.CompensationRate.Add(new CompensationRate
-            {
-                TaskId = 14,
-                Value = 1.0M
-            });
-
-            _context.CompensationRate.Add(new CompensationRate
-            {
-                TaskId = 13,
-                Value = 1.0M
-            });
-
-            _context.CompensationRate.Add(new CompensationRate
-            {
-                TaskId = 12,
-                Value = 1.0M
             });
 
             _context.SaveChanges();
