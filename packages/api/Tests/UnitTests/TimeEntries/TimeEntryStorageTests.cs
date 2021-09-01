@@ -52,7 +52,7 @@ namespace Tests.UnitTests.TimeEntries
         [Fact]
         public void CreateTimeEntry_NewTimeEntry_TimeEntryCreated()
         {
-            var context = new AlvTimeDbContextBuilder().WithUsers().CreateDbContext();
+            var context = new AlvTimeDbContextBuilder().WithUsers().WithTasks().CreateDbContext();
 
             var storage = new TimeEntryStorage(context);
 
@@ -61,7 +61,7 @@ namespace Tests.UnitTests.TimeEntries
             storage.CreateTimeEntry(new CreateTimeEntryDto
             {
                 Date = new DateTime(2020, 01, 01),
-                TaskId = 2,
+                TaskId = 1,
                 Value = 7.5M
             }, 1);
 

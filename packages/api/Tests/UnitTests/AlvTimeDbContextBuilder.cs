@@ -193,6 +193,57 @@ namespace Tests.UnitTests
             return this;
         }
 
+        public AlvTimeDbContextBuilder WithLeaveTasks()
+        {
+            _context.Task.Add(new Task
+            {
+                Id = 12,
+                Description = "",
+                Project = 1,
+                Name = "UnpaidHoliday",
+                Locked = false
+            });
+
+            _context.Task.Add(new Task
+            {
+                Id = 13,
+                Description = "",
+                Project = 2,
+                Name = "PaidHoliday",
+                Locked = false
+            });
+
+            _context.Task.Add(new Task
+            {
+                Id = 14,
+                Description = "",
+                Project = 2,
+                Name = "SickDay",
+                Locked = false
+            });
+
+            _context.CompensationRate.Add(new CompensationRate
+            {
+                TaskId = 14,
+                Value = 1.0M
+            });
+
+            _context.CompensationRate.Add(new CompensationRate
+            {
+                TaskId = 13,
+                Value = 1.0M
+            });
+
+            _context.CompensationRate.Add(new CompensationRate
+            {
+                TaskId = 12,
+                Value = 1.0M
+            });
+
+            _context.SaveChanges();
+            return this;
+        }
+
         public AlvTimeDbContextBuilder WithUsers()
         {
             _context.User.Add(new User

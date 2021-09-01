@@ -82,8 +82,7 @@ namespace AlvTime.Persistence.Repositories
         public TimeEntriesResponseDto CreateTimeEntry(CreateTimeEntryDto timeEntry, int userId)
         {
             var task = _context.Task
-                .Where(t => t.Id == timeEntry.TaskId)
-                .FirstOrDefault();
+                .FirstOrDefault(t => t.Id == timeEntry.TaskId);
 
             if (!task.Locked)
             {
