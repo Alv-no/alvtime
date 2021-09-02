@@ -55,6 +55,7 @@ interface OvertimeEntry {
   id?: number;
   rate?: number;
   active?: boolean;
+  hoursAfterCompRate?: number;
 }
 
 export interface HolidayTransaction {
@@ -173,6 +174,7 @@ const getters = {
           transaction: {
             date: transaction.date,
             hours: transaction.hoursBeforeCompRate,
+            hoursAfterCompRate: transaction.hoursAfterCompRate,
             active: transaction.active,
             id: transaction.id,
           },

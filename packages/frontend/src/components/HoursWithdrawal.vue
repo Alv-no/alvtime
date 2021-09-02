@@ -39,37 +39,39 @@
       <small class="validationtext">{{ errorMessage }}</small>
 
       <hr />
-
-      <md-table v-model="sortedTransactions" md-fixed-header>
-        <md-table-toolbar>
-          <h2 class="md-title">Transaksjoner</h2>
-        </md-table-toolbar>
-        <md-table-row slot="md-table-row" slot-scope="{ item }">
-          <md-table-cell md-sort-by="date" md-label="Dato">{{
-            item.date
-          }}</md-table-cell>
-          <md-table-cell md-sort-by="type" md-label="Type">{{
-            item.type
-          }}</md-table-cell>
-          <md-table-cell md-sort-by="hours" md-label="Timer">{{
-            item.hours
-          }}</md-table-cell>
-          <md-table-cell md-sort-by="rate" md-label="Rate">{{
-            item.rate
-          }}</md-table-cell>
-          <md-table-cell md-sort-by="total" md-label="Total">{{
-            item.sum
-          }}</md-table-cell>
-          <md-table-cell md-sort-by="remove" md-label=""
-            ><md-icon
-              v-if="item.active"
-              class="delete-transaction"
-              @click.native="removeHourOrder(item.id)"
-              >delete</md-icon
-            ></md-table-cell
-          >
-        </md-table-row>
-      </md-table>
+      <YellowButton
+        :text="transactionListButtonText"
+        @click="toggleList"
+      ></YellowButton>
+      <div v-show="transactionListActive">
+        <md-table v-model="sortedTransactions" md-fixed-header>
+          <md-table-row slot="md-table-row" slot-scope="{ item }">
+            <md-table-cell md-sort-by="date" md-label="Dato">{{
+              item.date
+            }}</md-table-cell>
+            <md-table-cell md-sort-by="type" md-label="Type">{{
+              item.type
+            }}</md-table-cell>
+            <md-table-cell md-sort-by="hours" md-label="Timer">{{
+              item.hours
+            }}</md-table-cell>
+            <md-table-cell md-sort-by="rate" md-label="Rate">{{
+              item.rate
+            }}</md-table-cell>
+            <md-table-cell md-sort-by="total" md-label="Total">{{
+              item.sum
+            }}</md-table-cell>
+            <md-table-cell md-sort-by="remove" md-label=""
+              ><md-icon
+                v-if="item.active"
+                class="delete-transaction"
+                @click.native="removeHourOrder(item.id)"
+                >delete</md-icon
+              ></md-table-cell
+            >
+          </md-table-row>
+        </md-table>
+      </div>
     </div>
   </CenterColumnWrapper>
 </template>
@@ -136,6 +138,7 @@ export default Vue.extend({
       holidayData: [],
       holidaySubtractions: [],
       unsubscribe: () => {},
+      transactionListActive: false,
     };
   },
   computed: {
@@ -159,6 +162,11 @@ export default Vue.extend({
     buttonText(): string {
       // @ts-ignore
       return this.$mq === "sm" ? "" : "bestill";
+    },
+    transactionListButtonText(): string {
+      return this.transactionListActive
+        ? "skjul transaksjoner"
+        : "vis transaksjoner";
     },
     erroneousInput(): boolean {
       return this.errorMessage.length > 0;
@@ -223,9 +231,7 @@ export default Vue.extend({
           rate: transaction.transaction.rate
             ? `${transaction.transaction.rate * 100}%`
             : "",
-          sum: transaction.transaction.rate
-            ? transaction.transaction.hours * transaction.transaction.rate
-            : undefined,
+          sum: this.getTranslatedTotal(transaction.type, transaction),
           active: transaction.transaction.active,
         };
       });
@@ -236,7 +242,7 @@ export default Vue.extend({
         case "available":
           return value;
         case "payout":
-          return value * -1;
+          return value;
         case "flex":
           return value * -1;
       }
@@ -254,6 +260,21 @@ export default Vue.extend({
           return "";
       }
     },
+    getTranslatedTotal(
+      type: string,
+      transaction: MappedOvertimeTransaction
+    ): number {
+      switch (type) {
+        case "available":
+          return transaction.transaction.hours * transaction.transaction.rate!;
+        case "payout":
+          return transaction.transaction.hoursAfterCompRate!;
+        case "flex":
+          return transaction.transaction.hours * -1;
+        default:
+          return transaction.transaction.hours;
+      }
+    },
     async orderHours() {
       await this.$store.dispatch("POST_ORDER_PAYOUT", {
         hours: parseFloat(this.hours),
@@ -268,6 +289,9 @@ export default Vue.extend({
       await this.$store.dispatch("CANCEL_PAYOUT_ORDER", { payoutId: id });
       await this.$store.dispatch("FETCH_TRANSACTIONS");
       this.processTransactions();
+    },
+    toggleList() {
+      this.transactionListActive = !this.transactionListActive;
     },
   },
 });
