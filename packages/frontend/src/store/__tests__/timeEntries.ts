@@ -19,7 +19,7 @@ describe("UPDATE_TIME_ENTRIES", () => {
       "2020-02-2517": { value: "7.5", id: 1 },
     });
     expect(state.timeEntries).toEqual([
-      { id: 1, date: "2020-02-25", value: "7.5", taskId: 17 },
+      { id: 1, date: "2020-02-25", value: "7.5", taskId: 17, locked: false },
     ]);
   });
 
@@ -35,7 +35,7 @@ describe("UPDATE_TIME_ENTRIES", () => {
       "2020-02-2517": { value: "5", id: 1 },
     });
     expect(state.timeEntries).toEqual([
-      { id: 1, date: "2020-02-25", value: "5", taskId: 17 },
+      { id: 1, date: "2020-02-25", value: "5", taskId: 17, locked: false },
     ]);
   });
 
@@ -50,8 +50,8 @@ describe("UPDATE_TIME_ENTRIES", () => {
       "2020-02-2517": { value: "7.5", id: 1 },
     });
     expect(state.timeEntries).toEqual([
-      { id: 1, date: "2020-02-25", value: "7.5", taskId: 17 },
-      { id: 2, date: "2020-02-25", value: "5", taskId: 13 },
+      { id: 1, date: "2020-02-25", value: "7.5", taskId: 17, locked: false },
+      { id: 2, date: "2020-02-25", value: "5", taskId: 13, locked: false },
     ]);
   });
 });
