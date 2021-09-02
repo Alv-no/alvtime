@@ -7,12 +7,12 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { logout } from "../services/auth";
+import authService from "../services/auth";
 
 export default Vue.extend({
   methods: {
     logout() {
-      logout();
+      authService.logout();
     },
   },
 });

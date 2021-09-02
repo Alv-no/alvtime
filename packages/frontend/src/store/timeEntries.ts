@@ -2,7 +2,7 @@ import { State } from "./index";
 import { ActionContext } from "vuex";
 import { debounce } from "lodash";
 import config from "@/config";
-import { adAuthenticatedFetch } from "@/services/auth";
+import httpClient from "../services/httpClient";
 
 export interface TimeEntrieState {
   timeEntries: FrontendTimentrie[] | null;
@@ -81,30 +81,26 @@ const actions = {
 
       commit("FLUSH_PUSH_QUEUE");
       try {
-        const response = await adAuthenticatedFetch(
-          config.API_HOST + "/api/user/TimeEntries",
-          {
-            method: "post",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(timeEntriesToPush),
-          }
-        );
-        const timeEntries = await response.json();
-        if (response.status !== 200) {
-          throw Error(`${response.statusText}
-${timeEntries.title}`);
-        }
-        if (!Array.isArray(timeEntries) && timeEntries.message) {
-          throw Error(timeEntries.message);
-        }
-        if (Array.isArray(timeEntries)) {
-          commit(
-            "UPDATE_TIME_ENTRIES_AFTER_UPDATE",
-            timeEntries.map(createTimeEntrie)
-          );
-        }
+        await httpClient
+          .post<any[]>(
+            `${config.API_HOST}/api/user/TimeEntries`,
+            timeEntriesToPush
+          )
+          .then(response => {
+            commit(
+              "UPDATE_TIME_ENTRIES_AFTER_UPDATE",
+              response.data.map(createTimeEntrie)
+            );
+          })
+          .catch(e => {
+            if (e.status !== 200) {
+              throw Error(`${e.statusText}
+${e.data.title}`);
+            }
+            if (!Array.isArray(e.data) && e.data.message) {
+              throw Error(e.data.message);
+            }
+          });
       } catch (e) {
         console.error(e);
         commit("ADD_TO_ERROR_LIST", e);
@@ -120,20 +116,21 @@ ${timeEntries.title}`);
     const url = new URL(config.API_HOST + "/api/user/TimeEntries");
     url.search = new URLSearchParams(params).toString();
 
-    try {
-      const res = await adAuthenticatedFetch(url.toString());
-      const timeEntries = await res.json();
-      if (!Array.isArray(timeEntries) && timeEntries.message) {
-        throw Error(timeEntries.message);
-      }
-      const frontendTimeEntries = timeEntries
-        .filter((entrie: ServerSideTimeEntrie) => entrie.value)
-        .map(createTimeEntrie);
-      commit("UPDATE_TIME_ENTRIES", frontendTimeEntries);
-    } catch (e) {
-      console.error(e);
-      commit("ADD_TO_ERROR_LIST", e);
-    }
+    await httpClient
+      .get(url.toString())
+      .then(response => {
+        if (!Array.isArray(response.data) && response.data.message) {
+          throw Error(response.data.message);
+        }
+        const frontendTimeEntries = response.data
+          .filter((entrie: ServerSideTimeEntrie) => entrie.value)
+          .map(createTimeEntrie);
+        commit("UPDATE_TIME_ENTRIES", frontendTimeEntries);
+      })
+      .catch(e => {
+        console.error(e);
+        commit("ADD_TO_ERROR_LIST", e);
+      });
   },
 };
 

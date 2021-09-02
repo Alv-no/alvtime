@@ -48,8 +48,8 @@
 import Vue from "vue";
 import moment from "moment";
 import YellowButton from "./YellowButton.vue";
-import { adAuthenticatedFetch } from "@/services/auth";
 import config from "@/config";
+import httpClient from "../services/httpClient";
 
 interface Token {
   id: number;
@@ -111,50 +111,38 @@ export default Vue.extend({
     },
 
     async fetchActiveAccessTokens() {
-      try {
-        const url = new URL(
-          config.API_HOST + "/api/user/ActiveAccessTokens"
-        ).toString();
-        const res = await adAuthenticatedFetch(url);
-        if (res.status !== 200) {
-          throw res.statusText;
-        }
-        const tokens = await res.json();
-        this.tokens = tokens;
-      } catch (e) {
-        console.error(e);
-        this.$store.commit("ADD_TO_ERROR_LIST", e);
-      }
+      httpClient
+        .get<{ tokens: any[] }>(
+          `${config.API_HOST}/api/user/ActiveAccessTokens`
+        )
+        .then(response => {
+          this.tokens = response.data.tokens;
+        })
+        .catch(e => {
+          console.error(e);
+          this.$store.commit("ADD_TO_ERROR_LIST", e);
+        });
     },
 
     async deleteAccessTokens(tokens: { id: number }[]) {
-      try {
-        const method = "delete";
-        const headers = { "Content-Type": "application/json" };
-        const tokensToDelete = tokens.map(token => ({ tokenId: token.id }));
-        const body = JSON.stringify(tokensToDelete);
-        const options = { method, headers, body };
+      const method = "delete";
+      const headers = { "Content-Type": "application/json" };
+      const tokensToDelete = tokens.map(token => ({ tokenId: token.id }));
+      const body = JSON.stringify(tokensToDelete);
+      const options = { method, headers, body };
 
-        const response = await adAuthenticatedFetch(
-          config.API_HOST + "/api/user/AccessToken",
-          options
-        );
-
-        if (response.status !== 200) {
-          throw response.statusText;
-        }
-
-        const deletedTokens = await response.json();
-        this.tokens = this.tokens.filter(
-          (token: Token) =>
-            !deletedTokens.some(
-              (deletedToken: { id: number }) => deletedToken.id === token.id
-            )
-        );
-      } catch (e) {
-        console.error(e);
-        this.$store.commit("ADD_TO_ERROR_LIST", e);
-      }
+      httpClient
+        .delete<{ id: number }[]>(`${config.API_HOST}/api/user/AccessToken`)
+        .then(response => {
+          this.tokens = this.tokens.filter(
+            (token: Token) =>
+              !response.data.some(deletedToken => deletedToken.id === token.id)
+          );
+        })
+        .catch(e => {
+          console.error(e);
+          this.$store.commit("ADD_TO_ERROR_LIST", e);
+        });
     },
   },
 });
