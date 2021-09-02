@@ -1,7 +1,7 @@
 import { State } from "./index";
-import { adAuthenticatedFetch } from "@/services/auth";
 import config from "@/config";
 import { ActionContext } from "vuex";
+import httpClient from "../services/httpClient";
 
 interface VacationOverview {
   availableVacationDays: number;
@@ -61,7 +61,6 @@ const getters = {
         priority: 3,
       },
     ];
-    //return state.absenseState.absenseOverview;
   },
 };
 
@@ -78,42 +77,27 @@ const actions = {
   FETCH_ABSENSEDATAOVERVIEW: async ({
     commit,
   }: ActionContext<State, State>) => {
-    try {
-      let url = new URL(
-        config.API_HOST + "/user/RemainingAbsenseDays"
-      ).toString();
-      let res = await adAuthenticatedFetch(url);
-      if (res.status === 404) {
+    await httpClient
+      .get(`${config.API_HOST}/api/user/AbsenseOverview`)
+      .then(response => {
+        commit("SET_ABSENSEDAYSOVERVIEW", response.data);
+      })
+      .catch(e => {
         commit("SET_USER_NOT_FOUND");
-        throw res.statusText;
-      }
-      const available = await res.json();
-      commit("SET_ABSENSEDAYSOVERVIEW", available);
-    } catch (e) {
-      if (e !== "Not Found") {
         console.error(e);
-        commit("ADD_TO_ERROR_LIST", e);
-      }
-    }
+      });
   },
   FETCH_VACATIONOVERVIEW: async ({ commit }: ActionContext<State, State>) => {
-    try {
-      let url = new URL(
-        config.API_HOST + "/api/user/VacationOverview"
-      ).toString();
-      let res = await adAuthenticatedFetch(url);
-      if (res.status === 404) {
+    await httpClient
+      .get(`${config.API_HOST}/api/user/VacationOverview`)
+      .then(response => {
+        commit("SET_VACATIONOVERVIEW", response.data);
+      })
+      .catch(e => {
         commit("SET_USER_NOT_FOUND");
-        throw res.statusText;
-      }
-      const available = await res.json();
-      commit("SET_VACATIONOVERVIEW", available);
-    } catch (e) {
-      if (e !== "Not Found") {
-        console.error(e);
         commit("ADD_TO_ERROR_LIST", e);
-      }
-    }
+        console.error(e);
+      });
   },
 };
 

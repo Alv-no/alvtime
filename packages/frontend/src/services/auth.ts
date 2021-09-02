@@ -1,106 +1,129 @@
-// https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-js-initializing-client-applications
+const scopes = [config.ACCESS_SCOPE];
+
 import config from "@/config";
-import createMsalApp from "@/services/createMsalApp.js";
+import {
+  Configuration,
+  PublicClientApplication,
+  AuthenticationResult,
+  AccountInfo,
+  EventMessage,
+} from "@azure/msal-browser";
+export class AuthService {
+  private accountLoaded$: Promise<AccountInfo>;
+  private msalManager: PublicClientApplication;
+  private authResult: AuthenticationResult | null = null;
+  private accountInfo: AccountInfo | null = null;
 
-const authParams = {
-  scopes: [config.ACCESS_SCOPE],
-};
+  constructor() {
+    const msalConfig: Configuration = {
+      auth: {
+        clientId: config.CLIENT_ID,
+        redirectUri: window.location.origin,
+        authority: config.AUTHORITY + config.TENANT_ID,
+      },
+      cache: {
+        storeAuthStateInCookie: false,
+      },
+    };
 
-const msalApp = createMsalApp({
-  auth: {
-    clientId: config.CLIENT_ID,
-    authority: config.AUTHORITY + config.TENANT_ID,
-    redirectUri: window.location.origin,
-    postLogoutRedirectUri: window.location.origin,
-  },
-  cache: {
-    cacheLocation: "sessionStorage",
-    storeAuthStateInCookie: false,
-  },
-
-  system: {
-    navigateFrameWait: 0,
-  },
-});
-
-function createRedirectCallback(
-  cb?: (error: Error) => void,
-  setAccount?: (account: Account) => void
-) {
-  function redirectCallback(error: any) {
-    if (error) {
-      if (cb) cb(error);
-    } else {
-      if (msalApp.getAccount()) {
-        if (setAccount) setAccount(msalApp.getAccount());
+    this.msalManager = new PublicClientApplication(msalConfig);
+    this.accountLoaded$ = new Promise(resolve => {
+      if (this.isDevMode()) {
+        resolve({
+          localAccountId: "",
+          tenantId: "",
+          environment: "dev",
+          homeAccountId: "",
+          username: "",
+        });
+        return;
       }
+
+      this.msalManager.handleRedirectPromise().then(response => {
+        this.accountInfo = response ? response.account : this.resolveAccount();
+        if (!this.accountInfo) {
+          this.msalManager.loginRedirect({
+            scopes,
+          });
+        } else {
+          resolve(this.accountInfo);
+        }
+      });
+    });
+  }
+
+  private handleResponse(authentiCationResponse: AuthenticationResult | null) {
+    if (authentiCationResponse) {
+      this.authResult = authentiCationResponse;
+      this.accountInfo = authentiCationResponse.account;
+    } else {
+      this.accountInfo = this.msalManager.getAllAccounts()[0];
     }
   }
 
-  return redirectCallback;
-}
+  public async logout(): Promise<void> {
+    return this.msalManager.logout();
+  }
 
-msalApp.handleRedirectCallback(createRedirectCallback());
+  public addCallback(callback: (message: EventMessage) => void) {
+    this.msalManager.addEventCallback(callback);
+  }
 
-export function setRedirectCallback(
-  cb: (error: Error) => void,
-  setAccount: (account: Account) => void
-) {
-  msalApp.handleRedirectCallback(createRedirectCallback(cb, setAccount));
-}
+  public async loginMsal(): Promise<void> {
+    const response = await this.msalManager.loginRedirect({
+      scopes,
+    });
+    return response;
+  }
 
-export async function login() {
-  msalApp.loginRedirect(authParams);
-}
+  public async getAccessToken(): Promise<string | undefined> {
+    if (this.isDevMode()) {
+      return "5801gj90-jf39-5j30-fjk3-480fj39kl409";
+    }
+    const accountInfo = await this.getAccountAsync();
 
-export function logout() {
-  return msalApp.logout();
-}
+    const response = await this.msalManager.acquireTokenSilent({
+      account: accountInfo,
+      scopes,
+    });
+    this.handleResponse(response);
+    return response.accessToken;
+  }
 
-export function getAccount() {
-  return msalApp.getAccount();
-}
+  public getUser(): AuthenticationResult | null {
+    return this.authResult;
+  }
 
-export async function adAuthenticatedFetch(
-  url: string,
-  paramOptions: RequestInit = { headers: {} }
-) {
-  const accessToken = await getAccessToken();
-  const authHeaders = { Authorization: `Bearer ${accessToken}` };
+  public async requireLogin(): Promise<boolean> {
+    if (this.isDevMode()) {
+      return false;
+    }
+    return (await this.getAccountAsync()) === null;
+  }
 
-  paramOptions = paramOptions ? paramOptions : { headers: {} };
+  public isLoggedIn(): boolean {
+    return this.msalManager.getAllAccounts()[0] == null;
+  }
 
-  var options = {
-    ...paramOptions,
-    headers: {
-      ...paramOptions.headers,
-      ...authHeaders,
-    },
-  };
+  public getAccount(): AccountInfo | null {
+    return this.msalManager.getActiveAccount();
+  }
 
-  return fetch(url, options);
-}
+  public async getAccountAsync(): Promise<AccountInfo> {
+    return this.resolveAccount() || (await this.accountLoaded$);
+  }
 
-async function getAccessToken() {
-  if (getAccount()) {
-    const res = await getTokenRedirect();
-    return res ? res.accessToken : "";
-  } else {
-    return "5801gj90-jf39-5j30-fjk3-480fj39kl409";
+  private resolveAccount(): AccountInfo | null {
+    if (this.accountInfo) return this.accountInfo;
+
+    const accounts = this.msalManager.getAllAccounts();
+    if (accounts && accounts.length > 0) return accounts[0];
+    return null;
+  }
+
+  private isDevMode(): boolean {
+    return process.env.NODE_ENV === "development";
   }
 }
 
-export function requireLogin() {
-  return !getAccount() && process.env.NODE_ENV !== "development";
-}
-
-async function getTokenRedirect() {
-  try {
-    return await msalApp.acquireTokenSilent(authParams);
-  } catch {
-    console.log(
-      "silent token acquisition fails. acquiring token using redirect"
-    );
-    return msalApp.acquireTokenRedirect(authParams);
-  }
-}
+export default new AuthService();

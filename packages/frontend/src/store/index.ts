@@ -1,4 +1,4 @@
-import { setRedirectCallback } from "@/services/auth";
+import authService from "@/services/auth";
 import lifecycle from "@/services/lifecycle.es5.js";
 import Vue from "vue";
 import Vuex from "vuex";
@@ -11,6 +11,7 @@ import timeEntrie, { TimeEntrieState } from "./timeEntries";
 import router from "@/router";
 import overtime, { OvertimeState } from "./overtime";
 import absense, { AbsenseState } from "./absense";
+import { EventMessage, EventType } from "@azure/msal-browser";
 
 Vue.use(Vuex);
 
@@ -70,17 +71,17 @@ const storeOptions = {
 };
 
 const store = new Vuex.Store(storeOptions);
+authService.getAccountAsync().then(accountInfo => {
+  store.commit("SET_ACCOUNT", accountInfo);
+});
 
-setRedirectCallback(
-  (errorMessage: Error) => {
-    console.error(errorMessage);
-    store.commit("ADD_TO_ERROR_LIST", errorMessage);
-  },
-  (account: Account) => {
-    store.commit("SET_ACCOUNT", account);
+authService.addCallback((message: EventMessage) => {
+  if (message.eventType.endsWith("Failure")) {
+    store.commit("ADD_TO_ERROR_LIST", message.error);
+  } else if (message.eventType === EventType.LOGIN_SUCCESS) {
     router.push("hours");
   }
-);
+});
 
 lifecycle.addEventListener("statechange", function(event: any) {
   store.commit("UPDATE_INTERACTION_STATE", event);

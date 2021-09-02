@@ -38,8 +38,8 @@ import Vue from "vue";
 import YellowButton from "./YellowButton.vue";
 import Tooltip from "./Tooltip.vue";
 import Input from "./Input.vue";
-import { adAuthenticatedFetch } from "@/services/auth";
 import config from "@/config";
+import httpClient from "../services/httpClient";
 
 export default Vue.extend({
   components: {
@@ -78,28 +78,19 @@ export default Vue.extend({
     },
 
     async fetchAccessToken() {
-      try {
-        const method = "post";
-        const headers = { "Content-Type": "application/json" };
-        const body = JSON.stringify({ friendlyName: this.friendlyName });
-        const options = { method, headers, body };
-
-        const response = await adAuthenticatedFetch(
-          config.API_HOST + "/api/user/AccessToken",
-          options
-        );
-
-        if (response.status !== 200) {
-          throw response.statusText;
-        }
-
-        const tokenResponse = await response.json();
-        this.token = tokenResponse.token;
-        this.expires = tokenResponse.expiryDate;
-      } catch (e) {
-        console.error(e);
-        this.$store.commit("ADD_TO_ERROR_LIST", e);
-      }
+      httpClient
+        .post<{ token: string; expires: string }>(
+          `${config.API_HOST}/api/user/AccessToken`,
+          { friendlyName: this.friendlyName }
+        )
+        .then(response => {
+          this.token = response.data.token;
+          this.expires = response.data.expires;
+        })
+        .catch(e => {
+          console.error(e);
+          this.$store.commit("ADD_TO_ERROR_LIST", e);
+        });
     },
   },
 });

@@ -11,7 +11,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { login } from "../services/auth";
+import authService from "../services/auth";
 import Progress from "@/components/Progress.vue";
 
 export default Vue.extend({
@@ -26,7 +26,7 @@ export default Vue.extend({
   },
 
   methods: {
-    login: () => login(),
+    login: () => authService.loginMsal(),
   },
 });
 </script>
