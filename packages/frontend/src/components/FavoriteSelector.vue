@@ -11,7 +11,7 @@
         />
       </div>
       <div v-for="task in tasks" :key="task.id" class="row">
-        <TimeEntrieText :task="task" />
+        <TimeEntrieText :task="task" :activityView="true" />
         <md-checkbox
           :value="!task.favorite"
           type="checkbox"

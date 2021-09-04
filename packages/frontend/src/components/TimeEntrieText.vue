@@ -4,9 +4,15 @@
     <div class="activity-name-container">
       <p class="activity-name">{{ task.name }} {{ task.project.name }}</p>
       <small class="rate-text">{{ compensationRatePercentage }}</small>
-      <div v-show="showPadlock" class="rate-text">
-        <md-icon>lock</md-icon>
-      </div>
+    </div>
+    <div
+      v-show="showPadlock"
+      v-bind:class="{
+        'padlock-left': activityView,
+        'padlock-right': !activityView,
+      }"
+    >
+      <md-icon class="icon">lock</md-icon>
     </div>
   </div>
 </template>
@@ -23,6 +29,7 @@ export default Vue.extend({
         return {} as Task;
       },
     },
+    activityView: { type: Boolean, default: false },
   },
   computed: {
     compensationRatePercentage(): string {
@@ -51,6 +58,7 @@ export default Vue.extend({
 
   /* Prevent percentage values from touching the hour input */
   padding-right: 0.5rem;
+  float: left;
 }
 
 .activity-name {
@@ -64,5 +72,18 @@ export default Vue.extend({
 .rate-text {
   font-weight: lighter;
   margin-left: 0.25rem;
+}
+
+.padlock-right {
+  margin-right: 0.4rem;
+  float: right;
+}
+.padlock-left {
+  margin-right: 0.4rem;
+  float: left;
+}
+.icon {
+  position: relative;
+  bottom: 0.4rem;
 }
 </style>
