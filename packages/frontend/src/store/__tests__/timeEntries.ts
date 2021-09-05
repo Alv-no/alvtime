@@ -12,37 +12,37 @@ describe("UPDATE_TIME_ENTRIES", () => {
 
   it("Adds timentries to map", () => {
     UPDATE_TIME_ENTRIES(state, [
-      { id: 1, date: "2020-02-25", value: "7.5", taskId: 17 },
+      { id: 1, date: "2020-02-25", value: "7.5", taskId: 17, locked: false },
     ]);
 
     expect(state.timeEntriesMap).toEqual({
       "2020-02-2517": { value: "7.5", id: 1 },
     });
     expect(state.timeEntries).toEqual([
-      { id: 1, date: "2020-02-25", value: "7.5", taskId: 17 },
+      { id: 1, date: "2020-02-25", value: "7.5", taskId: 17, locked: false },
     ]);
   });
 
   it("Updates timentries in map", () => {
     UPDATE_TIME_ENTRIES(state, [
-      { id: 1, date: "2020-02-25", value: "7.5", taskId: 17 },
+      { id: 1, date: "2020-02-25", value: "7.5", taskId: 17, locked: false },
     ]);
     UPDATE_TIME_ENTRIES(state, [
-      { id: 1, date: "2020-02-25", value: "5", taskId: 17 },
+      { id: 1, date: "2020-02-25", value: "5", taskId: 17, locked: false },
     ]);
 
     expect(state.timeEntriesMap).toEqual({
       "2020-02-2517": { value: "5", id: 1 },
     });
     expect(state.timeEntries).toEqual([
-      { id: 1, date: "2020-02-25", value: "5", taskId: 17 },
+      { id: 1, date: "2020-02-25", value: "5", taskId: 17, locked: false },
     ]);
   });
 
   it("Add multiple timentries in map on same date", () => {
     UPDATE_TIME_ENTRIES(state, [
-      { id: 1, date: "2020-02-25", value: "7.5", taskId: 17 },
-      { id: 2, date: "2020-02-25", value: "5", taskId: 13 },
+      { id: 1, date: "2020-02-25", value: "7.5", taskId: 17, locked: false },
+      { id: 2, date: "2020-02-25", value: "5", taskId: 13, locked: false },
     ]);
 
     expect(state.timeEntriesMap).toEqual({
@@ -50,8 +50,8 @@ describe("UPDATE_TIME_ENTRIES", () => {
       "2020-02-2517": { value: "7.5", id: 1 },
     });
     expect(state.timeEntries).toEqual([
-      { id: 1, date: "2020-02-25", value: "7.5", taskId: 17 },
-      { id: 2, date: "2020-02-25", value: "5", taskId: 13 },
+      { id: 1, date: "2020-02-25", value: "7.5", taskId: 17, locked: false },
+      { id: 2, date: "2020-02-25", value: "5", taskId: 13, locked: false },
     ]);
   });
 });
