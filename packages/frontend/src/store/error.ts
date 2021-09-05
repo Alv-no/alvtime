@@ -30,8 +30,11 @@ const getters = {
   },
   getAllErrors: (state: State) => {
     return state.errors
-      .map(error => `${error.status}: ${error.name} \n ${error.message}`)
-      .join("-->");
+      .map(
+        error =>
+          `\`\`\`${error.status}: ${error.name} \n ${error.message}\`\`\``
+      )
+      .join("");
   },
 };
 
