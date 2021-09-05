@@ -82,7 +82,7 @@ const actions = {
       commit("FLUSH_PUSH_QUEUE");
       try {
         await httpClient
-          .post<any[]>(
+          .post<Array<Parameters<typeof createTimeEntrie>[0]>>(
             `${config.API_HOST}/api/user/TimeEntries`,
             timeEntriesToPush
           )
