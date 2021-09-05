@@ -35,6 +35,7 @@ export class AuthService {
           environment: "dev",
           homeAccountId: "",
           username: "",
+          name: "Ahre-Ketil Lillehagen",
         });
         return;
       }
@@ -101,10 +102,6 @@ export class AuthService {
     return (await this.getAccountAsync()) === null;
   }
 
-  public isLoggedIn(): boolean {
-    return this.msalManager.getAllAccounts()[0] == null;
-  }
-
   public getAccount(): AccountInfo | null {
     return this.msalManager.getActiveAccount();
   }
@@ -122,6 +119,7 @@ export class AuthService {
   }
 
   private isDevMode(): boolean {
+    //return false;
     return process.env.NODE_ENV === "development";
   }
 }

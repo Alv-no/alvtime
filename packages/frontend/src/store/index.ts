@@ -12,6 +12,7 @@ import router from "@/router";
 import overtime, { OvertimeState } from "./overtime";
 import absense, { AbsenseState } from "./absense";
 import { EventMessage, EventType } from "@azure/msal-browser";
+import { registerErrorCallback } from "@/services/httpClient";
 
 Vue.use(Vuex);
 
@@ -53,6 +54,7 @@ const getters = {
   ...auth.getters,
   ...overtime.getters,
   ...absense.getters,
+  ...error.getters,
 };
 
 const actions = {
@@ -61,6 +63,7 @@ const actions = {
   ...swiper.actions,
   ...overtime.actions,
   ...absense.actions,
+  ...auth.actions,
 };
 
 const storeOptions = {
@@ -69,6 +72,13 @@ const storeOptions = {
   mutations,
   actions,
 };
+
+registerErrorCallback(e => {
+  if (e.status === 404 && e.message === "User not found") {
+    return;
+  }
+  store.commit("ADD_TO_ERROR_LIST", e);
+});
 
 const store = new Vuex.Store(storeOptions);
 authService.getAccountAsync().then(accountInfo => {

@@ -202,10 +202,6 @@ const actions = {
       .get(`${config.API_HOST}/api/user/AvailableHours`)
       .then(response => {
         commit("SET_AVAILABLEHOURS", response.data);
-      })
-      .catch(e => {
-        console.error(e);
-        commit("ADD_TO_ERROR_LIST", e);
       });
   },
   FETCH_FLEX_TRANSACTIONS: async ({ commit }: ActionContext<State, State>) => {
@@ -213,10 +209,6 @@ const actions = {
       .get(`${config.API_HOST}/api/user/FlexedHours`)
       .then(response => {
         commit("SET_FLEXHOURS", response.data);
-      })
-      .catch(e => {
-        console.error(e);
-        commit("ADD_TO_ERROR_LIST", e);
       });
   },
   FETCH_PAYED_HOURS: async ({ commit }: ActionContext<State, State>) => {
@@ -224,10 +216,6 @@ const actions = {
       .get(`${config.API_HOST}/api/user/Payouts`)
       .then(response => {
         commit("SET_PAYED_HOURS", response.data);
-      })
-      .catch(e => {
-        console.error(e);
-        commit("ADD_TO_ERROR_LIST", e);
       });
   },
   FETCH_TRANSACTIONS: async ({ dispatch }: ActionContext<State, State>) => {
@@ -239,7 +227,7 @@ const actions = {
   },
 
   POST_ORDER_PAYOUT: async (
-    { commit }: ActionContext<State, State>,
+    _: ActionContext<State, State>,
     parameters: { hours: number; date: string }
   ) => {
     await httpClient
@@ -249,24 +237,15 @@ const actions = {
       })
       .then(response => {
         if (response.status !== 200) throw Error(`${response.statusText}`);
-      })
-      .catch(e => {
-        console.error(e);
-        commit("ADD_TO_ERROR_LIST", e);
       });
   },
   CANCEL_PAYOUT_ORDER: async (
-    { commit }: ActionContext<State, State>,
+    _: ActionContext<State, State>,
     parameters: { payoutId: number }
   ) => {
-    await httpClient
-      .delete(
-        `${config.API_HOST}/api/user/Payouts?payoutId=${parameters.payoutId}`
-      )
-      .catch(e => {
-        console.error(e);
-        commit("ADD_TO_ERROR_LIST", e);
-      });
+    await httpClient.delete(
+      `${config.API_HOST}/api/user/Payouts?payoutId=${parameters.payoutId}`
+    );
   },
 };
 

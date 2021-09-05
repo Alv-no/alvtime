@@ -27,6 +27,11 @@ namespace AlvTimeWebApi.Controllers
         {
             var user = _userRetriever.RetrieveUser();
 
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+
             var tasks = _taskStorage.GetUsersTasks(new TaskQuerySearch(), user.Id);
 
             return Ok(tasks);

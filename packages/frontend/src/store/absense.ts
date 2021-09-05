@@ -81,10 +81,6 @@ const actions = {
       .get(`${config.API_HOST}/api/user/AbsenseOverview`)
       .then(response => {
         commit("SET_ABSENSEDAYSOVERVIEW", response.data);
-      })
-      .catch(e => {
-        commit("SET_USER_NOT_FOUND");
-        console.error(e);
       });
   },
   FETCH_VACATIONOVERVIEW: async ({ commit }: ActionContext<State, State>) => {
@@ -92,11 +88,6 @@ const actions = {
       .get(`${config.API_HOST}/api/user/VacationOverview`)
       .then(response => {
         commit("SET_VACATIONOVERVIEW", response.data);
-      })
-      .catch(e => {
-        commit("SET_USER_NOT_FOUND");
-        commit("ADD_TO_ERROR_LIST", e);
-        console.error(e);
       });
   },
 };

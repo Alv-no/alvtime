@@ -61,7 +61,7 @@ router.beforeEach(async (to, _from, next) => {
   } else if (await authService.requireLogin()) {
     next("login");
   } else if (!store.state.tasks.length) {
-    await store.dispatch("FETCH_TASKS");
+    await store.dispatch("FETCH_USER_DETAILS");
     if (store.state.userNotFound) {
       next("UnAutherized");
     } else {

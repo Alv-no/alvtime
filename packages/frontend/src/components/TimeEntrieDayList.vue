@@ -40,7 +40,6 @@ export default Vue.extend({
       },
     },
   },
-
   computed: {
     rows(): Row[] {
       return [...this.rowsWithHours, ...this.rowsWithoutHours].sort(sortList);
@@ -88,7 +87,9 @@ export default Vue.extend({
       return this.date.day() === 6;
     },
   },
-
+  async created() {
+    this.$store.dispatch("FETCH_TASKS");
+  },
   methods: {
     isTaskInEntries(task: Task): boolean {
       return this.daysTimeEntries.some(

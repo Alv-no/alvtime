@@ -64,6 +64,9 @@ export default Vue.extend({
       return this.$store.state.isOnline;
     },
   },
+  async created() {
+    await this.$store.dispatch("FETCH_TASKS");
+  },
 
   methods: {
     clear() {
