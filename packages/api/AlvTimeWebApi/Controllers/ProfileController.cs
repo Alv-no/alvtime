@@ -32,6 +32,11 @@ namespace AlvTimeWebApi.Controllers
         {
             var user = _userRetriever.RetrieveUser();
 
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
             return Ok(new UserResponseDto()
             {
                 Id = user.Id,
@@ -46,15 +51,15 @@ namespace AlvTimeWebApi.Controllers
         [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<IEnumerable<UserResponseDto>> FetchUsersReport()
         {
-          var user = _userRetriever.RetrieveUser();
+            var user = _userRetriever.RetrieveUser();
 
-          if (user.Id == _reportUser)
-          {
-            var users = _userStorage.GetUser(new UserQuerySearch());
-            return Ok(users);
-          }
+            if (user.Id == _reportUser)
+            {
+                var users = _userStorage.GetUser(new UserQuerySearch());
+                return Ok(users);
+            }
 
-          return Unauthorized();
+            return Unauthorized();
         }
     }
 }

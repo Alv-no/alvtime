@@ -116,21 +116,15 @@ ${e.data.title}`);
     const url = new URL(config.API_HOST + "/api/user/TimeEntries");
     url.search = new URLSearchParams(params).toString();
 
-    await httpClient
-      .get(url.toString())
-      .then(response => {
-        if (!Array.isArray(response.data) && response.data.message) {
-          throw Error(response.data.message);
-        }
-        const frontendTimeEntries = response.data
-          .filter((entrie: ServerSideTimeEntrie) => entrie.value)
-          .map(createTimeEntrie);
-        commit("UPDATE_TIME_ENTRIES", frontendTimeEntries);
-      })
-      .catch(e => {
-        console.error(e);
-        commit("ADD_TO_ERROR_LIST", e);
-      });
+    await httpClient.get(url.toString()).then(response => {
+      if (!Array.isArray(response.data) && response.data.message) {
+        throw Error(response.data.message);
+      }
+      const frontendTimeEntries = response.data
+        .filter((entrie: ServerSideTimeEntrie) => entrie.value)
+        .map(createTimeEntrie);
+      commit("UPDATE_TIME_ENTRIES", frontendTimeEntries);
+    });
   },
 };
 

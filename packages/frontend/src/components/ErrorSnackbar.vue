@@ -5,7 +5,7 @@
     :md-active.sync="show"
     md-persistent
   >
-    <span id="error_text_element" class="issues">{{ issues }}</span>
+    <span id="error_text_element" class="issues">{{ issueText }}</span>
     <SlackButton
       tooltip="Kopier feilteksten og åpne Slack"
       @click="onSlackClick"
@@ -19,6 +19,7 @@
 
 <script lang="ts">
 import Vue from "vue";
+import {ErrorResponse} from '../services/httpClient';
 import SlackButton from "@/components/SlackButton.vue";
 import Tooltip from "@/components/Tooltip.vue";
 
@@ -52,8 +53,18 @@ export default Vue.extend({
     },
 
     issues() {
-      return this.$store.state.errorTexts.join(" -> ");
+      return this.$store.getters.getErrorMessages;
     },
+    issueText() {
+      const issues = this.$store.getters.getErrorMessages as ErrorResponse[];
+      const lastIssue = issues[issues.length-1];
+      const issueCount = issues.length;
+      if (lastIssue) {
+        return issueCount > 1 ? `${lastIssue.name} +${issueCount - 1} more error(s)` : lastIssue.name;
+
+      }
+      return "";
+    }
   },
 
   created() {
@@ -62,8 +73,14 @@ export default Vue.extend({
   },
 
   methods: {
+    getIssueCount(): number {
+      return this.issues.length;
+    },
+    getLastIssue(): ErrorResponse {
+      return this.issues[this.issues.length - 1];
+    },
     onSlackClick() {
-      this.$copyText(this.issues);
+      this.$copyText(this.$store.getters.getAllErrors);
       this.close();
     },
 

@@ -58,15 +58,9 @@ const mutations = {
 
 const actions = {
   FETCH_TASKS: async ({ commit }: ActionContext<State, State>) => {
-    httpClient
-      .get(`${config.API_HOST}/api/user/tasks`)
-      .then(response => {
-        commit("SET_TASKS", response.data);
-      })
-      .catch(e => {
-        console.error(e);
-        commit("ADD_TO_ERROR_LIST", e);
-      });
+    httpClient.get(`${config.API_HOST}/api/user/tasks`).then(response => {
+      commit("SET_TASKS", response.data);
+    });
   },
 
   PUSH_TASKS: async (
@@ -77,14 +71,6 @@ const actions = {
       .post(`${config.API_HOST}/api/user/Tasks`, paramTasks)
       .then(response => {
         commit("UPDATE_TASKS", response.data);
-      })
-      .catch(e => {
-        console.error(e);
-        commit(
-          "ADD_TO_ERROR_LIST",
-          `${e.statusText}
-          ${e.title}`
-        );
       });
   },
 };
