@@ -87,7 +87,7 @@ export default Vue.extend({
       return this.date.day() === 6;
     },
   },
-  async created() {
+  created() {
     this.$store.dispatch("FETCH_TASKS");
   },
   methods: {

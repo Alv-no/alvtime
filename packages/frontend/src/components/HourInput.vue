@@ -11,11 +11,11 @@
       v-model="value"
       :class="{ error, nonZero, hovered }"
       type="text"
-      @mouseover="hovered = !(!isOnline || isLocked)"
-      @mouseleave="hovered = false"
       novalidate
       inputmode="decimal"
       :disabled="!isOnline || isLocked"
+      @mouseover="hovered = !(!isOnline || isLocked)"
+      @mouseleave="hovered = false"
       @input="onInput"
       @touchstart="onTouchStart"
       @blur="onBlur"
@@ -56,10 +56,9 @@ export default {
     value: {
       get() {
         if (this.$store.state.editing) return this.localValue;
-        const obj =
-          this.$store.state.timeEntriesMap[
-            `${this.timeEntrie.date}${this.timeEntrie.taskId}`
-          ];
+        const obj = this.$store.state.timeEntriesMap[
+          `${this.timeEntrie.date}${this.timeEntrie.taskId}`
+        ];
         return obj && obj.value ? obj.value.toString().replace(".", ",") : "0";
       },
       set(str) {
