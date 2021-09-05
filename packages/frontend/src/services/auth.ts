@@ -1,5 +1,3 @@
-const scopes = [config.ACCESS_SCOPE];
-
 import config from "@/config";
 import {
   Configuration,
@@ -13,6 +11,7 @@ export class AuthService {
   private msalManager: PublicClientApplication;
   private authResult: AuthenticationResult | null = null;
   private accountInfo: AccountInfo | null = null;
+  private scopes = [config.ACCESS_SCOPE];
 
   constructor() {
     const msalConfig: Configuration = {
@@ -44,7 +43,7 @@ export class AuthService {
         this.accountInfo = response ? response.account : this.resolveAccount();
         if (!this.accountInfo) {
           this.msalManager.loginRedirect({
-            scopes,
+            scopes: this.scopes,
           });
         } else {
           resolve(this.accountInfo);
@@ -72,7 +71,7 @@ export class AuthService {
 
   public async loginMsal(): Promise<void> {
     const response = await this.msalManager.loginRedirect({
-      scopes,
+      scopes: this.scopes,
     });
     return response;
   }
@@ -85,7 +84,7 @@ export class AuthService {
 
     const response = await this.msalManager.acquireTokenSilent({
       account: accountInfo,
-      scopes,
+      scopes: this.scopes,
     });
     this.handleResponse(response);
     return response.accessToken;
@@ -119,8 +118,8 @@ export class AuthService {
   }
 
   private isDevMode(): boolean {
-    //return false;
-    return process.env.NODE_ENV === "development";
+    return false;
+    //return process.env.NODE_ENV === "development";
   }
 }
 
