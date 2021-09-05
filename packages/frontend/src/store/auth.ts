@@ -46,8 +46,8 @@ const mutations = {
 };
 
 const actions = {
-  FETCH_USER_DETAILS: async ({ commit }: ActionContext<State, State>) => {
-    await httpClient
+  FETCH_USER_DETAILS: ({ commit }: ActionContext<State, State>) => {
+    return httpClient
       .get(`${config.API_HOST}/api/user/Profile`)
       .then(response => {
         commit("SET_USER_DETAIL", response.data);
