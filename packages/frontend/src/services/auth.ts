@@ -118,8 +118,8 @@ export class AuthService {
   }
 
   private isDevMode(): boolean {
-    return false;
-    //return process.env.NODE_ENV === "development";
+    //return false;
+    return process.env.NODE_ENV === "development";
   }
 }
 
