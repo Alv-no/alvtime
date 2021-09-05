@@ -74,17 +74,15 @@ const mutations = {
 };
 
 const actions = {
-  FETCH_ABSENSEDATAOVERVIEW: async ({
-    commit,
-  }: ActionContext<State, State>) => {
-    await httpClient
+  FETCH_ABSENSEDATAOVERVIEW: ({ commit }: ActionContext<State, State>) => {
+    return httpClient
       .get(`${config.API_HOST}/api/user/AbsenseOverview`)
       .then(response => {
         commit("SET_ABSENSEDAYSOVERVIEW", response.data);
       });
   },
-  FETCH_VACATIONOVERVIEW: async ({ commit }: ActionContext<State, State>) => {
-    await httpClient
+  FETCH_VACATIONOVERVIEW: ({ commit }: ActionContext<State, State>) => {
+    return httpClient
       .get(`${config.API_HOST}/api/user/VacationOverview`)
       .then(response => {
         commit("SET_VACATIONOVERVIEW", response.data);

@@ -197,40 +197,40 @@ const getters = {
 };
 
 const actions = {
-  FETCH_AVAILABLE_HOURS: async ({ commit }: ActionContext<State, State>) => {
-    await httpClient
+  FETCH_AVAILABLE_HOURS: ({ commit }: ActionContext<State, State>) => {
+    return httpClient
       .get(`${config.API_HOST}/api/user/AvailableHours`)
       .then(response => {
         commit("SET_AVAILABLEHOURS", response.data);
       });
   },
-  FETCH_FLEX_TRANSACTIONS: async ({ commit }: ActionContext<State, State>) => {
-    await httpClient
+  FETCH_FLEX_TRANSACTIONS: ({ commit }: ActionContext<State, State>) => {
+    return httpClient
       .get(`${config.API_HOST}/api/user/FlexedHours`)
       .then(response => {
         commit("SET_FLEXHOURS", response.data);
       });
   },
-  FETCH_PAYED_HOURS: async ({ commit }: ActionContext<State, State>) => {
-    await httpClient
+  FETCH_PAYED_HOURS: ({ commit }: ActionContext<State, State>) => {
+    return httpClient
       .get(`${config.API_HOST}/api/user/Payouts`)
       .then(response => {
         commit("SET_PAYED_HOURS", response.data);
       });
   },
-  FETCH_TRANSACTIONS: async ({ dispatch }: ActionContext<State, State>) => {
-    await Promise.all([
+  FETCH_TRANSACTIONS: ({ dispatch }: ActionContext<State, State>) => {
+    return Promise.all([
       dispatch("FETCH_AVAILABLE_HOURS"),
       dispatch("FETCH_PAYED_HOURS"),
       dispatch("FETCH_FLEX_TRANSACTIONS"),
     ]);
   },
 
-  POST_ORDER_PAYOUT: async (
+  POST_ORDER_PAYOUT: (
     _: ActionContext<State, State>,
     parameters: { hours: number; date: string }
   ) => {
-    await httpClient
+    return httpClient
       .post(`${config.API_HOST}/api/user/Payouts`, {
         date: parameters.date,
         hours: parameters.hours,
@@ -239,11 +239,11 @@ const actions = {
         if (response.status !== 200) throw Error(`${response.statusText}`);
       });
   },
-  CANCEL_PAYOUT_ORDER: async (
+  CANCEL_PAYOUT_ORDER: (
     _: ActionContext<State, State>,
     parameters: { payoutId: number }
   ) => {
-    await httpClient.delete(
+    return httpClient.delete(
       `${config.API_HOST}/api/user/Payouts?payoutId=${parameters.payoutId}`
     );
   },

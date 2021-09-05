@@ -80,46 +80,29 @@ const actions = {
       if (!timeEntriesToPush.length) return;
 
       commit("FLUSH_PUSH_QUEUE");
-      try {
-        await httpClient
-          .post<Array<Parameters<typeof createTimeEntrie>[0]>>(
-            `${config.API_HOST}/api/user/TimeEntries`,
-            timeEntriesToPush
-          )
-          .then(response => {
-            commit(
-              "UPDATE_TIME_ENTRIES_AFTER_UPDATE",
-              response.data.map(createTimeEntrie)
-            );
-          })
-          .catch(e => {
-            if (e.status !== 200) {
-              throw Error(`${e.statusText}
-${e.data.title}`);
-            }
-            if (!Array.isArray(e.data) && e.data.message) {
-              throw Error(e.data.message);
-            }
-          });
-      } catch (e) {
-        console.error(e);
-        commit("ADD_TO_ERROR_LIST", e);
-      }
+      await httpClient
+        .post<Array<Parameters<typeof createTimeEntrie>[0]>>(
+          `${config.API_HOST}/api/user/TimeEntries`,
+          timeEntriesToPush
+        )
+        .then(response => {
+          commit(
+            "UPDATE_TIME_ENTRIES_AFTER_UPDATE",
+            response.data.map(createTimeEntrie)
+          );
+        });
     },
     1000
   ),
 
-  FETCH_TIME_ENTRIES: async (
+  FETCH_TIME_ENTRIES: (
     { commit }: ActionContext<State, State>,
     params: { fromDateInclusive: string; toDateInclusive: string }
   ) => {
     const url = new URL(config.API_HOST + "/api/user/TimeEntries");
     url.search = new URLSearchParams(params).toString();
 
-    await httpClient.get(url.toString()).then(response => {
-      if (!Array.isArray(response.data) && response.data.message) {
-        throw Error(response.data.message);
-      }
+    return httpClient.get(url.toString()).then(response => {
       const frontendTimeEntries = response.data
         .filter((entrie: ServerSideTimeEntrie) => entrie.value)
         .map(createTimeEntrie);
