@@ -119,12 +119,6 @@ export default Vue.extend({
     },
 
     async deleteAccessTokens(tokens: { id: number }[]) {
-      const method = "delete";
-      const headers = { "Content-Type": "application/json" };
-      const tokensToDelete = tokens.map(token => ({ tokenId: token.id }));
-      const body = JSON.stringify(tokensToDelete);
-      const options = { method, headers, body };
-
       httpClient
         .delete<{ id: number }[]>(`${config.API_HOST}/api/user/AccessToken`, {
           data: tokens.map(token => ({tokenId: token.id}))

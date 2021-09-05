@@ -67,12 +67,12 @@ axios.interceptors.response.use(
 
     if (error.response.status % 500 < 100) {
       errorResponse.name = error.response.data.title;
-      errorResponse.message = error.response.data.detail;
+      errorResponse.message = error.response.data.detail || "";
     }
 
     if (error.response.status % 400 < 100) {
       errorResponse.name = `API returned a ${error.response.status}-response`;
-      errorResponse.message = error.response.data.message;
+      errorResponse.message = error.response.data.message || "";
     }
 
     if (
