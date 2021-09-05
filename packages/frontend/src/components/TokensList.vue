@@ -121,7 +121,7 @@ export default Vue.extend({
     async deleteAccessTokens(tokens: { id: number }[]) {
       httpClient
         .delete<{ id: number }[]>(`${config.API_HOST}/api/user/AccessToken`, {
-          data: tokens.map(token => ({tokenId: token.id}))
+          data: tokens.map(token => ({ tokenId: token.id })),
         })
         .then(response => {
           this.tokens = this.tokens.filter(

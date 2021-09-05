@@ -19,7 +19,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import {ErrorResponse} from '../services/httpClient';
+import { ErrorResponse } from "../services/httpClient";
 import SlackButton from "@/components/SlackButton.vue";
 import Tooltip from "@/components/Tooltip.vue";
 
@@ -57,14 +57,15 @@ export default Vue.extend({
     },
     issueText() {
       const issues = this.$store.getters.getErrorMessages as ErrorResponse[];
-      const lastIssue = issues[issues.length-1];
+      const lastIssue = issues[issues.length - 1];
       const issueCount = issues.length;
       if (lastIssue) {
-        return issueCount > 1 ? `${lastIssue.name} +${issueCount - 1} more error(s)` : lastIssue.name;
-
+        return issueCount > 1
+          ? `${lastIssue.name} +${issueCount - 1} more error(s)`
+          : lastIssue.name;
       }
       return "";
-    }
+    },
   },
 
   created() {

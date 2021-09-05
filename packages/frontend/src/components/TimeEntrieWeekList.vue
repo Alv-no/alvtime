@@ -95,7 +95,7 @@ export default Vue.extend({
     },
   },
 
-  async created() {
+  created() {
     this.$store.dispatch("FETCH_TASKS");
   },
   methods: {
