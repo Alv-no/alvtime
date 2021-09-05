@@ -112,11 +112,9 @@ export default Vue.extend({
 
     async fetchActiveAccessTokens() {
       httpClient
-        .get<{ tokens: any[] }>(
-          `${config.API_HOST}/api/user/ActiveAccessTokens`
-        )
+        .get<Token[]>(`${config.API_HOST}/api/user/ActiveAccessTokens`)
         .then(response => {
-          this.tokens = response.data.tokens;
+          this.tokens = response.data;
         });
     },
 
@@ -128,7 +126,9 @@ export default Vue.extend({
       const options = { method, headers, body };
 
       httpClient
-        .delete<{ id: number }[]>(`${config.API_HOST}/api/user/AccessToken`)
+        .delete<{ id: number }[]>(`${config.API_HOST}/api/user/AccessToken`, {
+          data: tokens.map(token => ({tokenId: token.id}))
+        })
         .then(response => {
           this.tokens = this.tokens.filter(
             (token: Token) =>
