@@ -88,6 +88,7 @@ authService.getAccountAsync().then(accountInfo => {
 authService.addCallback((message: EventMessage) => {
   if (message.eventType.endsWith("Failure")) {
     store.commit("ADD_TO_ERROR_LIST", message.error);
+    console.error(message);
   } else if (message.eventType === EventType.LOGIN_SUCCESS) {
     router.push("hours");
   }

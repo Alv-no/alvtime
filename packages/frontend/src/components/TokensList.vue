@@ -117,10 +117,6 @@ export default Vue.extend({
         )
         .then(response => {
           this.tokens = response.data.tokens;
-        })
-        .catch(e => {
-          console.error(e);
-          this.$store.commit("ADD_TO_ERROR_LIST", e);
         });
     },
 
@@ -138,10 +134,6 @@ export default Vue.extend({
             (token: Token) =>
               !response.data.some(deletedToken => deletedToken.id === token.id)
           );
-        })
-        .catch(e => {
-          console.error(e);
-          this.$store.commit("ADD_TO_ERROR_LIST", e);
         });
     },
   },

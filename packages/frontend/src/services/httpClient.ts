@@ -71,7 +71,7 @@ axios.interceptors.response.use(
     }
 
     if (error.response.status % 400 < 100) {
-      errorResponse.name = "API returns bad-request";
+      errorResponse.name = `API returned a ${error.response.status}-response`;
       errorResponse.message = error.response.data.message;
     }
 
