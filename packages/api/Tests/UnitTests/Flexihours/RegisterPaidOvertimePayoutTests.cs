@@ -453,7 +453,7 @@ namespace Tests.UnitTests.Flexihours
                     {
                         FlexTask = 18,
                         ReportUser = 11,
-                        StartOfOvertimeSystem = new DateTime(2021, 09, 01)
+                        StartOfOvertimeSystem = new DateTime(2020, 01, 01)
                     }),
                 new SalaryService(new OvertimePayoutStorage(_economyDataContext), new EmployeeHourlySalaryStorage(_economyDataContext, _context)));
         }
