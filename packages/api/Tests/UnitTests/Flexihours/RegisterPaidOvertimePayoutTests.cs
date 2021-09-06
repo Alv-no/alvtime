@@ -195,28 +195,30 @@ namespace Tests.UnitTests.Flexihours
         public void RegisterPaidOvertime_UserHasOvertimeThreeDifferentSalariesAndRequestPaidOvertimeTwiceFromFirstSalary_Ok()
         {
             var userId = 1;
-            _economyDataContext.EmployeeHourlySalaries.Add(new EmployeeHourlySalary
+            var firstSalary = new EmployeeHourlySalary
             {
                 UserId = userId,
                 HourlySalary = 100.0M,
                 FromDateInclusive = new DateTime(day: 01, month: 07, year: 2019),
                 ToDate = new DateTime(2020, 06, 30)
-            });
-            _economyDataContext.EmployeeHourlySalaries.Add(new EmployeeHourlySalary
+            };
+            var secondSalary = new EmployeeHourlySalary
             {
                 UserId = userId,
                 HourlySalary = 150.0M,
                 FromDateInclusive = new DateTime(day: 01, month: 07, year: 2020),
                 ToDate = new DateTime(2021, 06, 30)
-            });
-            _economyDataContext.EmployeeHourlySalaries.Add(new EmployeeHourlySalary
+            };
+            var thirdSalary = new EmployeeHourlySalary
             {
                 UserId = userId,
                 HourlySalary = 250.0M,
                 FromDateInclusive = new DateTime(day: 01, month: 07, year: 2021),
                 ToDate = null
-            });
-
+            };
+            _economyDataContext.EmployeeHourlySalaries.Add(firstSalary);
+            _economyDataContext.EmployeeHourlySalaries.Add(secondSalary);
+            _economyDataContext.EmployeeHourlySalaries.Add(thirdSalary);
             _economyDataContext.SaveChanges();
 
             //overtime day 1:
@@ -276,7 +278,7 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void RegisterPaidOvertime_UserHasOvertimeThreeDifferentSalariesAndRequestPaidOvertimeFromEachSalary_Ok()
         {
-            
+
             var userId = 1;
             var firstSalary = new EmployeeHourlySalary
             {
@@ -303,6 +305,7 @@ namespace Tests.UnitTests.Flexihours
             _economyDataContext.EmployeeHourlySalaries.Add(secondSalary);
             _economyDataContext.EmployeeHourlySalaries.Add(thirdSalary);
             _economyDataContext.SaveChanges();
+
             //overtime day 1:
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 06, 05), value: 7.5M, out int taskid));
             _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
@@ -329,7 +332,7 @@ namespace Tests.UnitTests.Flexihours
             _context.CompensationRate.Add(CreateCompensationRate(taskid6, 1.0M));
 
             _context.SaveChanges();
-            
+
             //act
             var sut = CreateStorage();
 
@@ -347,7 +350,7 @@ namespace Tests.UnitTests.Flexihours
             var paidOvertimeThird = sut.RegisterPaidOvertime(new GenericHourEntry
             {
                 Date = new DateTime(2021, 08, 31),
-                Hours = 1.0M
+                Hours = 1.5M
             }, userId);
 
             //assert
@@ -361,9 +364,82 @@ namespace Tests.UnitTests.Flexihours
 
             Assert.Equal(450M, overtidsutbetalingEn.TotalPayout);
             Assert.Equal(1350M, overtidsutbetalingTo.TotalPayout);
-            Assert.Equal(250.0M, overtidsutbetalingTre.TotalPayout);
+            Assert.Equal(375.0M, overtidsutbetalingTre.TotalPayout);
         }
+        [Fact]
+        public void RegisterPaidOvertime_UserHasOvertimeThreeDifferentSalariesAndRequestAllOvertimeForPayout_Ok()
+        {
 
+            var userId = 1;
+            var firstSalary = new EmployeeHourlySalary
+            {
+                UserId = userId,
+                HourlySalary = 100.0M,
+                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2019),
+                ToDate = new DateTime(2020, 06, 30)
+            };
+            var secondSalary = new EmployeeHourlySalary
+            {
+                UserId = userId,
+                HourlySalary = 150.0M,
+                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2020),
+                ToDate = new DateTime(2021, 06, 30)
+            };
+            var thirdSalary = new EmployeeHourlySalary
+            {
+                UserId = userId,
+                HourlySalary = 250.0M,
+                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2021),
+                ToDate = null
+            };
+            _economyDataContext.EmployeeHourlySalaries.Add(firstSalary);
+            _economyDataContext.EmployeeHourlySalaries.Add(secondSalary);
+            _economyDataContext.EmployeeHourlySalaries.Add(thirdSalary);
+            _economyDataContext.SaveChanges();
+
+            //overtime day 1:
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 06, 05), value: 7.5M, out int taskid));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
+
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 06, 05), value: 4.5M, out int taskid2));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid2, 1.0M));
+
+            _context.SaveChanges();
+
+            //overtime day 2:
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 08, 03), value: 7.5M, out int taskid3));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid3, 1.0M));
+
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 08, 03), value: 9.0M, out int taskid4));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid4, 1.0M));
+
+            _context.SaveChanges();
+
+            //overtime day 3:
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2021, 08, 04), value: 7.5M, out int taskid5));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid5, 1.0M));
+
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2021, 08, 04), value: 1.5M, out int taskid6));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid6, 1.0M));
+
+            _context.SaveChanges();
+
+            //act
+            var sut = CreateStorage();
+
+            var paidOvertimeFirst = sut.RegisterPaidOvertime(new GenericHourEntry
+            {
+                Date = new DateTime(2021, 09, 01),
+                Hours = 15M
+            }, userId);
+
+            //assert
+
+            var overtidsutbetalingEn =
+                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 1);
+            
+            Assert.Equal(2175M, overtidsutbetalingEn.TotalPayout);
+        }
         [Fact]
         public void RegisterPaidOvertime_UserHasOvertimeThreeoDifferentSalariesAndRequestPaidOvertimeTwiceFromFirstAndSecondSalary_Ok()
         {
@@ -445,7 +521,89 @@ namespace Tests.UnitTests.Flexihours
             Assert.Equal(450M, overtidsutbetalingEn.TotalPayout);
             Assert.Equal(300.0M, overtidsutbetalingTo.TotalPayout);
         }
-        
+
+        [Fact]
+        public void RegisterPaidOvertime_UserHasOvertimeThreeDifferentSalariesAndRequestPaidOvertimeTwiceOverAllSalaries_Ok()
+        {
+            var userId = 1;
+            var firstSalary = new EmployeeHourlySalary
+            {
+                UserId = userId,
+                HourlySalary = 100.0M,
+                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2019),
+                ToDate = new DateTime(2020, 06, 30)
+            };
+            var secondSalary = new EmployeeHourlySalary
+            {
+                UserId = userId,
+                HourlySalary = 150.0M,
+                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2020),
+                ToDate = new DateTime(2021, 06, 30)
+            };
+            var thirdSalary = new EmployeeHourlySalary
+            {
+                UserId = userId,
+                HourlySalary = 250.0M,
+                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2021),
+                ToDate = null
+            };
+            _economyDataContext.EmployeeHourlySalaries.Add(firstSalary);
+            _economyDataContext.EmployeeHourlySalaries.Add(secondSalary);
+            _economyDataContext.EmployeeHourlySalaries.Add(thirdSalary);
+            _economyDataContext.SaveChanges();
+
+            //overtime day 1:
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 06, 05), value: 7.5M, out int taskid));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
+
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 06, 05), value: 4.5M, out int taskid2));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid2, 1.0M));
+
+            _context.SaveChanges();
+
+            //overtime day 2:
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 08, 03), value: 7.5M, out int taskid3));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid3, 1.0M));
+
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 08, 03), value: 9.0M, out int taskid4));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid4, 1.0M));
+
+            _context.SaveChanges();
+
+            //overtime day 3:
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2021, 08, 04), value: 7.5M, out int taskid5));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid5, 1.0M));
+
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2021, 08, 04), value: 1.5M, out int taskid6));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid6, 1.0M));
+
+            _context.SaveChanges();
+
+            //act
+            var sut = CreateStorage();
+
+            var paidOvertimeFirst = sut.RegisterPaidOvertime(new GenericHourEntry
+            {
+                Date = new DateTime(2021, 07, 07),
+                Hours = 7.0M
+            }, userId);
+
+            var paidOvertimeSecond = sut.RegisterPaidOvertime(new GenericHourEntry
+            {
+                Date = new DateTime(2021, 08, 31),
+                Hours = 8.0M
+            }, userId);
+
+            //assert
+
+            var overtidsutbetalingEn =
+                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 1);
+            var overtidsutbetalingTo =
+                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 2);
+
+            Assert.Equal(825M, overtidsutbetalingEn.TotalPayout);
+            Assert.Equal(1350.0M, overtidsutbetalingTo.TotalPayout);
+        }
         private FlexhourStorage CreateStorage()
         {
             return new FlexhourStorage(new TimeEntryStorage(_context), _context, new GetOvertimeTests.TestTimeEntryOptions(
