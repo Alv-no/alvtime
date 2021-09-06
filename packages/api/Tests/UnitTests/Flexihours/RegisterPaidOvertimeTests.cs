@@ -214,8 +214,10 @@ namespace Tests.UnitTests.Flexihours
 
         private FlexhourStorage CreateStorage()
         {
-            return new FlexhourStorage(new TimeEntryStorage(_context), _context, new TestTimeEntryOptions(
-                new TimeEntryOptions
+            return new FlexhourStorage(
+                new TimeEntryStorage(_context), 
+                _context, 
+                new TestTimeEntryOptions(new TimeEntryOptions
                 {
                     FlexTask = 18,
                     ReportUser = 11,
