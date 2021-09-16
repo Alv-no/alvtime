@@ -1,6 +1,8 @@
-﻿using AlvTime.Persistence.DataBaseModels;
+﻿using System;
+using AlvTime.Persistence.DataBaseModels;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
+using AlvTimeWebApi.Exceptions;
 
 namespace AlvTimeWebApi.Controllers.Utils
 {
@@ -17,11 +19,13 @@ namespace AlvTimeWebApi.Controllers.Utils
 
         public User RetrieveUser()
         {
-            var username = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "name").Value;
-            var email = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "preferred_username").Value;
-            var alvUser = _database.User.FirstOrDefault(x => x.Email.ToLower().Equals(email.ToLower()));
+                var email = _httpContextAccessor.HttpContext?.User.Claims.FirstOrDefault(x => x.Type == "preferred_username")?.Value;
+                var alvUser = _database.User.FirstOrDefault(user => user.Email.ToLower().Equals(email.ToLower()));
 
-            return alvUser;
+                if (alvUser?.EndDate != null && alvUser.EndDate <= DateTime.Now)
+                    throw new AuthorizationException("Your account has been deactivated.");
+
+                return alvUser;
         }
     }
 }
