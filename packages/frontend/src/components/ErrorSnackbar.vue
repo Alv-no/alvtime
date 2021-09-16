@@ -74,12 +74,6 @@ export default Vue.extend({
   },
 
   methods: {
-    getIssueCount(): number {
-      return this.issues.length;
-    },
-    getLastIssue(): ErrorResponse {
-      return this.issues[this.issues.length - 1];
-    },
     onSlackClick() {
       this.$copyText(this.$store.getters.getAllErrors);
       this.close();
