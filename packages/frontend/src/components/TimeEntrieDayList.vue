@@ -87,9 +87,6 @@ export default Vue.extend({
       return this.date.day() === 6;
     },
   },
-  created() {
-    this.$store.dispatch("FETCH_TASKS");
-  },
   methods: {
     isTaskInEntries(task: Task): boolean {
       return this.daysTimeEntries.some(

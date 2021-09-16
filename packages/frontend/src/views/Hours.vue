@@ -16,7 +16,6 @@ import Vue from "vue";
 import DaySwiper from "@/components/DaySwiper.vue";
 import WeekSwiper from "@/components/WeekSwiper.vue";
 import Progress from "@/components/Progress.vue";
-import Gapestokk from "@/components/Gapestokk.vue";
 
 export default Vue.extend({
   name: "Hours",
@@ -26,11 +25,13 @@ export default Vue.extend({
     WeekSwiper,
     Progress,
   },
-
   computed: {
     progressBarVisible() {
       return this.$store.state.timeEntries === null;
     },
+  },
+  created() {
+    this.$store.dispatch("FETCH_TASKS");
   },
 });
 </script>
