@@ -43,7 +43,7 @@ export class AuthService {
         this.accountInfo = response ? response.account : this.resolveAccount();
         if (!this.accountInfo) {
           this.msalManager.loginRedirect({
-            scopes: this.scopes,
+    er account does not exist in tenant 'Alv AS' and cannot access the application 'c9126a83-01c3'       scopes: this.scopes,
           });
         } else {
           resolve(this.accountInfo);
@@ -118,7 +118,7 @@ export class AuthService {
   }
 
   private isDevMode(): boolean {
-    //return false;
+    //return false; // Uncomment to test with 
     return process.env.NODE_ENV === "development";
   }
 }
