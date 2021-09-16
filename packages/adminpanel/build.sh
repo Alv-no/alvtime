@@ -3,4 +3,4 @@
 set -e
 
 TAG="${SHORT_HASH:-latest}"
-docker build . --tag "acralvtime.azurecr.io/alvtime-admin:$TAG"
+docker build . --tag "$CONTAINER_REGISTRY.azurecr.io/alvtime-admin:$TAG"
