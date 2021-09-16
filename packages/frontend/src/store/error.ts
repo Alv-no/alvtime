@@ -1,8 +1,15 @@
 import { State } from "./index";
 
+export interface ErrorMessage {
+  name: string;
+  message: string;
+  status: number;
+  requestUrl: string;
+}
+
 export interface ErrorState {
   errorTexts: string[];
-  errors: { name: string; message: string; status: number }[];
+  errors: ErrorMessage[];
 }
 
 const state = {
@@ -11,10 +18,7 @@ const state = {
 };
 
 const mutations = {
-  ADD_TO_ERROR_LIST(
-    state: State,
-    error: { name: string; message: string; status: number }
-  ) {
+  ADD_TO_ERROR_LIST(state: State, error: ErrorMessage) {
     state.errors = [...state.errors, error];
     state.errorTexts = [...state.errorTexts, error.message];
   },
@@ -30,11 +34,8 @@ const getters = {
   },
   getAllErrors: (state: State) => {
     return state.errors
-      .map(
-        error =>
-          `\`\`\`${error.status}: ${error.name} \n ${error.message}\`\`\``
-      )
-      .join("");
+      .map(error => `${error.status}: ${error.name} \n ${error.message}`)
+      .join(";");
   },
 };
 
