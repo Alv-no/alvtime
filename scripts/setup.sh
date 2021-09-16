@@ -6,8 +6,8 @@ SHORT_HASH=`git rev-parse --short=7 HEAD`
 ENV=$(echo "$1" | awk '{print tolower($0)}')
 PROJECT="alvtime"
 KEY_VAULT="$PROJECT$ENV"
-RESOURCE_GROUP_NAME="rg-alvtime-$ENV-westeurope"
-KUBERNETES_CLUSTER_NAME="aks-alvtime-$ENV-westeurope"
+RESOURCE_GROUP_NAME="k8scluster-$ENV-rg"
+KUBERNETES_CLUSTER_NAME="k8scluster-$ENV-aks"
 
 function getSecret() {
   az keyvault secret show --vault-name $KEY_VAULT --name $1 | jq '.value' -r
