@@ -847,155 +847,155 @@ namespace Tests.UnitTests.Flexihours
 
             //assert
             var overtidsutbetalingEn = _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 1);
-            Assert.Equal(1075M, overtidsutbetalingEn.TotalPayout);
+            Assert.Equal(1012.5M, overtidsutbetalingEn.TotalPayout);
         }
 
-        //[Fact]
-        //public void RegisterPaidOvertime_UserHasOvertime3SalariesAndDifferentCompRatesOvertimePayoutAndAvspasering_Ok()
-        //{
-        //    var userId = 1;
-        //    var avspasseringstask = new Task { Id = 18 };
-        //    var paidHolidayTask = new Task {Id = 13};
-        //    var sickdaysTask = new Task {Id = 14};
+        [Fact]
+        public void RegisterPaidOvertime_UserHasOvertime3SalariesAndDifferentCompRatesOvertimePayoutAndAvspasering_Ok()
+        {
+            var userId = 1;
+            var avspasseringstask = new Task { Id = 18 };
+            var paidHolidayTask = new Task { Id = 13 };
+            var sickdaysTask = new Task { Id = 14 };
 
-        //    var firstSalary = new EmployeeHourlySalary
-        //    {
-        //        UserId = userId,
-        //        HourlySalary = 100.0M,
-        //        FromDateInclusive = new DateTime(2019, 07, 01),
-        //        ToDate = new DateTime(2020, 06, 30)
-        //    };
+            var firstSalary = new EmployeeHourlySalary
+            {
+                UserId = userId,
+                HourlySalary = 100.0M,
+                FromDateInclusive = new DateTime(2019, 07, 01),
+                ToDate = new DateTime(2020, 06, 30)
+            };
 
-        //    var secondSalary = new EmployeeHourlySalary
-        //    {
-        //        UserId = userId,
-        //        HourlySalary = 150.0M,
-        //        FromDateInclusive = new DateTime(day: 01, month: 07, year: 2020),
-        //        ToDate = new DateTime(day: 30, month: 06, year: 2021)
-        //    };
+            var secondSalary = new EmployeeHourlySalary
+            {
+                UserId = userId,
+                HourlySalary = 150.0M,
+                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2020),
+                ToDate = new DateTime(day: 30, month: 06, year: 2021)
+            };
 
-        //    var thirdSalary = new EmployeeHourlySalary
-        //    {
-        //        UserId = userId,
-        //        HourlySalary = 170.0M,
-        //        FromDateInclusive = new DateTime(day: 01, month: 07, year: 2021),
-        //        ToDate = null
-        //    };
+            var thirdSalary = new EmployeeHourlySalary
+            {
+                UserId = userId,
+                HourlySalary = 170.0M,
+                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2021),
+                ToDate = null
+            };
 
-        //    var avspasseringTimeEntryFirst = new Hours
-        //    {
-        //        User = userId,
-        //        Date = new DateTime(2020, 06, 29),
-        //        Value = 3.0M,
-        //        Task = avspasseringstask
-        //    };
+            var avspasseringTimeEntryFirst = new Hours
+            {
+                User = userId,
+                Date = new DateTime(2020, 06, 29),
+                Value = 3.0M,
+                Task = avspasseringstask
+            };
 
-        //    var avspasseringTimeEntrySecond = new Hours
-        //    {
-        //        User = userId,
-        //        Date = new DateTime(2020, 07, 28),
-        //        Value = 4.0M,
-        //        Task = avspasseringstask
-        //    };
+            var avspasseringTimeEntrySecond = new Hours
+            {
+                User = userId,
+                Date = new DateTime(2020, 07, 28),
+                Value = 4.0M,
+                Task = avspasseringstask
+            };
 
-        //    var paidHoliday = new Hours
-        //    {
-        //        User = userId,
-        //        Date = new DateTime(2020, 06, 26),
-        //        Value = 7.5M,
-        //        Task = paidHolidayTask
-        //    };
+            var paidHoliday = new Hours
+            {
+                User = userId,
+                Date = new DateTime(2020, 06, 26),
+                Value = 7.5M,
+                Task = paidHolidayTask
+            };
 
-        //    var sickdays = new Hours
-        //    {
-        //        User = userId,
-        //        Date = new DateTime(2021, 05, 19),
-        //        Value = 7.5M,
-        //        Task = sickdaysTask
-        //    };
+            var sickdays = new Hours
+            {
+                User = userId,
+                Date = new DateTime(2021, 05, 19),
+                Value = 7.5M,
+                Task = sickdaysTask
+            };
 
-        //    _economyDataContext.EmployeeHourlySalaries.Add(firstSalary);
-        //    _economyDataContext.EmployeeHourlySalaries.Add(secondSalary);
-        //    _economyDataContext.EmployeeHourlySalaries.Add(thirdSalary);
-        //    _economyDataContext.SaveChanges();
+            _economyDataContext.EmployeeHourlySalaries.Add(firstSalary);
+            _economyDataContext.EmployeeHourlySalaries.Add(secondSalary);
+            _economyDataContext.EmployeeHourlySalaries.Add(thirdSalary);
+            _economyDataContext.SaveChanges();
 
-        //    //FIRST SALARY
-        //    _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 06, 05), value: 7.5M, out int taskid));
-        //    _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.5M));
-        //    //comprate 1.5
-        //    _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 06, 05), value: 2.5M, out int taskid2));
-        //    _context.CompensationRate.Add(CreateCompensationRate(taskid2, 1.5M));
-        //    //comprate 1.0
-        //    _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 06, 05), value: 0.5M, out int taskid3));
-        //    _context.CompensationRate.Add(CreateCompensationRate(taskid3, 1.0M));
-        //    //comprate 0.5
-        //    _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 06, 05), value: 3.5M, out int taskid4));
-        //    _context.CompensationRate.Add(CreateCompensationRate(taskid4, 0.5M));
-        //    //Paid vacation
-        //    _context.Hours.Add(paidHoliday);
-        //    _context.CompensationRate.Add(CreateCompensationRate(paidHolidayTask.Id, 1.0M));
-        //    _context.SaveChanges();
-        //    //Offtime
-        //    _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 06, 29), value: 4.5M, out int taskid13));
-        //    _context.CompensationRate.Add(CreateCompensationRate(taskid13, 1.5M));
-        //    _context.Hours.Add(avspasseringTimeEntryFirst);
-        //    _context.CompensationRate.Add(CreateCompensationRate(avspasseringstask.Id, 1.0M));
+            //FIRST SALARY
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 06, 05), value: 7.5M, out int taskid));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.5M));
+            //comprate 1.5
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 06, 05), value: 2.5M, out int taskid2));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid2, 1.5M));
+            //comprate 1.0
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 06, 05), value: 0.5M, out int taskid3));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid3, 1.0M));
+            //comprate 0.5
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 06, 05), value: 3.5M, out int taskid4));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid4, 0.5M));
+            //Paid vacation
+            _context.Hours.Add(paidHoliday);
+            _context.CompensationRate.Add(CreateCompensationRate(paidHolidayTask.Id, 1.0M));
+            _context.SaveChanges();
+            //Offtime
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 06, 29), value: 4.5M, out int taskid13));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid13, 1.5M));
+            _context.Hours.Add(avspasseringTimeEntryFirst);
+            _context.CompensationRate.Add(CreateCompensationRate(avspasseringstask.Id, 1.0M));
 
-        //    //SECOND SALARY
-        //    _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 07, 06), value: 7.5M, out int taskid5));
-        //    _context.CompensationRate.Add(CreateCompensationRate(taskid5, 1.5M));
-        //    //comprate 1.5
-        //    _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 07, 06), value: 2.5M, out int taskid6));
-        //    _context.CompensationRate.Add(CreateCompensationRate(taskid6, 1.5M));
-        //    //comprate 1.0
-        //    _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 07, 06), value: 0.5M, out int taskid7));
-        //    _context.CompensationRate.Add(CreateCompensationRate(taskid7, 1.0M));
-        //    //comprate 0.5
-        //    _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 07, 06), value: 3.5M, out int taskid8));
-        //    _context.CompensationRate.Add(CreateCompensationRate(taskid8, 0.5M));
-        //    //Offtime
-        //    _context.Hours.Add(avspasseringTimeEntrySecond);
-        //    _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 07, 28), value: 3.5M, out int taskid14));
-        //    _context.CompensationRate.Add(CreateCompensationRate(taskid14, 1.0M));
-        //    //Sickday
-        //    _context.Hours.Add(sickdays);
-        //    _context.CompensationRate.Add(CreateCompensationRate(sickdaysTask.Id, 1.0M));
-        //    _context.SaveChanges();
+            //SECOND SALARY
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 07, 06), value: 7.5M, out int taskid5));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid5, 1.5M));
+            //comprate 1.5
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 07, 06), value: 2.5M, out int taskid6));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid6, 1.5M));
+            //comprate 1.0
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 07, 06), value: 0.5M, out int taskid7));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid7, 1.0M));
+            //comprate 0.5
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 07, 06), value: 3.5M, out int taskid8));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid8, 0.5M));
+            //Offtime
+            _context.Hours.Add(avspasseringTimeEntrySecond);
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 07, 28), value: 3.5M, out int taskid14));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid14, 1.0M));
+            //Sickday
+            _context.Hours.Add(sickdays);
+            _context.CompensationRate.Add(CreateCompensationRate(sickdaysTask.Id, 1.0M));
+            _context.SaveChanges();
 
-        //    //THIRD SALARY
-        //    _context.Hours.Add(CreateTimeEntry(date: new DateTime(2021, 09, 06), value: 7.5M, out int taskid9));
-        //    _context.CompensationRate.Add(CreateCompensationRate(taskid9, 1.0M));
-        //    //comprate 1.5
-        //    _context.Hours.Add(CreateTimeEntry(date: new DateTime(2021, 09, 06), value: 5.5M, out int taskid10));
-        //    _context.CompensationRate.Add(CreateCompensationRate(taskid10, 1.5M));
-        //    //comprate 1.0
-        //    _context.Hours.Add(CreateTimeEntry(date: new DateTime(2021, 09, 06), value: 0.5M, out int taskid11));
-        //    _context.CompensationRate.Add(CreateCompensationRate(taskid11, 1.0M));
-        //    //comprate 0.5
-        //    _context.Hours.Add(CreateTimeEntry(date: new DateTime(2021, 09, 06), value: 3.5M, out int taskid12));
-        //    _context.CompensationRate.Add(CreateCompensationRate(taskid12, 0.5M));
-        //    _context.SaveChanges();
+            //THIRD SALARY
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2021, 09, 06), value: 7.5M, out int taskid9));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid9, 1.5M));
+            //comprate 1.5
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2021, 09, 06), value: 5.5M, out int taskid10));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid10, 1.5M));
+            //comprate 1.0
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2021, 09, 06), value: 0.5M, out int taskid11));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid11, 1.0M));
+            //comprate 0.5
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2021, 09, 06), value: 3.5M, out int taskid12));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid12, 0.5M));
+            _context.SaveChanges();
 
-        //    //act
-        //    var sut = CreateStorage();
+            //act
+            var sut = CreateStorage();
 
-        //    var paidOvertimeFirst = sut.RegisterPaidOvertime(new GenericHourEntry
-        //    {
-        //        Date = new DateTime(2020, 07, 30),
-        //        Hours = 1M
-        //    }, userId);
+            var paidOvertimeFirst = sut.RegisterPaidOvertime(new GenericHourEntry
+            {
+                Date = new DateTime(2020, 07, 30),
+                Hours = 1M
+            }, userId);
 
-        //    var paidOvertimeSecond = sut.RegisterPaidOvertime(new GenericHourEntry
-        //    {
-        //        Date = new DateTime(2021, 09, 07),
-        //        Hours = 5.5M
-        //    }, userId);
-        //    //assert
-        //    var overtidsutbetalingEn = _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 1);
-        //    var overtidsutbetalingTo = _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 2);
-        //    Assert.Equal(75M, overtidsutbetalingEn.TotalPayout);
-        //    Assert.Equal(755M, overtidsutbetalingTo.TotalPayout);
-        //}
+            var paidOvertimeSecond = sut.RegisterPaidOvertime(new GenericHourEntry
+            {
+                Date = new DateTime(2021, 09, 07),
+                Hours = 5.5M
+            }, userId);
+            //assert
+            var overtidsutbetalingEn = _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 1);
+            var overtidsutbetalingTo = _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 2);
+            Assert.Equal(50M, overtidsutbetalingEn.TotalPayout);
+            Assert.Equal(380M, overtidsutbetalingTo.TotalPayout);
+        }
 
 
         #endregion

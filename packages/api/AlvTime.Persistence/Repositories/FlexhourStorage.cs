@@ -197,8 +197,6 @@ public class FlexhourStorage : IFlexhourStorage
 
     private void CompensateForOffTime(List<OvertimeEntry> overtimeEntries, IEnumerable<DateEntry> entriesByDate, DateTime startDate, DateTime endDate, int userId)
     {
-        var dbUser = _context.User.SingleOrDefault(u => u.Id == userId);
-
         foreach (var currentWorkDay in GetDaysInPeriod(startDate, endDate))
         {
             var day = entriesByDate.SingleOrDefault(entryDate => entryDate.Date == currentWorkDay);
@@ -296,7 +294,7 @@ public class FlexhourStorage : IFlexhourStorage
         var dateToStartCalculation = userStartDate > _startOfOvertimeSystem ? userStartDate : _startOfOvertimeSystem;
         var overtimeEntries = GetOvertimeEntriesAfterOffTimeAndPayouts(dateToStartCalculation, request.Date, userId);
         var availableForPayout = overtimeEntries.Sum(ot => ot.Hours);
-        var hoursAfterCompRate = GetHoursAfterCompRate(overtimeEntries, request.Hours, userId, request.Date);
+        var hoursAfterCompRate = GetHoursAfterCompRate(overtimeEntries, request.Hours);
 
         if (request.Hours <= availableForPayout)
         {
@@ -326,7 +324,7 @@ public class FlexhourStorage : IFlexhourStorage
         throw new ValidationException("Not enough available hours");
     }
 
-   
+
 
     public PaidOvertimeEntry CancelPayout(int userId, int id)
     {
@@ -378,7 +376,7 @@ public class FlexhourStorage : IFlexhourStorage
         return true;
     }
 
-    private decimal GetHoursAfterCompRate(List<OvertimeEntry> overtimeEntries, decimal orderedHours, int userId, DateTime dateforpayout)
+    private decimal GetHoursAfterCompRate(List<OvertimeEntry> overtimeEntries, decimal orderedHours)
     {
         var totalPayout = 0M;
 
@@ -406,173 +404,234 @@ public class FlexhourStorage : IFlexhourStorage
 
         return totalPayout;
     }
-
-    private List<List<OvertimeEntry>> GroupOvertimeEntryBySalary(List<EmployeeSalary> salaries, List<OvertimeEntry> overtimeEntries)
+    
+    private List<List<OvertimeEntryWithSalary>> GetOvertimeEntriesWithSalaryGroupedByCompensationRate(List<EmployeeSalary> salaryData, List<OvertimeEntry> overtimeEntries)
     {
-        var overtimeEntriesGruopedBySalary = new List<List<OvertimeEntry>>();
+        var overtimeEntriesGruopedBySalary = new List<List<OvertimeEntryWithSalary>>();
 
-        
+        var overtimeEntriesGroupedByCompRate =
+            overtimeEntries.GroupBy(x => x.CompensationRate);
 
-        for (int SalaryIndex = 0; SalaryIndex < salaries.Count; SalaryIndex++)
+        foreach (var overtimeEntryGroupForGivenCompRate in overtimeEntriesGroupedByCompRate)
         {
-            //utbetalt overtid legges i lønnen på utbetalingstidspunkt, ikke opptjeningstidspunkt. Det må håndteres
-            var overtimeEntriesForGivenSalary = new List<OvertimeEntry>();
-            foreach (var overtimeEntry in overtimeEntries)
+            var overtimeEntriesForGivenCompRate = new List<OvertimeEntryWithSalary>();
+            foreach (var overtimeEntry in overtimeEntryGroupForGivenCompRate)
             {
-                if (overtimeEntry.Date >= salaries[SalaryIndex].FromDate && (salaries[SalaryIndex].ToDate == null || overtimeEntry.Date < salaries[SalaryIndex].ToDate))
-                {
-                    overtimeEntriesForGivenSalary.Add(overtimeEntry);
-                }
+                var salaryForOvertimeEntry = salaryData.FirstOrDefault(x => overtimeEntry.Date >= x.FromDate && (x.ToDate == null || overtimeEntry.Date < x.ToDate)).HourlySalary;
+                overtimeEntriesForGivenCompRate.Add(new OvertimeEntryWithSalary(salaryForOvertimeEntry, overtimeEntry));
             }
-            overtimeEntriesGruopedBySalary.Add(overtimeEntriesForGivenSalary);
-            //overtimeEntriesGruopedBySalary.Add(overtimeEntriesForGivenSalary);
+            overtimeEntriesGruopedBySalary.Add(overtimeEntriesForGivenCompRate);
         }
 
         return overtimeEntriesGruopedBySalary;
     }
 
-    private List<List<OvertimeEntry>> GetPositiveOvertimeEntriesForPayout(List<List<OvertimeEntry>> overtmeEntriesGroupedBySalary)
+    private List<List<OvertimeEntryWithSalary>> GetOvertimeEntriesFilteredForPayoutsAndTimeOff(List<List<OvertimeEntryWithSalary>> overtimeEntriesWithSalaryGroupedByCompRate)
     {
-        var negativeOverTimeCounter = 0M;
-        foreach (var overtimeEntryForSalary in overtmeEntriesGroupedBySalary)
+        var filteredOvertimeEntries = 
+            overtimeEntriesWithSalaryGroupedByCompRate
+            .Select(overtimeEntriesWithSalaryList => GetOvertimeEntriesForGivenCompRateForPayoutCalculation(overtimeEntriesWithSalaryList))
+            .ToList();
+
+        if (filteredOvertimeEntries.Any(x => x.Item2 < 0M))
         {
-            negativeOverTimeCounter += overtimeEntryForSalary.Where(x => x.Hours < 0M).Sum(x=>x.Hours);
+            return GetPositiveOvertimeEntriesWithSalaryCompensateForOffTimeAndPayOutOverDifferentCompensationRates(
+                filteredOvertimeEntries.Select(x => x.Item1).ToList()); 
         }
 
-        if (negativeOverTimeCounter >=0M)
-        {
-            return overtmeEntriesGroupedBySalary;
-        }
+        return filteredOvertimeEntries.Select(x => x.Item1).ToList();
+    }
 
-        var positiveOvertimeentriesForPayout = new List<List<OvertimeEntry>>();
-        var counterThatShouldReachZero = negativeOverTimeCounter;
-        
-        for (int salaryIndex = 0; salaryIndex < overtmeEntriesGroupedBySalary.Count; salaryIndex++)
+    private List<List<OvertimeEntryWithSalary>> GetPositiveOvertimeEntriesWithSalaryCompensateForOffTimeAndPayOutOverDifferentCompensationRates(List<List<OvertimeEntryWithSalary>> overtimeEntries)
+    {
+
+        var negativeOVertime =
+            overtimeEntries.Sum(x => x.Where(x => x.OvertimeEntry.Hours < 0M).Sum(x => x.OvertimeEntry.Hours));
+        if (negativeOVertime >= 0M)
         {
-            var overtimeEntriesOrderByComprate = overtmeEntriesGroupedBySalary[salaryIndex].OrderByDescending(x => x.CompensationRate).ToList();
-            var tempListForSalary = new List<OvertimeEntry>();
-            for (int overtimeEntryIndex = 0; overtimeEntryIndex < overtimeEntriesOrderByComprate.Count; overtimeEntryIndex++)
+            return overtimeEntries;
+        }
+        var returListe = new List<List<OvertimeEntryWithSalary>>();
+        var negativeOvertimeCounter = negativeOVertime;
+        var indexListe = new List<(int, decimal)>();
+        foreach (var oeWithSalary in overtimeEntries)
+        {
+            var overtimeEntryWithSalary = oeWithSalary.FirstOrDefault();
+
+            indexListe.Add((overtimeEntries.IndexOf(oeWithSalary), overtimeEntryWithSalary.OvertimeEntry.CompensationRate));
+        }
+        var indexlisteForIterasjoner = indexListe.OrderByDescending(x => x.Item2).ToList();
+
+        for (int indeksen = 0; indeksen < indexListe.Count; indeksen++)
+        {
+            var indeksForUthentingAvRiktigCR = indexlisteForIterasjoner[indeksen].Item1;
+            var oeForComprateListe = overtimeEntries[indeksForUthentingAvRiktigCR].OrderBy(x => x.OvertimeEntry.Date).ToList();
+            var placeHolderListe = new List<OvertimeEntryWithSalary>();
+            for (int oeIndeksen = 0; oeIndeksen < oeForComprateListe.Count; oeIndeksen++)
             {
-                if (overtimeEntriesOrderByComprate[overtimeEntryIndex].Hours <0)
+                if (oeForComprateListe[oeIndeksen].OvertimeEntry.Hours < 0M)
                 {
                     continue;
                 }
 
-                if (counterThatShouldReachZero + overtimeEntriesOrderByComprate[overtimeEntryIndex].Hours == 0M || counterThatShouldReachZero == 0M)
-                {                    
-                    if (counterThatShouldReachZero != 0M)
+                if (negativeOvertimeCounter + oeForComprateListe[oeIndeksen].OvertimeEntry.Hours == 0M || oeForComprateListe[oeIndeksen].OvertimeEntry.Hours == 0M)
+                {
+                    if (negativeOvertimeCounter != 0M)
                     {
-                        counterThatShouldReachZero += overtimeEntriesOrderByComprate[overtimeEntryIndex].Hours;
+                        negativeOvertimeCounter += oeForComprateListe[oeIndeksen].OvertimeEntry.Hours;
                     }
                     else
                     {
-                        tempListForSalary.Add(overtimeEntriesOrderByComprate[overtimeEntryIndex]);
+                        placeHolderListe.Add(new OvertimeEntryWithSalary(oeForComprateListe[oeIndeksen].SalaryPrHour, oeForComprateListe[oeIndeksen].OvertimeEntry));
                     }
                 }
-                else if (counterThatShouldReachZero + overtimeEntriesOrderByComprate[overtimeEntryIndex].Hours > 0M)
+                else if (negativeOvertimeCounter + oeForComprateListe[oeIndeksen].OvertimeEntry.Hours > 0M)
                 {
-                    var tempOvertimeEntry = new OvertimeEntry
+                    placeHolderListe.Add(new OvertimeEntryWithSalary(oeForComprateListe[oeIndeksen].SalaryPrHour, new OvertimeEntry
                     {
-                        CompensationRate = overtimeEntriesOrderByComprate[overtimeEntryIndex].CompensationRate,
-                        Date = overtimeEntriesOrderByComprate[overtimeEntryIndex].Date,
-                        Hours = counterThatShouldReachZero + overtimeEntriesOrderByComprate[overtimeEntryIndex].Hours,
-                        Salary = overtimeEntriesOrderByComprate[overtimeEntryIndex].Salary,
-                        TaskId = overtimeEntriesOrderByComprate[overtimeEntryIndex].TaskId
-                    };
-                    tempListForSalary.Add(tempOvertimeEntry);
-                    counterThatShouldReachZero = 0M;
+                        CompensationRate = oeForComprateListe[oeIndeksen].OvertimeEntry.CompensationRate,
+                        Date = oeForComprateListe[oeIndeksen].OvertimeEntry.Date,
+                        Hours = negativeOvertimeCounter + oeForComprateListe[oeIndeksen].OvertimeEntry.Hours,
+                        Salary = oeForComprateListe[oeIndeksen].OvertimeEntry.Salary,
+                        TaskId = oeForComprateListe[oeIndeksen].OvertimeEntry.TaskId
+                    }));
+                    negativeOvertimeCounter = 0M;
                 }
-                else if (counterThatShouldReachZero + overtimeEntriesOrderByComprate[overtimeEntryIndex].Hours < 0M)
+                else if (negativeOvertimeCounter + oeForComprateListe[oeIndeksen].OvertimeEntry.Hours < 0M)
                 {
-                    counterThatShouldReachZero += overtimeEntriesOrderByComprate[overtimeEntryIndex].Hours;
+                    negativeOvertimeCounter += oeForComprateListe[oeIndeksen].OvertimeEntry.Hours;
                 }
-
-                
             }
-            positiveOvertimeentriesForPayout.Add(tempListForSalary);
+            returListe.Add(placeHolderListe);
         }
 
-        return positiveOvertimeentriesForPayout;
+        return returListe;
     }
 
-    private decimal CalculateOvertimePayout(List<List<OvertimeEntry>> positiveOvertmeEntriesGroupedBySalary, List<EmployeeSalary> employeeSalaries, decimal requestedHoursForPayout)
+    private (List<OvertimeEntryWithSalary> filteredOvertimeEntries, decimal restHours) GetOvertimeEntriesForGivenCompRateForPayoutCalculation(List<OvertimeEntryWithSalary> overtimeEntries)
     {
-        var payoutSalary = 0M;
-        var hourCounter = 0M;
-        for (int salaryIndex = 0; salaryIndex < employeeSalaries.Count; salaryIndex++)
+        var negativeOvertimeCounterToFilterOutTimeOffAndPayout = overtimeEntries.Where(x => x.OvertimeEntry.Hours < 0M).Sum(x => x.OvertimeEntry.Hours);
+
+        if (negativeOvertimeCounterToFilterOutTimeOffAndPayout >= 0M)
         {
-            if (hourCounter == requestedHoursForPayout)
+            return (overtimeEntries, negativeOvertimeCounterToFilterOutTimeOffAndPayout);
+        }
+        
+        var orderedOvertimeEntries = overtimeEntries.OrderBy(x => x.OvertimeEntry.Date).ToList();
+        var overtimeEntriesForPayoutCalculation = new List<OvertimeEntryWithSalary>();
+        for (int overtimeEntryIndex = 0; overtimeEntryIndex < overtimeEntries.Count; overtimeEntryIndex++)
+        {
+            if (orderedOvertimeEntries[overtimeEntryIndex].OvertimeEntry.Hours < 0M)
+            {
+                continue;
+            }
+
+            if (negativeOvertimeCounterToFilterOutTimeOffAndPayout == 0M)
+            {
+                overtimeEntriesForPayoutCalculation.Add(orderedOvertimeEntries[overtimeEntryIndex]);
+            }
+            else if (negativeOvertimeCounterToFilterOutTimeOffAndPayout + orderedOvertimeEntries[overtimeEntryIndex].OvertimeEntry.Hours <= 0M)
+            {
+                
+                    negativeOvertimeCounterToFilterOutTimeOffAndPayout += orderedOvertimeEntries[overtimeEntryIndex].OvertimeEntry.Hours;
+                
+            }
+            else if (negativeOvertimeCounterToFilterOutTimeOffAndPayout + orderedOvertimeEntries[overtimeEntryIndex].OvertimeEntry.Hours > 0M)
+            {
+                overtimeEntriesForPayoutCalculation.Add(new OvertimeEntryWithSalary(orderedOvertimeEntries[overtimeEntryIndex].SalaryPrHour, new OvertimeEntry
+                {
+                    CompensationRate = orderedOvertimeEntries[overtimeEntryIndex].OvertimeEntry.CompensationRate,
+                    Date = orderedOvertimeEntries[overtimeEntryIndex].OvertimeEntry.Date,
+                    Hours = negativeOvertimeCounterToFilterOutTimeOffAndPayout + orderedOvertimeEntries[overtimeEntryIndex].OvertimeEntry.Hours,
+                    Salary = orderedOvertimeEntries[overtimeEntryIndex].OvertimeEntry.Salary,
+                    TaskId = orderedOvertimeEntries[overtimeEntryIndex].OvertimeEntry.TaskId
+                }));
+                negativeOvertimeCounterToFilterOutTimeOffAndPayout = 0M;
+            }
+        }
+
+        return (overtimeEntriesForPayoutCalculation, negativeOvertimeCounterToFilterOutTimeOffAndPayout);
+    }
+
+    private decimal  GetCalculatedPayoutForOvertimeEntries(List<List<OvertimeEntryWithSalary>> overtimeEntriesWithSalaryGroupedByCompRate, decimal requestedHoursForPayout)
+    {
+        var indexForComprateList = new List<(int indexOfComprate, decimal compRate)>();
+        foreach (var overtimeEntriesWith in overtimeEntriesWithSalaryGroupedByCompRate)
+        {
+            var overtimeEntryWithSalary = overtimeEntriesWith.FirstOrDefault();
+            if (overtimeEntryWithSalary!=null)
+            {
+                indexForComprateList.Add((overtimeEntriesWithSalaryGroupedByCompRate.IndexOf(overtimeEntriesWith), overtimeEntryWithSalary.OvertimeEntry.CompensationRate));
+            }
+        }
+
+        indexForComprateList = indexForComprateList.OrderBy(x => x.compRate).ToList();
+        var hoursForPayoutCounter = 0M;
+        var overtimeEntriesForPayoutCalculation = new List<OvertimeEntryWithSalary>();
+        for (int overtimeEntriesWithSalaryIndex = 0; overtimeEntriesWithSalaryIndex < indexForComprateList.Count; overtimeEntriesWithSalaryIndex++)
+        {
+            if (hoursForPayoutCounter == requestedHoursForPayout)
             {
                 break;
             }
 
-            var templisteFroOvertimeEntriesForGivenSalary = new List<OvertimeEntry>();
-            var overtimeEntriesOrderedByCompRate = positiveOvertmeEntriesGroupedBySalary[salaryIndex].OrderBy(x => x.CompensationRate).ToList();
+            var indexForCurrentCompRate = indexForComprateList[overtimeEntriesWithSalaryIndex].indexOfComprate;
+            var overtimeEntriesWithSalaryOrderedByDate = overtimeEntriesWithSalaryGroupedByCompRate[indexForCurrentCompRate].OrderBy(x=>x.OvertimeEntry.Date).ToList();
 
-            for (int overtimeEntryIndex = 0; overtimeEntryIndex < overtimeEntriesOrderedByCompRate.Count; overtimeEntryIndex++)
+            for (int overtimeEntryIndex = 0; overtimeEntryIndex < overtimeEntriesWithSalaryOrderedByDate.Count; overtimeEntryIndex++)
             {
-                if (hourCounter == requestedHoursForPayout)
+                if (hoursForPayoutCounter == requestedHoursForPayout)
                 {
                     break;
                 }
 
-                if ((overtimeEntriesOrderedByCompRate[overtimeEntryIndex].Hours + hourCounter) > requestedHoursForPayout)
+                if (overtimeEntriesWithSalaryOrderedByDate[overtimeEntryIndex].OvertimeEntry.Hours +hoursForPayoutCounter >requestedHoursForPayout)
                 {
-                    var diff = requestedHoursForPayout - hourCounter;
-                    var diffEntry = new OvertimeEntry
-                    {
-                        CompensationRate = overtimeEntriesOrderedByCompRate[overtimeEntryIndex]
-                            .CompensationRate,
-                        Date = overtimeEntriesOrderedByCompRate[overtimeEntryIndex].Date,
-                        Hours = diff,
-                        Salary = overtimeEntriesOrderedByCompRate[overtimeEntryIndex].Salary,
-                        TaskId = overtimeEntriesOrderedByCompRate[overtimeEntryIndex].TaskId
-                    };
-                    templisteFroOvertimeEntriesForGivenSalary.Add(diffEntry);
-                    hourCounter += diff;
+                    var diff = requestedHoursForPayout - hoursForPayoutCounter;
+                    var diffEntry = new OvertimeEntryWithSalary(
+                        overtimeEntriesWithSalaryOrderedByDate[overtimeEntryIndex].SalaryPrHour, new OvertimeEntry
+                        {
+                            CompensationRate = overtimeEntriesWithSalaryOrderedByDate[overtimeEntryIndex].OvertimeEntry
+                                .CompensationRate,
+                            Date = overtimeEntriesWithSalaryOrderedByDate[overtimeEntryIndex].OvertimeEntry.Date,
+                            Hours = diff,
+                            Salary = overtimeEntriesWithSalaryOrderedByDate[overtimeEntryIndex].OvertimeEntry.Salary,
+                            TaskId = overtimeEntriesWithSalaryOrderedByDate[overtimeEntryIndex].OvertimeEntry.TaskId
+                        });
+                    overtimeEntriesForPayoutCalculation.Add(diffEntry);
+                    hoursForPayoutCounter += diff;
                 }
-
-                else if ((overtimeEntriesOrderedByCompRate[overtimeEntryIndex].Hours + hourCounter) <= requestedHoursForPayout)
+                else if (overtimeEntriesWithSalaryOrderedByDate[overtimeEntryIndex].OvertimeEntry.Hours + hoursForPayoutCounter<=requestedHoursForPayout)
                 {
-                    hourCounter += overtimeEntriesOrderedByCompRate[overtimeEntryIndex].Hours;
-                    templisteFroOvertimeEntriesForGivenSalary.Add(overtimeEntriesOrderedByCompRate[overtimeEntryIndex]);
+                    hoursForPayoutCounter += overtimeEntriesWithSalaryOrderedByDate[overtimeEntryIndex].OvertimeEntry.Hours;
+                    overtimeEntriesForPayoutCalculation.Add(overtimeEntriesWithSalaryOrderedByDate[overtimeEntryIndex]);
                 }
-
+                
             }
-
-            payoutSalary += CalculatePayoutForSalaryPeriod(templisteFroOvertimeEntriesForGivenSalary, employeeSalaries[salaryIndex].HourlySalary);
         }
-
-        return payoutSalary;
-
+        
+        return CalculatePayout(overtimeEntriesForPayoutCalculation);
     }
-
-    private decimal CalculatePayoutForSalaryPeriod(List<OvertimeEntry> overtimeEntries, decimal salary)
+    
+    private decimal CalculatePayout(List<OvertimeEntryWithSalary> overtimeEntriesWithSalary)
     {
-        var payoutSalary = 0M;
-        foreach (var overtimeEntry in overtimeEntries)
-        {
-            payoutSalary += overtimeEntry.CompensationRate * overtimeEntry.Hours * salary;
-        }
-        return payoutSalary;
-
+        return overtimeEntriesWithSalary.Sum(overtimeEntry => overtimeEntry.OvertimeEntry.CompensationRate * overtimeEntry.OvertimeEntry.Hours * overtimeEntry.SalaryPrHour);
     }
+
     public decimal RegisterOvertimePayout(List<OvertimeEntry> overtimeEntries, int userId, GenericHourEntry requestedPayout, int paidOvertimeId)
     {
         var salaryData = _salaryService.GetEmployeeSalaryData(userId).OrderBy(x => x.FromDate).ToList();
-        var overtimeEntriesGroupedBySalary = GroupOvertimeEntryBySalary(salaryData, overtimeEntries);
+        var overtimeEntriesByCompRateWithSalary = GetOvertimeEntriesWithSalaryGroupedByCompensationRate(salaryData, overtimeEntries);
+        var positiveOvertimeEntriesForPayoutCalculation = GetOvertimeEntriesFilteredForPayoutsAndTimeOff(overtimeEntriesByCompRateWithSalary);//TODO: Eksisterer denne allerede?
+        var salaryPayout = GetCalculatedPayoutForOvertimeEntries(positiveOvertimeEntriesForPayoutCalculation, requestedPayout.Hours);
 
-        var positiveOvertimeEntriesForPayoutCalculation = GetPositiveOvertimeEntriesForPayout(overtimeEntriesGroupedBySalary);
-        var overtimeSalaryForPayout = CalculateOvertimePayout(positiveOvertimeEntriesForPayoutCalculation, salaryData,requestedPayout.Hours);
-        
         _salaryService.SaveOvertimePayout(
             new RegisterOvertimePayout(
-                userId, 
-                requestedPayout.Date, 
-                overtimeSalaryForPayout, 
+                userId,
+                requestedPayout.Date,
+                salaryPayout,
                 paidOvertimeId)
             );
-
-        return overtimeSalaryForPayout;
+        return salaryPayout;
     }
 }
