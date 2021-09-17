@@ -4,6 +4,7 @@
       v-for="timeEntrie in timeEntries"
       :key="timeEntrie.date"
       :time-entrie="timeEntrie"
+      :is-locked="timeEntrie.locked"
     />
   </div>
 </template>
@@ -46,8 +47,9 @@ export default Vue.extend({
     findEntrieInState(day: Moment): FrontendTimentrie | undefined {
       const date = day.format(config.DATE_FORMAT);
       const taskId = this.task.id;
+      const locked = this.task.locked;
       const task = this.$store.state.timeEntriesMap[`${date}${taskId}`];
-      return task && { id: task.id, value: task.value, taskId, date };
+      return task && { id: task.id, value: task.value, taskId, date, locked };
     },
 
     zeroEntrie(day: Moment): FrontendTimentrie {
@@ -56,6 +58,7 @@ export default Vue.extend({
         date: day.format(config.DATE_FORMAT),
         value: "0",
         taskId: this.task.id,
+        locked: this.task.locked,
       };
     },
   },

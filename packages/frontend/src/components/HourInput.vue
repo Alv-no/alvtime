@@ -9,11 +9,13 @@
     <input
       ref="inputRef"
       v-model="value"
-      :class="{ error, nonZero }"
+      :class="{ error, nonZero, hovered }"
       type="text"
       novalidate
       inputmode="decimal"
-      :disabled="!isOnline"
+      :disabled="!isOnline || isLocked"
+      @mouseover="hovered = !(!isOnline || isLocked)"
+      @mouseleave="hovered = false"
       @input="onInput"
       @touchstart="onTouchStart"
       @blur="onBlur"
@@ -24,7 +26,6 @@
 </template>
 
 <script>
-import { defer } from "lodash";
 import { isFloat } from "@/store/timeEntries";
 import config from "@/config";
 import TimeLeftInDayButton from "@/components/TimeLeftInDayButton";
@@ -34,12 +35,16 @@ export default {
     TimeLeftInDayButton,
   },
 
-  props: { timeEntrie: { type: Object, default: () => ({}) } },
+  props: {
+    timeEntrie: { type: Object, default: () => ({}) },
+    isLocked: { type: Boolean, default: false },
+  },
   data() {
     return {
       showHelperButtons: false,
       enableBlur: true,
       localValue: "0",
+      hovered: false,
     };
   },
 
@@ -66,6 +71,10 @@ export default {
 
     nonZero() {
       return Number(this.value.replace(",", "."));
+    },
+
+    inputHover() {
+      return !this.isOnline || this.isLocked;
     },
 
     error() {
@@ -158,7 +167,7 @@ input:focus {
   outline: none;
 }
 
-input:hover {
+.hovered {
   border-color: #008dcf;
   transition: border-color 500ms ease-out;
 }

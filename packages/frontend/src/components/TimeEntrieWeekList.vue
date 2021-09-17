@@ -95,6 +95,9 @@ export default Vue.extend({
     },
   },
 
+  created() {
+    this.$store.dispatch("FETCH_TASKS");
+  },
   methods: {
     isThisWeek(d: string): boolean {
       return this.week.some(

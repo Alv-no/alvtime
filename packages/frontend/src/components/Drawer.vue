@@ -2,7 +2,6 @@
   <div>
     <md-toolbar class="md-transparent" md-elevation="0">
       <span class="md-title">{{ name }}</span>
-
       <div class="md-toolbar-section-end">
         <div class="close_button">
           <YellowButton
@@ -43,8 +42,9 @@
 <script lang="ts">
 import Vue from "vue";
 import YellowButton from "@/components/YellowButton.vue";
-import { logout, login } from "../services/auth";
+import authService from "../services/auth";
 import config from "@/config";
+import { AccountInfo } from "@azure/msal-common";
 
 export default Vue.extend({
   components: {
@@ -84,7 +84,7 @@ export default Vue.extend({
       return this.account ? "Logg ut" : "Logg inn";
     },
 
-    account(): Account {
+    account(): AccountInfo {
       return this.$store.state.account;
     },
   },
@@ -101,9 +101,9 @@ export default Vue.extend({
 
     authAction() {
       if (this.account) {
-        logout();
+        authService.logout();
       } else {
-        login();
+        authService.loginMsal();
       }
     },
 

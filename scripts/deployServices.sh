@@ -2,7 +2,6 @@
 
 set -e
 
-CONTAINER_REGISTRY=acralvtime
 export HELM_EXPERIMENTAL_OCI=1
 
 echo "$SP_ALVTIME_ADMIN_RBAC_SECRET" | helm registry login "$CONTAINER_REGISTRY.azurecr.io" \

@@ -1,4 +1,4 @@
-import { setRedirectCallback } from "@/services/auth";
+import authService from "@/services/auth";
 import lifecycle from "@/services/lifecycle.es5.js";
 import Vue from "vue";
 import Vuex from "vuex";
@@ -11,6 +11,8 @@ import timeEntrie, { TimeEntrieState } from "./timeEntries";
 import router from "@/router";
 import overtime, { OvertimeState } from "./overtime";
 import absense, { AbsenseState } from "./absense";
+import { EventMessage, EventType } from "@azure/msal-browser";
+import { registerErrorCallback } from "@/services/httpClient";
 
 Vue.use(Vuex);
 
@@ -52,6 +54,7 @@ const getters = {
   ...auth.getters,
   ...overtime.getters,
   ...absense.getters,
+  ...error.getters,
 };
 
 const actions = {
@@ -60,6 +63,7 @@ const actions = {
   ...swiper.actions,
   ...overtime.actions,
   ...absense.actions,
+  ...auth.actions,
 };
 
 const storeOptions = {
@@ -69,18 +73,26 @@ const storeOptions = {
   actions,
 };
 
-const store = new Vuex.Store(storeOptions);
+registerErrorCallback(e => {
+  if (e.status === 404 && e.message === "User not found") {
+    return;
+  }
+  store.commit("ADD_TO_ERROR_LIST", e);
+});
 
-setRedirectCallback(
-  (errorMessage: Error) => {
-    console.error(errorMessage);
-    store.commit("ADD_TO_ERROR_LIST", errorMessage);
-  },
-  (account: Account) => {
-    store.commit("SET_ACCOUNT", account);
+const store = new Vuex.Store(storeOptions);
+authService.getAccountAsync().then(accountInfo => {
+  store.commit("SET_ACCOUNT", accountInfo);
+});
+
+authService.addCallback((message: EventMessage) => {
+  if (message.eventType.endsWith("Failure")) {
+    store.commit("ADD_TO_ERROR_LIST", message.error);
+    console.error(message);
+  } else if (message.eventType === EventType.LOGIN_SUCCESS) {
     router.push("hours");
   }
-);
+});
 
 lifecycle.addEventListener("statechange", function(event: any) {
   store.commit("UPDATE_INTERACTION_STATE", event);

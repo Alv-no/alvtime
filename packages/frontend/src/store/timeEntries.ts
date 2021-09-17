@@ -2,7 +2,7 @@ import { State } from "./index";
 import { ActionContext } from "vuex";
 import { debounce } from "lodash";
 import config from "@/config";
-import { adAuthenticatedFetch } from "@/services/auth";
+import httpClient from "../services/httpClient";
 
 export interface TimeEntrieState {
   timeEntries: FrontendTimentrie[] | null;
@@ -15,6 +15,7 @@ export interface FrontendTimentrie {
   date: string;
   value: string;
   taskId: number;
+  locked: boolean;
 }
 
 export interface TimeEntrieMap {
@@ -31,6 +32,7 @@ export interface ServerSideTimeEntrie {
   date: string;
   value: number;
   taskId: number;
+  locked: boolean;
 }
 
 const state = {
@@ -78,60 +80,34 @@ const actions = {
       if (!timeEntriesToPush.length) return;
 
       commit("FLUSH_PUSH_QUEUE");
-      try {
-        const response = await adAuthenticatedFetch(
-          config.API_HOST + "/api/user/TimeEntries",
-          {
-            method: "post",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(timeEntriesToPush),
-          }
-        );
-        const timeEntries = await response.json();
-        if (response.status !== 200) {
-          throw Error(`${response.statusText}
-${timeEntries.title}`);
-        }
-        if (!Array.isArray(timeEntries) && timeEntries.message) {
-          throw Error(timeEntries.message);
-        }
-        if (Array.isArray(timeEntries)) {
+      await httpClient
+        .post<Array<Parameters<typeof createTimeEntrie>[0]>>(
+          `${config.API_HOST}/api/user/TimeEntries`,
+          timeEntriesToPush
+        )
+        .then(response => {
           commit(
             "UPDATE_TIME_ENTRIES_AFTER_UPDATE",
-            timeEntries.map(createTimeEntrie)
+            response.data.map(createTimeEntrie)
           );
-        }
-      } catch (e) {
-        console.error(e);
-        commit("ADD_TO_ERROR_LIST", e);
-      }
+        });
     },
     1000
   ),
 
-  FETCH_TIME_ENTRIES: async (
+  FETCH_TIME_ENTRIES: (
     { commit }: ActionContext<State, State>,
     params: { fromDateInclusive: string; toDateInclusive: string }
   ) => {
     const url = new URL(config.API_HOST + "/api/user/TimeEntries");
     url.search = new URLSearchParams(params).toString();
 
-    try {
-      const res = await adAuthenticatedFetch(url.toString());
-      const timeEntries = await res.json();
-      if (!Array.isArray(timeEntries) && timeEntries.message) {
-        throw Error(timeEntries.message);
-      }
-      const frontendTimeEntries = timeEntries
+    return httpClient.get(url.toString()).then(response => {
+      const frontendTimeEntries = response.data
         .filter((entrie: ServerSideTimeEntrie) => entrie.value)
         .map(createTimeEntrie);
       commit("UPDATE_TIME_ENTRIES", frontendTimeEntries);
-    } catch (e) {
-      console.error(e);
-      commit("ADD_TO_ERROR_LIST", e);
-    }
+    });
   },
 };
 

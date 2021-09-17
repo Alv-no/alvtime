@@ -4,7 +4,7 @@
     <ZeroSelectedTasks v-if="rows.length < 1" />
     <div v-for="row in rows" :key="row.task.id" class="grid">
       <TimeEntrieText :task="row.task" />
-      <HourInput :time-entrie="row.timeEntrie" />
+      <HourInput :time-entrie="row.timeEntrie" :is-locked="row.task.locked" />
     </div>
   </div>
 </template>
@@ -40,7 +40,6 @@ export default Vue.extend({
       },
     },
   },
-
   computed: {
     rows(): Row[] {
       return [...this.rowsWithHours, ...this.rowsWithoutHours].sort(sortList);
@@ -88,7 +87,6 @@ export default Vue.extend({
       return this.date.day() === 6;
     },
   },
-
   methods: {
     isTaskInEntries(task: Task): boolean {
       return this.daysTimeEntries.some(
@@ -107,6 +105,7 @@ export default Vue.extend({
           date: this.date.format(config.DATE_FORMAT),
           value: "0",
           taskId: task.id,
+          locked: false,
         };
       }
 

@@ -1,9 +1,8 @@
 import { State } from "./index";
 import config from "@/config";
-import { adAuthenticatedFetch } from "@/services/auth";
-// import { OvertimeData } from "../components/OvertimeVisualizer.vue";
 import { ActionContext } from "vuex";
 import { groupBy } from "lodash";
+import httpClient from "../services/httpClient";
 
 export interface OvertimeData {
   key: string;
@@ -198,105 +197,55 @@ const getters = {
 };
 
 const actions = {
-  FETCH_AVAILABLE_HOURS: async ({ commit }: ActionContext<State, State>) => {
-    try {
-      let url = new URL(
-        config.API_HOST + "/api/user/AvailableHours"
-      ).toString();
-      let res = await adAuthenticatedFetch(url);
-      if (res.status === 404) {
-        commit("SET_USER_NOT_FOUND");
-        throw res.statusText;
-      }
-      const available = await res.json();
-      commit("SET_AVAILABLEHOURS", available);
-    } catch (e) {
-      if (e !== "Not Found") {
-        console.error(e);
-        commit("ADD_TO_ERROR_LIST", e);
-      }
-    }
+  FETCH_AVAILABLE_HOURS: ({ commit }: ActionContext<State, State>) => {
+    return httpClient
+      .get(`${config.API_HOST}/api/user/AvailableHours`)
+      .then(response => {
+        commit("SET_AVAILABLEHOURS", response.data);
+      });
   },
-  FETCH_FLEX_TRANSACTIONS: async ({ commit }: ActionContext<State, State>) => {
-    try {
-      const url = new URL(config.API_HOST + "/api/user/FlexedHours").toString();
-      const res = await adAuthenticatedFetch(url);
-      if (res.status === 404) {
-        commit("SET_USER_NOT_FOUND");
-        throw res.statusText;
-      }
-      const flexed = await res.json();
-      commit("SET_FLEXHOURS", flexed);
-    } catch (e) {
-      if (e !== "Not Found") {
-        console.error(e);
-        commit("ADD_TO_ERROR_LIST", e);
-      }
-    }
+  FETCH_FLEX_TRANSACTIONS: ({ commit }: ActionContext<State, State>) => {
+    return httpClient
+      .get(`${config.API_HOST}/api/user/FlexedHours`)
+      .then(response => {
+        commit("SET_FLEXHOURS", response.data);
+      });
   },
-  FETCH_PAYED_HOURS: async ({ commit }: ActionContext<State, State>) => {
-    try {
-      const url = new URL(config.API_HOST + "/api/user/Payouts").toString();
-      const res = await adAuthenticatedFetch(url);
-      if (res.status === 404) {
-        commit("SET_USER_NOT_FOUND");
-        throw res.statusText;
-      }
-
-      const payed = await res.json();
-      commit("SET_PAYED_HOURS", payed);
-    } catch (e) {
-      if (e !== "Not Found") {
-        console.error(e);
-        commit("ADD_TO_ERROR_LIST", e);
-      }
-    }
+  FETCH_PAYED_HOURS: ({ commit }: ActionContext<State, State>) => {
+    return httpClient
+      .get(`${config.API_HOST}/api/user/Payouts`)
+      .then(response => {
+        commit("SET_PAYED_HOURS", response.data);
+      });
   },
-  FETCH_TRANSACTIONS: async ({ dispatch }: ActionContext<State, State>) => {
-    await Promise.all([
+  FETCH_TRANSACTIONS: ({ dispatch }: ActionContext<State, State>) => {
+    return Promise.all([
       dispatch("FETCH_AVAILABLE_HOURS"),
       dispatch("FETCH_PAYED_HOURS"),
       dispatch("FETCH_FLEX_TRANSACTIONS"),
     ]);
   },
 
-  POST_ORDER_PAYOUT: async (
-    { commit }: ActionContext<State, State>,
+  POST_ORDER_PAYOUT: (
+    _: ActionContext<State, State>,
     parameters: { hours: number; date: string }
   ) => {
-    try {
-      let url = new URL(config.API_HOST + "/api/user/Payouts").toString();
-      const response = await adAuthenticatedFetch(url, {
-        method: "post",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          date: parameters.date,
-          hours: parameters.hours,
-        }),
+    return httpClient
+      .post(`${config.API_HOST}/api/user/Payouts`, {
+        date: parameters.date,
+        hours: parameters.hours,
+      })
+      .then(response => {
+        if (response.status !== 200) throw Error(`${response.statusText}`);
       });
-      if (response.status !== 200) throw Error(`${response.statusText}`);
-    } catch (e) {
-      console.error(e);
-      commit("ADD_TO_ERROR_LIST", e);
-    }
   },
-  CANCEL_PAYOUT_ORDER: async (
-    { commit }: ActionContext<State, State>,
+  CANCEL_PAYOUT_ORDER: (
+    _: ActionContext<State, State>,
     parameters: { payoutId: number }
   ) => {
-    try {
-      let url = new URL(
-        config.API_HOST + `/api/user/Payouts?payoutId=${parameters.payoutId}`
-      ).toString();
-      const response = await adAuthenticatedFetch(url, {
-        method: "delete",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (response.status !== 200) throw Error(`${response.statusText}`);
-    } catch (e) {
-      console.error(e);
-      commit("ADD_TO_ERROR_LIST", e);
-    }
+    return httpClient.delete(
+      `${config.API_HOST}/api/user/Payouts?payoutId=${parameters.payoutId}`
+    );
   },
 };
 

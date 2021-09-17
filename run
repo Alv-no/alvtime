@@ -52,7 +52,7 @@ if [ "deploy" = "$1" ]; then
   if [ "$1" == 'test' ]
   then
     source scripts/buildServices.sh
-    az acr login --name acralvtime
+    az acr login --name "$CONTAINER_REGISTRY"
     source scripts/pushServices.sh
   fi
   source scripts/deployServices.sh

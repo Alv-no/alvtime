@@ -1,7 +1,7 @@
 import { State } from "./index";
 import { ActionContext } from "vuex";
 import config from "@/config";
-import { adAuthenticatedFetch } from "@/services/auth";
+import httpClient from "../services/httpClient";
 
 export interface TaskState {
   tasks: Task[];
@@ -57,48 +57,20 @@ const mutations = {
 };
 
 const actions = {
-  FETCH_TASKS: async ({ commit }: ActionContext<State, State>) => {
-    try {
-      const url = new URL(config.API_HOST + "/api/user/tasks").toString();
-      const res = await adAuthenticatedFetch(url);
-      if (res.status === 404) {
-        commit("SET_USER_NOT_FOUND");
-        throw res.statusText;
-      }
-      const tasks = await res.json();
-      commit("SET_TASKS", tasks);
-    } catch (e) {
-      if (e !== "Not Found") {
-        console.error(e);
-        commit("ADD_TO_ERROR_LIST", e);
-      }
-    }
+  FETCH_TASKS: ({ commit }: ActionContext<State, State>) => {
+    return httpClient
+      .get(`${config.API_HOST}/api/user/tasks`)
+      .then(response => {
+        commit("SET_TASKS", response.data);
+      });
   },
 
-  PUSH_TASKS: async (
-    { commit }: ActionContext<State, State>,
-    paramTasks: Task[]
-  ) => {
-    try {
-      const method = "post";
-      const headers = { "Content-Type": "application/json" };
-      const body = JSON.stringify(paramTasks);
-      const options = { method, headers, body };
-
-      const response = await adAuthenticatedFetch(
-        config.API_HOST + "/api/user/Tasks",
-        options
-      );
-      const updatedTasks = await response.json();
-      if (response.status !== 200) {
-        throw Error(`${response.statusText}
-          ${updatedTasks.title}`);
-      }
-      commit("UPDATE_TASKS", updatedTasks);
-    } catch (e) {
-      console.error(e);
-      commit("ADD_TO_ERROR_LIST", e);
-    }
+  PUSH_TASKS: ({ commit }: ActionContext<State, State>, paramTasks: Task[]) => {
+    return httpClient
+      .post(`${config.API_HOST}/api/user/Tasks`, paramTasks)
+      .then(response => {
+        commit("UPDATE_TASKS", response.data);
+      });
   },
 };
 

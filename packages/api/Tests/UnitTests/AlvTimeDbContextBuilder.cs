@@ -1,6 +1,7 @@
 ﻿using AlvTime.Persistence.DataBaseModels;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 
 namespace Tests.UnitTests
 {
@@ -187,6 +188,39 @@ namespace Tests.UnitTests
             {
                 TaskId = 2,
                 Value = 1.0M
+            });
+
+            _context.SaveChanges();
+            return this;
+        }
+
+        public AlvTimeDbContextBuilder WithLeaveTasks()
+        {
+            _context.Task.Add(new Task
+            {
+                Id = 12,
+                Description = "",
+                Project = 1,
+                Name = "UnpaidHoliday",
+                Locked = false,
+            });
+
+            _context.Task.Add(new Task
+            {
+                Id = 13,
+                Description = "",
+                Project = 2,
+                Name = "PaidHoliday",
+                Locked = false
+            });
+
+            _context.Task.Add(new Task
+            {
+                Id = 14,
+                Description = "",
+                Project = 2,
+                Name = "SickDay",
+                Locked = false
             });
 
             _context.SaveChanges();

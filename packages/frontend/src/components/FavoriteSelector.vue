@@ -64,7 +64,9 @@ export default Vue.extend({
       return this.$store.state.isOnline;
     },
   },
-
+  created() {
+    this.$store.dispatch("FETCH_TASKS");
+  },
   methods: {
     clear() {
       this.searchphrase = "";

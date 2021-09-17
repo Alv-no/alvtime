@@ -3,7 +3,10 @@
     <p class="customer-name">{{ task.project.customer.name }}</p>
     <div class="activity-name-container">
       <p class="activity-name">{{ task.name }} {{ task.project.name }}</p>
-      <small class="rate-text">{{ compansationRatePercentage }}</small>
+      <small class="rate-text">{{ compensationRatePercentage }}</small>
+    </div>
+    <div v-show="showPadlock" class="padlock">
+      <md-icon class="icon">lock</md-icon>
     </div>
   </div>
 </template>
@@ -22,8 +25,11 @@ export default Vue.extend({
     },
   },
   computed: {
-    compansationRatePercentage(): string {
+    compensationRatePercentage(): string {
       return `${this.task.compensationRate * 100}%`;
+    },
+    showPadlock(): boolean {
+      return this.task.locked;
     },
   },
 });
@@ -45,6 +51,7 @@ export default Vue.extend({
 
   /* Prevent percentage values from touching the hour input */
   padding-right: 0.5rem;
+  float: left;
 }
 
 .activity-name {
@@ -58,5 +65,14 @@ export default Vue.extend({
 .rate-text {
   font-weight: lighter;
   margin-left: 0.25rem;
+}
+
+.padlock {
+  margin-right: 0.4rem;
+  float: right;
+}
+.icon {
+  position: relative;
+  bottom: 0.5rem;
 }
 </style>
