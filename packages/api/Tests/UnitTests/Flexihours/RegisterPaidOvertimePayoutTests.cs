@@ -996,6 +996,69 @@ namespace Tests.UnitTests.Flexihours
             Assert.Equal(50M, overtidsutbetalingEn.TotalPayout);
             Assert.Equal(380M, overtidsutbetalingTo.TotalPayout);
         }
+        [Fact]
+
+        public void RegisterPaidOvertime_UserHasOvertime1SalaryDifferentCompRatesOvertimePayoutAndTimeOffOverDifferentComprates_Ok()
+        {
+            var userId = 1;
+            var avspasseringstask = new Task { Id = 18 };
+            var salary = new EmployeeHourlySalary
+            {
+                UserId = userId,
+                HourlySalary = 170.0M,
+                FromDateInclusive = new DateTime(2019, 07, 01),
+                ToDate = null
+            };
+            var avspasseringTimeEntry = new Hours
+            {
+                User = userId,
+                Date = new DateTime(2020, 06, 29),
+                Value = 3.0M,
+                Task = avspasseringstask
+            };
+
+            _economyDataContext.EmployeeHourlySalaries.Add(salary);
+            _economyDataContext.SaveChanges();
+            
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 06, 05), value: 7.5M, out int taskid));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.5M));
+            //comprate 1.5
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 06, 05), value: 2M, out int taskid2));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid2, 1.5M));
+            //comprate 1.0
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 06, 05), value: 10M, out int taskid3));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid3, 1.0M));
+            //comprate 0.5
+            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 06, 05), value: 5M, out int taskid4));
+            _context.CompensationRate.Add(CreateCompensationRate(taskid4, 0.5M));
+            _context.SaveChanges();
+            //Offtime
+            _context.Hours.Add(avspasseringTimeEntry);
+            _context.CompensationRate.Add(CreateCompensationRate(avspasseringstask.Id, 1.0M));
+
+            var expectedPayout1 = salary.HourlySalary*(0.5M*5+1.0M*1M);
+            var expectedPayout2 = salary.HourlySalary * 1.0M * 7M;
+            
+            //act
+            var sut = CreateStorage();
+
+            var paidOvertimeFirst = sut.RegisterPaidOvertime(new GenericHourEntry
+            {
+                Date = new DateTime(2020, 09, 15),
+                Hours = 6M
+            }, userId);
+
+            var paidOvertimeSecond = sut.RegisterPaidOvertime(new GenericHourEntry
+            {
+                Date = new DateTime(2021, 09, 17),
+                Hours = 7M
+            }, userId);
+            //assert
+            var overtidsutbetalingEn = _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 1);
+            var overtidsutbetalingTo = _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 2);
+            Assert.Equal(expectedPayout1, overtidsutbetalingEn.TotalPayout);
+            Assert.Equal(expectedPayout2, overtidsutbetalingTo.TotalPayout);
+        }
 
 
         #endregion
@@ -1032,5 +1095,6 @@ namespace Tests.UnitTests.Flexihours
                 TaskId = taskId
             };
         }
+        
     }
 }
