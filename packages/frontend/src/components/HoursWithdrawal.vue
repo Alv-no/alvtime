@@ -222,7 +222,7 @@ export default Vue.extend({
           rate: transaction.transaction.rate
             ? `${transaction.transaction.rate * 100}%`
             : "",
-          sum: this.getTranslatedTotal(transaction.type, transaction),
+          sum: this.getTranslatedTotal(transaction),
           active: transaction.transaction.active,
         };
       });
