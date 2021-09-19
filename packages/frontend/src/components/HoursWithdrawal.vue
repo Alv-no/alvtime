@@ -251,19 +251,20 @@ export default Vue.extend({
           return "";
       }
     },
-    getTranslatedTotal(
-      type: string,
-      transaction: MappedOvertimeTransaction
-    ): number {
+    getTranslatedTotal({
+      type,
+      transaction,
+    }: MappedOvertimeTransaction): number {
+      const { hours, rate, hoursAfterCompRate } = transaction;
       switch (type) {
         case "available":
-          return transaction.transaction.hours * transaction.transaction.rate!;
+          return hours * rate!;
         case "payout":
-          return transaction.transaction.hoursAfterCompRate!;
+          return hoursAfterCompRate!;
         case "flex":
-          return transaction.transaction.hours * -1;
+          return hours * -1;
         default:
-          return transaction.transaction.hours;
+          return hours;
       }
     },
     async orderHours() {
