@@ -26,7 +26,7 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhours_NoWorkAtAll_AvailableIs0Overtime0Flex()
         {
-            FlexhourStorage flexhourStorage = CreateStorage();
+            FlexhourStorage flexhourStorage = FlexiHoursTestUtils.CreateStorage(_context, _economyDataContext);
             var flexhours = flexhourStorage.GetAvailableHours(1, _startDate, _endDate);
 
             Assert.Equal(0, flexhours.AvailableHoursBeforeCompensation);
@@ -36,10 +36,10 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhours_NormalWorkday_NoFlexhour()
         {
-            _context.Hours.Add(CreateTimeEntry(date: _startDate, value: 7.5M, out int taskid));
+            _context.Hours.Add(FlexiHoursTestUtils.CreateTimeEntry(date: _startDate, value: 7.5M, out int taskid));
             _context.SaveChanges();
 
-            FlexhourStorage flexhourStorage = CreateStorage();
+            FlexhourStorage flexhourStorage = FlexiHoursTestUtils.CreateStorage(_context, _economyDataContext);
             var flexhours = flexhourStorage.GetAvailableHours(1, _startDate, _endDate);
 
             Assert.Equal(0, flexhours.AvailableHoursBeforeCompensation);
@@ -49,7 +49,7 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhours_WorkedOvertime_PositiveFlexAndOvertime()
         {
-            _context.Hours.Add(CreateTimeEntry(date: _startDate, value: 10M, out int taskid));
+            _context.Hours.Add(FlexiHoursTestUtils.CreateTimeEntry(date: _startDate, value: 10M, out int taskid));
             _context.SaveChanges();
 
             var flexhourStorage = CreateStorage();
@@ -62,8 +62,8 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhours_ExhangedHoursIntoPayout_AvailableHoursAreCompensatedForPayout()
         {
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2021, 01, 06), value: 15M, out int taskid));
-            _context.CompensationRate.Add(CreateCompensationRate(taskid, 2.0M));
+            _context.Hours.Add(FlexiHoursTestUtils.CreateTimeEntry(date: new DateTime(2021, 01, 06), value: 15M, out int taskid));
+            _context.CompensationRate.Add(FlexiHoursTestUtils.CreateCompensationRate(taskid, 2.0M));
             _context.SaveChanges();
 
             var flexhourStorage = CreateStorage();
@@ -82,8 +82,8 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhours_WorkedMultipleDays_FlexForMultipleDaysAreSummed()
         {
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2021, 01, 06), value: 10M, out int taskid));
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2021, 01, 07), value: 10M, out int taskid2));
+            _context.Hours.Add(FlexiHoursTestUtils.CreateTimeEntry(date: new DateTime(2021, 01, 06), value: 10M, out int taskid));
+            _context.Hours.Add(FlexiHoursTestUtils.CreateTimeEntry(date: new DateTime(2021, 01, 07), value: 10M, out int taskid2));
             _context.SaveChanges();
 
             var flexhourStorage = CreateStorage();
@@ -96,11 +96,11 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhours_MultipleEmployees_FlexForSpecifiedEmployeeIsCalculated()
         {
-            var entry1 = CreateTimeEntry(date: _startDate, value: 10M, out int taskid);
+            var entry1 = FlexiHoursTestUtils.CreateTimeEntry(date: _startDate, value: 10M, out int taskid);
             entry1.User = 1;
             _context.Hours.Add(entry1);
 
-            var entry2 = CreateTimeEntry(date: _startDate, value: 8M, out int taskid2);
+            var entry2 = FlexiHoursTestUtils.CreateTimeEntry(date: _startDate, value: 8M, out int taskid2);
             entry2.User = 2;
             _context.Hours.Add(entry2);
             _context.SaveChanges();
@@ -115,8 +115,8 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexhoursToday_EntriesBeforeStartDate_NotTakenIntoAccount()
         {
-            _context.Hours.Add(CreateTimeEntry(date: _startDate, value: 10M, out int taskid));
-            _context.Hours.Add(CreateTimeEntry(date: _startDate.AddDays(-1), value: 10M, out int taskid2));
+            _context.Hours.Add(FlexiHoursTestUtils.CreateTimeEntry(date: _startDate, value: 10M, out int taskid));
+            _context.Hours.Add(FlexiHoursTestUtils.CreateTimeEntry(date: _startDate.AddDays(-1), value: 10M, out int taskid2));
             _context.SaveChanges();
 
             var flexhourStorage = CreateStorage();
@@ -130,8 +130,8 @@ namespace Tests.UnitTests.Flexihours
         public void GetFlexhours_NotWorkedInWeekend_NoImpactOnOverTimeNorFlex()
         {
             // saturday and sunday:
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 04), value: 0M, out _));
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 05), value: 0M, out _));
+            _context.Hours.Add(FlexiHoursTestUtils.CreateTimeEntry(date: new DateTime(2020, 01, 04), value: 0M, out _));
+            _context.Hours.Add(FlexiHoursTestUtils.CreateTimeEntry(date: new DateTime(2020, 01, 05), value: 0M, out _));
             _context.SaveChanges();
 
             var flexHourStorage = CreateStorage();
@@ -144,8 +144,8 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetEntriesbyDate_MultipleTasks_FlexhoursCompensatesForMultipleTasks()
         {
-            _context.Hours.Add(CreateTimeEntry(date: _startDate, value: 5M, out _));
-            _context.Hours.Add(CreateTimeEntry(date: _startDate, value: 2.5M, out _));
+            _context.Hours.Add(FlexiHoursTestUtils.CreateTimeEntry(date: _startDate, value: 5M, out _));
+            _context.Hours.Add(FlexiHoursTestUtils.CreateTimeEntry(date: _startDate, value: 2.5M, out _));
             _context.SaveChanges();
 
             var flexHourStorage = CreateStorage();
@@ -158,7 +158,7 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexedhours_FlexingMoreThanAvailable_CannotFlex()
         {
-            _context.Hours.Add(CreateTimeEntry(date: _startDate, value: 8.5M, out int taskid));
+            _context.Hours.Add(FlexiHoursTestUtils.CreateTimeEntry(date: _startDate, value: 8.5M, out int taskid));
             _context.Hours.Add(CreateFlexEntry(date: _startDate.AddDays(1), value: 2M));
             _context.SaveChanges();
 
@@ -188,7 +188,7 @@ namespace Tests.UnitTests.Flexihours
             var user = _context.User.First();
             user.StartDate = new DateTime(2020, 11, 01);
 
-            _context.Hours.Add(CreateTimeEntry(new DateTime(2020, 11, 02), 9, out int taskId));
+            _context.Hours.Add(FlexiHoursTestUtils.CreateTimeEntry(new DateTime(2020, 11, 02), 9, out int taskId));
             _context.SaveChanges();
 
             var flexHourStorage = CreateStorage();
@@ -254,19 +254,6 @@ namespace Tests.UnitTests.Flexihours
                 new SalaryService(new OvertimePayoutStorage(_economyDataContext),new EmployeeHourlySalaryStorage(_economyDataContext, _context)));
         }
 
-        private static Hours CreateTimeEntry(DateTime date, decimal value, out int taskId)
-        {
-            taskId = new Random().Next();
-
-            return new Hours
-            {
-                User = 1,
-                Date = date,
-                Value = value,
-                Task = new Task { Id = taskId }
-            };
-        }
-
         private static Hours CreateFlexEntry(DateTime date, decimal value)
         {
             return new Hours
@@ -276,16 +263,6 @@ namespace Tests.UnitTests.Flexihours
                 TaskId = 18,
                 User = 1,
                 Value = value
-            };
-        }
-
-        private static CompensationRate CreateCompensationRate(int taskId, decimal compRate)
-        {
-            return new CompensationRate
-            {
-                FromDate = DateTime.UtcNow,
-                Value = compRate,
-                TaskId = taskId
             };
         }
 

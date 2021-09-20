@@ -27,15 +27,15 @@ namespace Tests.UnitTests.Flexihours
             var currentMonth = DateTime.Now.Month;
             var currentYear = DateTime.Now.Year;
 
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(currentYear, currentMonth, 02), value: 17.5M, out int taskid));
-            _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
+            _context.Hours.Add(FlexiHoursTestUtils.CreateTimeEntry(date: new DateTime(currentYear, currentMonth, 02), value: 17.5M, out int taskid));
+            _context.CompensationRate.Add(FlexiHoursTestUtils.CreateCompensationRate(taskid, 1.0M));
 
             _context.SaveChanges();
             _economyDataContext.OvertimePayouts.Add(new OvertimePayout{Date = new DateTime(currentYear, currentMonth, 02) , TotalPayout = 150M, UserId = dbUser.Id, RegisteredPaidOvertimeId = 1});
 
             _economyDataContext.SaveChanges();
 
-            FlexhourStorage calculator = CreateStorage();
+            FlexhourStorage calculator = FlexiHoursTestUtils.CreateStorage(_context, _economyDataContext);
 
             var registerOvertimeResponse = calculator.RegisterPaidOvertime(new GenericHourEntry
             {
@@ -56,12 +56,12 @@ namespace Tests.UnitTests.Flexihours
 
             var previousMonth = DateTime.Now.AddMonths(-1).Month;
 
-            _context.Hours.Add(CreateTimeEntry(date: new DateTime(2021, previousMonth, 02), value: 17.5M, out int taskid));
-            _context.CompensationRate.Add(CreateCompensationRate(taskid, 1.0M));
+            _context.Hours.Add(FlexiHoursTestUtils.CreateTimeEntry(date: new DateTime(2021, previousMonth, 02), value: 17.5M, out int taskid));
+            _context.CompensationRate.Add(FlexiHoursTestUtils.CreateCompensationRate(taskid, 1.0M));
 
             _context.SaveChanges();
 
-            FlexhourStorage calculator = CreateStorage();
+            FlexhourStorage calculator = FlexiHoursTestUtils.CreateStorage(_context, _economyDataContext);
 
             var registerOvertimeResponse = calculator.RegisterPaidOvertime(new GenericHourEntry
             {
@@ -71,40 +71,6 @@ namespace Tests.UnitTests.Flexihours
 
             Assert.Throws<ValidationException>(() => calculator.CancelPayout(1, 1));
         }
-
-        private FlexhourStorage CreateStorage()
-        {
-            return new FlexhourStorage(new TimeEntryStorage(_context), _context, new TestTimeEntryOptions(
-                new TimeEntryOptions
-                {
-                    FlexTask = 18,
-                    ReportUser = 11,
-                    StartOfOvertimeSystem = new DateTime(2020, 01, 01)
-                }),
-                new SalaryService( new OvertimePayoutStorage(_economyDataContext), new EmployeeHourlySalaryStorage(_economyDataContext, _context)));
-        }
-
-        private static Hours CreateTimeEntry(DateTime date, decimal value, out int taskId)
-        {
-            taskId = new Random().Next();
-
-            return new Hours
-            {
-                User = 1,
-                Date = date,
-                Value = value,
-                Task = new Task { Id = taskId }
-            };
-        }
-
-        private static CompensationRate CreateCompensationRate(int taskId, decimal compRate)
-        {
-            return new CompensationRate
-            {
-                FromDate = DateTime.UtcNow,
-                Value = compRate,
-                TaskId = taskId
-            };
-        }
+        
     }
 }

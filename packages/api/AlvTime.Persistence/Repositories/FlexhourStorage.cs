@@ -316,8 +316,7 @@ public class FlexhourStorage : IFlexhourStorage
                 UserId = paidOvertime.Id,
                 Date = paidOvertime.Date,
                 HoursBeforeCompensation = paidOvertime.HoursBeforeCompRate,
-                HoursAfterCompensation = paidOvertime.HoursAfterCompRate,
-                CompensationSalary = paidOvertimeSalary
+                HoursAfterCompensation = paidOvertime.HoursAfterCompRate
             };
         }
 
