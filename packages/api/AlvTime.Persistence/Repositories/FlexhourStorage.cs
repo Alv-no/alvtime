@@ -423,7 +423,7 @@ public class FlexhourStorage : IFlexhourStorage
         return overtimeEntriesWithSalaryGroupedByCompRate;
     }
 
-    private List<List<OvertimeEntryWithSalary>> GetOvertimeEntriesFilteredForPayoutsAndTimeOff(List<List<OvertimeEntryWithSalary>> overtimeEntriesWithSalaryGroupedByCompRate) 
+    private List<List<OvertimeEntryWithSalary>> GetOvertimeEntriesWithSalaryFilterAwayPayoutsAndTimeOff(List<List<OvertimeEntryWithSalary>> overtimeEntriesWithSalaryGroupedByCompRate) 
         => overtimeEntriesWithSalaryGroupedByCompRate
            .Select(GetOvertimeEntriesForGivenCompRateForPayoutCalculation)
            .ToList();
@@ -542,7 +542,7 @@ public class FlexhourStorage : IFlexhourStorage
     {
         var salaryData = _salaryService.GetEmployeeSalaryData(userId).OrderBy(x => x.FromDate).ToList();
         var overtimeEntriesByCompRateWithSalary = GetOvertimeEntriesWithSalaryGroupedByCompensationRate(salaryData, overtimeEntries);
-        var overtimeEntriesForPayoutCalculation = GetOvertimeEntriesFilteredForPayoutsAndTimeOff(overtimeEntriesByCompRateWithSalary);
+        var overtimeEntriesForPayoutCalculation = GetOvertimeEntriesWithSalaryFilterAwayPayoutsAndTimeOff(overtimeEntriesByCompRateWithSalary);
         var salaryPayout = CalculatePayoutForOvertimeEntries(overtimeEntriesForPayoutCalculation, requestedPayout.Hours);
 
         _salaryService.SaveOvertimePayout(
