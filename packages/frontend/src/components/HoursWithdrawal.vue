@@ -39,7 +39,6 @@
       <small class="validationtext">{{ errorMessage }}</small>
 
       <hr />
-
       <md-table v-model="sortedTransactions" md-fixed-header>
         <md-table-toolbar>
           <h2 class="md-title">Transaksjoner</h2>
@@ -223,9 +222,7 @@ export default Vue.extend({
           rate: transaction.transaction.rate
             ? `${transaction.transaction.rate * 100}%`
             : "",
-          sum: transaction.transaction.rate
-            ? transaction.transaction.hours * transaction.transaction.rate
-            : undefined,
+          sum: this.getTranslatedTotal(transaction),
           active: transaction.transaction.active,
         };
       });
@@ -236,7 +233,7 @@ export default Vue.extend({
         case "available":
           return value;
         case "payout":
-          return value * -1;
+          return value;
         case "flex":
           return value * -1;
       }
@@ -252,6 +249,22 @@ export default Vue.extend({
           return "Flex";
         default:
           return "";
+      }
+    },
+    getTranslatedTotal({
+      type,
+      transaction,
+    }: MappedOvertimeTransaction): number {
+      const { hours, rate, hoursAfterCompRate } = transaction;
+      switch (type) {
+        case "available":
+          return hours * rate!;
+        case "payout":
+          return hoursAfterCompRate!;
+        case "flex":
+          return hours * -1;
+        default:
+          return hours;
       }
     },
     async orderHours() {
