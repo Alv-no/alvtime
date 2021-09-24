@@ -32,7 +32,7 @@ namespace Tests.UnitTests.EconomyDataTests.Salary
 
             Assert.Equal(1, savedOvertime.Id);
             Assert.Equal(overtimePayout.UserId, savedOvertime.UserId);
-            Assert.Equal(overtimePayout.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), savedOvertime.Date);
+            Assert.Equal(overtimePayout.Date, savedOvertime.Date);
             Assert.Equal(overtimePayout.TotalPayout, savedOvertime.TotalPayout);
             Assert.Equal(1, savedOvertime.PaidOvertimeId);
         }

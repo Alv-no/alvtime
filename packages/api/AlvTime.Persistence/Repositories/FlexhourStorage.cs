@@ -313,7 +313,8 @@ public class FlexhourStorage : IFlexhourStorage
 
             return new PaidOvertimeEntry()
             {
-                UserId = paidOvertime.Id,
+                Id = paidOvertime.Id,
+                UserId = paidOvertime.User,
                 Date = paidOvertime.Date,
                 HoursBeforeCompensation = paidOvertime.HoursBeforeCompRate,
                 HoursAfterCompensation = paidOvertime.HoursAfterCompRate
@@ -404,7 +405,7 @@ public class FlexhourStorage : IFlexhourStorage
         return totalPayout;
     }
     
-    private List<List<OvertimeEntryWithSalary>> GetOvertimeEntriesWithSalaryGroupedByCompensationRate(List<EmployeeSalary> salaryData, List<OvertimeEntry> overtimeEntries)
+    private List<List<OvertimeEntryWithSalary>> GetOvertimeEntriesWithSalaryGroupedByCompensationRate(List<EmployeeSalaryDto> salaryData, List<OvertimeEntry> overtimeEntries)
     {
         var overtimeEntriesWithSalaryGroupedByCompRate = new List<List<OvertimeEntryWithSalary>>();
         var overtimeEntriesGroupedByCompRate =
@@ -415,7 +416,7 @@ public class FlexhourStorage : IFlexhourStorage
             var overtimeEntriesForGivenCompRate = new List<OvertimeEntryWithSalary>();
             foreach (var overtimeEntry in overtimeEntryGroupForGivenCompRate)
             {
-                var salaryForOvertimeEntry = salaryData.FirstOrDefault(x => overtimeEntry.Date >= x.FromDate && (x.ToDate == null || overtimeEntry.Date < x.ToDate)).HourlySalary;
+                var salaryForOvertimeEntry = salaryData.FirstOrDefault(employeeSalary => overtimeEntry.Date >= employeeSalary.FromDate && (employeeSalary.ToDate == null || overtimeEntry.Date < employeeSalary.ToDate)).HourlySalary;
                 overtimeEntriesForGivenCompRate.Add(new OvertimeEntryWithSalary(salaryForOvertimeEntry, overtimeEntry));
             }
             overtimeEntriesWithSalaryGroupedByCompRate.Add(overtimeEntriesForGivenCompRate);
@@ -545,13 +546,13 @@ public class FlexhourStorage : IFlexhourStorage
         var overtimeEntriesForPayoutCalculation = GetOvertimeEntriesWithSalaryFilterAwayPayoutsAndTimeOff(overtimeEntriesByCompRateWithSalary);
         var salaryPayout = CalculatePayoutForOvertimeEntries(overtimeEntriesForPayoutCalculation, requestedPayout.Hours);
 
-        _salaryService.SaveOvertimePayout(
+        var overtimePayout = _salaryService.SaveOvertimePayout(
             new RegisterOvertimePayout(
                 userId,
                 requestedPayout.Date,
                 salaryPayout,
                 paidOvertimeId)
             );
-        return salaryPayout;
+        return overtimePayout.TotalPayout;
     }
 }

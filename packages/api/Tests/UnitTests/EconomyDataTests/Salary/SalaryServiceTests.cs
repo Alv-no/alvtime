@@ -173,7 +173,7 @@ namespace Tests.UnitTests.EconomyDataTests.Salary
                 sut.DeleteOvertimePayout(overTimePayoutForDeletion.UserId, overTimePayoutForDeletion.RegisteredPaidOvertimeId);
 
             Assert.Equal(overTimePayoutForDeletion.UserId, deletedOvertimePayout.UserId);
-            Assert.Equal(overTimePayoutForDeletion.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), deletedOvertimePayout.Date);
+            Assert.Equal(overTimePayoutForDeletion.Date, deletedOvertimePayout.Date);
             Assert.Equal(overTimePayoutForDeletion.TotalPayout, deletedOvertimePayout.TotalPayout);
             Assert.Equal(1, deletedOvertimePayout.Id);
         }

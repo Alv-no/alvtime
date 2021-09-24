@@ -15,14 +15,14 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
             _economyContext = economyContext;
         }
 
-        public OvertimePayoutRespons DeleteOvertimePayout(int userId, int paidOvertimeId)
+        public OvertimePayoutDto DeleteOvertimePayout(int userId, int paidOvertimeId)
         {
             var overtimePayout =
                 _economyContext.OvertimePayouts.FirstOrDefault(op => op.UserId == userId && op.RegisteredPaidOvertimeId == paidOvertimeId);
 
             if (overtimePayout == null)
             {
-                //Ida Therese, todo: denne må fjernes etterhvert som logikken for å beregne overtidsutbetalingen har vært i produksjon en stund da det pr nå ikke er noen overtidsutbetalinger å slette
+                //Todo: denne må fjernes etterhvert som logikken for å beregne overtidsutbetalingen har vært i produksjon en stund da det pr nå ikke er noen overtidsutbetalinger å slette
                 //throw new ValidationException("Could not find a payout registered for this user");
                 return null;
             }
@@ -30,15 +30,15 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
             _economyContext.OvertimePayouts.Remove(overtimePayout);
             _economyContext.SaveChanges();
 
-            return new OvertimePayoutRespons (
+            return new OvertimePayoutDto(
                     overtimePayout.Id,
                     overtimePayout.UserId, 
-                    overtimePayout.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                    overtimePayout.Date,
                     overtimePayout.TotalPayout, 
                     overtimePayout.RegisteredPaidOvertimeId);
         }
 
-        public OvertimePayoutRespons SaveOvertimePayout(RegisterOvertimePayout overtimePayout)
+        public OvertimePayoutDto SaveOvertimePayout(RegisterOvertimePayout overtimePayout)
         {
             var overtimePayoutEntity = new OvertimePayout
             {
@@ -51,10 +51,11 @@ namespace AlvTime.Persistence.Repositories.AlvEconomyData
             _economyContext.OvertimePayouts.Add(overtimePayoutEntity);
 
             _economyContext.SaveChanges();
-            return new OvertimePayoutRespons(
+            return new OvertimePayoutDto(
+            
                 overtimePayoutEntity.Id, 
                 overtimePayoutEntity.UserId,
-                overtimePayoutEntity.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                overtimePayoutEntity.Date,
                 overtimePayoutEntity.TotalPayout, 
                 overtimePayoutEntity.RegisteredPaidOvertimeId);
         }

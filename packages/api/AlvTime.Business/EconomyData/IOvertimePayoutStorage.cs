@@ -2,7 +2,7 @@
 {
     public interface IOvertimePayoutStorage
     {
-        OvertimePayoutRespons DeleteOvertimePayout(int userId, int paidOvertimeId);
-        OvertimePayoutRespons SaveOvertimePayout(RegisterOvertimePayout overtimePayout);
+        OvertimePayoutDto DeleteOvertimePayout(int userId, int paidOvertimeId);
+        OvertimePayoutDto SaveOvertimePayout(RegisterOvertimePayout overtimePayout);
     }
 }

@@ -78,7 +78,8 @@ namespace Tests.UnitTests.Flexihours
             }, userId);
 
             //assert
-            var registeredPayout1 = _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 1);
+            var registeredPayout1 = _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == paidOvertimeFirst.Id
+            );
             var expectedPayout = 1.0M * (4.5M * firstSalary.HourlySalary + 9M * secondSalary.HourlySalary + 1.5M * thirdSalary.HourlySalary);
 
             Assert.Equal(expectedPayout, registeredPayout1.TotalPayout);
@@ -154,9 +155,9 @@ namespace Tests.UnitTests.Flexihours
             
             //assert
             var registeredPayout1 =
-                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 1);
+                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == paidOvertimeFirst.Id);
             var registeredPayout2 =
-                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 2);
+                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == paidOvertimeSecond.Id);
 
             Assert.Equal(100M*1.0M, registeredPayout1.TotalPayout);
             Assert.Equal(2M*100.0M, registeredPayout2.TotalPayout);
@@ -239,11 +240,11 @@ namespace Tests.UnitTests.Flexihours
 
             //assert
             var registeredPayout1 =
-                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 1);
+                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == paidOvertimeFirst.Id);
             var registeredPayout2 =
-                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 2);
+                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == paidOvertimeSecond.Id);
             var registeredPayout3 =
-                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 3);
+                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == paidOvertimeThird.Id);
 
             Assert.Equal(4.5M*firstSalary.HourlySalary*1M, registeredPayout1.TotalPayout);
             Assert.Equal(9M*secondSalary.HourlySalary*1M, registeredPayout2.TotalPayout);
@@ -320,9 +321,9 @@ namespace Tests.UnitTests.Flexihours
 
             //assert
             var registeredPayout1 =
-                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 1);
+                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == paidOvertimeFirst.Id);
             var registeredPayout2 =
-                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 2);
+                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == paidOvertimeSecond.Id);
 
             Assert.Equal(4.5M*firstSalary.HourlySalary*1M, registeredPayout1.TotalPayout);
             Assert.Equal(2M*secondSalary.HourlySalary*1M, registeredPayout2.TotalPayout);
@@ -397,10 +398,8 @@ namespace Tests.UnitTests.Flexihours
             }, userId);
 
             //assert
-            var registeredPayout1 =
-                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 1);
-            var registeredPayout2 =
-                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 2);
+            var registeredPayout1 = _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == paidOvertimeFirst.Id);
+            var registeredPayout2 = _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == paidOvertimeSecond.Id);
             
             Assert.Equal(firstSalary.HourlySalary * 1.0M * 4.5M + secondSalary.HourlySalary * 1.0M * 2.5M, registeredPayout1.TotalPayout);
             Assert.Equal(secondSalary.HourlySalary*1.0M*6.5M+thirdSalary.HourlySalary*1.0M*1.5M, registeredPayout2.TotalPayout);
@@ -446,8 +445,7 @@ namespace Tests.UnitTests.Flexihours
             }, userId);
 
             //assert
-            var registeredPayout =
-                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 1);
+            var registeredPayout = _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == paidOvertimeFirst.Id);
             
             Assert.Equal(1.0M*firstSalary.HourlySalary*0.5M, registeredPayout.TotalPayout);
         }
@@ -492,8 +490,8 @@ namespace Tests.UnitTests.Flexihours
             }, userId);
 
             //assert
-            var registeredPayout =
-                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 1);
+            var registeredPayout = _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == paidOvertimeFirst.Id);
+
             Assert.Equal(firstSalary.HourlySalary*(0.5M*1.5M+1.0M*0.5M), registeredPayout.TotalPayout);
         }
         
@@ -552,8 +550,7 @@ namespace Tests.UnitTests.Flexihours
             }, userId);
 
             //Assert
-            var registeredPayout =
-                _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 1);
+            var registeredPayout = _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == paidOvertimeFirst.Id);
 
             Assert.Equal(firstSalary.HourlySalary*(1.5M*0.5M+1.5M*1.0M+0.5M*1.5M), registeredPayout.TotalPayout);
         }
@@ -643,7 +640,8 @@ namespace Tests.UnitTests.Flexihours
             }, userId);
 
             //assert
-            var registeredPayout = _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 1);
+            var registeredPayout = _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == paidOvertimeFirst.Id);
+
             Assert.Equal(firstSalary.HourlySalary*(3.5M*0.5M+0.5M*1M)+secondSalary.HourlySalary*(3.5M*0.5M+0.5M*1M+1.5M*2M), registeredPayout.TotalPayout);
         }
 
@@ -785,9 +783,11 @@ namespace Tests.UnitTests.Flexihours
                 Date = new DateTime(2021, 09, 07),
                 Hours = 5.5M
             }, userId);
+            
             //assert
-            var registeredPayout1 = _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 1);
-            var registeredPayout2 = _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 2);
+            var registeredPayout1 = _economyDataContext.OvertimePayouts.FirstOrDefault(overtimePayout => overtimePayout.RegisteredPaidOvertimeId == paidOvertimeFirst.Id);
+            var registeredPayout2 = _economyDataContext.OvertimePayouts.FirstOrDefault(overtimePayout => overtimePayout.RegisteredPaidOvertimeId == paidOvertimeSecond.Id);
+            
             Assert.Equal(1.0M*100M*0.5M, registeredPayout1.TotalPayout);
             Assert.Equal(firstSalary.HourlySalary*1.5M*0.5M+secondSalary.HourlySalary*3.5M*0.5M+thirdSalary.HourlySalary*0.5M*0.5M, registeredPayout2.TotalPayout);
         }
@@ -831,9 +831,6 @@ namespace Tests.UnitTests.Flexihours
             _context.Hours.Add(flexTimeEntry);
             _context.CompensationRate.Add(FlexiHoursTestUtils.CreateCompensationRate(flexTask.Id, 1.0M));
 
-            var expectedPayout1 = salary.HourlySalary*(0.5M*5+1.0M*1M);
-            var expectedPayout2 = salary.HourlySalary * 1.0M * 7M;
-
             //act
             var sut = FlexiHoursTestUtils.CreateStorage(_context, _economyDataContext);
 
@@ -848,9 +845,14 @@ namespace Tests.UnitTests.Flexihours
                 Date = new DateTime(2021, 09, 17),
                 Hours = 7M
             }, userId);
+            
             //assert
-            var registeredPayout1 = _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 1);
-            var registeredPayout2 = _economyDataContext.OvertimePayouts.FirstOrDefault(x => x.RegisteredPaidOvertimeId == 2);
+            var expectedPayout1 = salary.HourlySalary * (0.5M * 5 + 1.0M * 1M);
+            var expectedPayout2 = salary.HourlySalary * 1.0M * 7M;
+
+            var registeredPayout1 = _economyDataContext.OvertimePayouts.FirstOrDefault(overtimePayout => overtimePayout.RegisteredPaidOvertimeId == paidOvertimeFirst.Id);
+            var registeredPayout2 = _economyDataContext.OvertimePayouts.FirstOrDefault(overtimePayout => overtimePayout.RegisteredPaidOvertimeId == paidOvertimeSecond.Id);
+
             Assert.Equal(expectedPayout1, registeredPayout1.TotalPayout);
             Assert.Equal(expectedPayout2, registeredPayout2.TotalPayout);
         }

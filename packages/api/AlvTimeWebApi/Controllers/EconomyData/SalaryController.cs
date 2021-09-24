@@ -22,20 +22,20 @@ namespace AlvTimeWebApi.Controllers.EconomyData
         [HttpPost("/EmployeeSalary")]
         public ActionResult RegisterHourlySalary([FromBody] EmployeeSalaryRequest employeeSalaryData)
         {
-            var salary = ToEmployeeSalaryRespons(_salaryService.RegisterHourlySalary(employeeSalaryData));
+            var salary = ToEmployeeSalaryResponse(_salaryService.RegisterHourlySalary(employeeSalaryData));
             return Ok(salary);
         }
 
         [AuthorizeAdmin]
         [HttpGet("/EmployeeSalary")]
-        public ActionResult<List<EmployeeSalaryRespons>> GetEmployeeSalaryData(int userId)
+        public ActionResult<List<EmployeeSalaryResponse>> GetEmployeeSalaryData(int userId)
         {
-            var salaryData = _salaryService.GetEmployeeSalaryData(userId).Select(ToEmployeeSalaryRespons)
+            var salaryData = _salaryService.GetEmployeeSalaryData(userId).Select(ToEmployeeSalaryResponse)
                 .ToList();
             return Ok(salaryData);
         }
 
-        private EmployeeSalaryRespons ToEmployeeSalaryRespons(EmployeeSalary employeeHourlySalary)
+        private EmployeeSalaryResponse ToEmployeeSalaryResponse(EmployeeSalaryDto employeeHourlySalary)
         {
             return new(employeeHourlySalary.Id, 
                 employeeHourlySalary.UserId, 
