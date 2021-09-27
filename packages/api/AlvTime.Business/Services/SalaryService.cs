@@ -27,21 +27,12 @@ namespace AlvTime.Business.Services
 
         public EmployeeSalaryDto RegisterHourlySalary(EmployeeSalaryRequest employeeSalaryData)
         {
-            return _employeeHourlySalaryStorage.RegisterHourlySalary(ToEmployeeSalary(employeeSalaryData));
+            return _employeeHourlySalaryStorage.RegisterHourlySalary(employeeSalaryData);
         }
 
         public List<EmployeeSalaryDto> GetEmployeeSalaryData(int userId)
         {
             return _employeeHourlySalaryStorage.GetEmployeeSalaryData(userId);
-        }
-
-        public EmployeeSalaryRequest ToEmployeeSalary(EmployeeSalaryRequest employeeSalaryRequest)
-        {
-            return new(
-                employeeSalaryRequest.UserId,
-                employeeSalaryRequest.HourlySalary,
-                employeeSalaryRequest.FromDate,
-                employeeSalaryRequest.ToDate.HasValue ? employeeSalaryRequest.ToDate.Value : null);
         }
     }
 }

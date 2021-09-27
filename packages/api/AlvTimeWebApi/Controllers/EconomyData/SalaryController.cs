@@ -20,7 +20,7 @@ namespace AlvTimeWebApi.Controllers.EconomyData
 
         [AuthorizeAdmin]
         [HttpPost("/EmployeeSalary")]
-        public ActionResult RegisterHourlySalary([FromBody] EmployeeSalaryRequest employeeSalaryData)
+        public ActionResult<EmployeeSalaryResponse> RegisterHourlySalary([FromBody] EmployeeSalaryRequest employeeSalaryData)
         {
             var salary = ToEmployeeSalaryResponse(_salaryService.RegisterHourlySalary(employeeSalaryData));
             return Ok(salary);
@@ -41,9 +41,7 @@ namespace AlvTimeWebApi.Controllers.EconomyData
                 employeeHourlySalary.UserId, 
                 employeeHourlySalary.HourlySalary, 
                 employeeHourlySalary.FromDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                employeeHourlySalary.ToDate.HasValue
-                    ? employeeHourlySalary.ToDate.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
-                    : null);
+                employeeHourlySalary.ToDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
         }
     }
 }

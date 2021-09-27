@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using AlvTime.Business.EconomyData;
 using FluentValidation;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class FlexhourStorage : IFlexhourStorage
 {
