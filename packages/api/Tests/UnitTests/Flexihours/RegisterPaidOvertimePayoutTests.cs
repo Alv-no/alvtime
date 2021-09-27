@@ -23,21 +23,21 @@ namespace Tests.UnitTests.Flexihours
             {
                 UserId = userId,
                 HourlySalary = 100.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2019),
+                FromDateInclusive = new DateTime(2019,07,01),
                 ToDate = new DateTime(2020, 06, 30)
             };
             var secondSalary = new EmployeeHourlySalary
             {
                 UserId = userId,
                 HourlySalary = 150.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2020),
+                FromDateInclusive = new DateTime(2020,07,01),
                 ToDate = new DateTime(2021, 06, 30)
             };
             var thirdSalary = new EmployeeHourlySalary
             {
                 UserId = userId,
                 HourlySalary = 250.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2021),
+                FromDateInclusive = new DateTime(2021, 07, 01),
                 ToDate = null
             };
             _economyDataContext.EmployeeHourlySalaries.Add(firstSalary);
@@ -93,21 +93,21 @@ namespace Tests.UnitTests.Flexihours
             {
                 UserId = userId,
                 HourlySalary = 100.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2019),
+                FromDateInclusive = new DateTime(2019,07,01),
                 ToDate = new DateTime(2020, 06, 30)
             };
             var secondSalary = new EmployeeHourlySalary
             {
                 UserId = userId,
                 HourlySalary = 150.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2020),
+                FromDateInclusive = new DateTime(2020,07,01),
                 ToDate = new DateTime(2021, 06, 30)
             };
             var thirdSalary = new EmployeeHourlySalary
             {
                 UserId = userId,
                 HourlySalary = 250.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2021),
+                FromDateInclusive = new DateTime(2021,07,01),
                 ToDate = null
             };
             _economyDataContext.EmployeeHourlySalaries.Add(firstSalary);
@@ -173,21 +173,21 @@ namespace Tests.UnitTests.Flexihours
             {
                 UserId = userId,
                 HourlySalary = 100.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2019),
+                FromDateInclusive = new DateTime(2019,07,01),
                 ToDate = new DateTime(2020, 06, 30)
             };
             var secondSalary = new EmployeeHourlySalary
             {
                 UserId = userId,
                 HourlySalary = 150.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2020),
+                FromDateInclusive = new DateTime(2020, 07, 01),
                 ToDate = new DateTime(2021, 06, 30)
             };
             var thirdSalary = new EmployeeHourlySalary
             {
                 UserId = userId,
                 HourlySalary = 250.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2021),
+                FromDateInclusive = new DateTime(2021, 07, 01),
                 ToDate = null
             };
             _economyDataContext.EmployeeHourlySalaries.Add(firstSalary);
@@ -259,21 +259,21 @@ namespace Tests.UnitTests.Flexihours
             {
                 UserId = userId,
                 HourlySalary = 100.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2019),
+                FromDateInclusive = new DateTime(2019, 07, 01),
                 ToDate = new DateTime(2020, 06, 30)
             };
             var secondSalary = new EmployeeHourlySalary
             {
                 UserId = userId,
                 HourlySalary = 150.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2020),
+                FromDateInclusive = new DateTime(2020, 07, 01),
                 ToDate = new DateTime(2021, 06, 30)
             };
             var thirdSalary = new EmployeeHourlySalary
             {
                 UserId = userId,
                 HourlySalary = 250.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2021),
+                FromDateInclusive = new DateTime(2021, 07, 01),
                 ToDate = null
             };
             _economyDataContext.EmployeeHourlySalaries.Add(firstSalary);
@@ -337,21 +337,21 @@ namespace Tests.UnitTests.Flexihours
             {
                 UserId = userId,
                 HourlySalary = 100.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2019),
+                FromDateInclusive = new DateTime(2019, 07, 01),
                 ToDate = new DateTime(2020, 06, 30)
             };
             var secondSalary = new EmployeeHourlySalary
             {
                 UserId = userId,
                 HourlySalary = 150.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2020),
+                FromDateInclusive = new DateTime(2020, 07, 01),
                 ToDate = new DateTime(2021, 06, 30)
             };
             var thirdSalary = new EmployeeHourlySalary
             {
                 UserId = userId,
                 HourlySalary = 250.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2021),
+                FromDateInclusive = new DateTime(2021, 07, 01),
                 ToDate = null
             };
             _economyDataContext.EmployeeHourlySalaries.Add(firstSalary);
@@ -413,7 +413,7 @@ namespace Tests.UnitTests.Flexihours
             {
                 UserId = userId,
                 HourlySalary = 100.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2019),
+                FromDateInclusive = new DateTime(2019, 07, 01),
                 ToDate = null
             };
 
@@ -504,7 +504,7 @@ namespace Tests.UnitTests.Flexihours
             {
                 UserId = userId,
                 HourlySalary = 100.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2019),
+                FromDateInclusive = new DateTime(2019, 07, 01),
                 ToDate = null
             };
 
@@ -573,7 +573,7 @@ namespace Tests.UnitTests.Flexihours
             {
                 UserId = userId,
                 HourlySalary = 150.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2020),
+                FromDateInclusive = new DateTime(2020, 07, 01),
                 ToDate = null
             };
 
@@ -665,15 +665,15 @@ namespace Tests.UnitTests.Flexihours
             {
                 UserId = userId,
                 HourlySalary = 150.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2020),
-                ToDate = new DateTime(day: 30, month: 06, year: 2021)
+                FromDateInclusive = new DateTime(2020, 07, 01),
+                ToDate = new DateTime(2021,06,30)
             };
 
             var thirdSalary = new EmployeeHourlySalary
             {
                 UserId = userId,
                 HourlySalary = 170.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2021),
+                FromDateInclusive = new DateTime(2021, 07, 01),
                 ToDate = null
             };
 

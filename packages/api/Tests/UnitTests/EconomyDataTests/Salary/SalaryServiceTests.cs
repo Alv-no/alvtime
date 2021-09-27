@@ -160,7 +160,7 @@ namespace Tests.UnitTests.EconomyDataTests.Salary
 
             var overTimePayoutForDeletion = new OvertimePayout
             {
-                Date = new DateTime(day: 11, month: 08, year: 2021),
+                Date = new DateTime(2021,08,11),
                 UserId = 1,
                 TotalPayout = 10.0M,
                 RegisteredPaidOvertimeId = 1

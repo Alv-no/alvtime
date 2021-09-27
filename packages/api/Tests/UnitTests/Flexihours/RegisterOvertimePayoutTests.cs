@@ -24,7 +24,7 @@ namespace Tests.UnitTests.Flexihours
             {
                 UserId = userId,
                 HourlySalary = 300.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2019),
+                FromDateInclusive = new DateTime(2019, 07, 01),
                 ToDate = null
             });
 
@@ -51,14 +51,14 @@ namespace Tests.UnitTests.Flexihours
             {
                 UserId = userId,
                 HourlySalary = 300.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2019),
+                FromDateInclusive = new DateTime(2019, 07, 01),
                 ToDate = new DateTime(2020, 06, 30)
             });
             _economyDataContext.EmployeeHourlySalaries.Add(new EmployeeHourlySalary
             {
                 UserId = userId,
                 HourlySalary = 400.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2020),
+                FromDateInclusive = new DateTime(2020, 07, 01),
                 ToDate = null
             });
 
@@ -87,7 +87,7 @@ namespace Tests.UnitTests.Flexihours
             {
                 UserId = userId,
                 HourlySalary = 300.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2019),
+                FromDateInclusive = new DateTime(2019, 07, 01),
                 ToDate = null
             });
 
@@ -116,14 +116,14 @@ namespace Tests.UnitTests.Flexihours
             {
                 UserId = userId,
                 HourlySalary = 300.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2019),
+                FromDateInclusive = new DateTime(2019, 07, 01),
                 ToDate = new DateTime(2020, 06, 30)
             });
             _economyDataContext.EmployeeHourlySalaries.Add(new EmployeeHourlySalary
             {
                 UserId = userId,
                 HourlySalary = 400.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2020),
+                FromDateInclusive = new DateTime(2020, 07, 01),
                 ToDate = null
             });
 
@@ -151,21 +151,21 @@ namespace Tests.UnitTests.Flexihours
             {
                 UserId = userId,
                 HourlySalary = 300.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2019),
+                FromDateInclusive = new DateTime(2019, 07, 01),
                 ToDate = new DateTime(2020, 06, 30)
             });
             _economyDataContext.EmployeeHourlySalaries.Add(new EmployeeHourlySalary
             {
                 UserId = userId,
                 HourlySalary = 100.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2020),
+                FromDateInclusive = new DateTime(2020, 07, 01),
                 ToDate = new DateTime(2021, 06, 30)
             });
             _economyDataContext.EmployeeHourlySalaries.Add(new EmployeeHourlySalary
             {
                 UserId = userId,
                 HourlySalary = 150.0M,
-                FromDateInclusive = new DateTime(day: 01, month: 07, year: 2021),
+                FromDateInclusive = new DateTime(2021, 07, 01),
                 ToDate = null
             });
 
