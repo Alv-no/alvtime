@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using AlvTime.Business.EconomyData;
 using AlvTimeWebApi.Authentication;
+using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AlvTimeWebApi.Controllers.EconomyData
@@ -37,11 +37,11 @@ namespace AlvTimeWebApi.Controllers.EconomyData
 
         private EmployeeSalaryResponse ToEmployeeSalaryResponse(EmployeeSalaryDto employeeHourlySalary)
         {
-            return new(employeeHourlySalary.Id, 
-                employeeHourlySalary.UserId, 
-                employeeHourlySalary.HourlySalary, 
-                employeeHourlySalary.FromDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                employeeHourlySalary.ToDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+            return new(employeeHourlySalary.Id,
+                employeeHourlySalary.UserId,
+                employeeHourlySalary.HourlySalary,
+                employeeHourlySalary.FromDate.ToDateOnly(),
+                employeeHourlySalary.ToDate?.ToDateOnly());
         }
     }
 }
