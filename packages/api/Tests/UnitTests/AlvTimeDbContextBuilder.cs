@@ -13,6 +13,7 @@ namespace Tests.UnitTests
         {
             var options = new DbContextOptionsBuilder<AlvTime_dbContext>()
                             .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                            .ConfigureWarnings(x => x.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.InMemoryEventId.TransactionIgnoredWarning))
                             .Options;
 
             _context = new AlvTime_dbContext(options);

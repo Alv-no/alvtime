@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AlvTime.Business.EconomyData;
 using FluentValidation;
+using Microsoft.Data.SqlClient;
 
 public class FlexhourStorage : IFlexhourStorage
 {
@@ -295,30 +296,45 @@ public class FlexhourStorage : IFlexhourStorage
         var overtimeEntries = GetOvertimeEntriesAfterOffTimeAndPayouts(dateToStartCalculation, request.Date, userId);
         var availableForPayout = overtimeEntries.Sum(ot => ot.Hours);
         var hoursAfterCompRate = GetHoursAfterCompRate(overtimeEntries, request.Hours);
-
+      
         if (request.Hours <= availableForPayout)
         {
-            PaidOvertime paidOvertime = new PaidOvertime
+            using (var alvDbContextTransaction = _context.Database.BeginTransaction())
             {
-                Date = request.Date,
-                User = userId,
-                HoursBeforeCompRate = request.Hours,
-                HoursAfterCompRate = hoursAfterCompRate
-            };
+                try
+                {
+                    PaidOvertime paidOvertime = new PaidOvertime
+                    {
+                        Date = request.Date,
+                        User = userId,
+                        HoursBeforeCompRate = request.Hours,
+                        HoursAfterCompRate = hoursAfterCompRate
+                    };
 
-            _context.PaidOvertime.Add(paidOvertime);
-            _context.SaveChanges();
+                    _context.PaidOvertime.Add(paidOvertime);
+                    _context.SaveChanges();
+                    
+                    var paidOvertimeSalary = RegisterOvertimePayout(overtimeEntries, userId, request, paidOvertime.Id);
 
-            var paidOvertimeSalary = RegisterOvertimePayout(overtimeEntries, userId, request, paidOvertime.Id);
+                    alvDbContextTransaction.Commit();
 
-            return new PaidOvertimeEntry()
-            {
-                Id = paidOvertime.Id,
-                UserId = paidOvertime.User,
-                Date = paidOvertime.Date,
-                HoursBeforeCompensation = paidOvertime.HoursBeforeCompRate,
-                HoursAfterCompensation = paidOvertime.HoursAfterCompRate
-            };
+                    return new PaidOvertimeEntry()
+                    {
+                        Id = paidOvertime.Id,
+                        UserId = paidOvertime.User,
+                        Date = paidOvertime.Date,
+                        HoursBeforeCompensation = paidOvertime.HoursBeforeCompRate,
+                        HoursAfterCompensation = paidOvertime.HoursAfterCompRate
+                    };
+                }
+                catch (Exception e)
+                {
+                    alvDbContextTransaction.Rollback();
+                    throw new ValidationException($"Could not register overtime for user {userId}");
+                }
+            }
+            
+
         }
 
         throw new ValidationException("Not enough available hours");
@@ -337,19 +353,32 @@ public class FlexhourStorage : IFlexhourStorage
 
         if (paidOvertime != null && paidOvertime.Date.Month >= DateTime.Now.Month && paidOvertime.Date.Year == DateTime.Now.Year)
         {
-            _context.PaidOvertime.Remove(paidOvertime);
-            _context.SaveChanges();
-
-            _salaryService.DeleteOvertimePayout(userId, paidOvertime.Id);
-
-            return new PaidOvertimeEntry
+            using (var alvDbContextTransaction = _context.Database.BeginTransaction())
             {
-                Date = paidOvertime.Date,
-                Id = paidOvertime.Id,
-                UserId = paidOvertime.User,
-                HoursBeforeCompensation = paidOvertime.HoursBeforeCompRate,
-                HoursAfterCompensation = paidOvertime.HoursAfterCompRate
-            };
+                try
+                {
+                    _context.PaidOvertime.Remove(paidOvertime);
+                    _context.SaveChanges();
+
+                    _salaryService.DeleteOvertimePayout(userId, paidOvertime.Id);
+                    alvDbContextTransaction.Commit();
+
+                    return new PaidOvertimeEntry
+                    {
+                        Date = paidOvertime.Date,
+                        Id = paidOvertime.Id,
+                        UserId = paidOvertime.User,
+                        HoursBeforeCompensation = paidOvertime.HoursBeforeCompRate,
+                        HoursAfterCompensation = paidOvertime.HoursAfterCompRate
+                    };
+                }
+                catch (Exception e)
+                {
+                    alvDbContextTransaction.Rollback();
+                    throw new ValidationException($"Unable to delete paid overtime entry with Id {id}");
+                }
+
+            }
         }
 
         throw new ValidationException("Selected payout is not active");
@@ -488,6 +517,7 @@ public class FlexhourStorage : IFlexhourStorage
                 .ElementAt(overtimeEntriesWithSalaryIndex).Value
                 .OrderBy(overtimeEntryWithSalary => overtimeEntryWithSalary.OvertimeEntry.Date).ToList();
 
+            //ser at visual studio foreslå en foreach-loop, men her er rekkefølgen viktig => for-loop må beholdes
             for (var overtimeEntryIndex = 0; overtimeEntryIndex < overtimeEntriesForCurrentComprate.Count; overtimeEntryIndex++)
             {
                 if (hoursForPayoutCounter == requestedHoursForPayout)

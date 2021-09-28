@@ -12,6 +12,7 @@ namespace Tests.UnitTests
         {
             var options = new DbContextOptionsBuilder<AlvEconomyDataContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .ConfigureWarnings(x => x.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.InMemoryEventId.TransactionIgnoredWarning))
                 .Options;
 
             _context = new AlvEconomyDataContext(options);
