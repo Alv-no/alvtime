@@ -27,12 +27,18 @@ namespace AlvTimeWebApi.Controllers.EconomyData
         }
 
         [AuthorizeAdmin]
-        [HttpGet("/EmployeeSalary")]
-        public ActionResult<List<EmployeeSalaryResponse>> GetEmployeeSalaryData(int userId)
+        [HttpPost("/SearchEmployeesSalary")]
+        public ActionResult<List<List<EmployeeSalaryResponse>>> GetEmployeeSalaryData([FromBody] IEnumerable<int> userIds)
         {
-            var salaryData = _salaryService.GetEmployeeSalaryData(userId).Select(ToEmployeeSalaryResponse)
-                .ToList();
-            return Ok(salaryData);
+            var employeesSalaryData = new List<List<EmployeeSalaryResponse>>();
+            foreach (var userId in userIds)
+            {
+                var salaryData = _salaryService.GetEmployeeSalaryData(userId).Select(ToEmployeeSalaryResponse)
+                    .ToList();
+                employeesSalaryData.Add(salaryData);
+            }
+
+            return Ok(employeesSalaryData);
         }
 
         private EmployeeSalaryResponse ToEmployeeSalaryResponse(EmployeeSalaryDto employeeHourlySalary)
