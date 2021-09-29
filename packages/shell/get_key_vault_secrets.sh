@@ -27,14 +27,15 @@ function getToken() {
     | jq -r '.access_token'
 }
 
+TOKEN="$(getToken)"
+
 function getSecret() {
-  curl "https://$KEY_VAULT.vault.azure.net/secrets/$2?api-version=7.2" \
+  curl "https://$KEY_VAULT.vault.azure.net/secrets/$1?api-version=7.2" \
     --request GET \
     --silent \
     --location \
-    --header "Authorization: Bearer $1" \
+    --header "Authorization: Bearer $TOKEN" \
     | jq -r '.value'
 }
 
-TOKEN="$(getToken)"
-getSecret "$TOKEN""$SECRET_NAME"
+getSecret "$SECRET_NAME"
