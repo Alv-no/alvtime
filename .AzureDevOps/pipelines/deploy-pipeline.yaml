@@ -11,6 +11,8 @@ pool:
 stages:
   - stage: testbuild
     displayName: Test environment
+    variables:
+      - group: azure-credentials-test
     jobs:
       - job: testbuild
         displayName: Plan and build
@@ -20,19 +22,27 @@ stages:
 
           - template: installDependencies.yaml
 
-          - task: AzureCLI@2
-            displayName: Run build.sh test ---no-input
+          - task: Bash@3
+            displayName: Build and publish services
+            env:
+              AZURE_SERVICE_PRINCIPAL_USERNAME: $(azure-service-principal-username)
+              AZURE_SERVICE_PRINCIPAL_PASSWORD: $(azure-service-principal-password)
+              AZURE_TENANT_ID: $(azure-tenant-id)
+              AZURE_SUBSCRIPTION_ID: $(azure-subscription-id)
             inputs:
-              azureSubscription: Dev-Alv-Subscription-Azure-Service-Connection
-              addSpnToEnvironment: true
-              workingDirectory: "$(System.DefaultWorkingDirectory)"
-              scriptType: bash
-              scriptLocation: inlineScript
-              inlineScript: |
+              targetType: "inline"
+              script: |
+                az login --service-principal \
+                  --username "$AZURE_SERVICE_PRINCIPAL_USERNAME" \
+                  --password "$AZURE_SERVICE_PRINCIPAL_PASSWORD" \
+                  --tenant "$AZURE_TENANT_ID"
+
+                az account set --subscription $AZURE_SUBSCRIPTION_ID
+
                 # Authenticate Acure container registry
-                docker login alvk8sclustertestacr.azurecr.io \
-                  --username $servicePrincipalId \
-                  --password $servicePrincipalKey
+                docker login alvkubernetesclustertestacr.azurecr.io \
+                  --username $AZURE_SERVICE_PRINCIPAL_USERNAME \
+                  --password $AZURE_SERVICE_PRINCIPAL_PASSWORD
 
                 # Run scripts to build for test environment
                 source scripts/setup.sh test --no-input
@@ -41,6 +51,8 @@ stages:
 
   - stage: test
     displayName: Test environment
+    variables:
+      - group: azure-credentials-test
     jobs:
       - deployment: test
         displayName: Deploy
@@ -54,20 +66,30 @@ stages:
 
                 - template: installDependencies.yaml
 
-                - task: AzureCLI@2
-                  displayName: Run deployment scripts
+                - task: Bash@3
+                  displayName: Deploy services
+                  env:
+                    AZURE_SERVICE_PRINCIPAL_USERNAME: $(azure-service-principal-username)
+                    AZURE_SERVICE_PRINCIPAL_PASSWORD: $(azure-service-principal-password)
+                    AZURE_TENANT_ID: $(azure-tenant-id)
+                    AZURE_SUBSCRIPTION_ID: $(azure-subscription-id)
                   inputs:
-                    azureSubscription: Dev-Alv-Subscription-Azure-Service-Connection
-                    addSpnToEnvironment: true
-                    workingDirectory: "$(System.DefaultWorkingDirectory)"
-                    scriptType: bash
-                    scriptLocation: inlineScript
-                    inlineScript: |
+                    targetType: "inline"
+                    script: |
+                      az login --service-principal \
+                        --username "$AZURE_SERVICE_PRINCIPAL_USERNAME" \
+                        --password "$AZURE_SERVICE_PRINCIPAL_PASSWORD" \
+                        --tenant "$AZURE_TENANT_ID"
+
+                      az account set --subscription $AZURE_SUBSCRIPTION_ID
+
                       source scripts/setup.sh test --no-input
                       source scripts/deployServices.sh
 
   - stage: prod
     displayName: Production environment
+    variables:
+      - group: azure-credentials-prod
     jobs:
       - deployment: prod
         displayName: Deploy
@@ -81,15 +103,23 @@ stages:
 
                 - template: installDependencies.yaml
 
-                - task: AzureCLI@2
-                  displayName: Run deploy.sh prod ---no-input
+                - task: Bash@3
+                  displayName: Deploy services
+                  env:
+                    AZURE_SERVICE_PRINCIPAL_USERNAME: $(azure-service-principal-username)
+                    AZURE_SERVICE_PRINCIPAL_PASSWORD: $(azure-service-principal-password)
+                    AZURE_TENANT_ID: $(azure-tenant-id)
+                    AZURE_SUBSCRIPTION_ID: $(azure-subscription-id)
                   inputs:
-                    azureSubscription: Pay-As-You-Go (f9b4e4d2-39a5-4c35-876c-303dc3de03d2)
-                    addSpnToEnvironment: true
-                    workingDirectory: "$(System.DefaultWorkingDirectory)"
-                    scriptType: bash
-                    scriptLocation: inlineScript
-                    inlineScript: |
+                    targetType: "inline"
+                    script: |
+                      az login --service-principal \
+                        --username "$AZURE_SERVICE_PRINCIPAL_USERNAME" \
+                        --password "$AZURE_SERVICE_PRINCIPAL_PASSWORD" \
+                        --tenant "$AZURE_TENANT_ID"
+
+                      az account set --subscription $AZURE_SUBSCRIPTION_ID
+
                       # Run build script for production env
                       source scripts/setup.sh prod --no-input
                       source scripts/deployServices.sh

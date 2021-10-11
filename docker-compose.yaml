@@ -88,7 +88,6 @@ services:
       - ADMIN_USERS=U013CDC0VTQ
       - ALVTIME_API_URI=http://api
       - DB_ENCRYPTION_KEY=dbencryptionkey
-      - DB_PASSWORD=example
       - DB_USER=root
       - PORT=1337
       - DB_CONNECTION_STRING=mongodb://mongo
