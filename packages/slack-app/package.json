@@ -36,7 +36,7 @@
     "node-cron": "^2.0.3",
     "node-fetch": "^2.6.1",
     "passport": "^0.4.1",
-    "passport-oauth2": "^1.5.0",
+    "passport-oauth2": "^1.6.1",
     "pino": "^6.3.2",
     "pino-http": "^5.2.0",
     "uuid": "^8.0.0"
