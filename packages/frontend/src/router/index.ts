@@ -10,6 +10,7 @@ import Login from "../views/Login.vue";
 import Summarizedhours from "../views/Summarizedhours.vue";
 import store from "@/store";
 import authService from "@/services/auth";
+import Admin from '../views/Admin.vue'
 
 Vue.use(VueRouter);
 
@@ -54,6 +55,11 @@ const routes = [
     path: "/summarizedhours",
     name: "summarizedhours",
     component: Summarizedhours,
+  },
+  {
+    path: "/admin",
+    name: "admin",
+    component: Admin
   }
 ];
 

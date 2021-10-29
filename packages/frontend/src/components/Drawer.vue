@@ -27,10 +27,6 @@
           >{{ item.text }}</span
         >
       </md-list-item>
-      <md-list-item @click="navToAdminpanel">
-        <md-icon>admin_panel_settings</md-icon>
-        <span class="md-list-item-text">Adminpanel</span>
-      </md-list-item>
       <md-list-item @click="authAction">
         <md-icon>meeting_room</md-icon>
         <span class="md-list-item-text">{{ authText }}</span>
@@ -72,6 +68,11 @@ export default Vue.extend({
           routeName: "tokens",
           icon: "lock_open",
         },
+        {
+          text: "Admin Panel",
+          routeName: "admin",
+          icon: "admin_panel_settings"
+        }
       ],
     };
   },
