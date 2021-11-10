@@ -1,6 +1,4 @@
-﻿using AlvTime.Business;
-using AlvTime.Business.Helpers;
-using AlvTime.Business.Options;
+﻿using AlvTime.Business.Options;
 using AlvTime.Business.TimeEntries;
 using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +7,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using AlvTime.Business.AbsenseDays;
+using AlvTime.Business.Extensions;
 using AlvTime.Business.Holidays;
 using Microsoft.Extensions.Logging;
 

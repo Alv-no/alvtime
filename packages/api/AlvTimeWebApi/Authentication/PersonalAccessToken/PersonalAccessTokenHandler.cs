@@ -1,25 +1,24 @@
-﻿using AlvTime.Business.AccessToken;
-using AlvTime.Business.AccessToken.PersonalAccessToken;
-using AlvTime.Persistence.DataBaseModels;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Linq;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using AlvTime.Business.Models;
+using AlvTime.Business.Users;
 
 namespace AlvTimeWebApi.Authentication.PersonalAccessToken
 {
     public class PersonalAccessTokenHandler : AuthenticationHandler<PersonalAccessTokenOptions>
     {
-        private readonly IPersonalAccessTokenStorage _storage;
+        private readonly IUserStorage _storage;
 
         public PersonalAccessTokenHandler(
             IOptionsMonitor<PersonalAccessTokenOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
-            IPersonalAccessTokenStorage storage,
+            IUserStorage storage,
             ISystemClock clock) : base(options, logger, encoder, clock)
         {
             _storage = storage;
@@ -51,7 +50,7 @@ namespace AlvTimeWebApi.Authentication.PersonalAccessToken
         private static AuthenticationTicket CreateTicket(Claim[] claims)
             => new AuthenticationTicket(new ClaimsPrincipal(new ClaimsIdentity(claims, "PersonalAccessToken")), "PersonalAccessTokenScheme");
 
-        private static Claim[] CreateClaims(AlvTime.Business.AccessToken.User user)
+        private static Claim[] CreateClaims(User user)
             => new Claim[]
             {
                 new Claim("preferred_username", user.Email),
