@@ -1,7 +1,8 @@
 ﻿using AlvTime.Persistence.Repositories;
 using System.Linq;
-using System.Globalization;
 using System;
+using AlvTime.Business.AccessTokens;
+using AlvTime.Business.Models;
 using Xunit;
 
 namespace Tests.UnitTests.AccessToken
@@ -17,7 +18,13 @@ namespace Tests.UnitTests.AccessToken
 
             var storage = new AccessTokenStorage(context);
 
-            var tokens = storage.GetActiveTokens(1);
+            var user = new User
+            {
+                Name = context.User.First().Name, 
+                Email = context.User.First().Email
+            };
+            
+            var tokens = storage.GetActiveTokens(user);
 
             Assert.Equal(context.AccessTokens.Where(x => x.UserId == 1).ToList().Count(), tokens.Count());
         }
@@ -29,12 +36,26 @@ namespace Tests.UnitTests.AccessToken
                 .WithPersonalAccessTokens()
                 .WithUsers()
                 .CreateDbContext();
+            
+            var user = new User
+            {
+                Name = context.User.First().Name, 
+                Email = context.User.First().Email
+            };
 
             var storage = new AccessTokenStorage(context);
 
-            storage.CreateLifetimeToken("new token", 1);
+            var token = new PersonalAccessToken
+            {
+                User = user,
+                Value = Guid.NewGuid().ToString(),
+                ExpiryDate = DateTime.Now.AddMonths(6),
+                FriendlyName = "new token"
+            };
 
-            var tokens = storage.GetActiveTokens(1);
+            storage.CreateLifetimeToken(token);
+
+            var tokens = storage.GetActiveTokens(user);
 
             Assert.Equal(context.AccessTokens.Where(x => x.UserId == 1).ToList().Count(), tokens.Count());
         }
@@ -46,15 +67,19 @@ namespace Tests.UnitTests.AccessToken
                 .WithPersonalAccessTokens()
                 .WithUsers()
                 .CreateDbContext();
+            
+            var user = new User
+            {
+                Name = context.User.First().Name, 
+                Email = context.User.First().Email
+            };
 
             var storage = new AccessTokenStorage(context);
 
-            var oldExpiryDate = context.AccessTokens.ToList().First().ExpiryDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            storage.DeleteActiveTokens(1);
 
-            storage.DeleteActiveTokens(1, 1);
-
-            var newExpiryDate = storage.GetActiveTokens(1).Where(x => x.Id == 1).ToList().First().ExpiryDate;
-            Assert.NotEqual(newExpiryDate, oldExpiryDate);
+            var tokens = storage.GetActiveTokens(user);
+            Assert.Empty(tokens);
         }
     }
 }

@@ -1,10 +1,9 @@
-﻿using AlvTime.Business.TimeEntries;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using AlvTime.Business.TimeEntries;
 
-namespace AlvTime.Business.Helpers
+namespace AlvTime.Business.Extensions
 {
     public static class VacationExtension
     {

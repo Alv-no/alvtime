@@ -4,6 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
+using AlvTime.Business.Models;
+using Microsoft.EntityFrameworkCore;
+using User = AlvTime.Persistence.DataBaseModels.User;
 
 namespace AlvTime.Persistence.Repositories
 {
@@ -66,6 +70,25 @@ namespace AlvTime.Persistence.Repositories
             }
 
             _context.SaveChanges();
+        }
+
+        public async Task<Business.Models.User> GetUserFromToken(Token token)
+        {
+            var databaseToken = await _context.AccessTokens.FirstOrDefaultAsync(x => x.Value == token.Value && x.ExpiryDate >= DateTime.UtcNow);
+
+            if (databaseToken != null)
+            {
+                var databaseUser = await _context.User.FirstOrDefaultAsync(x => x.Id == databaseToken.UserId);
+
+                return new Business.Models.User
+                {
+                    Id = databaseUser.Id,
+                    Email = databaseUser.Email,
+                    Name = databaseUser.Name
+                };
+            }
+
+            return null;
         }
     }
 }

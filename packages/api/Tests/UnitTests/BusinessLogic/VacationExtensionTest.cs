@@ -1,6 +1,6 @@
-﻿using AlvTime.Business.Helpers;
-using AlvTime.Business.TimeEntries;
+﻿using AlvTime.Business.TimeEntries;
 using System.Collections.Generic;
+using AlvTime.Business.Extensions;
 using Xunit;
 
 namespace Tests.UnitTests.BusinessLogic
