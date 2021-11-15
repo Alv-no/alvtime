@@ -91,7 +91,7 @@ namespace AlvTime.Persistence.Repositories
             _context.Task.Add(newTask);
             _context.SaveChanges();
         }
-
+        
         public void UpdateTask(UpdateTaskDto task)
         {
             var existingTask = _context.Task
