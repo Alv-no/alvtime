@@ -1,8 +1,13 @@
-﻿using AlvTime.Business.Tasks;
+﻿using System.Collections.Generic;
+using AlvTime.Business.Tasks;
 using AlvTime.Business.Tasks.Admin;
 using AlvTime.Persistence.Repositories;
 using System.Linq;
+using AlvTime.Business.Interfaces;
+using AlvTime.Persistence.DataBaseModels;
+using Moq;
 using Xunit;
+using User = AlvTime.Business.Models.User;
 
 namespace Tests.UnitTests.Tasks
 {
@@ -17,9 +22,9 @@ namespace Tests.UnitTests.Tasks
                 .WithCustomers()
                 .CreateDbContext();
 
-            var taskService = new TaskService(new TaskStorage(context);
+            var taskService = CreateTaskService(context);
 
-            var tasks = storage.GetUsersTasks(new TaskQuerySearch(), 1);
+            var tasks = taskService.GetTasksForUser(new TaskQuerySearch());
 
             Assert.Equal(context.Task.Count(), tasks.Count());
         }
@@ -32,12 +37,13 @@ namespace Tests.UnitTests.Tasks
                 .WithProjects()
                 .WithCustomers()
                 .CreateDbContext();
+            
+            var taskService = CreateTaskService(context);
 
-            var storage = new TaskStorage(context);
-            var tasks = storage.GetUsersTasks(new TaskQuerySearch
+            var tasks = taskService.GetTasksForUser(new TaskQuerySearch
             {
                 Project = 1
-            }, 1);
+            });
 
             Assert.True(1 == tasks.Single().Project.Id);
         }
@@ -51,12 +57,12 @@ namespace Tests.UnitTests.Tasks
                 .WithCustomers()
                 .CreateDbContext();
 
-            var storage = new TaskStorage(context);
-            var tasks = storage.GetUsersTasks(new TaskQuerySearch
+            var taskService = CreateTaskService(context);
+            var tasks = taskService.GetTasksForUser(new TaskQuerySearch
             {
                 Project = 2,
                 Locked = true
-            }, 1);
+            });
 
             Assert.True(tasks.Single().Project.Id == 2 && true == tasks.Single().Locked);
         }
@@ -73,14 +79,10 @@ namespace Tests.UnitTests.Tasks
             var previousNumberOfFavorites = context.TaskFavorites
                 .Where(tf => tf.UserId == 1)
                 .ToList().Count();
+            
+            var taskService = CreateTaskService(context);
 
-            var storage = new TaskStorage(context);
-
-            updater.UpdateFavoriteTasks(new UpdateTasksDto
-            {
-                Id = 2,
-                Favorite = true
-            }, 1);
+            taskService.UpdateFavoriteTasks(new List<(int id, bool favorite)> { (2, true) });
 
             var userFavorites = context.TaskFavorites
                 .Where(tf => tf.UserId == 1)
@@ -98,20 +100,11 @@ namespace Tests.UnitTests.Tasks
                 .WithCustomers()
                 .CreateDbContext();
 
-            var previousNumberOfFavorites = context.TaskFavorites
-                .Where(tf => tf.UserId == 1)
-                .ToList().Count();
-
-            var storage = new TaskStorage(context);
-            var updater = new FavoriteUpdater(storage);
+            var taskService = CreateTaskService(context);
 
             var previousCompensationRate = context.Task.FirstOrDefault(x => x.Id == 2).CompensationRate;
 
-            updater.UpdateFavoriteTasks(new UpdateTasksDto
-            {
-                Id = 2,
-                Favorite = true,
-            }, 1);
+            taskService.UpdateFavoriteTasks(new List<(int id, bool favorite)> { (2, true) });
 
             var task = context.Task.FirstOrDefault(x => x.Id == 2);
 
@@ -127,19 +120,14 @@ namespace Tests.UnitTests.Tasks
                 .WithCustomers()
                 .WithTaskFavorites()
                 .CreateDbContext();
-
-            var storage = new TaskStorage(context);
-            var updater = new FavoriteUpdater(storage);
+            
+            var taskService = CreateTaskService(context);
 
             var previousNumberOfFavorites = context.TaskFavorites
                 .Where(tf => tf.UserId == 1)
                 .ToList().Count();
-
-            updater.UpdateFavoriteTasks(new UpdateTasksDto
-            {
-                Id = 1,
-                Favorite = false
-            }, 1);
+            
+            taskService.UpdateFavoriteTasks(new List<(int id, bool favorite)> { (1, false) });
 
             var userFavorites = context.TaskFavorites
                 .Where(tf => tf.UserId == 1)
@@ -156,18 +144,14 @@ namespace Tests.UnitTests.Tasks
                 .WithProjects()
                 .WithCustomers()
                 .CreateDbContext();
-
-            var storage = new TaskStorage(context);
-            var creator = new TaskCreator(storage);
+            
+            var taskService = CreateTaskService(context);
 
             var previousNumberOfTasks = context.Task.Count();
 
-            creator.CreateTask(new CreateTaskDto
+            taskService.CreateTasks(new List<CreateTaskDto>
             {
-                Name = "Prosjektleder",
-                Description = "",
-                Locked = false,
-                Project = 1,
+                new("Prosjektleder", "", Locked: false, Project: 1)
             });
 
             Assert.Equal(previousNumberOfTasks+1, context.Task.Count());
@@ -181,18 +165,14 @@ namespace Tests.UnitTests.Tasks
                 .WithProjects()
                 .WithCustomers()
                 .CreateDbContext();
-
-            var storage = new TaskStorage(context);
-            var creator = new TaskCreator(storage);
+            
+            var taskService = CreateTaskService(context);
 
             var previousNumberOfTasks = context.Task.Count();
-
-            creator.CreateTask(new CreateTaskDto
+            
+            taskService.CreateTasks(new List<CreateTaskDto>
             {
-                Name = "ExampleTask",
-                Description = "",
-                Locked = false,
-                Project = 1
+                new("ExampleTask", "", Locked: false, Project: 1)
             });
 
             Assert.Equal(previousNumberOfTasks, context.Task.Count());
@@ -206,21 +186,31 @@ namespace Tests.UnitTests.Tasks
                 .WithProjects()
                 .WithCustomers()
                 .CreateDbContext();
+            
+            var taskService = CreateTaskService(context);
 
-            var storage = new TaskStorage(context);
-            var creator = new TaskCreator(storage);
-
-            creator.UpdateTask(new UpdateTasksDto
-            {
-                Id = 1,
-                Locked = true,
-                Name = "MyExampleTask"
-            });
+            taskService.UpdateTasks(new List<UpdateTaskDto> { new(1, true, "MyExampleTask", null) });
 
             var task = context.Task.FirstOrDefault(x => x.Id == 1);
 
             Assert.Equal("MyExampleTask", task.Name);
             Assert.True(task.Locked == true);
+        }
+        
+        private static TaskService CreateTaskService(AlvTime_dbContext dbContext)
+        {
+            var mockUserContext = new Mock<IUserContext>();
+
+            var user = new User
+            {
+                Id = 1,
+                Email = "someone@alv.no",
+                Name = "Someone"
+            };
+
+            mockUserContext.Setup(context => context.GetCurrentUser()).Returns(user);
+            
+            return new TaskService(new TaskStorage(dbContext), mockUserContext.Object);
         }
     }
 }

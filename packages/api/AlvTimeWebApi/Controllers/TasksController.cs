@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using AlvTimeWebApi.Requests;
+using AlvTimeWebApi.Responses;
 
 namespace AlvTimeWebApi.Controllers
 {
@@ -23,7 +24,7 @@ namespace AlvTimeWebApi.Controllers
         [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<IEnumerable<TaskResponse>> FetchTasks()
         {
-            return Ok(_taskService.GetTasks()
+            return Ok(_taskService.GetTasksForUser(new TaskQuerySearch())
                 .Select(task => new TaskResponse(task.Id, task.Name, task.Description, task.Favorite, task.Locked, task.CompensationRate, task.Project)));
         }
 

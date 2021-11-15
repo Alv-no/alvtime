@@ -11,16 +11,15 @@ namespace AlvTime.Business.Tasks
         void RemoveFavoriteTask(int taskId, int userId);
         bool GetFavorite(int taskId, int userId);
         void CreateTask(CreateTaskDto task);
-        void UpdateTask(UpdateTasksDto taskToBeUpdated);
+        void UpdateTask(UpdateTaskDto taskToBeUpdated);
     }
 
     public class TaskQuerySearch
     {
         public int? Id { get; set; }
         public string Name { get; set; }
-
         public int? Project { get; set; }
-
         public bool? Locked { get; set; }
+        public int? UserId { get; set; }
     }
 }

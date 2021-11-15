@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AlvTimeWebApi.Requests;
+using AlvTimeWebApi.Responses;
 
 namespace AlvTimeWebApi.Controllers.Admin
 {
@@ -13,51 +15,63 @@ namespace AlvTimeWebApi.Controllers.Admin
     [ApiController]
     public class TaskAdminController : Controller
     {
-        private readonly TaskCreator _creator;
-        private readonly ITaskStorage _taskStorage;
-        private readonly ICompensationRateStorage _compensationRateStorage;
+        private readonly TaskService _taskService;
 
-        public TaskAdminController(TaskCreator creator, ITaskStorage taskStorage, ICompensationRateStorage compensationRateStorage)
+        public TaskAdminController(ICompensationRateStorage compensationRateStorage, TaskService taskService)
         {
-            _creator = creator;
-            _taskStorage = taskStorage;
-            _compensationRateStorage = compensationRateStorage;
+            _taskService = taskService;
         }
 
         [HttpGet("Tasks")]
         [AuthorizeAdmin]
-        public ActionResult<IEnumerable<TaskResponseDto>> FetchTasks()
+        public ActionResult<IEnumerable<TaskResponse>> FetchTasks()
         {
-            var tasks = _taskStorage.GetTasks(new TaskQuerySearch {});
-            return Ok(tasks);
+            var tasks = _taskService.GetAllTasks(new TaskQuerySearch { });
+            return Ok(tasks.Select(task => new TaskResponse(task.Id, task.Name, task.Description, task.Favorite,
+                task.Locked, task.CompensationRate, task.Project)));
         }
-
 
         [HttpPost("Tasks")]
         [AuthorizeAdmin]
-        public ActionResult<IEnumerable<TaskResponseDto>> CreateNewTask([FromBody] IEnumerable<CreateTaskDto> tasksToBeCreated)
+        public ActionResult<IEnumerable<TaskResponse>> CreateNewTask(
+            [FromBody] IEnumerable<TaskCreateRequest> tasksToBeCreated)
         {
-            List<TaskResponseDto> response = new List<TaskResponseDto>();
+            var createdTasks = _taskService.CreateTasks(tasksToBeCreated.Select(task => new CreateTaskDto(
+                task.Name,
+                task.Description,
+                task.Project,
+                task.Locked,
+                task.CompensationRate)));
 
-            foreach (var task in tasksToBeCreated)
-            {
-                response.Add(_creator.CreateTask(task));
-            }
-
-            return Ok(response);
+            return Ok(createdTasks.Select(task => new TaskResponse(
+                task.Id,
+                task.Name,
+                task.Description,
+                task.Favorite,
+                task.Locked,
+                task.CompensationRate,
+                task.Project)));
         }
 
         [HttpPut("Tasks")]
         [AuthorizeAdmin]
-        public ActionResult<IEnumerable<TaskResponseDto>> UpdateTask([FromBody] IEnumerable<UpdateTasksDto> tasksToBeUpdated)
+        public ActionResult<IEnumerable<TaskResponse>> UpdateTask(
+            [FromBody] IEnumerable<TaskUpdateRequest> tasksToBeUpdated)
         {
-            List<TaskResponseDto> response = new List<TaskResponseDto>();
+            var updatedTasks = _taskService.UpdateTasks(tasksToBeUpdated.Select(task => new UpdateTaskDto(
+                task.Id,
+                task.Locked,
+                task.Name,
+                task.CompensationRate)));
 
-            foreach (var task in tasksToBeUpdated)
-            {
-                response.Add(_creator.UpdateTask(task));
-            }
-            return Ok(response);
+            return Ok(updatedTasks.Select(task => new TaskResponse(
+                task.Id,
+                task.Name,
+                task.Description,
+                task.Favorite,
+                task.Locked,
+                task.CompensationRate,
+                task.Project)));
         }
     }
 }

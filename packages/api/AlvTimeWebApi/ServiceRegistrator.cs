@@ -11,7 +11,6 @@ using AlvTime.Business.Interfaces;
 using AlvTime.Business.Payouts;
 using AlvTime.Business.Projects;
 using AlvTime.Business.Tasks;
-using AlvTime.Business.Tasks.Admin;
 using AlvTime.Business.TimeRegistration;
 using AlvTime.Business.Users;
 using AlvTime.Business.Utils;
@@ -32,7 +31,6 @@ namespace AlvTimeWebApi
             services.AddScoped<UserCreator>();
             services.AddScoped<AlvHoursCalculator>();
             services.AddScoped<ITaskStorage, TaskStorage>();
-            services.AddScoped<TaskCreator>();
             services.AddScoped<ITimeRegistrationStorage, TimeRegistrationStorage>();
             services.AddScoped<IHourRateStorage, HourRateStorage>();
             services.AddScoped<HourRateCreator>();
