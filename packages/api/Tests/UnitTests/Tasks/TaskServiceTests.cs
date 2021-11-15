@@ -17,7 +17,7 @@ namespace Tests.UnitTests.Tasks
                 .WithCustomers()
                 .CreateDbContext();
 
-            var storage = new TaskStorage(context);
+            var taskService = new TaskService(new TaskStorage(context);
 
             var tasks = storage.GetUsersTasks(new TaskQuerySearch(), 1);
 
