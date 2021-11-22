@@ -234,6 +234,27 @@ namespace Tests.UnitTests.Flexihours
             Assert.Equal(0M, flexhours.AvailableHoursBeforeCompensation);
             Assert.Equal(0, flexhours.AvailableHoursAfterCompensation);
         }
+        
+        [Fact]
+        public void GetFlexedhours_RecordedAlvDayTaskOnAlvDay_NoFlexHours()
+        {
+            var user = _context.User.First();
+
+            _context.Hours.Add(new Hours
+            {
+                User = 1,
+                Date = new DateTime(2021, 03, 29),
+                Value = 7.5M,
+                Task = new Task { Id = 20 }
+            });
+            _context.SaveChanges();
+
+            var flexHourStorage = CreateStorage();
+            var flexhours = flexHourStorage.GetAvailableHours(1, _startDate, _endDate);
+
+            Assert.Equal(0M, flexhours.AvailableHoursBeforeCompensation);
+            Assert.Equal(0, flexhours.AvailableHoursAfterCompensation);
+        }
 
         private FlexhourStorage CreateStorage()
         {
@@ -243,6 +264,7 @@ namespace Tests.UnitTests.Flexihours
                     PaidHolidayTask = 13,
                     UnpaidHolidayTask = 19,
                     ReportUser = 11, 
+                    AlvDayTask = 20,
                     StartOfOvertimeSystem = new DateTime(2021, 01, 01) 
                 }));
         }
