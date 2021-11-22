@@ -196,8 +196,6 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexedhours_RecordedVacationOnRedDay_NoFlexHours()
         {
-            var user = _context.User.First();
-
             _context.Hours.Add(new Hours
             {
                 User = 1,
@@ -217,8 +215,6 @@ namespace Tests.UnitTests.Flexihours
         [Fact]
         public void GetFlexedhours_RecordedVacationOnWeekend_NoFlexHours()
         {
-            var user = _context.User.First();
-
             _context.Hours.Add(new Hours
             {
                 User = 1,
@@ -236,10 +232,8 @@ namespace Tests.UnitTests.Flexihours
         }
         
         [Fact]
-        public void GetFlexedhours_RecordedAlvDayTaskOnAlvDay_NoFlexHours()
+        public void GetAvailableHours_RecordedAlvDayTaskOnAlvDay_NoFlexHours()
         {
-            var user = _context.User.First();
-
             _context.Hours.Add(new Hours
             {
                 User = 1,
@@ -254,6 +248,47 @@ namespace Tests.UnitTests.Flexihours
 
             Assert.Equal(0M, flexhours.AvailableHoursBeforeCompensation);
             Assert.Equal(0, flexhours.AvailableHoursAfterCompensation);
+        }
+                
+        [Fact]
+        public void GetAvailableHours_Worked5HoursOnWeekend_5HoursOvertimeBeforeComp6AfterComp()
+        {
+            _context.Hours.Add(new Hours
+            {
+                User = 1,
+                Date = new DateTime(2021, 08, 08),
+                Value = 4M,
+                Task = new Task { Id = 1 }
+            });
+            _context.CompensationRate.Add(new CompensationRate
+                { FromDate = new DateTime(2020, 01, 01), TaskId = 1, Value = 1.5M });
+            _context.SaveChanges();
+
+            var flexHourStorage = CreateStorage();
+            var flexhours = flexHourStorage.GetAvailableHours(1, _startDate, _endDate);
+
+            Assert.Equal(4M, flexhours.AvailableHoursBeforeCompensation);
+            Assert.Equal(6M, flexhours.AvailableHoursAfterCompensation);
+        }
+                
+        [Fact]
+        public void GetAvailableHours_RecordedBillableTaskOnAlvDay_GetsCorrectOvertime()
+        {
+            _context.Hours.Add(new Hours
+            {
+                User = 1,
+                Date = new DateTime(2021, 03, 29),
+                Value = 5M,
+                Task = new Task { Id = 1 }
+            });
+            _context.CompensationRate.Add(new CompensationRate { TaskId = 1, Value = 1.5M, FromDate = new DateTime(2020, 01, 01)});
+            _context.SaveChanges();
+
+            var flexHourStorage = CreateStorage();
+            var flexhours = flexHourStorage.GetAvailableHours(1, _startDate, _endDate);
+
+            Assert.Equal(5M, flexhours.AvailableHoursBeforeCompensation);
+            Assert.Equal(7.5M, flexhours.AvailableHoursAfterCompensation);
         }
 
         private FlexhourStorage CreateStorage()
