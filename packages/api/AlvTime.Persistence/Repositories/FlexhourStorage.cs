@@ -19,6 +19,7 @@ public class FlexhourStorage : IFlexhourStorage
     private readonly int _flexTask;
     private readonly int _paidHolidayTask;
     private readonly int _unpaidHolidayTask;
+    private readonly int _alvDayTask;
     private readonly DateTime _startOfOvertimeSystem;
 
     public FlexhourStorage(ITimeEntryStorage timeEntryStorage, AlvTime_dbContext context, IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
@@ -30,6 +31,7 @@ public class FlexhourStorage : IFlexhourStorage
         _paidHolidayTask = _timeEntryOptions.CurrentValue.PaidHolidayTask;
         _unpaidHolidayTask = _timeEntryOptions.CurrentValue.UnpaidHolidayTask;
         _startOfOvertimeSystem = _timeEntryOptions.CurrentValue.StartOfOvertimeSystem;
+        _alvDayTask = _timeEntryOptions.CurrentValue.AlvDayTask;
     }
 
     public AvailableHoursDto GetAvailableHours(int userId, DateTime userStartDate, DateTime endDate)
@@ -149,11 +151,8 @@ public class FlexhourStorage : IFlexhourStorage
         return overtimeEntries;
     }
 
-
     private IEnumerable<OvertimeEntry> CreateOvertimeEntries(DateEntry day, bool isRedDay)
     {
-        var overtimeEntries = new List<OvertimeEntry>();
-
         var overtimeHours = isRedDay ? day.GetWorkingHours() : day.GetWorkingHours() - HoursInRegularWorkday;
 
         foreach (var entry in day.Entries.OrderBy(task => task.CompensationRate))
@@ -163,7 +162,7 @@ public class FlexhourStorage : IFlexhourStorage
                 break;
             }
 
-            if (isRedDay && (entry.TaskId == _paidHolidayTask || entry.TaskId == _unpaidHolidayTask))
+            if (isRedDay && (entry.TaskId == _paidHolidayTask || entry.TaskId == _unpaidHolidayTask || entry.TaskId == _alvDayTask))
             {
                 continue;
             }

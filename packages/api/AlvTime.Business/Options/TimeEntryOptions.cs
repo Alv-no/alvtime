@@ -10,5 +10,6 @@ namespace AlvTime.Business.Options
         public int PaidHolidayTask { get; set; }
         public int UnpaidHolidayTask { get; set; }
         public int SickDaysTask { get; set; }
+        public int AlvDayTask { get; set; }
     }
 }
