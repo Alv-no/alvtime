@@ -15,23 +15,24 @@ public class FlexhourStorage : IFlexhourStorage
     private const decimal HoursInRegularWorkday = 7.5M;
     private readonly ITimeEntryStorage _timeEntryStorage;
     private readonly AlvTime_dbContext _context;
-    private readonly IOptionsMonitor<TimeEntryOptions> _timeEntryOptions;
     private readonly int _flexTask;
-    private readonly int _paidHolidayTask;
-    private readonly int _unpaidHolidayTask;
-    private readonly int _alvDayTask;
+    private readonly List<int> _noOvertimeTaskIds = new();
     private readonly DateTime _startOfOvertimeSystem;
 
     public FlexhourStorage(ITimeEntryStorage timeEntryStorage, AlvTime_dbContext context, IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
     {
         _timeEntryStorage = timeEntryStorage;
         _context = context;
-        _timeEntryOptions = timeEntryOptions;
-        _flexTask = _timeEntryOptions.CurrentValue.FlexTask;
-        _paidHolidayTask = _timeEntryOptions.CurrentValue.PaidHolidayTask;
-        _unpaidHolidayTask = _timeEntryOptions.CurrentValue.UnpaidHolidayTask;
-        _startOfOvertimeSystem = _timeEntryOptions.CurrentValue.StartOfOvertimeSystem;
-        _alvDayTask = _timeEntryOptions.CurrentValue.AlvDayTask;
+        var timeEntryOptions1 = timeEntryOptions;
+        _flexTask = timeEntryOptions1.CurrentValue.FlexTask;
+        _startOfOvertimeSystem = timeEntryOptions1.CurrentValue.StartOfOvertimeSystem;
+        _noOvertimeTaskIds.AddRange(new List<int>
+        {
+            timeEntryOptions1.CurrentValue.FlexTask, 
+            timeEntryOptions1.CurrentValue.PaidHolidayTask,
+            timeEntryOptions1.CurrentValue.UnpaidHolidayTask, 
+            timeEntryOptions1.CurrentValue.AlvDayTask
+        });
     }
 
     public AvailableHoursDto GetAvailableHours(int userId, DateTime userStartDate, DateTime endDate)
@@ -53,10 +54,6 @@ public class FlexhourStorage : IFlexhourStorage
 
     public FlexedHoursDto GetFlexedHours(int userId)
     {
-        var dbUser = _context.User.SingleOrDefault(u => u.Id == userId);
-        var startDate = dbUser.StartDate;
-        var endDate = DateTime.Now.Date;
-
         var timeOffEntries = _context.Hours.Where(h => h.User == userId && h.TaskId == _flexTask);
         var timeOffSum = _context.Hours.Where(h => h.User == userId && h.TaskId == _flexTask).Sum(h => h.Value);
 
@@ -162,7 +159,7 @@ public class FlexhourStorage : IFlexhourStorage
                 break;
             }
 
-            if (isRedDay && (entry.TaskId == _paidHolidayTask || entry.TaskId == _unpaidHolidayTask || entry.TaskId == _alvDayTask))
+            if (isRedDay && !TaskGivesOvertime(entry.TaskId))
             {
                 continue;
             }
@@ -179,6 +176,11 @@ public class FlexhourStorage : IFlexhourStorage
 
             yield return overtimeEntry;
         }
+    }
+
+    private bool TaskGivesOvertime(int taskId)
+    {
+        return !_noOvertimeTaskIds.Contains(taskId);
     }
 
 
@@ -200,8 +202,6 @@ public class FlexhourStorage : IFlexhourStorage
 
     private void CompensateForOffTime(List<OvertimeEntry> overtimeEntries, IEnumerable<DateEntry> entriesByDate, DateTime startDate, DateTime endDate, int userId)
     {
-        var dbUser = _context.User.SingleOrDefault(u => u.Id == userId);
-
         foreach (var currentWorkDay in GetDaysInPeriod(startDate, endDate))
         {
             var day = entriesByDate.SingleOrDefault(entryDate => entryDate.Date == currentWorkDay);
