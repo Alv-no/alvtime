@@ -20,6 +20,5 @@ namespace AlvTime.Business.Tasks
         public string Name { get; set; }
         public int? Project { get; set; }
         public bool? Locked { get; set; }
-        public int? UserId { get; set; }
     }
 }
