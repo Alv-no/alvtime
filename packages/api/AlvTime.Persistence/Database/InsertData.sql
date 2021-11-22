@@ -56,7 +56,7 @@ values
 ('AlvTimeUtvikling', '', 8, 0, 0),
 ('Avspasering', '', 8, 0, 0),
 ('Ubetalt ferie', '', 8, 1, 0),
-('Alvdager', '', 8, 1, 0)
+('Alvdager', '', 8, 0, 0)
 
 
 insert into [dbo].[TaskFavorites]
