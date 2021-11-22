@@ -12,6 +12,7 @@ config:
   TimeEntryOptions__StartOfOvertimeSystem: "2021-01-01"
   TimeEntryOptions__UnpaidHolidayTask: "25"
   TimeEntryOptions__SickDaysTask: "14"
+  TimeEntryOptions__AlvDayTask: "108"
   AllowedOrigins: "https://alvtime.no,https://www.alvtime.no,https://admin.alvtime.no"
 
 hosts:
