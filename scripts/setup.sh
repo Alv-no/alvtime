@@ -6,7 +6,7 @@ SHORT_HASH=$(git rev-parse --short=7 HEAD)
 ENV=$(echo "$1" | awk '{print tolower($0)}')
 PROJECT="alvtime"
 KEY_VAULT="$PROJECT$ENV"
-CONTAINER_REGISTRY=alvk8sclustertestacr
+CONTAINER_REGISTRY=alvkubernetesclustertestacr
 if [ "$ENV" == 'test' ]; then
   RESOURCE_GROUP_NAME="k8scluster-test-rg"
   KUBERNETES_CLUSTER_NAME="k8scluster-test-aks"
