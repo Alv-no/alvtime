@@ -8,6 +8,7 @@ CONTAINER_REGISTRY=alvkubernetesclustertestacr
 KEY_VAULT="k8sconfig-$ENV-kv"
 RESOURCE_GROUP_NAME="k8scluster-$ENV-rg"
 KUBERNETES_CLUSTER_NAME="k8scluster-$ENV-aks"
+SUBSCRIPTION="k8s-$ENV-subscription"
 
 function getSecret() {
   az keyvault secret show --vault-name $KEY_VAULT --name $1 | jq '.value' -r
