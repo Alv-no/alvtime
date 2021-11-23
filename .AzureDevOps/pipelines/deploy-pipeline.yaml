@@ -30,7 +30,7 @@ stages:
               scriptLocation: inlineScript
               inlineScript: |
                 # Authenticate Acure container registry
-                docker login alvk8sclustertestacr.azurecr.io \
+                docker login alvkubernetesclustertestacr.azurecr.io \
                   --username $servicePrincipalId \
                   --password $servicePrincipalKey
 
