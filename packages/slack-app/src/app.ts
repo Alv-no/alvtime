@@ -14,11 +14,7 @@ const dbOptions = {
   useUnifiedTopology: true,
   useFindAndModify: false,
   useCreateIndex: true,
-  auth: {
-    user: env.DB_USER,
-    password: env.DB_PASSWORD,
-  },
-  dbName: env.DB_USER,
+  dbName: "slack-app",
 };
 
 mongoose
