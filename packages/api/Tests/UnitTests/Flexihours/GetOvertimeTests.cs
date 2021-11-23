@@ -201,7 +201,7 @@ namespace Tests.UnitTests.Flexihours
                 User = 1,
                 Date = new DateTime(2021, 01, 01),
                 Value = 7.5M,
-                Task = new Task { Id = 13 }
+                Task = new Task { Id = 13, Project = 9 }
             });
             _context.SaveChanges();
 
@@ -220,7 +220,7 @@ namespace Tests.UnitTests.Flexihours
                 User = 1,
                 Date = new DateTime(2021, 02, 07),
                 Value = 7.5M,
-                Task = new Task { Id = 13 }
+                Task = new Task { Id = 13, Project = 9 }
             });
             _context.SaveChanges();
 
@@ -239,7 +239,7 @@ namespace Tests.UnitTests.Flexihours
                 User = 1,
                 Date = new DateTime(2021, 03, 29),
                 Value = 7.5M,
-                Task = new Task { Id = 20 }
+                Task = new Task { Id = 20, Project = 9 }
             });
             _context.SaveChanges();
 
@@ -258,7 +258,7 @@ namespace Tests.UnitTests.Flexihours
                 User = 1,
                 Date = new DateTime(2021, 08, 08),
                 Value = 4M,
-                Task = new Task { Id = 1 }
+                Task = new Task { Id = 1, Project = 1 }
             });
             _context.CompensationRate.Add(new CompensationRate
                 { FromDate = new DateTime(2020, 01, 01), TaskId = 1, Value = 1.5M });
@@ -272,14 +272,14 @@ namespace Tests.UnitTests.Flexihours
         }
                 
         [Fact]
-        public void GetAvailableHours_RecordedBillableTaskOnAlvDay_GetsCorrectOvertime()
+        public void GetAvailableHours_RecordedNonAbsenceOnAlvDay_GetsCorrectOvertime()
         {
             _context.Hours.Add(new Hours
             {
                 User = 1,
                 Date = new DateTime(2021, 03, 29),
                 Value = 5M,
-                Task = new Task { Id = 1 }
+                Task = new Task { Id = 1, Project = 1}
             });
             _context.CompensationRate.Add(new CompensationRate { TaskId = 1, Value = 1.5M, FromDate = new DateTime(2020, 01, 01)});
             _context.SaveChanges();
@@ -296,10 +296,8 @@ namespace Tests.UnitTests.Flexihours
             return new FlexhourStorage(new TimeEntryStorage(_context), _context, new TestTimeEntryOptions(
                 new TimeEntryOptions { 
                     FlexTask = 18,
-                    PaidHolidayTask = 13,
-                    UnpaidHolidayTask = 19,
                     ReportUser = 11, 
-                    AlvDayTask = 20,
+                    AbsenceProject = 9,
                     StartOfOvertimeSystem = new DateTime(2021, 01, 01) 
                 }));
         }
@@ -313,7 +311,7 @@ namespace Tests.UnitTests.Flexihours
                 User = 1,
                 Date = date,
                 Value = value,
-                Task = new Task { Id = taskId }
+                Task = new Task { Id = taskId, Project = 1 }
             };
         }
 
@@ -322,7 +320,7 @@ namespace Tests.UnitTests.Flexihours
             return new Hours
             {
                 Date = date,
-                Task = new Task { Id = 18 },
+                Task = new Task { Id = 18, Project = 9 },
                 TaskId = 18,
                 User = 1,
                 Value = value
