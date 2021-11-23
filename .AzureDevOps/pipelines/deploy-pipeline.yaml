@@ -23,7 +23,7 @@ stages:
           - task: AzureCLI@2
             displayName: Run build.sh test ---no-input
             inputs:
-              azureSubscription: Dev-Alv-Subscription-Azure-Service-Connection
+              azureSubscription: 'k8s-test-subscription(18d83c2a-79e0-48b2-a49a-0244de28de8c)'
               addSpnToEnvironment: true
               workingDirectory: "$(System.DefaultWorkingDirectory)"
               scriptType: bash
@@ -57,7 +57,7 @@ stages:
                 - task: AzureCLI@2
                   displayName: Run deployment scripts
                   inputs:
-                    azureSubscription: Dev-Alv-Subscription-Azure-Service-Connection
+                    azureSubscription: 'k8s-test-subscription(18d83c2a-79e0-48b2-a49a-0244de28de8c)'
                     addSpnToEnvironment: true
                     workingDirectory: "$(System.DefaultWorkingDirectory)"
                     scriptType: bash
@@ -84,7 +84,7 @@ stages:
                 - task: AzureCLI@2
                   displayName: Run deploy.sh prod ---no-input
                   inputs:
-                    azureSubscription: Pay-As-You-Go (f9b4e4d2-39a5-4c35-876c-303dc3de03d2)
+                    azureSubscription: 'k8s-prod-subscription(31b6ed1b-2e24-4cf2-8583-874cd21a84e1)'
                     addSpnToEnvironment: true
                     workingDirectory: "$(System.DefaultWorkingDirectory)"
                     scriptType: bash
