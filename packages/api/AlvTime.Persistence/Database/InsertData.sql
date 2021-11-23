@@ -18,7 +18,8 @@ values
 ('Paradise Motell' ,3),
 ('Disks n Chips' ,4),
 ('Hurramegrundt' ,2),
-('Alv' ,5)
+('Alv' ,5),
+('Fravær', 5)
 
 insert into [dbo].[User]
 values

@@ -11,5 +11,6 @@ namespace AlvTime.Business.Options
         public int UnpaidHolidayTask { get; set; }
         public int SickDaysTask { get; set; }
         public int AlvDayTask { get; set; }
+        public int AbsenceProject { get; set; }
     }
 }

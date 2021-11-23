@@ -72,6 +72,7 @@ namespace Tests.UnitTests.Flexihours
                 {
                     FlexTask = 18,
                     ReportUser = 11,
+                    AbsenceProject = 9,
                     StartOfOvertimeSystem = new DateTime(2020, 01, 01)
                 }));
         }
@@ -85,7 +86,7 @@ namespace Tests.UnitTests.Flexihours
                 User = 1,
                 Date = date,
                 Value = value,
-                Task = new Task { Id = taskId }
+                Task = new Task { Id = taskId, Project = 1 }
             };
         }
 

@@ -15,7 +15,7 @@ namespace Tests.UnitTests.Flexihours
         .WithUsers()
         .CreateDbContext();
 
-        private readonly DateTime _startDate = new DateTime(2020, 01, 02);
+        private readonly DateTime _startDate = new(2020, 01, 02);
         private readonly DateTime _endDate = DateTime.Now.Date;
 
         [Fact]
@@ -163,7 +163,7 @@ namespace Tests.UnitTests.Flexihours
             _context.Hours.Add(CreateTimeEntry(date: new DateTime(2020, 01, 03), value: 5M, out int taskId2));
             _context.Hours.Add(new Hours
             {
-                Task = new Task { Id = 18 },
+                Task = new Task { Id = 18, Project = 9 },
                 User = 1,
                 Date = new DateTime(2020, 01, 03),
                 Value = 2.5M
@@ -257,6 +257,7 @@ namespace Tests.UnitTests.Flexihours
                 Task = new Task
                 {
                     Id = 18,
+                    Project = 9
                 },
                 TaskId = 18,
                 User = 1,
@@ -342,6 +343,7 @@ namespace Tests.UnitTests.Flexihours
                 {
                     FlexTask = 18,
                     ReportUser = 11,
+                    AbsenceProject = 9,
                     StartOfOvertimeSystem = new DateTime(2019, 01, 01)
                 }));
 
@@ -369,7 +371,7 @@ namespace Tests.UnitTests.Flexihours
                 User = 1,
                 Date = date,
                 Value = value,
-                Task = new Task { Id = taskId }
+                Task = new Task { Id = taskId, Project = 1 }
             };
         }
 

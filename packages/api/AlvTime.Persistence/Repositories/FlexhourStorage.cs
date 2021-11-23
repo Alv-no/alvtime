@@ -16,23 +16,16 @@ public class FlexhourStorage : IFlexhourStorage
     private readonly ITimeEntryStorage _timeEntryStorage;
     private readonly AlvTime_dbContext _context;
     private readonly int _flexTask;
-    private readonly List<int> _noOvertimeTaskIds = new();
+    private readonly int _absenceProject;
     private readonly DateTime _startOfOvertimeSystem;
 
     public FlexhourStorage(ITimeEntryStorage timeEntryStorage, AlvTime_dbContext context, IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
     {
         _timeEntryStorage = timeEntryStorage;
         _context = context;
-        var timeEntryOptions1 = timeEntryOptions;
-        _flexTask = timeEntryOptions1.CurrentValue.FlexTask;
-        _startOfOvertimeSystem = timeEntryOptions1.CurrentValue.StartOfOvertimeSystem;
-        _noOvertimeTaskIds.AddRange(new List<int>
-        {
-            timeEntryOptions1.CurrentValue.FlexTask, 
-            timeEntryOptions1.CurrentValue.PaidHolidayTask,
-            timeEntryOptions1.CurrentValue.UnpaidHolidayTask, 
-            timeEntryOptions1.CurrentValue.AlvDayTask
-        });
+        _flexTask = timeEntryOptions.CurrentValue.FlexTask;
+        _startOfOvertimeSystem = timeEntryOptions.CurrentValue.StartOfOvertimeSystem;
+        _absenceProject = timeEntryOptions.CurrentValue.AbsenceProject;
     }
 
     public AvailableHoursDto GetAvailableHours(int userId, DateTime userStartDate, DateTime endDate)
@@ -180,9 +173,9 @@ public class FlexhourStorage : IFlexhourStorage
 
     private bool TaskGivesOvertime(int taskId)
     {
-        return !_noOvertimeTaskIds.Contains(taskId);
+        var task = _context.Task.FirstOrDefault(task => task.Id == taskId);
+        return task != null && task.Project != _absenceProject;
     }
-
 
     private bool WorkedOnRedDay(DateEntry day, List<DateTime> redDays)
     {

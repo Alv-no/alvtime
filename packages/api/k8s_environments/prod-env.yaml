@@ -13,6 +13,7 @@ config:
   TimeEntryOptions__UnpaidHolidayTask: "25"
   TimeEntryOptions__SickDaysTask: "14"
   TimeEntryOptions__AlvDayTask: "108"
+  TimeEntryOptions__AbsenceProject: "44"
   AllowedOrigins: "https://alvtime.no,https://www.alvtime.no,https://admin.alvtime.no"
 
 hosts:
