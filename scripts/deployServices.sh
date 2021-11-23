@@ -16,6 +16,7 @@ helm chart export "$CONTAINER_REGISTRY.azurecr.io/helm/service:v0" \
 # Retrieve the access credentials for your cluster and automatically configure kubectl
 az aks get-credentials \
   --resource-group "$RESOURCE_GROUP_NAME" \
+  --subscription "$SUBSCRIPTION" \
   --name "$KUBERNETES_CLUSTER_NAME"
 
 \cp "packages/api/k8s_environments/$ENV-env.yaml" chart/env.yaml
