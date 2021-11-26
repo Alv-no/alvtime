@@ -26,7 +26,7 @@ namespace AlvTime.Persistence.Repositories
             {
                 Name = user.Name,
                 Email = user.Email,
-                StartDate = (DateTime)user.StartDate,
+                StartDate = (DateTime)user.StartDate?.Date,
                 EndDate = user.EndDate ?? null
             };
 
