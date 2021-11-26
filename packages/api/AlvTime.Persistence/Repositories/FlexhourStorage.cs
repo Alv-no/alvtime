@@ -127,7 +127,7 @@ public class FlexhourStorage : IFlexhourStorage
 
         foreach (var currentDate in GetDaysInPeriod(startDate, endDate))
         {
-            var day = entriesByDate.SingleOrDefault(entryDate => entryDate.Date == currentDate);
+            var day = entriesByDate.SingleOrDefault(entryDate => entryDate.Date == currentDate.Date);
 
             if (day != null && WorkedOnRedDay(day, allRedDays))
             {
