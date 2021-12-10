@@ -1,12 +1,16 @@
 <template>
-  <div class="entry">
-    <p class="customer-name">{{ task.project.customer.name }}</p>
-    <div class="activity-name-container">
-      <p class="activity-name">{{ task.name }} {{ task.project.name }}</p>
-      <small class="rate-text">{{ compensationRatePercentage }}</small>
+  <div class="entry-container">
+    <div class="entry-text">
+      <span class="customer-name truncate-text">{{ task.project.customer.name }} - {{ task.project.name }}</span>  
+      <div class="entry-text inner">
+        <span class="activity-name truncate-text">{{ task.name }}</span>
+      </div>
     </div>
-    <div v-show="showPadlock" class="padlock">
-      <md-icon class="icon">lock</md-icon>
+    <div class="rate-container">
+        <small class="rate-text">{{ compensationRatePercentage }}</small>
+    </div>
+    <div class="padlock-container">
+      <md-icon v-show="showPadlock" class="padlock-icon">lock</md-icon>
     </div>
   </div>
 </template>
@@ -36,43 +40,60 @@ export default Vue.extend({
 </script>
 
 <style scoped>
-.entry {
-  white-space: nowrap;
-  overflow: hidden;
+.entry-container {
   font-size: 0.8rem;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  min-width: 0;
+  margin-right: .4rem;
 }
+
+.entry-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.entry-text.inner { 
+  display: flex;
+  flex-direction: row;
+}
+
 
 .customer-name {
   margin: 0;
 }
 
-.activity-name-container {
-  display: flex;
-
-  /* Prevent percentage values from touching the hour input */
-  padding-right: 0.5rem;
-  float: left;
-}
-
 .activity-name {
   font-weight: 600;
-  margin: 0;
+}
 
+.truncate-text {
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.rate-text {
-  font-weight: lighter;
-  margin-left: 0.25rem;
+.rate-container {
+  align-self: center;
+  justify-self: right;
+  margin-left: auto; 
 }
 
-.padlock {
-  margin-right: 0.4rem;
-  float: right;
+.rate-text {
+  justify-self: right;
+  font-weight: lighter;
+  margin-left: .5rem;
 }
-.icon {
-  position: relative;
-  bottom: 0.5rem;
+
+.padlock-container {
+  align-self: center;
+  justify-items: center;
+  min-width: 30px;
+}
+
+.padlock-icon {
+  margin-left: .4rem;
 }
 </style>
