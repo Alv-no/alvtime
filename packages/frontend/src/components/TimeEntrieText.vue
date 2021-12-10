@@ -2,9 +2,7 @@
   <div class="entry-container">
     <div class="entry-text">
       <span class="customer-name truncate-text">{{ task.project.customer.name }} - {{ task.project.name }}</span>  
-      <div class="entry-text inner">
-        <span class="activity-name truncate-text">{{ task.name }}</span>
-      </div>
+      <span class="activity-name truncate-text">{{ task.name }}</span>
     </div>
     <div class="rate-container">
         <small class="rate-text">{{ compensationRatePercentage }}</small>
@@ -54,12 +52,6 @@ export default Vue.extend({
   flex-direction: column;
   min-width: 0;
 }
-
-.entry-text.inner { 
-  display: flex;
-  flex-direction: row;
-}
-
 
 .customer-name {
   margin: 0;
