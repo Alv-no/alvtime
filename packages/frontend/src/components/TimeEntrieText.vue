@@ -7,8 +7,8 @@
     <div class="rate-container">
         <small class="rate-text">{{ compensationRatePercentage }}</small>
     </div>
-    <div class="padlock-container">
-      <md-icon v-show="showPadlock" class="padlock-icon">lock</md-icon>
+    <div v-show="showPadlock" class="padlock-container">
+      <md-icon class="padlock-icon">lock</md-icon>
     </div>
   </div>
 </template>
