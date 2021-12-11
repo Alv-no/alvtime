@@ -9,6 +9,7 @@ using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Holidays;
 using AlvTime.Business.HourRates;
 using AlvTime.Business.Interfaces;
+using AlvTime.Business.Overtime;
 using AlvTime.Business.Projects;
 using AlvTime.Business.Tasks;
 using AlvTime.Business.Tasks.Admin;
@@ -50,6 +51,7 @@ namespace AlvTimeWebApi
             services.AddScoped<IAbsenseDaysService, AbsenseDaysService>();
             services.AddScoped<AccessTokenService>();
             services.AddScoped<IUserContext, UserContext>();
+            services.AddScoped<IOvertimeStorage, OvertimeStorage>();
         }
     }
 }

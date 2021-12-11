@@ -4,6 +4,7 @@ using AlvTime.Persistence.DataBaseModels;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using AlvTime.Business.Overtime;
 
 namespace AlvTime.Persistence.Repositories
 {
@@ -11,11 +12,32 @@ namespace AlvTime.Persistence.Repositories
     {
 
         private readonly AlvTime_dbContext _context;
+        private readonly IOvertimeStorage _overtimeStorage;
 
-        public TimeEntryStorage(AlvTime_dbContext context)
+        public TimeEntryStorage(AlvTime_dbContext context, IOvertimeStorage overtimeStorage)
         {
             _context = context;
+            _overtimeStorage = overtimeStorage;
         }
+
+        public IEnumerable<TimeEntriesWithCompRateResponseDto> GetTimeEntriesWithCompensationRate(TimeEntryQuerySearch criterias)
+        {
+            var timeEntries = GetTimeEntries(criterias);
+            var compensationRates = _context.CompensationRate.ToList();
+            var timeEntriesWithCompensationRate =
+                timeEntries.GroupJoin(compensationRates, x => x.TaskId, rate => rate.TaskId, (dto, rates) => new TimeEntriesWithCompRateResponseDto
+                {
+                    CompensationRate = rates.OrderByDescending(rate => rate.FromDate).First(x => x.FromDate.Date <= dto.Date.Date).Value,
+                    Id = dto.Id,
+                    Date = dto.Date,
+                    User = dto.User,
+                    Value = dto.Value,
+                    TaskId = dto.TaskId,
+                });
+
+            return timeEntriesWithCompensationRate;
+        }
+
 
         public IEnumerable<TimeEntriesResponseDto> GetTimeEntries(TimeEntryQuerySearch criterias)
         {
@@ -81,6 +103,7 @@ namespace AlvTime.Persistence.Repositories
 
         public TimeEntriesResponseDto CreateTimeEntry(CreateTimeEntryDto timeEntry, int userId)
         {
+            using var transaction = _context.Database.BeginTransaction();
             var task = _context.Task
                 .FirstOrDefault(t => t.Id == timeEntry.TaskId);
 
@@ -98,6 +121,10 @@ namespace AlvTime.Persistence.Repositories
                 _context.Hours.Add(hour);
                 _context.SaveChanges();
                 
+                _overtimeStorage.StoreOvertime(timeEntry.Date, userId);
+                
+                transaction.Commit();
+
                 return new TimeEntriesResponseDto
                 {
                     Id = hour.Id,
