@@ -1,4 +1,9 @@
-﻿namespace AlvTime.Persistence.DataBaseModels
+﻿using System;
+using System.Collections.Generic;
+
+#nullable disable
+
+namespace AlvTime.Persistence.DataBaseModels
 {
     public partial class TaskFavorites
     {

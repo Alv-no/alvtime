@@ -1,4 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+#nullable disable
 
 namespace AlvTime.Persistence.DataBaseModels
 {
@@ -17,6 +21,7 @@ namespace AlvTime.Persistence.DataBaseModels
         public virtual DbSet<AssociatedTasks> AssociatedTasks { get; set; }
         public virtual DbSet<CompensationRate> CompensationRate { get; set; }
         public virtual DbSet<Customer> Customer { get; set; }
+        public virtual DbSet<EarnedOvertime> EarnedOvertime { get; set; }
         public virtual DbSet<HourRate> HourRate { get; set; }
         public virtual DbSet<Hours> Hours { get; set; }
         public virtual DbSet<PaidOvertime> PaidOvertime { get; set; }
@@ -30,11 +35,15 @@ namespace AlvTime.Persistence.DataBaseModels
         {
             if (!optionsBuilder.IsConfigured)
             {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Server=localhost,1434;Database=AlvDevDB;Trusted_Connection=False;User ID=sa;Password=AlvTimeTestErMoro32;");
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
+
             modelBuilder.Entity<AccessTokens>(entity =>
             {
                 entity.Property(e => e.ExpiryDate).HasColumnType("datetime");
@@ -109,6 +118,19 @@ namespace AlvTime.Persistence.DataBaseModels
                     .HasMaxLength(100);
             });
 
+            modelBuilder.Entity<EarnedOvertime>(entity =>
+            {
+                entity.Property(e => e.CompensationRate).HasColumnType("decimal(5, 3)");
+
+                entity.Property(e => e.Value).HasColumnType("decimal(7, 2)");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.EarnedOvertime)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_EarnedOvertime_User");
+            });
+
             modelBuilder.Entity<HourRate>(entity =>
             {
                 entity.Property(e => e.Rate).HasColumnType("decimal(10, 2)");
@@ -124,8 +146,7 @@ namespace AlvTime.Persistence.DataBaseModels
             {
                 entity.ToTable("hours");
 
-                entity.HasIndex(e => new { e.Date, e.TaskId, e.User })
-                    .HasName("UC_hours_user_task")
+                entity.HasIndex(e => new { e.Date, e.TaskId, e.User }, "UC_hours_user_task")
                     .IsUnique();
 
                 entity.Property(e => e.Date).HasColumnType("datetime");
@@ -147,8 +168,9 @@ namespace AlvTime.Persistence.DataBaseModels
 
             modelBuilder.Entity<PaidOvertime>(entity =>
             {
-                entity.Property(e => e.HoursBeforeCompRate).HasColumnType("decimal(6, 2)");
                 entity.Property(e => e.HoursAfterCompRate).HasColumnType("decimal(6, 2)");
+
+                entity.Property(e => e.HoursBeforeCompRate).HasColumnType("decimal(6, 2)");
 
                 entity.HasOne(d => d.UserNavigation)
                     .WithMany(p => p.PaidOvertime)
@@ -206,21 +228,19 @@ namespace AlvTime.Persistence.DataBaseModels
             {
                 entity.Property(e => e.Email)
                     .IsRequired()
-                    .HasColumnName("email")
-                    .HasMaxLength(100);
+                    .HasMaxLength(100)
+                    .HasColumnName("email");
+
+                entity.Property(e => e.EndDate).HasColumnType("datetime");
 
                 entity.Property(e => e.Name)
                     .IsRequired()
-                    .HasColumnName("name")
-                    .HasMaxLength(100);
+                    .HasMaxLength(100)
+                    .HasColumnName("name");
 
                 entity.Property(e => e.StartDate)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("('')");
-
-                entity.Property(e => e.EndDate)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql(null);
             });
 
             modelBuilder.Entity<VDataDump>(entity =>
@@ -233,21 +253,21 @@ namespace AlvTime.Persistence.DataBaseModels
 
                 entity.Property(e => e.CustomerName)
                     .IsRequired()
-                    .HasColumnName("customerName")
-                    .HasMaxLength(100);
+                    .HasMaxLength(100)
+                    .HasColumnName("customerName");
 
                 entity.Property(e => e.Date)
-                    .HasColumnName("date")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasColumnName("date");
 
                 entity.Property(e => e.Earnings)
-                    .HasColumnName("earnings")
-                    .HasColumnType("decimal(17, 4)");
+                    .HasColumnType("decimal(17, 4)")
+                    .HasColumnName("earnings");
 
                 entity.Property(e => e.Email)
                     .IsRequired()
-                    .HasColumnName("email")
-                    .HasMaxLength(100);
+                    .HasMaxLength(100)
+                    .HasColumnName("email");
 
                 entity.Property(e => e.HourRate).HasColumnType("decimal(10, 2)");
 
@@ -255,26 +275,26 @@ namespace AlvTime.Persistence.DataBaseModels
 
                 entity.Property(e => e.ProjectName)
                     .IsRequired()
-                    .HasColumnName("projectName")
-                    .HasMaxLength(100);
+                    .HasMaxLength(100)
+                    .HasColumnName("projectName");
 
                 entity.Property(e => e.TaskId).HasColumnName("taskID");
 
                 entity.Property(e => e.TaskName)
                     .IsRequired()
-                    .HasColumnName("taskName")
-                    .HasMaxLength(100);
+                    .HasMaxLength(100)
+                    .HasColumnName("taskName");
 
                 entity.Property(e => e.UserId).HasColumnName("userID");
 
                 entity.Property(e => e.UserName)
                     .IsRequired()
-                    .HasColumnName("userName")
-                    .HasMaxLength(100);
+                    .HasMaxLength(100)
+                    .HasColumnName("userName");
 
                 entity.Property(e => e.Value)
-                    .HasColumnName("value")
-                    .HasColumnType("decimal(6, 2)");
+                    .HasColumnType("decimal(6, 2)")
+                    .HasColumnName("value");
             });
 
             OnModelCreatingPartial(modelBuilder);

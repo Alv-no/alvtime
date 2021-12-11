@@ -252,6 +252,7 @@ PRIMARY KEY CLUSTERED
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+/****** Object:  Table [dbo].[CompensationRate]    Script Date: 29/08/2020 11:50:17 ******/
 CREATE TABLE [dbo].[CompensationRate](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
 	[FromDate] [dateTime2](7) NOT NULL,
@@ -262,6 +263,19 @@ PRIMARY KEY CLUSTERED
 	[Id] ASC
 )WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[EarnedOvertime]    Script Date: 29/08/2020 11:50:17 ******/
+CREATE TABLE [dbo].[EarnedOvertime](
+    [Id] [int] IDENTITY(1,1) NOT NULL,
+    [UserId] [int] NOT NULL,
+    [Value] [decimal] (7,2) NOT NULL,
+    [Date] [datetime2] NOT NULL,
+    [CompensationRate] [decimal] (5,3) NOT NULL
+    PRIMARY KEY CLUSTERED
+(
+[Id] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+    ) ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[AssociatedTasks] ADD  DEFAULT ('') FOR [EndDate]
 GO
@@ -337,6 +351,9 @@ GO
 ALTER TABLE [dbo].[TaskFavorites] CHECK CONSTRAINT [FK_TaskFavorites_Task]
 GO
 ALTER TABLE [dbo].[TaskFavorites]  WITH CHECK ADD  CONSTRAINT [FK_TaskFavorites_User] FOREIGN KEY([UserId])
+REFERENCES [dbo].[User] ([Id])
+GO
+ALTER TABLE [dbo].[EarnedOvertime]  WITH CHECK ADD  CONSTRAINT [FK_EarnedOvertime_User] FOREIGN KEY([UserId])
 REFERENCES [dbo].[User] ([Id])
 GO
 ALTER TABLE [dbo].[TaskFavorites] CHECK CONSTRAINT [FK_TaskFavorites_User]

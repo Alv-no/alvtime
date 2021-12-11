@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+#nullable disable
+
 namespace AlvTime.Persistence.DataBaseModels
 {
     public partial class User
@@ -9,6 +11,7 @@ namespace AlvTime.Persistence.DataBaseModels
         {
             AccessTokens = new HashSet<AccessTokens>();
             AssociatedTasks = new HashSet<AssociatedTasks>();
+            EarnedOvertime = new HashSet<EarnedOvertime>();
             Hours = new HashSet<Hours>();
             PaidOvertime = new HashSet<PaidOvertime>();
             TaskFavorites = new HashSet<TaskFavorites>();
@@ -22,6 +25,7 @@ namespace AlvTime.Persistence.DataBaseModels
 
         public virtual ICollection<AccessTokens> AccessTokens { get; set; }
         public virtual ICollection<AssociatedTasks> AssociatedTasks { get; set; }
+        public virtual ICollection<EarnedOvertime> EarnedOvertime { get; set; }
         public virtual ICollection<Hours> Hours { get; set; }
         public virtual ICollection<PaidOvertime> PaidOvertime { get; set; }
         public virtual ICollection<TaskFavorites> TaskFavorites { get; set; }
