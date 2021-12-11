@@ -4,11 +4,11 @@
       <span class="customer-name truncate-text">{{ task.project.customer.name }} - {{ task.project.name }}</span>  
       <span class="activity-name truncate-text">{{ task.name }}</span>
     </div>
-    <div class="rate-container">
-        <small class="rate-text">{{ compensationRatePercentage }}</small>
-    </div>
     <div v-show="showPadlock" class="padlock-container">
       <md-icon class="padlock-icon">lock</md-icon>
+    </div>
+    <div class="rate-container">
+        <small class="rate-text">{{ compensationRatePercentage }}</small>
     </div>
   </div>
 </template>
@@ -42,7 +42,7 @@ export default Vue.extend({
   font-size: 0.8rem;
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  justify-content: flex-end;
   min-width: 0;
   margin-right: .4rem;
 }
@@ -51,6 +51,7 @@ export default Vue.extend({
   display: flex;
   flex-direction: column;
   min-width: 0;
+  margin-right: auto;
 }
 
 .customer-name {
@@ -69,23 +70,20 @@ export default Vue.extend({
 
 .rate-container {
   align-self: center;
-  justify-self: right;
-  margin-left: auto; 
+  margin-left: .2rem;
 }
 
 .rate-text {
   justify-self: right;
   font-weight: lighter;
-  margin-left: .5rem;
 }
 
 .padlock-container {
   align-self: center;
-  justify-items: center;
-  min-width: 30px;
+  
 }
 
 .padlock-icon {
-  margin-left: .4rem;
+  margin-left: .2rem;
 }
 </style>
