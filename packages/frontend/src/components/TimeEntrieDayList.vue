@@ -3,7 +3,7 @@
     <HolidayPill v-if="holiday" :holiday="holiday" />
     <ZeroSelectedTasks v-if="rows.length < 1" />
     <div v-for="row in rows" :key="row.task.id" class="grid">
-      <TimeEntrieText :task="row.task" />
+      <TimeEntrieText :task="row.task" :isExpanded="row.task.id === selectedEntryKey" @expand-entry="onExpandEntry"/>
       <HourInput :time-entrie="row.timeEntrie" :is-locked="row.task.locked" />
     </div>
   </div>
@@ -40,6 +40,11 @@ export default Vue.extend({
       },
     },
   },
+  data() {
+    return {
+      selectedEntryKey: -1
+    }
+  }, 
   computed: {
     rows(): Row[] {
       return [...this.rowsWithHours, ...this.rowsWithoutHours].sort(sortList);
@@ -111,6 +116,14 @@ export default Vue.extend({
 
       return { task, timeEntrie };
     },
+    onExpandEntry(id: number) {
+      // If selected entry is same as currently selected, reset to close entry
+      if (this.selectedEntryKey === id) {
+        this.selectedEntryKey = -1;
+      } else {
+        this.selectedEntryKey = id;
+      }
+    }
   },
 });
 

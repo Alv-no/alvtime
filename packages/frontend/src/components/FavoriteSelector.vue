@@ -10,8 +10,8 @@
           @click="clear"
         />
       </div>
-      <div v-for="task in tasks" :key="task.id" class="row">
-        <TimeEntrieText :task="task" />
+      <div v-for="task in tasks" :key="task.id" class="row" >
+        <TimeEntrieText :task="task" :isExpanded="task.id === selectedEntryKey" @expand-entry="onExpandEntry"/>
         <md-checkbox
           :value="!task.favorite"
           type="checkbox"
@@ -43,6 +43,7 @@ export default Vue.extend({
   data() {
     return {
       searchphrase: "",
+      selectedEntryKey: -1
     };
   },
 
@@ -76,6 +77,14 @@ export default Vue.extend({
         { ...task, favorite: !task.favorite },
       ]);
     },
+    onExpandEntry(id: number) {
+      // If selected entry is same as currently selected, reset to close entry
+      if (this.selectedEntryKey === id) {
+        this.selectedEntryKey = -1;
+      } else {
+        this.selectedEntryKey = id;
+      }
+    }
   },
 });
 </script>
