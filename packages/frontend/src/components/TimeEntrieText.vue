@@ -1,13 +1,31 @@
 <template>
-  <div class="entry-container">
-    <div class="entry-text">
+  <div class="entry-container" @click="$emit('expand-entry', task.id)">
+    <div class="entry-text" v-if="!isExpanded">
       <span class="customer-name truncate-text">{{ task.project.customer.name }} - {{ task.project.name }}</span>  
       <span class="activity-name truncate-text">{{ task.name }}</span>
+    </div>
+    <div class="entry-text-expanded" v-if="isExpanded">
+      <label class="expanded-label">
+        Kunde:
+        <span class="expanded-text">{{ task.project.customer.name }}</span>  
+      </label>
+      <label class="expanded-label">
+        Prosjekt:
+        <span class="expanded-text">{{ task.project.name }}</span>  
+      </label>
+      <label class="expanded-label">
+        Oppgave:
+        <span class="expanded-text">{{ task.name }}</span>
+      </label>
+      <label class="expanded-label">
+        Rate:
+        <small class="expanded-text">{{ compensationRatePercentage }}</small>
+      </label>      
     </div>
     <div v-show="showPadlock" class="padlock-container">
       <md-icon class="padlock-icon">lock</md-icon>
     </div>
-    <div class="rate-container">
+    <div class="rate-container"  v-if="!isExpanded">
         <small class="rate-text">{{ compensationRatePercentage }}</small>
     </div>
   </div>
@@ -25,6 +43,7 @@ export default Vue.extend({
         return {} as Task;
       },
     },
+    isExpanded: Boolean
   },
   computed: {
     compensationRatePercentage(): string {
@@ -32,7 +51,7 @@ export default Vue.extend({
     },
     showPadlock(): boolean {
       return this.task.locked;
-    },
+    }
   },
 });
 </script>
@@ -52,6 +71,24 @@ export default Vue.extend({
   flex-direction: column;
   min-width: 0;
   margin-right: auto;
+}
+
+.entry-text-expanded {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-right: auto; 
+  margin-top: .4rem;
+  margin-bottom: .4rem;
+  word-break: break-word;
+}
+
+.expanded-label {
+  font-weight: 600;
+}
+.expanded-text {
+  font-weight: normal;
+  font-size: 0.8rem;
 }
 
 .customer-name {
