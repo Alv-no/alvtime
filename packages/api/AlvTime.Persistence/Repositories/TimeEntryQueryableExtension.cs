@@ -14,11 +14,11 @@ namespace AlvTime.Persistence.Repositories
             }
             if (criterias.FromDateInclusive != null)
             {
-                query = query.Where(hour => hour.Date >= criterias.FromDateInclusive);
+                query = query.Where(hour => hour.Date.Date >= criterias.FromDateInclusive);
             }
             if (criterias.ToDateInclusive != null)
             {
-                query = query.Where(hour => hour.Date <= criterias.ToDateInclusive);
+                query = query.Where(hour => hour.Date.Date <= criterias.ToDateInclusive);
             }
             if (criterias.Id != null)
             {

@@ -6,7 +6,7 @@ namespace AlvTime.Business.TimeEntries
     public interface ITimeEntryStorage
     {
         IEnumerable<TimeEntriesResponseDto> GetTimeEntries(TimeEntryQuerySearch criterias);
-        IEnumerable<TimeEntriesWithCompRateResponseDto> GetTimeEntriesWithCompensationRate(TimeEntryQuerySearch criterias);
+        IEnumerable<TimeEntryWithCompRateDto> GetTimeEntriesWithCompensationRate(TimeEntryQuerySearch criterias);
         TimeEntriesResponseDto GetTimeEntry(TimeEntryQuerySearch criterias);
         TimeEntriesResponseDto CreateTimeEntry(CreateTimeEntryDto timeEntry, int userId);
         TimeEntriesResponseDto UpdateTimeEntry(CreateTimeEntryDto timeEntry, int userId);

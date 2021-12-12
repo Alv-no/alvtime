@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Tests.UnitTests
 {
@@ -13,6 +14,7 @@ namespace Tests.UnitTests
         {
             var options = new DbContextOptionsBuilder<AlvTime_dbContext>()
                             .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                            .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                             .Options;
 
             _context = new AlvTime_dbContext(options);
@@ -181,13 +183,15 @@ namespace Tests.UnitTests
             _context.CompensationRate.Add(new CompensationRate
             {
                 TaskId = 1,
-                Value = 1.0M
+                Value = 1.0M,
+                FromDate = new DateTime(2020, 01 ,01)
             });
 
             _context.CompensationRate.Add(new CompensationRate
             {
                 TaskId = 2,
-                Value = 1.0M
+                Value = 1.0M,
+                FromDate = new DateTime(2020, 01 ,01)
             });
 
             _context.SaveChanges();
@@ -221,6 +225,27 @@ namespace Tests.UnitTests
                 Project = 2,
                 Name = "SickDay",
                 Locked = false
+            });
+            
+            _context.CompensationRate.Add(new CompensationRate
+            {
+                TaskId = 12,
+                Value = 1.0M,
+                FromDate = new DateTime(2020, 01 ,01)
+            });
+
+            _context.CompensationRate.Add(new CompensationRate
+            {
+                TaskId = 13,
+                Value = 1.0M,
+                FromDate = new DateTime(2020, 01 ,01)
+            });
+            
+            _context.CompensationRate.Add(new CompensationRate
+            {
+                TaskId = 14,
+                Value = 1.0M,
+                FromDate = new DateTime(2020, 01 ,01)
             });
 
             _context.SaveChanges();

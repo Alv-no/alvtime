@@ -12,32 +12,33 @@ namespace AlvTime.Persistence.Repositories
     {
 
         private readonly AlvTime_dbContext _context;
-        private readonly IOvertimeStorage _overtimeStorage;
+        private readonly OvertimeService _overtimeService;
 
-        public TimeEntryStorage(AlvTime_dbContext context, IOvertimeStorage overtimeStorage)
+        public TimeEntryStorage(AlvTime_dbContext context, OvertimeService overtimeService)
         {
             _context = context;
-            _overtimeStorage = overtimeStorage;
+            _overtimeService = overtimeService;
         }
 
-        public IEnumerable<TimeEntriesWithCompRateResponseDto> GetTimeEntriesWithCompensationRate(TimeEntryQuerySearch criterias)
+        public IEnumerable<TimeEntryWithCompRateDto> GetTimeEntriesWithCompensationRate(TimeEntryQuerySearch criterias)
         {
             var timeEntries = GetTimeEntries(criterias);
             var compensationRates = _context.CompensationRate.ToList();
             var timeEntriesWithCompensationRate =
-                timeEntries.GroupJoin(compensationRates, x => x.TaskId, rate => rate.TaskId, (dto, rates) => new TimeEntriesWithCompRateResponseDto
-                {
-                    CompensationRate = rates.OrderByDescending(rate => rate.FromDate).First(x => x.FromDate.Date <= dto.Date.Date).Value,
-                    Id = dto.Id,
-                    Date = dto.Date,
-                    User = dto.User,
-                    Value = dto.Value,
-                    TaskId = dto.TaskId,
-                });
+                timeEntries.GroupJoin(compensationRates, timeEntry => timeEntry.TaskId, rate => rate.TaskId,
+                    (dto, rates) => new TimeEntryWithCompRateDto
+                    {
+                        CompensationRate = rates.OrderByDescending(rate => rate.FromDate)
+                            .First(x => x.FromDate.Date <= dto.Date.Date).Value,
+                        Id = dto.Id,
+                        Date = dto.Date,
+                        User = dto.User,
+                        Value = dto.Value,
+                        TaskId = dto.TaskId,
+                    });
 
             return timeEntriesWithCompensationRate;
         }
-
 
         public IEnumerable<TimeEntriesResponseDto> GetTimeEntries(TimeEntryQuerySearch criterias)
         {
@@ -121,7 +122,13 @@ namespace AlvTime.Persistence.Repositories
                 _context.Hours.Add(hour);
                 _context.SaveChanges();
                 
-                _overtimeStorage.StoreOvertime(timeEntry.Date, userId);
+                var entriesOnDay = GetTimeEntriesWithCompensationRate(new TimeEntryQuerySearch
+                {
+                    UserId = userId,
+                    FromDateInclusive = timeEntry.Date.Date,
+                    ToDateInclusive = timeEntry.Date.Date
+                }).ToList();
+                _overtimeService.StoreNewOvertime(entriesOnDay);
                 
                 transaction.Commit();
 
@@ -145,21 +152,32 @@ namespace AlvTime.Persistence.Repositories
                 .Filter(new TimeEntryQuerySearch
                 {
                     TaskId = timeEntry.TaskId,
-                    FromDateInclusive = timeEntry.Date,
-                    ToDateInclusive = timeEntry.Date,
+                    FromDateInclusive = timeEntry.Date.Date,
+                    ToDateInclusive = timeEntry.Date.Date,
                     UserId = userId
                 })
                 .FirstOrDefault();
 
             var task = _context.Task
-                .Where(t => t.Id == timeEntry.TaskId)
-                .FirstOrDefault();
+                .FirstOrDefault(t => t.Id == timeEntry.TaskId);
 
             if (!hour.Locked && !task.Locked)
             {
+                using var transaction = _context.Database.BeginTransaction();
+                
                 hour.Value = timeEntry.Value;
                 _context.SaveChanges();
 
+                var entriesOnDay = GetTimeEntriesWithCompensationRate(new TimeEntryQuerySearch
+                {
+                    UserId = userId,
+                    FromDateInclusive = timeEntry.Date.Date,
+                    ToDateInclusive = timeEntry.Date.Date
+                }).ToList();
+                _overtimeService.UpdateEarnedOvertime(entriesOnDay);
+                
+                transaction.Commit();
+                
                 return new TimeEntriesResponseDto
                 {
                     Id = hour.Id,
