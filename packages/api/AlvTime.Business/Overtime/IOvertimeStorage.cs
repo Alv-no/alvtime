@@ -1,10 +1,19 @@
 ﻿using System;
-using AlvTime.Business.TimeEntries;
+using System.Collections.Generic;
 
 namespace AlvTime.Business.Overtime
 {
     public interface IOvertimeStorage
     {
-        void StoreOvertime(DateTime timeEntryDate, int userId);
+        List<EarnedOvertimeDto> GetEarnedOvertime(OvertimeQueryFilter criterias);
+        void StoreOvertime(List<OvertimeEntry> overtimeEntries, int userId);
+        void DeleteOvertimeOnDate(DateTime date, int userId);
+    }
+
+    public class OvertimeQueryFilter
+    {
+        public int? UserId { get; set; }
+        public DateTime? Date { get; set; }
+        public decimal? CompensationRate { get; set; }
     }
 }

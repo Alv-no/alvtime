@@ -1,101 +1,52 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AlvTime.Business;
-using AlvTime.Business.FlexiHours;
-using AlvTime.Business.Options;
 using AlvTime.Business.Overtime;
-using AlvTime.Business.TimeEntries;
 using AlvTime.Persistence.DataBaseModels;
-using Microsoft.Extensions.Options;
 
 namespace AlvTime.Persistence.Repositories
 {
     public class OvertimeStorage : IOvertimeStorage
     {
         private readonly AlvTime_dbContext _context;
-        private readonly ITimeEntryStorage _timeEntryStorage;
-        private const decimal HOURS_IN_WORKDAY = 7.5M;
-        private readonly int _absenceProject;
 
-        public OvertimeStorage(AlvTime_dbContext context, IOptionsMonitor<TimeEntryOptions> timeEntryOptions, ITimeEntryStorage timeEntryStorage)
+        public OvertimeStorage(AlvTime_dbContext context)
         {
             _context = context;
-            _timeEntryStorage = timeEntryStorage;
-            _absenceProject = timeEntryOptions.CurrentValue.AbsenceProject;
         }
-        
-        public void StoreOvertime(DateTime timeEntryDate, int userId)
-        {
-            timeEntryDate = timeEntryDate.Date;
-            var allRedDays = new RedDays(timeEntryDate.Year).Dates;
-            var timeEntriesForDay = _timeEntryStorage.GetTimeEntriesWithCompensationRate(new TimeEntryQuerySearch
-            {
-                UserId = userId,
-                FromDateInclusive = timeEntryDate,
-                ToDateInclusive = timeEntryDate
-            });
-            
-            var anticipatedWorkHours =
-                IsWeekend(timeEntryDate) || allRedDays.Contains(timeEntryDate) ? 0 : HOURS_IN_WORKDAY;
-            var normalWorkHoursLeft = anticipatedWorkHours;
-            var overtimeEntries = new List<OvertimeEntry>();
-            foreach (var timeEntry in timeEntriesForDay.OrderByDescending(entry => entry.CompensationRate))
-            {
-                if (anticipatedWorkHours == 0 && !TaskGivesOvertime(timeEntry.TaskId))
-                {
-                    continue;
-                }
-                if (normalWorkHoursLeft <= 0)
-                {
-                    overtimeEntries.Add(new OvertimeEntry
-                    {
-                        Date = timeEntry.Date,
-                        Hours = timeEntry.Value,
-                        CompensationRate = timeEntry.CompensationRate,
-                        TaskId = timeEntry.TaskId
-                    });
-                }
-                if (normalWorkHoursLeft - timeEntry.Value < 0) //Split entry
-                {
-                    overtimeEntries.Add(new OvertimeEntry
-                    {
-                        Date = timeEntry.Date,
-                        Hours = timeEntry.Value - normalWorkHoursLeft,
-                        CompensationRate = timeEntry.CompensationRate,
-                        TaskId = timeEntry.TaskId
-                    });
-                }
 
-                normalWorkHoursLeft -= timeEntry.Value;
-            }
-        }
-        
-        private bool TaskGivesOvertime(int taskId)
+        public List<EarnedOvertimeDto> GetEarnedOvertime(OvertimeQueryFilter criterias)
         {
-            var task = _context.Task.FirstOrDefault(task => task.Id == taskId);
-            return task != null && task.Project != _absenceProject;
+            var overtimeEntries = _context.EarnedOvertime.AsQueryable()
+                .Filter(criterias)
+                .Select(entry => new EarnedOvertimeDto
+                {
+                    Date = entry.Date,
+                    Value = entry.Value,
+                    CompensationRate = entry.CompensationRate,
+                    UserId = entry.UserId
+                })
+                .ToList();
+            return overtimeEntries;
         }
-        
-        private bool WorkedOnRedDay(DateEntry day, List<DateTime> redDays)
+
+        public void StoreOvertime(List<OvertimeEntry> overtimeEntries, int userId)
         {
-            if ((IsWeekend(day) ||
-                 redDays.Contains(day.Date)) &&
-                day.GetWorkingHours() > 0)
+            _context.EarnedOvertime.AddRange(overtimeEntries.Select(entry => new EarnedOvertime
             {
-                return true;
-            }
-            return false;
+                Date = entry.Date,
+                UserId = userId,
+                Value = entry.Hours,
+                CompensationRate = entry.CompensationRate
+            }));
+            _context.SaveChanges();
         }
-        
-        private bool IsWeekend(DateEntry entry)
+
+        public void DeleteOvertimeOnDate(DateTime date, int userId)
         {
-            return entry.Date.DayOfWeek == DayOfWeek.Saturday || entry.Date.DayOfWeek == DayOfWeek.Sunday;
-        }
-        
-        private bool IsWeekend(DateTime date)
-        {
-            return date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
+            var earnedOvertimeOnDate = _context.EarnedOvertime.Where(ot => ot.Date.Date == date.Date && ot.UserId == userId);
+            _context.RemoveRange(earnedOvertimeOnDate);
+            _context.SaveChanges();
         }
     }
 }

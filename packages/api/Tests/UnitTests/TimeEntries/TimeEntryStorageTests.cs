@@ -2,18 +2,45 @@
 using AlvTime.Persistence.Repositories;
 using System;
 using System.Linq;
+using AlvTime.Business.Interfaces;
+using AlvTime.Business.Options;
+using AlvTime.Business.Overtime;
+using AlvTime.Persistence.DataBaseModels;
+using Microsoft.Extensions.Options;
+using Moq;
 using Xunit;
 
 namespace Tests.UnitTests.TimeEntries
 {
     public class TimeEntryStorageTests
     {
+        private readonly AlvTime_dbContext context;
+        private readonly IOptionsMonitor<TimeEntryOptions> options;
+
+        public TimeEntryStorageTests()
+        {
+            context = new AlvTimeDbContextBuilder()
+                .WithTimeEntries()
+                .WithTasks()
+                .WithUsers()
+                .CreateDbContext();
+
+            var entryOptions = new TimeEntryOptions
+            {
+                SickDaysTask = 14,
+                PaidHolidayTask = 13,
+                UnpaidHolidayTask = 19,
+                FlexTask = 18,
+                StartOfOvertimeSystem = new DateTime(2020, 01, 01),
+                AbsenceProject = 9
+            };
+            options = Mock.Of<IOptionsMonitor<TimeEntryOptions>>(options => options.CurrentValue == entryOptions);
+        }
+        
         [Fact]
         public void GetTimeEntries_DatesSpecified_AllEntriesBetweenDates()
         {
-            var context = new AlvTimeDbContextBuilder().CreateDbContext();
-
-            var storage = new TimeEntryStorage(context);
+            var storage = CreateTimeEntryStorage();
 
             var timeEntries = storage.GetTimeEntries(new TimeEntryQuerySearch
             {
@@ -32,9 +59,7 @@ namespace Tests.UnitTests.TimeEntries
         [Fact]
         public void GetTimeEntries_TaskSpecified_AllEntriesWithSpecifiedTask()
         {
-            var context = new AlvTimeDbContextBuilder().CreateDbContext();
-
-            var storage = new TimeEntryStorage(context);
+            var storage = CreateTimeEntryStorage();
 
             var timeEntries = storage.GetTimeEntries(new TimeEntryQuerySearch
             {
@@ -52,9 +77,7 @@ namespace Tests.UnitTests.TimeEntries
         [Fact]
         public void CreateTimeEntry_NewTimeEntry_TimeEntryCreated()
         {
-            var context = new AlvTimeDbContextBuilder().WithUsers().WithTasks().CreateDbContext();
-
-            var storage = new TimeEntryStorage(context);
+            var storage = CreateTimeEntryStorage();
 
             var previousAmountOfEntries = context.Hours.Count();
 
@@ -84,7 +107,7 @@ namespace Tests.UnitTests.TimeEntries
                 .WithUsers()
                 .CreateDbContext();
 
-            var storage = new TimeEntryStorage(context);
+            var storage = CreateTimeEntryStorage();
 
             storage.UpdateTimeEntry(new CreateTimeEntryDto
             {
@@ -102,6 +125,27 @@ namespace Tests.UnitTests.TimeEntries
             });
 
             Assert.True(timeEntry.Value == 10);
+        }
+        
+        public TimeEntryStorage CreateTimeEntryStorage()
+        {
+            return new TimeEntryStorage(context, CreateOvertimeService());
+        }
+
+        public OvertimeService CreateOvertimeService()
+        {
+            var mockUserContext = new Mock<IUserContext>();
+
+            var user = new AlvTime.Business.Models.User
+            {
+                Id = 1,
+                Email = "someone@alv.no",
+                Name = "Someone"
+            };
+
+            mockUserContext.Setup(context => context.GetCurrentUser()).Returns(user);
+
+            return new OvertimeService(new OvertimeStorage(context), mockUserContext.Object, new TaskStorage(context), options);
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace AlvTime.Business.TimeEntries
 {
-    public class TimeEntriesWithCompRateResponseDto
+    public class TimeEntryWithCompRateDto
     {
         public int User { get; set; }
         public string UserEmail { get; set; }
