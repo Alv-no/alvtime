@@ -11,7 +11,11 @@
       </div>
       <ZeroSelectedTasks v-if="tasks.length < 1" />
       <div v-for="task in tasks" :key="task.id" class="row">
-        <TimeEntrieText :task="task" />
+        <TimeEntrieText
+          :task="task"
+          :isExpanded="task.id === selectedEntryKey"
+          @expand-entry="onExpandEntry"
+        />
         <TimeEntrieWeek :task="task" :week="week" />
       </div>
     </div>
@@ -39,7 +43,11 @@ export default Vue.extend({
     ZeroSelectedTasks,
   },
   props: { week: { type: Array as () => Moment[], default: () => [] } },
-
+  data() {
+    return {
+      selectedEntryKey: -1,
+    };
+  },
   computed: {
     tasks(): Task[] {
       const rows = [...this.tasksWithHours, ...this.tasksWithoutHours].sort(
@@ -61,7 +69,7 @@ export default Vue.extend({
       const tasks: Task[] = [];
       for (const entrie of this.weeksTimeEntries) {
         const task = this.$store.getters.getTask(entrie.taskId);
-        if (!tasks.some(t => t.id === task.id)) {
+        if (!tasks.some((t) => t.id === task.id)) {
           tasks.push(task);
         }
       }
@@ -70,7 +78,7 @@ export default Vue.extend({
 
     tasksWithoutHours(): Task[] {
       return this.$store.getters.favoriteTasks.filter(
-        (task: Task) => !this.tasksWithHours.some(t => t.id === task.id)
+        (task: Task) => !this.tasksWithHours.some((t) => t.id === task.id)
       );
     },
 
@@ -103,6 +111,14 @@ export default Vue.extend({
       return this.week.some(
         (date: Moment) => date.format(config.DATE_FORMAT) === d
       );
+    },
+    onExpandEntry(id: number) {
+      // If selected entry is same as currently selected, reset to close entry
+      if (this.selectedEntryKey === id) {
+        this.selectedEntryKey = -1;
+      } else {
+        this.selectedEntryKey = id;
+      }
     },
   },
 });
