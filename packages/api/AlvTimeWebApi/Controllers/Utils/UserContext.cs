@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using AlvTime.Business.Interfaces;
 using AlvTime.Business.Users;
 using AlvTime.Persistence.DataBaseModels;
@@ -27,7 +28,7 @@ namespace AlvTimeWebApi.Controllers.Utils
         {
             var dbUser = _userStorage.GetUser(new UserQuerySearch { Email = Email }).First();
 
-            return new User { Id = dbUser.Id, Email = Email, Name = Name };
+            return new User { Id = dbUser.Id, Email = Email, Name = Name, StartDate = DateTime.Parse(dbUser.StartDate) };
         }
     }
 }

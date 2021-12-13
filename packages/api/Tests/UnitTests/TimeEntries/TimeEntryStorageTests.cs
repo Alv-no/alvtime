@@ -5,6 +5,7 @@ using System.Linq;
 using AlvTime.Business.Interfaces;
 using AlvTime.Business.Options;
 using AlvTime.Business.Overtime;
+using AlvTime.Business.Utils;
 using AlvTime.Persistence.DataBaseModels;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -145,7 +146,12 @@ namespace Tests.UnitTests.TimeEntries
 
             mockUserContext.Setup(context => context.GetCurrentUser()).Returns(user);
 
-            return new OvertimeService(new OvertimeStorage(context), mockUserContext.Object, new TaskStorage(context), options);
+            return new OvertimeService(new OvertimeStorage(context), mockUserContext.Object, new TaskStorage(context), options, CreateTaskUtils());
+        }
+        
+        private TaskUtils CreateTaskUtils()
+        {
+            return new TaskUtils(new TaskStorage(context), options);
         }
     }
 }

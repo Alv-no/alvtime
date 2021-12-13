@@ -9,6 +9,7 @@ namespace Tests.UnitTests
     public class AlvTimeDbContextBuilder
     {
         private AlvTime_dbContext _context;
+        private const int AbsenceProject = 9;
 
         public AlvTimeDbContextBuilder()
         {
@@ -155,6 +156,13 @@ namespace Tests.UnitTests
                 Name = "ExampleProjectTwo",
                 Customer = 1
             });
+            
+            _context.Project.Add(new Project
+            {
+                Id = AbsenceProject,
+                Name = "AbsenceProject",
+                Customer = 1
+            });
 
             _context.SaveChanges();
             return this;
@@ -184,14 +192,14 @@ namespace Tests.UnitTests
             {
                 TaskId = 1,
                 Value = 1.0M,
-                FromDate = new DateTime(2020, 01 ,01)
+                FromDate = new DateTime(2019, 01 ,01)
             });
 
             _context.CompensationRate.Add(new CompensationRate
             {
                 TaskId = 2,
                 Value = 1.0M,
-                FromDate = new DateTime(2020, 01 ,01)
+                FromDate = new DateTime(2019, 01 ,01)
             });
 
             _context.SaveChanges();
@@ -204,7 +212,7 @@ namespace Tests.UnitTests
             {
                 Id = 12,
                 Description = "",
-                Project = 1,
+                Project = AbsenceProject,
                 Name = "UnpaidHoliday",
                 Locked = false,
             });
@@ -213,7 +221,7 @@ namespace Tests.UnitTests
             {
                 Id = 13,
                 Description = "",
-                Project = 2,
+                Project = AbsenceProject,
                 Name = "PaidHoliday",
                 Locked = false
             });
@@ -222,7 +230,7 @@ namespace Tests.UnitTests
             {
                 Id = 14,
                 Description = "",
-                Project = 2,
+                Project = AbsenceProject,
                 Name = "SickDay",
                 Locked = false
             });
@@ -231,21 +239,21 @@ namespace Tests.UnitTests
             {
                 TaskId = 12,
                 Value = 1.0M,
-                FromDate = new DateTime(2020, 01 ,01)
+                FromDate = new DateTime(2019, 01 ,01)
             });
 
             _context.CompensationRate.Add(new CompensationRate
             {
                 TaskId = 13,
                 Value = 1.0M,
-                FromDate = new DateTime(2020, 01 ,01)
+                FromDate = new DateTime(2019, 01 ,01)
             });
             
             _context.CompensationRate.Add(new CompensationRate
             {
                 TaskId = 14,
                 Value = 1.0M,
-                FromDate = new DateTime(2020, 01 ,01)
+                FromDate = new DateTime(2019, 01 ,01)
             });
 
             _context.SaveChanges();

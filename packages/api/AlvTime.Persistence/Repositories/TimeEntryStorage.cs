@@ -128,7 +128,7 @@ namespace AlvTime.Persistence.Repositories
                     FromDateInclusive = timeEntry.Date.Date,
                     ToDateInclusive = timeEntry.Date.Date
                 }).ToList();
-                _overtimeService.StoreNewOvertime(entriesOnDay);
+                _overtimeService.UpdateEarnedOvertime(entriesOnDay);
                 
                 transaction.Commit();
 
