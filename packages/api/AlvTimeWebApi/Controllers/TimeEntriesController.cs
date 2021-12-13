@@ -15,17 +15,17 @@ namespace AlvTimeWebApi.Controllers
     public class TimeEntriesController : Controller
     {
         private readonly ITimeEntryStorage _storage;
-        private readonly TimeEntryCreator _creator;
+        private readonly TimeEntryService _timeEntryService;
         private RetrieveUsers _userRetriever;
         private readonly IOptionsMonitor<TimeEntryOptions> _timeEntryOptions;
 
         private readonly int _reportUser;
 
-        public TimeEntriesController(RetrieveUsers userRetriever, ITimeEntryStorage storage, TimeEntryCreator creator, IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
+        public TimeEntriesController(RetrieveUsers userRetriever, ITimeEntryStorage storage, TimeEntryService timeEntryService, IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
         {
             _userRetriever = userRetriever;
             _storage = storage;
-            _creator = creator;
+            _timeEntryService = timeEntryService;
             _timeEntryOptions = timeEntryOptions;
             _reportUser = _timeEntryOptions.CurrentValue.ReportUser;
         }
@@ -73,9 +73,7 @@ namespace AlvTimeWebApi.Controllers
                 return BadRequest(ModelState.Values);
             }
 
-            var user = _userRetriever.RetrieveUser();
-
-            return Ok(_creator.UpsertTimeEntry(requests, user.Id, user.StartDate)
+            return Ok(_timeEntryService.UpsertTimeEntry(requests)
                 .Select(timeEntry => new
                 {
                     User = timeEntry.User,

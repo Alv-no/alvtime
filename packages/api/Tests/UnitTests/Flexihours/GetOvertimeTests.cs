@@ -8,6 +8,7 @@ using Xunit;
 using Microsoft.Extensions.Options;
 using AlvTime.Business.Options;
 using AlvTime.Business.Overtime;
+using AlvTime.Business.Utils;
 using Moq;
 
 namespace Tests.UnitTests.Flexihours
@@ -334,7 +335,12 @@ namespace Tests.UnitTests.Flexihours
 
             mockUserContext.Setup(context => context.GetCurrentUser()).Returns(user);
 
-            return new OvertimeService(new OvertimeStorage(context), mockUserContext.Object, new TaskStorage(context), options);
+            return new OvertimeService(new OvertimeStorage(context), mockUserContext.Object, new TaskStorage(context), options, CreateTaskUtils());
+        }
+        
+        private TaskUtils CreateTaskUtils()
+        {
+            return new TaskUtils(new TaskStorage(context), options);
         }
 
         private static Hours CreateTimeEntry(DateTime date, decimal value, out int taskId)

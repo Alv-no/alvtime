@@ -9,6 +9,7 @@ using AlvTime.Business.TimeEntries;
 using System;
 using AlvTime.Business.Interfaces;
 using AlvTime.Business.Overtime;
+using AlvTime.Business.Utils;
 using Tests.UnitTests.Flexihours;
 
 namespace Tests.UnitTests.AbsenseDaysStorage
@@ -313,7 +314,12 @@ namespace Tests.UnitTests.AbsenseDaysStorage
 
             mockUserContext.Setup(context => context.GetCurrentUser()).Returns(user);
 
-            return new OvertimeService(new OvertimeStorage(context), mockUserContext.Object, new TaskStorage(context), options);
+            return new OvertimeService(new OvertimeStorage(context), mockUserContext.Object, new TaskStorage(context), options, CreateTaskUtils());
+        }
+        
+        private TaskUtils CreateTaskUtils()
+        {
+            return new TaskUtils(new TaskStorage(context), options);
         }
     }
 }

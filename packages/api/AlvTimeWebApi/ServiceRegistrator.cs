@@ -16,6 +16,7 @@ using AlvTime.Business.Tasks;
 using AlvTime.Business.Tasks.Admin;
 using AlvTime.Business.TimeEntries;
 using AlvTime.Business.Users;
+using AlvTime.Business.Utils;
 using AlvTime.Persistence.Repositories;
 using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.Extensions.Configuration;
@@ -36,7 +37,7 @@ namespace AlvTimeWebApi
             services.AddScoped<FavoriteUpdater>();
             services.AddScoped<TaskCreator>();
             services.AddScoped<ITimeEntryStorage, TimeEntryStorage>();
-            services.AddScoped<TimeEntryCreator>();
+            services.AddScoped<TimeEntryService>();
             services.AddScoped<IHourRateStorage, HourRateStorage>();
             services.AddScoped<HourRateCreator>();
             services.AddScoped<IProjectStorage, ProjectStorage>();
@@ -56,6 +57,7 @@ namespace AlvTimeWebApi
             services.AddScoped<OvertimeService>();
             services.AddScoped<IPayoutStorage, PayoutStorage>();
             services.AddScoped<PayoutService>();
+            services.AddScoped<TaskUtils>();
         }
     }
 }

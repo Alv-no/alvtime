@@ -88,7 +88,12 @@ namespace Tests.UnitTests.BusinessLogic
             Assert.DoesNotContain(new DateTime(2022, 04, 19), redDays.Dates);
             Assert.Contains(new DateTime(2022, 06, 05), redDays.Dates);
             Assert.Contains(new DateTime(2022, 06, 06), redDays.Dates);
+            Assert.DoesNotContain(new DateTime(2022, 04, 11), redDays.Dates);
+            Assert.DoesNotContain(new DateTime(2022, 04, 12), redDays.Dates);
+            Assert.DoesNotContain(new DateTime(2022, 04, 13), redDays.Dates);
             Assert.DoesNotContain(new DateTime(2022, 06, 04), redDays.Dates);
+            Assert.DoesNotContain(new DateTime(2022, 12, 27), redDays.Dates);
+            Assert.DoesNotContain(new DateTime(2022, 12, 30), redDays.Dates);
         }
 
         [Fact]
@@ -97,7 +102,9 @@ namespace Tests.UnitTests.BusinessLogic
             var redDays = new RedDays(2030);
 
             Assert.Contains(new DateTime(2030, 04, 21), redDays.Dates);
-            Assert.Contains(new DateTime(2030, 04, 16), redDays.Dates);
+            Assert.DoesNotContain(new DateTime(2030, 04, 15), redDays.Dates);
+            Assert.DoesNotContain(new DateTime(2030, 04, 16), redDays.Dates);
+            Assert.DoesNotContain(new DateTime(2030, 04, 17), redDays.Dates);
             Assert.Contains(new DateTime(2030, 04, 22), redDays.Dates);
             Assert.Contains(new DateTime(2030, 06, 09), redDays.Dates);
             Assert.Contains(new DateTime(2030, 06, 10), redDays.Dates);

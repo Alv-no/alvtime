@@ -9,33 +9,58 @@ namespace AlvTime.Business
 
         public RedDays(int year)
         {
-            Dates = new List<DateTime>
+            if (year < 2022)
             {
-                new DateTime(year, 01, 01).Date,
-                GetPalmeSondag(year).Date,
-                GetMondayInEaster(year).Date,
-                GetTuesdayInEaster(year).Date,
-                GetWednesdayInEaster(year).Date,
-                GetSkjaerTorsdag(year).Date,
-                GetLangfredag(year).Date,
-                GetPaskeAften(year).Date,
-                GetEasterSunday(year).Date,
-                GetAndrePaskeDag(year).Date,
-                GetKristiHimmelfart(year).Date,
-                GetForstePinsedag(year).Date,
-                GetAndrePinsedag(year).Date,
-                new DateTime(year, 05, 01).Date,
-                new DateTime(year, 05, 17).Date,
-                new DateTime(year, 12, 24).Date,
-                new DateTime(year, 12, 25).Date,
-                new DateTime(year, 12, 26).Date,
-                new DateTime(year, 12, 27).Date,
-                new DateTime(year, 12, 28).Date,
-                new DateTime(year, 12, 29).Date,
-                new DateTime(year, 12, 30).Date,
-                new DateTime(year, 12, 31).Date,
-
-            };
+                Dates = new List<DateTime>
+                {
+                    new DateTime(year, 01, 01).Date,
+                    GetPalmeSondag(year).Date,
+                    GetMondayInEaster(year).Date,
+                    GetTuesdayInEaster(year).Date,
+                    GetWednesdayInEaster(year).Date,
+                    GetSkjaerTorsdag(year).Date,
+                    GetLangfredag(year).Date,
+                    GetPaskeAften(year).Date,
+                    GetEasterSunday(year).Date,
+                    GetAndrePaskeDag(year).Date,
+                    GetKristiHimmelfart(year).Date,
+                    GetForstePinsedag(year).Date,
+                    GetAndrePinsedag(year).Date,
+                    new DateTime(year, 05, 01).Date,
+                    new DateTime(year, 05, 17).Date,
+                    new DateTime(year, 12, 24).Date,
+                    new DateTime(year, 12, 25).Date,
+                    new DateTime(year, 12, 26).Date,
+                    new DateTime(year, 12, 27).Date,
+                    new DateTime(year, 12, 28).Date,
+                    new DateTime(year, 12, 29).Date,
+                    new DateTime(year, 12, 30).Date,
+                    new DateTime(year, 12, 31).Date,
+                };
+            }
+            else
+            {
+                Dates = new List<DateTime>
+                {
+                    new DateTime(year, 01, 01).Date,
+                    GetPalmeSondag(year).Date,
+                    GetSkjaerTorsdag(year).Date,
+                    GetLangfredag(year).Date,
+                    GetPaskeAften(year).Date,
+                    GetEasterSunday(year).Date,
+                    GetAndrePaskeDag(year).Date,
+                    GetKristiHimmelfart(year).Date,
+                    GetForstePinsedag(year).Date,
+                    GetAndrePinsedag(year).Date,
+                    new DateTime(year, 05, 01).Date,
+                    new DateTime(year, 05, 17).Date,
+                    new DateTime(year, 12, 24).Date,
+                    new DateTime(year, 12, 25).Date,
+                    new DateTime(year, 12, 26).Date,
+                    new DateTime(year, 12, 31).Date,
+                };
+            }
+            
         }
 
         public DateTime GetPalmeSondag(int year)
