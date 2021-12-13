@@ -16,31 +16,8 @@ namespace AlvTimeWebApi.Controllers
 
         public FlexiHourController(RetrieveUsers userRetriever, IFlexhourStorage storage)
         {
-
             _storage = storage;
             _userRetriever = userRetriever;
-        }
-
-        [HttpGet("AvailableHours")]
-        [Authorize(Policy = "AllowPersonalAccessToken")]
-        public ActionResult<AvailableHoursDto> FetchAvailableHours()
-        {
-            var user = _userRetriever.RetrieveUser();
-
-            var availableHours = _storage.GetAvailableHours(user.Id, user.StartDate, DateTime.Now.Date);
-
-            return Ok(new
-            {
-                AvailableHoursBeforeCompensation = availableHours.AvailableHoursBeforeCompensation,
-                AvailableHoursAfterCompensation = availableHours.AvailableHoursAfterCompensation,
-                Entries = availableHours.Entries.Select(entry => new
-                {
-                    Date = entry.Date.ToDateOnly(),
-                    TaskId = entry.TaskId,
-                    Hours = entry.Hours,
-                    CompensationRate = entry.CompensationRate
-                })
-            });
         }
 
         [HttpGet("FlexedHours")]
