@@ -63,7 +63,7 @@ namespace Tests.UnitTests.Overtime
             
             var overtimeService = CreateOvertimeService();
             var earnedOvertime = overtimeService.GetEarnedOvertime(new OvertimeQueryFilter
-                { StartDate = dateToTest, EndDate = dateToTest, UserId = 1 });
+                { StartDate = dateToTest, EndDate = dateToTest });
             Assert.Empty(earnedOvertime);
         }
         
@@ -77,7 +77,7 @@ namespace Tests.UnitTests.Overtime
 
             var overtimeService = CreateOvertimeService();
             var earnedOvertime = overtimeService.GetEarnedOvertime(new OvertimeQueryFilter
-                { StartDate = dateToTest, EndDate = dateToTest, UserId = 1 });
+                { StartDate = dateToTest, EndDate = dateToTest });
             
             Assert.Single(earnedOvertime);
             Assert.Equal(2, earnedOvertime.First().Value);
@@ -100,7 +100,7 @@ namespace Tests.UnitTests.Overtime
 
             var overtimeService = CreateOvertimeService();
             var earnedOvertime = overtimeService.GetEarnedOvertime(new OvertimeQueryFilter
-                { StartDate = dateToTest, EndDate = dateToTest, UserId = 1 });
+                { StartDate = dateToTest, EndDate = dateToTest });
             
             Assert.Equal(3, earnedOvertime.Count);
             Assert.Equal(4, earnedOvertime.Sum(ot => ot.Value));
@@ -116,7 +116,7 @@ namespace Tests.UnitTests.Overtime
 
             var overtimeService = CreateOvertimeService();
             var earnedOvertime = overtimeService.GetEarnedOvertime(new OvertimeQueryFilter
-                {StartDate = dateToTest, EndDate = dateToTest, UserId = 1 });
+                {StartDate = dateToTest, EndDate = dateToTest });
             
             Assert.Single(earnedOvertime);
             Assert.Equal(2, earnedOvertime.Sum(ot => ot.Value));
@@ -133,7 +133,7 @@ namespace Tests.UnitTests.Overtime
 
             var overtimeService = CreateOvertimeService();
             var earnedOvertime = overtimeService.GetEarnedOvertime(new OvertimeQueryFilter
-                { StartDate = dateToTest, EndDate = dateToTest, UserId = 1 });
+                { StartDate = dateToTest, EndDate = dateToTest });
             
             Assert.Single(earnedOvertime);
             Assert.Equal(2, earnedOvertime.Sum(ot => ot.Value));
@@ -150,7 +150,7 @@ namespace Tests.UnitTests.Overtime
 
             var overtimeService = CreateOvertimeService();
             var earnedOvertime = overtimeService.GetEarnedOvertime(new OvertimeQueryFilter
-                { StartDate = dateToTest, EndDate = dateToTest, UserId = 1 });
+                { StartDate = dateToTest, EndDate = dateToTest });
             
             Assert.Empty(earnedOvertime);
         }
@@ -178,7 +178,7 @@ namespace Tests.UnitTests.Overtime
 
             var overtimeService = CreateOvertimeService();
             var earnedOvertimeOriginal = overtimeService.GetEarnedOvertime(new OvertimeQueryFilter
-                { StartDate = dateToTest, EndDate = dateToTest, UserId = 1 });
+                { StartDate = dateToTest, EndDate = dateToTest });
             
             var timeEntry4 = CreateTimeEntryForExistingTask(dateToTest, 8M, taskId1);
             var timeEntry5 = CreateTimeEntryForExistingTask(dateToTest, 1.5M, taskId3); 
@@ -186,7 +186,7 @@ namespace Tests.UnitTests.Overtime
             timeEntryService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry5.Date, Value = timeEntry5.Value, TaskId = timeEntry5.TaskId} });
             
             var earnedOvertimeUpdated = overtimeService.GetEarnedOvertime(new OvertimeQueryFilter
-                { StartDate = dateToTest, EndDate = dateToTest, UserId = 1 });
+                { StartDate = dateToTest, EndDate = dateToTest });
             
             Assert.NotEqual(earnedOvertimeOriginal, earnedOvertimeUpdated);
             Assert.Equal(3, earnedOvertimeOriginal.Count);
@@ -210,7 +210,7 @@ namespace Tests.UnitTests.Overtime
             
             var overtimeService = CreateOvertimeService();
             var earnedOvertime = overtimeService.GetEarnedOvertime(new OvertimeQueryFilter
-                { StartDate = new DateTime(2021, 12, 6), EndDate = new DateTime(2021, 12, 8), UserId = 1 });
+                { StartDate = new DateTime(2021, 12, 6), EndDate = new DateTime(2021, 12, 8) });
             
             Assert.Equal(3, earnedOvertime.Count);
             Assert.Equal(6.5M, earnedOvertime.Sum(ot => ot.Value));

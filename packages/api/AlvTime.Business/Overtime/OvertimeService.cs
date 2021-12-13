@@ -37,10 +37,12 @@ namespace AlvTime.Business.Overtime
 
         public List<EarnedOvertimeDto> GetEarnedOvertime(OvertimeQueryFilter criterias)
         {
+            var currentUser = _userContext.GetCurrentUser();
+            criterias.UserId = currentUser.Id;
             return _overtimeStorage.GetEarnedOvertime(criterias);
         }
         
-        public AvailableHoursDto GetAvailableOvertime()
+        public AvailableHoursDto GetAvailableOvertimeHours()
         {
             var currentUser = _userContext.GetCurrentUser();
             
