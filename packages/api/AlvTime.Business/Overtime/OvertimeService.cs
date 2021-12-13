@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Interfaces;
 using AlvTime.Business.Options;
 using AlvTime.Business.Tasks;
@@ -37,6 +38,18 @@ namespace AlvTime.Business.Overtime
         public List<EarnedOvertimeDto> GetEarnedOvertime(OvertimeQueryFilter criterias)
         {
             return _overtimeStorage.GetEarnedOvertime(criterias);
+        }
+        
+        public AvailableHoursDto GetAvailableOvertime()
+        {
+            var currentUser = _userContext.GetCurrentUser();
+            
+            return new AvailableHoursDto
+            {
+                AvailableHoursBeforeCompensation = 0,
+                AvailableHoursAfterCompensation = 0,
+                Entries = null
+            };
         }
 
         public List<OvertimeEntry> StoreNewOvertime(List<TimeEntryWithCompRateDto> timeEntriesOnDay)
