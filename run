@@ -5,7 +5,7 @@ set -e
 KEY_VAULT="alvtimedev"
 
 function getSecret() {
-  az keyvault secret show --vault-name $KEY_VAULT --name $1 | jq '.value' -r
+  az keyvault secret show --vault-name "$KEY_VAULT" --name "$1" | jq '.value' -r
 }
 
 [ "up" = "$1" ] && \
@@ -22,12 +22,18 @@ if [ "adminpanel" = "$1" ]; then
 fi
 
 if [ "slack-app" = "$1" ]; then
-  export NGROK_AUTH="$(getSecret ngrok-auth)"
-  export AZURE_AD_CLIENT_SECTRET="$(getSecret azure-ad-client-sectret)"
-  export HOST="$(getSecret host)"
-  export NGROK_HOSTNAME="$(getSecret ngrok-hostname)"
-  export SLACK_BOT_TOKEN="$(getSecret slack-bot-token)"
-  export SLACK_SIGNING_SECRET="$(getSecret slack-signing-secret)"
+  NGROK_AUTH="$(getSecret ngrok-auth)"
+  export NGROK_AUTH
+  AZURE_AD_CLIENT_SECTRET="$(getSecret azure-ad-client-sectret)"
+  export AZURE_AD_CLIENT_SECTRET
+  HOST="$(getSecret host)"
+  export HOST
+  NGROK_HOSTNAME="$(getSecret ngrok-hostname)"
+  export NGROK_HOSTNAME
+  SLACK_BOT_TOKEN="$(getSecret slack-bot-token)"
+  export SLACK_BOT_TOKEN
+  SLACK_SIGNING_SECRET="$(getSecret slack-signing-secret)"
+  export SLACK_SIGNING_SECRET
 
   docker-compose up --detach slack-app
   docker-compose exec slack-app bash
