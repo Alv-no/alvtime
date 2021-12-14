@@ -37,11 +37,12 @@ app.use("/something-went-wrong", (_req, res) => {
 app.use(errorHandler);
 
 function errorHandler(
-  _err: { stack: string },
+  err: { stack: string },
   _req: { log: { error: (s: string) => void } },
   res: { status: (n: number) => { send: (s: string) => void } },
   _next: () => void
 ) {
+  logger.error(err);
   res.status(500).send(createErrorView());
 }
 
