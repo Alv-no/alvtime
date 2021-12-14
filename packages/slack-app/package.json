@@ -7,7 +7,7 @@
     "start": "npm run serve",
     "build": "npm run build-ts && npm run lint",
     "serve": "node dist/app.js",
-    "watch-node": "nodemon dist/app.js",
+    "watch-node": "nodemon dist/app.js | pino-pretty -t",
     "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run watch-node\"",
     "test": "jest --forceExit --coverage --verbose",
     "watch-test": "npm run test -- --watchAll",
@@ -15,7 +15,7 @@
     "watch-ts": "tsc -w",
     "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
     "debug": "npm run build && npm run watch-debug",
-    "serve-debug": "nodemon --inspect-brk=0.0.0.0 dist/app.js",
+    "serve-debug": "nodemon --inspect-brk=0.0.0.0 dist/app.js | pino-pretty -t",
     "watch-debug": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run serve-debug\""
   },
   "dependencies": {
@@ -71,6 +71,7 @@
     "eslint": "^6.8.0",
     "jest": "^25.5.4",
     "nodemon": "^2.0.3",
+    "pino-pretty": "^7.3.0",
     "ts-jest": "^25.5.0",
     "ts-node": "^8.10.1",
     "typescript": "^3.8.3"
