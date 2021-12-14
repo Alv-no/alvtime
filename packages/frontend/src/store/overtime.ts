@@ -78,7 +78,7 @@ interface FlexedHoursReponse {
 }
 
 interface PayoutReponse {
-  totalHours: number;
+  totalHoursBeforeCompRate: number;
   entries: PayoutTransaction[];
 }
 

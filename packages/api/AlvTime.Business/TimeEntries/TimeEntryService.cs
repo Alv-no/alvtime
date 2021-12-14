@@ -13,11 +13,10 @@ namespace AlvTime.Business.TimeEntries
     {
         private readonly ITimeEntryStorage _timeEntryStorage;
         private readonly IFlexhourStorage _flexHourStorage;
-        private readonly IOptionsMonitor<TimeEntryOptions> _timeEntryOptions;
         private readonly IUserContext _userContext;
         private readonly TaskUtils _taskUtils;
         private readonly int _flexTask;
-        private const decimal HOURS_IN_WORKDAY = 7.5M;
+        private const decimal HoursInWorkday = 7.5M;
 
         public TimeEntryService(
             ITimeEntryStorage timeEntryStorage, 
@@ -28,10 +27,9 @@ namespace AlvTime.Business.TimeEntries
         {
             _timeEntryStorage = timeEntryStorage;
             _flexHourStorage = flexHourStorage;
-            _timeEntryOptions = timeEntryOptions;
             _userContext = userContext;
             _taskUtils = taskUtils;
-            _flexTask = _timeEntryOptions.CurrentValue.FlexTask;
+            _flexTask = timeEntryOptions.CurrentValue.FlexTask;
         }
 
         public IEnumerable<TimeEntriesResponseDto> UpsertTimeEntry(IEnumerable<CreateTimeEntryDto> timeEntries)
@@ -61,7 +59,7 @@ namespace AlvTime.Business.TimeEntries
                     }
                 }
 
-                if (timeEntry.Value > HOURS_IN_WORKDAY  && !_taskUtils.TaskGivesOvertime(timeEntry.TaskId))
+                if (timeEntry.Value > HoursInWorkday  && !_taskUtils.TaskGivesOvertime(timeEntry.TaskId))
                 {
                     throw new Exception("You cannot register more than 7.5 hours on that task");
                 }

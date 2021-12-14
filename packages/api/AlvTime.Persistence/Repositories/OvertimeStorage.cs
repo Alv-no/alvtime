@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using AlvTime.Business.Overtime;
+using AlvTime.Business.Payouts;
+using AlvTime.Business.TimeEntries;
 using AlvTime.Persistence.DataBaseModels;
 
 namespace AlvTime.Persistence.Repositories
@@ -47,6 +49,11 @@ namespace AlvTime.Persistence.Repositories
             var earnedOvertimeOnDate = _context.EarnedOvertime.Where(ot => ot.Date.Date == date.Date && ot.UserId == userId);
             _context.RemoveRange(earnedOvertimeOnDate);
             _context.SaveChanges();
+        }
+
+        public AvailableHoursDto GetAvailableHours(int userId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AlvTime.Business.FlexiHours;
 
 namespace AlvTime.Business.Overtime
 {
@@ -8,6 +9,7 @@ namespace AlvTime.Business.Overtime
         List<EarnedOvertimeDto> GetEarnedOvertime(OvertimeQueryFilter criterias);
         void StoreOvertime(List<OvertimeEntry> overtimeEntries, int userId);
         void DeleteOvertimeOnDate(DateTime date, int userId);
+        AvailableHoursDto GetAvailableHours(int userId);
     }
 
     public class OvertimeQueryFilter

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
+using AlvTime.Business.Payouts;
 
 namespace AlvTimeWebApi.Controllers
 {
@@ -37,63 +38,6 @@ namespace AlvTimeWebApi.Controllers
                     Hours = entry.Hours
                 })
             });
-        }
-
-        [HttpGet("Payouts")]
-        [Authorize(Policy = "AllowPersonalAccessToken")]
-        public ActionResult<PayoutsDto> FetchPaidOvertime()
-        {
-            var user = _userRetriever.RetrieveUser();
-
-            var payouts = _storage.GetRegisteredPayouts(user.Id);
-
-            return Ok(new
-            {
-                TotalHours = payouts.TotalHours,
-                Entries = payouts.Entries.Select(entry => new
-                {
-                    Id = entry.Id,
-                    Date = entry.Date.ToDateOnly(),
-                    HoursBeforeCompRate = entry.HoursBeforeCompRate,
-                    HoursAfterCompRate = entry.HoursAfterCompRate,
-                    Active = entry.Active
-                })
-            });
-        }
-
-        [HttpPost("Payouts")]
-        [Authorize(Policy = "AllowPersonalAccessToken")]
-        public ActionResult<GenericHourEntry> RegisterPaidOvertime([FromBody] GenericHourEntry request)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState.Values);
-            }
-
-            var user = _userRetriever.RetrieveUser();
-
-            var response = _storage.RegisterPaidOvertime(new GenericHourEntry
-            {
-                Hours = request.Hours,
-                Date = request.Date
-            }, user.Id);
-
-            return Ok(new GenericHourEntry
-            {
-                Date = response.Date,
-                Hours = response.HoursBeforeCompensation
-            });
-        }
-
-        [HttpDelete("Payouts")]
-        [Authorize]
-        public ActionResult<PaidOvertimeEntry> CancelPaidOvertime([FromQuery] int payoutId)
-        {
-            var user = _userRetriever.RetrieveUser();
-
-            var response = _storage.CancelPayout(user.Id, payoutId);
-
-            return Ok(response);
         }
     }
 }

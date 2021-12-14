@@ -57,7 +57,7 @@ namespace Tests.UnitTests.Flexihours
             var registeredPayouts = calculator.GetRegisteredPayouts(1);
 
             Assert.Equal(10, registerOvertimeResponse.HoursBeforeCompensation);
-            Assert.Equal(10, registeredPayouts.TotalHours);
+            Assert.Equal(10, registeredPayouts.TotalHoursBeforeCompRate);
         }
 
         [Fact]

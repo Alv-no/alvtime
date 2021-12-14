@@ -198,9 +198,9 @@ namespace Tests.UnitTests.Overtime
         public void GetEarnedOvertime_WorkedOvertimeOverSeveralDaysAndChangedOneDay_CorrectOvertimeWithCompRates()
         {
             var timeEntryService = CreateTimeEntryService();
-            var timeEntry1 = CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 6), 9.5M, 1.5M, out int taskId1); 
-            var timeEntry2 = CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 7), 8M, 1.0M, out int taskId2); 
-            var timeEntry3 = CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 8), 11M, 0.5M, out int taskId3); 
+            var timeEntry1 = CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 6), 9.5M, 1.5M, out int taskId1); //Monday 
+            var timeEntry2 = CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 7), 8M, 1.0M, out int taskId2); //Tuesday
+            var timeEntry3 = CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 8), 11M, 0.5M, out int taskId3); //Wednesday
             timeEntryService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
             timeEntryService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId} });
             timeEntryService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId} });
@@ -214,6 +214,21 @@ namespace Tests.UnitTests.Overtime
             
             Assert.Equal(3, earnedOvertime.Count);
             Assert.Equal(6.5M, earnedOvertime.Sum(ot => ot.Value));
+        }
+
+        [Fact]
+        public void GetAvailableHours_Worked9AndAHalfHoursWith1AndAHalfCompRate_2HoursBeforeComp3HoursAfterComp()
+        {
+            var timeEntryService = CreateTimeEntryService();
+            var timeEntry1 = CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 6), 9.5M, 1.5M, out int taskId1); //Monday
+            timeEntryService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
+
+            var overtimeService = CreateOvertimeService();
+            var availableHours = overtimeService.GetAvailableOvertimeHours();
+            
+            Assert.Single(availableHours.Entries);
+            Assert.Equal(2, availableHours.AvailableHoursBeforeCompensation);
+            Assert.Equal(3, availableHours.AvailableHoursAfterCompensation);
         }
 
         private TimeEntryService CreateTimeEntryService()
