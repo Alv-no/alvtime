@@ -41,10 +41,12 @@ namespace AlvTime.Business.Overtime
             criterias.UserId = currentUser.Id;
             return _overtimeStorage.GetEarnedOvertime(criterias);
         }
-        
+        //TODO: IMPLEMENT
         public AvailableHoursDto GetAvailableOvertimeHours()
         {
             var currentUser = _userContext.GetCurrentUser();
+
+            var availableHours = _overtimeStorage.GetAvailableHours(currentUser.Id);
             
             return new AvailableHoursDto
             {

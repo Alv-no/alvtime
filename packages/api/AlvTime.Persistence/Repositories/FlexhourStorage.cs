@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AlvTime.Business.Overtime;
+using AlvTime.Business.Payouts;
 using FluentValidation;
 
 public class FlexhourStorage : IFlexhourStorage
@@ -69,7 +70,7 @@ public class FlexhourStorage : IFlexhourStorage
 
         return new PayoutsDto
         {
-            TotalHours = sumPayouts,
+            TotalHoursBeforeCompRate = sumPayouts,
             Entries = payouts.Select(po => new GenericPayoutEntry
             {
                 Id = po.Id,
