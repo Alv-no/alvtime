@@ -88,10 +88,8 @@ services:
       - ADMIN_USERS=U013CDC0VTQ
       - ALVTIME_API_URI=http://api
       - DB_ENCRYPTION_KEY=dbencryptionkey
-      - DB_PASSWORD=example
-      - DB_USER=root
       - PORT=1337
-      - DB_CONNECTION_STRING=mongodb://mongo
+      - DB_CONNECTION_STRING=mongodb://root:example@mongo
       - HOST
       - AZURE_AD_CLIENT_SECTRET
       - SLACK_BOT_TOKEN
