@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Progress :visible="progressBarVisible" />
+    <Progress :visible="delayed" />
     <mq-layout mq="sm">
       <DaySwiper />
     </mq-layout>
@@ -25,13 +25,37 @@ export default Vue.extend({
     WeekSwiper,
     Progress,
   },
-  computed: {
-    progressBarVisible() {
-      return this.$store.state.timeEntries === null;
-    },
+
+  data() {
+    return {
+      timeout: 0,
+      delayed: false,
+    };
   },
+
   created() {
     this.$store.dispatch("FETCH_TASKS");
+  },
+
+  computed: {
+    progressBarVisible() {
+      return this.$store.state.timeEntriesLoading;
+    },
+  },
+
+  watch: {
+    progressBarVisible() {
+      if (this.timeout) {
+        clearTimeout(this.timeout);
+      }
+      if (this.progressBarVisible) {
+        this.timeout = setTimeout(() => {
+          this.delayed = true;
+        }, 1000);
+      } else {
+        this.delayed = false;
+      }
+    },
   },
 });
 </script>
