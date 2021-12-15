@@ -9,7 +9,7 @@
           </div>
         </div>
       </div>
-      <ZeroSelectedTasks v-if="tasks.length < 1" />
+      <div v-if="tasks.length < 1"><ZeroSelectedTasks /></div>
       <div v-for="task in tasks" :key="task.id" class="row">
         <TimeEntrieText
           :task="task"
