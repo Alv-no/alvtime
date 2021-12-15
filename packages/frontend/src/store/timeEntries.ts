@@ -9,6 +9,7 @@ export interface TimeEntrieState {
   timeEntries: FrontendTimentrie[] | null;
   timeEntriesMap: TimeEntrieMap;
   pushQueue: FrontendTimentrie[];
+  timeEntriesLoading: boolean;
 }
 
 export interface FrontendTimentrie {
@@ -58,6 +59,7 @@ const state = {
   timeEntries: null,
   pushQueue: [],
   timeEntriesMap: {},
+  timeEntriesLoading: false,
 };
 
 const getters = {
@@ -83,7 +85,9 @@ const mutations = {
   ADD_TO_PUSH_QUEUE(state: State, paramEntrie: FrontendTimentrie) {
     state.pushQueue = updateArrayWith(state.pushQueue, paramEntrie);
   },
-
+  SET_TIME_ENTRIES_LOADING(state: State, isLoading: boolean) {
+    state.timeEntriesLoading = isLoading;
+  },
   FLUSH_PUSH_QUEUE(state: State) {
     state.pushQueue = [];
   },
@@ -128,6 +132,7 @@ const actions = {
     { commit }: ActionContext<State, State>,
     params: { fromDateInclusive: string; toDateInclusive: string }
   ) => {
+    commit("SET_TIME_ENTRIES_LOADING", true);
     const url = new URL(config.API_HOST + "/api/user/TimeEntries");
     url.search = new URLSearchParams(params).toString();
 
@@ -136,6 +141,7 @@ const actions = {
         .filter((entrie: ServerSideTimeEntrie) => entrie.value)
         .map(createTimeEntrie);
       commit("UPDATE_TIME_ENTRIES", frontendTimeEntries);
+      commit("SET_TIME_ENTRIES_LOADING", false);
     });
   },
 };
