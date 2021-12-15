@@ -8,7 +8,7 @@ import userDB from "../../models/user";
 import { slackWebClient } from "../../routes/slack";
 import runCommand from "../slack/runCommand";
 import respondToResponseURL from "../../response/respondToResponseURL";
-import { actionTypes } from "../slack/slashCommand";
+import { actionTypes, CommandBody } from "../slack/slashCommand";
 import azureAdStrategy, { AuthenticatedUser, DoneFunc } from "./azureAd";
 import createLoginPage from "./loginPage";
 
@@ -19,6 +19,12 @@ passport.serializeUser((_user: AuthenticatedUser, done: DoneFunc) =>
 
 const oauth2Router = express.Router();
 export default oauth2Router;
+
+declare module "express-session" {
+  interface Session {
+    loginPayload: LoginTokenData;
+  }
+}
 
 oauth2Router.use(passport.initialize());
 oauth2Router.use(passport.session());
@@ -31,7 +37,10 @@ oauth2Router.use(
 );
 
 oauth2Router.get("/login", (req, res) => {
-  const loginPayload = jwt.decode(req.query.token, config.JWT_SECRET);
+  const loginPayload = jwt.decode(
+    req.query.token.toString(),
+    config.JWT_SECRET
+  );
   validateTokenExp(loginPayload.exp);
   req.session.loginPayload = loginPayload;
   res.send(createLoginPage(loginPayload.slackTeamDomain));
@@ -59,12 +68,8 @@ oauth2Router.get(
     }
   },
   (req, res) => {
-    const {
-      slackTeamDomain,
-      slackChannelID,
-      slackUserID,
-      action,
-    } = req.session.loginPayload;
+    const { slackTeamDomain, slackChannelID, slackUserID, action } =
+      req.session.loginPayload;
 
     const { email } = req.user as AuthenticatedUser;
 
@@ -74,7 +79,7 @@ oauth2Router.get(
       slackChannelID
     );
     if (action && actionTypes.COMMAND === action.type) {
-      runCommand(action.value);
+      runCommand(action.value as unknown as CommandBody);
       respondToResponseURL(action.value.response_url, loginSuccessMessage);
     } else {
       slackWebClient.chat.postMessage({
