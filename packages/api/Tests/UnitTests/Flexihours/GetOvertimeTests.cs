@@ -317,30 +317,9 @@ namespace Tests.UnitTests.Flexihours
             return new FlexhourStorage(CreateTimeEntryStorage(), context, options);
         }
         
-        public TimeEntryStorage CreateTimeEntryStorage()
+        public TimeRegistrationStorage CreateTimeEntryStorage()
         {
-            return new TimeEntryStorage(context, CreateOvertimeService());
-        }
-
-        public OvertimeService CreateOvertimeService()
-        {
-            var mockUserContext = new Mock<IUserContext>();
-
-            var user = new AlvTime.Business.Models.User
-            {
-                Id = 1,
-                Email = "someone@alv.no",
-                Name = "Someone"
-            };
-
-            mockUserContext.Setup(context => context.GetCurrentUser()).Returns(user);
-
-            return new OvertimeService(new OvertimeStorage(context), mockUserContext.Object, new TaskStorage(context), options, CreateTaskUtils());
-        }
-        
-        private TaskUtils CreateTaskUtils()
-        {
-            return new TaskUtils(new TaskStorage(context), options);
+            return new TimeRegistrationStorage(context);
         }
 
         private static Hours CreateTimeEntry(DateTime date, decimal value, out int taskId)

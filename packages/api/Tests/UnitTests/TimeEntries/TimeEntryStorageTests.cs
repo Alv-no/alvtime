@@ -5,6 +5,7 @@ using System.Linq;
 using AlvTime.Business.Interfaces;
 using AlvTime.Business.Options;
 using AlvTime.Business.Overtime;
+using AlvTime.Business.TimeRegistration;
 using AlvTime.Business.Utils;
 using AlvTime.Persistence.DataBaseModels;
 using Microsoft.Extensions.Options;
@@ -15,12 +16,12 @@ namespace Tests.UnitTests.TimeEntries
 {
     public class TimeEntryStorageTests
     {
-        private readonly AlvTime_dbContext context;
-        private readonly IOptionsMonitor<TimeEntryOptions> options;
+        private readonly AlvTime_dbContext _context;
+        private readonly IOptionsMonitor<TimeEntryOptions> _options;
 
         public TimeEntryStorageTests()
         {
-            context = new AlvTimeDbContextBuilder()
+            _context = new AlvTimeDbContextBuilder()
                 .WithTimeEntries()
                 .WithTasks()
                 .WithUsers()
@@ -35,7 +36,7 @@ namespace Tests.UnitTests.TimeEntries
                 StartOfOvertimeSystem = new DateTime(2020, 01, 01),
                 AbsenceProject = 9
             };
-            options = Mock.Of<IOptionsMonitor<TimeEntryOptions>>(options => options.CurrentValue == entryOptions);
+            _options = Mock.Of<IOptionsMonitor<TimeEntryOptions>>(options => options.CurrentValue == entryOptions);
         }
         
         [Fact]
@@ -50,7 +51,7 @@ namespace Tests.UnitTests.TimeEntries
                 ToDateInclusive = new DateTime(2020, 01, 01)
             });
 
-            var contextCountInPeriod = context.Hours
+            var contextCountInPeriod = _context.Hours
                 .Where(x => x.Date.Date <= new DateTime(2020, 01, 01) && x.Date.Date >= new DateTime(2019, 01, 01) && x.User == 1)
                 .ToList();
 
@@ -68,7 +69,7 @@ namespace Tests.UnitTests.TimeEntries
                 TaskId = 2
             });
 
-            var contextEntriesWithTask = context.Hours
+            var contextEntriesWithTask = _context.Hours
                 .Where(x => x.TaskId == 2 && x.User == 1)
                 .ToList();
 
@@ -80,7 +81,7 @@ namespace Tests.UnitTests.TimeEntries
         {
             var storage = CreateTimeEntryStorage();
 
-            var previousAmountOfEntries = context.Hours.Count();
+            var previousAmountOfEntries = _context.Hours.Count();
 
             storage.CreateTimeEntry(new CreateTimeEntryDto
             {
@@ -128,30 +129,9 @@ namespace Tests.UnitTests.TimeEntries
             Assert.True(timeEntry.Value == 10);
         }
         
-        public TimeEntryStorage CreateTimeEntryStorage()
+        public TimeRegistrationStorage CreateTimeEntryStorage()
         {
-            return new TimeEntryStorage(context, CreateOvertimeService());
-        }
-
-        public OvertimeService CreateOvertimeService()
-        {
-            var mockUserContext = new Mock<IUserContext>();
-
-            var user = new AlvTime.Business.Models.User
-            {
-                Id = 1,
-                Email = "someone@alv.no",
-                Name = "Someone"
-            };
-
-            mockUserContext.Setup(context => context.GetCurrentUser()).Returns(user);
-
-            return new OvertimeService(new OvertimeStorage(context), mockUserContext.Object, new TaskStorage(context), options, CreateTaskUtils());
-        }
-        
-        private TaskUtils CreateTaskUtils()
-        {
-            return new TaskUtils(new TaskStorage(context), options);
+            return new TimeRegistrationStorage(_context);
         }
     }
 }

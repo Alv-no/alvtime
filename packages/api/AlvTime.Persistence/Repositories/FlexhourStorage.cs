@@ -10,20 +10,21 @@ using System.Collections.Generic;
 using System.Linq;
 using AlvTime.Business.Overtime;
 using AlvTime.Business.Payouts;
+using AlvTime.Business.TimeRegistration;
 using FluentValidation;
 
 public class FlexhourStorage : IFlexhourStorage
 {
     private const decimal HoursInRegularWorkday = 7.5M;
-    private readonly ITimeEntryStorage _timeEntryStorage;
+    private readonly ITimeRegistrationStorage _timeRegistrationStorage;
     private readonly AlvTime_dbContext _context;
     private readonly int _flexTask;
     private readonly int _absenceProject;
     private readonly DateTime _startOfOvertimeSystem;
 
-    public FlexhourStorage(ITimeEntryStorage timeEntryStorage, AlvTime_dbContext context, IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
+    public FlexhourStorage(ITimeRegistrationStorage timeRegistrationStorage, AlvTime_dbContext context, IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
     {
-        _timeEntryStorage = timeEntryStorage;
+        _timeRegistrationStorage = timeRegistrationStorage;
         _context = context;
         _flexTask = timeEntryOptions.CurrentValue.FlexTask;
         _startOfOvertimeSystem = timeEntryOptions.CurrentValue.StartOfOvertimeSystem;
@@ -96,7 +97,7 @@ public class FlexhourStorage : IFlexhourStorage
 
     private List<DateEntry> GetTimeEntries(DateTime startDate, DateTime endDate, int userId)
     {
-        var entriesByDate = _timeEntryStorage.GetDateEntries(new TimeEntryQuerySearch
+        var entriesByDate = _timeRegistrationStorage.GetDateEntries(new TimeEntryQuerySearch
         {
             UserId = userId,
             FromDateInclusive = startDate,

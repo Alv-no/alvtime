@@ -3,40 +3,41 @@ using System.Collections.Generic;
 using System.Linq;
 using AlvTime.Business.Options;
 using AlvTime.Business.TimeEntries;
+using AlvTime.Business.TimeRegistration;
 using Microsoft.Extensions.Options;
 
 namespace AlvTime.Business.AbsenseDays
 {
     public class AbsenseDaysService : IAbsenseDaysService
     {
-        private readonly ITimeEntryStorage timeEntryStorage;
-        private readonly IOptionsMonitor<TimeEntryOptions> timeEntryOptions;
-        private const int vacationDays = 25;
+        private readonly ITimeRegistrationStorage _timeRegistrationStorage;
+        private readonly IOptionsMonitor<TimeEntryOptions> _timeEntryOptions;
+        private const int VacationDays = 25;
 
         // Current law says that you can take three 
         // calendar days in a row 4 times within a 12 month period
-        private const int sickLeaveGroupAmount = 4;
-        private const int sickLeaveGroupSize = 3;
+        private const int SickLeaveGroupAmount = 4;
+        private const int SickLeaveGroupSize = 3;
 
-        public AbsenseDaysService(ITimeEntryStorage timeEntryStorage, IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
+        public AbsenseDaysService(ITimeRegistrationStorage timeRegistrationStorage, IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
         {
-            this.timeEntryStorage = timeEntryStorage;
-            this.timeEntryOptions = timeEntryOptions;
+            _timeRegistrationStorage = timeRegistrationStorage;
+            _timeEntryOptions = timeEntryOptions;
         }
 
         public AbsenseDaysDto GetAbsenseDays(int userId, int year, DateTime? intervalStart)
         {
-            IEnumerable<TimeEntriesResponseDto> sickLeaveDays = timeEntryStorage.GetTimeEntries(new TimeEntryQuerySearch
+            IEnumerable<TimeEntriesResponseDto> sickLeaveDays = _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
             {
                 FromDateInclusive = intervalStart ?? DateTime.Now.AddMonths(-12),
                 ToDateInclusive = intervalStart.HasValue ? intervalStart.Value.AddMonths(12) : DateTime.Now,
                 UserId = userId,
-                TaskId = timeEntryOptions.CurrentValue.SickDaysTask
+                TaskId = _timeEntryOptions.CurrentValue.SickDaysTask
             });
 
             return new AbsenseDaysDto
             {
-                AbsenseDaysInAYear = sickLeaveGroupSize * sickLeaveGroupAmount,
+                AbsenseDaysInAYear = SickLeaveGroupSize * SickLeaveGroupAmount,
                 UsedAbsenseDays = CalculateUsedSickDays(sickLeaveDays.Where(day => day.Value > 0)),
             };
         }
@@ -44,12 +45,17 @@ namespace AlvTime.Business.AbsenseDays
         private IEnumerable<DateTime> GetAlvDays(RedDays redDays, int year)
         {
             // Get the amount of days in romjula that is not a wekkend day
-            // The 3 represents the three days of easter
-            return redDays.Dates.Where(days => days.Month == 12 &&
-                    days.Day > 26 &&
-                    days.Day <= 31 &&
-                    days.DayOfWeek != DayOfWeek.Saturday &&
-                    days.DayOfWeek != DayOfWeek.Sunday).Concat(new List<DateTime> { redDays.GetMondayInEaster(year), redDays.GetTuesdayInEaster(year), redDays.GetWednesdayInEaster(year) });
+            // The 3 represents the three days of easter. Alvdays removed after 2021
+            if (year < 2022)
+            {
+                return redDays.Dates.Where(days => days.Month == 12 &&
+                                                   days.Day > 26 &&
+                                                   days.Day <= 31 &&
+                                                   days.DayOfWeek != DayOfWeek.Saturday &&
+                                                   days.DayOfWeek != DayOfWeek.Sunday).Concat(new List<DateTime> { redDays.GetMondayInEaster(year), redDays.GetTuesdayInEaster(year), redDays.GetWednesdayInEaster(year) });
+            }
+
+            return new List<DateTime>();
         }
 
         private int CalculateUsedSickDays(IEnumerable<TimeEntriesResponseDto> entries)
@@ -62,15 +68,15 @@ namespace AlvTime.Business.AbsenseDays
             for (int i = 0; i < groups.Count(); i++)
             {
                 var group = groups.ElementAt(i);
-                while (group.Count() > sickLeaveGroupSize)
+                while (group.Count() > SickLeaveGroupSize)
                 {
-                    var newGroup = group.Take(sickLeaveGroupSize);
-                    group = group.Skip(sickLeaveGroupSize);
+                    var newGroup = group.Take(SickLeaveGroupSize);
+                    group = group.Skip(SickLeaveGroupSize);
                     groups = groups.Append(newGroup);
                 }
             }
 
-            return (groups.Count() * sickLeaveGroupSize);
+            return (groups.Count() * SickLeaveGroupSize);
 
         }
 
@@ -115,20 +121,20 @@ namespace AlvTime.Business.AbsenseDays
         public VacationDaysDTO GetVacationDays(int userId, int year, int month, int day)
         {
 
-            IEnumerable<TimeEntriesResponseDto> paidVacationEntries = timeEntryStorage.GetTimeEntries(new TimeEntryQuerySearch
+            IEnumerable<TimeEntriesResponseDto> paidVacationEntries = _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
             {
                 FromDateInclusive = new DateTime(year, 01, 01),
                 ToDateInclusive = new DateTime(year, 12, 31),
                 UserId = userId,
-                TaskId = timeEntryOptions.CurrentValue.PaidHolidayTask
+                TaskId = _timeEntryOptions.CurrentValue.PaidHolidayTask
             });
 
-            IEnumerable<TimeEntriesResponseDto> unpaidVacationEntries = timeEntryStorage.GetTimeEntries(new TimeEntryQuerySearch
+            IEnumerable<TimeEntriesResponseDto> unpaidVacationEntries = _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
             {
                 FromDateInclusive = new DateTime(year, 01, 01),
                 ToDateInclusive = new DateTime(year, 12, 31),
                 UserId = userId,
-                TaskId = timeEntryOptions.CurrentValue.UnpaidHolidayTask
+                TaskId = _timeEntryOptions.CurrentValue.UnpaidHolidayTask
             });
 
             var redDays = new RedDays(year);
@@ -149,7 +155,7 @@ namespace AlvTime.Business.AbsenseDays
             {
                 PlannedVacationDays = plannedVacationExcludingAlvdays.Count() + alvdays.Count() - usedAlvdays.Count(),
                 UsedVacationDays = usedVacationExcludingAlvdays.Count() + usedAlvdays.Count(),
-                AvailableVacationDays = vacationDays - plannedVacationExcludingAlvdays.Count() - usedVacationExcludingAlvdays.Count(),
+                AvailableVacationDays = VacationDays - plannedVacationExcludingAlvdays.Count() - usedVacationExcludingAlvdays.Count(),
                 PlannedTransactions = plannedVacation,
                 UsedTransactions = usedVacation
             };

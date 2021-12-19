@@ -5,24 +5,26 @@ using AlvTime.Business.Interfaces;
 using AlvTime.Business.Options;
 using AlvTime.Business.Overtime;
 using AlvTime.Business.TimeEntries;
+using AlvTime.Business.TimeRegistration;
 using AlvTime.Business.Utils;
 using AlvTime.Persistence.DataBaseModels;
 using AlvTime.Persistence.Repositories;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
 namespace Tests.UnitTests.Overtime
 {
-    public class OvertimeServiceTests
+    public class TimeRegistrationServiceTests
     {
-        private readonly AlvTime_dbContext context;
-        private readonly IOptionsMonitor<TimeEntryOptions> options;
-        private readonly Mock<IUserContext> userContextMock;
+        private readonly AlvTime_dbContext _context;
+        private readonly IOptionsMonitor<TimeEntryOptions> _options;
+        private readonly Mock<IUserContext> _userContextMock;
 
-        public OvertimeServiceTests()
+        public TimeRegistrationServiceTests()
         {
-            context = new AlvTimeDbContextBuilder()
+            _context = new AlvTimeDbContextBuilder()
                 .WithTasks()
                 .WithLeaveTasks()
                 .WithProjects()
@@ -39,9 +41,9 @@ namespace Tests.UnitTests.Overtime
                 StartOfOvertimeSystem = new DateTime(2020, 01, 01),
                 AbsenceProject = 9
             };
-            options = Mock.Of<IOptionsMonitor<TimeEntryOptions>>(options => options.CurrentValue == entryOptions);
+            _options = Mock.Of<IOptionsMonitor<TimeEntryOptions>>(options => options.CurrentValue == entryOptions);
             
-            userContextMock = new Mock<IUserContext>();
+            _userContextMock = new Mock<IUserContext>();
 
             var user = new AlvTime.Business.Models.User
             {
@@ -50,19 +52,18 @@ namespace Tests.UnitTests.Overtime
                 Name = "Someone"
             };
 
-            userContextMock.Setup(context => context.GetCurrentUser()).Returns(user);
+            _userContextMock.Setup(context => context.GetCurrentUser()).Returns(user);
         }
         
         [Fact]
         public void GetEarnedOvertime_WorkedRegularDay_NoOvertime()
         {
             var dateToTest = new DateTime(2021, 12, 13); //Monday
-            var timeEntryService = CreateTimeEntryService();
+            var timeRegistrationService = CreateTimeRegistrationService();
             var timeEntry = CreateTimeEntryForExistingTask(dateToTest, 7.5M, 1); //Monday
-            timeEntryService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId} });
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId} });
             
-            var overtimeService = CreateOvertimeService();
-            var earnedOvertime = overtimeService.GetEarnedOvertime(new OvertimeQueryFilter
+            var earnedOvertime = timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
                 { StartDate = dateToTest, EndDate = dateToTest });
             Assert.Empty(earnedOvertime);
         }
@@ -71,12 +72,12 @@ namespace Tests.UnitTests.Overtime
         public void GetEarnedOvertime_Worked9AndAHalfHoursOnWeekday_2HoursOvertime()
         {
             var dateToTest = new DateTime(2021, 12, 13); //Monday
-            var timeEntryService = CreateTimeEntryService();
-            var timeEntry = CreateTimeEntryForExistingTask(dateToTest, 9.5M, 1); //Monday
-            timeEntryService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId} });
+            var timeRegistrationService = CreateTimeRegistrationService();
 
-            var overtimeService = CreateOvertimeService();
-            var earnedOvertime = overtimeService.GetEarnedOvertime(new OvertimeQueryFilter
+            var timeEntry = CreateTimeEntryForExistingTask(dateToTest, 9.5M, 1); //Monday
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId} });
+
+            var earnedOvertime = timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
                 { StartDate = dateToTest, EndDate = dateToTest });
             
             Assert.Single(earnedOvertime);
@@ -90,16 +91,15 @@ namespace Tests.UnitTests.Overtime
         public void GetEarnedOvertime_WorkedOvertimeWithDifferentCompRatesOnWeekday_CorrectOvertimeWithCompRates()
         {
             var dateToTest = new DateTime(2021, 12, 13); //Monday
-            var timeEntryService = CreateTimeEntryService();
+            var timeRegistrationService = CreateTimeRegistrationService();
             var timeEntry1 = CreateTimeEntryWithCompensationRate(dateToTest, 9.5M, 1.5M, out int taskId1); 
             var timeEntry2 = CreateTimeEntryWithCompensationRate(dateToTest, 1M, 1.0M, out int taskId2); 
             var timeEntry3 = CreateTimeEntryWithCompensationRate(dateToTest, 1M, 0.5M, out int taskId3); 
-            timeEntryService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
-            timeEntryService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId} });
-            timeEntryService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId} });
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId} });
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId} });
 
-            var overtimeService = CreateOvertimeService();
-            var earnedOvertime = overtimeService.GetEarnedOvertime(new OvertimeQueryFilter
+            var earnedOvertime = timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
                 { StartDate = dateToTest, EndDate = dateToTest });
             
             Assert.Equal(3, earnedOvertime.Count);
@@ -110,12 +110,11 @@ namespace Tests.UnitTests.Overtime
         public void GetEarnedOvertime_Worked2HoursOnASaturday_2HoursOvertime()
         {
             var dateToTest = new DateTime(2021, 12, 11); //Saturday
-            var timeEntryService = CreateTimeEntryService();
+            var timeRegistrationService = CreateTimeRegistrationService();
             var timeEntry = CreateTimeEntryForExistingTask(dateToTest, 2M, 1);
-            timeEntryService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId} });
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId} });
 
-            var overtimeService = CreateOvertimeService();
-            var earnedOvertime = overtimeService.GetEarnedOvertime(new OvertimeQueryFilter
+            var earnedOvertime = timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
                 {StartDate = dateToTest, EndDate = dateToTest });
             
             Assert.Single(earnedOvertime);
@@ -127,12 +126,11 @@ namespace Tests.UnitTests.Overtime
         public void GetEarnedOvertime_Worked2HoursOnARedDay_2HoursOvertime()
         {
             var dateToTest = new DateTime(2021, 04, 01); //Skjaertorsdag
-            var timeEntryService = CreateTimeEntryService();
+            var timeRegistrationService = CreateTimeRegistrationService();
             var timeEntry = CreateTimeEntryForExistingTask(dateToTest, 2M, 1);
-            timeEntryService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId} });
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId} });
 
-            var overtimeService = CreateOvertimeService();
-            var earnedOvertime = overtimeService.GetEarnedOvertime(new OvertimeQueryFilter
+            var earnedOvertime = timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
                 { StartDate = dateToTest, EndDate = dateToTest });
             
             Assert.Single(earnedOvertime);
@@ -144,12 +142,11 @@ namespace Tests.UnitTests.Overtime
         public void GetEarnedOvertime_RegisteredVacationOnSaturday_NoOvertime()
         {
             var dateToTest = new DateTime(2021, 12, 11); //Saturday
-            var timeEntryService = CreateTimeEntryService();
+            var timeRegistrationService = CreateTimeRegistrationService();
             var timeEntry = CreateTimeEntryForExistingTask(dateToTest, 7.5M, 14);
-            timeEntryService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId} });
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId} });
 
-            var overtimeService = CreateOvertimeService();
-            var earnedOvertime = overtimeService.GetEarnedOvertime(new OvertimeQueryFilter
+            var earnedOvertime = timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
                 { StartDate = dateToTest, EndDate = dateToTest });
             
             Assert.Empty(earnedOvertime);
@@ -159,7 +156,7 @@ namespace Tests.UnitTests.Overtime
         public void GetEarnedOvertime_Registered10HoursVacationOnWeekday_NoOvertime()
         {
             var dateToTest = new DateTime(2021, 12, 13); //Monday
-            var timeEntryService = CreateTimeEntryService();
+            var timeEntryService = CreateTimeRegistrationService();
             var timeEntry = CreateTimeEntryForExistingTask(dateToTest, 10M, 14);
             Assert.Throws<Exception>(() => timeEntryService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId} }));
         }
@@ -168,7 +165,7 @@ namespace Tests.UnitTests.Overtime
         public void GetEarnedOvertime_WorkedOvertimeWithDifferentCompRatesOnWeekdayThenChangedEntries_CorrectOvertimeWithCompRates()
         {
             var dateToTest = new DateTime(2021, 12, 13); //Monday
-            var timeEntryService = CreateTimeEntryService();
+            var timeEntryService = CreateTimeRegistrationService();
             var timeEntry1 = CreateTimeEntryWithCompensationRate(dateToTest, 9.5M, 1.5M, out int taskId1); 
             var timeEntry2 = CreateTimeEntryWithCompensationRate(dateToTest, 1M, 1.0M, out int taskId2); 
             var timeEntry3 = CreateTimeEntryWithCompensationRate(dateToTest, 1M, 0.5M, out int taskId3); 
@@ -176,8 +173,8 @@ namespace Tests.UnitTests.Overtime
             timeEntryService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId} });
             timeEntryService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId} });
 
-            var overtimeService = CreateOvertimeService();
-            var earnedOvertimeOriginal = overtimeService.GetEarnedOvertime(new OvertimeQueryFilter
+            var timeRegistrationService = CreateTimeRegistrationService();
+            var earnedOvertimeOriginal = timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
                 { StartDate = dateToTest, EndDate = dateToTest });
             
             var timeEntry4 = CreateTimeEntryForExistingTask(dateToTest, 8M, taskId1);
@@ -185,19 +182,21 @@ namespace Tests.UnitTests.Overtime
             timeEntryService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry4.Date, Value = timeEntry4.Value, TaskId = timeEntry4.TaskId } });
             timeEntryService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry5.Date, Value = timeEntry5.Value, TaskId = timeEntry5.TaskId} });
             
-            var earnedOvertimeUpdated = overtimeService.GetEarnedOvertime(new OvertimeQueryFilter
+            var earnedOvertimeUpdated = timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
                 { StartDate = dateToTest, EndDate = dateToTest });
             
             Assert.NotEqual(earnedOvertimeOriginal, earnedOvertimeUpdated);
             Assert.Equal(3, earnedOvertimeOriginal.Count);
             Assert.Equal(3, earnedOvertimeUpdated.Count);
             Assert.Equal(3, earnedOvertimeUpdated.Sum(ot => ot.Value));
+            Assert.Equal(4.5M, earnedOvertimeOriginal.Sum(ot => ot.Value * ot.CompensationRate));
+            Assert.Equal(2.5M, earnedOvertimeUpdated.Sum(ot => ot.Value * ot.CompensationRate));
         }
         
         [Fact]
         public void GetEarnedOvertime_WorkedOvertimeOverSeveralDaysAndChangedOneDay_CorrectOvertimeWithCompRates()
         {
-            var timeEntryService = CreateTimeEntryService();
+            var timeEntryService = CreateTimeRegistrationService();
             var timeEntry1 = CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 6), 9.5M, 1.5M, out int taskId1); //Monday 
             var timeEntry2 = CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 7), 8M, 1.0M, out int taskId2); //Tuesday
             var timeEntry3 = CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 8), 11M, 0.5M, out int taskId3); //Wednesday
@@ -208,8 +207,8 @@ namespace Tests.UnitTests.Overtime
             var timeEntry4 = CreateTimeEntryForExistingTask(new DateTime(2021, 12, 7), 8.5M, taskId2); 
             timeEntryService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry4.Date, Value = timeEntry4.Value, TaskId = timeEntry4.TaskId } });
             
-            var overtimeService = CreateOvertimeService();
-            var earnedOvertime = overtimeService.GetEarnedOvertime(new OvertimeQueryFilter
+            var timeRegistrationService = CreateTimeRegistrationService();
+            var earnedOvertime = timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
                 { StartDate = new DateTime(2021, 12, 6), EndDate = new DateTime(2021, 12, 8) });
             
             Assert.Equal(3, earnedOvertime.Count);
@@ -219,36 +218,49 @@ namespace Tests.UnitTests.Overtime
         [Fact]
         public void GetAvailableHours_Worked9AndAHalfHoursWith1AndAHalfCompRate_2HoursBeforeComp3HoursAfterComp()
         {
-            var timeEntryService = CreateTimeEntryService();
-            var timeEntry1 = CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 6), 9.5M, 1.5M, out int taskId1); //Monday
-            timeEntryService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
+            var timeRegistrationService = CreateTimeRegistrationService();
+            var dateToTest = new DateTime(2021, 12, 6);
+            var timeEntry1 = CreateTimeEntryWithCompensationRate(dateToTest, 9.5M, 1.5M, out int taskId1); //Monday
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
 
-            var overtimeService = CreateOvertimeService();
-            var availableHours = overtimeService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
             
             Assert.Single(availableHours.Entries);
             Assert.Equal(2, availableHours.AvailableHoursBeforeCompensation);
             Assert.Equal(3, availableHours.AvailableHoursAfterCompensation);
         }
-
-        private TimeEntryService CreateTimeEntryService()
+        
+        [Fact]
+        public void GetTimeEntries_UpdateOvertimeFails_NoHoursRegistered()
         {
-            return new TimeEntryService(CreateTimeEntryStorage(), null, options, userContextMock.Object, CreateTaskUtils());
+            var mockRepo = new Mock<TimeRegistrationStorage>(_context);
+            mockRepo.Setup(mr => mr.DeleteOvertimeOnDate(It.IsAny<DateTime>(), It.IsAny<int>())).Throws(new Exception());
+            mockRepo.CallBase = true;
+            var timeRegistrationService = new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(), mockRepo.Object);
+            var dateToTest = new DateTime(2021, 12, 13); //Monday
+            var timeEntry = CreateTimeEntryForExistingTask(dateToTest, 10M, 1);
+            try
+            {
+                timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId} });
+            }
+            catch (Exception e)
+            {
+                var earnedOvertime = timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
+                    { StartDate = dateToTest, EndDate = dateToTest });
+            
+                Assert.Empty(_context.Hours);
+                Assert.Empty(earnedOvertime);
+            }
         }
-
-        private TimeEntryStorage CreateTimeEntryStorage()
+        
+        private TimeRegistrationService CreateTimeRegistrationService()
         {
-            return new TimeEntryStorage(context, CreateOvertimeService());
-        }
-
-        private OvertimeService CreateOvertimeService()
-        {
-            return new OvertimeService(new OvertimeStorage(context), userContextMock.Object, new TaskStorage(context), options, CreateTaskUtils());
+            return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(), new TimeRegistrationStorage(_context));
         }
 
         private TaskUtils CreateTaskUtils()
         {
-            return new TaskUtils(new TaskStorage(context), options);
+            return new TaskUtils(new TaskStorage(_context), _options);
         }
 
         private static Hours CreateTimeEntryForExistingTask(DateTime date, decimal value, int taskId)
@@ -266,9 +278,9 @@ namespace Tests.UnitTests.Overtime
         {
             taskId = new Random().Next(1000, 10000000);
             var task = new Task { Id = taskId, Project = 1, };
-            context.Task.Add(task);
-            context.CompensationRate.Add(new CompensationRate { TaskId = taskId, Value = compensationRate, FromDate = new DateTime(2021, 01, 01)});
-            context.SaveChanges();
+            _context.Task.Add(task);
+            _context.CompensationRate.Add(new CompensationRate { TaskId = taskId, Value = compensationRate, FromDate = new DateTime(2021, 01, 01)});
+            _context.SaveChanges();
             
             return new Hours
             {

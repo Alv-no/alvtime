@@ -5,19 +5,18 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using AlvTime.Business.Overtime;
+using AlvTime.Business.TimeRegistration;
 
 namespace AlvTime.Persistence.Repositories
 {
-    public class TimeEntryStorage : ITimeEntryStorage
+    public class TimeRegistrationStorage : ITimeRegistrationStorage
     {
 
         private readonly AlvTime_dbContext _context;
-        private readonly OvertimeService _overtimeService;
 
-        public TimeEntryStorage(AlvTime_dbContext context, OvertimeService overtimeService)
+        public TimeRegistrationStorage(AlvTime_dbContext context)
         {
             _context = context;
-            _overtimeService = overtimeService;
         }
 
         public IEnumerable<TimeEntryWithCompRateDto> GetTimeEntriesWithCompensationRate(TimeEntryQuerySearch criterias)
@@ -104,7 +103,6 @@ namespace AlvTime.Persistence.Repositories
 
         public TimeEntriesResponseDto CreateTimeEntry(CreateTimeEntryDto timeEntry, int userId)
         {
-            using var transaction = _context.Database.BeginTransaction();
             var task = _context.Task
                 .FirstOrDefault(t => t.Id == timeEntry.TaskId);
 
@@ -121,16 +119,6 @@ namespace AlvTime.Persistence.Repositories
                 };
                 _context.Hours.Add(hour);
                 _context.SaveChanges();
-                
-                var entriesOnDay = GetTimeEntriesWithCompensationRate(new TimeEntryQuerySearch
-                {
-                    UserId = userId,
-                    FromDateInclusive = timeEntry.Date.Date,
-                    ToDateInclusive = timeEntry.Date.Date
-                }).ToList();
-                _overtimeService.UpdateEarnedOvertime(entriesOnDay);
-                
-                transaction.Commit();
 
                 return new TimeEntriesResponseDto
                 {
@@ -163,20 +151,8 @@ namespace AlvTime.Persistence.Repositories
 
             if (!hour.Locked && !task.Locked)
             {
-                using var transaction = _context.Database.BeginTransaction();
-                
                 hour.Value = timeEntry.Value;
                 _context.SaveChanges();
-
-                var entriesOnDay = GetTimeEntriesWithCompensationRate(new TimeEntryQuerySearch
-                {
-                    UserId = userId,
-                    FromDateInclusive = timeEntry.Date.Date,
-                    ToDateInclusive = timeEntry.Date.Date
-                }).ToList();
-                _overtimeService.UpdateEarnedOvertime(entriesOnDay);
-                
-                transaction.Commit();
                 
                 return new TimeEntriesResponseDto
                 {
@@ -190,6 +166,45 @@ namespace AlvTime.Persistence.Repositories
             }
 
             throw new Exception("Cannot update time entry. Task or time entry is locked");
+        }
+        
+        public List<EarnedOvertimeDto> GetEarnedOvertime(OvertimeQueryFilter criterias)
+        {
+            var overtimeEntries = _context.EarnedOvertime.AsQueryable()
+                .Filter(criterias)
+                .Select(entry => new EarnedOvertimeDto
+                {
+                    Date = entry.Date,
+                    Value = entry.Value,
+                    CompensationRate = entry.CompensationRate,
+                    UserId = entry.UserId
+                })
+                .ToList();
+            return overtimeEntries;
+        }
+
+        public void StoreOvertime(List<OvertimeEntry> overtimeEntries, int userId)
+        {
+            _context.EarnedOvertime.AddRange(overtimeEntries.Select(entry => new EarnedOvertime
+            {
+                Date = entry.Date,
+                UserId = userId,
+                Value = entry.Hours,
+                CompensationRate = entry.CompensationRate
+            }));
+            _context.SaveChanges();
+        }
+
+        public virtual void DeleteOvertimeOnDate(DateTime date, int userId)
+        {
+            var earnedOvertimeOnDate = _context.EarnedOvertime.Where(ot => ot.Date.Date == date.Date && ot.UserId == userId);
+            _context.RemoveRange(earnedOvertimeOnDate);
+            _context.SaveChanges();
+        }
+
+        public AvailableHoursDto GetAvailableHours(int userId, DateTime fromDateInclusive, DateTime toDateInclusive)
+        {
+            throw new NotImplementedException();
         }
     }
 }

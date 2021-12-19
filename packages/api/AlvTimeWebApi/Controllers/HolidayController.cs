@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using AlvTime.Business.AbsenseDays;
 using AlvTime.Business.Extensions;
 using AlvTime.Business.Holidays;
+using AlvTime.Business.TimeRegistration;
 using Microsoft.Extensions.Logging;
 
 namespace AlvTimeWebApi.Controllers
@@ -19,7 +20,7 @@ namespace AlvTimeWebApi.Controllers
     {
         private readonly IOptionsMonitor<TimeEntryOptions> _timeEntryOptions;
         private readonly RetrieveUsers _userRetriever;
-        private readonly ITimeEntryStorage _timeEntryStorage;
+        private readonly ITimeRegistrationStorage _timeRegistrationStorage;
         private readonly IRedDaysService _redDaysService;
         private readonly ILogger<HolidayController> _logger;
         private readonly IAbsenseDaysService _absenseDaysService;
@@ -27,14 +28,14 @@ namespace AlvTimeWebApi.Controllers
         public HolidayController(
             RetrieveUsers userRetriever, 
             IOptionsMonitor<TimeEntryOptions> timeEntryOptions, 
-            ITimeEntryStorage timeEntryStorage,
+            ITimeRegistrationStorage timeRegistrationStorage,
             IRedDaysService redDaysService,
             ILogger<HolidayController> logger,
             IAbsenseDaysService absenseDaysService)
         {
             _userRetriever = userRetriever;
             _timeEntryOptions = timeEntryOptions;
-            _timeEntryStorage = timeEntryStorage;
+            _timeRegistrationStorage = timeRegistrationStorage;
             _redDaysService = redDaysService;
             _absenseDaysService = absenseDaysService;
             _logger = logger;
@@ -64,7 +65,7 @@ namespace AlvTimeWebApi.Controllers
 
             var user = _userRetriever.RetrieveUser();
 
-            var entries = _timeEntryStorage.GetTimeEntries(new TimeEntryQuerySearch
+            var entries = _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
             {
                 FromDateInclusive = new DateTime(year.Value, 01, 01),
                 ToDateInclusive = new DateTime(year.Value, 12, 31),
@@ -108,7 +109,6 @@ namespace AlvTimeWebApi.Controllers
                 throw;
             }
         }
-
 
         [HttpGet("user/AbsenseOverview")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
