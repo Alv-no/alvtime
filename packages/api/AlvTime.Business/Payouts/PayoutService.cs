@@ -5,6 +5,7 @@ using System.Linq;
 using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Interfaces;
 using AlvTime.Business.Overtime;
+using AlvTime.Business.TimeRegistration;
 
 namespace AlvTime.Business.Payouts
 {
@@ -12,13 +13,13 @@ namespace AlvTime.Business.Payouts
     {
         private readonly IPayoutStorage _payoutStorage;
         private readonly IUserContext _userContext;
-        private readonly OvertimeService _overtimeService;
+        private readonly TimeRegistrationService _timeRegistrationService;
 
-        public PayoutService(IPayoutStorage payoutStorage, IUserContext userContext, OvertimeService overtimeService)
+        public PayoutService(IPayoutStorage payoutStorage, IUserContext userContext, TimeRegistrationService timeRegistrationService)
         {
             _payoutStorage = payoutStorage;
             _userContext = userContext;
-            _overtimeService = overtimeService;
+            _timeRegistrationService = timeRegistrationService;
         }
 
         public PayoutsDto GetRegisteredPayouts()
@@ -32,12 +33,12 @@ namespace AlvTime.Business.Payouts
         {
             var currentUser = _userContext.GetCurrentUser();
 
-            var availableHours = _overtimeService.GetAvailableOvertimeHours();
+            var availableHours = _timeRegistrationService.GetAvailableOvertimeHoursAtDate(request.Date.Date);
             var availableForPayout = availableHours.AvailableHoursBeforeCompensation;
 
             if (request.Hours <= availableForPayout)
             {
-                var payoutHoursAfterCompensationRate = CalculatePayoutHoursBasedOnAvailableOvertime(request.Hours);
+                var payoutHoursAfterCompensationRate = CalculatePayoutHoursBasedOnAvailableOvertime(request.Hours, availableHours);
                 return _payoutStorage.RegisterPayout(currentUser.Id, request, payoutHoursAfterCompensationRate);
             }
 
@@ -54,10 +55,8 @@ namespace AlvTime.Business.Payouts
             return _payoutStorage.CancelPayout(payoutId);
         }
 
-        private decimal CalculatePayoutHoursBasedOnAvailableOvertime(decimal requestedHours)
+        private decimal CalculatePayoutHoursBasedOnAvailableOvertime(decimal requestedHours, AvailableHoursDto availableHours)
         {
-            var availableHours = _overtimeService.GetAvailableOvertimeHours();
-            
             var totalPayout = 0M;
 
             var orderedOverTime = availableHours.Entries.GroupBy(

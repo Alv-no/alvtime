@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using AlvTime.Business.Overtime;
+using AlvTime.Business.TimeRegistration;
 using AlvTime.Persistence.DataBaseModels;
 
 namespace AlvTime.Persistence.Repositories

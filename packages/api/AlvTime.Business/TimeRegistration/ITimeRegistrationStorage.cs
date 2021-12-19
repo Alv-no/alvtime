@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using AlvTime.Business.Overtime;
+using AlvTime.Business.TimeEntries;
 
-namespace AlvTime.Business.TimeEntries
+namespace AlvTime.Business.TimeRegistration
 {
-    public interface ITimeEntryStorage
+    public interface ITimeRegistrationStorage
     {
         IEnumerable<TimeEntriesResponseDto> GetTimeEntries(TimeEntryQuerySearch criterias);
         IEnumerable<TimeEntryWithCompRateDto> GetTimeEntriesWithCompensationRate(TimeEntryQuerySearch criterias);
@@ -11,6 +13,10 @@ namespace AlvTime.Business.TimeEntries
         TimeEntriesResponseDto CreateTimeEntry(CreateTimeEntryDto timeEntry, int userId);
         TimeEntriesResponseDto UpdateTimeEntry(CreateTimeEntryDto timeEntry, int userId);
         IEnumerable<DateEntry> GetDateEntries(TimeEntryQuerySearch criterias);
+        List<EarnedOvertimeDto> GetEarnedOvertime(OvertimeQueryFilter criterias);
+        void StoreOvertime(List<OvertimeEntry> overtimeEntries, int userId);
+        void DeleteOvertimeOnDate(DateTime date, int userId);
+        AvailableHoursDto GetAvailableHours(int userId, DateTime fromDateInclusive, DateTime toDateInclusive);
     }
 
     public class TimeEntryQuerySearch
@@ -21,5 +27,13 @@ namespace AlvTime.Business.TimeEntries
         public DateTime? ToDateInclusive { get; set; }
         public decimal? Value { get; set; }
         public int? TaskId { get; set; }
+    }
+    
+    public class OvertimeQueryFilter
+    {
+        public int? UserId { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public decimal? CompensationRate { get; set; }
     }
 }
