@@ -233,10 +233,17 @@ namespace Tests.UnitTests.Overtime
         [Fact]
         public void GetTimeEntries_UpdateOvertimeFails_NoHoursRegistered()
         {
-            var mockRepo = new Mock<TimeRegistrationStorage>(_context);
+            var context = new AlvTimeDbContextBuilder(true)
+                .WithCustomers()
+                .WithProjects()
+                .WithTasks()
+                .WithLeaveTasks()
+                .WithUsers()
+                .CreateDbContext();
+            var mockRepo = new Mock<TimeRegistrationStorage>(context);
             mockRepo.Setup(mr => mr.DeleteOvertimeOnDate(It.IsAny<DateTime>(), It.IsAny<int>())).Throws(new Exception());
             mockRepo.CallBase = true;
-            var timeRegistrationService = new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(), mockRepo.Object);
+            var timeRegistrationService = new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(), mockRepo.Object, new DbContextScope(context));
             var dateToTest = new DateTime(2021, 12, 13); //Monday
             var timeEntry = CreateTimeEntryForExistingTask(dateToTest, 10M, 1);
             try
@@ -248,14 +255,14 @@ namespace Tests.UnitTests.Overtime
                 var earnedOvertime = timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
                     { StartDate = dateToTest, EndDate = dateToTest });
             
-                Assert.Empty(_context.Hours);
+                Assert.Empty(context.Hours);
                 Assert.Empty(earnedOvertime);
             }
         }
         
         private TimeRegistrationService CreateTimeRegistrationService()
         {
-            return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(), new TimeRegistrationStorage(_context));
+            return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(), new TimeRegistrationStorage(_context), new DbContextScope(_context));
         }
 
         private TaskUtils CreateTaskUtils()

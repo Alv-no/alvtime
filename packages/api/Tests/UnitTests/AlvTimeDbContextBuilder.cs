@@ -2,7 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Tests.UnitTests
 {
@@ -11,14 +14,37 @@ namespace Tests.UnitTests
         private AlvTime_dbContext _context;
         private const int AbsenceProject = 9;
 
-        public AlvTimeDbContextBuilder()
+        public AlvTimeDbContextBuilder(bool isSqlite = false)
         {
-            var options = new DbContextOptionsBuilder<AlvTime_dbContext>()
-                            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                            .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
-                            .Options;
+            if (isSqlite)
+            {
+                var options = new DbContextOptionsBuilder<AlvTime_dbContext>()
+                    .UseSqlite(CreateInMemoryDatabase())
+                    .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+                    .Options; 
+                
+                _context = new AlvTime_dbContext(options);
+                _context.Database.EnsureCreated();
+            }
+            else
+            {
+                var options = new DbContextOptionsBuilder<AlvTime_dbContext>()
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+                    .Options;
+                
+                _context = new AlvTime_dbContext(options);
+            }
 
-            _context = new AlvTime_dbContext(options);
+        }
+
+        private DbConnection CreateInMemoryDatabase()
+        {
+            var connection = new SqliteConnection("Filename=:memory:");
+
+            connection.Open();
+
+            return connection;
         }
 
         public AlvTime_dbContext CreateDbContext()

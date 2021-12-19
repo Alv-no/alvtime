@@ -16,6 +16,7 @@ namespace AlvTime.Business.TimeRegistration
         private readonly IUserContext _userContext;
         private readonly TaskUtils _taskUtils;
         private readonly ITimeRegistrationStorage _timeRegistrationStorage;
+        private readonly IDbContextScope _dbContextScope;
         private readonly int _flexTask;
         private readonly int _paidHolidayTask;
         private const decimal HoursInWorkday = 7.5M;
@@ -24,11 +25,13 @@ namespace AlvTime.Business.TimeRegistration
             IOptionsMonitor<TimeEntryOptions> timeEntryOptions,
             IUserContext userContext,
             TaskUtils taskUtils,
-            ITimeRegistrationStorage timeRegistrationStorage)
+            ITimeRegistrationStorage timeRegistrationStorage,
+            IDbContextScope dbContextScope)
         {
             _userContext = userContext;
             _taskUtils = taskUtils;
             _timeRegistrationStorage = timeRegistrationStorage;
+            _dbContextScope = dbContextScope;
             _flexTask = timeEntryOptions.CurrentValue.FlexTask;
             _paidHolidayTask = timeEntryOptions.CurrentValue.PaidHolidayTask;
         }
@@ -54,14 +57,13 @@ namespace AlvTime.Business.TimeRegistration
 
                 if (GetTimeEntry(criterias) == null)
                 {
-                    using (TransactionScope transaction = new TransactionScope())
+                    _dbContextScope.AsAtomic(() =>
                     {
                         var createdTimeEntry = _timeRegistrationStorage.CreateTimeEntry(timeEntry, userId);
                         response.Add(createdTimeEntry);
                         var entriesOnDay = GetEntriesWithCompRatesForUserOnDay(userId, timeEntry);
                         UpdateEarnedOvertime(entriesOnDay);
-                        transaction.Complete();
-                    }
+                    });
                 }
                 else
                 {
