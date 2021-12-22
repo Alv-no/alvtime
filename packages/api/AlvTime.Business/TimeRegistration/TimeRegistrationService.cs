@@ -67,10 +67,13 @@ namespace AlvTime.Business.TimeRegistration
                 }
                 else
                 {
-                    var updatedTimeEntry = _timeRegistrationStorage.UpdateTimeEntry(timeEntry, userId);
-                    response.Add(updatedTimeEntry);
-                    var entriesOnDay = GetEntriesWithCompRatesForUserOnDay(userId, timeEntry);
-                    UpdateEarnedOvertime(entriesOnDay);
+                    _dbContextScope.AsAtomic(() =>
+                    {
+                        var updatedTimeEntry = _timeRegistrationStorage.UpdateTimeEntry(timeEntry, userId);
+                        response.Add(updatedTimeEntry);
+                        var entriesOnDay = GetEntriesWithCompRatesForUserOnDay(userId, timeEntry);
+                        UpdateEarnedOvertime(entriesOnDay);
+                    });
                 }
             }
 
