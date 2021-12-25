@@ -3,26 +3,48 @@
 set -e
 
 SHORT_HASH=$(git rev-parse --short=7 HEAD)
+echo SHORT_HASH="$SHORT_HASH"
 export SHORT_HASH
 ENV=$(echo "$1" | awk '{print tolower($0)}')
+echo ENV="$ENV"
 export ENV
 CONTAINER_REGISTRY=alvkubernetesclustertestacr
+echo CONTAINER_REGISTRY="$CONTAINER_REGISTRY"
 export CONTAINER_REGISTRY
 KEY_VAULT="k8sconfig-$ENV-kv"
-export KEY_VAULT
+echo KEY_VAULT="$KEY_VAULT"
 RESOURCE_GROUP_NAME="k8scluster-$ENV-rg"
-export RESOURCE_GROUP_NAME
+echo RESOURCE_GROUP_NAME="$RESOURCE_GROUP_NAME"
 KUBERNETES_CLUSTER_NAME="k8scluster-$ENV-aks"
-export KUBERNETES_CLUSTER_NAME
+echo KUBERNETES_CLUSTER_NAME="$KUBERNETES_CLUSTER_NAME"
 SUBSCRIPTION="k8s-$ENV-subscription"
+echo SUBSCRIPTION="$SUBSCRIPTION"
+if [ "$ENV" = 'review' ]; then
+  SUBDOMAIN="$ENVIRONMENT_SLUG"
+  echo SUBDOMAIN="$SUBDOMAIN"
+  KEY_VAULT="k8sconfig-dev-kv"
+  echo KEY_VAULT="$KEY_VAULT"
+  RESOURCE_GROUP_NAME="k8scluster-dev-rg"
+  echo RESOURCE_GROUP_NAME="$RESOURCE_GROUP_NAME"
+  KUBERNETES_CLUSTER_NAME="k8scluster-dev-aks"
+  echo KUBERNETES_CLUSTER_NAME="$KUBERNETES_CLUSTER_NAME"
+  SUBSCRIPTION="k8s-dev-subscription"
+  echo SUBSCRIPTION="$SUBSCRIPTION"
+fi
+export KEY_VAULT
+export RESOURCE_GROUP_NAME
+export KUBERNETES_CLUSTER_NAME
 export SUBSCRIPTION
 
 function getSecret() {
-  az keyvault secret show --vault-name $KEY_VAULT --name $1 | jq '.value' -r
+  az keyvault secret show --vault-name "$KEY_VAULT" --name "$1" | jq '.value' -r
 }
 
 echo "Getting secrets from key vault $KEY_VAULT..."
 HOSTNAME="$(getSecret alvtime-hostname)"
+if [ "$ENV" = 'review' ]; then
+  HOSTNAME=""
+fi
 export HOSTNAME
 REPORT_USER_PERSONAL_ACCESS_TOKEN="$(getSecret report-user-personal-access-token)"
 export REPORT_USER_PERSONAL_ACCESS_TOKEN

@@ -44,7 +44,7 @@ helm upgrade slack-api ./chart \
   --namespace "alvtime"
 
 \cp "packages/frontend/k8s_environments/$ENV-env.yaml" chart/env.yaml
-\cp "packages/frontend/k8s_environments/$ENV-config.json" chart/config.json
+sed "s/%SUBDOMAIN%/$SUBDOMAIN/" "src/config/$ENV-config.json" > chart/config.json
 helm upgrade frontend ./chart \
   --install \
   --set image.tag="$SHORT_HASH" \
