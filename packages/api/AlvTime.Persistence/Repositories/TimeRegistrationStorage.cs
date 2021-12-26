@@ -11,7 +11,6 @@ namespace AlvTime.Persistence.Repositories
 {
     public class TimeRegistrationStorage : ITimeRegistrationStorage
     {
-
         private readonly AlvTime_dbContext _context;
 
         public TimeRegistrationStorage(AlvTime_dbContext context)
@@ -42,16 +41,16 @@ namespace AlvTime.Persistence.Repositories
         public IEnumerable<TimeEntriesResponseDto> GetTimeEntries(TimeEntryQuerySearch criterias)
         {
             var hours = _context.Hours.AsQueryable()
-                    .Filter(criterias)
-                    .Select(x => new TimeEntriesResponseDto
-                    {
-                        Id = x.Id,
-                        User = x.User,
-                        Value = x.Value,
-                        Date = x.Date,
-                        TaskId = x.TaskId
-                    })
-                    .ToList();
+                .Filter(criterias)
+                .Select(x => new TimeEntriesResponseDto
+                {
+                    Id = x.Id,
+                    User = x.User,
+                    Value = x.Value,
+                    Date = x.Date,
+                    TaskId = x.TaskId
+                })
+                .ToList();
 
             foreach (var entry in hours)
             {
@@ -153,7 +152,7 @@ namespace AlvTime.Persistence.Repositories
             {
                 hour.Value = timeEntry.Value;
                 _context.SaveChanges();
-                
+
                 return new TimeEntriesResponseDto
                 {
                     Id = hour.Id,
@@ -167,7 +166,7 @@ namespace AlvTime.Persistence.Repositories
 
             throw new Exception("Cannot update time entry. Task or time entry is locked");
         }
-        
+
         public List<EarnedOvertimeDto> GetEarnedOvertime(OvertimeQueryFilter criterias)
         {
             var overtimeEntries = _context.EarnedOvertime.AsQueryable()
@@ -197,14 +196,10 @@ namespace AlvTime.Persistence.Repositories
 
         public virtual void DeleteOvertimeOnDate(DateTime date, int userId)
         {
-            var earnedOvertimeOnDate = _context.EarnedOvertime.Where(ot => ot.Date.Date == date.Date && ot.UserId == userId);
+            var earnedOvertimeOnDate =
+                _context.EarnedOvertime.Where(ot => ot.Date.Date == date.Date && ot.UserId == userId);
             _context.RemoveRange(earnedOvertimeOnDate);
             _context.SaveChanges();
-        }
-
-        public AvailableHoursDto GetAvailableHours(int userId, DateTime fromDateInclusive, DateTime toDateInclusive)
-        {
-            throw new NotImplementedException();
         }
     }
 }

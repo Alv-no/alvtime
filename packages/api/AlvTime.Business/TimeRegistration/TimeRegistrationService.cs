@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
+using AlvTime.Business.CompensationRate;
 using AlvTime.Business.Interfaces;
 using AlvTime.Business.Options;
 using AlvTime.Business.Overtime;
+using AlvTime.Business.Payouts;
 using AlvTime.Business.TimeEntries;
 using AlvTime.Business.Utils;
 using Microsoft.Extensions.Options;
@@ -17,6 +19,8 @@ namespace AlvTime.Business.TimeRegistration
         private readonly TaskUtils _taskUtils;
         private readonly ITimeRegistrationStorage _timeRegistrationStorage;
         private readonly IDbContextScope _dbContextScope;
+        private readonly IPayoutStorage _payoutStorage;
+        private readonly ICompensationRateStorage _compensationRateStorage;
         private readonly int _flexTask;
         private readonly int _paidHolidayTask;
         private const decimal HoursInWorkday = 7.5M;
@@ -26,12 +30,16 @@ namespace AlvTime.Business.TimeRegistration
             IUserContext userContext,
             TaskUtils taskUtils,
             ITimeRegistrationStorage timeRegistrationStorage,
-            IDbContextScope dbContextScope)
+            IDbContextScope dbContextScope,
+            IPayoutStorage payoutStorage,
+            ICompensationRateStorage compensationRateStorage)
         {
             _userContext = userContext;
             _taskUtils = taskUtils;
             _timeRegistrationStorage = timeRegistrationStorage;
             _dbContextScope = dbContextScope;
+            _payoutStorage = payoutStorage;
+            _compensationRateStorage = compensationRateStorage;
             _flexTask = timeEntryOptions.CurrentValue.FlexTask;
             _paidHolidayTask = timeEntryOptions.CurrentValue.PaidHolidayTask;
         }
@@ -82,8 +90,32 @@ namespace AlvTime.Business.TimeRegistration
 
         private void ValidateTimeEntry(CreateTimeEntryDto timeEntry)
         {
+            var timeEntriesOnDate = _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
+            {
+                FromDateInclusive = timeEntry.Date.Date,
+                ToDateInclusive = timeEntry.Date.Date,
+                UserId = _userContext.GetCurrentUser().Id
+            });
+            
+            var latestPayoutDate = _payoutStorage.GetRegisteredPayouts(_userContext.GetCurrentUser().Id).Entries
+                .OrderBy(po => po.Date).LastOrDefault()?.Date.Date;
+            
+            var allRedDays = new RedDays(timeEntry.Date.Year).Dates;
+            var anticipatedWorkHours =
+                IsWeekend(timeEntry.Date.Date) || allRedDays.Contains(timeEntry.Date.Date) ? 0M : HoursInWorkday;
+
+            if (PayoutWouldBeAffectedByRegistration(timeEntry, latestPayoutDate, timeEntriesOnDate, anticipatedWorkHours))
+            {
+                throw new Exception("You have a registered payout that would be affected by this action. Please contact an admin to register your hours.");
+            }
+            
             if (timeEntry.TaskId == _flexTask)
             {
+                if (latestPayoutDate != null && timeEntry.Date.Date < latestPayoutDate)
+                {
+                    throw new Exception("You have a registered payout that would be affected by this action. Please contact an admin to register your hours.");
+                }
+                
                 var availableHours = GetAvailableOvertimeHoursAtDate(timeEntry.Date.Date);
                 var availableForFlex = availableHours.AvailableHoursBeforeCompensation;
 
@@ -103,6 +135,11 @@ namespace AlvTime.Business.TimeRegistration
             {
                 throw new Exception("You cannot register vacation on a weekend");
             }
+        }
+
+        private static bool PayoutWouldBeAffectedByRegistration(CreateTimeEntryDto timeEntry, DateTime? latestPayoutDate, IEnumerable<TimeEntriesResponseDto> timeEntriesOnDate, decimal anticipatedWorkHours)
+        {
+            return latestPayoutDate != null && timeEntry.Date.Date < latestPayoutDate && timeEntriesOnDate.Sum(te => te.Value) + timeEntry.Value > anticipatedWorkHours;
         }
 
         private List<TimeEntryWithCompRateDto> GetEntriesWithCompRatesForUserOnDay(int userId,
@@ -131,30 +168,47 @@ namespace AlvTime.Business.TimeRegistration
         }
 
         //TODO: IMPLEMENT
-        public AvailableHoursDto GetAvailableOvertimeHours()
+        public AvailableOvertimeDto GetAvailableOvertimeHoursNow()
         {
-            var currentUser = _userContext.GetCurrentUser();
-
-            var availableHours =
-                _timeRegistrationStorage.GetAvailableHours(currentUser.Id, currentUser.StartDate, DateTime.Now);
-
-            return new AvailableHoursDto
-            {
-                AvailableHoursBeforeCompensation = 0,
-                AvailableHoursAfterCompensation = 0,
-                Entries = null
-            };
+            return GetAvailableOvertimeHoursAtDate(DateTime.Now);
         }
 
-        //TODO: IMPLEMENT
-        public AvailableHoursDto GetAvailableOvertimeHoursAtDate(DateTime toDateInclusive)
+        public AvailableOvertimeDto GetAvailableOvertimeHoursAtDate(DateTime toDateInclusive)
         {
             var currentUser = _userContext.GetCurrentUser();
 
-            var availableHours =
-                _timeRegistrationStorage.GetAvailableHours(currentUser.Id, currentUser.StartDate, toDateInclusive);
+            var flexedHours = _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
+            {
+                UserId = currentUser.Id,
+                TaskId = _flexTask,
+                FromDateInclusive = currentUser.StartDate.Date,
+                ToDateInclusive = toDateInclusive.Date
+            }).Sum(flex => flex.Value);
 
-            return new AvailableHoursDto
+            var flexHourCompRate = _compensationRateStorage.GetCompensationRates(new CompensationRateQuerySearch
+            {
+                TaskId = _flexTask
+            }).OrderBy(cr => cr.FromDate).Last();
+
+            var registeredPayouts = _payoutStorage.GetRegisteredPayouts(currentUser.Id);
+
+            var earnedOvertime = _timeRegistrationStorage.GetEarnedOvertime(new OvertimeQueryFilter
+            {
+                UserId = currentUser.Id,
+                StartDate = currentUser.StartDate.Date,
+                EndDate = toDateInclusive.Date
+            });
+            
+            var groupedOvertime = earnedOvertime.GroupBy(eo => eo.CompensationRate).Select(eo => new
+            {
+                CompensationRate = eo.Key,
+                Hours = eo.Sum(entry => entry.Value)                
+            }).OrderBy(e => e.CompensationRate);
+            
+            // Bruk CompensateForPayouts fra Flex
+            // Group alt på dato og start på starten
+
+            return new AvailableOvertimeDto
             {
                 AvailableHoursBeforeCompensation = 0,
                 AvailableHoursAfterCompensation = 0,

@@ -16,7 +16,6 @@ namespace AlvTime.Business.TimeRegistration
         List<EarnedOvertimeDto> GetEarnedOvertime(OvertimeQueryFilter criterias);
         void StoreOvertime(List<OvertimeEntry> overtimeEntries, int userId);
         void DeleteOvertimeOnDate(DateTime date, int userId);
-        AvailableHoursDto GetAvailableHours(int userId, DateTime fromDateInclusive, DateTime toDateInclusive);
     }
 
     public class TimeEntryQuerySearch
