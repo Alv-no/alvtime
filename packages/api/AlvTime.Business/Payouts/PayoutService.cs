@@ -55,7 +55,7 @@ namespace AlvTime.Business.Payouts
             return _payoutStorage.CancelPayout(payoutId);
         }
 
-        private decimal CalculatePayoutHoursBasedOnAvailableOvertime(decimal requestedHours, AvailableHoursDto availableHours)
+        private decimal CalculatePayoutHoursBasedOnAvailableOvertime(decimal requestedHours, AvailableOvertimeDto availableHours)
         {
             var totalPayout = 0M;
 

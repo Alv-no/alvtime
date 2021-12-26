@@ -247,7 +247,7 @@ namespace Tests.UnitTests.Overtime
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId}});
 
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
             Assert.Single(availableHours.Entries);
             Assert.Equal(2, availableHours.AvailableHoursBeforeCompensation);
@@ -269,7 +269,7 @@ namespace Tests.UnitTests.Overtime
                 .Throws(new Exception());
             mockRepo.CallBase = true;
             var timeRegistrationService = new TimeRegistrationService(_options, _userContextMock.Object,
-                CreateTaskUtils(), mockRepo.Object, new DbContextScope(sqliteContext));
+                CreateTaskUtils(), mockRepo.Object, new DbContextScope(sqliteContext), new PayoutStorage(sqliteContext), new CompensationRateStorage(sqliteContext));
             var dateToTest = new DateTime(2021, 12, 13); //Monday
             var timeEntry = CreateTimeEntryForExistingTask(dateToTest, 10M, 1);
             try
@@ -296,7 +296,7 @@ namespace Tests.UnitTests.Overtime
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId}});
 
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
             Assert.Equal(0, availableHours.AvailableHoursBeforeCompensation);
         }
@@ -315,7 +315,7 @@ namespace Tests.UnitTests.Overtime
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId}});
 
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
             Assert.Equal(2.5M, availableHours.AvailableHoursBeforeCompensation);
             Assert.Equal(2.5M, availableHours.AvailableHoursAfterCompensation);
@@ -334,7 +334,7 @@ namespace Tests.UnitTests.Overtime
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId}});
 
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
             Assert.Equal(1.25M, availableHours.AvailableHoursAfterCompensation);
             Assert.Equal(2.5M, availableHours.AvailableHoursBeforeCompensation);
@@ -349,7 +349,7 @@ namespace Tests.UnitTests.Overtime
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId}});
 
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
             Assert.Equal(3M, availableHours.AvailableHoursAfterCompensation);
             Assert.Equal(2M, availableHours.AvailableHoursBeforeCompensation);
@@ -373,7 +373,7 @@ namespace Tests.UnitTests.Overtime
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId}});
 
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
             Assert.Equal(7.5M, availableHours.AvailableHoursAfterCompensation);
             Assert.Equal(10M, availableHours.AvailableHoursBeforeCompensation);
@@ -398,7 +398,7 @@ namespace Tests.UnitTests.Overtime
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId}});
 
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
             Assert.Equal(7.5M, availableHours.AvailableHoursAfterCompensation);
             Assert.Equal(7.5M, availableHours.AvailableHoursBeforeCompensation);
@@ -423,7 +423,7 @@ namespace Tests.UnitTests.Overtime
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = flexTimeEntry.Date, Value = flexTimeEntry.Value, TaskId = flexTimeEntry.TaskId}});
 
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
             Assert.Equal(0M, availableHours.AvailableHoursBeforeCompensation);
         }
@@ -444,7 +444,7 @@ namespace Tests.UnitTests.Overtime
                 Hours = 5
             });
 
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
             
             Assert.Equal(5M, availableHours.AvailableHoursBeforeCompensation);
             Assert.Equal(5M, availableHours.AvailableHoursAfterCompensation);
@@ -476,7 +476,7 @@ namespace Tests.UnitTests.Overtime
                 Hours = 11
             });
 
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
             
             Assert.Equal(15.5M, availableHours.AvailableHoursAfterCompensation);
             Assert.Equal(13M, availableHours.AvailableHoursBeforeCompensation);
@@ -493,7 +493,7 @@ namespace Tests.UnitTests.Overtime
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId}});
             
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
             Assert.Equal(5M, availableHours.AvailableHoursAfterCompensation);
         }
@@ -521,7 +521,7 @@ namespace Tests.UnitTests.Overtime
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId}});
 
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
             Assert.Equal(1.5M, availableHours.AvailableHoursAfterCompensation);
             Assert.Equal(1.0M, availableHours.AvailableHoursBeforeCompensation);
@@ -536,7 +536,7 @@ namespace Tests.UnitTests.Overtime
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId}});
 
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
             Assert.Equal(3M, availableHours.AvailableHoursAfterCompensation);
             Assert.Equal(2M, availableHours.AvailableHoursBeforeCompensation);
@@ -556,7 +556,7 @@ namespace Tests.UnitTests.Overtime
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId}});
 
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
             Assert.Equal(6M, availableHours.AvailableHoursAfterCompensation);
             Assert.Equal(4M, availableHours.AvailableHoursBeforeCompensation);
@@ -576,7 +576,7 @@ namespace Tests.UnitTests.Overtime
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId}});
 
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
             Assert.Equal(6.5M, availableHours.AvailableHoursAfterCompensation);
             Assert.Equal(7M, availableHours.AvailableHoursBeforeCompensation);
@@ -596,7 +596,7 @@ namespace Tests.UnitTests.Overtime
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId}});
 
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
             Assert.Equal(5M, availableHours.AvailableHoursAfterCompensation);
             Assert.Equal(6M, availableHours.AvailableHoursBeforeCompensation);
@@ -617,7 +617,7 @@ namespace Tests.UnitTests.Overtime
                 {new() {Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId}});
 
             var availableHoursAtFirstOvertimeWorked = timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2021, 12, 14));
-            var availableHoursAfterBothOvertimesWorked = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHoursAfterBothOvertimesWorked = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
             Assert.Equal(7.5M, availableHoursAtFirstOvertimeWorked.AvailableHoursAfterCompensation);
             Assert.Equal(15M, availableHoursAfterBothOvertimesWorked.AvailableHoursBeforeCompensation);
@@ -655,7 +655,7 @@ namespace Tests.UnitTests.Overtime
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId}});
 
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
             Assert.Equal(5M, availableHours.AvailableHoursBeforeCompensation);
             Assert.Equal(7.5M, availableHours.AvailableHoursAfterCompensation);
@@ -672,7 +672,7 @@ namespace Tests.UnitTests.Overtime
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId}});
 
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
             Assert.Equal(0M, availableHours.AvailableHoursBeforeCompensation);
         }
@@ -691,7 +691,7 @@ namespace Tests.UnitTests.Overtime
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId}});
 
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
             Assert.Equal(0, availableHours.AvailableHoursBeforeCompensation);
         }
@@ -709,7 +709,7 @@ namespace Tests.UnitTests.Overtime
             Assert.Throws<Exception>(() => timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = flexTimeEntry.Date, Value = flexTimeEntry.Value, TaskId = flexTimeEntry.TaskId}}));
             
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
             Assert.Equal(1M, availableHours.AvailableHoursBeforeCompensation);
             Assert.Equal(1.5M, availableHours.AvailableHoursAfterCompensation);
@@ -735,7 +735,7 @@ namespace Tests.UnitTests.Overtime
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = vacationEntry.Date, Value = vacationEntry.Value, TaskId = vacationEntry.TaskId}});
             
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
             Assert.Equal(0M, availableHours.AvailableHoursBeforeCompensation);
         }
@@ -749,7 +749,7 @@ namespace Tests.UnitTests.Overtime
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = vacationEntry.Date, Value = vacationEntry.Value, TaskId = vacationEntry.TaskId}});
             
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHours();
+            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
             
             Assert.Equal(4M, availableHours.AvailableHoursBeforeCompensation);
             Assert.Equal(6M, availableHours.AvailableHoursAfterCompensation);
@@ -758,7 +758,7 @@ namespace Tests.UnitTests.Overtime
         private TimeRegistrationService CreateTimeRegistrationService()
         {
             return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
-                new TimeRegistrationStorage(_context), new DbContextScope(_context));
+                new TimeRegistrationStorage(_context), new DbContextScope(_context), new PayoutStorage(_context), new CompensationRateStorage(_context));
         }
         
         private PayoutService CreatePayoutService(TimeRegistrationService timeRegistrationService)

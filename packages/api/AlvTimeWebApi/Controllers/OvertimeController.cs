@@ -21,9 +21,9 @@ namespace AlvTimeWebApi.Controllers
         
         [HttpGet("AvailableHours")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
-        public AvailableHoursDto FetchAvailableHours()
+        public AvailableOvertimeDto FetchAvailableHours()
         {
-            return _timeRegistrationService.GetAvailableOvertimeHours();
+            return _timeRegistrationService.GetAvailableOvertimeHoursNow();
         }
         
         [HttpGet("EarnedOvertime")]
