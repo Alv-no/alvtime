@@ -17,9 +17,11 @@ namespace AlvTime.Persistence.Repositories
             _context = context;
         }
 
-        public PayoutsDto GetRegisteredPayouts(int userId)
+        public PayoutsDto GetRegisteredPayouts(PayoutQueryFilter criterias)
         {
-            var payouts = _context.PaidOvertime.Where(ot => ot.User == userId).ToList();
+            var payouts = _context.PaidOvertime.AsQueryable()
+                .Filter(criterias)
+                .ToList();
 
             return new PayoutsDto
             {

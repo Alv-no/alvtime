@@ -261,6 +261,15 @@ namespace Tests.UnitTests
                 Locked = false
             });
             
+            _context.Task.Add(new Task
+            {
+                Id = 18,
+                Description = "",
+                Project = AbsenceProject,
+                Name = "Flex",
+                Locked = false
+            });
+            
             _context.CompensationRate.Add(new CompensationRate
             {
                 TaskId = 12,
@@ -278,6 +287,13 @@ namespace Tests.UnitTests
             _context.CompensationRate.Add(new CompensationRate
             {
                 TaskId = 14,
+                Value = 1.0M,
+                FromDate = new DateTime(2019, 01 ,01)
+            });
+            
+            _context.CompensationRate.Add(new CompensationRate
+            {
+                TaskId = 18,
                 Value = 1.0M,
                 FromDate = new DateTime(2019, 01 ,01)
             });

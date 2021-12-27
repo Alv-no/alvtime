@@ -20,7 +20,6 @@ namespace AlvTime.Business.TimeRegistration
         private readonly ITimeRegistrationStorage _timeRegistrationStorage;
         private readonly IDbContextScope _dbContextScope;
         private readonly IPayoutStorage _payoutStorage;
-        private readonly ICompensationRateStorage _compensationRateStorage;
         private readonly int _flexTask;
         private readonly int _paidHolidayTask;
         private const decimal HoursInWorkday = 7.5M;
@@ -31,15 +30,13 @@ namespace AlvTime.Business.TimeRegistration
             TaskUtils taskUtils,
             ITimeRegistrationStorage timeRegistrationStorage,
             IDbContextScope dbContextScope,
-            IPayoutStorage payoutStorage,
-            ICompensationRateStorage compensationRateStorage)
+            IPayoutStorage payoutStorage)
         {
             _userContext = userContext;
             _taskUtils = taskUtils;
             _timeRegistrationStorage = timeRegistrationStorage;
             _dbContextScope = dbContextScope;
             _payoutStorage = payoutStorage;
-            _compensationRateStorage = compensationRateStorage;
             _flexTask = timeEntryOptions.CurrentValue.FlexTask;
             _paidHolidayTask = timeEntryOptions.CurrentValue.PaidHolidayTask;
         }
@@ -97,7 +94,7 @@ namespace AlvTime.Business.TimeRegistration
                 UserId = _userContext.GetCurrentUser().Id
             });
             
-            var latestPayoutDate = _payoutStorage.GetRegisteredPayouts(_userContext.GetCurrentUser().Id).Entries
+            var latestPayoutDate = _payoutStorage.GetRegisteredPayouts(new PayoutQueryFilter{ UserId = _userContext.GetCurrentUser().Id }).Entries
                 .OrderBy(po => po.Date).LastOrDefault()?.Date.Date;
             
             var allRedDays = new RedDays(timeEntry.Date.Year).Dates;
@@ -167,7 +164,6 @@ namespace AlvTime.Business.TimeRegistration
             return _timeRegistrationStorage.GetEarnedOvertime(criterias);
         }
 
-        //TODO: IMPLEMENT
         public AvailableOvertimeDto GetAvailableOvertimeHoursNow()
         {
             return GetAvailableOvertimeHoursAtDate(DateTime.Now);
@@ -176,44 +172,126 @@ namespace AlvTime.Business.TimeRegistration
         public AvailableOvertimeDto GetAvailableOvertimeHoursAtDate(DateTime toDateInclusive)
         {
             var currentUser = _userContext.GetCurrentUser();
+            
+            var earnedOvertime = _timeRegistrationStorage.GetEarnedOvertime(new OvertimeQueryFilter
+            {
+                UserId = currentUser.Id,
+                EndDate = toDateInclusive.Date
+            });
+            
+            var timeEntries = new List<TimeEntry>();
+            timeEntries.AddRange(earnedOvertime.Select(eo => new TimeEntry
+            {
+                Date = eo.Date,
+                Hours = eo.Value,
+                CompensationRate = eo.CompensationRate
+            }));
 
-            var flexedHours = _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
+            CompensateForFlexedHours(timeEntries, toDateInclusive);
+            CompensateForPayouts(timeEntries, toDateInclusive);
+
+            var availableBeforeCompRate = timeEntries.Sum(e => e.Hours);
+            var availableAfterCompRate = timeEntries.Sum(e => e.Hours * e.CompensationRate);
+            
+            return new AvailableOvertimeDto
+            {
+                AvailableHoursBeforeCompensation = availableBeforeCompRate,
+                AvailableHoursAfterCompensation = availableAfterCompRate,
+                Entries = timeEntries
+            };
+        }
+
+        private void CompensateForFlexedHours(List<TimeEntry> timeEntries, DateTime toDateInclusive)
+        {
+            var currentUser = _userContext.GetCurrentUser();
+            
+            var flexedTimeEntries = _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
             {
                 UserId = currentUser.Id,
                 TaskId = _flexTask,
                 FromDateInclusive = currentUser.StartDate.Date,
                 ToDateInclusive = toDateInclusive.Date
-            }).Sum(flex => flex.Value);
+            });
+            var flexEntries = flexedTimeEntries.ToList();
+            var sumFlexedHours = flexEntries.Sum(flex => flex.Value);
 
-            var flexHourCompRate = _compensationRateStorage.GetCompensationRates(new CompensationRateQuerySearch
+            foreach (var flexTimeEntry in flexEntries)
             {
-                TaskId = _flexTask
-            }).OrderBy(cr => cr.FromDate).Last();
+                var relevantOvertimeGroupedByCompRate = timeEntries
+                    .Where(ot => ot.Date < flexTimeEntry.Date)
+                    .GroupBy(eo => eo.CompensationRate)
+                    .Select(eo => new
+                {
+                    CompensationRate = eo.Key,
+                    Hours = eo.Sum(entry => entry.Hours)                
+                }).OrderBy(e => e.CompensationRate);
+                
+                foreach (var overtimeGroup in relevantOvertimeGroupedByCompRate)
+                {
+                    if (sumFlexedHours <= 0)
+                    {
+                        break;
+                    }
 
-            var registeredPayouts = _payoutStorage.GetRegisteredPayouts(currentUser.Id);
+                    var entry = new TimeEntry
+                    {
+                        Hours = -Math.Min(sumFlexedHours, overtimeGroup.Hours),
+                        CompensationRate = overtimeGroup.CompensationRate,
+                        Date = flexTimeEntry.Date
+                    };
+                
+                    timeEntries.Add(entry);
+                    sumFlexedHours += entry.Hours;
+                }
+            }
+        }
 
-            var earnedOvertime = _timeRegistrationStorage.GetEarnedOvertime(new OvertimeQueryFilter
+        private void CompensateForPayouts(List<TimeEntry> timeEntries, DateTime toDateInclusive)
+        {
+            var currentUser = _userContext.GetCurrentUser();
+
+            var registeredPayouts = _payoutStorage.GetRegisteredPayouts(new PayoutQueryFilter
             {
                 UserId = currentUser.Id,
-                StartDate = currentUser.StartDate.Date,
-                EndDate = toDateInclusive.Date
+                ToDateInclusive = toDateInclusive.Date
             });
             
-            var groupedOvertime = earnedOvertime.GroupBy(eo => eo.CompensationRate).Select(eo => new
-            {
-                CompensationRate = eo.Key,
-                Hours = eo.Sum(entry => entry.Value)                
-            }).OrderBy(e => e.CompensationRate);
-            
-            // Bruk CompensateForPayouts fra Flex
-            // Group alt på dato og start på starten
+            var payoutEntriesGroupedByDate = registeredPayouts.Entries.GroupBy(e => e.Date).OrderBy(g => g.Key);
 
-            return new AvailableOvertimeDto
+            foreach (var payoutEntryGroup in payoutEntriesGroupedByDate)
             {
-                AvailableHoursBeforeCompensation = 0,
-                AvailableHoursAfterCompensation = 0,
-                Entries = null
-            };
+                var payoutDate = payoutEntryGroup.Key;
+                var registeredPayoutsTotal = payoutEntryGroup.Sum(e => e.HoursBeforeCompRate);
+
+                var relevantTimeEntriesOrdered = timeEntries.Where(e => e.Date <= payoutDate).GroupBy(
+                        hours => hours.CompensationRate,
+                        hours => hours,
+                        (cr, hours) => new
+                        {
+                            CompensationRate = cr,
+                            Hours = hours.Sum(h => h.Hours)
+                        })
+                    .OrderBy(h => h.CompensationRate);
+                
+                foreach (var entry in relevantTimeEntriesOrdered)
+                {
+                    if (registeredPayoutsTotal <= 0)
+                    {
+                        break;
+                    }
+
+                    TimeEntry overtimeEntry = new TimeEntry
+                    {
+                        Hours = -Math.Min(registeredPayoutsTotal, entry.Hours),
+                        CompensationRate = entry.CompensationRate,
+                        Date = payoutDate
+                    };
+
+                    timeEntries.Add(overtimeEntry);
+                    registeredPayoutsTotal += overtimeEntry.Hours;
+                }
+            }
+
         }
 
         public List<OvertimeEntry> UpdateEarnedOvertime(List<TimeEntryWithCompRateDto> timeEntriesOnDay)
