@@ -103,7 +103,7 @@ namespace Tests.UnitTests.Payouts
             });
             payoutService.RegisterPayout(new GenericHourEntry
             {
-                Date = new DateTime(2020, 12, 13),
+                Date = new DateTime(2021, 12, 13),
                 Hours = 4
             });
 
@@ -229,7 +229,7 @@ namespace Tests.UnitTests.Payouts
             var payoutService = CreatePayoutService(timeRegistrationService);
             payoutService.RegisterPayout(new GenericHourEntry
             {
-                Date = new DateTime(2021, 12, 14), //Thursday
+                Date = new DateTime(2021, 12, 14), //Tuesday
                 Hours = 4
             });
 
@@ -323,7 +323,7 @@ namespace Tests.UnitTests.Payouts
         private TimeRegistrationService CreateTimeRegistrationService()
         {
             return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
-                new TimeRegistrationStorage(_context), new DbContextScope(_context), new PayoutStorage(_context), new CompensationRateStorage(_context));
+                new TimeRegistrationStorage(_context), new DbContextScope(_context), new PayoutStorage(_context));
         }
 
         private PayoutService CreatePayoutService(TimeRegistrationService timeRegistrationService)

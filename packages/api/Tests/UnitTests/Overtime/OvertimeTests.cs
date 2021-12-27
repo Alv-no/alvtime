@@ -10,7 +10,6 @@ using AlvTime.Business.TimeRegistration;
 using AlvTime.Business.Utils;
 using AlvTime.Persistence.DataBaseModels;
 using AlvTime.Persistence.Repositories;
-using FluentValidation;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
@@ -269,7 +268,7 @@ namespace Tests.UnitTests.Overtime
                 .Throws(new Exception());
             mockRepo.CallBase = true;
             var timeRegistrationService = new TimeRegistrationService(_options, _userContextMock.Object,
-                CreateTaskUtils(), mockRepo.Object, new DbContextScope(sqliteContext), new PayoutStorage(sqliteContext), new CompensationRateStorage(sqliteContext));
+                CreateTaskUtils(), mockRepo.Object, new DbContextScope(sqliteContext), new PayoutStorage(sqliteContext));
             var dateToTest = new DateTime(2021, 12, 13); //Monday
             var timeEntry = CreateTimeEntryForExistingTask(dateToTest, 10M, 1);
             try
@@ -592,7 +591,7 @@ namespace Tests.UnitTests.Overtime
                 {new() {Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId}});
             
             var timeEntry2 =
-                CreateTimeEntryWithCompensationRate(new DateTime(2021, 24, 05), 4M, 0.5M, out int _); // 2nd Pinseday - Monday
+                CreateTimeEntryWithCompensationRate(new DateTime(2021, 05, 24), 4M, 0.5M, out int _); // 2nd Pinseday - Monday
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId}});
 
@@ -620,19 +619,9 @@ namespace Tests.UnitTests.Overtime
             var availableHoursAfterBothOvertimesWorked = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
             Assert.Equal(7.5M, availableHoursAtFirstOvertimeWorked.AvailableHoursAfterCompensation);
-            Assert.Equal(15M, availableHoursAfterBothOvertimesWorked.AvailableHoursBeforeCompensation);
+            Assert.Equal(10M, availableHoursAfterBothOvertimesWorked.AvailableHoursBeforeCompensation);
         }
         
-        
-        
-        
-        
-        
-        
-        
-        
- 
-
         [Fact]
         public void GetFlexhours_MultipleEmployees_FlexForSpecifiedEmployeeIsCalculated()
         {
@@ -662,7 +651,7 @@ namespace Tests.UnitTests.Overtime
         }
 
         [Fact]
-        public void GetFlexhoursToday_EntriesBeforeStartDate_NotTakenIntoAccount()
+        public void GetFlexhoursToday_EntriesBeforeStartDate_OvertimeIsGiven()
         {
             var dateToTest = _context.User.First(user => user.Id == 1).StartDate.AddDays(-1);
             
@@ -674,7 +663,7 @@ namespace Tests.UnitTests.Overtime
 
             var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
 
-            Assert.Equal(0M, availableHours.AvailableHoursBeforeCompensation);
+            Assert.True(availableHours.AvailableHoursBeforeCompensation > 0);
         }
 
         [Fact]
@@ -705,7 +694,7 @@ namespace Tests.UnitTests.Overtime
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId}});
             var flexTimeEntry =
-                CreateTimeEntryForExistingTask(new DateTime(2021, 12, 14), 1M, 18);
+                CreateTimeEntryForExistingTask(new DateTime(2021, 12, 14), 2M, 18);
             Assert.Throws<Exception>(() => timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 {new() {Date = flexTimeEntry.Date, Value = flexTimeEntry.Value, TaskId = flexTimeEntry.TaskId}}));
             
@@ -744,21 +733,83 @@ namespace Tests.UnitTests.Overtime
         public void GetAvailableHours_Worked4HoursOnWeekend_4HoursOvertimeBeforeComp6AfterComp()
         {
             var timeRegistrationService = CreateTimeRegistrationService();
-            var vacationEntry =
-                CreateTimeEntryForExistingTask(new DateTime(2021, 12, 18), 4M, 13);
+            var timeEntry =
+                CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 18), 4M, 1.5M, out _);
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-                {new() {Date = vacationEntry.Date, Value = vacationEntry.Value, TaskId = vacationEntry.TaskId}});
+                {new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId}});
             
             var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
             
             Assert.Equal(4M, availableHours.AvailableHoursBeforeCompensation);
             Assert.Equal(6M, availableHours.AvailableHoursAfterCompensation);
         }
+        
+              [Fact]
+        public void GetOvertime_RegisteringVariousOvertimePayoutsAndFlex_CorrectOvertimeAtAllTimes()
+        {
+            var timeRegistrationService = CreateTimeRegistrationService();
+            var timeEntry1 =
+                CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 10.5M, 1.5M, out int taskId1); //Monday
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
+
+            var availableOvertime1 =
+                timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2021, 12, 13));
+            Assert.Equal(4.5M, availableOvertime1.AvailableHoursAfterCompensation);
+            
+            var flexTimeEntry =
+                CreateTimeEntryForExistingTask(new DateTime(2021, 12, 14), 2, 18); //Tuesday
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                { new() { Date = flexTimeEntry.Date, Value = flexTimeEntry.Value, TaskId = flexTimeEntry.TaskId } });
+            
+            var availableOvertime2 =
+                timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2021, 12, 14));
+            Assert.Equal(1.5M, availableOvertime2.AvailableHoursAfterCompensation);
+            
+            var timeEntry2 =
+                CreateTimeEntryForExistingTask(new DateTime(2021, 12, 13), 11.5M, taskId1); //Monday
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                { new() { Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId } });
+            
+            var availableOvertime3 =
+                timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2021, 12, 14));
+            Assert.Equal(3M, availableOvertime3.AvailableHoursAfterCompensation);
+            
+            var payoutService = CreatePayoutService(timeRegistrationService);
+            payoutService.RegisterPayout(new GenericHourEntry
+            {
+                Date = new DateTime(2021, 12, 15), //Wednesday
+                Hours = 1
+            });
+            
+            var availableOvertime4 =
+                timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2021, 12, 15));
+            Assert.Equal(1.5M, availableOvertime4.AvailableHoursAfterCompensation);
+
+            var timeEntry3 =
+                CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 16), 10.5M, 0.5M, out _); //Thursday
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                { new() { Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId } });
+
+            var availableOvertime5 =
+                timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2021, 12, 16));
+            Assert.Equal(3M, availableOvertime5.AvailableHoursAfterCompensation);
+            
+            payoutService.RegisterPayout(new GenericHourEntry
+            {
+                Date = new DateTime(2021, 12, 17), //Friday
+                Hours = 2
+            });
+            
+            var availableOvertime6 =
+                timeRegistrationService.GetAvailableOvertimeHoursNow();
+            Assert.Equal(2M, availableOvertime6.AvailableHoursAfterCompensation);
+        }
 
         private TimeRegistrationService CreateTimeRegistrationService()
         {
             return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
-                new TimeRegistrationStorage(_context), new DbContextScope(_context), new PayoutStorage(_context), new CompensationRateStorage(_context));
+                new TimeRegistrationStorage(_context), new DbContextScope(_context), new PayoutStorage(_context));
         }
         
         private PayoutService CreatePayoutService(TimeRegistrationService timeRegistrationService)
@@ -790,7 +841,7 @@ namespace Tests.UnitTests.Overtime
             var task = new Task {Id = taskId, Project = 1,};
             _context.Task.Add(task);
             _context.CompensationRate.Add(new CompensationRate
-                {TaskId = taskId, Value = compensationRate, FromDate = new DateTime(2021, 01, 01)});
+                {TaskId = taskId, Value = compensationRate, FromDate = new DateTime(2019, 01, 01)});
             _context.SaveChanges();
 
             return new Hours

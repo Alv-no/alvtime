@@ -99,7 +99,7 @@ namespace Tests.UnitTests
         private TimeRegistrationService CreateTimeRegistrationService()
         {
             return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
-                new TimeRegistrationStorage(_context), new DbContextScope(_context), new PayoutStorage(_context), new CompensationRateStorage(_context));
+                new TimeRegistrationStorage(_context), new DbContextScope(_context), new PayoutStorage(_context));
         }
 
         private PayoutService CreatePayoutService(TimeRegistrationService timeRegistrationService)

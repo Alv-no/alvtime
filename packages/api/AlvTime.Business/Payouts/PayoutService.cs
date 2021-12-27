@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Interfaces;
 using AlvTime.Business.Overtime;
 using AlvTime.Business.TimeRegistration;
+using FluentValidation;
 
 namespace AlvTime.Business.Payouts
 {
@@ -26,7 +25,7 @@ namespace AlvTime.Business.Payouts
         {
             var currentUser = _userContext.GetCurrentUser();
 
-            return _payoutStorage.GetRegisteredPayouts(currentUser.Id);
+            return _payoutStorage.GetRegisteredPayouts(new PayoutQueryFilter{ UserId = currentUser.Id });
         }
 
         public PayoutDto RegisterPayout(GenericHourEntry request)
