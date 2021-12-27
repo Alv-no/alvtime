@@ -25,6 +25,9 @@
     <None Remove="Models\**" />
     <None Remove="nginx\**" />
     <None Remove="Views\**" />
+    <Compile Update="Responses\TimeEntryResponse.cs">
+      <DependentUpon>AvailableOvertimeResponse.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

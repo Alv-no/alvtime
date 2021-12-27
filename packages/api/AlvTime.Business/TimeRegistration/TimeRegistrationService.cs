@@ -136,7 +136,7 @@ namespace AlvTime.Business.TimeRegistration
 
         private static bool PayoutWouldBeAffectedByRegistration(CreateTimeEntryDto timeEntry, DateTime? latestPayoutDate, IEnumerable<TimeEntriesResponseDto> timeEntriesOnDate, decimal anticipatedWorkHours)
         {
-            return latestPayoutDate != null && timeEntry.Date.Date < latestPayoutDate && timeEntriesOnDate.Sum(te => te.Value) + timeEntry.Value > anticipatedWorkHours;
+            return latestPayoutDate != null && timeEntry.Date.Date <= latestPayoutDate && timeEntriesOnDate.Sum(te => te.Value) + timeEntry.Value > anticipatedWorkHours;
         }
 
         private List<TimeEntryWithCompRateDto> GetEntriesWithCompRatesForUserOnDay(int userId,

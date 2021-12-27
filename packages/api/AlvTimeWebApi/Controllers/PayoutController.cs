@@ -56,7 +56,7 @@ namespace AlvTimeWebApi.Controllers
         }
         
         [HttpDelete("Payouts")]
-        [Authorize]
+        [Authorize(Policy = "AllowPersonalAccessToken")]
         public PayoutResponse CancelPaidOvertime([FromQuery] int payoutId)
         {
             var response = _payoutService.CancelPayout(payoutId);
