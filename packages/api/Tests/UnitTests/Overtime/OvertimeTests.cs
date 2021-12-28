@@ -151,13 +151,8 @@ namespace Tests.UnitTests.Overtime
             var dateToTest = new DateTime(2021, 12, 11); //Saturday
             var timeRegistrationService = CreateTimeRegistrationService();
             var timeEntry = CreateTimeEntryForExistingTask(dateToTest, 7.5M, 14);
-            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-                {new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId}});
-
-            var earnedOvertime = timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
-                {StartDate = dateToTest, EndDate = dateToTest});
-
-            Assert.Empty(earnedOvertime);
+            Assert.Throws<Exception>(() => timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                {new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId}}));
         }
 
         [Fact]
