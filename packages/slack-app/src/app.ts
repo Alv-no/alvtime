@@ -6,6 +6,7 @@ import oauth2Router from "./routes/auth/index";
 import slackRouter from "./routes/slack";
 import createErrorView from "./views/error";
 import { logger, loggerMiddleware } from "./createLogger";
+import learningCollector from "./routes/learning-collector";
 
 const app = express();
 
@@ -29,6 +30,7 @@ mongoose
 app.use(loggerMiddleware);
 app.use(express.static("public"));
 app.use("/slack", slackRouter);
+app.use("/learning-collector", learningCollector);
 app.use("/oauth2", oauth2Router);
 app.use("/something-went-wrong", (_req, res) => {
   res.send(createErrorView());
