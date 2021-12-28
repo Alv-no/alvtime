@@ -92,7 +92,7 @@ namespace AlvTime.Business.TimeRegistration
                 FromDateInclusive = timeEntry.Date.Date,
                 ToDateInclusive = timeEntry.Date.Date,
                 UserId = _userContext.GetCurrentUser().Id
-            });
+            }).ToList();
             
             var latestPayoutDate = _payoutStorage.GetRegisteredPayouts(new PayoutQueryFilter{ UserId = _userContext.GetCurrentUser().Id }).Entries
                 .OrderBy(po => po.Date).LastOrDefault()?.Date.Date;
@@ -101,6 +101,11 @@ namespace AlvTime.Business.TimeRegistration
             var anticipatedWorkHours =
                 IsWeekend(timeEntry.Date.Date) || allRedDays.Contains(timeEntry.Date.Date) ? 0M : HoursInWorkday;
 
+            if (timeEntriesOnDate.Sum(te => te.Value) > anticipatedWorkHours && timeEntriesOnDate.Any(te => te.TaskId == _flexTask))
+            {
+                throw new Exception($"You cannot register more than {anticipatedWorkHours} when flexing.");
+            }
+            
             if (PayoutWouldBeAffectedByRegistration(timeEntry, latestPayoutDate, timeEntriesOnDate, anticipatedWorkHours))
             {
                 throw new Exception("You have a registered payout that would be affected by this action. Please contact an admin to register your hours.");
@@ -108,7 +113,7 @@ namespace AlvTime.Business.TimeRegistration
             
             if (timeEntry.TaskId == _flexTask)
             {
-                if (latestPayoutDate != null && timeEntry.Date.Date < latestPayoutDate)
+                if (latestPayoutDate != null && timeEntry.Date.Date <= latestPayoutDate)
                 {
                     throw new Exception("You have a registered payout that would be affected by this action. Please contact an admin to register your hours.");
                 }
@@ -127,10 +132,10 @@ namespace AlvTime.Business.TimeRegistration
                 throw new Exception("You cannot register more than 7.5 hours on that task");
             }
 
-            if (timeEntry.TaskId == _paidHolidayTask &&
+            if (!_taskUtils.TaskGivesOvertime(timeEntry.TaskId) &&
                 (timeEntry.Date.DayOfWeek == DayOfWeek.Saturday || timeEntry.Date.DayOfWeek == DayOfWeek.Sunday))
             {
-                throw new Exception("You cannot register vacation on a weekend");
+                throw new Exception("You cannot register that task on a weekend");
             }
         }
 
@@ -139,8 +144,7 @@ namespace AlvTime.Business.TimeRegistration
             return latestPayoutDate != null && timeEntry.Date.Date <= latestPayoutDate && timeEntriesOnDate.Sum(te => te.Value) + timeEntry.Value > anticipatedWorkHours;
         }
 
-        private List<TimeEntryWithCompRateDto> GetEntriesWithCompRatesForUserOnDay(int userId,
-            CreateTimeEntryDto timeEntry)
+        private List<TimeEntryWithCompRateDto> GetEntriesWithCompRatesForUserOnDay(int userId, CreateTimeEntryDto timeEntry)
         {
             var entriesOnDay = _timeRegistrationStorage.GetTimeEntriesWithCompensationRate(
                 new TimeEntryQuerySearch
@@ -211,12 +215,12 @@ namespace AlvTime.Business.TimeRegistration
                 TaskId = _flexTask,
                 FromDateInclusive = currentUser.StartDate.Date,
                 ToDateInclusive = toDateInclusive.Date
-            });
-            var flexEntries = flexedTimeEntries.ToList();
-            var sumFlexedHours = flexEntries.Sum(flex => flex.Value);
+            }).ToList();
 
-            foreach (var flexTimeEntry in flexEntries)
+            foreach (var flexTimeEntry in flexedTimeEntries)
             {
+                var sumFlexedHours = flexTimeEntry.Value;
+
                 var relevantOvertimeGroupedByCompRate = timeEntries
                     .Where(ot => ot.Date < flexTimeEntry.Date)
                     .GroupBy(eo => eo.CompensationRate)
@@ -291,19 +295,20 @@ namespace AlvTime.Business.TimeRegistration
                     registeredPayoutsTotal += overtimeEntry.Hours;
                 }
             }
-
         }
 
-        public List<OvertimeEntry> UpdateEarnedOvertime(List<TimeEntryWithCompRateDto> timeEntriesOnDay)
+        public void UpdateEarnedOvertime(List<TimeEntryWithCompRateDto> timeEntriesOnDay)
         {
             var currentUser = _userContext.GetCurrentUser();
             var timeEntryDate = timeEntriesOnDay.First().Date.Date;
-            _timeRegistrationStorage.DeleteOvertimeOnDate(timeEntryDate, currentUser.Id);
-
-            return StoreNewOvertime(timeEntriesOnDay);
+            _dbContextScope.AsAtomic(() =>
+            {
+                _timeRegistrationStorage.DeleteOvertimeOnDate(timeEntryDate, currentUser.Id);
+                StoreNewOvertime(timeEntriesOnDay);
+            });
         }
 
-        public List<OvertimeEntry> StoreNewOvertime(List<TimeEntryWithCompRateDto> timeEntriesOnDay)
+        public void StoreNewOvertime(List<TimeEntryWithCompRateDto> timeEntriesOnDay)
         {
             var currentUser = _userContext.GetCurrentUser();
 
@@ -312,11 +317,12 @@ namespace AlvTime.Business.TimeRegistration
 
             var anticipatedWorkHours =
                 IsWeekend(timeEntryDate) || allRedDays.Contains(timeEntryDate) ? 0M : HoursInWorkday;
+
             var normalWorkHoursLeft = anticipatedWorkHours;
             var overtimeEntries = new List<OvertimeEntry>();
             foreach (var timeEntry in timeEntriesOnDay.OrderByDescending(entry => entry.CompensationRate))
             {
-                if (anticipatedWorkHours == 0 && !_taskUtils.TaskGivesOvertime(timeEntry.TaskId))
+                if (anticipatedWorkHours == 0 && !_taskUtils.TaskGivesOvertime(timeEntry.TaskId)) //Guard against absence overtime on red day
                 {
                     continue;
                 }
@@ -330,9 +336,7 @@ namespace AlvTime.Business.TimeRegistration
                         CompensationRate = timeEntry.CompensationRate,
                         TaskId = timeEntry.TaskId
                     });
-                }
-
-                if (normalWorkHoursLeft <= 0)
+                } else if (normalWorkHoursLeft <= 0)
                 {
                     overtimeEntries.Add(new OvertimeEntry
                     {
@@ -347,8 +351,6 @@ namespace AlvTime.Business.TimeRegistration
             }
 
             _timeRegistrationStorage.StoreOvertime(overtimeEntries, currentUser.Id);
-
-            return overtimeEntries;
         }
 
         private bool IsWeekend(DateTime date)

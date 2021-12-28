@@ -58,7 +58,7 @@ namespace AlvTime.Business.Payouts
         {
             var totalPayout = 0M;
 
-            var orderedOverTime = availableHours.Entries.GroupBy(
+            var orderedOvertime = availableHours.Entries.GroupBy(
                     hours => hours.CompensationRate,
                     hours => hours,
                     (cr, hours) => new
@@ -68,7 +68,7 @@ namespace AlvTime.Business.Payouts
                     })
                 .OrderBy(h => h.CompensationRate);
 
-            foreach (var entry in orderedOverTime)
+            foreach (var entry in orderedOvertime)
             {
                 if (requestedHours <= 0)
                 {
