@@ -34,6 +34,10 @@ if [ "slack-app" = "$1" ]; then
   export SLACK_BOT_TOKEN
   SLACK_SIGNING_SECRET="$(getSecret slack-signing-secret)"
   export SLACK_SIGNING_SECRET
+  LEARNING_COLLECTOR_SLACK_BOT_SIGNING_SECRET="$(getSecret learning-collector-slack-bot-signing-secret)"
+  export LEARNING_COLLECTOR_SLACK_BOT_SIGNING_SECRET
+  LEARNING_COLLECTOR_SLACK_BOT_TOKEN="$(getSecret learning-collector-slack-bot-token)"
+  export LEARNING_COLLECTOR_SLACK_BOT_TOKEN
 
   docker-compose up --detach slack-app
   docker-compose exec slack-app bash
