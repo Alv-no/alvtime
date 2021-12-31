@@ -132,7 +132,7 @@ const getters = {
         case "1":
           category.key = "internal";
           category.colorValue = "#1D92CE";
-          category.name = "Alvtimer";
+          category.name = "Interntid";
           category.priority = 2;
           break;
         case "1.5":
@@ -155,7 +155,7 @@ const getters = {
 
     transactions.push(
       ...state.overtimeState.availableHours
-        .filter(transaction => transaction.taskId !== 0)
+        .filter(transaction => transaction.taskId !== 0 && transaction.hours > 0)
         .map(transaction => {
           return {
             type: "available",
