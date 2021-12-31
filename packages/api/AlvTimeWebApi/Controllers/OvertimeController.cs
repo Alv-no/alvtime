@@ -31,7 +31,7 @@ namespace AlvTimeWebApi.Controllers
             {
                 AvailableHoursAfterCompensation = availableOvertime.AvailableHoursAfterCompensation,
                 AvailableHoursBeforeCompensation = availableOvertime.AvailableHoursBeforeCompensation,
-                Entries = availableOvertime.Entries.Where(entry => entry.Hours > 0).Select(entry => new TimeEntryResponse
+                Entries = availableOvertime.Entries.Select(entry => new TimeEntryResponse
                 {
                     Date = entry.Date.ToDateOnly(),
                     Hours = entry.Hours,

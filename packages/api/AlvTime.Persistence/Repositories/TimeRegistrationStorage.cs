@@ -119,6 +119,7 @@ namespace AlvTime.Persistence.Repositories
                 _context.Hours.Add(hour);
                 _context.SaveChanges();
 
+                var user = _context.User.FirstOrDefault(u => u.Id == hour.User);
                 return new TimeEntriesResponseDto
                 {
                     Id = hour.Id,
@@ -126,7 +127,7 @@ namespace AlvTime.Persistence.Repositories
                     Date = hour.Date,
                     TaskId = hour.TaskId,
                     Value = hour.Value,
-                    UserEmail = hour.UserNavigation.Email
+                    UserEmail = user?.Email
                 };
             }
 

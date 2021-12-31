@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Transactions;
-using AlvTime.Business.CompensationRate;
 using AlvTime.Business.Interfaces;
 using AlvTime.Business.Options;
 using AlvTime.Business.Overtime;
@@ -93,31 +91,36 @@ namespace AlvTime.Business.TimeRegistration
                 ToDateInclusive = timeEntry.Date.Date,
                 UserId = _userContext.GetCurrentUser().Id
             }).ToList();
-            
-            var latestPayoutDate = _payoutStorage.GetRegisteredPayouts(new PayoutQueryFilter{ UserId = _userContext.GetCurrentUser().Id }).Entries
+
+            var latestPayoutDate = _payoutStorage
+                .GetRegisteredPayouts(new PayoutQueryFilter {UserId = _userContext.GetCurrentUser().Id}).Entries
                 .OrderBy(po => po.Date).LastOrDefault()?.Date.Date;
-            
+
             var allRedDays = new RedDays(timeEntry.Date.Year).Dates;
             var anticipatedWorkHours =
                 IsWeekend(timeEntry.Date.Date) || allRedDays.Contains(timeEntry.Date.Date) ? 0M : HoursInWorkday;
 
-            if (timeEntriesOnDate.Sum(te => te.Value) > anticipatedWorkHours && timeEntriesOnDate.Any(te => te.TaskId == _flexTask))
+            if (timeEntriesOnDate.Sum(te => te.Value) > anticipatedWorkHours &&
+                timeEntriesOnDate.Any(te => te.TaskId == _flexTask))
             {
                 throw new Exception($"You cannot register more than {anticipatedWorkHours} when flexing.");
             }
-            
-            if (PayoutWouldBeAffectedByRegistration(timeEntry, latestPayoutDate, timeEntriesOnDate, anticipatedWorkHours))
+
+            if (PayoutWouldBeAffectedByRegistration(timeEntry, latestPayoutDate, timeEntriesOnDate,
+                anticipatedWorkHours))
             {
-                throw new Exception("You have a registered payout that would be affected by this action. Please contact an admin to register your hours.");
+                throw new Exception(
+                    "You have a registered payout that would be affected by this action. Please contact an admin to register your hours.");
             }
-            
+
             if (timeEntry.TaskId == _flexTask)
             {
                 if (latestPayoutDate != null && timeEntry.Date.Date <= latestPayoutDate)
                 {
-                    throw new Exception("You have a registered payout that would be affected by this action. Please contact an admin to register your hours.");
+                    throw new Exception(
+                        "You have a registered payout that would be affected by this action. Please contact an admin to register your hours.");
                 }
-                
+
                 var availableHours = GetAvailableOvertimeHoursAtDate(timeEntry.Date.Date);
                 var availableForFlex = availableHours.AvailableHoursBeforeCompensation;
 
@@ -139,12 +142,16 @@ namespace AlvTime.Business.TimeRegistration
             }
         }
 
-        private static bool PayoutWouldBeAffectedByRegistration(CreateTimeEntryDto timeEntry, DateTime? latestPayoutDate, IEnumerable<TimeEntriesResponseDto> timeEntriesOnDate, decimal anticipatedWorkHours)
+        private static bool PayoutWouldBeAffectedByRegistration(CreateTimeEntryDto timeEntry,
+            DateTime? latestPayoutDate, IEnumerable<TimeEntriesResponseDto> timeEntriesOnDate,
+            decimal anticipatedWorkHours)
         {
-            return latestPayoutDate != null && timeEntry.Date.Date <= latestPayoutDate && timeEntriesOnDate.Sum(te => te.Value) + timeEntry.Value > anticipatedWorkHours;
+            return latestPayoutDate != null && timeEntry.Date.Date <= latestPayoutDate &&
+                   timeEntriesOnDate.Sum(te => te.Value) + timeEntry.Value > anticipatedWorkHours;
         }
 
-        private List<TimeEntryWithCompRateDto> GetEntriesWithCompRatesForUserOnDay(int userId, CreateTimeEntryDto timeEntry)
+        private List<TimeEntryWithCompRateDto> GetEntriesWithCompRatesForUserOnDay(int userId,
+            CreateTimeEntryDto timeEntry)
         {
             var entriesOnDay = _timeRegistrationStorage.GetTimeEntriesWithCompensationRate(
                 new TimeEntryQuerySearch
@@ -176,13 +183,13 @@ namespace AlvTime.Business.TimeRegistration
         public AvailableOvertimeDto GetAvailableOvertimeHoursAtDate(DateTime toDateInclusive)
         {
             var currentUser = _userContext.GetCurrentUser();
-            
+
             var earnedOvertime = _timeRegistrationStorage.GetEarnedOvertime(new OvertimeQueryFilter
             {
                 UserId = currentUser.Id,
                 EndDate = toDateInclusive.Date
             });
-            
+
             var timeEntries = new List<TimeEntry>();
             timeEntries.AddRange(earnedOvertime.Select(eo => new TimeEntry
             {
@@ -196,7 +203,7 @@ namespace AlvTime.Business.TimeRegistration
 
             var availableBeforeCompRate = timeEntries.Sum(e => e.Hours);
             var availableAfterCompRate = timeEntries.Sum(e => e.Hours * e.CompensationRate);
-            
+
             return new AvailableOvertimeDto
             {
                 AvailableHoursBeforeCompensation = availableBeforeCompRate,
@@ -208,7 +215,7 @@ namespace AlvTime.Business.TimeRegistration
         private void CompensateForFlexedHours(List<TimeEntry> timeEntries, DateTime toDateInclusive)
         {
             var currentUser = _userContext.GetCurrentUser();
-            
+
             var flexedTimeEntries = _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
             {
                 UserId = currentUser.Id,
@@ -225,11 +232,11 @@ namespace AlvTime.Business.TimeRegistration
                     .Where(ot => ot.Date < flexTimeEntry.Date)
                     .GroupBy(eo => eo.CompensationRate)
                     .Select(eo => new
-                {
-                    CompensationRate = eo.Key,
-                    Hours = eo.Sum(entry => entry.Hours)                
-                }).OrderBy(e => e.CompensationRate);
-                
+                    {
+                        CompensationRate = eo.Key,
+                        Hours = eo.Sum(entry => entry.Hours)
+                    }).OrderBy(e => e.CompensationRate);
+
                 foreach (var overtimeGroup in relevantOvertimeGroupedByCompRate)
                 {
                     if (sumFlexedHours <= 0)
@@ -243,7 +250,7 @@ namespace AlvTime.Business.TimeRegistration
                         CompensationRate = overtimeGroup.CompensationRate,
                         Date = flexTimeEntry.Date
                     };
-                
+
                     timeEntries.Add(entry);
                     sumFlexedHours += entry.Hours;
                 }
@@ -259,7 +266,7 @@ namespace AlvTime.Business.TimeRegistration
                 UserId = currentUser.Id,
                 ToDateInclusive = toDateInclusive.Date
             });
-            
+
             var payoutEntriesGroupedByDate = registeredPayouts.Entries.GroupBy(e => e.Date).OrderBy(g => g.Key);
 
             foreach (var payoutEntryGroup in payoutEntriesGroupedByDate)
@@ -276,7 +283,7 @@ namespace AlvTime.Business.TimeRegistration
                             Hours = hours.Sum(h => h.Hours)
                         })
                     .OrderBy(h => h.CompensationRate);
-                
+
                 foreach (var entry in relevantTimeEntriesOrdered)
                 {
                     if (registeredPayoutsTotal <= 0)
@@ -301,11 +308,8 @@ namespace AlvTime.Business.TimeRegistration
         {
             var currentUser = _userContext.GetCurrentUser();
             var timeEntryDate = timeEntriesOnDay.First().Date.Date;
-            _dbContextScope.AsAtomic(() =>
-            {
-                _timeRegistrationStorage.DeleteOvertimeOnDate(timeEntryDate, currentUser.Id);
-                StoreNewOvertime(timeEntriesOnDay);
-            });
+            _timeRegistrationStorage.DeleteOvertimeOnDate(timeEntryDate, currentUser.Id);
+            StoreNewOvertime(timeEntriesOnDay);
         }
 
         public void StoreNewOvertime(List<TimeEntryWithCompRateDto> timeEntriesOnDay)
@@ -322,7 +326,8 @@ namespace AlvTime.Business.TimeRegistration
             var overtimeEntries = new List<OvertimeEntry>();
             foreach (var timeEntry in timeEntriesOnDay.OrderByDescending(entry => entry.CompensationRate))
             {
-                if (anticipatedWorkHours == 0 && !_taskUtils.TaskGivesOvertime(timeEntry.TaskId)) //Guard against absence overtime on red day
+                if (anticipatedWorkHours == 0 &&
+                    !_taskUtils.TaskGivesOvertime(timeEntry.TaskId)) //Guard against absence overtime on red day
                 {
                     continue;
                 }
@@ -336,7 +341,8 @@ namespace AlvTime.Business.TimeRegistration
                         CompensationRate = timeEntry.CompensationRate,
                         TaskId = timeEntry.TaskId
                     });
-                } else if (normalWorkHoursLeft <= 0)
+                }
+                else if (normalWorkHoursLeft <= 0)
                 {
                     overtimeEntries.Add(new OvertimeEntry
                     {
