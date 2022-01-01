@@ -100,7 +100,12 @@ namespace AlvTime.Business.TimeRegistration
             var anticipatedWorkHours =
                 IsWeekend(timeEntry.Date.Date) || allRedDays.Contains(timeEntry.Date.Date) ? 0M : HoursInWorkday;
 
-            if (timeEntriesOnDate.Sum(te => te.Value) > anticipatedWorkHours &&
+            if (allRedDays.Contains((timeEntry.Date.Date)) && timeEntry.TaskId == _paidHolidayTask)
+            {
+                throw new Exception("You do not need to register any absence on a red day.");
+            }
+            
+            if (timeEntriesOnDate.Sum(te => te.Value) + timeEntry.Value > anticipatedWorkHours &&
                 timeEntriesOnDate.Any(te => te.TaskId == _flexTask))
             {
                 throw new Exception($"You cannot register more than {anticipatedWorkHours} when flexing.");
