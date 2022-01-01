@@ -711,20 +711,6 @@ namespace Tests.UnitTests.Overtime
         }
 
         [Fact]
-        public void GetOvertime_RecordedVacationOnChristmas_NoFlexHours()
-        {
-            var timeRegistrationService = CreateTimeRegistrationService();
-            var vacationEntry =
-                CreateTimeEntryForExistingTask(new DateTime(2021, 12, 24), 7.5M, 13);
-            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-                {new() {Date = vacationEntry.Date, Value = vacationEntry.Value, TaskId = vacationEntry.TaskId}});
-            
-            var availableHours = timeRegistrationService.GetAvailableOvertimeHoursNow();
-
-            Assert.Equal(0M, availableHours.AvailableHoursBeforeCompensation);
-        }
-
-        [Fact]
         public void GetAvailableHours_Worked4HoursOnWeekend_4HoursOvertimeBeforeComp6AfterComp()
         {
             var timeRegistrationService = CreateTimeRegistrationService();

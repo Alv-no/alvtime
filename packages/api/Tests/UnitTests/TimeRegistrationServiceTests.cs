@@ -96,6 +96,17 @@ namespace Tests.UnitTests
                 { new() { Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId } }));
         }
         
+        [Fact]
+        public void UpsertTimeEntry_RecordedVacationOnChristmas_CannotRegisterVactionOnRedDay()
+        {
+            var timeRegistrationService = CreateTimeRegistrationService();
+            var vacationEntry =
+                CreateTimeEntryForExistingTask(new DateTime(2021, 12, 24), 7.5M, 13);
+
+            Assert.Throws<Exception>(() => timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                {new() {Date = vacationEntry.Date, Value = vacationEntry.Value, TaskId = vacationEntry.TaskId}}));
+        }
+        
         private TimeRegistrationService CreateTimeRegistrationService()
         {
             return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
