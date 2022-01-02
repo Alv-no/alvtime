@@ -6,6 +6,6 @@ namespace AlvTime.Business.TimeEntries
     {
         public decimal TotalHoursUsed { get; set; }
         public int TotalDaysUsed { get; set; }
-        public IEnumerable<TimeEntriesResponseDto> Entries { get; set; }
+        public IEnumerable<TimeEntryResponseDto> Entries { get; set; }
     }
 }

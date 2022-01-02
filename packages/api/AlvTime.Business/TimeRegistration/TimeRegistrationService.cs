@@ -39,12 +39,12 @@ namespace AlvTime.Business.TimeRegistration
             _paidHolidayTask = timeEntryOptions.CurrentValue.PaidHolidayTask;
         }
 
-        public IEnumerable<TimeEntriesResponseDto> UpsertTimeEntry(IEnumerable<CreateTimeEntryDto> timeEntries)
+        public IEnumerable<TimeEntryResponseDto> UpsertTimeEntry(IEnumerable<CreateTimeEntryDto> timeEntries)
         {
             var currentUser = _userContext.GetCurrentUser();
             var userId = currentUser.Id;
 
-            List<TimeEntriesResponseDto> response = new List<TimeEntriesResponseDto>();
+            List<TimeEntryResponseDto> response = new List<TimeEntryResponseDto>();
 
             foreach (var timeEntry in timeEntries)
             {
@@ -92,7 +92,7 @@ namespace AlvTime.Business.TimeRegistration
                 UserId = _userContext.GetCurrentUser().Id
             }).ToDictionary(entry => entry.TaskId, entry => entry);
 
-            timeEntriesOnDate[timeEntry.TaskId] = new TimeEntriesResponseDto
+            timeEntriesOnDate[timeEntry.TaskId] = new TimeEntryResponseDto
             {
                 Date = timeEntry.Date,
                 Value = timeEntry.Value,
@@ -155,7 +155,7 @@ namespace AlvTime.Business.TimeRegistration
         }
 
         private static bool PayoutWouldBeAffectedByRegistration(CreateTimeEntryDto timeEntry,
-            DateTime? latestPayoutDate, IEnumerable<TimeEntriesResponseDto> timeEntriesOnDate,
+            DateTime? latestPayoutDate, IEnumerable<TimeEntryResponseDto> timeEntriesOnDate,
             decimal anticipatedWorkHours)
         {
             return latestPayoutDate != null && timeEntry.Date.Date <= latestPayoutDate &&
@@ -175,9 +175,16 @@ namespace AlvTime.Business.TimeRegistration
             return entriesOnDay;
         }
 
-        private TimeEntriesResponseDto GetTimeEntry(TimeEntryQuerySearch criterias)
+        private TimeEntryResponseDto GetTimeEntry(TimeEntryQuerySearch criterias)
         {
             return _timeRegistrationStorage.GetTimeEntry(criterias);
+        }
+
+        public List<TimeEntryResponseDto> GetTimeEntries(TimeEntryQuerySearch criterias)
+        {
+            var currentUser = _userContext.GetCurrentUser();
+            criterias.UserId = currentUser.Id;
+            return _timeRegistrationStorage.GetTimeEntries(criterias).ToList();
         }
 
         public List<EarnedOvertimeDto> GetEarnedOvertime(OvertimeQueryFilter criterias)

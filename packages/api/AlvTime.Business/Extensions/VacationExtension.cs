@@ -7,7 +7,7 @@ namespace AlvTime.Business.Extensions
 {
     public static class VacationExtension
     {
-        public static VacationOverviewDto CalculateVacationOverview(IEnumerable<TimeEntriesResponseDto> entries)
+        public static VacationOverviewDto CalculateVacationOverview(IEnumerable<TimeEntryResponseDto> entries)
         {
             var sumHours = entries.Sum(e => e.Value);
 

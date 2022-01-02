@@ -7,7 +7,9 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AlvTime.Business.FlexiHours;
 using AlvTime.Business.TimeRegistration;
+using AlvTimeWebApi.Responses;
 
 namespace AlvTimeWebApi.Controllers
 {
@@ -33,7 +35,7 @@ namespace AlvTimeWebApi.Controllers
 
         [HttpGet("TimeEntries")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
-        public ActionResult<IEnumerable<TimeEntriesResponseDto>> FetchTimeEntries(DateTime fromDateInclusive, DateTime toDateInclusive)
+        public ActionResult<IEnumerable<TimeEntryResponseDto>> FetchTimeEntries(DateTime fromDateInclusive, DateTime toDateInclusive)
         {
             try
             {
@@ -67,7 +69,7 @@ namespace AlvTimeWebApi.Controllers
 
         [HttpPost("TimeEntries")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
-        public ActionResult<List<TimeEntriesResponseDto>> UpsertTimeEntry([FromBody] List<CreateTimeEntryDto> requests)
+        public ActionResult<List<TimeEntryResponseDto>> UpsertTimeEntry([FromBody] List<CreateTimeEntryDto> requests)
         {
             if (!ModelState.IsValid)
             {
@@ -85,10 +87,30 @@ namespace AlvTimeWebApi.Controllers
                     TaskId = timeEntry.TaskId
                 }));
         }
+        
+        [HttpGet("FlexedHours")]
+        [Authorize(Policy = "AllowPersonalAccessToken")]
+        public ActionResult<FlexedHoursDto> FetchFlexedHours()
+        {
+            var flexedEntries = _timeRegistrationService.GetTimeEntries(new TimeEntryQuerySearch
+            {
+                TaskId = _timeEntryOptions.CurrentValue.FlexTask
+            });
+
+            return Ok(new TimeEntriesResponse
+            {
+                TotalHours = flexedEntries.Sum(entry => entry.Value),
+                Entries = flexedEntries.Select(entry => new GenericTimeEntryResponse()
+                {
+                    Date = entry.Date.ToDateOnly(),
+                    Hours = entry.Value
+                }).ToList()
+            });
+        }
 
         [HttpGet("TimeEntriesReport")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
-        public ActionResult<IEnumerable<TimeEntriesResponseDto>> FetchTimeEntriesReport(DateTime fromDateInclusive, DateTime toDateInclusive)
+        public ActionResult<IEnumerable<TimeEntryResponseDto>> FetchTimeEntriesReport(DateTime fromDateInclusive, DateTime toDateInclusive)
         {
             var user = _userRetriever.RetrieveUser();
 
