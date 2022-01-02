@@ -270,7 +270,7 @@ CREATE TABLE [dbo].[EarnedOvertime](
     [UserId] [int] NOT NULL,
     [Value] [decimal] (7,2) NOT NULL,
     [Date] [datetime2] NOT NULL,
-    [CompensationRate] [decimal] (5,3) NOT NULL
+    [CompensationRate] [decimal] (4,2) NOT NULL
     PRIMARY KEY CLUSTERED
 (
 [Id] ASC
