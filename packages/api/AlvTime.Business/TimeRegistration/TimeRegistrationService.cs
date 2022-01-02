@@ -109,20 +109,20 @@ namespace AlvTime.Business.TimeRegistration
 
             if (allRedDays.Contains((timeEntry.Date.Date)) && timeEntry.TaskId == _paidHolidayTask)
             {
-                throw new Exception("You do not need to register any absence on a red day.");
+                throw new Exception("Du trenger ikke registrere fravær på en rød dag.");
             }
             
             if (timeEntriesOnDate.Values.Sum(te => te.Value) > anticipatedWorkHours &&
                 timeEntriesOnDate.Values.Any(te => te.TaskId == _flexTask))
             {
-                throw new Exception($"You cannot register more than {anticipatedWorkHours} when flexing.");
+                throw new Exception($"Du kan ikke registere mer enn {anticipatedWorkHours} når du avspaserer.");
             }
 
             if (PayoutWouldBeAffectedByRegistration(timeEntry, latestPayoutDate, timeEntriesOnDate.Values,
                 anticipatedWorkHours))
             {
                 throw new Exception(
-                    "You have a registered payout that would be affected by this action. Please contact an admin to register your hours.");
+                    "Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Kontakt en admin for å få endret timene dine.");
             }
 
             if (timeEntry.TaskId == _flexTask)
@@ -130,7 +130,7 @@ namespace AlvTime.Business.TimeRegistration
                 if (latestPayoutDate != null && timeEntry.Date.Date <= latestPayoutDate)
                 {
                     throw new Exception(
-                        "You have a registered payout that would be affected by this action. Please contact an admin to register your hours.");
+                        "Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Kontakt en admin for å få endret timene dine.");
                 }
 
                 var availableHours = GetAvailableOvertimeHoursAtDate(timeEntry.Date.Date);
@@ -138,19 +138,19 @@ namespace AlvTime.Business.TimeRegistration
 
                 if (timeEntry.Value > availableForFlex)
                 {
-                    throw new Exception("Not enough available hours to flex");
+                    throw new Exception("Ikke nok tilgjengelige timer til å avspasere.");
                 }
             }
 
             if (timeEntry.Value > HoursInWorkday && !_taskUtils.TaskGivesOvertime(timeEntry.TaskId))
             {
-                throw new Exception("You cannot register more than 7.5 hours on that task");
+                throw new Exception("Du kan ikke registrere mer enn 7.5 timer på den oppgaven.");
             }
 
             if (!_taskUtils.TaskGivesOvertime(timeEntry.TaskId) &&
                 (timeEntry.Date.DayOfWeek == DayOfWeek.Saturday || timeEntry.Date.DayOfWeek == DayOfWeek.Sunday))
             {
-                throw new Exception("You cannot register that task on a weekend");
+                throw new Exception("Du kan ikke registrere den oppgaven på en helg.");
             }
         }
 

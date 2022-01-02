@@ -41,14 +41,14 @@ namespace AlvTime.Business.Payouts
                 return _payoutStorage.RegisterPayout(currentUser.Id, request, payoutHoursAfterCompensationRate);
             }
 
-            throw new ValidationException("Not enough available hours");
+            throw new ValidationException("Ikke nok tilgjengelige timer.");
         }
 
         public PayoutDto CancelPayout(int payoutId)
         {
             if (!PayoutCanBeDeleted(payoutId))
             {
-                throw new ValidationException("Selected payout must be latest ordered payout");
+                throw new ValidationException("Valgt utbetaling må være seneste bestilte utbetaling.");
             }
 
             return _payoutStorage.CancelPayout(payoutId);
@@ -92,18 +92,18 @@ namespace AlvTime.Business.Payouts
 
             if (!allActivePayouts.Any())
             {
-                throw new ValidationException("There are no active payouts");
+                throw new ValidationException("Det er ingen aktive utbetalinger.");
             }
             
             var payoutToBeCancelled = GetRegisteredPayouts().Entries.FirstOrDefault(po => po.Id == payoutId);
 
             if (payoutToBeCancelled == null)
             {
-                throw new ValidationException("Payout id does not exist");
+                throw new ValidationException("Utbetaling finnes ikke.");
             }
             if (!payoutToBeCancelled.Active)
             {
-                throw new ValidationException("Payout is not active");
+                throw new ValidationException("Utbetaling er ikke aktiv.");
             }
             
             var latestId = allActivePayouts.OrderBy(p => p.Id).Last().Id;

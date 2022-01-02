@@ -131,7 +131,7 @@ namespace AlvTime.Persistence.Repositories
                 };
             }
 
-            throw new Exception("Cannot create time entry. Task is locked");
+            throw new Exception("Kan ikke registrere time. Oppgaven er låst.");
         }
 
         public TimeEntriesResponseDto UpdateTimeEntry(CreateTimeEntryDto timeEntry, int userId)
@@ -165,7 +165,7 @@ namespace AlvTime.Persistence.Repositories
                 };
             }
 
-            throw new Exception("Cannot update time entry. Task or time entry is locked");
+            throw new Exception("Kan ikke oppdatere registrering. Oppgaven eller timen er låst.");
         }
 
         public List<EarnedOvertimeDto> GetEarnedOvertime(OvertimeQueryFilter criterias)

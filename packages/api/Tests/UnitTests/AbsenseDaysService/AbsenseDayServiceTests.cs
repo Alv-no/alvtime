@@ -1,18 +1,13 @@
-using AlvTime.Business.Options;
-using AlvTime.Persistence.DataBaseModels;
-using Microsoft.Extensions.Options;
-using Xunit;
-using Moq;
-using AlvTime.Business.AbsenseDays;
-using AlvTime.Persistence.Repositories;
-using AlvTime.Business.TimeEntries;
 using System;
-using AlvTime.Business.Interfaces;
-using AlvTime.Business.Overtime;
-using AlvTime.Business.Utils;
-using Tests.UnitTests.Flexihours;
+using AlvTime.Business.Options;
+using AlvTime.Business.TimeEntries;
+using AlvTime.Persistence.DataBaseModels;
+using AlvTime.Persistence.Repositories;
+using Microsoft.Extensions.Options;
+using Moq;
+using Xunit;
 
-namespace Tests.UnitTests.AbsenseDaysStorage
+namespace Tests.UnitTests.AbsenseDaysService
 {
     public class AbsenseDayStorageTests
     {
@@ -42,7 +37,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
         public void CheckRemainingHolidays_NoWithDrawls()
         {
             var timeRegistrationStorage = CreateTimeRegistrationStorage();
-            var absenseService = new AbsenseDaysService(timeRegistrationStorage, _options);
+            var absenseService = new AlvTime.Business.AbsenseDays.AbsenseDaysService(timeRegistrationStorage, _options);
             var days = absenseService.GetAbsenseDays(1, 2020, null);
 
             Assert.Equal(0, days.UsedAbsenseDays);
@@ -52,7 +47,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
         public void CheckRemainingHolidays_SickdaysTaken()
         {
             var timeRegistrationStorage = CreateTimeRegistrationStorage();
-            var absenseService = new AbsenseDaysService(timeRegistrationStorage, _options);
+            var absenseService = new AlvTime.Business.AbsenseDays.AbsenseDaysService(timeRegistrationStorage, _options);
 
             // One day of sick leave
             timeRegistrationStorage.CreateTimeEntry(new CreateTimeEntryDto
@@ -74,7 +69,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
         public void TestConcurrentDays()
         {
             var timeRegistrationStorage = CreateTimeRegistrationStorage();
-            var absenseService = new AbsenseDaysService(timeRegistrationStorage, _options);
+            var absenseService = new AlvTime.Business.AbsenseDays.AbsenseDaysService(timeRegistrationStorage, _options);
             timeRegistrationStorage.CreateTimeEntry(new CreateTimeEntryDto
             {
                 Date = DateTime.Now.AddDays(-9),
@@ -97,7 +92,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
         public void TestConcurrentDays_MoreThanThree()
         {
             var timeRegistrationStorage = CreateTimeRegistrationStorage();
-            var absenseService = new AbsenseDaysService(timeRegistrationStorage, _options);
+            var absenseService = new AlvTime.Business.AbsenseDays.AbsenseDaysService(timeRegistrationStorage, _options);
             timeRegistrationStorage.CreateTimeEntry(new CreateTimeEntryDto
             {
                 Date = DateTime.Now.AddDays(-9),
@@ -133,7 +128,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
         public void Test_Basic_HolidayCalculations()
         {
             var timeRegistrationStorage = CreateTimeRegistrationStorage();
-            var absenseService = new AbsenseDaysService(timeRegistrationStorage, _options);
+            var absenseService = new AlvTime.Business.AbsenseDays.AbsenseDaysService(timeRegistrationStorage, _options);
 
             // Create both planned and used holiday
             for (int i = 0; i < 10; i++)
@@ -157,7 +152,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
         public void Test_Complicated_HolidayCalculations()
         {
             var timeRegistrationStorage = CreateTimeRegistrationStorage();
-            var absenseService = new AbsenseDaysService(timeRegistrationStorage, _options);
+            var absenseService = new AlvTime.Business.AbsenseDays.AbsenseDaysService(timeRegistrationStorage, _options);
 
             // Create both planned and used holiday
             for (int i = 0; i < 10; i++)
@@ -181,7 +176,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
         public void Test_3VacationDaysOnAlvDays_3VacationDaysUsed()
         {
             var timeRegistrationStorage = CreateTimeRegistrationStorage();
-            var absenseService = new AbsenseDaysService(timeRegistrationStorage, _options);
+            var absenseService = new AlvTime.Business.AbsenseDays.AbsenseDaysService(timeRegistrationStorage, _options);
 
             timeRegistrationStorage.CreateTimeEntry(new CreateTimeEntryDto
             {
@@ -214,7 +209,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
         public void Test_3VacationDaysOnAlvDaysAnd1NormalDay_1LessAvailableDay()
         {
             var timeRegistrationStorage = CreateTimeRegistrationStorage();
-            var absenseService = new AbsenseDaysService(timeRegistrationStorage, _options);
+            var absenseService = new AlvTime.Business.AbsenseDays.AbsenseDaysService(timeRegistrationStorage, _options);
 
             timeRegistrationStorage.CreateTimeEntry(new CreateTimeEntryDto
             {
@@ -254,7 +249,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
         public void Test_Planned5VacationDaysNotAlvDays_20RemainingVacationDays()
         {
             var timeRegistrationStorage = CreateTimeRegistrationStorage();
-            var absenseService = new AbsenseDaysService(timeRegistrationStorage, _options);
+            var absenseService = new AlvTime.Business.AbsenseDays.AbsenseDaysService(timeRegistrationStorage, _options);
 
             for (int i = 0; i < 5; i++)
             {
@@ -277,7 +272,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
         public void Test_PlannedVacationDayOnAlvDay_PlannedDaysNotDoubled()
         {
             var timeRegistrationStorage = CreateTimeRegistrationStorage();
-            var absenseService = new AbsenseDaysService(timeRegistrationStorage, _options);
+            var absenseService = new AlvTime.Business.AbsenseDays.AbsenseDaysService(timeRegistrationStorage, _options);
 
             for (int i = 0; i < 5; i++)
             {
@@ -300,7 +295,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
         public void GetVacationDays_NoVacationRecorded_25AvailableDays()
         {
             var timeRegistrationStorage = CreateTimeRegistrationStorage();
-            var absenseService = new AbsenseDaysService(timeRegistrationStorage, _options);
+            var absenseService = new AlvTime.Business.AbsenseDays.AbsenseDaysService(timeRegistrationStorage, _options);
 
             var holidayOverview = absenseService.GetVacationDays(1, 2022, 6, 1);
 
@@ -311,7 +306,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
         public void GetVacationDays_Recorded3DaysVacation_22AvailableDays()
         {
             var timeRegistrationStorage = CreateTimeRegistrationStorage();
-            var absenseService = new AbsenseDaysService(timeRegistrationStorage, _options);
+            var absenseService = new AlvTime.Business.AbsenseDays.AbsenseDaysService(timeRegistrationStorage, _options);
             
             timeRegistrationStorage.CreateTimeEntry(new CreateTimeEntryDto
             {
@@ -344,7 +339,7 @@ namespace Tests.UnitTests.AbsenseDaysStorage
         public void GetVacationDays_Recorded3DaysVacationAnd2DaysInFuture_20AvailableDays()
         {
             var timeRegistrationStorage = CreateTimeRegistrationStorage();
-            var absenseService = new AbsenseDaysService(timeRegistrationStorage, _options);
+            var absenseService = new AlvTime.Business.AbsenseDays.AbsenseDaysService(timeRegistrationStorage, _options);
             
             timeRegistrationStorage.CreateTimeEntry(new CreateTimeEntryDto
             {
