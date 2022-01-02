@@ -90,7 +90,14 @@ namespace AlvTime.Business.TimeRegistration
                 FromDateInclusive = timeEntry.Date.Date,
                 ToDateInclusive = timeEntry.Date.Date,
                 UserId = _userContext.GetCurrentUser().Id
-            }).ToList();
+            }).ToDictionary(entry => entry.TaskId, entry => entry);
+
+            timeEntriesOnDate[timeEntry.TaskId] = new TimeEntriesResponseDto
+            {
+                Date = timeEntry.Date,
+                Value = timeEntry.Value,
+                TaskId = timeEntry.TaskId
+            };
 
             var latestPayoutDate = _payoutStorage
                 .GetRegisteredPayouts(new PayoutQueryFilter {UserId = _userContext.GetCurrentUser().Id}).Entries
@@ -105,13 +112,13 @@ namespace AlvTime.Business.TimeRegistration
                 throw new Exception("You do not need to register any absence on a red day.");
             }
             
-            if (timeEntriesOnDate.Sum(te => te.Value) + timeEntry.Value > anticipatedWorkHours &&
-                timeEntriesOnDate.Any(te => te.TaskId == _flexTask))
+            if (timeEntriesOnDate.Values.Sum(te => te.Value) > anticipatedWorkHours &&
+                timeEntriesOnDate.Values.Any(te => te.TaskId == _flexTask))
             {
                 throw new Exception($"You cannot register more than {anticipatedWorkHours} when flexing.");
             }
 
-            if (PayoutWouldBeAffectedByRegistration(timeEntry, latestPayoutDate, timeEntriesOnDate,
+            if (PayoutWouldBeAffectedByRegistration(timeEntry, latestPayoutDate, timeEntriesOnDate.Values,
                 anticipatedWorkHours))
             {
                 throw new Exception(
