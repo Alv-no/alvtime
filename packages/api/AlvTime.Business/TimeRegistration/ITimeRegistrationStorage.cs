@@ -7,11 +7,11 @@ namespace AlvTime.Business.TimeRegistration
 {
     public interface ITimeRegistrationStorage
     {
-        IEnumerable<TimeEntriesResponseDto> GetTimeEntries(TimeEntryQuerySearch criterias);
+        IEnumerable<TimeEntryResponseDto> GetTimeEntries(TimeEntryQuerySearch criterias);
         IEnumerable<TimeEntryWithCompRateDto> GetTimeEntriesWithCompensationRate(TimeEntryQuerySearch criterias);
-        TimeEntriesResponseDto GetTimeEntry(TimeEntryQuerySearch criterias);
-        TimeEntriesResponseDto CreateTimeEntry(CreateTimeEntryDto timeEntry, int userId);
-        TimeEntriesResponseDto UpdateTimeEntry(CreateTimeEntryDto timeEntry, int userId);
+        TimeEntryResponseDto GetTimeEntry(TimeEntryQuerySearch criterias);
+        TimeEntryResponseDto CreateTimeEntry(CreateTimeEntryDto timeEntry, int userId);
+        TimeEntryResponseDto UpdateTimeEntry(CreateTimeEntryDto timeEntry, int userId);
         IEnumerable<DateEntry> GetDateEntries(TimeEntryQuerySearch criterias);
         List<EarnedOvertimeDto> GetEarnedOvertime(OvertimeQueryFilter criterias);
         void StoreOvertime(List<OvertimeEntry> overtimeEntries, int userId);

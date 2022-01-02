@@ -38,11 +38,11 @@ namespace AlvTime.Persistence.Repositories
             return timeEntriesWithCompensationRate;
         }
 
-        public IEnumerable<TimeEntriesResponseDto> GetTimeEntries(TimeEntryQuerySearch criterias)
+        public IEnumerable<TimeEntryResponseDto> GetTimeEntries(TimeEntryQuerySearch criterias)
         {
             var hours = _context.Hours.AsQueryable()
                 .Filter(criterias)
-                .Select(x => new TimeEntriesResponseDto
+                .Select(x => new TimeEntryResponseDto
                 {
                     Id = x.Id,
                     User = x.User,
@@ -85,11 +85,11 @@ namespace AlvTime.Persistence.Repositories
                 });
         }
 
-        public TimeEntriesResponseDto GetTimeEntry(TimeEntryQuerySearch criterias)
+        public TimeEntryResponseDto GetTimeEntry(TimeEntryQuerySearch criterias)
         {
             var timeEntry = _context.Hours.AsQueryable()
                 .Filter(criterias)
-                .Select(x => new TimeEntriesResponseDto
+                .Select(x => new TimeEntryResponseDto
                 {
                     Id = x.Id,
                     Value = x.Value,
@@ -100,7 +100,7 @@ namespace AlvTime.Persistence.Repositories
             return timeEntry;
         }
 
-        public TimeEntriesResponseDto CreateTimeEntry(CreateTimeEntryDto timeEntry, int userId)
+        public TimeEntryResponseDto CreateTimeEntry(CreateTimeEntryDto timeEntry, int userId)
         {
             var task = _context.Task
                 .FirstOrDefault(t => t.Id == timeEntry.TaskId);
@@ -120,7 +120,7 @@ namespace AlvTime.Persistence.Repositories
                 _context.SaveChanges();
 
                 var user = _context.User.FirstOrDefault(u => u.Id == hour.User);
-                return new TimeEntriesResponseDto
+                return new TimeEntryResponseDto
                 {
                     Id = hour.Id,
                     User = hour.User,
@@ -134,7 +134,7 @@ namespace AlvTime.Persistence.Repositories
             throw new Exception("Kan ikke registrere time. Oppgaven er låst.");
         }
 
-        public TimeEntriesResponseDto UpdateTimeEntry(CreateTimeEntryDto timeEntry, int userId)
+        public TimeEntryResponseDto UpdateTimeEntry(CreateTimeEntryDto timeEntry, int userId)
         {
             var hour = _context.Hours.AsQueryable()
                 .Filter(new TimeEntryQuerySearch
@@ -154,7 +154,7 @@ namespace AlvTime.Persistence.Repositories
                 hour.Value = timeEntry.Value;
                 _context.SaveChanges();
 
-                return new TimeEntriesResponseDto
+                return new TimeEntryResponseDto
                 {
                     Id = hour.Id,
                     User = hour.User,

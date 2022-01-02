@@ -7,7 +7,7 @@ namespace AlvTime.Business.AbsenseDays {
         public int AvailableVacationDays { get; set; }    
         public int PlannedVacationDays { get; set; }    
         public int UsedVacationDays { get; set; }    
-        public IEnumerable<TimeEntriesResponseDto> PlannedTransactions { get; set; }
-        public IEnumerable<TimeEntriesResponseDto> UsedTransactions { get; set; }
+        public IEnumerable<TimeEntryResponseDto> PlannedTransactions { get; set; }
+        public IEnumerable<TimeEntryResponseDto> UsedTransactions { get; set; }
     }
 }

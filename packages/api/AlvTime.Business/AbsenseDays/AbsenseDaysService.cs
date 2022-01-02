@@ -27,7 +27,7 @@ namespace AlvTime.Business.AbsenseDays
 
         public AbsenseDaysDto GetAbsenseDays(int userId, int year, DateTime? intervalStart)
         {
-            IEnumerable<TimeEntriesResponseDto> sickLeaveDays = _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
+            IEnumerable<TimeEntryResponseDto> sickLeaveDays = _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
             {
                 FromDateInclusive = intervalStart ?? DateTime.Now.AddMonths(-12),
                 ToDateInclusive = intervalStart.HasValue ? intervalStart.Value.AddMonths(12) : DateTime.Now,
@@ -58,7 +58,7 @@ namespace AlvTime.Business.AbsenseDays
             return new List<DateTime>();
         }
 
-        private int CalculateUsedSickDays(IEnumerable<TimeEntriesResponseDto> entries)
+        private int CalculateUsedSickDays(IEnumerable<TimeEntryResponseDto> entries)
         {
 
             // Group by coherence
@@ -80,9 +80,9 @@ namespace AlvTime.Business.AbsenseDays
 
         }
 
-        private IEnumerable<IEnumerable<TimeEntriesResponseDto>> FindGroupedSickDays(IEnumerable<TimeEntriesResponseDto> sickDays)
+        private IEnumerable<IEnumerable<TimeEntryResponseDto>> FindGroupedSickDays(IEnumerable<TimeEntryResponseDto> sickDays)
         {
-            List<List<TimeEntriesResponseDto>> groupings = new List<List<TimeEntriesResponseDto>>();
+            List<List<TimeEntryResponseDto>> groupings = new List<List<TimeEntryResponseDto>>();
 
             int cursor = 0;
             int currentGroup = 0;
@@ -91,7 +91,7 @@ namespace AlvTime.Business.AbsenseDays
             {
                 if (groupings.ElementAtOrDefault(currentGroup) == null)
                 {
-                    groupings.Add(new List<TimeEntriesResponseDto>());
+                    groupings.Add(new List<TimeEntryResponseDto>());
                     groupings.ElementAt(currentGroup).Add(sickDays.ElementAt(cursor));
                 }
 
@@ -121,7 +121,7 @@ namespace AlvTime.Business.AbsenseDays
         public VacationDaysDTO GetVacationDays(int userId, int year, int month, int day)
         {
 
-            IEnumerable<TimeEntriesResponseDto> paidVacationEntries = _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
+            IEnumerable<TimeEntryResponseDto> paidVacationEntries = _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
             {
                 FromDateInclusive = new DateTime(year, 01, 01),
                 ToDateInclusive = new DateTime(year, 12, 31),
@@ -129,7 +129,7 @@ namespace AlvTime.Business.AbsenseDays
                 TaskId = _timeEntryOptions.CurrentValue.PaidHolidayTask
             });
 
-            IEnumerable<TimeEntriesResponseDto> unpaidVacationEntries = _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
+            IEnumerable<TimeEntryResponseDto> unpaidVacationEntries = _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
             {
                 FromDateInclusive = new DateTime(year, 01, 01),
                 ToDateInclusive = new DateTime(year, 12, 31),

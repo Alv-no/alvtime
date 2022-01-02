@@ -10,16 +10,16 @@ namespace Tests.UnitTests.BusinessLogic
         [Fact]
         public void CalculateVacationOverView_2DaysVacation_OverviewHas2TotalDays0Hours()
         {
-            var timeEntries = new List<TimeEntriesResponseDto>
+            var timeEntries = new List<TimeEntryResponseDto>
             {
                 {
-                    new TimeEntriesResponseDto
+                    new TimeEntryResponseDto
                     {
                         Value = 7.5M
                     }
                 },
                 {
-                    new TimeEntriesResponseDto
+                    new TimeEntryResponseDto
                     {
                         Value = 7.5M
                     }
@@ -35,16 +35,16 @@ namespace Tests.UnitTests.BusinessLogic
         [Fact]
         public void CalculateVacationOverView_1Day5HoursVacation_OverviewHas1Day5Hours()
         {
-            var timeEntries = new List<TimeEntriesResponseDto>
+            var timeEntries = new List<TimeEntryResponseDto>
             {
                 {
-                    new TimeEntriesResponseDto
+                    new TimeEntryResponseDto
                     {
                         Value = 7.5M
                     }
                 },
                 {
-                    new TimeEntriesResponseDto
+                    new TimeEntryResponseDto
                     {
                         Value = 5M
                     }
