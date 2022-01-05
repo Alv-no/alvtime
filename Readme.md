@@ -29,7 +29,7 @@ The first step when a developer wants to fix a bug or implement a feature is to 
 
 This can be done in several different ways. Select the method that suits you and the operating system of your choice. If you encounter situations where it is required to login, please ask one of your colleagues for a username and password. We have set up dummy users that can be used for development. It is also possible to combine the two methods as you wish.
 
-#### Using a local setup
+#### a) Using a local setup
 
 Dependencies:
 
@@ -40,7 +40,7 @@ Dependencies:
 
 Follow the instructions in the Readme file in each of the packages and start the services you need. The architecture drawing above is a good starting point to decide what services you need to start up to be able to accomplish your task.
 
-#### Using docker
+#### b) Using docker
 
 Dependencies:
 
