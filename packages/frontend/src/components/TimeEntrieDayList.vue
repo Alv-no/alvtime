@@ -1,7 +1,7 @@
 <template>
   <div class="slide" :class="{ 'day-off': isDayOff }">
     <HolidayPill v-if="holiday" :holiday="holiday" />
-    <div v-if="tasks.length < 1"><ZeroSelectedTasks /></div>
+    <div v-if="rows.length < 1"><ZeroSelectedTasks /></div>
     <div v-for="row in rows" :key="row.task.id" class="grid">
       <TimeEntrieText :task="row.task" :isExpanded="row.task.id === selectedEntryKey" @expand-entry="onExpandEntry"/>
       <HourInput :time-entrie="row.timeEntrie" :is-locked="row.task.locked" />
