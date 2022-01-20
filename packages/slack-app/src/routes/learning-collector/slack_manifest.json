@@ -1,12 +1,19 @@
 {
-  "_metadata": { "major_version": 1, "minor_version": 1 },
   "display_information": {
     "name": "Alvar-local-dev",
     "description": "Alvar local dev",
     "background_color": "#000000"
   },
   "features": {
-    "bot_user": { "display_name": "Alvar-dev", "always_online": true },
+    "app_home": {
+      "home_tab_enabled": false,
+      "messages_tab_enabled": true,
+      "messages_tab_read_only_enabled": false
+    },
+    "bot_user": {
+      "display_name": "Alvar-dev",
+      "always_online": true
+    },
     "slash_commands": [
       {
         "command": "/lærer",
@@ -26,7 +33,10 @@
         "users:read",
         "users:read.email",
         "team:read",
-        "app_mentions:read"
+        "app_mentions:read",
+        "im:history",
+        "reactions:write",
+        "reactions:read"
       ]
     }
   },
@@ -34,11 +44,12 @@
     "event_subscriptions": {
       "request_url": "http://alvtimeslack.eu.ngrok.io/learning-collector/events",
       "user_events": ["app_home_opened"],
-      "bot_events": ["app_mention"]
+      "bot_events": ["app_mention", "message.im"]
     },
     "interactivity": {
       "is_enabled": true,
-      "request_url": "https://alvtimeslack.eu.ngrok.io/learning-collector/events"
+      "request_url": "https://alvtimeslack.eu.ngrok.io/learning-collector/events",
+      "message_menu_options_url": "https://alvtimeslack.eu.ngrok.io/learning-collector/tags"
     },
     "org_deploy_enabled": false,
     "socket_mode_enabled": false,

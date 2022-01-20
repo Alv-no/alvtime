@@ -19,7 +19,7 @@
     "watch-debug": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run serve-debug\""
   },
   "dependencies": {
-    "@slack/bolt": "^3.8.1",
+    "@slack/bolt": "^3.9.0",
     "@slack/events-api": "^3.0.1",
     "@slack/interactive-messages": "^2.0.2",
     "@slack/web-api": "^6.5.1",
