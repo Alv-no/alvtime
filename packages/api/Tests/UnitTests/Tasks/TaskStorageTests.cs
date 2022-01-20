@@ -75,7 +75,6 @@ namespace Tests.UnitTests.Tasks
                 .ToList().Count();
 
             var storage = new TaskStorage(context);
-            var updater = new FavoriteUpdater(storage);
 
             updater.UpdateFavoriteTasks(new UpdateTasksDto
             {

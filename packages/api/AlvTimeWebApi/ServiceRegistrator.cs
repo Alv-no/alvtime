@@ -5,16 +5,13 @@ using AlvTime.Business.AssociatedTask;
 using AlvTime.Business.CompensationRate;
 using AlvTime.Business.Customers;
 using AlvTime.Business.Economy;
-using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Holidays;
 using AlvTime.Business.HourRates;
 using AlvTime.Business.Interfaces;
-using AlvTime.Business.Overtime;
 using AlvTime.Business.Payouts;
 using AlvTime.Business.Projects;
 using AlvTime.Business.Tasks;
 using AlvTime.Business.Tasks.Admin;
-using AlvTime.Business.TimeEntries;
 using AlvTime.Business.TimeRegistration;
 using AlvTime.Business.Users;
 using AlvTime.Business.Utils;
@@ -35,7 +32,6 @@ namespace AlvTimeWebApi
             services.AddScoped<UserCreator>();
             services.AddScoped<AlvHoursCalculator>();
             services.AddScoped<ITaskStorage, TaskStorage>();
-            services.AddScoped<FavoriteUpdater>();
             services.AddScoped<TaskCreator>();
             services.AddScoped<ITimeRegistrationStorage, TimeRegistrationStorage>();
             services.AddScoped<IHourRateStorage, HourRateStorage>();
@@ -57,6 +53,7 @@ namespace AlvTimeWebApi
             services.AddScoped<TaskUtils>();
             services.AddScoped<TimeRegistrationService>();
             services.AddScoped<IDbContextScope, DbContextScope>();
+            services.AddScoped<TaskService>();
         }
     }
 }

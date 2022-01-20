@@ -3,6 +3,8 @@ using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
+using AlvTimeWebApi.Requests;
 
 namespace AlvTimeWebApi.Controllers
 {
@@ -10,46 +12,27 @@ namespace AlvTimeWebApi.Controllers
     [ApiController]
     public class TasksController : Controller
     {
-        private readonly RetrieveUsers _userRetriever;
-        private readonly ITaskStorage _taskStorage;
-        private readonly FavoriteUpdater _updater;
+        private readonly TaskService _taskService;
 
-        public TasksController(RetrieveUsers userRetriever, ITaskStorage taskStorage, FavoriteUpdater updater)
+        public TasksController(TaskService taskService)
         {
-            _userRetriever = userRetriever;
-            _taskStorage = taskStorage;
-            _updater = updater;
+            _taskService = taskService;
         }
-
+ 
         [HttpGet("Tasks")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
-        public ActionResult<IEnumerable<TaskResponseDto>> FetchTasks()
+        public ActionResult<IEnumerable<TaskResponse>> FetchTasks()
         {
-            var user = _userRetriever.RetrieveUser();
-
-            if (user == null)
-            {
-                return BadRequest("User not found");
-            }
-
-            var tasks = _taskStorage.GetUsersTasks(new TaskQuerySearch(), user.Id);
-
-            return Ok(tasks);
+            return Ok(_taskService.GetTasks()
+                .Select(task => new TaskResponse(task.Id, task.Name, task.Description, task.Favorite, task.Locked, task.CompensationRate, task.Project)));
         }
 
         [HttpPost("Tasks")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
-        public ActionResult<IEnumerable<TaskResponseDto>> UpdateFavoriteTasks([FromBody] IEnumerable<UpdateTasksDto> tasksToBeUpdated)
+        public ActionResult<IEnumerable<TaskResponse>> UpdateFavoriteTasks([FromBody] IEnumerable<TaskFavoriteRequest> tasksToBeUpdated)
         {
-            var user = _userRetriever.RetrieveUser();
-            List<TaskResponseDto> response = new List<TaskResponseDto>();
-
-            foreach (var task in tasksToBeUpdated)
-            {
-                response.Add(_updater.UpdateFavoriteTasks(task, user.Id));
-            }
-
-            return Ok(response);
+            var updatedTasks = _taskService.UpdateFavoriteTasks(tasksToBeUpdated.Select(t => (t.Id, t.Favorite)));
+            return Ok(updatedTasks.Select(task => new TaskResponse(task.Id, task.Name, task.Description, task.Favorite, task.Locked, task.CompensationRate, task.Project)));
         }
     }
 }

@@ -95,8 +95,7 @@ namespace AlvTime.Persistence.Repositories
         public void UpdateTask(UpdateTasksDto taskToBeUpdated)
         {
             var existingTask = _context.Task
-                   .Where(x => x.Id == taskToBeUpdated.Id)
-                   .FirstOrDefault();
+                .FirstOrDefault(x => x.Id == taskToBeUpdated.Id);
 
             if (taskToBeUpdated.Locked != null)
             {
@@ -136,10 +135,10 @@ namespace AlvTime.Persistence.Repositories
             _context.SaveChanges();
         }
 
-        public bool GetFavorite(UpdateTasksDto taskToBeUpdated, int userId)
+        public bool GetFavorite(int taskId, int userId)
         {
             return _context.TaskFavorites
-                .FirstOrDefault(tf => tf.UserId == userId && tf.TaskId == taskToBeUpdated.Id) == null ? false : true;
+                .FirstOrDefault(tf => tf.UserId == userId && tf.TaskId == taskId) != null;
         }
     }
 }
