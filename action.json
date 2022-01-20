@@ -1,0 +1,200 @@
+{
+  "type": "block_suggestion",
+  "user": {
+    "id": "U013CDC0VTQ",
+    "username": "ahre-ketil.lillehagen",
+    "name": "ahre-ketil.lillehagen",
+    "team_id": "T011AEALKLH"
+  },
+  "container": { "type": "view", "view_id": "V02UUKGHSJH" },
+  "api_app_id": "A02SPC22DA4",
+  "token": "fHVOd92fu2Bj31U4JWEERQyw",
+  "action_id": "text1234",
+  "block_id": "section678",
+  "value": "hei",
+  "team": { "id": "T011AEALKLH", "domain": "dev-qje3117" },
+  "enterprise": null,
+  "is_enterprise_install": false,
+  "view": {
+    "id": "V02UUKGHSJH",
+    "team_id": "T011AEALKLH",
+    "type": "modal",
+    "blocks": [
+      {
+        "type": "section",
+        "block_id": "9fBc",
+        "text": {
+          "type": "plain_text",
+          "text": ":wave: Hei ahre-ketil.lillehagen!\n\n Jeg lagrer det du har l\u00e6rt og tar det med i en ukentlig oppsummering jeg publiserer i #fag",
+          "emoji": true
+        }
+      },
+      {
+        "type": "input",
+        "block_id": "shareability",
+        "label": {
+          "type": "plain_text",
+          "text": "Fortell alle hva du l\u00e6rer om?",
+          "emoji": true
+        },
+        "optional": false,
+        "dispatch_action": false,
+        "element": {
+          "type": "radio_buttons",
+          "action_id": "shareability_radio_buttons_action",
+          "initial_option": {
+            "text": {
+              "type": "plain_text",
+              "text": "Fortell om det i #fag med en gang.",
+              "emoji": true
+            },
+            "value": "all"
+          },
+          "options": [
+            {
+              "text": {
+                "type": "plain_text",
+                "text": "Fortell om det i #fag med en gang.",
+                "emoji": true
+              },
+              "value": "all"
+            },
+            {
+              "text": {
+                "type": "plain_text",
+                "text": "Bare ta det med n\u00e5r uken oppsummeres.",
+                "emoji": true
+              },
+              "value": "summary"
+            }
+          ]
+        }
+      },
+      { "type": "divider", "block_id": "Nm+" },
+      {
+        "type": "section",
+        "block_id": "section678",
+        "text": {
+          "type": "mrkdwn",
+          "text": "Pick items from the list",
+          "verbatim": false
+        },
+        "accessory": {
+          "type": "multi_external_select",
+          "action_id": "text1234",
+          "placeholder": {
+            "type": "plain_text",
+            "text": "Select items",
+            "emoji": true
+          },
+          "min_query_length": 3
+        }
+      },
+      {
+        "type": "input",
+        "block_id": "learners",
+        "label": {
+          "type": "plain_text",
+          "text": "Hvem var l\u00e6rte dette sammen med deg?",
+          "emoji": true
+        },
+        "optional": false,
+        "dispatch_action": false,
+        "element": {
+          "type": "multi_users_select",
+          "action_id": "multi_users_select_action",
+          "placeholder": {
+            "type": "plain_text",
+            "text": "Velg koleger",
+            "emoji": true
+          }
+        }
+      },
+      { "type": "divider", "block_id": "9U9xc" },
+      {
+        "type": "input",
+        "block_id": "description",
+        "label": {
+          "type": "plain_text",
+          "text": "Hva handler det du l\u00e6rer deg om?",
+          "emoji": true
+        },
+        "optional": true,
+        "dispatch_action": false,
+        "element": {
+          "type": "plain_text_input",
+          "action_id": "description_input_action",
+          "placeholder": {
+            "type": "plain_text",
+            "text": "Kodet litt bakend i Alvtime slack appen",
+            "emoji": true
+          },
+          "multiline": true,
+          "focus_on_load": true,
+          "dispatch_action_config": {
+            "trigger_actions_on": ["on_enter_pressed"]
+          }
+        }
+      },
+      {
+        "type": "input",
+        "block_id": "locationOfDetails",
+        "label": {
+          "type": "plain_text",
+          "text": "Hvor kan finne det?",
+          "emoji": true
+        },
+        "optional": true,
+        "dispatch_action": false,
+        "element": {
+          "type": "plain_text_input",
+          "action_id": "locationOfDetails_input_action",
+          "placeholder": {
+            "type": "plain_text",
+            "text": "Lim in en Url for eksempel",
+            "emoji": true
+          },
+          "min_length": 0,
+          "dispatch_action_config": {
+            "trigger_actions_on": ["on_enter_pressed"]
+          }
+        }
+      }
+    ],
+    "private_metadata": "",
+    "callback_id": "view_1",
+    "state": {
+      "values": {
+        "shareability": {
+          "shareability_radio_buttons_action": {
+            "type": "radio_buttons",
+            "selected_option": {
+              "text": {
+                "type": "plain_text",
+                "text": "Fortell om det i #fag med en gang.",
+                "emoji": true
+              },
+              "value": "all"
+            }
+          }
+        }
+      }
+    },
+    "hash": "1642706824.CDyOywWg",
+    "title": {
+      "type": "plain_text",
+      "text": "Hva l\u00e6rer du deg?",
+      "emoji": true
+    },
+    "clear_on_close": false,
+    "notify_on_close": false,
+    "close": { "type": "plain_text", "text": "Avbryt :wave:", "emoji": true },
+    "submit": { "type": "plain_text", "text": "Del :rocket:", "emoji": true },
+    "previous_view_id": null,
+    "root_view_id": "V02UUKGHSJH",
+    "app_id": "A02SPC22DA4",
+    "external_id": "",
+    "app_installed_team_id": "T011AEALKLH",
+    "bot_id": "B02RZKXDZJ6"
+  }
+}
