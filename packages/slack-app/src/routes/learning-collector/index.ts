@@ -1,9 +1,11 @@
-import { App, ExpressReceiver, SayFn } from "@slack/bolt";
+import { App, ExpressReceiver, SayFn, ViewStateValue } from "@slack/bolt";
 import { ChatPostMessageArguments, Logger } from "@slack/web-api";
 import express from "express";
+import Fuse from "fuse.js";
 import { logger } from "../../createLogger";
 import env from "../../environment";
 import learningDB from "../../models/learnings";
+import tagsDB, { Tag } from "../../models/tags";
 import { isIm } from "./messageFilters";
 import {
   bostAboutLearning,
@@ -19,6 +21,7 @@ import createModal, {
   SELECTING_TECH_TAGS_IN_MODAL,
 } from "./modal";
 import { LearningSummary } from "./models";
+import { updateFromCVPartner } from "./tags";
 
 export const FAG_CHANNEL_ID = "C02TUVC9LJ2";
 export const FREE_DISTRIBUTION = "FREE_DISTRIBUTION";
@@ -57,9 +60,7 @@ async function askForWhatUserIsLearning({
   }
 }
 
-async function ignore() {}
-
-boltApp.action(TAG_BUTTON_CLICKED, acknowledge, ignore);
+boltApp.action(new RegExp(TAG_BUTTON_CLICKED), acknowledge, async () => {});
 boltApp.action(SELECTING_TECH_TAGS_IN_MODAL, acknowledge, logPayload);
 
 boltApp.action(
@@ -77,20 +78,34 @@ boltApp.action(
   }
 );
 
+function parseViewStateValues(values: {
+  [blockId: string]: {
+    [actionId: string]: ViewStateValue;
+  };
+}) {
+  const shareability =
+    values.shareability.shareability_radio_buttons_action.selected_option.value;
+
+  const description = values.description.description_input_action.value;
+
+  const locationOfDetails =
+    values.locationOfDetails.locationOfDetails_input_action.value;
+
+  const learners = values.learners[SELECTING_FELLOW_LEARNERS].selected_users;
+
+  const selectedTags =
+    values.tags[SELECTING_TECH_TAGS_IN_MODAL].selected_options;
+  const tags = removeDuplicates(selectedTags.map((option) => option.value));
+
+  return { shareability, description, locationOfDetails, learners, tags };
+}
+
 boltApp.view(COLLECT_LEARNING_MODAL_ID, acknowledge, async ({ body, view }) => {
   try {
     const slackUserID = body.user.id;
-    const values = view.state.values;
-    const shareability =
-      values.shareability.shareability_radio_buttons_action.selected_option
-        .value;
-    const description = values.description.description_input_action.value;
-    const locationOfDetails =
-      values.locationOfDetails.locationOfDetails_input_action.value;
-    const learners = values.learners[SELECTING_FELLOW_LEARNERS].selected_users;
-    const tags = values.tags[SELECTING_TECH_TAGS_IN_MODAL].selected_options.map(
-      (option) => option.value
-    );
+    const state = parseViewStateValues(view.state.values);
+    const { shareability, description, locationOfDetails, learners, tags } =
+      state;
 
     // Make sure the poster is one of the learners
     if (!learners.includes(slackUserID)) learners.push(slackUserID);
@@ -98,7 +113,7 @@ boltApp.view(COLLECT_LEARNING_MODAL_ID, acknowledge, async ({ body, view }) => {
     let shareChatPostMessageResponse;
     if (shareability === "all") {
       shareChatPostMessageResponse = await postMessageWithReactions(
-        bostAboutLearning(slackUserID, description, locationOfDetails),
+        bostAboutLearning(state),
         ["tada", "brain"]
       );
     }
@@ -109,6 +124,14 @@ boltApp.view(COLLECT_LEARNING_MODAL_ID, acknowledge, async ({ body, view }) => {
       },
       ["tada"]
     );
+
+    const savedTags = await tagsDB.getAll();
+    const newTags = tags.filter(
+      (tag) => !savedTags.some((savedTag) => savedTag.term === tag)
+    );
+    for (const tag of newTags) {
+      await tagsDB.save({ term: tag });
+    }
 
     await learningDB.save({
       createdAt: new Date(),
@@ -152,9 +175,12 @@ async function postMessageWithReactions(
 
 boltApp.command("/lærer", acknowledge, async ({ body, client, payload }) => {
   const postSummary = payload.text.includes("summary");
+  const runUpdateFromCVPartner = payload.text.includes("cv");
   try {
     const { members } = await client.users.list();
-    if (postSummary) {
+    if (runUpdateFromCVPartner) {
+      await updateFromCVPartner();
+    } else if (postSummary) {
       const learnings = await learningDB.findCreatedAfter(
         new Date(2022, 0, 11)
       );
@@ -194,7 +220,9 @@ boltApp.command("/lærer", acknowledge, async ({ body, client, payload }) => {
           tags,
         });
       }
-      await client.chat.postMessage(weekSummary(learningSummary));
+      const weekSum = weekSummary(learningSummary);
+      logger.error(weekSum);
+      await client.chat.postMessage(weekSum);
     } else {
       const result = await client.views.open(
         //@ts-ignore
@@ -210,21 +238,30 @@ boltApp.command("/lærer", acknowledge, async ({ body, client, payload }) => {
 learningCollector.use("/events", boltReceiver.router);
 learningCollector.use("/events", boltReceiver.app);
 
-learningCollector.post("/tags", express.urlencoded(), (req, res) => {
+learningCollector.post("/tags", express.urlencoded(), async (req, res) => {
   const payload = JSON.parse(req.body.payload);
-  logger.info(payload);
-  const nameAr = ["Java", "Python", "Git", "TypeScript"];
-  const options = nameAr.filter(startsWith(payload.value)).map(toTagOption);
+  const pattern = payload.value;
+  const savedTags = await tagsDB.getAll();
+  const searchResult = new Fuse(savedTags, { keys: ["term"] }).search(pattern);
+  const options = searchResult.map(fuseOutputToOption).slice(0, 7);
+  const isExactMatch = options.some(
+    (option) => option.text.text.toLowerCase() === pattern.toLowerCase()
+  );
+  if (!isExactMatch) options.push(createToBeAddedOption(pattern));
   res.json({ options });
 });
 
 export default learningCollector;
 
-function startsWith(value: string) {
-  return (name: string) => name.startsWith(value);
+function createToBeAddedOption(name: string) {
+  return {
+    text: { type: "plain_text", text: `"${name}" (ny tag)` },
+    value: name,
+  };
 }
 
-function toTagOption(name: string) {
+function fuseOutputToOption(fuseOutput: { item: Tag }) {
+  const name = fuseOutput.item.term;
   return {
     text: { type: "plain_text", text: name },
     value: name,

@@ -3,10 +3,10 @@ import { logger } from "../createLogger";
 
 type Term = {
   term: string;
-  count: number;
+  count?: number;
 };
 export interface Tag extends Term {
-  matching_categories: Term[];
+  matching_categories?: Term[];
 }
 
 const Term = { term: String, count: Number };
