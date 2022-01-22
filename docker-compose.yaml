@@ -82,6 +82,7 @@ services:
     ports:
       - 9229:9229
     environment:
+      - NODE_ENV=development
       - AZURE_AD_CLIENT_ID=c9126a83-01c3-43c0-8bb3-298d352d2d7f
       - AZURE_AD_ACCESS_AS_USER_SCOPE=api://c9126a83-01c3-43c0-8bb3-298d352d2d7f/access_as_user
       - REPORT_USER_PERSONAL_ACCESS_TOKEN=5801gj90-jf39-5j30-fjk3-480fj39kl409

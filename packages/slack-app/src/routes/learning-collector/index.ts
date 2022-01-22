@@ -2,6 +2,7 @@ import { App, ExpressReceiver, SayFn, ViewStateValue } from "@slack/bolt";
 import { ChatPostMessageArguments, Logger } from "@slack/web-api";
 import express from "express";
 import Fuse from "fuse.js";
+import mongoose from "mongoose";
 import { logger } from "../../createLogger";
 import env from "../../environment";
 import learningDB from "../../models/learnings";
@@ -24,12 +25,20 @@ import createModal, {
 } from "./modal";
 import { LearningSummary } from "./models";
 import { getReactions } from "./reactions";
-import { updateFromCVPartner } from "./tags";
+import { updateFromCVPartner, updateFromMockTags } from "./tags";
 
 export const FAG_CHANNEL_ID = "C02TUVC9LJ2";
 export const FREE_DISTRIBUTION = "FREE_DISTRIBUTION";
 export const ONLY_SUMMARY = "ONLY_SUMMARY";
 const learningCollector = express.Router();
+
+mongoose.connection.once("open", () => {
+  if (process.env.NODE_ENV === "development") {
+    updateFromMockTags();
+  } else {
+    updateFromCVPartner();
+  }
+});
 
 const boltReceiver = new ExpressReceiver({
   signingSecret: env.LEARNING_COLLECTOR_SLACK_BOT_SIGNING_SECRET,

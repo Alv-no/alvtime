@@ -32,9 +32,21 @@ export function createTagsDB(model = TagModel) {
       if (!doc) return undefined;
     },
 
-    async save(tag: Tag): Promise<Tag> {
+    save(tag: Tag): Promise<Tag> {
       const doc = new model(tag);
       return doc.save();
+    },
+
+    batchInsert(tags: Tag[]) {
+      return model.insertMany(tags);
+    },
+
+    count() {
+      return model.countDocuments();
+    },
+
+    exists(term: string) {
+      return model.exists({ term });
     },
   };
 }
