@@ -80,6 +80,10 @@ export function informLearnerAboutRegistration(
   };
 }
 
+export function thankYouForSharing() {
+  return { text: "Takk for at du deler hva du leker med" };
+}
+
 function createMultipleUsersText(userIds: string[]) {
   return userIds
     .map((learner, index, arr) => {

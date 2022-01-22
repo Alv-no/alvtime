@@ -12,6 +12,7 @@ import {
   informLearnerAboutRegistration,
   IS_LEARNING_BUTTON_CLICKED,
   TAG_BUTTON_CLICKED,
+  thankYouForSharing,
   weekSummary,
   whatUserIsLearningQuestion,
 } from "./messages";
@@ -22,6 +23,7 @@ import createModal, {
   SELECTING_TECH_TAGS_IN_MODAL,
 } from "./modal";
 import { LearningSummary } from "./models";
+import { getReactions } from "./reactions";
 import { updateFromCVPartner } from "./tags";
 
 export const FAG_CHANNEL_ID = "C02TUVC9LJ2";
@@ -115,15 +117,15 @@ boltApp.view(COLLECT_LEARNING_MODAL_ID, acknowledge, async ({ body, view }) => {
     if (shareability === "all") {
       shareChatPostMessageResponse = await postMessageWithReactions(
         bostAboutLearning(state),
-        ["tada", "brain"]
+        getReactions()
       );
     }
     const thanksChatPostMessageResponse = await postMessageWithReactions(
       {
         channel: slackUserID,
-        text: "Takk for at du deler hva du leker med",
+        ...thankYouForSharing(),
       },
-      ["tada"]
+      getReactions()
     );
 
     for (const learner of learners.filter(
@@ -134,7 +136,7 @@ boltApp.view(COLLECT_LEARNING_MODAL_ID, acknowledge, async ({ body, view }) => {
           channel: learner,
           ...informLearnerAboutRegistration(slackUserID, state),
         },
-        ["tada"]
+        getReactions()
       );
     }
 
