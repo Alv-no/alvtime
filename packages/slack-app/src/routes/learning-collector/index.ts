@@ -9,6 +9,7 @@ import tagsDB, { Tag } from "../../models/tags";
 import { isIm } from "./messageFilters";
 import {
   bostAboutLearning,
+  informLearnerAboutRegistration,
   IS_LEARNING_BUTTON_CLICKED,
   TAG_BUTTON_CLICKED,
   weekSummary,
@@ -119,11 +120,23 @@ boltApp.view(COLLECT_LEARNING_MODAL_ID, acknowledge, async ({ body, view }) => {
     }
     const thanksChatPostMessageResponse = await postMessageWithReactions(
       {
-        channel: body.user.id,
+        channel: slackUserID,
         text: "Takk for at du deler hva du leker med",
       },
       ["tada"]
     );
+
+    for (const learner of learners.filter(
+      (learner) => learner !== slackUserID
+    )) {
+      await postMessageWithReactions(
+        {
+          channel: learner,
+          ...informLearnerAboutRegistration(slackUserID, state),
+        },
+        ["tada"]
+      );
+    }
 
     const savedTags = await tagsDB.getAll();
     const newTags = tags.filter(
