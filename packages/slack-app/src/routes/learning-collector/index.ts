@@ -71,10 +71,11 @@ boltApp.action(
   acknowledge,
   async ({ client, body }) => {
     try {
-      await client.views.open(
+      await client.views.open({
         //@ts-ignore
-        createModal(body.trigger_id, body.user.username, body.user.id)
-      );
+        trigger_id: body.trigger_id,
+        view: createModal(body.user.id),
+      });
     } catch (error) {
       logger.error(error);
     }
@@ -191,64 +192,69 @@ async function postMessageWithReactions(
 boltApp.command("/lærer", acknowledge, async ({ body, client, payload }) => {
   const postSummary = payload.text.includes("summary");
   const runUpdateFromCVPartner = payload.text.includes("cv");
+  const isAdmin = process.env.ADMIN_USERS.includes(payload.user_id);
   try {
-    const { members } = await client.users.list();
     if (runUpdateFromCVPartner) {
-      await updateFromCVPartner();
+      if (isAdmin) await updateFromCVPartner();
     } else if (postSummary) {
-      const learnings = await learningDB.findCreatedAfter(
-        new Date(2022, 0, 11)
-      );
-      let learningSummary: LearningSummary[] = [];
-      for (const learning of learnings) {
-        const {
-          createdAt,
-          description,
-          learners,
-          locationOfDetails,
-          shareMessage,
-          shareMessage: { channel, timestamp },
-          shareability,
-          slackUserID,
-          thanksMessage,
-          tags,
-        } = learning;
-        const {
-          message: { reactions },
-        } = await client.reactions.get({
-          channel,
-          timestamp,
-          full: true,
-        });
-        const member = members.find((member) => member.id === slackUserID);
-        learningSummary.push({
-          createdAt,
-          description,
-          learners,
-          locationOfDetails,
-          member,
-          reactions,
-          shareMessage,
-          shareability,
-          slackUserID,
-          thanksMessage,
-          tags,
-        });
-      }
-      const weekSum = weekSummary(learningSummary);
-      logger.error(weekSum);
-      await client.chat.postMessage(weekSum);
+      if (isAdmin)
+        await client.chat.postMessage(weekSummary(await createWeekRepport()));
     } else {
-      const result = await client.views.open(
+      const result = await client.views.open({
+        trigger_id: body.trigger_id,
         //@ts-ignore
-        createModal(body.trigger_id, payload.user_name, payload.user_id)
-      );
+        view: createModal(payload.user_id),
+      });
       logger.info(result);
     }
   } catch (error) {
     logger.error(error);
   }
 });
+
+async function createWeekRepport() {
+  const { members } = await boltApp.client.users.list();
+  const learnings = await learningDB.findCreatedAfter(new Date(2022, 0, 11));
+  let learningSummary: LearningSummary[] = [];
+  for (const learning of learnings) {
+    const {
+      createdAt,
+      description,
+      learners,
+      locationOfDetails,
+      shareMessage,
+      shareMessage: { channel, timestamp },
+      shareability,
+      slackUserID,
+      thanksMessage,
+      tags,
+    } = learning;
+
+    const {
+      message: { reactions },
+    } = await boltApp.client.reactions.get({
+      channel,
+      timestamp,
+      full: true,
+    });
+
+    const member = members.find((member) => member.id === slackUserID);
+    learningSummary.push({
+      createdAt,
+      description,
+      learners,
+      locationOfDetails,
+      member,
+      reactions,
+      shareMessage,
+      shareability,
+      slackUserID,
+      thanksMessage,
+      tags,
+    });
+  }
+  return learningSummary;
+}
 
 learningCollector.use("/events", boltReceiver.router);
 learningCollector.use("/events", boltReceiver.app);
