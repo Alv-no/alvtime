@@ -19,6 +19,6 @@ export function getReactions() {
   return [firstEmoji, secondEmoji];
 }
 
-function getRandomNumber(amount: number) {
+export function getRandomNumber(amount: number) {
   return Math.floor(Math.random() * amount);
 }
