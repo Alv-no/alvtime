@@ -10,7 +10,7 @@ async function fetchBatchFromCVPartner(offset: number): Promise<Tag[]> {
     { headers: { Authorization: `Token token=${token}` } }
   );
 
-  const body = await res.json();
+  const body = (await res.json()) as { wrapper: { terms: Tag[] } };
   return body.wrapper.terms;
 }
 
