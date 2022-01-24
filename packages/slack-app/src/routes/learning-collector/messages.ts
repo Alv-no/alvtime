@@ -3,16 +3,23 @@ import { Member } from "@slack/web-api/dist/response/UsersListResponse";
 import { LEARNING_COLLECTOR_SHARING_CHANNEL_ID } from ".";
 import { markdown, plainText } from "./blocks";
 import { LearningSummary } from "./models";
+import { getRandomNumber } from "./reactions";
 
 type Blocks = (KnownBlock | Block)[];
 
 export function whatUserIsLearningQuestion() {
+  const messageArray = [
+    "Trykk på knappen og fortell meg hva du lærer deg for tiden :wave:",
+    "Har du lest, sett eller snakket om noe fett i det siste? La folket få vite det! :bulb:",
+    "Vår kunnskapsbrønn er tørst etter din hjernebarks nye signaler! :brain:"
+  ]
+
   return {
     blocks: [
       {
         type: "section",
         text: markdown(
-          "Trykk på knapper og fortell meg hva du lærer deg for tiden :wave:"
+          messageArray[getRandomNumber(messageArray.length)]
         ),
       },
       openModalButton(),
@@ -49,7 +56,7 @@ export function bostAboutLearning(state: Learning) {
   return {
     channel: LEARNING_COLLECTOR_SHARING_CHANNEL_ID,
     text: `${usersText} bygger kunnskap som bare det :tada:\n\n>${description}\nFinn mere info :point_down:\n${locationOfDetails}`,
-    blocks,
+    blocks
   };
 }
 
