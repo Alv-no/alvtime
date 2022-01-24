@@ -17,6 +17,11 @@ export KUBERNETES_CLUSTER_NAME
 SUBSCRIPTION="k8s-$ENV-subscription"
 export SUBSCRIPTION
 
+if [ "test" = "$ENV" ]; then
+  LEARNING_COLLECTOR_SHARING_CHANNEL_ID=C02TUVC9LJ2
+fi
+export LEARNING_COLLECTOR_SHARING_CHANNEL_ID
+
 function getSecret() {
   az keyvault secret show --vault-name $KEY_VAULT --name $1 | jq '.value' -r
 }
@@ -44,3 +49,9 @@ SP_ALVTIME_ADMIN_CLIENT_ID="$(getSecret sp-alvtime-admin-client-id)"
 export SP_ALVTIME_ADMIN_CLIENT_ID
 SP_ALVTIME_ADMIN_RBAC_SECRET="$(getSecret sp-alvtime-admin-rbac-secret)"
 export SP_ALVTIME_ADMIN_RBAC_SECRET
+LEARNING_COLLECTOR_SLACK_BOT_SIGNING_SECRET="$(getSecret learning-collector-slack-bot-signing-secret)"
+export LEARNING_COLLECTOR_SLACK_BOT_SIGNING_SECRET
+LEARNING_COLLECTOR_SLACK_BOT_TOKEN="$(getSecret learning-collector-slack-bot-token)"
+export LEARNING_COLLECTOR_SLACK_BOT_TOKEN
+CVPARTNER_API_TOKEN="$(getSecret cvpartner-api-token)"
+export CVPARTNER_API_TOKEN
