@@ -189,7 +189,7 @@ async function postMessageWithReactions(
 ) {
   const client = boltApp.client;
   const chatPostMessageResponse = await client.chat.postMessage(message);
-  for (let reaction of reactions) {
+  for (const reaction of reactions) {
     client.reactions.add({
       channel: chatPostMessageResponse.channel,
       timestamp: chatPostMessageResponse.ts,
@@ -225,7 +225,7 @@ boltApp.command("/lærer", acknowledge, async ({ body, client, payload }) => {
 async function createWeekRepport() {
   const { members } = await boltApp.client.users.list();
   const learnings = await learningDB.findCreatedAfter(new Date(2022, 0, 11));
-  let learningSummary: LearningSummary[] = [];
+  const learningSummary: LearningSummary[] = [];
   for (const learning of learnings) {
     const {
       createdAt,
