@@ -55,7 +55,6 @@
     "@types/eslint": "^8.2.1",
     "@types/express-session": "^1.17.4",
     "@types/jest": "^27.0.3",
-    "@types/mongoose": "^5.11.97",
     "@types/node": "16.11.13",
     "@types/node-cron": "^2.0.3",
     "@types/node-fetch": "^2.5.12",
