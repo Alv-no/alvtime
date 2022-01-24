@@ -188,6 +188,10 @@ async function postMessageWithReactions(
   reactions: string[]
 ) {
   const client = boltApp.client;
+  
+  message.unfurl_links = false;
+  message.unfurl_media = false;
+
   const chatPostMessageResponse = await client.chat.postMessage(message);
   for (const reaction of reactions) {
     client.reactions.add({
