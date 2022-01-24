@@ -27,7 +27,8 @@ import { LearningSummary } from "./models";
 import { getReactions } from "./reactions";
 import { updateFromCVPartner, updateFromMockTags } from "./tags";
 
-export const FAG_CHANNEL_ID = "C02TUVC9LJ2";
+export const LEARNING_COLLECTOR_SHARING_CHANNEL_ID =
+  process.env.LEARNING_COLLECTOR_SHARING_CHANNEL_ID;
 export const FREE_DISTRIBUTION = "FREE_DISTRIBUTION";
 export const ONLY_SUMMARY = "ONLY_SUMMARY";
 const learningCollector = express.Router();

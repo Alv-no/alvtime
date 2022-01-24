@@ -1,6 +1,6 @@
 import { Block, KnownBlock } from "@slack/bolt";
 import { Member } from "@slack/web-api/dist/response/UsersListResponse";
-import { FAG_CHANNEL_ID } from ".";
+import { LEARNING_COLLECTOR_SHARING_CHANNEL_ID } from ".";
 import { markdown, plainText } from "./blocks";
 import { LearningSummary } from "./models";
 
@@ -47,7 +47,7 @@ export function bostAboutLearning(state: Learning) {
   blocks.push(openModalButton());
 
   return {
-    channel: FAG_CHANNEL_ID,
+    channel: LEARNING_COLLECTOR_SHARING_CHANNEL_ID,
     text: `${usersText} bygger kunnskap som bare det :tada:\n\n>${description}\nFinn mere info :point_down:\n${locationOfDetails}`,
     blocks,
   };
@@ -153,7 +153,7 @@ export function weekSummary(learnings: LearningSummary[]) {
   ];
 
   return {
-    channel: FAG_CHANNEL_ID,
+    channel: LEARNING_COLLECTOR_SHARING_CHANNEL_ID,
     text: "backup",
     blocks,
   };

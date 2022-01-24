@@ -41,6 +41,9 @@ helm upgrade slack-api ./chart \
   --set secrets.REPORT_USER_PERSONAL_ACCESS_TOKEN="$REPORT_USER_PERSONAL_ACCESS_TOKEN" \
   --set secrets.SLACK_BOT_TOKEN="$SLACK_BOT_TOKEN" \
   --set secrets.SLACK_SIGNING_SECRET="$SLACK_SIGNING_SECRET" \
+  --set secrets.LEARNING_COLLECTOR_SLACK_BOT_SIGNING_SECRET="$LEARNING_COLLECTOR_SLACK_BOT_SIGNING_SECRET" \
+  --set secrets.LEARNING_COLLECTOR_SLACK_BOT_TOKEN="$LEARNING_COLLECTOR_SLACK_BOT_TOKEN" \
+  --set secrets.CVPARTNER_API_TOKEN="$CVPARTNER_API_TOKEN" \
   --namespace "alvtime"
 
 \cp "packages/frontend/k8s_environments/$ENV-env.yaml" chart/env.yaml
