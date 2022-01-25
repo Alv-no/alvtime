@@ -29,7 +29,7 @@ export function whatUserIsLearningQuestion() {
 export function boastAboutLearning(state: Learning) {
   const { description, locationOfDetails, learners, tags } = state;
   const usersText = createMultipleUsersText(learners);
-  const moreInfoText = locationOfDetails
+  const moreInfoText = !!locationOfDetails
     ? `\n${getResponseMessage("learnMoreText")} :point_down:\n${locationOfDetails}`
     : "";
   const text =
@@ -47,7 +47,7 @@ export function boastAboutLearning(state: Learning) {
 
   return {
     channel: LEARNING_COLLECTOR_SHARING_CHANNEL_ID,
-    text: `${usersText} ${getResponseMessage("boastAboutLearningText")}\n\n>${description}\n${getResponseMessage("learnMoreText")} :point_down:\n${locationOfDetails}`,
+    text: `${usersText} ${getResponseMessage("boastAboutLearningText")}\n\n>${description}\n${!!locationOfDetails ? getResponseMessage("learnMoreText") + ` \n${locationOfDetails}` : ""}`,
     blocks
   };
 }
