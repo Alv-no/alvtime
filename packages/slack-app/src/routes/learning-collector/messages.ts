@@ -1,19 +1,17 @@
 import { Block, KnownBlock } from "@slack/bolt";
 import { Member } from "@slack/web-api/dist/response/UsersListResponse";
-import { LEARNING_COLLECTOR_SHARING_CHANNEL_ID } from ".";
+import { logger } from "../../createLogger";
+import { boltApp, LEARNING_COLLECTOR_SHARING_CHANNEL_ID } from ".";
 import { markdown, plainText } from "./blocks";
 import { LearningSummary } from "./models";
 import { getResponseMessage } from "./responses";
+import { getRandomNumber, getReactionsFromMessage } from "./reactions";
+import { Learning } from "../../models/learnings";
+import { Reaction } from "@slack/web-api/dist/response/ChannelsHistoryResponse";
 
 type Blocks = (KnownBlock | Block)[];
 
 export function whatUserIsLearningQuestion() {
-  const messageArray = [
-    "Trykk på knappen og fortell meg hva du lærer deg for tiden :wave:",
-    "Har du lest, sett eller snakket om noe fett i det siste? La folket få vite det! :bulb:",
-    "Vår kunnskapsbrønn trenger påfyll og lengter etter din hjernebarks oppdaterte signaler! :brain:"
-  ]
-
   return {
     blocks: [
       {
@@ -56,7 +54,7 @@ export function boastAboutLearning(state: Learning) {
   return {
     channel: LEARNING_COLLECTOR_SHARING_CHANNEL_ID,
     text: `${usersText} ${getResponseMessage("boastAboutLearningText")}\n\n>${description}\n${getResponseMessage("learnMoreText")} :point_down:\n${locationOfDetails}`,
-    blocks
+    blocks,
   };
 }
 
@@ -116,8 +114,45 @@ function openModalButton(text = "Fortell hva du lærer!") {
   };
 }
 
+async function createWeekRepport(learnings: Learning[], members: Member[]) {
+  const learningSummary: LearningSummary[] = [];
+  for (const learning of learnings) {
+    const {
+      createdAt,
+      description,
+      learners,
+      locationOfDetails,
+      shareMessage,
+      shareMessage: { channel, timestamp },
+      shareability,
+      slackUserID,
+      thanksMessage,
+      tags,
+    } = learning;
+
+    const reactions = await getReactionsFromMessage({ channel, timestamp });
+
+    const member = members.find((member) => member.id === slackUserID);
+    learningSummary.push({
+      createdAt,
+      description,
+      learners,
+      locationOfDetails,
+      member,
+      reactions,
+      shareMessage,
+      shareability,
+      slackUserID,
+      thanksMessage,
+      tags,
+    });
+  }
+  return learningSummary;
+}
+
 export const TAG_BUTTON_CLICKED = "tag_button_clicked";
-export function weekSummary(learnings: LearningSummary[]) {
+export async function weekSummary(learnings: Learning[], members: Member[]) {
+  const weekRepport = await createWeekRepport(learnings, members);
   const blocks: Blocks = [
     {
       type: "section",
@@ -128,7 +163,7 @@ export function weekSummary(learnings: LearningSummary[]) {
     {
       type: "divider",
     },
-    ...learnings
+    ...weekRepport
       .map(
         ({
           slackUserID,
@@ -138,9 +173,7 @@ export function weekSummary(learnings: LearningSummary[]) {
           member,
           tags,
         }) => {
-          const reactionsText = reactions
-            .map(({ name, count }) => `:${name}: ${count}`)
-            .join("  ");
+          const reactionsText = createReactionsText(reactions);
           const blocks: Blocks = [
             {
               type: "section",
@@ -161,9 +194,103 @@ export function weekSummary(learnings: LearningSummary[]) {
 
   return {
     channel: LEARNING_COLLECTOR_SHARING_CHANNEL_ID,
-    text: "backup",
+    text: "Alt det Alvene har lært denne uken",
     blocks,
   };
+}
+
+function createReactionsText(reactions: Reaction[]) {
+  return reactions.map(({ name, count }) => `:${name}: ${count}`).join("  ");
+}
+
+export async function learnerSummary(learnings: Learning[], members: Member[]) {
+  const allLearners = getLearnersFromLearnings(learnings);
+  const learningsGroupedByUser = groupLearningsByUser(learnings, allLearners);
+  const blocks: Blocks = [
+    {
+      type: "section",
+      text: markdown(
+        `*Ukens oppsummering*\nDenne uken har det blitt registrert *${learnings.length}* læringsaktiviteter. Se hva alle de flinke Alvene lærer seg`
+      ),
+    },
+    {
+      type: "divider",
+    },
+  ];
+  const userSections: Block[] = [];
+  const createUserSection = createUserSectionCreator(
+    members,
+    learningsGroupedByUser
+  );
+  for (const userId of Object.values(allLearners)) {
+    userSections.push(await createUserSection(userId));
+  }
+  blocks.push(...userSections);
+  blocks.push(openModalButton());
+
+  return {
+    channel: LEARNING_COLLECTOR_SHARING_CHANNEL_ID,
+    text: "Alt det Alvene har lært denne uken",
+    blocks,
+  };
+}
+
+function createUserSectionCreator(
+  members: Member[],
+  learningsGroupedByUser: LearningsGroupedByUser
+) {
+  return async (userId: string) => {
+    const member = members.find((m) => m.id === userId);
+    let userLearnings = "";
+    let index = 0;
+    for (const learning of learningsGroupedByUser[userId]) {
+      userLearnings =
+        userLearnings + (await createLearningSummary(learning, index));
+      index++;
+    }
+    return {
+      type: "section",
+      text: markdown(userLearnings),
+      accessory: profilePhoto(member),
+    };
+  };
+}
+
+function getLearnersFromLearnings(learnings: Learning[]) {
+  const allLearners: string[] = [];
+  for (const learning of learnings) {
+    const newLearnersFromLearning = learning.learners.filter(
+      (userId) => allLearners.indexOf(userId) === -1
+    );
+    allLearners.push(...newLearnersFromLearning);
+  }
+  return allLearners;
+}
+
+type LearningsGroupedByUser = {
+  [userId: string]: Learning[];
+};
+
+function groupLearningsByUser(learnings: Learning[], allLearners: string[]) {
+  const learningsGroupedByUser: LearningsGroupedByUser = {};
+  for (const userId of allLearners) {
+    const userLearnings = learnings.filter(
+      (learning) => learning.learners.indexOf(userId) > -1
+    );
+    if (!learningsGroupedByUser[userId])
+      learningsGroupedByUser[userId] = userLearnings;
+  }
+  return learningsGroupedByUser;
+}
+
+async function createLearningSummary(learning: Learning, index: number) {
+  const { description, locationOfDetails, shareMessage } = learning;
+  const reactions = await getReactionsFromMessage(shareMessage);
+  const reactionsText = createReactionsText(reactions);
+  const moreInfoText = locationOfDetails
+    ? ` :point_right: ${locationOfDetails}`
+    : "";
+  return `\n*${index + 1}.* ${description}${moreInfoText}\n${reactionsText}`;
 }
 
 function profilePhoto(member: Member) {
