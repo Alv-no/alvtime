@@ -1,31 +1,27 @@
 import { App, ExpressReceiver, SayFn, ViewStateValue } from "@slack/bolt";
 import { ChatPostMessageArguments, Logger } from "@slack/web-api";
-import { Member } from "@slack/web-api/dist/response/UsersListResponse";
 import express from "express";
 import Fuse from "fuse.js";
 import mongoose from "mongoose";
 import { logger } from "../../createLogger";
 import env from "../../environment";
-import learningDB, { Learning } from "../../models/learnings";
+import learningDB from "../../models/learnings";
 import tagsDB, { Tag } from "../../models/tags";
 import { isIm } from "./messageFilters";
 import {
-  boastAboutLearning,
-  informLearnerAboutRegistration,
-  IS_LEARNING_BUTTON_CLICKED,
-  learnerSummary,
-  TAG_BUTTON_CLICKED,
-  thankYouForSharing,
-  weekSummary,
-  whatUserIsLearningQuestion,
+    boastAboutLearning,
+    informLearnerAboutRegistration,
+    IS_LEARNING_BUTTON_CLICKED,
+    learnerSummary,
+    TAG_BUTTON_CLICKED,
+    thankYouForSharing, whatUserIsLearningQuestion
 } from "./messages";
 import { acknowledge } from "./middleware";
 import createModal, {
-  COLLECT_LEARNING_MODAL_ID,
-  SELECTING_FELLOW_LEARNERS,
-  SELECTING_TECH_TAGS_IN_MODAL,
+    COLLECT_LEARNING_MODAL_ID,
+    SELECTING_FELLOW_LEARNERS,
+    SELECTING_TECH_TAGS_IN_MODAL
 } from "./modal";
-import { LearningSummary } from "./models";
 import { getReactions } from "./reactions";
 import { updateFromCVPartner, updateFromMockTags } from "./tags";
 

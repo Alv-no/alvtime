@@ -1,13 +1,12 @@
 import { Block, KnownBlock } from "@slack/bolt";
+import { Reaction } from "@slack/web-api/dist/response/ChannelsHistoryResponse";
 import { Member } from "@slack/web-api/dist/response/UsersListResponse";
-import { logger } from "../../createLogger";
-import { boltApp, LEARNING_COLLECTOR_SHARING_CHANNEL_ID } from ".";
+import { LEARNING_COLLECTOR_SHARING_CHANNEL_ID } from ".";
+import { Learning } from "../../models/learnings";
 import { markdown, plainText } from "./blocks";
 import { LearningSummary } from "./models";
+import { getReactionsFromMessage } from "./reactions";
 import { getResponseMessage } from "./responses";
-import { getRandomNumber, getReactionsFromMessage } from "./reactions";
-import { Learning } from "../../models/learnings";
-import { Reaction } from "@slack/web-api/dist/response/ChannelsHistoryResponse";
 
 type Blocks = (KnownBlock | Block)[];
 
@@ -16,31 +15,31 @@ export function whatUserIsLearningQuestion() {
     blocks: [
       {
         type: "section",
-        text: markdown(
-          getResponseMessage("whatUserIsLearningQuestion")
-        ),
+        text: markdown(getResponseMessage("whatUserIsLearningQuestion")),
       },
       openModalButton(),
     ],
   };
 }
 
-type Learning = {
+interface LearningRegistration {
+  shareability: string;
   description: string;
   locationOfDetails: string;
   learners: string[];
   tags: string[];
 };
 
-export function boastAboutLearning(state: Learning) {
+export function boastAboutLearning(state: LearningRegistration) {
   const { description, locationOfDetails, learners, tags } = state;
   const usersText = createMultipleUsersText(learners);
   const moreInfoText = !!locationOfDetails
-    ? `\n${getResponseMessage("learnMoreText")} :point_down:\n${locationOfDetails}`
+    ? `\n${getResponseMessage("learnMoreText")} \n${locationOfDetails}`
     : "";
   const text =
-    `${usersText}  ${getResponseMessage("boastAboutLearningText")}\n\n>${description}` +
-    moreInfoText;
+    `${usersText}  ${getResponseMessage(
+      "boastAboutLearningText"
+    )}\n\n>${description}` + moreInfoText;
   const blocks: Blocks = [
     {
       type: "section",
@@ -53,14 +52,20 @@ export function boastAboutLearning(state: Learning) {
 
   return {
     channel: LEARNING_COLLECTOR_SHARING_CHANNEL_ID,
-    text: `${usersText} ${getResponseMessage("boastAboutLearningText")}\n\n>${description}\n${!!locationOfDetails ? getResponseMessage("learnMoreText") + ` \n${locationOfDetails}` : ""}`,
-    blocks
+    text: `${usersText} ${getResponseMessage(
+      "boastAboutLearningText"
+    )}\n\n>${description}\n${
+      !!locationOfDetails
+        ? getResponseMessage("learnMoreText") + ` \n${locationOfDetails}`
+        : ""
+    }`,
+    blocks,
   };
 }
 
 export function informLearnerAboutRegistration(
   registrar: string,
-  learning: Learning
+  learning: LearningRegistration
 ) {
   const { description, locationOfDetails, tags } = learning;
   const moreInfoText = locationOfDetails
