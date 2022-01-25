@@ -8,6 +8,9 @@ export const getResponseMessage = (messageType: string) => {
         case 'learnMoreText': {
             return learnMoreText[getRandomNumber(learnMoreText.length)];
         }
+        case 'boastAboutLearningText': {
+            return boastAboutLearningText[getRandomNumber(boastAboutLearningText.length)];
+        }
     }
 };
 
@@ -21,4 +24,11 @@ const learnMoreText: Array<string> = [
     "Sugen på en nærmere titt? Sjekk linken!",
     "Nysgjerrig? Finn ut mer her!",
     "Vi vet du ble inspirert. Sjekk det ut nærmere her!"
+];
+
+
+const boastAboutLearningText: Array<string> = [
+    "bygger kunnskap som bare det! :tada:",
+    "har en skalle som renner over av ny kunnskap! :exploding_head:",
+    "kompenserer med kompetitiv kompetanse!"
 ];
