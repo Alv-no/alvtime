@@ -41,7 +41,7 @@ export function boastAboutLearning(state: Learning) {
     ? `\n${getResponseMessage("learnMoreText")} :point_down:\n${locationOfDetails}`
     : "";
   const text =
-    `${usersText} bygger kunnskap som bare det :tada:\n\n>${description}` +
+    `${usersText}  ${getResponseMessage("boastAboutLearningText")}\n\n>${description}` +
     moreInfoText;
   const blocks: Blocks = [
     {
@@ -55,7 +55,7 @@ export function boastAboutLearning(state: Learning) {
 
   return {
     channel: LEARNING_COLLECTOR_SHARING_CHANNEL_ID,
-    text: `${usersText} bygger kunnskap som bare det :tada:\n\n>${description}\nFinn mere info :point_down:\n${locationOfDetails}`,
+    text: `${usersText} ${getResponseMessage("boastAboutLearningText")}\n\n>${description}\n${getResponseMessage("learnMoreText")} :point_down:\n${locationOfDetails}`,
     blocks
   };
 }
