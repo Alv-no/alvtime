@@ -3,7 +3,7 @@ import { Member } from "@slack/web-api/dist/response/UsersListResponse";
 import { LEARNING_COLLECTOR_SHARING_CHANNEL_ID } from ".";
 import { markdown, plainText } from "./blocks";
 import { LearningSummary } from "./models";
-import { getRandomNumber } from "./reactions";
+import { getResponseMessage } from "./responses";
 
 type Blocks = (KnownBlock | Block)[];
 
@@ -11,7 +11,7 @@ export function whatUserIsLearningQuestion() {
   const messageArray = [
     "Trykk på knappen og fortell meg hva du lærer deg for tiden :wave:",
     "Har du lest, sett eller snakket om noe fett i det siste? La folket få vite det! :bulb:",
-    "Vår kunnskapsbrønn er tørst etter din hjernebarks nye signaler! :brain:"
+    "Vår kunnskapsbrønn trenger påfyll og lengter etter din hjernebarks oppdaterte signaler! :brain:"
   ]
 
   return {
@@ -19,7 +19,7 @@ export function whatUserIsLearningQuestion() {
       {
         type: "section",
         text: markdown(
-          messageArray[getRandomNumber(messageArray.length)]
+          getResponseMessage("whatUserIsLearningQuestion")
         ),
       },
       openModalButton(),
@@ -38,7 +38,7 @@ export function boastAboutLearning(state: Learning) {
   const { description, locationOfDetails, learners, tags } = state;
   const usersText = createMultipleUsersText(learners);
   const moreInfoText = locationOfDetails
-    ? `\nFinn mere info :point_down:\n${locationOfDetails}`
+    ? `\n${getResponseMessage("learnMoreText")} :point_down:\n${locationOfDetails}`
     : "";
   const text =
     `${usersText} bygger kunnskap som bare det :tada:\n\n>${description}` +
