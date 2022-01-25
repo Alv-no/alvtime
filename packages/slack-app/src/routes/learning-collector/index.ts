@@ -9,7 +9,7 @@ import learningDB from "../../models/learnings";
 import tagsDB, { Tag } from "../../models/tags";
 import { isIm } from "./messageFilters";
 import {
-  bostAboutLearning,
+  boastAboutLearning,
   informLearnerAboutRegistration,
   IS_LEARNING_BUTTON_CLICKED,
   TAG_BUTTON_CLICKED,
@@ -127,7 +127,7 @@ boltApp.view(COLLECT_LEARNING_MODAL_ID, acknowledge, async ({ body, view }) => {
     let shareChatPostMessageResponse;
     if (shareability === "all") {
       shareChatPostMessageResponse = await postMessageWithReactions(
-        bostAboutLearning(state),
+        boastAboutLearning(state),
         getReactions()
       );
     }

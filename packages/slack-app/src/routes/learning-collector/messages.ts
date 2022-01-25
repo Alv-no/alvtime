@@ -34,7 +34,7 @@ type Learning = {
   tags: string[];
 };
 
-export function bostAboutLearning(state: Learning) {
+export function boastAboutLearning(state: Learning) {
   const { description, locationOfDetails, learners, tags } = state;
   const usersText = createMultipleUsersText(learners);
   const moreInfoText = locationOfDetails
