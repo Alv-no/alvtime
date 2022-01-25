@@ -1,17 +1,19 @@
 import { App, ExpressReceiver, SayFn, ViewStateValue } from "@slack/bolt";
 import { ChatPostMessageArguments, Logger } from "@slack/web-api";
+import { Member } from "@slack/web-api/dist/response/UsersListResponse";
 import express from "express";
 import Fuse from "fuse.js";
 import mongoose from "mongoose";
 import { logger } from "../../createLogger";
 import env from "../../environment";
-import learningDB from "../../models/learnings";
+import learningDB, { Learning } from "../../models/learnings";
 import tagsDB, { Tag } from "../../models/tags";
 import { isIm } from "./messageFilters";
 import {
   bostAboutLearning,
   informLearnerAboutRegistration,
   IS_LEARNING_BUTTON_CLICKED,
+  learnerSummary,
   TAG_BUTTON_CLICKED,
   thankYouForSharing,
   weekSummary,
@@ -45,7 +47,7 @@ const boltReceiver = new ExpressReceiver({
   signingSecret: env.LEARNING_COLLECTOR_SLACK_BOT_SIGNING_SECRET,
   endpoints: "/",
 });
-const boltApp = new App({
+export const boltApp = new App({
   token: env.LEARNING_COLLECTOR_SLACK_BOT_TOKEN,
   receiver: boltReceiver,
 });
@@ -188,7 +190,7 @@ async function postMessageWithReactions(
   reactions: string[]
 ) {
   const client = boltApp.client;
-  
+
   message.unfurl_links = false;
   message.unfurl_media = false;
 
@@ -203,72 +205,39 @@ async function postMessageWithReactions(
   return chatPostMessageResponse;
 }
 
-boltApp.command("/lærer", acknowledge, async ({ body, client, payload }) => {
-  const postSummary = payload.text.includes("summary");
-  const runUpdateFromCVPartner = payload.text.includes("cv");
-  const isAdmin = process.env.ADMIN_USERS.includes(payload.user_id);
-  try {
-    if (runUpdateFromCVPartner) {
-      if (isAdmin) await updateFromCVPartner();
-    } else if (postSummary) {
-      if (isAdmin)
-        await client.chat.postMessage(weekSummary(await createWeekRepport()));
-    } else {
-      const result = await client.views.open({
-        trigger_id: body.trigger_id,
-        //@ts-ignore
-        view: createModal(payload.user_id),
-      });
-      logger.info(result);
+boltApp.command(
+  "/lærer-dev",
+  acknowledge,
+  async ({ body, client, payload }) => {
+    const postSummary = payload.text.includes("summary");
+    const runUpdateFromCVPartner = payload.text.includes("cv");
+    const isAdmin = process.env.ADMIN_USERS.includes(payload.user_id);
+    try {
+      if (runUpdateFromCVPartner) {
+        if (isAdmin) await updateFromCVPartner();
+      } else if (postSummary) {
+        if (isAdmin) {
+          const { members } = await boltApp.client.users.list();
+          const learnings = await learningDB.findCreatedAfter(
+            new Date(2022, 0, 11)
+          );
+          await client.chat.postMessage(
+            await learnerSummary(learnings, members)
+          );
+        }
+      } else {
+        const result = await client.views.open({
+          trigger_id: body.trigger_id,
+          //@ts-ignore
+          view: createModal(payload.user_id),
+        });
+        logger.info(result);
+      }
+    } catch (error) {
+      logger.error(error);
     }
-  } catch (error) {
-    logger.error(error);
   }
-});
-
-async function createWeekRepport() {
-  const { members } = await boltApp.client.users.list();
-  const learnings = await learningDB.findCreatedAfter(new Date(2022, 0, 11));
-  const learningSummary: LearningSummary[] = [];
-  for (const learning of learnings) {
-    const {
-      createdAt,
-      description,
-      learners,
-      locationOfDetails,
-      shareMessage,
-      shareMessage: { channel, timestamp },
-      shareability,
-      slackUserID,
-      thanksMessage,
-      tags,
-    } = learning;
-
-    const {
-      message: { reactions },
-    } = await boltApp.client.reactions.get({
-      channel,
-      timestamp,
-      full: true,
-    });
-
-    const member = members.find((member) => member.id === slackUserID);
-    learningSummary.push({
-      createdAt,
-      description,
-      learners,
-      locationOfDetails,
-      member,
-      reactions,
-      shareMessage,
-      shareability,
-      slackUserID,
-      thanksMessage,
-      tags,
-    });
-  }
-  return learningSummary;
-}
+);
 
 learningCollector.use("/events", boltReceiver.router);
 learningCollector.use("/events", boltReceiver.app);

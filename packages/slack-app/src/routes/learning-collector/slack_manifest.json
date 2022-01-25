@@ -16,7 +16,7 @@
     },
     "slash_commands": [
       {
-        "command": "/lærer",
+        "command": "/lærer-dev",
         "url": "https://alvtimeslack.eu.ngrok.io/learning-collector/events",
         "description": "Fortell Alvar om noe du lærer deg",
         "usage_hint": "/lærer",
