@@ -2,13 +2,13 @@ import { getRandomNumber } from "./reactions";
 
 export const getResponseMessage = (messageType: string) => {
     switch(messageType) {
-        case 'whatUserIsLearningQuestion': {
+        case "whatUserIsLearningQuestion": {
             return whatUserIsLearningQuestion[getRandomNumber(whatUserIsLearningQuestion.length)];
         }
-        case 'learnMoreText': {
+        case "learnMoreText": {
             return `${learnMoreText[getRandomNumber(learnMoreText.length)]} :point_down:`;
         }
-        case 'boastAboutLearningText': {
+        case "boastAboutLearningText": {
             return boastAboutLearningText[getRandomNumber(boastAboutLearningText.length)];
         }
     }
