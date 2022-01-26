@@ -17,11 +17,6 @@ export KUBERNETES_CLUSTER_NAME
 SUBSCRIPTION="k8s-$ENV-subscription"
 export SUBSCRIPTION
 
-if [ "test" = "$ENV" ]; then
-  LEARNING_COLLECTOR_SHARING_CHANNEL_ID=C02TUVC9LJ2
-fi
-export LEARNING_COLLECTOR_SHARING_CHANNEL_ID
-
 function getSecret() {
   az keyvault secret show --vault-name $KEY_VAULT --name $1 | jq '.value' -r
 }
