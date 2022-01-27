@@ -43,3 +43,20 @@ export async function getReactionsFromMessage({
   });
   return reactions;
 }
+
+export function getMoreVoteReactions() {
+  const reactions = ["rocket", "star-struck", "handshake", "star2"];
+  const voteReactionsTexts = [
+    `:${reactions[0]}:  Viktig for Alv`,
+    `:${reactions[1]}:  Jeg vil også lære meg dette`,
+    `:${reactions[2]}:  Jeg lærer meg også dette`,
+    `:${reactions[3]}:  Jeg kan dette og har hatt masse bruk for det. Kan anbefale å jobbe videre med det`,
+  ];
+  return { reactions, voteReactionsTexts };
+}
+
+export function getVoteReactions() {
+  const reactions = ["thumbsup_all"];
+  const voteReactionsTexts = [`:${reactions[0]}:  Bra jobba!`];
+  return { reactions, voteReactionsTexts };
+}

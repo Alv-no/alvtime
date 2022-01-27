@@ -6,7 +6,7 @@ export const getResponseMessage = (messageType: string) => {
             return whatUserIsLearningQuestion[getRandomNumber(whatUserIsLearningQuestion.length)];
         }
         case "learnMoreText": {
-            return `${learnMoreText[getRandomNumber(learnMoreText.length)]} :point_down:`;
+            return `${learnMoreText[getRandomNumber(learnMoreText.length)]} :point_right:`;
         }
         case "boastAboutLearningText": {
             return boastAboutLearningText[getRandomNumber(boastAboutLearningText.length)];
