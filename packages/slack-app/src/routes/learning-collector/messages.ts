@@ -5,7 +5,7 @@ import { Learning } from "../../models/learnings";
 import { markdown, plainText } from "./blocks";
 import { Blocks, LearningSummary } from "./models";
 import { getReactionsFromMessage, getVoteReactions } from "./reactions";
-import { getResponseMessage } from "./responses";
+import { getResponseMessage, thanksForSharingText } from "./responses";
 
 export function whatUserIsLearningQuestion() {
   return {
@@ -30,9 +30,7 @@ interface LearningRegistration {
 export function boastAboutLearning(state: LearningRegistration) {
   const { description, locationOfDetails, learners, tags } = state;
   const usersText = createMultipleUsersText(learners);
-  const moreInfoText = !!locationOfDetails
-    ? `${getResponseMessage("learnMoreText")} \n${locationOfDetails}`
-    : "";
+  const moreInfoText = getMoreInfoText(locationOfDetails);
   const text = `${usersText}  ${getResponseMessage(
     "boastAboutLearningText"
   )}\n\n>${description}\n\n${moreInfoText}`;
@@ -42,21 +40,21 @@ export function boastAboutLearning(state: LearningRegistration) {
       text: markdown(text),
     },
   ];
-  if (tags?.length) blocks.push(createTagButtons(tags));
+  if (tags?.length) blocks.push(createTagTexts(tags));
   blocks.push({ type: "divider" });
   blocks.push(createFeedbackReactionInstructions());
 
   return {
     channel: LEARNING_COLLECTOR_SHARING_CHANNEL_ID,
-    text: `${usersText} ${getResponseMessage(
-      "boastAboutLearningText"
-    )}\n\n>${description}\n${
-      !!locationOfDetails
-        ? getResponseMessage("learnMoreText") + ` \n${locationOfDetails}`
-        : ""
-    }`,
+    text,
     blocks,
   };
+}
+
+function getMoreInfoText(locationOfDetails: string) {
+  return !!locationOfDetails
+    ? `${getResponseMessage("learnMoreText")}  ${locationOfDetails}`
+    : "";
 }
 
 function createFeedbackReactionInstructions() {
@@ -72,9 +70,7 @@ export function informLearnerAboutRegistration(
   learning: LearningRegistration
 ) {
   const { description, locationOfDetails, tags } = learning;
-  const moreInfoText = locationOfDetails
-    ? `\nFinn mere info :point_down:\n${locationOfDetails}`
-    : "";
+  const moreInfoText = getMoreInfoText(locationOfDetails);
   const blocks: Blocks = [
     {
       type: "section",
@@ -84,7 +80,7 @@ export function informLearnerAboutRegistration(
       ),
     },
   ];
-  if (tags?.length) blocks.push(createTagButtons(tags));
+  if (tags?.length) blocks.push(createTagTexts(tags));
   blocks.push({ type: "divider" });
   blocks.push(openModalButton());
 
@@ -95,7 +91,7 @@ export function informLearnerAboutRegistration(
 }
 
 export function thankYouForSharing() {
-  return { text: "Takk for at du deler hva du leker med" };
+  return { text: thanksForSharingText() };
 }
 
 function createMultipleUsersText(userIds: string[]) {
@@ -192,7 +188,7 @@ export async function weekSummary(learnings: Learning[], members: Member[]) {
               accessory: profilePhoto(member),
             },
           ];
-          if (tags?.length) blocks.push(createTagButtons(tags));
+          if (tags?.length) blocks.push(createTagTexts(tags));
           return blocks;
         }
       )
@@ -296,9 +292,7 @@ async function createLearningSummary(learning: Learning, index: number) {
   const { description, locationOfDetails, shareMessage } = learning;
   const reactions = await getReactionsFromMessage(shareMessage);
   const reactionsText = createReactionsText(reactions);
-  const moreInfoText = locationOfDetails
-    ? ` :point_right: ${locationOfDetails}`
-    : "";
+  const moreInfoText = getMoreInfoText(locationOfDetails);
   return `\n*${index + 1}.* ${description}${moreInfoText}\n${reactionsText}`;
 }
 
@@ -321,5 +315,13 @@ function createTagButtons(tags: string[]) {
       action_id: `${TAG_BUTTON_CLICKED}-${tag}`,
       url: `https://www.google.com/search?q=${tag}`,
     })),
+  };
+}
+
+function createTagTexts(tags: string[]) {
+  const text = tags.map((tag) => `:heavy_plus_sign: *${tag}*`).join(" ");
+  return {
+    type: "section",
+    text: markdown(text),
   };
 }

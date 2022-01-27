@@ -18,7 +18,7 @@ export function getReactions() {
   emojis.splice(randomIndex);
   randomIndex = getRandomNumber(emojis.length);
   const secondEmoji = emojis[randomIndex];
-  return [firstEmoji, secondEmoji];
+  return getRandomNumber(2) === 1 ? [firstEmoji, secondEmoji] : [firstEmoji];
 }
 
 export function getRandomNumber(amount: number) {
@@ -56,7 +56,7 @@ export function getMoreVoteReactions() {
 }
 
 export function getVoteReactions() {
-  const reactions = ["thumbsup_all"];
+  const reactions = ["thumbsup"];
   const voteReactionsTexts = [`:${reactions[0]}:  Bra jobba!`];
   return { reactions, voteReactionsTexts };
 }
