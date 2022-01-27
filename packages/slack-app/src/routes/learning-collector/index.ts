@@ -9,20 +9,21 @@ import learningDB from "../../models/learnings";
 import tagsDB, { Tag } from "../../models/tags";
 import { isIm } from "./messageFilters";
 import {
-    boastAboutLearning,
-    informLearnerAboutRegistration,
-    IS_LEARNING_BUTTON_CLICKED,
-    learnerSummary,
-    TAG_BUTTON_CLICKED,
-    thankYouForSharing, whatUserIsLearningQuestion
+  boastAboutLearning,
+  informLearnerAboutRegistration,
+  IS_LEARNING_BUTTON_CLICKED,
+  learnerSummary,
+  TAG_BUTTON_CLICKED,
+  thankYouForSharing,
+  whatUserIsLearningQuestion,
 } from "./messages";
 import { acknowledge } from "./middleware";
 import createModal, {
-    COLLECT_LEARNING_MODAL_ID,
-    SELECTING_FELLOW_LEARNERS,
-    SELECTING_TECH_TAGS_IN_MODAL
+  COLLECT_LEARNING_MODAL_ID,
+  SELECTING_FELLOW_LEARNERS,
+  SELECTING_TECH_TAGS_IN_MODAL,
 } from "./modal";
-import { getReactions } from "./reactions";
+import { getReactions, getVoteReactions } from "./reactions";
 import { updateFromCVPartner, updateFromMockTags } from "./tags";
 
 export const LEARNING_COLLECTOR_SHARING_CHANNEL_ID =
@@ -126,7 +127,7 @@ boltApp.view(COLLECT_LEARNING_MODAL_ID, acknowledge, async ({ body, view }) => {
     if (shareability === "all") {
       shareChatPostMessageResponse = await postMessageWithReactions(
         boastAboutLearning(state),
-        getReactions()
+        getVoteReactions().reactions
       );
     }
     const thanksChatPostMessageResponse = await postMessageWithReactions(

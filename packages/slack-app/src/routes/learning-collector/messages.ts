@@ -5,7 +5,7 @@ import { LEARNING_COLLECTOR_SHARING_CHANNEL_ID } from ".";
 import { Learning } from "../../models/learnings";
 import { markdown, plainText } from "./blocks";
 import { LearningSummary } from "./models";
-import { getReactionsFromMessage } from "./reactions";
+import { getReactionsFromMessage, getVoteReactions } from "./reactions";
 import { getResponseMessage } from "./responses";
 
 type Blocks = (KnownBlock | Block)[];
@@ -28,18 +28,17 @@ interface LearningRegistration {
   locationOfDetails: string;
   learners: string[];
   tags: string[];
-};
+}
 
 export function boastAboutLearning(state: LearningRegistration) {
   const { description, locationOfDetails, learners, tags } = state;
   const usersText = createMultipleUsersText(learners);
   const moreInfoText = !!locationOfDetails
-    ? `\n${getResponseMessage("learnMoreText")} \n${locationOfDetails}`
+    ? `${getResponseMessage("learnMoreText")} \n${locationOfDetails}`
     : "";
-  const text =
-    `${usersText}  ${getResponseMessage(
-      "boastAboutLearningText"
-    )}\n\n>${description}` + moreInfoText;
+  const text = `${usersText}  ${getResponseMessage(
+    "boastAboutLearningText"
+  )}\n\n>${description}\n\n${moreInfoText}`;
   const blocks: Blocks = [
     {
       type: "section",
@@ -48,7 +47,7 @@ export function boastAboutLearning(state: LearningRegistration) {
   ];
   if (tags?.length) blocks.push(createTagButtons(tags));
   blocks.push({ type: "divider" });
-  blocks.push(openModalButton());
+  blocks.push(createFeedbackReactionInstructions());
 
   return {
     channel: LEARNING_COLLECTOR_SHARING_CHANNEL_ID,
@@ -60,6 +59,14 @@ export function boastAboutLearning(state: LearningRegistration) {
         : ""
     }`,
     blocks,
+  };
+}
+
+function createFeedbackReactionInstructions() {
+  const texts = getVoteReactions().voteReactionsTexts.join("\n");
+  return {
+    type: "context",
+    elements: [markdown(texts)],
   };
 }
 
