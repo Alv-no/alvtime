@@ -222,7 +222,7 @@ export async function learnerSummary(learnings: Learning[], members: Member[]) {
       type: "divider",
     },
   ];
-  const userSections: Block[] = [];
+  const userSections: Blocks = [];
   const createUserSection = createUserSectionCreator(
     members,
     learningsGroupedByUser
