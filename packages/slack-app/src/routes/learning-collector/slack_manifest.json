@@ -19,7 +19,7 @@
         "command": "/alvar",
         "url": "https://alvtimeslack.eu.ngrok.io/learning-collector/events",
         "description": "Fortell Alvar om noe du lærer deg",
-        "usage_hint": "/lærer",
+        "usage_hint": "/alvar",
         "should_escape": false
       }
     ]

@@ -203,7 +203,7 @@ async function postMessageWithReactions(
 }
 
 boltApp.command(
-  "/lærer-dev",
+  "/alvar",
   acknowledge,
   async ({ body, client, payload }) => {
     const postSummary = payload.text.includes("summary");

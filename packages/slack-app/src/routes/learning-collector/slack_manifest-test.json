@@ -19,7 +19,7 @@
         "command": "/alvar",
         "url": "https://slack-app.test-alvtime.no/learning-collector/events",
         "description": "Fortell Alvar om noe du lærer deg",
-        "usage_hint": "/lærer",
+        "usage_hint": "/alvar",
         "should_escape": false
       }
     ]
