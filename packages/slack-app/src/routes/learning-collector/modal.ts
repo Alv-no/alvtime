@@ -53,6 +53,7 @@ export default function createModal(userId: string): ModalView {
         type: "multi_users_select",
         placeholder: plainText("Velg koleger"),
         action_id: SELECTING_FELLOW_LEARNERS,
+        initial_users: [userId],
       },
     },
     {
