@@ -1,5 +1,5 @@
 import { ModalView } from "@slack/bolt";
-import { plainText } from "./blocks";
+import { markdown, plainText } from "./blocks";
 import { Blocks } from "./models";
 
 export const COLLECT_LEARNING_MODAL_ID = "collect_learning_modal_id";
@@ -32,23 +32,9 @@ export default function createModal(userId: string): ModalView {
       },
     },
     {
-      type: "input",
-      block_id: "learners",
-      element: {
-        type: "multi_users_select",
-        placeholder: plainText("Velg koleger"),
-        action_id: SELECTING_FELLOW_LEARNERS,
-        initial_users: [userId],
-      },
-      label: plainText("Hvem var det som lærte?"),
-    },
-    {
       type: "section",
       block_id: "tags",
-      text: {
-        type: "mrkdwn",
-        text: "Hvilke teknologier lærer du om?",
-      },
+      text: markdown("Hvilke teknologier lærer du om?"),
       accessory: {
         action_id: SELECTING_TECH_TAGS_IN_MODAL,
         type: "multi_external_select",
@@ -57,6 +43,16 @@ export default function createModal(userId: string): ModalView {
           text: "Velg buzz ordene",
         },
         min_query_length: 1,
+      },
+    },
+    {
+      type: "input",
+      label: plainText("Er det flere som lærer dette?"),
+      block_id: "learners",
+      element: {
+        type: "multi_users_select",
+        placeholder: plainText("Velg koleger"),
+        action_id: SELECTING_FELLOW_LEARNERS,
       },
     },
     {
