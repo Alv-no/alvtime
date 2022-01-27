@@ -1,14 +1,11 @@
-import { Block, KnownBlock } from "@slack/bolt";
 import { Reaction } from "@slack/web-api/dist/response/ChannelsHistoryResponse";
 import { Member } from "@slack/web-api/dist/response/UsersListResponse";
 import { LEARNING_COLLECTOR_SHARING_CHANNEL_ID } from ".";
 import { Learning } from "../../models/learnings";
 import { markdown, plainText } from "./blocks";
-import { LearningSummary } from "./models";
+import { Blocks, LearningSummary } from "./models";
 import { getReactionsFromMessage, getVoteReactions } from "./reactions";
 import { getResponseMessage } from "./responses";
-
-type Blocks = (KnownBlock | Block)[];
 
 export function whatUserIsLearningQuestion() {
   return {
