@@ -193,7 +193,7 @@ async function postMessageWithReactions(
 
   const chatPostMessageResponse = await client.chat.postMessage(message);
   for (const reaction of reactions) {
-    client.reactions.add({
+    await client.reactions.add({
       channel: chatPostMessageResponse.channel,
       timestamp: chatPostMessageResponse.ts,
       name: reaction,
