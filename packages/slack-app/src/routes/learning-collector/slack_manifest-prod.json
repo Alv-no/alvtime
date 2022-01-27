@@ -1,7 +1,7 @@
 {
   "display_information": {
-    "name": "Alvar-local-dev",
-    "description": "Alvar local dev",
+    "name": "Alvar",
+    "description": "Alvar",
     "background_color": "#000000"
   },
   "features": {
@@ -11,7 +11,7 @@
       "messages_tab_read_only_enabled": false
     },
     "bot_user": {
-      "display_name": "Alvar-dev",
+      "display_name": "Alvar",
       "always_online": true
     },
     "slash_commands": [
@@ -42,14 +42,14 @@
   },
   "settings": {
     "event_subscriptions": {
-      "request_url": "http://alvtimeslack.eu.ngrok.io/learning-collector/events",
+      "request_url": "https://slack-app.alvtime.no/learning-collector/events",
       "user_events": ["app_home_opened"],
       "bot_events": ["app_mention", "message.im"]
     },
     "interactivity": {
       "is_enabled": true,
-      "request_url": "https://alvtimeslack.eu.ngrok.io/learning-collector/events",
-      "message_menu_options_url": "https://alvtimeslack.eu.ngrok.io/learning-collector/tags"
+      "request_url": "https://slack-app.alvtime.no/learning-collector/events",
+      "message_menu_options_url": "https://slack-app.alvtime.no/learning-collector/tags"
     },
     "org_deploy_enabled": false,
     "socket_mode_enabled": false,
