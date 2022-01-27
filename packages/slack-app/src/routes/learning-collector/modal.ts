@@ -71,12 +71,12 @@ export default function createModal(userId: string): ModalView {
         element: {
           type: "radio_buttons",
           initial_option: {
-            text: plainText("Fortell om det i #fag med en gang."),
+            text: plainText("Fortell om det i #fag-kunnskapsutvikling med en gang."),
             value: "all",
           },
           options: [
             {
-              text: plainText("Fortell om det i #fag med en gang."),
+              text: plainText("Fortell om det i #fag-kunnskapsutvikling med en gang."),
               value: "all",
             },
             {
