@@ -122,7 +122,14 @@ namespace AlvTime.Business.TimeRegistration
             if (timeEntriesOnDate.Values.Sum(te => te.Value) > anticipatedWorkHours &&
                 timeEntriesOnDate.Values.Any(te => te.TaskId == _flexTask && te.Value > 0))
             {
-                throw new Exception($"Du kan ikke registere mer enn {anticipatedWorkHours} når du avspaserer.");
+                throw new Exception($"Du kan ikke registrere mer enn {anticipatedWorkHours} timer når du avspaserer.");
+            }
+
+            if (PayoutWouldBeAffectedByRegistration(timeEntry, latestPayoutDate, timeEntriesOnDate.Values,
+                anticipatedWorkHours))
+            {
+                throw new Exception(
+                    "Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Kontakt en admin for å få endret timene dine.");
             }
 
             if (timeEntry.TaskId == _flexTask)
