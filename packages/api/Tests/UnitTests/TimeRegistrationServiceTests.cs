@@ -107,6 +107,33 @@ namespace Tests.UnitTests
                 {new() {Date = vacationEntry.Date, Value = vacationEntry.Value, TaskId = vacationEntry.TaskId}}));
         }
         
+        [Fact]
+        public void RegisterTimeEntry_PayoutWouldBeAffected_ExceptionThrown()
+        {
+            var timeRegistrationService = CreateTimeRegistrationService();
+            var timeEntry1 =
+                CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 28), 5M, 0.5M, out int taskId1); //Friday
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
+
+            var timeEntry2 =
+                CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 28), 5M, 1.5M, out int taskId2); //Friday
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                { new() { Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId } });
+            
+            var payoutService = CreatePayoutService(timeRegistrationService);
+            payoutService.RegisterPayout(new GenericHourEntry
+            {
+                Date = new DateTime(2022, 01, 28), //Friday
+                Hours = 2.5M
+            });
+            
+            var timeEntry3 =
+                CreateTimeEntryForExistingTask(new DateTime(2022, 01, 28), 2M, taskId2); //Friday
+            Assert.Throws<Exception>(() => timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                { new() { Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId } }));
+        }
+        
         private TimeRegistrationService CreateTimeRegistrationService()
         {
             return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
