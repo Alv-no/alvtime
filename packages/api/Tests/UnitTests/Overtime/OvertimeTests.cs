@@ -725,7 +725,7 @@ namespace Tests.UnitTests.Overtime
             Assert.Equal(6M, availableHours.AvailableHoursAfterCompensation);
         }
         
-              [Fact]
+        [Fact]
         public void GetOvertime_RegisteringVariousOvertimePayoutsAndFlex_CorrectOvertimeAtAllTimes()
         {
             var timeRegistrationService = CreateTimeRegistrationService();

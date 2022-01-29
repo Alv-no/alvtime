@@ -91,6 +91,21 @@ namespace AlvTime.Business.TimeRegistration
                 ToDateInclusive = timeEntry.Date.Date,
                 UserId = _userContext.GetCurrentUser().Id
             }).ToDictionary(entry => entry.TaskId, entry => entry);
+            
+            var latestPayoutDate = _payoutStorage
+                .GetRegisteredPayouts(new PayoutQueryFilter {UserId = _userContext.GetCurrentUser().Id}).Entries
+                .OrderBy(po => po.Date).LastOrDefault()?.Date.Date;
+            
+            var allRedDays = new RedDays(timeEntry.Date.Year).Dates;
+            var anticipatedWorkHours =
+                IsWeekend(timeEntry.Date.Date) || allRedDays.Contains(timeEntry.Date.Date) ? 0M : HoursInWorkday;
+            
+            if (PayoutWouldBeAffectedByRegistration(timeEntry, latestPayoutDate, timeEntriesOnDate.Values,
+                    anticipatedWorkHours))
+            {
+                throw new Exception(
+                    "Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Kontakt en admin for å få endret timene dine.");
+            }
 
             timeEntriesOnDate[timeEntry.TaskId] = new TimeEntryResponseDto
             {
@@ -99,30 +114,15 @@ namespace AlvTime.Business.TimeRegistration
                 TaskId = timeEntry.TaskId
             };
 
-            var latestPayoutDate = _payoutStorage
-                .GetRegisteredPayouts(new PayoutQueryFilter {UserId = _userContext.GetCurrentUser().Id}).Entries
-                .OrderBy(po => po.Date).LastOrDefault()?.Date.Date;
-
-            var allRedDays = new RedDays(timeEntry.Date.Year).Dates;
-            var anticipatedWorkHours =
-                IsWeekend(timeEntry.Date.Date) || allRedDays.Contains(timeEntry.Date.Date) ? 0M : HoursInWorkday;
-
             if (allRedDays.Contains((timeEntry.Date.Date)) && timeEntry.TaskId == _paidHolidayTask)
             {
                 throw new Exception("Du trenger ikke registrere fravær på en rød dag.");
             }
             
             if (timeEntriesOnDate.Values.Sum(te => te.Value) > anticipatedWorkHours &&
-                timeEntriesOnDate.Values.Any(te => te.TaskId == _flexTask))
+                timeEntriesOnDate.Values.Any(te => te.TaskId == _flexTask && te.Value > 0))
             {
                 throw new Exception($"Du kan ikke registere mer enn {anticipatedWorkHours} når du avspaserer.");
-            }
-
-            if (PayoutWouldBeAffectedByRegistration(timeEntry, latestPayoutDate, timeEntriesOnDate.Values,
-                anticipatedWorkHours))
-            {
-                throw new Exception(
-                    "Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Kontakt en admin for å få endret timene dine.");
             }
 
             if (timeEntry.TaskId == _flexTask)
@@ -158,8 +158,18 @@ namespace AlvTime.Business.TimeRegistration
             DateTime? latestPayoutDate, IEnumerable<TimeEntryResponseDto> timeEntriesOnDate,
             decimal anticipatedWorkHours)
         {
+            var sumOnDate = timeEntriesOnDate.Sum(te => te.Value);
+            if (sumOnDate > anticipatedWorkHours && timeEntry.Date.Date <= latestPayoutDate)
+            {
+                return true;
+            }
+            var existingRegistrationOnTask = timeEntriesOnDate.FirstOrDefault(te => te.TaskId == timeEntry.TaskId);
+            if (existingRegistrationOnTask != null)
+            {
+                sumOnDate -= existingRegistrationOnTask.Value;
+            }
             return latestPayoutDate != null && timeEntry.Date.Date <= latestPayoutDate &&
-                   timeEntriesOnDate.Sum(te => te.Value) + timeEntry.Value > anticipatedWorkHours;
+                   sumOnDate + timeEntry.Value > anticipatedWorkHours;
         }
 
         private List<TimeEntryWithCompRateDto> GetEntriesWithCompRatesForUserOnDay(int userId,
