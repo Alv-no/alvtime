@@ -159,7 +159,7 @@ namespace AlvTime.Business.TimeRegistration
             decimal anticipatedWorkHours)
         {
             var sumOnDate = timeEntriesOnDate.Sum(te => te.Value);
-            if (sumOnDate > anticipatedWorkHours && timeEntry.Date.Date <= latestPayoutDate)
+            if (latestPayoutDate != null && sumOnDate > anticipatedWorkHours && timeEntry.Date.Date <= latestPayoutDate)
             {
                 return true;
             }
