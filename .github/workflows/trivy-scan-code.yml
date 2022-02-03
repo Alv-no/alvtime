@@ -3,37 +3,23 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Run trivy-scan on frontend
+name: Run trivy-scan on code base
 
-on:
-  pull_request:
-    paths:
-      - 'packages/frontend/**'
-
-permissions:
-  contents: read
+on: pull_request
 
 jobs:
   build:
-    permissions:
-      contents: read # for actions/checkout to fetch code
-    name: Run trivy-scan on frontend
+    name: Run trivy-scan on repo
     runs-on: "ubuntu-18.04"
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Build an image from Dockerfile
-        run: |
-          docker build -t frontend:${{ github.sha }} ./packages/frontend/
-
-      - name: Run Trivy vulnerability scanner
-        id: runtrivy
+      - name: Run Trivy vulnerability scanner on repo
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'frontend:${{ github.sha }}'
-          format: 'template'
-          template: '@/contrib/sarif.tpl'
+          scan-type: 'fs'
+          format: 'sarif'
           output: 'trivy-results.sarif'
 
       - name: Post results as comment

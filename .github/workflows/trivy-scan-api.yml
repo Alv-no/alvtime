@@ -5,9 +5,10 @@
 
 name: Run trivy-scan on api
 
-on: pull_request
-  #paths:
-  #- 'packages/api/**'
+on:
+  pull_request:
+    paths:
+      - 'packages/api/**'
 
 permissions:
   contents: read
@@ -28,7 +29,7 @@ jobs:
 
       - name: Run Trivy vulnerability scanner
         id: runtrivy
-        uses: aquasecurity/trivy-action@2a2157eb22c08c9a1fac99263430307b8d1bc7a2
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'api:${{ github.sha }}'
           format: 'template'
