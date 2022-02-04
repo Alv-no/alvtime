@@ -31,9 +31,10 @@ export const LEARNING_COLLECTOR_SHARING_CHANNEL_ID =
 export const FREE_DISTRIBUTION = "FREE_DISTRIBUTION";
 export const ONLY_SUMMARY = "ONLY_SUMMARY";
 const learningCollector = express.Router();
+const isDevEnvironment = process.env.NODE_ENV === "development";
 
 mongoose.connection.once("open", () => {
-  if (process.env.NODE_ENV === "development") {
+  if (isDevEnvironment) {
     updateFromMockTags();
   } else {
     updateFromCVPartner();
@@ -203,7 +204,7 @@ async function postMessageWithReactions(
 }
 
 boltApp.command(
-  "/alvar",
+  `/alvar${isDevEnvironment ? "-dev" : ""}`,
   acknowledge,
   async ({ body, client, payload }) => {
     const postSummary = payload.text.includes("summary");
