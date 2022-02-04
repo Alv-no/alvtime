@@ -40,7 +40,7 @@ export function boastAboutLearning(state: LearningRegistration) {
       text: markdown(text),
     },
   ];
-  if (tags?.length) blocks.push(createTagTexts(tags));
+  if (tags?.length) blocks.push(createTagSection(tags));
   blocks.push({ type: "divider" });
   blocks.push(createFeedbackReactionInstructions());
 
@@ -80,7 +80,7 @@ export function informLearnerAboutRegistration(
       ),
     },
   ];
-  if (tags?.length) blocks.push(createTagTexts(tags));
+  if (tags?.length) blocks.push(createTagSection(tags));
   blocks.push({ type: "divider" });
   blocks.push(openModalButton());
 
@@ -155,7 +155,6 @@ async function createWeekRepport(learnings: Learning[], members: Member[]) {
   return learningSummary;
 }
 
-export const TAG_BUTTON_CLICKED = "tag_button_clicked";
 export async function weekSummary(learnings: Learning[], members: Member[]) {
   const weekRepport = await createWeekRepport(learnings, members);
   const blocks: Blocks = [
@@ -188,7 +187,7 @@ export async function weekSummary(learnings: Learning[], members: Member[]) {
               accessory: profilePhoto(member),
             },
           ];
-          if (tags?.length) blocks.push(createTagTexts(tags));
+          if (tags?.length) blocks.push(createTagSection(tags));
           return blocks;
         }
       )
@@ -215,7 +214,11 @@ export async function learnerSummary(learnings: Learning[], members: Member[]) {
     {
       type: "section",
       text: markdown(
-        `*Ukens oppsummering*\nDenne uken har det blitt registrert *${learnings.length}* læringsaktiviteter. Se hva alle de flinke Alvene lærer seg`
+        `*Ukens oppsummering*\nDenne uken har det blitt registrert *${
+          learnings.length
+        }* læringsaktiviteter. ${
+          learnings.length ? "Se hva alle de flinke Alvene lærer seg" : ""
+        }`
       ),
     },
     {
@@ -223,12 +226,12 @@ export async function learnerSummary(learnings: Learning[], members: Member[]) {
     },
   ];
   const userSections: Blocks = [];
-  const createUserSection = createUserSectionCreator(
-    members,
-    learningsGroupedByUser
-  );
   for (const userId of Object.values(allLearners)) {
-    userSections.push(await createUserSection(userId));
+    const member = members.find((m) => m.id === userId);
+    userSections.push(
+      await createUserSection(member, learningsGroupedByUser[userId])
+    );
+    userSections.push({ type: "divider" });
   }
   blocks.push(...userSections);
   blocks.push(openModalButton());
@@ -240,24 +243,24 @@ export async function learnerSummary(learnings: Learning[], members: Member[]) {
   };
 }
 
-function createUserSectionCreator(
-  members: Member[],
-  learningsGroupedByUser: LearningsGroupedByUser
-) {
-  return async (userId: string) => {
-    const member = members.find((m) => m.id === userId);
-    let userLearnings = "";
-    let index = 0;
-    for (const learning of learningsGroupedByUser[userId]) {
-      userLearnings =
-        userLearnings + (await createLearningSummary(learning, index));
-      index++;
-    }
-    return {
-      type: "section",
-      text: markdown(userLearnings),
-      accessory: profilePhoto(member),
-    };
+async function createUserSection(member: Member, learnings: Learning[]) {
+  let reactionsCount = 0;
+  for (const learning of learnings) {
+    const reactions = await getReactionsFromMessage(learning.shareMessage);
+    reactionsCount =
+      reactionsCount +
+      reactions.reduce((sum, reaction) => sum + reaction.count, 0);
+  }
+  const userLearnings = learnings
+    .map(createLearningNumberedListEntry)
+    .join("\n\n");
+  const reactionEmoji = getVoteReactions().reactions[0];
+  return {
+    type: "section",
+    text: markdown(
+      `*<@${member.id}>*\n\n${userLearnings}\n\n:${reactionEmoji}: ${reactionsCount}`
+    ),
+    accessory: profilePhoto(member),
   };
 }
 
@@ -288,12 +291,13 @@ function groupLearningsByUser(learnings: Learning[], allLearners: string[]) {
   return learningsGroupedByUser;
 }
 
-async function createLearningSummary(learning: Learning, index: number) {
-  const { description, locationOfDetails, shareMessage } = learning;
-  const reactions = await getReactionsFromMessage(shareMessage);
-  const reactionsText = createReactionsText(reactions);
-  const moreInfoText = getMoreInfoText(locationOfDetails);
-  return `\n*${index + 1}.* ${description}${moreInfoText}\n${reactionsText}`;
+function createLearningNumberedListEntry(learning: Learning, index: number) {
+  const { description, locationOfDetails } = learning;
+  return `*${
+    index + 1
+  }. ${description}* :point_right: ${locationOfDetails}\n${createTagText(
+    learning.tags
+  )}`;
 }
 
 function profilePhoto(member: Member) {
@@ -305,6 +309,7 @@ function profilePhoto(member: Member) {
   };
 }
 
+export const TAG_BUTTON_CLICKED = "tag_button_clicked";
 function createTagButtons(tags: string[]) {
   return {
     type: "actions",
@@ -318,10 +323,14 @@ function createTagButtons(tags: string[]) {
   };
 }
 
-function createTagTexts(tags: string[]) {
-  const text = tags.map((tag) => `:heavy_plus_sign: *${tag}*`).join(" ");
+function createTagSection(tags: string[]) {
+  const text = createTagText(tags);
   return {
     type: "section",
     text: markdown(text),
   };
+}
+
+function createTagText(tags: string[]) {
+  return tags.map((tag) => `*+* _${tag}_`).join("  ");
 }
