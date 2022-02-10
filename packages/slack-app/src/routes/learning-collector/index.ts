@@ -1,5 +1,7 @@
 import { App, ExpressReceiver, SayFn, ViewStateValue } from "@slack/bolt";
 import { ChatPostMessageArguments, Logger } from "@slack/web-api";
+import { formatDistance, parseISO } from "date-fns";
+import { nb } from "date-fns/locale";
 import express from "express";
 import Fuse from "fuse.js";
 import mongoose from "mongoose";
@@ -193,13 +195,15 @@ async function postMessageWithReactions(
   message.unfurl_media = false;
 
   const chatPostMessageResponse = await client.chat.postMessage(message);
-  for (const reaction of reactions) {
-    client.reactions.add({
-      channel: chatPostMessageResponse.channel,
-      timestamp: chatPostMessageResponse.ts,
-      name: reaction,
-    });
-  }
+  await Promise.all(
+    reactions.map((reaction) =>
+      client.reactions.add({
+        channel: chatPostMessageResponse.channel,
+        timestamp: chatPostMessageResponse.ts,
+        name: reaction,
+      })
+    )
+  );
   return chatPostMessageResponse;
 }
 
@@ -215,12 +219,13 @@ boltApp.command(
         if (isAdmin) await updateFromCVPartner();
       } else if (postSummary) {
         if (isAdmin) {
+          const textArr = payload.text.split(" ");
+          textArr.shift();
+          const date = parseISO(textArr[0]);
           const { members } = await boltApp.client.users.list();
-          const learnings = await learningDB.findCreatedAfter(
-            new Date(2022, 0, 11)
-          );
+          const learnings = await learningDB.findCreatedAfter(date);
           await client.chat.postMessage(
-            await learnerSummary(learnings, members)
+            await learnerSummary(learnings, members, date)
           );
         }
       } else {

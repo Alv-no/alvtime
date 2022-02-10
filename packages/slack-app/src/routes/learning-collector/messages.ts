@@ -1,5 +1,7 @@
 import { Reaction } from "@slack/web-api/dist/response/ChannelsHistoryResponse";
 import { Member } from "@slack/web-api/dist/response/UsersListResponse";
+import { formatDistance } from "date-fns";
+import { nb } from "date-fns/locale";
 import { LEARNING_COLLECTOR_SHARING_CHANNEL_ID } from ".";
 import { Learning } from "../../models/learnings";
 import { markdown, plainText } from "./blocks";
@@ -207,16 +209,24 @@ function createReactionsText(reactions: Reaction[]) {
   return reactions.map(({ name, count }) => `:${name}: ${count}`).join("  ");
 }
 
-export async function learnerSummary(learnings: Learning[], members: Member[]) {
+export async function learnerSummary(
+  learnings: Learning[],
+  members: Member[],
+  sinceDate: Date
+) {
   const allLearners = getLearnersFromLearnings(learnings);
   const learningsGroupedByUser = groupLearningsByUser(learnings, allLearners);
   const blocks: Blocks = [
     {
       type: "section",
       text: markdown(
-        `*Ukens oppsummering*\nDenne uken har det blitt registrert *${
+        `*Nå er det på tide å skryte litt av all læringen som skjer i Alv :alv: *\nPå ${formatDistance(
+          new Date(),
+          sinceDate,
+          { locale: nb }
+        )} har det blitt registrert *${
           learnings.length
-        }* læringsaktiviteter. ${
+        }* læringsaktiviteter fordelt på *${allLearners.length}* alver. ${
           learnings.length ? "Se hva alle de flinke Alvene lærer seg" : ""
         }`
       ),
@@ -244,24 +254,34 @@ export async function learnerSummary(learnings: Learning[], members: Member[]) {
 }
 
 async function createUserSection(member: Member, learnings: Learning[]) {
-  let reactionsCount = 0;
-  for (const learning of learnings) {
-    const reactions = await getReactionsFromMessage(learning.shareMessage);
-    reactionsCount =
-      reactionsCount +
-      reactions.reduce((sum, reaction) => sum + reaction.count, 0);
-  }
+  const accumulatedReactions = await getReactionsCount(learnings);
+  const reactionsText = createReactionsText(accumulatedReactions);
   const userLearnings = learnings
     .map(createLearningNumberedListEntry)
     .join("\n\n");
-  const reactionEmoji = getVoteReactions().reactions[0];
   return {
     type: "section",
-    text: markdown(
-      `*<@${member.id}>*\n\n${userLearnings}\n\n:${reactionEmoji}: ${reactionsCount}`
-    ),
+    text: markdown(`*<@${member.id}>*\n\n${userLearnings}\n\n${reactionsText}`),
     accessory: profilePhoto(member),
   };
+}
+
+async function getReactionsCount(learnings: Learning[]) {
+  let accumulatedReactions: Reaction[] = [];
+  for (const { shareMessage } of learnings) {
+    if (!shareMessage.channel) continue;
+    const reactions = await getReactionsFromMessage(shareMessage);
+    accumulatedReactions = reactions.reduce((accumulated, reaction) => {
+      const index = accumulated.findIndex((r) => r.name === reaction.name);
+      if (index >= 0) {
+        accumulated[index].count = +reaction.count;
+      } else {
+        accumulated.push(reaction);
+      }
+      return accumulated;
+    }, accumulatedReactions);
+  }
+  return accumulatedReactions;
 }
 
 function getLearnersFromLearnings(learnings: Learning[]) {
@@ -293,11 +313,9 @@ function groupLearningsByUser(learnings: Learning[], allLearners: string[]) {
 
 function createLearningNumberedListEntry(learning: Learning, index: number) {
   const { description, locationOfDetails } = learning;
-  return `*${
-    index + 1
-  }. ${description}* :point_right: ${locationOfDetails}\n${createTagText(
-    learning.tags
-  )}`;
+  return `*${index + 1}. ${description}* ${
+    locationOfDetails ? `:point_right: ${locationOfDetails}` : ""
+  }\n${createTagText(learning.tags)}`;
 }
 
 function profilePhoto(member: Member) {
