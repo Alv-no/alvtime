@@ -92,24 +92,24 @@ namespace AlvTime.Persistence.Repositories
             _context.SaveChanges();
         }
 
-        public void UpdateTask(UpdateTaskDto taskToBeUpdated)
+        public void UpdateTask(UpdateTaskDto task)
         {
             var existingTask = _context.Task
-                .FirstOrDefault(x => x.Id == taskToBeUpdated.Id);
+                .FirstOrDefault(x => x.Id == task.Id);
 
-            if (taskToBeUpdated.Locked != null)
+            if (task.Locked != null)
             {
-                existingTask.Locked = (bool)taskToBeUpdated.Locked;
+                existingTask.Locked = (bool)task.Locked;
             }
-            if (taskToBeUpdated.Name != null)
+            if (task.Name != null)
             {
-                existingTask.Name = taskToBeUpdated.Name;
+                existingTask.Name = task.Name;
             }
-            if (taskToBeUpdated.CompensationRate != null)
+            if (task.CompensationRate != null)
             {
                 var compensationRates = _context.CompensationRate.ToList().OrderByDescending(cr => cr.FromDate);
-                var compRateToBeUpdated = compensationRates.First(cr => cr.TaskId == taskToBeUpdated.Id);
-                compRateToBeUpdated.Value = (decimal)taskToBeUpdated.CompensationRate;
+                var compRateToBeUpdated = compensationRates.First(cr => cr.TaskId == task.Id);
+                compRateToBeUpdated.Value = task.CompensationRate.Value;
             }
 
             _context.SaveChanges();
@@ -135,7 +135,7 @@ namespace AlvTime.Persistence.Repositories
             _context.SaveChanges();
         }
 
-        public bool GetFavorite(int taskId, int userId)
+        public bool IsFavorite(int taskId, int userId)
         {
             return _context.TaskFavorites
                 .FirstOrDefault(tf => tf.UserId == userId && tf.TaskId == taskId) != null;

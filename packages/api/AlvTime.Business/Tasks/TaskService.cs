@@ -37,15 +37,15 @@ namespace AlvTime.Business.Tasks
             List<TaskResponseDto> response = new List<TaskResponseDto>();
             foreach (var task in tasksToUpdate)
             {
-                response.Add(UpdateFavoriteTasks(task.id, task.favorite, currentUser.Id));
+                response.Add(UpdateFavoriteTask(task.id, task.favorite, currentUser.Id));
             }
 
             return response;
         }
         
-        private TaskResponseDto UpdateFavoriteTasks(int taskId, bool isTaskFavorited, int userId)
+        private TaskResponseDto UpdateFavoriteTask(int taskId, bool isTaskFavorited, int userId)
         {
-            var userHasFavorite = _taskStorage.GetFavorite(taskId, userId);
+            var userHasFavorite = _taskStorage.IsFavorite(taskId, userId);
 
             if (userHasFavorite && !isTaskFavorited)
             {
@@ -56,7 +56,7 @@ namespace AlvTime.Business.Tasks
                 _taskStorage.CreateFavoriteTask(taskId, userId);
             }
 
-            return GetTask(taskId, userId);
+            return GetTaskForUser(taskId, userId);
         }
         
         public IEnumerable<TaskResponseDto> CreateTasks(IEnumerable<CreateTaskDto> tasksToBeCreated)
@@ -81,10 +81,11 @@ namespace AlvTime.Business.Tasks
             foreach (var task in tasksToBeUpdated)
             {
                 _taskStorage.UpdateTask(task);
-                response.Add(_taskStorage.GetTasks(new TaskQuerySearch
+                var responseDto = _taskStorage.GetTasks(new TaskQuerySearch
                 {
                     Id = task.Id
-                }).Single());
+                }).Single();
+                response.Add(responseDto);
             }
 
             return response;
@@ -99,7 +100,7 @@ namespace AlvTime.Business.Tasks
             });
         }
         
-        private TaskResponseDto GetTask(int taskId, int userId)
+        private TaskResponseDto GetTaskForUser(int taskId, int userId)
         {
             var taskResponseDto = _taskStorage.GetUsersTasks(new TaskQuerySearch
             {

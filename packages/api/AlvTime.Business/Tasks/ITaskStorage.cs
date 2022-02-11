@@ -9,7 +9,7 @@ namespace AlvTime.Business.Tasks
         IEnumerable<TaskResponseDto> GetUsersTasks(TaskQuerySearch criterias, int userId);
         void CreateFavoriteTask(int taskId, int userId);
         void RemoveFavoriteTask(int taskId, int userId);
-        bool GetFavorite(int taskId, int userId);
+        bool IsFavorite(int taskId, int userId);
         void CreateTask(CreateTaskDto task);
         void UpdateTask(UpdateTaskDto taskToBeUpdated);
     }
