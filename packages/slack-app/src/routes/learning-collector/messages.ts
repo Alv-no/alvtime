@@ -77,8 +77,7 @@ export function informLearnerAboutRegistration(
     {
       type: "section",
       text: markdown(
-        `<@${registrar}> fortalte meg akkurat at dere har lært om :point_down:\n\n>${description}` +
-          moreInfoText
+        `<@${registrar}> fortalte meg akkurat at dere har lært om :point_down:\n\n>${description}\n${moreInfoText}`
       ),
     },
   ];
