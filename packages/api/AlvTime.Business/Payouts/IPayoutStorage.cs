@@ -7,7 +7,7 @@ namespace AlvTime.Business.Payouts
     public interface IPayoutStorage
     {
         PayoutsDto GetRegisteredPayouts(PayoutQueryFilter criterias);
-        PayoutDto RegisterPayout(int userId, GenericHourEntry request, decimal payoutHoursAfterCompRate);
+        List<PayoutDto> RegisterPayout(int userId, GenericHourEntry request, List<PayoutToRegister> payoutsToRegister);
         PayoutDto CancelPayout(int payoutId);
         List<PayoutDto> GetActivePayouts(int userId);
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Interfaces;
@@ -37,8 +38,17 @@ namespace AlvTime.Business.Payouts
 
             if (request.Hours <= availableForPayout)
             {
-                var payoutHoursAfterCompensationRate = CalculatePayoutHoursBasedOnAvailableOvertime(request.Hours, availableHours);
-                return _payoutStorage.RegisterPayout(currentUser.Id, request, payoutHoursAfterCompensationRate);
+                var listOfPayoutsToRegister = CalculatePayoutHoursBasedOnAvailableOvertime(request.Hours, availableHours);
+                var registeredPayouts = _payoutStorage.RegisterPayout(currentUser.Id, request, listOfPayoutsToRegister);
+
+                return new PayoutDto
+                {
+                    Id = 0,
+                    UserId = registeredPayouts.First().UserId,
+                    Date = request.Date,
+                    HoursBeforeCompensation = registeredPayouts.Sum(payout => payout.HoursBeforeCompensation),
+                    HoursAfterCompensation = registeredPayouts.Sum(payout => payout.HoursAfterCompensation)
+                };
             }
 
             throw new ValidationException("Ikke nok tilgjengelige timer.");
@@ -54,11 +64,11 @@ namespace AlvTime.Business.Payouts
             return _payoutStorage.CancelPayout(payoutId);
         }
 
-        private decimal CalculatePayoutHoursBasedOnAvailableOvertime(decimal requestedHours, AvailableOvertimeDto availableHours)
+        private List<PayoutToRegister> CalculatePayoutHoursBasedOnAvailableOvertime(decimal requestedHours, AvailableOvertimeDto availableHours)
         {
-            var totalPayout = 0M;
+            var listOfPayouts = new List<PayoutToRegister>();
 
-            var orderedOvertime = availableHours.Entries.GroupBy(
+            var orderedOvertimeByRate = availableHours.Entries.GroupBy(
                     hours => hours.CompensationRate,
                     hours => hours,
                     (cr, hours) => new
@@ -68,7 +78,7 @@ namespace AlvTime.Business.Payouts
                     })
                 .OrderBy(h => h.CompensationRate);
 
-            foreach (var entry in orderedOvertime)
+            foreach (var entry in orderedOvertimeByRate)
             {
                 if (requestedHours <= 0)
                 {
@@ -77,12 +87,17 @@ namespace AlvTime.Business.Payouts
 
                 var hoursBeforeCompensation = Math.Min(requestedHours, entry.Hours);
 
-                totalPayout += hoursBeforeCompensation * entry.CompensationRate;
-
                 requestedHours -= hoursBeforeCompensation;
+                var payoutToRegister = new PayoutToRegister
+                {
+                    HoursBeforeCompRate = hoursBeforeCompensation,
+                    HoursAfterCompRate = hoursBeforeCompensation * entry.CompensationRate,
+                    CompRate = entry.CompensationRate
+                };
+                listOfPayouts.Add(payoutToRegister);
             }
 
-            return totalPayout;
+            return listOfPayouts;
         }
         
         private bool PayoutCanBeDeleted(int payoutId)

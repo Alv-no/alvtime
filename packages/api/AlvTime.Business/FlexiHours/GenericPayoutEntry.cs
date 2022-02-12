@@ -9,5 +9,6 @@ namespace AlvTime.Business.FlexiHours
         public decimal HoursBeforeCompRate { get; set; }
         public decimal HoursAfterCompRate { get; set; }
         public bool Active { get; set; }
+        public decimal CompRate { get; set; }
     }
 }

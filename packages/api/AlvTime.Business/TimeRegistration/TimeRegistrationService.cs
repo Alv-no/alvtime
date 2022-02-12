@@ -226,25 +226,25 @@ namespace AlvTime.Business.TimeRegistration
                 EndDate = toDateInclusive.Date
             });
 
-            var timeEntries = new List<TimeEntry>();
-            timeEntries.AddRange(earnedOvertime.Select(eo => new TimeEntry
+            var overtimeEntries = new List<TimeEntry>();
+            overtimeEntries.AddRange(earnedOvertime.Select(eo => new TimeEntry
             {
                 Date = eo.Date,
                 Hours = eo.Value,
                 CompensationRate = eo.CompensationRate
             }));
 
-            CompensateForFlexedHours(timeEntries, toDateInclusive);
-            CompensateForPayouts(timeEntries, toDateInclusive);
+            CompensateForFlexedHours(overtimeEntries, toDateInclusive);
+            CompensateForPayouts(overtimeEntries, toDateInclusive);
 
-            var availableBeforeCompRate = timeEntries.Sum(e => e.Hours);
-            var availableAfterCompRate = timeEntries.Sum(e => e.Hours * e.CompensationRate);
+            var availableBeforeCompRate = overtimeEntries.Sum(e => e.Hours);
+            var availableAfterCompRate = overtimeEntries.Sum(e => e.Hours * e.CompensationRate);
 
             return new AvailableOvertimeDto
             {
                 AvailableHoursBeforeCompensation = availableBeforeCompRate,
                 AvailableHoursAfterCompensation = availableAfterCompRate,
-                Entries = timeEntries
+                Entries = overtimeEntries
             };
         }
 
@@ -293,7 +293,7 @@ namespace AlvTime.Business.TimeRegistration
             }
         }
 
-        private void CompensateForPayouts(List<TimeEntry> timeEntries, DateTime toDateInclusive)
+        private void CompensateForPayouts(List<TimeEntry> overtimeEntries, DateTime toDateInclusive)
         {
             var currentUser = _userContext.GetCurrentUser();
 
@@ -303,40 +303,18 @@ namespace AlvTime.Business.TimeRegistration
                 ToDateInclusive = toDateInclusive.Date
             });
 
-            var payoutEntriesGroupedByDate = registeredPayouts.Entries.GroupBy(e => e.Date).OrderBy(g => g.Key);
+            var payoutEntriesGroupedByDateAndRate = registeredPayouts.Entries.GroupBy(e => (e.Date, e.CompRate)).OrderBy(g => g.Key.Date);
 
-            foreach (var payoutEntryGroup in payoutEntriesGroupedByDate)
+            foreach (var payoutEntryGroup in payoutEntriesGroupedByDateAndRate)
             {
-                var payoutDate = payoutEntryGroup.Key;
-                var registeredPayoutsTotal = payoutEntryGroup.Sum(e => e.HoursBeforeCompRate);
-
-                var relevantTimeEntriesOrdered = timeEntries.Where(e => e.Date <= payoutDate).GroupBy(
-                        hours => hours.CompensationRate,
-                        hours => hours,
-                        (cr, hours) => new
-                        {
-                            CompensationRate = cr,
-                            Hours = hours.Sum(h => h.Hours)
-                        })
-                    .OrderBy(h => h.CompensationRate);
-
-                foreach (var entry in relevantTimeEntriesOrdered)
+                TimeEntry payoutEntry = new TimeEntry
                 {
-                    if (registeredPayoutsTotal <= 0)
-                    {
-                        break;
-                    }
+                    Hours = -payoutEntryGroup.Sum(po => po.HoursBeforeCompRate),
+                    CompensationRate = payoutEntryGroup.Key.CompRate,
+                    Date = payoutEntryGroup.Key.Date
+                };
 
-                    TimeEntry overtimeEntry = new TimeEntry
-                    {
-                        Hours = -Math.Min(registeredPayoutsTotal, entry.Hours),
-                        CompensationRate = entry.CompensationRate,
-                        Date = payoutDate
-                    };
-
-                    timeEntries.Add(overtimeEntry);
-                    registeredPayoutsTotal += overtimeEntry.Hours;
-                }
+                overtimeEntries.Add(payoutEntry);
             }
         }
 
