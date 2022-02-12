@@ -11,6 +11,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Build the Docker image
+
+      - name: Build and test
         working-directory: "./packages/slack-app"
-        run: docker build . --file Dockerfile --tag image
+        run: docker build .

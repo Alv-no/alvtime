@@ -117,7 +117,7 @@ export default function createAlvtimeClient(
 
   return {
     getTasks(accessToken: string) {
-      return fetcher(concatURL("/api/user/tasks"), {
+      return fetcher(concatURL("/api/user/Tasks"), {
         ...getHeaders(accessToken),
       });
     },

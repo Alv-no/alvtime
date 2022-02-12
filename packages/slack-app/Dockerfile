@@ -9,7 +9,8 @@ RUN npm install
 FROM dev AS build-stage
 
 COPY . .
-RUN npm run build-ts
+RUN npm test
+RUN npm run build
 
 
 FROM node:${NODE_VERSION}-alpine AS prod-stage
