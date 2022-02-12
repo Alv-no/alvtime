@@ -208,7 +208,8 @@ CREATE TABLE [dbo].[PaidOvertime](
 	[Date] [datetime2](7) NOT NULL,
 	[User] [int] NOT NULL,
 	[HoursBeforeCompRate] [decimal](6, 2) NOT NULL,
-	[HoursAfterCompRate] [decimal](6, 2) NOT NULL
+	[HoursAfterCompRate] [decimal](6, 2) NOT NULL,
+    [CompensationRate] [decimal](5,2) NOT NULL
 PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC

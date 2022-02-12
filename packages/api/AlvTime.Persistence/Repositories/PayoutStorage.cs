@@ -33,32 +33,41 @@ namespace AlvTime.Persistence.Repositories
                     Date = po.Date,
                     HoursAfterCompRate = po.HoursAfterCompRate,
                     HoursBeforeCompRate = po.HoursBeforeCompRate,
-                    Active = po.Date.Month >= DateTime.Now.Month && po.Date.Year == DateTime.Now.Year
+                    Active = po.Date.Month >= DateTime.Now.Month && po.Date.Year == DateTime.Now.Year,
+                    CompRate = po.CompensationRate
                 }).ToList()
             };
         }
 
-        public PayoutDto RegisterPayout(int userId, GenericHourEntry request, decimal payoutHoursAfterCompRate)
+        public List<PayoutDto> RegisterPayout(int userId, GenericHourEntry request, List<PayoutToRegister> payoutsToRegister)
         {
-            PaidOvertime paidOvertime = new PaidOvertime
+            var response = new List<PayoutDto>();
+            foreach (var payoutToRegister in payoutsToRegister)
             {
-                Date = request.Date,
-                User = userId,
-                HoursBeforeCompRate = request.Hours,
-                HoursAfterCompRate = payoutHoursAfterCompRate
-            };
+                PaidOvertime paidOvertime = new PaidOvertime
+                {
+                    Date = request.Date,
+                    User = userId,
+                    HoursBeforeCompRate = payoutToRegister.HoursBeforeCompRate,
+                    HoursAfterCompRate = payoutToRegister.HoursAfterCompRate,
+                    CompensationRate = payoutToRegister.CompRate
+                };
 
-            _context.PaidOvertime.Add(paidOvertime);
+                _context.PaidOvertime.Add(paidOvertime);
+                
+                response.Add(new PayoutDto
+                {
+                    Id = paidOvertime.Id,
+                    UserId = paidOvertime.Id,
+                    Date = paidOvertime.Date,
+                    HoursBeforeCompensation = paidOvertime.HoursBeforeCompRate,
+                    HoursAfterCompensation = paidOvertime.HoursAfterCompRate
+                });
+            }
+
             _context.SaveChanges();
 
-            return new PayoutDto()
-            {
-                Id = paidOvertime.Id,
-                UserId = paidOvertime.Id,
-                Date = paidOvertime.Date,
-                HoursBeforeCompensation = paidOvertime.HoursBeforeCompRate,
-                HoursAfterCompensation = paidOvertime.HoursAfterCompRate
-            };
+            return response;
         }
 
         public List<PayoutDto> GetActivePayouts(int userId)
