@@ -1,7 +1,6 @@
 import { App, ExpressReceiver, SayFn, ViewStateValue } from "@slack/bolt";
 import { ChatPostMessageArguments, Logger } from "@slack/web-api";
-import { formatDistance, parseISO } from "date-fns";
-import { nb } from "date-fns/locale";
+import { parseISO } from "date-fns";
 import express from "express";
 import Fuse from "fuse.js";
 import mongoose from "mongoose";
@@ -94,6 +93,14 @@ boltApp.action(
   }
 );
 
+function sanitizeDescription(description: string) {
+  return description.replace("*", "").replace("\n", " ");
+}
+
+function sanitizeLocationOfDetails(description: string) {
+  return description.replace("*", "");
+}
+
 function parseViewStateValues(values: {
   [blockId: string]: {
     [actionId: string]: ViewStateValue;
@@ -102,10 +109,13 @@ function parseViewStateValues(values: {
   const shareability =
     values.shareability.shareability_radio_buttons_action.selected_option.value;
 
-  const description = values.description.description_input_action.value;
+  const description = sanitizeDescription(
+    values.description.description_input_action.value
+  );
 
-  const locationOfDetails =
-    values.locationOfDetails.locationOfDetails_input_action.value;
+  const locationOfDetails = sanitizeLocationOfDetails(
+    values.locationOfDetails.locationOfDetails_input_action.value
+  );
 
   const learners = values.learners[SELECTING_FELLOW_LEARNERS].selected_users;
 
