@@ -13,7 +13,7 @@ namespace Tests.UnitTests.Projects
             var context = new AlvTimeDbContextBuilder().CreateDbContext();
 
             var storage = new ProjectStorage(context);
-            var creator = new ProjectCreator(storage);
+            var creator = new ProjectService(storage);
 
             var previousProjectAmount = context.Project.ToList().Count();
 

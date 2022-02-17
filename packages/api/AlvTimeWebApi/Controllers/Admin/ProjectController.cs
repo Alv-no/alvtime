@@ -9,20 +9,18 @@ namespace AlvTimeWebApi.Controllers.Admin
     [ApiController]
     public class ProjectController : Controller
     {
-        private readonly IProjectStorage _storage;
-        private readonly ProjectCreator _creator;
+        private readonly ProjectService _projectService;
 
-        public ProjectController(IProjectStorage storage, ProjectCreator creator)
+        public ProjectController(ProjectService projectService)
         {
-            _storage = storage;
-            _creator = creator;
+            _projectService = projectService;
         }
 
         [HttpGet("Projects")]
         [AuthorizeAdmin]
         public ActionResult<IEnumerable<ProjectResponseDto>> FetchProjects()
         {
-            return Ok(_storage.GetProjects(new ProjectQuerySearch()));
+            return Ok(_projectService.GetProjects(new ProjectQuerySearch()));
         }
 
         [HttpPost("Projects")]
@@ -33,7 +31,7 @@ namespace AlvTimeWebApi.Controllers.Admin
 
             foreach (var project in projectsToBeCreated)
             {
-                response.Add(_creator.CreateProject(project));
+                response.Add(_projectService.CreateProject(project));
             }
 
             return Ok(response);
@@ -47,7 +45,7 @@ namespace AlvTimeWebApi.Controllers.Admin
 
             foreach (var project in projectsToBeCreated)
             {
-                response.Add(_creator.UpdateProject(project));
+                response.Add(_projectService.UpdateProject(project));
             }
 
             return Ok(response);
