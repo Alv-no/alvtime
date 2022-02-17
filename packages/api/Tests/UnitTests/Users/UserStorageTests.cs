@@ -61,7 +61,7 @@ namespace Tests.UnitTests.Users
                 .CreateDbContext();
 
             var storage = new UserStorage(context);
-            var creator = new UserCreator(storage, new AlvHoursCalculator());
+            var creator = new UserService(storage);
 
             creator.CreateUser(new CreateUserDto
             {
@@ -81,7 +81,7 @@ namespace Tests.UnitTests.Users
                 .CreateDbContext();
 
             var storage = new UserStorage(context);
-            var creator = new UserCreator(storage, new AlvHoursCalculator());
+            var creator = new UserService(storage);
 
             creator.CreateUser(new CreateUserDto
             {
@@ -101,7 +101,7 @@ namespace Tests.UnitTests.Users
                 .CreateDbContext();
 
             var storage = new UserStorage(context);
-            var creator = new UserCreator(storage, new AlvHoursCalculator());
+            var creator = new UserService(storage);
 
             creator.UpdateUser(new CreateUserDto
             {

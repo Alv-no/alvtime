@@ -7,22 +7,20 @@ namespace AlvTimeWebApi.Controllers.Admin
 {
     [Route("api/admin")]
     [ApiController]
-    public class UserController : Controller
+    public class UserController : ControllerBase
     {
-        private readonly IUserStorage _userStorage;
-        private readonly UserCreator _creator;
+        private readonly UserService _userService;
 
-        public UserController(IUserStorage userStorage, UserCreator creator)
+        public UserController(UserService userService)
         {
-            _userStorage = userStorage;
-            _creator = creator;
+            _userService = userService;
         }
 
         [HttpGet("Users")]
         [AuthorizeAdmin]
         public ActionResult<IEnumerable<UserResponseDto>> FetchUsers()
         {
-            var users = _userStorage.GetUser(new UserQuerySearch());
+            var users = _userService.GetUsers(new UserQuerySearch());
             return Ok(users);
         }
 
@@ -33,7 +31,7 @@ namespace AlvTimeWebApi.Controllers.Admin
             List<UserResponseDto> response = new List<UserResponseDto>();
             foreach (var user in usersToBeCreated)
             {
-                response.Add(_creator.CreateUser(new CreateUserDto
+                response.Add(_userService.CreateUser(new CreateUserDto
                 {
                     Email = user.Email,
                     Name = user.Name,
@@ -52,7 +50,7 @@ namespace AlvTimeWebApi.Controllers.Admin
             List<UserResponseDto> response = new List<UserResponseDto>();
             foreach (var user in usersToBeUpdated)
             {
-                response.Add(_creator.UpdateUser(user));
+                response.Add(_userService.UpdateUser(user));
             }
 
             return Ok(response);
