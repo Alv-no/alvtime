@@ -9,20 +9,18 @@ namespace AlvTimeWebApi.Controllers.Admin
     [ApiController]
     public class HourRateController : Controller
     {
-        private readonly IHourRateStorage _storage;
-        private readonly HourRateCreator _creator;
+        private readonly HourRateService _hourRateService;
 
-        public HourRateController(IHourRateStorage storage, HourRateCreator creator)
+        public HourRateController(HourRateService hourRateService)
         {
-            _storage = storage;
-            _creator = creator;
+            _hourRateService = hourRateService;
         }
 
         [HttpGet("HourRates")]
         [AuthorizeAdmin]
         public ActionResult<IEnumerable<HourRateResponseDto>> FetchHourRates()
         {
-            return Ok(_storage.GetHourRates(new HourRateQuerySearch()));
+            return Ok(_hourRateService.GetHourRates(new HourRateQuerySearch()));
         }
 
         [HttpPost("HourRates")]
@@ -33,7 +31,7 @@ namespace AlvTimeWebApi.Controllers.Admin
 
             foreach (var hourRate in hourRatesToBeCreated)
             {
-                response.Add(_creator.CreateHourRate(hourRate));
+                response.Add(_hourRateService.CreateHourRate(hourRate));
             }
 
             return Ok(response);

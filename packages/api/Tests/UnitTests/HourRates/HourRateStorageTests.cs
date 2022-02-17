@@ -45,7 +45,7 @@ namespace Tests.UnitTests.HourRates
             var context = new AlvTimeDbContextBuilder().WithCustomers().WithProjects().WithTasks().CreateDbContext();
 
             var storage = new HourRateStorage(context);
-            var creator = new HourRateCreator(storage);
+            var creator = new HourRateService(storage);
 
             var previousCountOfHourRates = context.HourRate.Count();
 
@@ -67,7 +67,7 @@ namespace Tests.UnitTests.HourRates
             var context = new AlvTimeDbContextBuilder().WithCustomers().WithProjects().WithTasks().CreateDbContext();
 
             var storage = new HourRateStorage(context);
-            var creator = new HourRateCreator(storage);
+            var creator = new HourRateService(storage);
 
             creator.CreateHourRate(new CreateHourRateDto
             {
