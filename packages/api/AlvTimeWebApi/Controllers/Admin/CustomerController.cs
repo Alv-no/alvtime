@@ -9,20 +9,18 @@ namespace AlvTimeWebApi.Controllers.Admin
     [ApiController]
     public class CustomerController : Controller
     {
-        private readonly ICustomerStorage _storage;
-        private readonly CustomerCreator _creator;
+        private readonly CustomerService _customerService;
 
-        public CustomerController(ICustomerStorage storage, CustomerCreator creator)
+        public CustomerController(CustomerService customerService)
         {
-            _storage = storage;
-            _creator = creator;
+            _customerService = customerService;
         }
 
         [HttpGet("Customers")]
         [AuthorizeAdmin]
         public ActionResult<IEnumerable<CustomerDto>> FetchCustomers()
         {
-            return Ok(_storage.GetCustomers(new CustomerQuerySearch()));
+            return Ok(_customerService.GetCustomers(new CustomerQuerySearch()));
         }
 
         [HttpPost("Customers")]
@@ -33,7 +31,7 @@ namespace AlvTimeWebApi.Controllers.Admin
 
             foreach (var customer in customersToBeCreated)
             {
-                response.Add(_creator.CreateCustomer(customer));
+                response.Add(_customerService.CreateCustomer(customer));
             }
 
             return Ok(response);
@@ -47,7 +45,7 @@ namespace AlvTimeWebApi.Controllers.Admin
 
             foreach (var customer in customersToBeUpdated)
             {
-                response.Add(_creator.UpdateCustomer(customer));
+                response.Add(_customerService.UpdateCustomer(customer));
             }
             return Ok(response);
         }

@@ -13,7 +13,7 @@ namespace Tests.UnitTests.Customers
             var context = new AlvTimeDbContextBuilder().CreateDbContext();
 
             var storage = new CustomerStorage(context);
-            var creator = new CustomerCreator(storage);
+            var creator = new CustomerService(storage);
 
             var previousCustomersAmount = context.Customer.ToList().Count();
 
@@ -35,7 +35,7 @@ namespace Tests.UnitTests.Customers
                 .CreateDbContext();
 
             var storage = new CustomerStorage(context);
-            var creator = new CustomerCreator(storage);
+            var creator = new CustomerService(storage);
 
             creator.UpdateCustomer(new CustomerDto
             {
