@@ -32,7 +32,11 @@ const AzureAdAuthenticator: FC<{
         setError(error.message)
       );
 
-      if (tokenResponse && (await isAdmin(tokenResponse.account))) {
+      if (
+        tokenResponse &&
+        tokenResponse.account &&
+        (await isAdmin(tokenResponse.account))
+      ) {
         store("AlvtimeAdminHomeAccountId", tokenResponse.account.homeAccountId);
         setSelectedAccount(tokenResponse.account);
       } else if (await isAdmin(getAccountByHomeId(homeAccountId))) {
@@ -107,9 +111,9 @@ async function isAdmin(account: AccountInfo | null) {
   if (!account) return false;
   const path = "/api/admin/Tasks";
   const adAuthenticatedFetch = createAdAuthenticatedFetch(account);
-  const res = await adAuthenticatedFetch(
-    config.API_HOST + path
-  ).catch((error) => console.error(error.message));
+  const res = await adAuthenticatedFetch(config.API_HOST + path).catch(
+    (error) => console.error(error.message)
+  );
   return res && res.ok;
 }
 

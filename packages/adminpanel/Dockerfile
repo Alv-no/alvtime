@@ -1,4 +1,4 @@
-FROM node:14.15 as dev
+FROM node:16 as dev
 
 # Avoid warnings by switching to noninteractive
 ENV DEBIAN_FRONTEND=noninteractive
@@ -35,6 +35,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
+RUN chown -R vscode node_modules
 CMD sh
 
 FROM dev as build
