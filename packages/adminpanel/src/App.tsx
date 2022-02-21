@@ -6,9 +6,6 @@ import Tables from "./components/Tables";
 import config from "./config";
 import theme from "./theme";
 
-//@ts-ignore
-export const AlvtimeContext = createContext();
-
 function createAlvtimeFetcher(
   adAuthenticatedFetch: (path: string, options: any) => Promise<Response>
 ) {
@@ -35,6 +32,10 @@ function createAlvtimeFetcher(
     );
   };
 }
+
+export const AlvtimeContext = createContext({
+  alvtimeFetcher: createAlvtimeFetcher(fetch),
+});
 
 function App() {
   return (
