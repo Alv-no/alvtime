@@ -1,5 +1,5 @@
 <template>
-  <div class="entry-container" @click="$emit('expand-entry', task.id)">
+  <div class="entry-container" v-bind:class="zoomClass" @click="$emit('expand-entry', task.id)">
     <div class="entry-text" v-if="!isExpanded">
       <span class="customer-name truncate-text">{{ task.project.customer.name }} - {{ task.project.name }}</span>  
       <span class="activity-name truncate-text">{{ task.name }}</span>
@@ -51,6 +51,9 @@ export default Vue.extend({
     },
     showPadlock(): boolean {
       return this.task.locked;
+    },
+    zoomClass (): string {
+      return this.isExpanded ? 'zoom-out' : 'zoom-in'
     }
   },
 });
@@ -66,6 +69,13 @@ export default Vue.extend({
   margin-right: .4rem;
 }
 
+.zoom-in {
+  cursor: zoom-in;
+}
+
+.zoom-out {
+  cursor: zoom-out;
+}
 .entry-text {
   display: flex;
   flex-direction: column;
@@ -85,10 +95,12 @@ export default Vue.extend({
 
 .expanded-label {
   font-weight: 600;
+  cursor: zoom-out;
 }
 .expanded-text {
   font-weight: normal;
   font-size: 0.8rem;
+  cursor: zoom-out;
 }
 
 .customer-name {
