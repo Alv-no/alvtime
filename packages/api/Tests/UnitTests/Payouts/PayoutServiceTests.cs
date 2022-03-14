@@ -98,12 +98,12 @@ namespace Tests.UnitTests.Payouts
             });
             payoutService.RegisterPayout(new GenericHourEntry
             {
-                Date = new DateTime(2021, 12, 13),
+                Date = new DateTime(2021, 12, 14),
                 Hours = 3
             });
             payoutService.RegisterPayout(new GenericHourEntry
             {
-                Date = new DateTime(2021, 12, 13),
+                Date = new DateTime(2021, 12, 15),
                 Hours = 4
             });
 
@@ -290,9 +290,10 @@ namespace Tests.UnitTests.Payouts
                 Hours = 1
             });
 
-            var canceledPayout = payoutService.CancelPayout(1);
+            payoutService.CancelPayout(1);
 
-            Assert.Equal(1, canceledPayout.Id);
+            var activePayouts = payoutService.GetRegisteredPayouts();
+            Assert.Empty(activePayouts.Entries);
         }
 
         [Fact]

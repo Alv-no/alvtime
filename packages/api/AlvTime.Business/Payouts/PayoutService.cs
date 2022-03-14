@@ -60,13 +60,11 @@ namespace AlvTime.Business.Payouts
             throw new ValidationException("Ikke nok tilgjengelige timer.");
         }
 
-        public PayoutDto CancelPayout(int payoutId)
+        public void CancelPayout(int payoutId)
         {
-            ValidatePayoutCancellation(payoutId);
             var payoutDate = GetRegisteredPayouts().Entries.First(e => e.Id == payoutId).Date;
-
-            return _payoutStorage.CancelPayout(payoutDate);
-
+            ValidatePayoutCancellation(payoutDate);
+            _payoutStorage.CancelPayout(payoutDate);
         }
 
         private List<PayoutToRegister> CalculatePayoutHoursBasedOnAvailableOvertime(decimal requestedHours, AvailableOvertimeDto availableHours)
@@ -105,7 +103,7 @@ namespace AlvTime.Business.Payouts
             return listOfPayouts;
         }
         
-        private void ValidatePayoutCancellation(int payoutId)
+        private void ValidatePayoutCancellation(DateTime payoutDate)
         {
             var currentUser = _userContext.GetCurrentUser();
             var allActivePayouts = _payoutStorage.GetActivePayouts(currentUser.Id);
@@ -115,20 +113,20 @@ namespace AlvTime.Business.Payouts
                 throw new ValidationException("Det er ingen aktive utbetalinger.");
             }
             
-            var payoutToBeCancelled = GetRegisteredPayouts().Entries.FirstOrDefault(po => po.Id == payoutId);
+            var payoutsToBeCancelled = GetRegisteredPayouts().Entries.Where(po => po.Date.Date == payoutDate.Date).ToList();
 
-            if (payoutToBeCancelled == null)
+            if (!payoutsToBeCancelled.Any())
             {
                 throw new ValidationException("Utbetaling finnes ikke.");
             }
-            if (!payoutToBeCancelled.Active)
+            if (!payoutsToBeCancelled.First().Active)
             {
                 throw new ValidationException("Utbetaling er ikke aktiv.");
             }
             
             var mostRecentPayoutOrderDate = allActivePayouts.OrderBy(p => p.Date).Last().Date;
 
-            if (payoutToBeCancelled.Date < mostRecentPayoutOrderDate)
+            if (payoutsToBeCancelled.First().Date < mostRecentPayoutOrderDate)
             {
                 throw new ValidationException("Valgt utbetaling må være seneste bestilte utbetaling.");
             }
