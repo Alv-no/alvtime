@@ -57,18 +57,10 @@ namespace AlvTimeWebApi.Controllers
         
         [HttpDelete("Payouts")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
-        public PayoutResponse CancelPaidOvertime([FromQuery] int payoutId)
+        public ActionResult CancelPaidOvertime([FromQuery] int payoutId)
         {
-            var response = _payoutService.CancelPayout(payoutId);
-
-            return new PayoutResponse
-            {
-                Id = response.Id,
-                Active = response.Date.Month >= DateTime.Now.Month && response.Date.Year == DateTime.Now.Year,
-                Date = response.Date.ToDateOnly(),
-                HoursAfterCompRate = response.HoursAfterCompensation,
-                HoursBeforeCompRate = response.HoursBeforeCompensation
-            };
+            _payoutService.CancelPayout(payoutId);
+            return NoContent();
         }
     }
 }
