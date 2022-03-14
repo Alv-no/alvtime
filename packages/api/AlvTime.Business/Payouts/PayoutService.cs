@@ -35,7 +35,13 @@ namespace AlvTime.Business.Payouts
 
             var availableHours = _timeRegistrationService.GetAvailableOvertimeHoursAtDate(request.Date.Date);
             var availableForPayout = availableHours.AvailableHoursBeforeCompensation;
+            var existingPayoutsOnDate = GetRegisteredPayouts().Entries.Where(e => e.Date.Date == request.Date.Date);
 
+            if (existingPayoutsOnDate.Any())
+            {
+                throw new ValidationException("Du har allerede bestilt en utbetaling denne dagen. Kanseller den forrige og bestill på nytt.");
+            }
+            
             if (request.Hours <= availableForPayout)
             {
                 var listOfPayoutsToRegister = CalculatePayoutHoursBasedOnAvailableOvertime(request.Hours, availableHours);
@@ -56,12 +62,11 @@ namespace AlvTime.Business.Payouts
 
         public PayoutDto CancelPayout(int payoutId)
         {
-            if (!PayoutCanBeDeleted(payoutId))
-            {
-                throw new ValidationException("Valgt utbetaling må være seneste bestilte utbetaling.");
-            }
+            ValidatePayoutCancellation(payoutId);
+            var payoutDate = GetRegisteredPayouts().Entries.First(e => e.Id == payoutId).Date;
 
-            return _payoutStorage.CancelPayout(payoutId);
+            return _payoutStorage.CancelPayout(payoutDate);
+
         }
 
         private List<PayoutToRegister> CalculatePayoutHoursBasedOnAvailableOvertime(decimal requestedHours, AvailableOvertimeDto availableHours)
@@ -100,7 +105,7 @@ namespace AlvTime.Business.Payouts
             return listOfPayouts;
         }
         
-        private bool PayoutCanBeDeleted(int payoutId)
+        private void ValidatePayoutCancellation(int payoutId)
         {
             var currentUser = _userContext.GetCurrentUser();
             var allActivePayouts = _payoutStorage.GetActivePayouts(currentUser.Id);
@@ -121,14 +126,12 @@ namespace AlvTime.Business.Payouts
                 throw new ValidationException("Utbetaling er ikke aktiv.");
             }
             
-            var latestId = allActivePayouts.OrderBy(p => p.Id).Last().Id;
+            var mostRecentPayoutOrderDate = allActivePayouts.OrderBy(p => p.Date).Last().Date;
 
-            if (payoutId < latestId)
+            if (payoutToBeCancelled.Date < mostRecentPayoutOrderDate)
             {
-                return false;
+                throw new ValidationException("Valgt utbetaling må være seneste bestilte utbetaling.");
             }
-
-            return true;
         }
     }
 }
