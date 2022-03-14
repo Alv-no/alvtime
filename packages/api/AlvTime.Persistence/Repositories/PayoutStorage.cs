@@ -87,19 +87,19 @@ namespace AlvTime.Persistence.Repositories
             }).ToList();
         }
 
-        public PayoutDto CancelPayout(int payoutId)
+        public PayoutDto CancelPayout(DateTime payoutDate)
         {
-            var payout = _context.PaidOvertime.First(po => po.Id == payoutId);
-            _context.PaidOvertime.Remove(payout);
+            var payouts = _context.PaidOvertime.Where(po => po.Date.Date == payoutDate.Date);
+            _context.PaidOvertime.RemoveRange(payouts);
             _context.SaveChanges();
 
-            return new PayoutDto()
+            return new PayoutDto
             {
-                Date = payout.Date,
-                Id = payout.Id,
-                UserId = payout.User,
-                HoursBeforeCompensation = payout.HoursBeforeCompRate,
-                HoursAfterCompensation = payout.HoursAfterCompRate
+                Date = payouts.First().Date,
+                Id = 0,
+                UserId = payouts.First().User,
+                HoursBeforeCompensation = payouts.Sum(po => po.HoursBeforeCompRate),
+                HoursAfterCompensation = payouts.Sum(po => po.HoursBeforeCompRate)
             };
         }
     }

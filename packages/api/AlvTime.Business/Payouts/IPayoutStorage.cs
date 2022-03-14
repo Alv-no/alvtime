@@ -8,7 +8,7 @@ namespace AlvTime.Business.Payouts
     {
         PayoutsDto GetRegisteredPayouts(PayoutQueryFilter criterias);
         List<PayoutDto> RegisterPayout(int userId, GenericHourEntry request, List<PayoutToRegister> payoutsToRegister);
-        PayoutDto CancelPayout(int payoutId);
+        PayoutDto CancelPayout(DateTime payoutDate);
         List<PayoutDto> GetActivePayouts(int userId);
     }
 
