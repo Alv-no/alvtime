@@ -89,7 +89,7 @@ namespace AlvTime.Persistence.Repositories
 
         public void CancelPayout(DateTime payoutDate)
         {
-            var payouts = _context.PaidOvertime.Where(po => po.Date.Date == payoutDate.Date);
+            var payouts = _context.PaidOvertime.Where(po => po.Date.Date == payoutDate);
             _context.PaidOvertime.RemoveRange(payouts);
             _context.SaveChanges();
         }

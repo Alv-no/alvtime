@@ -9,5 +9,6 @@ namespace AlvTimeWebApi.Responses
         public decimal HoursBeforeCompRate { get; set; }
         public decimal HoursAfterCompRate { get; set; }
         public bool Active { get; set; }
+        public decimal CompensationRate { get; set; }
     }
 }
