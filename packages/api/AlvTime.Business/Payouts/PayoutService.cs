@@ -60,11 +60,11 @@ namespace AlvTime.Business.Payouts
             throw new ValidationException("Ikke nok tilgjengelige timer.");
         }
 
-        public void CancelPayout(int payoutId)
+        public void CancelPayout(DateTime payoutDate)
         {
-            var payoutDate = GetRegisteredPayouts().Entries.First(e => e.Id == payoutId).Date;
-            ValidatePayoutCancellation(payoutDate);
-            _payoutStorage.CancelPayout(payoutDate);
+            var date = payoutDate.Date;
+            ValidatePayoutCancellation(date);
+            _payoutStorage.CancelPayout(date);
         }
 
         private List<PayoutToRegister> CalculatePayoutHoursBasedOnAvailableOvertime(decimal requestedHours, AvailableOvertimeDto availableHours)
@@ -113,7 +113,7 @@ namespace AlvTime.Business.Payouts
                 throw new ValidationException("Det er ingen aktive utbetalinger.");
             }
             
-            var payoutsToBeCancelled = GetRegisteredPayouts().Entries.Where(po => po.Date.Date == payoutDate.Date).ToList();
+            var payoutsToBeCancelled = GetRegisteredPayouts().Entries.Where(po => po.Date.Date == payoutDate).ToList();
 
             if (!payoutsToBeCancelled.Any())
             {

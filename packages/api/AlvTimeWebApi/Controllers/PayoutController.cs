@@ -31,13 +31,14 @@ namespace AlvTimeWebApi.Controllers
             {
                 TotalHoursBeforeCompRate = payouts.TotalHoursBeforeCompRate,
                 TotalHoursAfterCompRate = payouts.TotalHoursAfterCompRate,
-                Entries = payouts.Entries.Select(entry => new PayoutResponse()
+                Entries = payouts.Entries.Select(entry => new PayoutResponse
                 {
                     Id = entry.Id,
                     Date = entry.Date.ToDateOnly(),
                     HoursBeforeCompRate = entry.HoursBeforeCompRate,
                     HoursAfterCompRate = entry.HoursAfterCompRate,
-                    Active = entry.Active
+                    Active = entry.Active,
+                    CompensationRate = entry.CompRate
                 }).ToList()
             };
         }
@@ -57,9 +58,9 @@ namespace AlvTimeWebApi.Controllers
         
         [HttpDelete("Payouts")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
-        public ActionResult CancelPaidOvertime([FromQuery] int payoutId)
+        public ActionResult CancelPaidOvertime([FromQuery] DateTime payoutDate)
         {
-            _payoutService.CancelPayout(payoutId);
+            _payoutService.CancelPayout(payoutDate);
             return NoContent();
         }
     }

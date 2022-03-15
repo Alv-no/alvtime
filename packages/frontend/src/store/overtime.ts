@@ -88,6 +88,7 @@ interface PayoutTransaction {
   hoursBeforeCompRate: number;
   hoursAfterCompRate: number;
   active: boolean;
+  compensationRate: number;
 }
 
 const initState: OvertimeStateModel = {
@@ -177,6 +178,7 @@ const getters = {
             hoursAfterCompRate: transaction.hoursAfterCompRate,
             active: transaction.active,
             id: transaction.id,
+            rate: transaction.compensationRate
           },
         };
       })
@@ -243,10 +245,10 @@ const actions = {
   },
   CANCEL_PAYOUT_ORDER: (
     _: ActionContext<State, State>,
-    parameters: { payoutId: number }
+    parameters: { payoutDate: string }
   ) => {
     return httpClient.delete(
-      `${config.API_HOST}/api/user/Payouts?payoutId=${parameters.payoutId}`
+      `${config.API_HOST}/api/user/Payouts?payoutDate=${parameters.payoutDate}`
     );
   },
 };

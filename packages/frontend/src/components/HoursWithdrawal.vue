@@ -63,7 +63,7 @@
             ><md-icon
               v-if="item.active"
               class="delete-transaction"
-              @click.native="removeHourOrder(item.id)"
+              @click.native="removeHourOrder(item.date)"
               >delete</md-icon
             ></md-table-cell
           >
@@ -278,7 +278,7 @@ export default Vue.extend({
     },
 
     async removeHourOrder(id: number) {
-      await this.$store.dispatch("CANCEL_PAYOUT_ORDER", { payoutId: id });
+      await this.$store.dispatch("CANCEL_PAYOUT_ORDER", { payoutDate: id });
       await this.$store.dispatch("FETCH_TRANSACTIONS");
       this.processTransactions();
     },
