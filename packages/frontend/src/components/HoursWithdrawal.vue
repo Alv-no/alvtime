@@ -61,13 +61,14 @@
           }}</md-table-cell>
           <md-table-cell md-sort-by="remove" md-label=""
             ><md-icon
-              v-if="item.active"
+              v-if="item.delete"
               class="delete-transaction"
               @click.native="removeHourOrder(item.date)"
               >delete</md-icon
             ></md-table-cell
           >
         </md-table-row>
+        
       </md-table>
     </div>
   </CenterColumnWrapper>
@@ -98,6 +99,7 @@ interface InternalTransaction {
   rate?: number;
   sum?: number;
   active?: boolean;
+  subItems?: InternalTransaction;
 }
 
 const rules: ValidationRule[] = [
@@ -146,12 +148,37 @@ export default Vue.extend({
     },
     sortedTransactions(): InternalTransaction[] {
       if (this.transactions) {
-        return (this.transactions as InternalTransaction[]).sort((a, b) => {
+        const toPayout = "Til utbetaling";
+        const transactions = this.transactions as InternalTransaction[];
+        // remap list 
+        const remapedTransactions = transactions.sort((a, b) => {
           let aDate = new Date(a.date);
           let bDate = new Date(b.date);
           if (a.active) return 0 - aDate.getTime();
           return bDate.getTime() - aDate.getTime();
-        });
+        }).reduce((acc:any, curr ) => {
+          if ( curr.type === toPayout) {
+            // if date is the same as previously accumulated, current is a sub item of that 
+            if (acc.length > 0 && acc[acc.length - 1].date === curr.date) return acc;
+
+            // Create accumulated row, and extract sub items
+            const subItems = transactions.filter(transaction => {return transaction.date === curr.date})
+            let newTrans:any = {
+              "type": curr.type,
+              "date": curr.date,
+              "subItems": subItems,
+              "hours": subItems.reduce((acc, curr) => {return curr.hours ? acc + curr.hours : acc}, 0),
+              "sum": subItems.reduce((acc, curr) => { return curr.sum ? acc + curr.sum : acc}, 0),
+              "delete": true,
+              "expanded": false
+            }
+            acc.push(newTrans)
+          } else {
+            acc.push(curr)
+          }
+          return acc;
+        }, [])
+        return (remapedTransactions)
       }
       return [];
     },
