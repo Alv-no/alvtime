@@ -290,7 +290,7 @@ namespace Tests.UnitTests.Payouts
                 Hours = 1
             });
 
-            payoutService.CancelPayout(1);
+            payoutService.CancelPayout(new DateTime(currentYear, currentMonth, 02));
 
             var activePayouts = payoutService.GetRegisteredPayouts();
             Assert.Empty(activePayouts.Entries);
@@ -318,7 +318,7 @@ namespace Tests.UnitTests.Payouts
                 Hours = 5
             });
 
-            Assert.Throws<ValidationException>(() => payoutService.CancelPayout(1));
+            Assert.Throws<ValidationException>(() => payoutService.CancelPayout(new DateTime(currentYear, previousMonth, 02)));
         }
 
         private TimeRegistrationService CreateTimeRegistrationService()
