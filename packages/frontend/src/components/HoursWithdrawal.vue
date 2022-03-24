@@ -39,43 +39,138 @@
       <small class="validationtext">{{ errorMessage }}</small>
 
       <hr />
-      <md-table v-model="sortedTransactions" md-fixed-header>
-        <md-table-toolbar>
+
+      <div class="md-content md-table md-theme-default">
+        <div
+          class="md-toolbar md-table-toolbar md-transparent md-theme-default md-elevation-0"
+        >
           <h2 class="md-title">Transaksjoner</h2>
-        </md-table-toolbar>
-        <md-table-row slot="md-table-row" slot-scope="{ item }">
-          <md-table-cell md-sort-by="date" md-label="Dato">{{
-            item.date
-          }}</md-table-cell>
-          <md-table-cell md-sort-by="type" md-label="Type">{{
-            item.type
-          }}</md-table-cell>
-          <md-table-cell md-sort-by="hours" md-label="Timer">{{
-            item.hours
-          }}</md-table-cell>
-          <md-table-cell md-sort-by="rate" md-label="Rate">{{
-            item.rate
-          }}</md-table-cell>
-          <md-table-cell md-sort-by="total" md-label="Total">{{
-            item.sum
-          }}</md-table-cell>
-          <md-table-cell md-sort-by="remove" md-label=""
-            ><md-icon
-              v-if="item.delete"
-              class="delete-transaction"
-              @click.native="removeHourOrder(item.date)"
-              >delete</md-icon
-            ></md-table-cell
-          >
-        </md-table-row>
-        
-      </md-table>
+        </div>
+        <div
+          class="md-content md-table-content md-scrollbar md-theme-default"
+          style="height: 400px; max-height: 400px;"
+        >
+          <table>
+            <thead>
+              <tr>
+                <th class="md-table-head">
+                  <div class="md-table-head-container md-ripple md-disabled">
+                    <div class="md-table-head-label">Dato</div>
+                  </div>
+                </th>
+                <th class="md-table-head">
+                  <div class="md-table-head-container md-ripple md-disabled">
+                    <div class="md-table-head-label">Type</div>
+                  </div>
+                </th>
+                <th class="md-table-head">
+                  <div class="md-table-head-container md-ripple md-disabled">
+                    <div class="md-table-head-label">Timer</div>
+                  </div>
+                </th>
+                <th class="md-table-head">
+                  <div class="md-table-head-container md-ripple md-disabled">
+                    <div class="md-table-head-label">Rate</div>
+                  </div>
+                </th>
+                <th class="md-table-head">
+                  <div class="md-table-head-container md-ripple md-disabled">
+                    <div class="md-table-head-label">Total</div>
+                  </div>
+                </th>
+                <th class="md-table-head">
+                  <div class="md-table-head-container md-ripple md-disabled">
+                    <div class="md-table-head-label"></div>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <template v-for="transaction in sortedTransactions">
+                <tr
+                  class="md-table-row"
+                  :class="
+                    transaction.subItems && transaction.subItems.length !== 0
+                      ? 'selectable'
+                      : ''
+                  "
+                  @click="onRowSelect(transaction)"
+                >
+                  <td class="md-table-cell">
+                    <div class="md-table-cell-container">
+                      {{ transaction.date }}
+                    </div>
+                  </td>
+                  <td class="md-table-cell">
+                    <div class="md-table-cell-container">
+                      {{ transaction.type }}
+                    </div>
+                  </td>
+                  <td class="md-table-cell">
+                    <div class="md-table-cell-container">
+                      {{ transaction.hours }}
+                    </div>
+                  </td>
+                  <td class="md-table-cell">
+                    <div class="md-table-cell-container">
+                      {{ transaction.rate }}
+                    </div>
+                  </td>
+                  <td class="md-table-cell">
+                    <div class="md-table-cell-container">
+                      {{ transaction.sum }}
+                    </div>
+                  </td>
+                  <td class="md-table-cell">
+                    <md-icon
+                      v-if="transaction.delete"
+                      class="delete-transaction"
+                      @click.native="removeHourOrder(transaction.date)"
+                      >delete</md-icon
+                    >
+                  </td>
+                </tr>
+                <template v-if="isExpanded(transaction.id)">
+                  <tr
+                    class="md-table-row md-table-subrow"
+                    v-for="subItem in transaction.subItems"
+                  >
+                    <td class="md-table-cell">
+                      <div class="md-table-cell-container"></div>
+                    </td>
+                    <td class="md-table-cell">
+                      <div class="md-table-cell-container"></div>
+                    </td>
+                    <td class="md-table-cell">
+                      <div class="md-table-cell-container">
+                        {{ subItem.hours }}
+                      </div>
+                    </td>
+                    <td class="md-table-cell">
+                      <div class="md-table-cell-container">
+                        {{ subItem.rate }}
+                      </div>
+                    </td>
+                    <td class="md-table-cell">
+                      <div class="md-table-cell-container">
+                        {{ subItem.sum }}
+                      </div>
+                    </td>
+                    <td class="md-table-cell"></td>
+                  </tr>
+                </template>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </CenterColumnWrapper>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
+import { v4 as uuidv4 } from "uuid";
 import YellowButton from "./YellowButton.vue";
 import { isFloat } from "@/store/timeEntries";
 import Input from "./Input.vue";
@@ -131,6 +226,7 @@ export default Vue.extend({
   data() {
     return {
       hours: "",
+      expandedTransaction: null,
       transactions: [],
       today: moment().format("YYYY-MM-DD"),
       overtimeData: [],
@@ -149,36 +245,51 @@ export default Vue.extend({
     sortedTransactions(): InternalTransaction[] {
       if (this.transactions) {
         const toPayout = "Til utbetaling";
-        const transactions = this.transactions as InternalTransaction[];
-        // remap list 
-        const remapedTransactions = transactions.sort((a, b) => {
-          let aDate = new Date(a.date);
-          let bDate = new Date(b.date);
-          if (a.active) return 0 - aDate.getTime();
-          return bDate.getTime() - aDate.getTime();
-        }).reduce((acc:any, curr ) => {
-          if ( curr.type === toPayout) {
-            // if date is the same as previously accumulated, current is a sub item of that 
-            if (acc.length > 0 && acc[acc.length - 1].date === curr.date) return acc;
+        const transactions = (this.transactions as InternalTransaction[])
+          .sort((a, b) => {
+            let aDate = new Date(a.date);
+            let bDate = new Date(b.date);
+            if (a.active) return 0 - aDate.getTime();
+            return bDate.getTime() - aDate.getTime();
+          })
+          .map((transaction, index) => {
+            let newIdTrans = { ...transaction };
+            // Give new ids from index
+            newIdTrans.id = uuidv4();
+            return newIdTrans;
+          });
 
+        // remap list
+        const remapedTransactions = transactions.reduce((acc: any, curr) => {
+          if (curr.type === toPayout) {
+            // if date is the same as previously accumulated, current is a sub item of that
+            if (acc.length > 0 && acc[acc.length - 1].date === curr.date)
+              return acc;
             // Create accumulated row, and extract sub items
-            const subItems = transactions.filter(transaction => {return transaction.date === curr.date})
-            let newTrans:any = {
-              "type": curr.type,
-              "date": curr.date,
-              "subItems": subItems,
-              "hours": subItems.reduce((acc, curr) => {return curr.hours ? acc + curr.hours : acc}, 0),
-              "sum": subItems.reduce((acc, curr) => { return curr.sum ? acc + curr.sum : acc}, 0),
-              "delete": true,
-              "expanded": false
-            }
-            acc.push(newTrans)
+            const subItems = transactions.filter(transaction => {
+              return transaction.date === curr.date;
+            });
+            let newTrans: any = {
+              id: uuidv4(),
+              type: curr.type,
+              date: curr.date,
+              subItems: subItems,
+              hours: subItems.reduce((acc, curr) => {
+                return curr.hours ? acc + curr.hours : acc;
+              }, 0),
+              sum: subItems.reduce((acc, curr) => {
+                return curr.sum ? acc + curr.sum : acc;
+              }, 0),
+              delete: true,
+            };
+            acc.push(newTrans);
           } else {
-            acc.push(curr)
+            acc.push(curr);
           }
           return acc;
-        }, [])
-        return (remapedTransactions)
+        }, []);
+
+        return remapedTransactions;
       }
       return [];
     },
@@ -231,6 +342,22 @@ export default Vue.extend({
     >).getters.getAbsenseOverviewSubtractions;
   },
   methods: {
+    onRowSelect(transaction: any) {
+      // Don't do anything unless expandable
+      if (transaction.type !== "Til utbetaling") return;
+
+      // Set expand status
+      if (this.expandedTransaction === transaction.id) {
+        // null it to close
+        this.expandedTransaction = null;
+      } else {
+        // Set id to expand
+        this.expandedTransaction = transaction.id;
+      }
+    },
+    isExpanded(id: number): boolean {
+      return this.expandedTransaction === id;
+    },
     processTransactions() {
       const transactions = this.$store.getters
         .getTransactionList as MappedOvertimeTransaction[];
@@ -325,6 +452,10 @@ export default Vue.extend({
   max-width: 50rem;
 }
 
+.selectable {
+  cursor: pointer;
+}
+
 hr {
   margin: 20px 0 20px 0;
 }
@@ -346,6 +477,9 @@ hr {
   background-color: #fff;
 }
 
+.md-table-subrow {
+  background-color: #e9e9e9;
+}
 .availablehours .absense {
   margin-bottom: 50px;
 }
