@@ -125,7 +125,7 @@
                     <md-icon
                       v-if="transaction.delete"
                       class="delete-transaction"
-                      @click.native="removeHourOrder(transaction.date)"
+                      @click.native="removeHourOrder(transaction.date, $event)"
                       >delete</md-icon
                     >
                   </td>
@@ -431,7 +431,10 @@ export default Vue.extend({
       this.hours = "";
     },
 
-    async removeHourOrder(id: number) {
+    async removeHourOrder(id: number, event: any) {
+      // Prevent row from expanding when deleting
+      if (event && event.stopPropagation) event.stopPropagation();
+
       await this.$store.dispatch("CANCEL_PAYOUT_ORDER", { payoutDate: id });
       await this.$store.dispatch("FETCH_TRANSACTIONS");
       this.processTransactions();
