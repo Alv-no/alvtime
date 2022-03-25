@@ -52,7 +52,10 @@
         >
           <table>
             <thead>
-              <tr>
+              <tr>         
+                <th>
+                <!-- more icom -->
+                </th>
                 <th class="md-table-head">
                   <div class="md-table-head-container md-ripple md-disabled">
                     <div class="md-table-head-label">Dato</div>
@@ -98,9 +101,16 @@
                   :key="transaction.id"
                 >
                   <td class="md-table-cell">
+                       <!-- more icon -->
+                      <div v-if="transaction.subItems && transaction.subItems.length !== 0" style="display:inline;">
+                        <md-icon v-if="!isExpanded(transaction.id)">unfold_more</md-icon>
+                        <md-icon v-else>unfold_less</md-icon>
+                      </div>             
+                  </td>
+                  <td class="md-table-cell">
                     <div class="md-table-cell-container">
                       {{ transaction.date }}
-                    </div>
+                    </div> 
                   </td>
                   <td class="md-table-cell">
                     <div class="md-table-cell-container">
@@ -137,6 +147,7 @@
                     v-for="subItem in transaction.subItems"
                     :key="subItem.id"
                   >
+                    <td class="md-table-cell"><!-- more icon --></td>
                     <td class="md-table-cell">
                       <div class="md-table-cell-container"></div>
                     </td>
