@@ -86,7 +86,7 @@
               </tr>
             </thead>
             <tbody>
-              <template v-for="transaction in sortedTransactions">
+              <template v-for="transaction in sortedTransactions" :key="id">
                 <tr
                   class="md-table-row"
                   :class="
