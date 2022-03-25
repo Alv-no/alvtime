@@ -134,6 +134,7 @@
                   <tr
                     class="md-table-row md-table-subrow"
                     v-for="subItem in transaction.subItems"
+                    :key="subItem.id"
                   >
                     <td class="md-table-cell">
                       <div class="md-table-cell-container"></div>
