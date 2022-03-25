@@ -86,7 +86,7 @@
               </tr>
             </thead>
             <tbody>
-              <template v-for="transaction in sortedTransactions" :key="id">
+              <template v-for="transaction in sortedTransactions" >
                 <tr
                   class="md-table-row"
                   :class="
@@ -95,6 +95,7 @@
                       : ''
                   "
                   @click="onRowSelect(transaction)"
+                  :key="transaction.id"
                 >
                   <td class="md-table-cell">
                     <div class="md-table-cell-container">
