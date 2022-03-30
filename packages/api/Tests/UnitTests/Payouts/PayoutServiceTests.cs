@@ -320,6 +320,31 @@ namespace Tests.UnitTests.Payouts
 
             Assert.Throws<ValidationException>(() => payoutService.CancelPayout(new DateTime(currentYear, previousMonth, 02)));
         }
+        
+        [Fact]
+        public void RegisterPayout_HasFutureFlex_ExceptionThrown()
+        {
+            var currentYear = DateTime.Now.Year;
+            var currentMonth = DateTime.Now.Month;
+            var currentDay = DateTime.Now.Day;
+            var timeRegistrationService = CreateTimeRegistrationService();
+            var overtimeEntry =
+                CreateTimeEntryWithCompensationRate(new DateTime(currentYear, currentMonth, currentDay - 1), 12M, 1.5M, out int taskId1);
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                { new() { Date = overtimeEntry.Date, Value = overtimeEntry.Value, TaskId = overtimeEntry.TaskId } });
+
+            var futureFlex =
+                CreateTimeEntryForExistingTask(new DateTime(currentYear, currentMonth, currentDay + 1), 1M, 18);
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                { new() { Date = futureFlex.Date, Value = futureFlex.Value, TaskId = futureFlex.TaskId } });
+            
+            var payoutService = CreatePayoutService(timeRegistrationService);
+            Assert.Throws<ValidationException>(() => payoutService.RegisterPayout(new GenericHourEntry
+            {
+                Date = new DateTime(currentYear, currentMonth, currentDay),
+                Hours = 1M
+            }));
+        }
 
         private TimeRegistrationService CreateTimeRegistrationService()
         {
@@ -354,6 +379,17 @@ namespace Tests.UnitTests.Payouts
                 Date = date,
                 Value = value,
                 Task = task,
+                TaskId = taskId
+            };
+        }
+        
+        private static Hours CreateTimeEntryForExistingTask(DateTime date, decimal value, int taskId)
+        {
+            return new Hours
+            {
+                User = 1,
+                Date = date,
+                Value = value,
                 TaskId = taskId
             };
         }
