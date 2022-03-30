@@ -738,19 +738,15 @@ namespace Tests.UnitTests.Overtime
                 timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2021, 12, 13));
             Assert.Equal(4.5M, availableOvertime1.AvailableHoursAfterCompensation);
             
-            var flexTimeEntry =
-                CreateTimeEntryForExistingTask(new DateTime(2021, 12, 14), 2, 18); //Tuesday
-            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-                { new() { Date = flexTimeEntry.Date, Value = flexTimeEntry.Value, TaskId = flexTimeEntry.TaskId } });
-            
-            var availableOvertime2 =
-                timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2021, 12, 14));
-            Assert.Equal(1.5M, availableOvertime2.AvailableHoursAfterCompensation);
-            
             var timeEntry2 =
                 CreateTimeEntryForExistingTask(new DateTime(2021, 12, 13), 11.5M, taskId1); //Monday
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 { new() { Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId } });
+            
+            var flexTimeEntry =
+                CreateTimeEntryForExistingTask(new DateTime(2021, 12, 14), 2, 18); //Tuesday
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                { new() { Date = flexTimeEntry.Date, Value = flexTimeEntry.Value, TaskId = flexTimeEntry.TaskId } });
             
             var availableOvertime3 =
                 timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2021, 12, 14));

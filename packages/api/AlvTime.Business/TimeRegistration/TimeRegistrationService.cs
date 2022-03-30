@@ -125,6 +125,11 @@ namespace AlvTime.Business.TimeRegistration
                 throw new Exception($"Du kan ikke registrere mer enn {anticipatedWorkHours} timer når du avspaserer.");
             }
 
+            if (OvertimeOrFlexingAffectsFutureFlex(timeEntry, anticipatedWorkHours))
+            {
+                throw new Exception("Fjern fremtidig registrert avspasering før du fører overtid eller avspasering på en tidligere dato.");
+            }
+
             if (PayoutWouldBeAffectedByRegistration(timeEntry, latestPayoutDate, timeEntriesOnDate.Values,
                 anticipatedWorkHours))
             {
@@ -159,6 +164,21 @@ namespace AlvTime.Business.TimeRegistration
             {
                 throw new Exception("Du kan ikke registrere den oppgaven på en helg.");
             }
+        }
+
+        private bool OvertimeOrFlexingAffectsFutureFlex(CreateTimeEntryDto timeEntry, decimal anticipatedWorkHours)
+        {
+            var futureFlexEntries = _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
+            {
+                UserId = _userContext.GetCurrentUser().Id, FromDateInclusive = timeEntry.Date.Date.AddDays(1), TaskId = _flexTask
+            });
+
+            if (futureFlexEntries.Any(e => e.Value > 0) && (timeEntry.TaskId == _flexTask || timeEntry.Value > anticipatedWorkHours))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private static bool PayoutWouldBeAffectedByRegistration(CreateTimeEntryDto timeEntry,
@@ -201,6 +221,13 @@ namespace AlvTime.Business.TimeRegistration
         {
             var currentUser = _userContext.GetCurrentUser();
             criterias.UserId = currentUser.Id;
+            return _timeRegistrationStorage.GetTimeEntries(criterias).ToList();
+        }
+        
+        public List<TimeEntryResponseDto> GetFlexTimeEntries()
+        {
+            var currentUser = _userContext.GetCurrentUser();
+            var criterias = new TimeEntryQuerySearch { UserId = currentUser.Id, TaskId = _flexTask };
             return _timeRegistrationStorage.GetTimeEntries(criterias).ToList();
         }
 

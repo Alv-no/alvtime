@@ -41,6 +41,13 @@ namespace AlvTime.Business.Payouts
             {
                 throw new ValidationException("Du har allerede bestilt en utbetaling denne dagen. Kanseller den forrige og bestill på nytt.");
             }
+
+            var futureFlexEntries = _timeRegistrationService.GetFlexTimeEntries().Where(entry => entry.Date > DateTime.Now);
+
+            if (futureFlexEntries.Any(e => e.Value > 0))
+            {
+                throw new ValidationException("Fjern fremtidig avspasering før du gjør en bestilling.");
+            }
             
             if (request.Hours <= availableForPayout)
             {

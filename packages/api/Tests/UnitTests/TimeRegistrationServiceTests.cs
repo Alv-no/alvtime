@@ -134,6 +134,29 @@ namespace Tests.UnitTests
                 { new() { Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId } }));
         }
         
+        [Fact]
+        public void RegisterFlex_HasFutureFlex_ExceptionThrown()
+        {
+            var currentYear = DateTime.Now.Year;
+            var currentMonth = DateTime.Now.Month;
+            var currentDay = DateTime.Now.Day;
+            var timeRegistrationService = CreateTimeRegistrationService();
+            var overtimeEntry =
+                CreateTimeEntryWithCompensationRate(new DateTime(currentYear, currentMonth, currentDay - 1), 12M, 1.5M, out int taskId1);
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                { new() { Date = overtimeEntry.Date, Value = overtimeEntry.Value, TaskId = overtimeEntry.TaskId } });
+
+            var futureFlex =
+                CreateTimeEntryForExistingTask(new DateTime(currentYear, currentMonth, currentDay + 1), 1M, 18);
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                { new() { Date = futureFlex.Date, Value = futureFlex.Value, TaskId = futureFlex.TaskId } });
+            
+            var flexToday =
+                CreateTimeEntryForExistingTask(new DateTime(currentYear, currentMonth, currentDay), 1M, 18);
+            Assert.Throws<Exception>(() => timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                { new() { Date = flexToday.Date, Value = flexToday.Value, TaskId = flexToday.TaskId } }));
+        }
+        
         private TimeRegistrationService CreateTimeRegistrationService()
         {
             return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
