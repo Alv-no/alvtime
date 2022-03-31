@@ -52,7 +52,7 @@
         >
           <table>
             <thead>
-              <tr>         
+              <tr>
                 <th>
                 <!-- more icom -->
                 </th>
@@ -105,12 +105,12 @@
                       <div v-if="transaction.subItems && transaction.subItems.length !== 0" style="display:inline;">
                         <md-icon v-if="!isExpanded(transaction.id)">unfold_more</md-icon>
                         <md-icon v-else>unfold_less</md-icon>
-                      </div>             
+                      </div>
                   </td>
                   <td class="md-table-cell">
                     <div class="md-table-cell-container">
                       {{ transaction.date }}
-                    </div> 
+                    </div>
                   </td>
                   <td class="md-table-cell">
                     <div class="md-table-cell-container">
@@ -190,8 +190,8 @@ import Input from "./Input.vue";
 import moment, { Moment } from "moment";
 import { Store } from "vuex";
 import { State } from "../store/index";
-import CenterColumnWrapper from "@/components/CenterColumnWrapper.vue";
-import OvertimeVisualizer from "@/components/OvertimeVisualizer.vue";
+import CenterColumnWrapper from "./CenterColumnWrapper.vue";
+import OvertimeVisualizer from "./OvertimeVisualizer.vue";
 import { MappedOvertimeTransaction } from "../store/overtime";
 
 interface ValidationRule {
@@ -230,9 +230,11 @@ const rules: ValidationRule[] = [
 ];
 
 // Payout translations
-const PAYOUTS = {
+const HOUR_TYPES = {
   TO_PAYOUT: "Til utbetaling",
-  PAYED_OUT: "Utbetalt"
+  PAYED_OUT: "Utbetalt",
+  AVAILABLE: "Opptjent",
+  FLEX: "Flex"
 }
 
 export default Vue.extend({
@@ -279,7 +281,7 @@ export default Vue.extend({
 
         // remap list
         const remapedTransactions = transactions.reduce((acc: any, curr) => {
-          if (curr.type === PAYOUTS.TO_PAYOUT) {
+          if (curr.type === HOUR_TYPES.TO_PAYOUT || curr.type == HOUR_TYPES.PAYED_OUT) {
             // if date is the same as previously accumulated, current is a sub item of that
             if (acc.length > 0 && acc[acc.length - 1].date === curr.date)
               return acc;
@@ -298,7 +300,7 @@ export default Vue.extend({
               sum: subItems.reduce((acc, curr) => {
                 return curr.sum ? acc + curr.sum : acc;
               }, 0),
-              delete: true,
+              delete: curr.type === HOUR_TYPES.TO_PAYOUT,
             };
             acc.push(newTrans);
           } else {
@@ -362,7 +364,7 @@ export default Vue.extend({
   methods: {
     onRowSelect(transaction: any) {
       // Don't do anything unless expandable
-      if (transaction.type !== PAYOUTS.TO_PAYOUT) return;
+      if (transaction.type !== HOUR_TYPES.TO_PAYOUT) return;
 
       // Set expand status
       if (this.expandedTransaction === transaction.id) {
@@ -414,11 +416,11 @@ export default Vue.extend({
     getTranslatedType(type: string, active: boolean = false): string {
       switch (type) {
         case "available":
-          return "Opptjent";
+          return HOUR_TYPES.AVAILABLE;
         case "payout":
-          return active ? PAYOUTS.TO_PAYOUT : PAYOUTS.PAYED_OUT;
+          return active ? HOUR_TYPES.TO_PAYOUT : HOUR_TYPES.PAYED_OUT;
         case "flex":
-          return "Flex";
+          return HOUR_TYPES.FLEX;
         default:
           return "";
       }
