@@ -229,6 +229,12 @@ const rules: ValidationRule[] = [
   },
 ];
 
+// Payout translations
+const PAYOUTS = {
+  TO_PAYOUT: "Til utbetaling",
+  PAYED_OUT: "Utbetalt"
+}
+
 export default Vue.extend({
   components: {
     YellowButton,
@@ -257,7 +263,6 @@ export default Vue.extend({
     },
     sortedTransactions(): InternalTransaction[] {
       if (this.transactions) {
-        const toPayout = "Til utbetaling";
         const transactions = (this.transactions as InternalTransaction[])
           .sort((a, b) => {
             let aDate = new Date(a.date);
@@ -265,16 +270,16 @@ export default Vue.extend({
             if (a.active) return 0 - aDate.getTime();
             return bDate.getTime() - aDate.getTime();
           })
-          .map((transaction, index) => {
+          .map((transaction) => {
             let newIdTrans = { ...transaction };
-            // Give new ids from index
+            // Give new unique ids, for usage as key in list
             newIdTrans.id = uuidv4();
             return newIdTrans;
           });
 
         // remap list
         const remapedTransactions = transactions.reduce((acc: any, curr) => {
-          if (curr.type === toPayout) {
+          if (curr.type === PAYOUTS.TO_PAYOUT) {
             // if date is the same as previously accumulated, current is a sub item of that
             if (acc.length > 0 && acc[acc.length - 1].date === curr.date)
               return acc;
@@ -357,7 +362,7 @@ export default Vue.extend({
   methods: {
     onRowSelect(transaction: any) {
       // Don't do anything unless expandable
-      if (transaction.type !== "Til utbetaling") return;
+      if (transaction.type !== PAYOUTS.TO_PAYOUT) return;
 
       // Set expand status
       if (this.expandedTransaction === transaction.id) {
@@ -411,7 +416,7 @@ export default Vue.extend({
         case "available":
           return "Opptjent";
         case "payout":
-          return active ? "Til utbetaling" : "Utbetalt";
+          return active ? PAYOUTS.TO_PAYOUT : PAYOUTS.PAYED_OUT;
         case "flex":
           return "Flex";
         default:
