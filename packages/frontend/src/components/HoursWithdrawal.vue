@@ -364,8 +364,10 @@ export default Vue.extend({
   methods: {
     onRowSelect(transaction: any) {
       // Don't do anything unless expandable
-      if (transaction.type !== HOUR_TYPES.TO_PAYOUT) return;
-
+      if (
+        transaction.type === HOUR_TYPES.TO_PAYOUT ||
+        transaction.type === HOUR_TYPES.PAYED_OUT
+      ) {
       // Set expand status
       if (this.expandedTransaction === transaction.id) {
         // null it to close
@@ -373,6 +375,9 @@ export default Vue.extend({
       } else {
         // Set id to expand
         this.expandedTransaction = transaction.id;
+        }
+      } else {
+        return;
       }
     },
     isExpanded(id: number): boolean {
