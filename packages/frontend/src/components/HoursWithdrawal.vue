@@ -294,11 +294,17 @@ export default Vue.extend({
             curr.type == HOUR_TYPES.PAYED_OUT
           ) {
             // if date is the same as previously accumulated, current is a sub item of that
-            if (acc.length > 0 && acc[acc.length - 1].date === curr.date)
+            if (
+              acc.length > 0 &&
+              acc[acc.length - 1].date === curr.date &&
+              acc[acc.length - 1].type === curr.type
+            )
               return acc;
             // Create accumulated row, and extract sub items
             const subItems = transactions.filter(transaction => {
-              return transaction.date === curr.date;
+              return (
+                transaction.date === curr.date && transaction.type === curr.type
+              );
             });
             let newTrans: any = {
               id: uuidv4(),
