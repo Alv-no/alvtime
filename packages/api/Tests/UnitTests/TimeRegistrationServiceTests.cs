@@ -142,17 +142,19 @@ namespace Tests.UnitTests
             var currentDay = DateTime.Now.Day;
             var timeRegistrationService = CreateTimeRegistrationService();
             var overtimeEntry =
-                CreateTimeEntryWithCompensationRate(new DateTime(currentYear, currentMonth, currentDay - 1), 12M, 1.5M, out int taskId1);
+                CreateTimeEntryWithCompensationRate(new DateTime(currentYear, currentMonth, currentDay), 12M, 1.5M, out int taskId1);
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 { new() { Date = overtimeEntry.Date, Value = overtimeEntry.Value, TaskId = overtimeEntry.TaskId } });
 
+            var futureDayToRegisterFlexOn = DateTime.Now.AddDays(5).DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday ? DateTime.Now.AddDays(7).Day : DateTime.Now.AddDays(5).Day;
             var futureFlex =
-                CreateTimeEntryForExistingTask(new DateTime(currentYear, currentMonth, currentDay + 1), 1M, 18);
+                CreateTimeEntryForExistingTask(new DateTime(currentYear, currentMonth, futureDayToRegisterFlexOn), 1M, 18);
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 { new() { Date = futureFlex.Date, Value = futureFlex.Value, TaskId = futureFlex.TaskId } });
-            
+
+            var dayToRegisterFlexOn = DateTime.Now.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday ? DateTime.Now.AddDays(2).Day : DateTime.Now.Day;
             var flexToday =
-                CreateTimeEntryForExistingTask(new DateTime(currentYear, currentMonth, currentDay), 1M, 18);
+                CreateTimeEntryForExistingTask(new DateTime(currentYear, currentMonth, dayToRegisterFlexOn), 1M, 18);
             Assert.Throws<Exception>(() => timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 { new() { Date = flexToday.Date, Value = flexToday.Value, TaskId = flexToday.TaskId } }));
         }
