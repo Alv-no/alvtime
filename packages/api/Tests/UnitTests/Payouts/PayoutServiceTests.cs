@@ -329,12 +329,13 @@ namespace Tests.UnitTests.Payouts
             var currentDay = DateTime.Now.Day;
             var timeRegistrationService = CreateTimeRegistrationService();
             var overtimeEntry =
-                CreateTimeEntryWithCompensationRate(new DateTime(currentYear, currentMonth, currentDay - 1), 12M, 1.5M, out int taskId1);
+                CreateTimeEntryWithCompensationRate(new DateTime(currentYear, currentMonth, currentDay), 12M, 1.5M, out int taskId1);
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 { new() { Date = overtimeEntry.Date, Value = overtimeEntry.Value, TaskId = overtimeEntry.TaskId } });
 
+            var futureDayToRegisterFlexOn = DateTime.Now.AddDays(5).DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday ? DateTime.Now.AddDays(7).Day : DateTime.Now.AddDays(5).Day;
             var futureFlex =
-                CreateTimeEntryForExistingTask(new DateTime(currentYear, currentMonth, currentDay + 1), 1M, 18);
+                CreateTimeEntryForExistingTask(new DateTime(currentYear, currentMonth, futureDayToRegisterFlexOn), 1M, 18);
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 { new() { Date = futureFlex.Date, Value = futureFlex.Value, TaskId = futureFlex.TaskId } });
             
