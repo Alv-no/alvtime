@@ -131,8 +131,8 @@ export function vacationLoggMessage({
   fromDateInclusive,
   toDateInclusive,
 }: DateRange) {
-  const fromDate = configuredMoment(fromDateInclusive).format("dddd D. YYYY");
-  const toDate = configuredMoment(toDateInclusive).format("dddd D. YYYY");
+  const fromDate = configuredMoment(fromDateInclusive).format("dddd D. MMMM YYYY");
+  const toDate = configuredMoment(toDateInclusive).format("dddd D. MMMM YYYY");
 
   return { text: `Du har ført ferie fra og med ${fromDate} til og med ${toDate}` };
 }
