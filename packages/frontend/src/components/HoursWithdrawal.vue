@@ -54,7 +54,7 @@
             <thead>
               <tr>
                 <th>
-                <!-- more icom -->
+                  <!-- more icom -->
                 </th>
                 <th class="md-table-head">
                   <div class="md-table-head-container md-ripple md-disabled">
@@ -89,7 +89,7 @@
               </tr>
             </thead>
             <tbody>
-              <template v-for="transaction in sortedTransactions" >
+              <template v-for="transaction in sortedTransactions">
                 <tr
                   class="md-table-row"
                   :class="
@@ -101,11 +101,19 @@
                   :key="transaction.id"
                 >
                   <td class="md-table-cell">
-                       <!-- more icon -->
-                      <div v-if="transaction.subItems && transaction.subItems.length !== 0" style="display:inline;">
-                        <md-icon v-if="!isExpanded(transaction.id)">unfold_more</md-icon>
-                        <md-icon v-else>unfold_less</md-icon>
-                      </div>
+                    <!-- more icon -->
+                    <div
+                      v-if="
+                        transaction.subItems &&
+                          transaction.subItems.length !== 0
+                      "
+                      style="display:inline;"
+                    >
+                      <md-icon v-if="!isExpanded(transaction.id)"
+                        >unfold_more</md-icon
+                      >
+                      <md-icon v-else>unfold_less</md-icon>
+                    </div>
                   </td>
                   <td class="md-table-cell">
                     <div class="md-table-cell-container">
@@ -234,8 +242,8 @@ const HOUR_TYPES = {
   TO_PAYOUT: "Til utbetaling",
   PAYED_OUT: "Utbetalt",
   AVAILABLE: "Opptjent",
-  FLEX: "Flex"
-}
+  FLEX: "Flex",
+};
 
 export default Vue.extend({
   components: {
@@ -272,7 +280,7 @@ export default Vue.extend({
             if (a.active) return 0 - aDate.getTime();
             return bDate.getTime() - aDate.getTime();
           })
-          .map((transaction) => {
+          .map(transaction => {
             let newIdTrans = { ...transaction };
             // Give new unique ids, for usage as key in list
             newIdTrans.id = uuidv4();
@@ -281,7 +289,10 @@ export default Vue.extend({
 
         // remap list
         const remapedTransactions = transactions.reduce((acc: any, curr) => {
-          if (curr.type === HOUR_TYPES.TO_PAYOUT || curr.type == HOUR_TYPES.PAYED_OUT) {
+          if (
+            curr.type === HOUR_TYPES.TO_PAYOUT ||
+            curr.type == HOUR_TYPES.PAYED_OUT
+          ) {
             // if date is the same as previously accumulated, current is a sub item of that
             if (acc.length > 0 && acc[acc.length - 1].date === curr.date)
               return acc;
@@ -368,13 +379,13 @@ export default Vue.extend({
         transaction.type === HOUR_TYPES.TO_PAYOUT ||
         transaction.type === HOUR_TYPES.PAYED_OUT
       ) {
-      // Set expand status
-      if (this.expandedTransaction === transaction.id) {
-        // null it to close
-        this.expandedTransaction = null;
-      } else {
-        // Set id to expand
-        this.expandedTransaction = transaction.id;
+        // Set expand status
+        if (this.expandedTransaction === transaction.id) {
+          // null it to close
+          this.expandedTransaction = null;
+        } else {
+          // Set id to expand
+          this.expandedTransaction = transaction.id;
         }
       } else {
         return;
