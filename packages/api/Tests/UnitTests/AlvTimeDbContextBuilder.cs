@@ -29,13 +29,12 @@ namespace Tests.UnitTests
             else
             {
                 var options = new DbContextOptionsBuilder<AlvTime_dbContext>()
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString(), db => db.EnableNullChecks(false))
                     .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                     .Options;
                 
                 _context = new AlvTime_dbContext(options);
             }
-
         }
 
         private DbConnection CreateInMemoryDatabase()
