@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using AlvTime.Business.Options;
 using AlvTime.Persistence.DataBaseModels;
 using AlvTimeWebApi.Authentication;
@@ -34,14 +36,81 @@ namespace AlvTimeWebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAlvtimeServices(Configuration);
-            services.AddDbContext<AlvTime_dbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("AlvTime_db")), contextLifetime: ServiceLifetime.Scoped, optionsLifetime: ServiceLifetime.Scoped);
+            services.AddDbContext<AlvTime_dbContext>(
+                options => options.UseSqlServer(Configuration.GetConnectionString("AlvTime_db")),
+                contextLifetime: ServiceLifetime.Scoped, optionsLifetime: ServiceLifetime.Scoped);
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddAlvtimeAuthentication(Configuration);
             services.Configure<TimeEntryOptions>(Configuration.GetSection("TimeEntryOptions"));
             services.AddAlvtimeAuthorization();
+
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Example API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo {Title = "Alvtime API", Version = "v1"});
+
+                // AAD SSO
+                c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+                {
+                    Description = "Authenticate using Azure AD with your account.",
+                    Name = "Azure AD",
+                    Type = SecuritySchemeType.OAuth2,
+                    Flows = new OpenApiOAuthFlows
+                    {
+                        AuthorizationCode = new OpenApiOAuthFlow
+                        {
+                            AuthorizationUrl =
+                                new Uri(
+                                    $"https://login.microsoftonline.com/{Configuration["AzureAd:TenantId"]}/oauth2/v2.0/authorize"),
+                            TokenUrl = new Uri(
+                                $"https://login.microsoftonline.com/{Configuration["AzureAd:TenantId"]}/oauth2/v2.0/token"),
+                            Scopes = new Dictionary<string, string>
+                            {
+                                {Configuration["AzureAd:Domain"], "Access the API"}
+                            }
+                        }
+                    }
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference {Type = ReferenceType.SecurityScheme, Id = "oauth2"}
+                        },
+                        new[] {Configuration["AzureAd:Domain"]}
+                    }
+                });
+
+                // Bearer token (for use with debugging and Ahre-Ketil Lillehagen)
+                c.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Bearer token",
+                    Description = "Authenticate using a raw bearer token. This is helpful when you want to use Ahre-Ketil for testing. You can paste his PAT here.",
+                    Scheme = "Bearer",
+                    BearerFormat = "Raw JWT or PAT",
+                    Type = SecuritySchemeType.Http,
+                    Flows = new OpenApiOAuthFlows
+                    {
+                         ClientCredentials = new OpenApiOAuthFlow
+                         {
+                             Scopes = new Dictionary<string, string>
+                             {
+                                 {Configuration["AzureAd:Domain"], "Access the API"}
+                             }
+                         }
+                    },
+                    In = ParameterLocation.Header,
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference {Type = ReferenceType.SecurityScheme, Id = "bearer"}
+                        },
+                        new[] {Configuration["AzureAd:Domain"]}
+                    }
+                });
             });
             services.AddRazorPages();
             services.AddAlvtimeCorsPolicys(Configuration);
@@ -61,7 +130,10 @@ namespace AlvTimeWebApi
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Alvtime API v1");
+                c.OAuthClientId(Configuration["AzureAd:ClientId"]);
+                c.OAuthUsePkce();
+                c.OAuthScopeSeparator(" ");
             });
 
             app.UseRouting();
