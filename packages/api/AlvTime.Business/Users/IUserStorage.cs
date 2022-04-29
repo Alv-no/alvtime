@@ -7,7 +7,7 @@ namespace AlvTime.Business.Users
 {
     public interface IUserStorage
     {
-        IEnumerable<UserResponseDto> GetUser(UserQuerySearch criterias);
+        IEnumerable<UserResponseDto> GetUser(UserQuerySearch criteria);
         void AddUser(CreateUserDto user);
         void UpdateUser(CreateUserDto user);
         Task<User> GetUserFromToken(Token token);

@@ -34,10 +34,10 @@ namespace AlvTime.Persistence.Repositories
             _context.SaveChanges();
         }
 
-        public IEnumerable<UserResponseDto> GetUser(UserQuerySearch criterias)
+        public IEnumerable<UserResponseDto> GetUser(UserQuerySearch criteria)
         {
             return _context.User.AsQueryable()
-                .Filter(criterias)
+                .Filter(criteria)
                 .Select(u => new UserResponseDto
                 {
                     Email = u.Email,
