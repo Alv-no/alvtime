@@ -10,8 +10,12 @@
           @click="clear"
         />
       </div>
-      <div v-for="task in tasks" :key="task.id" class="row" >
-        <TimeEntrieText :task="task" :isExpanded="task.id === selectedEntryKey" @expand-entry="onExpandEntry"/>
+      <div v-for="task in tasks" :key="task.id" class="row">
+        <TimeEntrieText
+          :task="task"
+          :is-expanded="task.id === selectedEntryKey"
+          @expand-entry="onExpandEntry"
+        />
         <md-checkbox
           :value="!task.favorite"
           type="checkbox"
@@ -25,7 +29,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Task } from "../store/tasks";
+import { Task } from "@/store/tasks";
 import TimeEntrieText from "./TimeEntrieText.vue";
 import Input from "./Input.vue";
 import YellowButton from "./YellowButton.vue";
@@ -43,7 +47,7 @@ export default Vue.extend({
   data() {
     return {
       searchphrase: "",
-      selectedEntryKey: -1
+      selectedEntryKey: -1,
     };
   },
 
@@ -52,12 +56,11 @@ export default Vue.extend({
       if (this.searchphrase.length === 0) {
         return this.$store.state.tasks;
       }
-      const fuse = new Fuse(this.$store.state.tasks, {
+      const fuse = new Fuse<Task>(this.$store.state.tasks, {
         keys: ["name", "project.name", "project.customer.name"],
+        fieldNormWeight: 0,
       });
-      const result = (fuse.search(this.searchphrase) as unknown) as {
-        item: Task;
-      }[];
+      const result = fuse.search(this.searchphrase);
       return result.map((x: { item: Task }) => x.item);
     },
 
@@ -84,7 +87,7 @@ export default Vue.extend({
       } else {
         this.selectedEntryKey = id;
       }
-    }
+    },
   },
 });
 </script>
