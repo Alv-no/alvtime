@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Overtime;
 using AlvTime.Business.TimeEntries;
 
@@ -7,13 +8,13 @@ namespace AlvTime.Business.TimeRegistration
 {
     public interface ITimeRegistrationStorage
     {
-        IEnumerable<TimeEntryResponseDto> GetTimeEntries(TimeEntryQuerySearch criterias);
-        IEnumerable<TimeEntryWithCompRateDto> GetTimeEntriesWithCompensationRate(TimeEntryQuerySearch criterias);
-        TimeEntryResponseDto GetTimeEntry(TimeEntryQuerySearch criterias);
+        IEnumerable<TimeEntryResponseDto> GetTimeEntries(TimeEntryQuerySearch criteria);
+        IEnumerable<TimeEntryWithCompRateDto> GetTimeEntriesWithCompensationRate(TimeEntryQuerySearch criteria);
+        TimeEntryResponseDto GetTimeEntry(TimeEntryQuerySearch criteria);
         TimeEntryResponseDto CreateTimeEntry(CreateTimeEntryDto timeEntry, int userId);
         TimeEntryResponseDto UpdateTimeEntry(CreateTimeEntryDto timeEntry, int userId);
-        IEnumerable<DateEntry> GetDateEntries(TimeEntryQuerySearch criterias);
-        List<EarnedOvertimeDto> GetEarnedOvertime(OvertimeQueryFilter criterias);
+        IEnumerable<DateEntry> GetDateEntries(TimeEntryQuerySearch criteria);
+        List<EarnedOvertimeDto> GetEarnedOvertime(OvertimeQueryFilter criteria);
         void StoreOvertime(List<OvertimeEntry> overtimeEntries, int userId);
         void DeleteOvertimeOnDate(DateTime date, int userId);
     }

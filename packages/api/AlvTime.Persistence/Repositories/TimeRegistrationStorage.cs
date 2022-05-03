@@ -1,11 +1,12 @@
 ﻿using System;
-using AlvTime.Business.TimeEntries;
-using AlvTime.Persistence.DataBaseModels;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Overtime;
+using AlvTime.Business.TimeEntries;
 using AlvTime.Business.TimeRegistration;
+using AlvTime.Persistence.DataBaseModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace AlvTime.Persistence.Repositories
 {
@@ -18,9 +19,9 @@ namespace AlvTime.Persistence.Repositories
             _context = context;
         }
 
-        public IEnumerable<TimeEntryWithCompRateDto> GetTimeEntriesWithCompensationRate(TimeEntryQuerySearch criterias)
+        public IEnumerable<TimeEntryWithCompRateDto> GetTimeEntriesWithCompensationRate(TimeEntryQuerySearch criteria)
         {
-            var timeEntries = GetTimeEntries(criterias);
+            var timeEntries = GetTimeEntries(criteria);
             var compensationRates = _context.CompensationRate.ToList();
             var timeEntriesWithCompensationRate =
                 timeEntries.GroupJoin(compensationRates, timeEntry => timeEntry.TaskId, rate => rate.TaskId,
@@ -38,10 +39,10 @@ namespace AlvTime.Persistence.Repositories
             return timeEntriesWithCompensationRate;
         }
 
-        public IEnumerable<TimeEntryResponseDto> GetTimeEntries(TimeEntryQuerySearch criterias)
+        public IEnumerable<TimeEntryResponseDto> GetTimeEntries(TimeEntryQuerySearch criteria)
         {
             var hours = _context.Hours.AsQueryable()
-                .Filter(criterias)
+                .Filter(criteria)
                 .Select(x => new TimeEntryResponseDto
                 {
                     Id = x.Id,
@@ -60,12 +61,12 @@ namespace AlvTime.Persistence.Repositories
             return hours;
         }
 
-        public IEnumerable<DateEntry> GetDateEntries(TimeEntryQuerySearch criterias)
+        public IEnumerable<DateEntry> GetDateEntries(TimeEntryQuerySearch criteria)
         {
             var hours = _context.Hours
                 .Include(h => h.Task)
                 .AsQueryable()
-                .Filter(criterias)
+                .Filter(criteria)
                 .ToList();
 
             var compensationRates = _context.CompensationRate.OrderByDescending(cr => cr.FromDate);
@@ -85,10 +86,10 @@ namespace AlvTime.Persistence.Repositories
                 });
         }
 
-        public TimeEntryResponseDto GetTimeEntry(TimeEntryQuerySearch criterias)
+        public TimeEntryResponseDto GetTimeEntry(TimeEntryQuerySearch criteria)
         {
             var timeEntry = _context.Hours.AsQueryable()
-                .Filter(criterias)
+                .Filter(criteria)
                 .Select(x => new TimeEntryResponseDto
                 {
                     Id = x.Id,
@@ -112,8 +113,8 @@ namespace AlvTime.Persistence.Repositories
                     Date = timeEntry.Date.Date,
                     TaskId = timeEntry.TaskId,
                     User = userId,
-                    Year = (short)timeEntry.Date.Year,
-                    DayNumber = (short)timeEntry.Date.DayOfYear,
+                    Year = (short) timeEntry.Date.Year,
+                    DayNumber = (short) timeEntry.Date.DayOfYear,
                     Value = timeEntry.Value
                 };
                 _context.Hours.Add(hour);
@@ -168,10 +169,10 @@ namespace AlvTime.Persistence.Repositories
             throw new Exception("Kan ikke oppdatere registrering. Oppgaven eller timen er låst.");
         }
 
-        public List<EarnedOvertimeDto> GetEarnedOvertime(OvertimeQueryFilter criterias)
+        public List<EarnedOvertimeDto> GetEarnedOvertime(OvertimeQueryFilter criteria)
         {
             var overtimeEntries = _context.EarnedOvertime.AsQueryable()
-                .Filter(criterias)
+                .Filter(criteria)
                 .Select(entry => new EarnedOvertimeDto
                 {
                     Date = entry.Date,
@@ -195,7 +196,7 @@ namespace AlvTime.Persistence.Repositories
             _context.SaveChanges();
         }
 
-        public virtual void DeleteOvertimeOnDate(DateTime date, int userId)
+        public void DeleteOvertimeOnDate(DateTime date, int userId)
         {
             var earnedOvertimeOnDate =
                 _context.EarnedOvertime.Where(ot => ot.Date.Date == date.Date && ot.UserId == userId);

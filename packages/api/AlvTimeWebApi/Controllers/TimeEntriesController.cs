@@ -90,7 +90,7 @@ namespace AlvTimeWebApi.Controllers
         
         [HttpGet("FlexedHours")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
-        public ActionResult<FlexedHoursDto> FetchFlexedHours()
+        public ActionResult<TimeEntriesResponse> FetchFlexedHours()
         {
             var flexedEntries = _timeRegistrationService.GetTimeEntries(new TimeEntryQuerySearch
             {

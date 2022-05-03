@@ -1,4 +1,6 @@
-﻿public class Entry
+﻿namespace AlvTime.Business.FlexiHours;
+
+public class Entry
 {
     public decimal Value { get; set; }
 
