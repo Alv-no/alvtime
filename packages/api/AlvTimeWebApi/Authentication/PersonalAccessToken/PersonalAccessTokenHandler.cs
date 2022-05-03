@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using AlvTime.Business.Models;
 using AlvTime.Business.Users;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace AlvTimeWebApi.Authentication.PersonalAccessToken
 {
@@ -26,32 +28,40 @@ namespace AlvTimeWebApi.Authentication.PersonalAccessToken
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            var authorization = Request.Headers["Authorization"]
+            var authorization = Request.Headers.Authorization
                 .ToString()
                 .Split(' ');
 
-            var token = authorization.Last();
+            var token = authorization.LastOrDefault();
 
             if (authorization.First() != "Bearer" || token == null)
             {
-                return AuthenticateResult.Fail("Could not parse token");
+                return AuthenticateResult.Fail(
+                    "Authorization header either doesn't start with \"Bearer\" or the token payload is null");
             }
 
-            var user = await _storage.GetUserFromToken(new Token { Value = token });
+            var user = await _storage.GetUserFromToken(new Token {Value = token});
             if (user == null)
             {
-                return AuthenticateResult.Fail("Invalid token");
+                return AuthenticateResult.Fail("No user could be retrieved from the given token");
             }
 
-            Claim[] claims = CreateClaims(user);
+            if (user.EndDate != null && user.EndDate < DateTime.Now)
+            {
+                return AuthenticateResult.Fail("The user has an end date in the past");
+            }
+
+            var claims = CreateClaims(user);
+
             return AuthenticateResult.Success(CreateTicket(claims));
         }
 
-        private static AuthenticationTicket CreateTicket(Claim[] claims)
-            => new AuthenticationTicket(new ClaimsPrincipal(new ClaimsIdentity(claims, "PersonalAccessToken")), "PersonalAccessTokenScheme");
+        private static AuthenticationTicket CreateTicket(IEnumerable<Claim> claims)
+            => new AuthenticationTicket(new ClaimsPrincipal(new ClaimsIdentity(claims, "PersonalAccessToken")),
+                "PersonalAccessTokenScheme");
 
-        private static Claim[] CreateClaims(User user)
-            => new Claim[]
+        private static IEnumerable<Claim> CreateClaims(User user)
+            => new[]
             {
                 new Claim("preferred_username", user.Email),
                 new Claim("name", user.Name)

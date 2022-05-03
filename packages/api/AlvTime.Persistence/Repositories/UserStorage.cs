@@ -84,7 +84,8 @@ namespace AlvTime.Persistence.Repositories
                 {
                     Id = databaseUser.Id,
                     Email = databaseUser.Email,
-                    Name = databaseUser.Name
+                    Name = databaseUser.Name,
+                    EndDate = databaseUser.EndDate
                 };
             }
 
