@@ -196,7 +196,7 @@ namespace AlvTime.Persistence.Repositories
             _context.SaveChanges();
         }
 
-        public void DeleteOvertimeOnDate(DateTime date, int userId)
+        public virtual void DeleteOvertimeOnDate(DateTime date, int userId)
         {
             var earnedOvertimeOnDate =
                 _context.EarnedOvertime.Where(ot => ot.Date.Date == date.Date && ot.UserId == userId);
