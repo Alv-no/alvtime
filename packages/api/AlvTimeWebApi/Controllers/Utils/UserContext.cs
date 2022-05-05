@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Claims;
 using AlvTime.Business.Interfaces;
+using AlvTime.Business.Models;
 using AlvTime.Business.Users;
-using AlvTime.Persistence.DataBaseModels;
 using Microsoft.AspNetCore.Http;
-using User = AlvTime.Business.Models.User;
 
 namespace AlvTimeWebApi.Controllers.Utils
 {
@@ -19,10 +19,9 @@ namespace AlvTimeWebApi.Controllers.Utils
             _userStorage = userStorage;
         }
 
-        private string Name => _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "name").Value;
+        private string Name => _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
 
-        private string Email => _httpContextAccessor.HttpContext.User.Claims
-            .FirstOrDefault(x => x.Type == "preferred_username").Value;
+        private string Email => _httpContextAccessor.HttpContext.User.FindFirstValue("preferred_username");
 
         public User GetCurrentUser()
         {

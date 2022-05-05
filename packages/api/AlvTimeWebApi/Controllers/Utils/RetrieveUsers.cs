@@ -2,6 +2,7 @@
 using AlvTime.Persistence.DataBaseModels;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
+using System.Security.Claims;
 using AlvTimeWebApi.Exceptions;
 
 namespace AlvTimeWebApi.Controllers.Utils
@@ -19,8 +20,7 @@ namespace AlvTimeWebApi.Controllers.Utils
 
         public User RetrieveUser()
         {
-            var email = _httpContextAccessor.HttpContext?.User.Claims
-                .FirstOrDefault(claim => claim.Type == "preferred_username")?.Value;
+            var email = _httpContextAccessor.HttpContext?.User.FindFirstValue("preferred_username");
             var alvUser = _database.User.FirstOrDefault(user => user.Email.ToLower().Equals(email.ToLower()));
 
             if (alvUser?.EndDate != null && alvUser.EndDate <= DateTime.Now)
