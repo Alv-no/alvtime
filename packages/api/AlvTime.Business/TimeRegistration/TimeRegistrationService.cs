@@ -261,8 +261,8 @@ namespace AlvTime.Business.TimeRegistration
                 CompensationRate = eo.CompensationRate
             }));
 
-            CompensateForFlexedHours(overtimeEntries, toDateInclusive);
             CompensateForPayouts(overtimeEntries, toDateInclusive);
+            CompensateForFlexedHours(overtimeEntries, toDateInclusive);
 
             var availableBeforeCompRate = overtimeEntries.Sum(e => e.Hours);
             var availableAfterCompRate = overtimeEntries.Sum(e => e.Hours * e.CompensationRate);
