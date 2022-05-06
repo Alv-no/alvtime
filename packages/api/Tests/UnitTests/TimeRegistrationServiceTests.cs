@@ -142,7 +142,7 @@ namespace Tests.UnitTests
             var currentDay = DateTime.Now.Day;
             var timeRegistrationService = CreateTimeRegistrationService();
             var overtimeEntry =
-                CreateTimeEntryWithCompensationRate(new DateTime(currentYear, currentMonth, currentDay), 12M, 1.5M, out int taskId1);
+                CreateTimeEntryWithCompensationRate(new DateTime(currentYear, currentMonth, currentDay), 12M, 1.5M, out _);
             timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 { new() { Date = overtimeEntry.Date, Value = overtimeEntry.Value, TaskId = overtimeEntry.TaskId } });
 
