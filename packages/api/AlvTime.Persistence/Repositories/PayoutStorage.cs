@@ -58,7 +58,7 @@ namespace AlvTime.Persistence.Repositories
                 response.Add(new PayoutDto
                 {
                     Id = paidOvertime.Id,
-                    UserId = paidOvertime.Id,
+                    UserId = paidOvertime.User,
                     Date = paidOvertime.Date,
                     HoursBeforeCompensation = paidOvertime.HoursBeforeCompRate,
                     HoursAfterCompensation = paidOvertime.HoursAfterCompRate
