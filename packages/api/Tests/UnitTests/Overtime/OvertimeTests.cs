@@ -847,6 +847,68 @@ namespace Tests.UnitTests.Overtime
             var flexOvertimeEntry = overtime.Entries.First(e => e.Hours == -7.5M);
             Assert.Equal(1.0M, flexOvertimeEntry.CompensationRate);
         }
+        
+        [Fact]
+        public void GetOvertime_RegisterFlexAndPayoutWithIncorrectCompRates_HistoricalBugDoesNotAffectNewCalculations()
+        {
+            var timeRegistrationService = CreateTimeRegistrationService();
+            var timeEntry1 =
+                CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 03), 17.5M, 1.5M, out int _); //Monday
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
+            var timeEntry2 =
+                CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 04), 17.5M, 1.0M, out int _); //Tuesday
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                { new() { Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId } });
+            var timeEntry3 =
+                CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 05), 17.5M, 0.5M, out int _); //Wednesday
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                { new() { Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId } });
+
+            var payoutService = CreatePayoutService(timeRegistrationService);
+            payoutService.RegisterPayout(new GenericHourEntry
+            {
+                Date = new DateTime(2022, 01, 06), //Thursday
+                Hours = 10
+            });
+
+            var flexEntry =
+                CreateTimeEntryForExistingTask(new DateTime(2022, 01, 07), 7.5M, 18); //Friday
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                { new() { Date = flexEntry.Date, Value = flexEntry.Value, TaskId = flexEntry.TaskId } });
+
+            _context.PaidOvertime.Add(new PaidOvertime
+            {
+                HoursBeforeCompRate = 2.5M,
+                HoursAfterCompRate = 2.5M,
+                CompensationRate = 1.0M,
+                User = 1,
+                Date = new DateTime(2022, 01, 08)
+            });
+            _context.PaidOvertime.Add(new PaidOvertime
+            {
+                HoursBeforeCompRate = 10M,
+                HoursAfterCompRate = 15M,
+                CompensationRate = 1.5M,
+                User = 1,
+                Date = new DateTime(2022, 01, 08)
+            });
+            _context.SaveChanges();
+            
+            var timeEntry4 =
+                CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 10), 8.5M, 0.5M, out int _); //Monday
+            timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                { new() { Date = timeEntry4.Date, Value = timeEntry4.Value, TaskId = timeEntry4.TaskId } });
+            
+            payoutService.RegisterPayout(new GenericHourEntry
+            {
+                Date = new DateTime(2022, 01, 11), //Tuesday
+                Hours = 1
+            });
+            
+            var overtime = timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2022, 01, 12));
+            Assert.Equal(0.0M, overtime.AvailableHoursBeforeCompensation);
+        }
 
         private TimeRegistrationService CreateTimeRegistrationService()
         {
