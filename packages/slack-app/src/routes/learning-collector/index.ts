@@ -93,12 +93,14 @@ boltApp.action(
   }
 );
 
-function sanitizeDescription(description: string) {
+function sanitizeDescription(description?: string | null) {
+  if (!description) return "";
   return description.replace("*", "").replace("\n", " ");
 }
 
-function sanitizeLocationOfDetails(description: string) {
-  return description.replace("*", "");
+function sanitizeLocationOfDetails(locationOfDetails?: string | null) {
+  if (!locationOfDetails) return "";
+  return locationOfDetails.replace("*", "");
 }
 
 function parseViewStateValues(values: {
