@@ -1,7 +1,7 @@
 ﻿using System;
 using AlvTime.Business.Options;
 using AlvTime.Business.Users;
-using AlvTime.Persistence.DataBaseModels;
+using AlvTime.Persistence.DatabaseModels;
 using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

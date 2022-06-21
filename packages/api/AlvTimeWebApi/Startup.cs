@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using AlvTime.Business.Options;
-using AlvTime.Persistence.DataBaseModels;
+using AlvTime.Persistence.DatabaseModels;
 using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.Cors;

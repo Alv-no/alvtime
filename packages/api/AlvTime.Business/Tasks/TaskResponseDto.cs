@@ -10,6 +10,7 @@ namespace AlvTime.Business.Tasks
         public bool Favorite { get; set; }
         public bool Locked { get; set; }
         public decimal CompensationRate { get; set; }
+        public bool Imposed { get; set; }
 
         public ProjectResponseDto Project { get; set; }
     }

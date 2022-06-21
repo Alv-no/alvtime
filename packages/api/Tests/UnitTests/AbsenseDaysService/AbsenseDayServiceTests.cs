@@ -1,7 +1,7 @@
 using System;
 using AlvTime.Business.Options;
 using AlvTime.Business.TimeEntries;
-using AlvTime.Persistence.DataBaseModels;
+using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;
 using Microsoft.Extensions.Options;
 using Moq;

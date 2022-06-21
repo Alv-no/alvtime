@@ -1,14 +1,12 @@
-﻿using AlvTime.Business.CompensationRate;
-using AlvTime.Business.Customers;
+﻿using AlvTime.Business.Customers;
 using AlvTime.Business.HourRates;
 using AlvTime.Business.Projects;
 using AlvTime.Business.Tasks;
-using AlvTime.Persistence.DataBaseModels;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using AlvTime.Persistence.DatabaseModels;
 
 namespace AlvTime.Persistence.Repositories
 {

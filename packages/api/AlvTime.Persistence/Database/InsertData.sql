@@ -38,24 +38,26 @@ values
 
 insert into [dbo].[Task]
 values
-('Testleder', '', 2, 0, 0),
-('Funksjonell arkitekt', '', 2, 0, 0),
-('Teamleder', '', 6, 0, 0),
-('Prosjektstotte', '', 6, 0, 0),
-('Testleder', '', 3, 0, 0),
-('Testradgiver', '', 3, 0, 0),
-('Cost controller', '',	8, 0, 0),
-('Utvikler', '', 7, 0, 0),
-('Seniorutvikler', '', 1, 0, 0),
-('Juniorutvikler', '', 1, 0, 0),
-('Sikkerhetstester', '', 2, 0, 0),
-('Interntid' ,'', 8, 0, 0),
-('Ferie', '', 8, 0, 0),
-('Syk', '',	8, 0, 0),
-('Sykt barn', '', 8, 0, 0),
-('Youtube serie', '', 8, 0, 0),
-('AlvTimeUtvikling', '', 8, 0, 0),
-('Avspasering', '', 8, 0, 0)
+('Testleder', '', 2, 0, 0, 0),
+('Pålagt overtid', '', 2, 0, 0, 1),
+('Funksjonell arkitekt', '', 2, 0, 0, 0),
+('Teamleder', '', 6, 0, 0, 0),
+('Prosjektstotte', '', 6, 0, 0, 0),
+('Testleder', '', 3, 0, 0, 0),
+('Testradgiver', '', 3, 0, 0, 0),
+('Cost controller', '',	8, 0, 0, 0),
+('Utvikler', '', 7, 0, 0, 0),
+('Seniorutvikler', '', 1, 0, 0, 0),
+('Juniorutvikler', '', 1, 0, 0, 0),
+('Sikkerhetstester', '', 2, 0, 0, 0),
+('Interntid' ,'', 8, 0, 0, 0),
+('Ferie', '', 8, 0, 0, 0),
+('Syk', '',	8, 0, 0, 0),
+('Sykt barn', '', 8, 0, 0, 0),
+('Youtube serie', '', 8, 0, 0, 0),
+('AlvTimeUtvikling', '', 8, 0, 0, 0),
+('Avspasering', '', 8, 0, 0, 0)
+
 
 insert into [dbo].[TaskFavorites]
 select id as UserId, 1 as TaskId
@@ -132,7 +134,7 @@ values
 insert into [dbo].[CompensationRate]
 values
 ('2019-01-01', 1.5, 1),
-('2019-02-01', 1.5, 2),
+('2019-02-01', 2.0, 2),
 ('2019-03-01', 1.5, 3),
 ('2019-04-01', 1.5, 4),
 ('2019-04-01', 1.5, 5),
@@ -142,13 +144,14 @@ values
 ('2019-04-01', 1.5, 9),
 ('2019-04-01', 1.5, 10),
 ('2019-04-01', 1.5, 11),
-('2019-04-01', 1.0, 12),
+('2019-04-01', 1.5, 12),
 ('2019-04-01', 1.0, 13),
 ('2019-04-01', 1.0, 14),
 ('2019-04-01', 1.0, 15),
 ('2019-04-01', 1.0, 16),
-('2019-04-01', 0.5, 17),
-('2019-04-01', 1.0, 18)
+('2019-04-01', 1.0, 17),
+('2019-04-01', 1.0, 18),
+('2019-04-01', 1.0, 19)
 
 insert into [dbo].[PaidOvertime]
 values

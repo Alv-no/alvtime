@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Payouts;
-using AlvTime.Persistence.DataBaseModels;
-using FluentValidation;
+using AlvTime.Persistence.DatabaseModels;
 
 namespace AlvTime.Persistence.Repositories
 {

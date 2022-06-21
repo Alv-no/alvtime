@@ -31,6 +31,7 @@ CREATE TABLE [dbo].[Task](
 	[Project] [int] NOT NULL,
 	[Locked] [bit] NOT NULL,
 	[Favorite] [bit] NOT NULL,
+	[Imposed] [bit] NOT NULL
 PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC

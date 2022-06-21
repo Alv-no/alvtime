@@ -1,8 +1,8 @@
-﻿using AlvTime.Persistence.DataBaseModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using AlvTime.Business.AccessTokens;
+using AlvTime.Persistence.DatabaseModels;
 using User = AlvTime.Business.Models.User;
 
 namespace AlvTime.Persistence.Repositories

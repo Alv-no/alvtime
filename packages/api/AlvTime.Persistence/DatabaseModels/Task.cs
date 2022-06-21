@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
-namespace AlvTime.Persistence.DataBaseModels
+namespace AlvTime.Persistence.DatabaseModels
 {
     public partial class Task
     {
@@ -22,6 +20,7 @@ namespace AlvTime.Persistence.DataBaseModels
         public int Project { get; set; }
         public bool Locked { get; set; }
         public bool Favorite { get; set; }
+        public bool Imposed { get; set; }
 
         public virtual Project ProjectNavigation { get; set; }
         public virtual ICollection<AssociatedTasks> AssociatedTasks { get; set; }

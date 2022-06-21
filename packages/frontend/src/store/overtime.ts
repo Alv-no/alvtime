@@ -128,18 +128,24 @@ const getters = {
           category.key = "internal";
           category.colorValue = "#E8B925";
           category.name = "Frivillig";
-          category.priority = 3;
+          category.priority = 4;
           break;
         case "1":
           category.key = "internal";
           category.colorValue = "#1D92CE";
           category.name = "Interntid";
-          category.priority = 2;
+          category.priority = 3;
           break;
         case "1.5":
           category.key = "billable";
           category.colorValue = "#00B050";
           category.name = "Fakturerbar";
+          category.priority = 2;
+          break;
+        case "2":
+          category.key = "imposed";
+          category.colorValue = "#b04300";
+          category.name = "Pålagt";
           category.priority = 1;
           break;
         default:

@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
-namespace AlvTime.Persistence.DataBaseModels
+namespace AlvTime.Persistence.DatabaseModels
 {
-    public partial class TaskFavorites
+    public partial class CompensationRate
     {
         public int Id { get; set; }
-        public int UserId { get; set; }
+        public DateTime FromDate { get; set; }
+        public decimal Value { get; set; }
         public int TaskId { get; set; }
 
         public virtual Task Task { get; set; }
-        public virtual User User { get; set; }
     }
 }

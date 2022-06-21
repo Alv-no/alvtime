@@ -2,11 +2,11 @@
 using AlvTime.Business.Projects;
 using AlvTime.Business.Tasks;
 using AlvTime.Business.Tasks.Admin;
-using AlvTime.Persistence.DataBaseModels;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AlvTime.Persistence.DatabaseModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace AlvTime.Persistence.Repositories
 {
@@ -32,6 +32,7 @@ namespace AlvTime.Persistence.Repositories
                     Locked = x.Locked,
                     Favorite = false,
                     CompensationRate = EnsureCompensationRate(x.CompensationRate),
+                    Imposed = x.Imposed,
                     Project = new ProjectResponseDto
                     {
                         Id = x.ProjectNavigation.Id,
@@ -81,9 +82,9 @@ namespace AlvTime.Persistence.Repositories
                 Project = task.Project,
                 CompensationRate = new List<CompensationRate>
                 {
-                    new CompensationRate
+                    new()
                     {
-                        FromDate = DateTime.Now,
+                        FromDate = new DateTime(DateTime.Now.Year, 1, 1),
                         Value = task.CompensationRate,
                     }
                 }

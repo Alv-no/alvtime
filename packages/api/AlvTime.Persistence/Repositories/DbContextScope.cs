@@ -1,6 +1,6 @@
 ﻿using System;
 using AlvTime.Business.Interfaces;
-using AlvTime.Persistence.DataBaseModels;
+using AlvTime.Persistence.DatabaseModels;
 
 namespace AlvTime.Persistence.Repositories
 {
