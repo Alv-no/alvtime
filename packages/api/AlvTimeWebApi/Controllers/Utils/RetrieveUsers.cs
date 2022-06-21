@@ -1,5 +1,5 @@
 ﻿using System;
-using AlvTime.Persistence.DataBaseModels;
+using AlvTime.Persistence.DatabaseModels;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
 using System.Security.Claims;

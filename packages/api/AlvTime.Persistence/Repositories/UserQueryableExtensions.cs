@@ -1,7 +1,6 @@
-﻿using System;
-using AlvTime.Business.Users;
-using AlvTime.Persistence.DataBaseModels;
+﻿using AlvTime.Business.Users;
 using System.Linq;
+using AlvTime.Persistence.DatabaseModels;
 
 namespace AlvTime.Persistence.Repositories
 {

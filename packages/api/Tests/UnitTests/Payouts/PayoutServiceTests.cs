@@ -8,7 +8,7 @@ using AlvTime.Business.Payouts;
 using AlvTime.Business.TimeEntries;
 using AlvTime.Business.TimeRegistration;
 using AlvTime.Business.Utils;
-using AlvTime.Persistence.DataBaseModels;
+using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;
 using FluentValidation;
 using Microsoft.Extensions.Options;

@@ -2,12 +2,9 @@
 using AlvTime.Persistence.Repositories;
 using System;
 using System.Linq;
-using AlvTime.Business.Interfaces;
 using AlvTime.Business.Options;
-using AlvTime.Business.Overtime;
 using AlvTime.Business.TimeRegistration;
-using AlvTime.Business.Utils;
-using AlvTime.Persistence.DataBaseModels;
+using AlvTime.Persistence.DatabaseModels;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;

@@ -1,7 +1,6 @@
-﻿using AlvTime.Business.TimeEntries;
-using AlvTime.Persistence.DataBaseModels;
-using System.Linq;
+﻿using System.Linq;
 using AlvTime.Business.TimeRegistration;
+using AlvTime.Persistence.DatabaseModels;
 
 namespace AlvTime.Persistence.Repositories
 {

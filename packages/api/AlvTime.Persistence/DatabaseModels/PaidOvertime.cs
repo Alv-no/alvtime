@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
-namespace AlvTime.Persistence.DataBaseModels
+namespace AlvTime.Persistence.DatabaseModels
 {
     public partial class PaidOvertime
     {

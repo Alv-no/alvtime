@@ -1,8 +1,8 @@
 ﻿using AlvTime.Business.Economy;
-using AlvTime.Persistence.DataBaseModels;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using AlvTime.Persistence.DatabaseModels;
 
 namespace AlvTime.Persistence.Repositories
 {

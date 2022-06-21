@@ -4,7 +4,7 @@ using AlvTime.Business.Tasks.Admin;
 using AlvTime.Persistence.Repositories;
 using System.Linq;
 using AlvTime.Business.Interfaces;
-using AlvTime.Persistence.DataBaseModels;
+using AlvTime.Persistence.DatabaseModels;
 using Moq;
 using Xunit;
 using User = AlvTime.Business.Models.User;

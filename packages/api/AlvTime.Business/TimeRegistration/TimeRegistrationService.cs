@@ -365,7 +365,14 @@ namespace AlvTime.Business.TimeRegistration
 
             var normalWorkHoursLeft = anticipatedWorkHours;
             var overtimeEntries = new List<OvertimeEntry>();
-            foreach (var timeEntry in timeEntriesOnDay.OrderByDescending(entry => entry.CompensationRate))
+
+            var orderedTimeEntries = timeEntriesOnDay.Where(te => !_taskUtils.TaskIsImposed(te.TaskId))
+                .OrderByDescending(entry => entry.CompensationRate).ToList();
+            var imposedTimeEntries = timeEntriesOnDay.Where(te => _taskUtils.TaskIsImposed(te.TaskId)).ToList();
+            
+            orderedTimeEntries.AddRange(imposedTimeEntries); //Imposed overtime should always be calculated last
+            
+            foreach (var timeEntry in orderedTimeEntries)
             {
                 if (anticipatedWorkHours == 0 &&
                     !_taskUtils.TaskGivesOvertime(timeEntry.TaskId)) //Guard against absence overtime on red day

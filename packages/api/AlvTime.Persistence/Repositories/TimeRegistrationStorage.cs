@@ -5,6 +5,7 @@ using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Overtime;
 using AlvTime.Business.TimeEntries;
 using AlvTime.Business.TimeRegistration;
+using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.DataBaseModels;
 using Microsoft.EntityFrameworkCore;
 
