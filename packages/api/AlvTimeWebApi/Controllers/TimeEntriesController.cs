@@ -140,7 +140,7 @@ public class TimeEntriesController : Controller
     }
 
     [HttpPut("retrigger")]
-    // [AuthorizeAdmin]
+    [AuthorizeAdmin]
     public void RetriggerTimeEntriesOnDay([FromQuery] DateTime date, [FromQuery] int userId)
     {
         _timeRegistrationService.RetriggerDate(date, userId);
