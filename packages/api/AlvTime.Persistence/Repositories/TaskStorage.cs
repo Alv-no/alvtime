@@ -84,7 +84,7 @@ namespace AlvTime.Persistence.Repositories
                 {
                     new()
                     {
-                        FromDate = new DateTime(DateTime.Now.Year, 1, 1),
+                        FromDate = new DateTime(1990, 1, 1),
                         Value = task.CompensationRate,
                     }
                 }
