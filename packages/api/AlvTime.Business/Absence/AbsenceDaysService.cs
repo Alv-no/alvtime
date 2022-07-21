@@ -174,6 +174,7 @@ public class AbsenceDaysService : IAbsenceDaysService
                 !allRedDays.Contains(entry.Date.ToShortDateString()))
             .ToList();
 
+        var usedVacationThisYear = usedVacation.Where(uv => uv.Date.Year == DateTime.Now.Year);
         var allSpentVacation = plannedVacation.Concat(usedVacation);
         var spentVacationByYear = allSpentVacation.GroupBy(u => u.Date.Year).ToList();
         
@@ -195,7 +196,7 @@ public class AbsenceDaysService : IAbsenceDaysService
         return new VacationDaysDTO
         {
             PlannedVacationDays = plannedVacation.Count,
-            UsedVacationDays = usedVacation.Count,
+            UsedVacationDays = usedVacationThisYear.Count(),
             AvailableVacationDays = usersAvailableVacationDays,
             PlannedTransactions = plannedVacation,
             UsedTransactions = usedVacation
