@@ -1,5 +1,5 @@
 ﻿using AlvTime.Business;
-using AlvTime.Business.AbsenseDays;
+using AlvTime.Business.Absence;
 using AlvTime.Business.AccessTokens;
 using AlvTime.Business.AssociatedTask;
 using AlvTime.Business.CompensationRate;
@@ -43,7 +43,7 @@ namespace AlvTimeWebApi
             services.AddScoped<IAssociatedTaskStorage, AssociatedTaskStorage>();
             services.AddScoped<ICompensationRateStorage, CompensationRateStorage>();
             services.AddScoped<IRedDaysService, RedDaysService>();
-            services.AddScoped<IAbsenseDaysService, AbsenseDaysService>();
+            services.AddScoped<IAbsenceDaysService, AbsenceDaysService>();
             services.AddScoped<AccessTokenService>();
             services.AddScoped<IUserContext, UserContext>();
             services.AddScoped<IPayoutStorage, PayoutStorage>();
