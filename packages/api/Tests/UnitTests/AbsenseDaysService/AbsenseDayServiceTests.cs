@@ -183,7 +183,7 @@ public class AbsenceDayStorageTests
         var holidayOverview = absenseService.GetAllTimeVacationOverview(2022);
 
         Assert.Equal(30, holidayOverview.AvailableVacationDays);
-        Assert.Equal(0, holidayOverview.UsedVacationDays);
+        Assert.Equal(0, holidayOverview.UsedVacationDaysThisYear);
     }
     
     [Fact]
@@ -231,7 +231,7 @@ public class AbsenceDayStorageTests
         var holidayOverview = absenseService.GetAllTimeVacationOverview(DateTime.Now.Year);
 
         Assert.Equal(50, holidayOverview.AvailableVacationDays);
-        Assert.Equal(0, holidayOverview.UsedVacationDays);
+        Assert.Equal(0, holidayOverview.UsedVacationDaysThisYear);
     }
     
     [Fact]
