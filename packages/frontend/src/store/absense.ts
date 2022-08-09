@@ -5,8 +5,8 @@ import httpClient from "../services/httpClient";
 
 interface VacationOverview {
   availableVacationDays: number;
-  plannedVacationDays: number;
-  usedVacationDays: number;
+  plannedVacationDaysThisYear: number;
+  usedVacationDaysThisYear: number;
 }
 
 interface AbsenseOverview {
@@ -25,8 +25,8 @@ export interface AbsenseStateModel {
 
 const initState: AbsenseStateModel = {
   vacationOverview: {
-    usedVacationDays: 0,
-    plannedVacationDays: 0,
+    usedVacationDaysThisYear: 0,
+    plannedVacationDaysThisYear: 0,
     availableVacationDays: 0,
   },
   absenseOverview: {
@@ -43,15 +43,15 @@ const getters = {
   getAbsenseOverview: (state: State) => {
     return [
       {
-        name: "Planlagt",
+        name: "Planlagt i år",
         colorValue: "#00B050",
-        value: state.absenseState.vacationOverview.plannedVacationDays,
+        value: state.absenseState.vacationOverview.plannedVacationDaysThisYear,
         priority: 2,
       },
       {
-        name: "Brukt",
+        name: "Brukt i år",
         colorValue: "#E8B925",
-        value: state.absenseState.vacationOverview.usedVacationDays,
+        value: state.absenseState.vacationOverview.usedVacationDaysThisYear,
         priority: 1,
       },
       {
