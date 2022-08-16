@@ -4,7 +4,11 @@
       <div class="availablehours">
         <div class="absense available-flex">
           <h2>Feriedager</h2>
-          <OvertimeVisualizer :bar-data="holidayData"></OvertimeVisualizer>
+          <NoHolidayData v-if="emptyHolidayData"></NoHolidayData>
+          <OvertimeVisualizer
+            v-else
+            :bar-data="holidayData"
+          ></OvertimeVisualizer>
         </div>
         <div class="available available-flex">
           <h2>Overtidstimer</h2>
@@ -201,6 +205,7 @@ import { State } from "../store/index";
 import CenterColumnWrapper from "./CenterColumnWrapper.vue";
 import OvertimeVisualizer from "./OvertimeVisualizer.vue";
 import { MappedOvertimeTransaction } from "../store/overtime";
+import NoHolidayData from "./NoHolidayData.vue";
 
 interface ValidationRule {
   errorMessage: string;
@@ -251,6 +256,7 @@ export default Vue.extend({
     Input,
     CenterColumnWrapper,
     OvertimeVisualizer,
+    NoHolidayData,
   },
   data() {
     return {
@@ -265,6 +271,9 @@ export default Vue.extend({
     };
   },
   computed: {
+    emptyHolidayData(): boolean {
+      return this.holidayData.every(item => item["value"] === 0);
+    },
     overtime(): number {
       return this.$store.getters.getAvailableHours;
     },
