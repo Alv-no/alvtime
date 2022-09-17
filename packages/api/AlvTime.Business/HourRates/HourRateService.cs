@@ -5,11 +5,11 @@ using System.Text;
 
 namespace AlvTime.Business.HourRates
 {
-    public class HourRateCreator
+    public class HourRateService
     {
         private readonly IHourRateStorage _storage;
 
-        public HourRateCreator(IHourRateStorage storage)
+        public HourRateService(IHourRateStorage storage)
         {
             _storage = storage;
         }
