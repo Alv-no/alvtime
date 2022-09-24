@@ -25,10 +25,10 @@ namespace AlvTimeWebApi
     {
         public static void AddAlvtimeServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddTransient<IUserStorage, UserStorage>();
+            services.AddTransient<IUserRepository, UserRepository>();
             services.AddHttpContextAccessor();
             services.AddScoped<RetrieveUsers>();
-            services.AddScoped<UserCreator>();
+            services.AddScoped<UserService>();
             services.AddScoped<AlvHoursCalculator>();
             services.AddScoped<ITaskStorage, TaskStorage>();
             services.AddScoped<ITimeRegistrationStorage, TimeRegistrationStorage>();

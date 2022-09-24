@@ -8,7 +8,7 @@ namespace AlvTime.Business.TimeEntries
     {
         public DateTime Date { get; set; }
 
-        [HalfHour]
+        [QuarterHour]
         [Range(0, int.MaxValue, ErrorMessage = "Only positive values allowed")]
         public decimal Value { get; set; }
 

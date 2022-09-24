@@ -1004,6 +1004,44 @@ public class TimeRegistrationServiceTests
         Assert.Equal(0M, overtime.AvailableHoursBeforeCompensation);
         Assert.Equal(2.75M, payout.HoursAfterCompensation);
     }
+    
+    [Fact]
+    public void GetOvertime_UserWorks50Percent_HoursOver3Point75GivesOvertime()
+    {
+        var user = _context.EmploymentRate.Add(new EmploymentRate
+        {
+            UserId = 1,
+            Rate = 0.5M,
+            FromDate = DateTime.Now.AddDays(-7),
+            ToDate = DateTime.Now.AddDays(7)
+        });
+        
+        
+        var timeRegistrationService = CreateTimeRegistrationService();
+        var timeEntry1 =
+            CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 03), 7.0M, 1.5M, out int _); //Monday
+        timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
+        var timeEntry2 =
+            CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 03), 2.0M, 0.5M, out int _); //Monday
+        timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId } });
+        var imposedTimeEntry =
+            CreateImposedOvertimeTimeEntry(new DateTime(2022, 01, 03), 1M); //Monday
+        timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = imposedTimeEntry.Date, Value = imposedTimeEntry.Value, TaskId = imposedTimeEntry.TaskId } });
+        
+        var payoutService = CreatePayoutService(timeRegistrationService);
+        var payout = payoutService.RegisterPayout(new GenericHourEntry
+        {
+            Date = new DateTime(2022, 01, 03), //Thursday
+            Hours = 2.5M
+        });
+
+        var overtime = timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2022, 01, 04));
+        Assert.Equal(0M, overtime.AvailableHoursBeforeCompensation);
+        Assert.Equal(2.75M, payout.HoursAfterCompensation);
+    }
 
     private TimeRegistrationService CreateTimeRegistrationService()
     {

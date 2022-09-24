@@ -11,12 +11,12 @@ namespace AlvTimeWebApi.Controllers.Utils
     public class UserContext : IUserContext
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IUserStorage _userStorage;
+        private readonly IUserRepository _userRepository;
 
-        public UserContext(IHttpContextAccessor httpContextAccessor, IUserStorage userStorage)
+        public UserContext(IHttpContextAccessor httpContextAccessor, IUserRepository userRepository)
         {
             _httpContextAccessor = httpContextAccessor;
-            _userStorage = userStorage;
+            _userRepository = userRepository;
         }
 
         private string Name => _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
@@ -25,7 +25,7 @@ namespace AlvTimeWebApi.Controllers.Utils
 
         public User GetCurrentUser()
         {
-            var dbUser = _userStorage.GetUser(new UserQuerySearch { Email = Email }).First();
+            var dbUser = _userRepository.GetUsers(new UserQuerySearch { Email = Email }).First();
 
             return new User { Id = dbUser.Id, Email = Email, Name = Name, StartDate = DateTime.Parse(dbUser.StartDate) };
         }

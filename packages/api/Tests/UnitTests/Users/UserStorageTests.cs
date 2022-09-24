@@ -1,8 +1,8 @@
-﻿using AlvTime.Business;
-using AlvTime.Business.Users;
+﻿using AlvTime.Business.Users;
 using AlvTime.Persistence.Repositories;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Tests.UnitTests.Users
@@ -14,9 +14,9 @@ namespace Tests.UnitTests.Users
         {
             var context = new AlvTimeDbContextBuilder().CreateDbContext();
 
-            var storage = new UserStorage(context);
+            var storage = new UserRepository(context);
 
-            var users = storage.GetUser(new UserQuerySearch()).ToList();
+            var users = storage.GetUsers(new UserQuerySearch()).ToList();
 
             Assert.Equal(context.User.Count(), users.Count());
         }
@@ -28,8 +28,8 @@ namespace Tests.UnitTests.Users
                 .WithUsers()
                 .CreateDbContext();
 
-            var storage = new UserStorage(context);
-            var users = storage.GetUser(new UserQuerySearch
+            var storage = new UserRepository(context);
+            var users = storage.GetUsers(new UserQuerySearch
             {
                 Email = "someone@alv.no",
             }).ToList();
@@ -44,8 +44,8 @@ namespace Tests.UnitTests.Users
                 .WithUsers()
                 .CreateDbContext();
 
-            var storage = new UserStorage(context);
-            var users = storage.GetUser(new UserQuerySearch
+            var storage = new UserRepository(context);
+            var users = await storage.GetUsers(new UserQuerySearch
             {
                 Name = "Someone"
             }).ToList();
@@ -54,16 +54,16 @@ namespace Tests.UnitTests.Users
         }
 
         [Fact]
-        public void UserCreator_NewUser_NewUserIsCreated()
+        public async Task UserCreator_NewUser_NewUserIsCreated()
         {
             var context = new AlvTimeDbContextBuilder()
                 .WithUsers()
                 .CreateDbContext();
 
-            var storage = new UserStorage(context);
-            var creator = new UserCreator(storage, new AlvHoursCalculator());
+            var storage = new UserRepository(context);
+            var creator = new UserService(storage);
 
-            creator.CreateUser(new CreateUserDto
+            await creator.CreateUser(new UserDto
             {
                 Email = "newUser@alv.no",
                 Name = "New User",
@@ -74,16 +74,16 @@ namespace Tests.UnitTests.Users
         }
 
         [Fact]
-        public void UserCreator_UserAlreadyExists_NoUserIsCreated()
+        public async Task UserCreator_UserAlreadyExists_NoUserIsCreated()
         {
             var context = new AlvTimeDbContextBuilder()
                 .WithUsers()
                 .CreateDbContext();
 
-            var storage = new UserStorage(context);
-            var creator = new UserCreator(storage, new AlvHoursCalculator());
+            var storage = new UserRepository(context);
+            var creator = new UserService(storage);
 
-            creator.CreateUser(new CreateUserDto
+            await creator.CreateUser(new UserDto
             {
                 Email = "someone@alv.no",
                 Name = "Someone",
@@ -100,10 +100,10 @@ namespace Tests.UnitTests.Users
                 .WithUsers()
                 .CreateDbContext();
 
-            var storage = new UserStorage(context);
-            var creator = new UserCreator(storage, new AlvHoursCalculator());
+            var storage = new UserRepository(context);
+            var creator = new UserService(storage);
 
-            creator.UpdateUser(new CreateUserDto
+            creator.UpdateUser(new UserDto
             {
                 Id = 1,
                 Email = "someoneElse@alv.no",

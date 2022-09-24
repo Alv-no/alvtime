@@ -53,7 +53,7 @@ namespace Tests.UnitTests
 
             _userContextMock.Setup(context => context.GetCurrentUser()).Returns(user);
         }
-
+        
         [Fact]
         public void UpsertTimeEntry_FlexBeforeARegisteredPayoutDate_ShouldNotBeAbleToFlex()
         {

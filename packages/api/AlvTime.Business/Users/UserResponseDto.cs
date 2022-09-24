@@ -1,4 +1,6 @@
-﻿namespace AlvTime.Business.Users
+﻿using System.Collections.Generic;
+
+namespace AlvTime.Business.Users
 {
     public class UserResponseDto
     {

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AlvTime.Business.FlexiHours;
 using AlvTime.Business.TimeRegistration;
+using AlvTime.Business.Utils;
 using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Responses;
 
@@ -72,11 +73,6 @@ public class TimeEntriesController : Controller
     [Authorize(Policy = "AllowPersonalAccessToken")]
     public ActionResult<List<TimeEntryResponseDto>> UpsertTimeEntry([FromBody] List<CreateTimeEntryDto> requests)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState.Values);
-        }
-
         return Ok(_timeRegistrationService.UpsertTimeEntry(requests)
             .Select(timeEntry => new
             {

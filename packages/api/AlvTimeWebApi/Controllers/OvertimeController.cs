@@ -4,6 +4,7 @@ using System.Linq;
 using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Overtime;
 using AlvTime.Business.TimeRegistration;
+using AlvTime.Business.Utils;
 using AlvTimeWebApi.Controllers.Utils;
 using AlvTimeWebApi.Responses;
 using Microsoft.AspNetCore.Authorization;

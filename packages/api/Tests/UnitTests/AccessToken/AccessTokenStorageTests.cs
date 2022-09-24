@@ -101,10 +101,10 @@ namespace Tests.UnitTests.AccessToken
                 .WithUsers()
                 .CreateDbContext();
 
-            var storage = new UserStorage(dbContext);
+            var storage = new UserRepository(dbContext);
 
             // This user and the following access token are provided by the WithUsers|WithPATs methods above
-            storage.UpdateUser(new CreateUserDto
+            storage.UpdateUser(new UserDto
             {
                 Id = 1,
                 EndDate = DateTime.Now.AddMonths(-1)
