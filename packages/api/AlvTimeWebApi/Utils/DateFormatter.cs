@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace AlvTime.Business.Utils;
+namespace AlvTimeWebApi.Utils;
 
 public static class DateFormatter
 {

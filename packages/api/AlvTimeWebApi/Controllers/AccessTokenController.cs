@@ -2,11 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AlvTime.Business.AccessTokens;
 using AlvTime.Business.Utils;
 using AlvTimeWebApi.Controllers.Utils;
 using AlvTimeWebApi.Requests;
 using AlvTimeWebApi.Responses;
+using AlvTimeWebApi.Utils;
 
 namespace AlvTimeWebApi.Controllers
 {
@@ -23,20 +25,20 @@ namespace AlvTimeWebApi.Controllers
 
         [HttpPost("AccessToken")]
         [Authorize]
-        public ActionResult<AccessTokenCreatedResponse> CreateLifetimeToken(
+        public async Task<ActionResult<AccessTokenCreatedResponse>> CreateLifetimeToken(
             [FromBody] AccessTokenCreateRequest createRequest)
         {
-            var accessToken = _tokenService.CreateLifeTimeToken(createRequest.FriendlyName);
+            var accessToken = await _tokenService.CreateLifeTimeToken(createRequest.FriendlyName);
 
             return Ok(new AccessTokenCreatedResponse(accessToken.Token, accessToken.ExpiryDate.ToDateOnly()));
         }
 
         [HttpDelete("AccessToken")]
         [Authorize]
-        public ActionResult<IEnumerable<AccessTokenFriendlyNameResponse>> DeleteAccessToken(
+        public async Task<ActionResult<IEnumerable<AccessTokenFriendlyNameResponse>>> DeleteAccessToken(
             [FromBody] IEnumerable<AccessTokenDeleteRequest> tokenIds)
         {
-            var accessTokens = _tokenService.DeleteActiveTokens(tokenIds.Select(tokenId => tokenId.TokenId));
+            var accessTokens = await _tokenService.DeleteActiveTokens(tokenIds.Select(tokenId => tokenId.TokenId));
 
             return Ok(accessTokens.Select(token =>
                 new AccessTokenFriendlyNameResponse(token.Id, token.FriendlyName, token.ExpiryDate.ToDateOnly())));
@@ -44,9 +46,9 @@ namespace AlvTimeWebApi.Controllers
 
         [HttpGet("ActiveAccessTokens")]
         [Authorize]
-        public ActionResult<IEnumerable<AccessTokenFriendlyNameResponse>> FetchFriendlyNames()
+        public async Task<ActionResult<IEnumerable<AccessTokenFriendlyNameResponse>>> FetchFriendlyNames()
         {
-            var accessTokens = _tokenService.GetActiveTokens();
+            var accessTokens = await _tokenService.GetActiveTokens();
 
             return Ok(accessTokens.Select(token =>
                 new AccessTokenFriendlyNameResponse(token.Id, token.FriendlyName, token.ExpiryDate.ToDateOnly())));

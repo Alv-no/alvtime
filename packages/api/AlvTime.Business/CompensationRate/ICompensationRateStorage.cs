@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace AlvTime.Business.CompensationRate
 {
     public interface ICompensationRateStorage
     {
-        IEnumerable<CompensationRateSearchResultDto> GetCompensationRates(CompensationRateQuerySearch criterias);
-        void CreateCompensationRate(CompensationRateDto compensationRateDto);
-        CompensationRateDto UpdateCompensationRate();
+        Task<IEnumerable<CompensationRateSearchResultDto>> GetCompensationRates(CompensationRateQuerySearch criterias);
+        Task CreateCompensationRate(CompensationRateDto compensationRateDto);
+        Task<CompensationRateDto> UpdateCompensationRate();
     }
 
     public class CompensationRateQuerySearch

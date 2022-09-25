@@ -6,7 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using AlvTime.Persistence.DatabaseModels;
+using Task = System.Threading.Tasks.Task;
 
 namespace AlvTime.Persistence.Repositories
 {
@@ -19,7 +21,7 @@ namespace AlvTime.Persistence.Repositories
             _context = context;
         }
 
-        public void CreateHourRate(CreateHourRateDto hourRate)
+        public async Task CreateHourRate(CreateHourRateDto hourRate)
         {
             var newRate = new HourRate
             {
@@ -29,22 +31,21 @@ namespace AlvTime.Persistence.Repositories
             };
 
             _context.HourRate.Add(newRate);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void UpdateHourRate(CreateHourRateDto hourRate)
+        public async Task UpdateHourRate(CreateHourRateDto hourRate)
         {
-            var existingRate = _context.HourRate
-                .Where(hr => hr.FromDate == hourRate.FromDate && hr.TaskId == hourRate.TaskId)
-                .FirstOrDefault();
+            var existingRate = await _context.HourRate
+                .FirstOrDefaultAsync(hr => hr.FromDate == hourRate.FromDate && hr.TaskId == hourRate.TaskId);
 
             existingRate.Rate = hourRate.Rate;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public IEnumerable<HourRateResponseDto> GetHourRates(HourRateQuerySearch criterias)
+        public async Task<IEnumerable<HourRateResponseDto>> GetHourRates(HourRateQuerySearch criterias)
         {
-            return _context.HourRate
+            return await _context.HourRate
                 .Include(h => h.Task).ThenInclude(t => t.CompensationRate)
                 .AsQueryable()
                 .Filter(criterias)
@@ -77,12 +78,12 @@ namespace AlvTime.Persistence.Repositories
                         },
                     }
                 })
-                .ToList();
+                .ToListAsync();
         }
 
         private static decimal EnsureCompensationRate(ICollection<CompensationRate> compensationRate)
         {
-            return compensationRate.OrderByDescending(cr => cr.FromDate).FirstOrDefault()?.Value ?? 0.0M;
+            return compensationRate.MaxBy(cr => cr.FromDate)?.Value ?? 0.0M;
         }
     }
 }

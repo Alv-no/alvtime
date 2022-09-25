@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AlvTime.Business.Interfaces;
 using AlvTime.Business.Options;
 using AlvTime.Business.TimeEntries;
@@ -30,9 +31,9 @@ public class AbsenceDaysService : IAbsenceDaysService
         _userContext = userContext;
     }
 
-    public AbsenceDaysDto GetAbsenceDays(int userId, int year, DateTime? intervalStart)
+    public async Task<AbsenceDaysDto> GetAbsenceDays(int userId, int year, DateTime? intervalStart)
     {
-        IEnumerable<TimeEntryResponseDto> sickLeaveDays = _timeRegistrationStorage.GetTimeEntries(
+        IEnumerable<TimeEntryResponseDto> sickLeaveDays = await _timeRegistrationStorage.GetTimeEntries(
             new TimeEntryQuerySearch
             {
                 FromDateInclusive = intervalStart ?? DateTime.Now.AddMonths(-12),
@@ -46,25 +47,6 @@ public class AbsenceDaysService : IAbsenceDaysService
             AbsenceDaysInAYear = SickLeaveGroupSize * SickLeaveGroupAmount,
             UsedAbsenceDays = CalculateUsedSickDays(sickLeaveDays.Where(day => day.Value > 0)),
         };
-    }
-
-    private IEnumerable<DateTime> GetAlvDays(RedDays redDays, int year)
-    {
-        // Get the amount of days in romjula that is not a wekkend day
-        // The 3 represents the three days of easter. Alvdays removed after 2021
-        if (year < 2022)
-        {
-            return redDays.Dates.Where(days => days.Month == 12 &&
-                                               days.Day > 26 &&
-                                               days.Day <= 31 &&
-                                               days.DayOfWeek != DayOfWeek.Saturday &&
-                                               days.DayOfWeek != DayOfWeek.Sunday).Concat(new List<DateTime>
-            {
-                redDays.GetMondayInEaster(year), redDays.GetTuesdayInEaster(year), redDays.GetWednesdayInEaster(year)
-            });
-        }
-
-        return new List<DateTime>();
     }
 
     private int CalculateUsedSickDays(IEnumerable<TimeEntryResponseDto> entries)
@@ -116,7 +98,7 @@ public class AbsenceDaysService : IAbsenceDaysService
         return groupings;
     }
 
-    private bool CoherentDates(DateTime a, DateTime? b)
+    private static bool CoherentDates(DateTime a, DateTime? b)
     {
         if (!b.HasValue)
             return false;
@@ -126,12 +108,12 @@ public class AbsenceDaysService : IAbsenceDaysService
         return false;
     }
 
-    public VacationDaysDTO GetAllTimeVacationOverview(int currentYear)
+    public async Task<VacationDaysDTO> GetAllTimeVacationOverview(int currentYear)
     {
-        var user = _userContext.GetCurrentUser();
+        var user = await _userContext.GetCurrentUser();
         var userStartDate = user.StartDate;
 
-        var paidVacationEntries = _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
+        var paidVacationEntries = await _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
         {
             FromDateInclusive = userStartDate,
             ToDateInclusive = new DateTime(currentYear, 12, 31),
@@ -139,7 +121,7 @@ public class AbsenceDaysService : IAbsenceDaysService
             TaskId = _timeEntryOptions.CurrentValue.PaidHolidayTask
         });
 
-        var unpaidVacationEntries = _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
+        var unpaidVacationEntries = await _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
         {
             FromDateInclusive = userStartDate,
             ToDateInclusive = new DateTime(currentYear, 12, 31),

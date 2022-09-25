@@ -1,9 +1,11 @@
-﻿using System;
-using AlvTime.Business.Users;
+﻿using AlvTime.Business.Users;
 using AlvTimeWebApi.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using AlvTimeWebApi.Responses;
+using AlvTimeWebApi.Utils;
 
 namespace AlvTimeWebApi.Controllers.Admin;
 
@@ -22,9 +24,9 @@ public class UserController : Controller
 
     [HttpGet("Users")]
     [AuthorizeAdmin]
-    public ActionResult<IEnumerable<UserResponseDto>> FetchUsers()
+    public async Task<ActionResult<IEnumerable<UserResponseDto>>> FetchUsers()
     {
-        var users = _userRepository.GetUsers(new UserQuerySearch());
+        var users = await _userRepository.GetUsers(new UserQuerySearch());
         return Ok(users);
     }
 
@@ -64,20 +66,43 @@ public class UserController : Controller
     [AuthorizeAdmin]
     public async Task<ActionResult<EmploymentRateResponse>> FetchEmploymentRatesForUser(int userId)
     {
-        return Ok(await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = userId }));
+        return Ok((await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = userId })).Select(er => new EmploymentRateResponse
+        {
+            Id = er.Id,
+            UserId = er.UserId,
+            Rate = er.Rate,
+            FromDateInclusive = er.FromDateInclusive.ToDateOnly(),
+            ToDateInclusive = er.ToDateInclusive.ToDateOnly()
+        }));
     }
 
     [HttpPost("user/employmentrate")]
     [AuthorizeAdmin]
     public async Task<ActionResult<EmploymentRateResponse>> CreateEmploymentRateForUser(EmploymentRateDto request)
     {
-        return await _userRepository.CreateEmploymentRateForUser(request); 
+        var createdEmploymentRate = await _userRepository.CreateEmploymentRateForUser(request);
+        return Ok(new EmploymentRateResponse
+        {
+            Id = createdEmploymentRate.Id,
+            UserId = createdEmploymentRate.UserId,
+            Rate = createdEmploymentRate.Rate,
+            FromDateInclusive = createdEmploymentRate.FromDateInclusive.ToDateOnly(),
+            ToDateInclusive = createdEmploymentRate.ToDateInclusive.ToDateOnly()
+        });
     }
 
     [HttpPut("User/employmentrate")]
     [AuthorizeAdmin]
     public async Task<ActionResult<EmploymentRateResponse>> UpdateEmploymentRate(EmploymentRateChangeRequest request)
     {
-        return await _userRepository.UpdateEmploymentRateForUser(request);
+        var updatedEmploymentRate = await _userRepository.UpdateEmploymentRateForUser(request);
+        return Ok(new EmploymentRateResponse
+        {
+            Id = updatedEmploymentRate.Id,
+            UserId = updatedEmploymentRate.UserId,
+            Rate = updatedEmploymentRate.Rate,
+            FromDateInclusive = updatedEmploymentRate.FromDateInclusive.ToDateOnly(),
+            ToDateInclusive = updatedEmploymentRate.ToDateInclusive.ToDateOnly()
+        });
     }
 }

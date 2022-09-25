@@ -35,9 +35,9 @@ namespace AlvTimeWebApi
             services.AddScoped<IHourRateStorage, HourRateStorage>();
             services.AddScoped<HourRateService>();
             services.AddScoped<IProjectStorage, ProjectStorage>();
-            services.AddScoped<ProjectCreator>();
+            services.AddScoped<ProjectService>();
             services.AddScoped<ICustomerStorage, CustomerStorage>();
-            services.AddScoped<CustomerCreator>();
+            services.AddScoped<CustomerService>();
             services.AddScoped<IEconomyStorage, EconomyStorage>();
             services.AddScoped<IAccessTokenStorage, AccessTokenStorage>();
             services.AddScoped<IAssociatedTaskStorage, AssociatedTaskStorage>();

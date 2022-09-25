@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using AlvTime.Persistence.DatabaseModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace AlvTime.Persistence.Repositories
 {
@@ -15,9 +17,10 @@ namespace AlvTime.Persistence.Repositories
         {
             _context = context;
         }
-        public IEnumerable<AssociatedTaskResponseDto> GetAssociatedTasks()
+        
+        public async Task<IEnumerable<AssociatedTaskResponseDto>> GetAssociatedTasks()
         {
-            return _context.AssociatedTasks
+            return await _context.AssociatedTasks
                 .Select(at => new AssociatedTaskResponseDto
                 {
                     Id = at.Id,
@@ -25,10 +28,10 @@ namespace AlvTime.Persistence.Repositories
                     TaskId = at.TaskId,
                     FromDate = at.FromDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                     EndDate = at.EndDate.Year == 1900 ? "N/A" : at.EndDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
-                }).ToList();
+                }).ToListAsync();
         }
 
-        public AssociatedTaskResponseDto CreateAssociatedTask(AssociatedTaskRequestDto associatedTask)
+        public async Task<AssociatedTaskResponseDto> CreateAssociatedTask(AssociatedTaskRequestDto associatedTask)
         {
             var newAssociatedTask = new AssociatedTasks
             {
@@ -38,10 +41,10 @@ namespace AlvTime.Persistence.Repositories
             };
 
             _context.AssociatedTasks.Add(newAssociatedTask);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            var createdAssociatedTask = _context.AssociatedTasks
-                .FirstOrDefault(at => at.TaskId == associatedTask.TaskId && at.UserId == associatedTask.UserId);
+            var createdAssociatedTask = await _context.AssociatedTasks
+                .FirstOrDefaultAsync(at => at.TaskId == associatedTask.TaskId && at.UserId == associatedTask.UserId);
 
             return new AssociatedTaskResponseDto
             {
@@ -53,10 +56,10 @@ namespace AlvTime.Persistence.Repositories
             };
         }
 
-        public AssociatedTaskResponseDto UpdateAssociatedTask(AssociatedTaskUpdateDto associatedTask)
+        public async Task<AssociatedTaskResponseDto> UpdateAssociatedTask(AssociatedTaskUpdateDto associatedTask)
         {
-            var associatedTaskToBeUpdated = _context.AssociatedTasks
-                .FirstOrDefault(at => at.Id == associatedTask.Id);
+            var associatedTaskToBeUpdated = await _context.AssociatedTasks
+                .FirstOrDefaultAsync(at => at.Id == associatedTask.Id);
 
             if (associatedTask.UserId != null)
             {
@@ -75,10 +78,10 @@ namespace AlvTime.Persistence.Repositories
                 associatedTaskToBeUpdated.EndDate = (DateTime)associatedTask.EndDate;
             }
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            var updatedAssociatedTask = _context.AssociatedTasks
-                .FirstOrDefault(at => at.Id == associatedTask.Id);
+            var updatedAssociatedTask = await _context.AssociatedTasks
+                .FirstOrDefaultAsync(at => at.Id == associatedTask.Id);
 
             return new AssociatedTaskResponseDto
             {

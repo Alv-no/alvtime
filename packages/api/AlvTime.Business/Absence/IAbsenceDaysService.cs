@@ -1,9 +1,10 @@
 using System;
+using System.Threading.Tasks;
 
 namespace AlvTime.Business.Absence;
 
 public interface IAbsenceDaysService
 {
-    AbsenceDaysDto GetAbsenceDays(int userId, int year, DateTime? intervalStart);
-    VacationDaysDTO GetAllTimeVacationOverview(int currentYear);
+    Task<AbsenceDaysDto> GetAbsenceDays(int userId, int year, DateTime? intervalStart);
+    Task<VacationDaysDTO> GetAllTimeVacationOverview(int currentYear);
 }

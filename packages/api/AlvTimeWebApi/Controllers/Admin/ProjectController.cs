@@ -2,55 +2,55 @@
 using AlvTimeWebApi.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace AlvTimeWebApi.Controllers.Admin
+namespace AlvTimeWebApi.Controllers.Admin;
+
+[Route("api/admin")]
+[ApiController]
+public class ProjectController : Controller
 {
-    [Route("api/admin")]
-    [ApiController]
-    public class ProjectController : Controller
+    private readonly IProjectStorage _projectStorage;
+    private readonly ProjectService _projectService;
+
+    public ProjectController(IProjectStorage projectStorage, ProjectService projectService)
     {
-        private readonly IProjectStorage _storage;
-        private readonly ProjectCreator _creator;
+        _projectStorage = projectStorage;
+        _projectService = projectService;
+    }
 
-        public ProjectController(IProjectStorage storage, ProjectCreator creator)
+    [HttpGet("Projects")]
+    [AuthorizeAdmin]
+    public async Task<ActionResult<IEnumerable<ProjectResponseDto>>> FetchProjects()
+    {
+        return Ok(await _projectStorage.GetProjects(new ProjectQuerySearch()));
+    }
+
+    [HttpPost("Projects")]
+    [AuthorizeAdmin]
+    public async Task<ActionResult<IEnumerable<ProjectResponseDto>>> CreateNewProject([FromBody] IEnumerable<CreateProjectDto> projectsToBeCreated)
+    {
+        List<ProjectResponseDto> response = new List<ProjectResponseDto>();
+
+        foreach (var project in projectsToBeCreated)
         {
-            _storage = storage;
-            _creator = creator;
+            response.Add(await _projectService.CreateProject(project));
         }
 
-        [HttpGet("Projects")]
-        [AuthorizeAdmin]
-        public ActionResult<IEnumerable<ProjectResponseDto>> FetchProjects()
+        return Ok(response);
+    }
+
+    [HttpPut("Projects")]
+    [AuthorizeAdmin]
+    public async Task<ActionResult<IEnumerable<ProjectResponseDto>>> UpdateProject([FromBody] IEnumerable<CreateProjectDto> projectsToBeCreated)
+    {
+        List<ProjectResponseDto> response = new List<ProjectResponseDto>();
+
+        foreach (var project in projectsToBeCreated)
         {
-            return Ok(_storage.GetProjects(new ProjectQuerySearch()));
+            response.Add(await _projectService.UpdateProject(project));
         }
 
-        [HttpPost("Projects")]
-        [AuthorizeAdmin]
-        public ActionResult<IEnumerable<ProjectResponseDto>> CreateNewProject([FromBody] IEnumerable<CreateProjectDto> projectsToBeCreated)
-        {
-            List<ProjectResponseDto> response = new List<ProjectResponseDto>();
-
-            foreach (var project in projectsToBeCreated)
-            {
-                response.Add(_creator.CreateProject(project));
-            }
-
-            return Ok(response);
-        }
-
-        [HttpPut("Projects")]
-        [AuthorizeAdmin]
-        public ActionResult<IEnumerable<ProjectResponseDto>> UpdateProject([FromBody] IEnumerable<CreateProjectDto> projectsToBeCreated)
-        {
-            List<ProjectResponseDto> response = new List<ProjectResponseDto>();
-
-            foreach (var project in projectsToBeCreated)
-            {
-                response.Add(_creator.UpdateProject(project));
-            }
-
-            return Ok(response);
-        }
+        return Ok(response);
     }
 }

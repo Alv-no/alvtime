@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AlvTime.Business.Interfaces;
 
 namespace AlvTime.Business.AccessTokens
@@ -16,9 +17,9 @@ namespace AlvTime.Business.AccessTokens
             _userContext = userContext;
         }
 
-        public AccessTokenDto CreateLifeTimeToken(string friendlyName)
+        public async Task<AccessTokenDto> CreateLifeTimeToken(string friendlyName)
         {
-            var currentUser = _userContext.GetCurrentUser();
+            var currentUser = await _userContext.GetCurrentUser();
             var personalAccessToken = new PersonalAccessToken
             {
                 User = currentUser,
@@ -27,12 +28,12 @@ namespace AlvTime.Business.AccessTokens
                 FriendlyName = friendlyName
             };
 
-            return _tokenStorage.CreateLifetimeToken(personalAccessToken);
+            return await _tokenStorage.CreateLifetimeToken(personalAccessToken);
         }
 
-        public IEnumerable<AccessTokenDto> DeleteActiveTokens(IEnumerable<int> tokenIds)
+        public async Task<IEnumerable<AccessTokenDto>> DeleteActiveTokens(IEnumerable<int> tokenIds)
         {
-            var userTokenIds = GetActiveTokens().Select(token => token.Id);
+            var userTokenIds = (await GetActiveTokens()).Select(token => token.Id);
 
             var response = new List<AccessTokenDto>();
 
@@ -40,18 +41,18 @@ namespace AlvTime.Business.AccessTokens
             {
                 if (userTokenIds.Contains(tokenId))
                 {
-                    response.Add(_tokenStorage.DeleteActiveTokens(tokenId));
+                    response.Add(await _tokenStorage.DeleteActiveTokens(tokenId));
                 }
             }
 
             return response;
         }
 
-        public IEnumerable<AccessTokenDto> GetActiveTokens()
+        public async Task<IEnumerable<AccessTokenDto>> GetActiveTokens()
         {
-            var currentUser = _userContext.GetCurrentUser();
+            var currentUser = await _userContext.GetCurrentUser();
 
-            return _tokenStorage.GetActiveTokens(currentUser);
+            return await _tokenStorage.GetActiveTokens(currentUser);
         }
     }
 }

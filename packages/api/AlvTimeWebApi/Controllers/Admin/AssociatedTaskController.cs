@@ -2,55 +2,55 @@
 using AlvTimeWebApi.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace AlvTimeWebApi.Controllers.Admin
+namespace AlvTimeWebApi.Controllers.Admin;
+
+[Route("api/admin")]
+[ApiController]
+public class AssociatedTaskController : Controller
 {
-    [Route("api/admin")]
-    [ApiController]
-    public class AssociatedTaskController : Controller
+    private readonly IAssociatedTaskStorage _associatedTaskStorage;
+
+    public AssociatedTaskController(IAssociatedTaskStorage associatedTaskStorage)
     {
-        private readonly IAssociatedTaskStorage _storage;
+        _associatedTaskStorage = associatedTaskStorage;
+    }
 
-        public AssociatedTaskController(IAssociatedTaskStorage storage)
+    [HttpGet("AssociatedTasks")]
+    [AuthorizeAdmin]
+    public async Task<ActionResult<IEnumerable<AssociatedTaskResponseDto>>> FetchAssociatedTasks()
+    {
+        var tasks = await _associatedTaskStorage.GetAssociatedTasks();
+
+        return Ok(tasks);
+    }
+
+    [HttpPost("AssociatedTasks")]
+    [AuthorizeAdmin]
+    public async Task<ActionResult<IEnumerable<AssociatedTaskResponseDto>>> CreateAssociatedTask([FromBody] IEnumerable<AssociatedTaskRequestDto> associatedTasks)
+    {
+        List<AssociatedTaskResponseDto> response = new List<AssociatedTaskResponseDto>();
+
+        foreach (var associatedTask in associatedTasks)
         {
-            _storage = storage;
+            response.Add(await _associatedTaskStorage.CreateAssociatedTask(associatedTask));
         }
 
-        [HttpGet("AssociatedTasks")]
-        [AuthorizeAdmin]
-        public ActionResult<IEnumerable<AssociatedTaskResponseDto>> FetchAssociatedTasks()
-        {
-            var tasks = _storage.GetAssociatedTasks();
+        return Ok(response);
+    }
 
-            return Ok(tasks);
+    [HttpPut("AssociatedTasks")]
+    [AuthorizeAdmin]
+    public async Task<ActionResult<IEnumerable<AssociatedTaskResponseDto>>> UpdateAssociatedTask([FromBody] IEnumerable<AssociatedTaskUpdateDto> associatedTasks)
+    {
+        List<AssociatedTaskResponseDto> response = new List<AssociatedTaskResponseDto>();
+
+        foreach (var associatedTask in associatedTasks)
+        {
+            response.Add(await _associatedTaskStorage.UpdateAssociatedTask(associatedTask));
         }
 
-        [HttpPost("AssociatedTasks")]
-        [AuthorizeAdmin]
-        public ActionResult<IEnumerable<AssociatedTaskResponseDto>> CreateAssociatedTask([FromBody] IEnumerable<AssociatedTaskRequestDto> associatedTasks)
-        {
-            List<AssociatedTaskResponseDto> response = new List<AssociatedTaskResponseDto>();
-
-            foreach (var associatedTask in associatedTasks)
-            {
-                response.Add(_storage.CreateAssociatedTask(associatedTask));
-            }
-
-            return Ok(response);
-        }
-
-        [HttpPut("AssociatedTasks")]
-        [AuthorizeAdmin]
-        public ActionResult<IEnumerable<AssociatedTaskResponseDto>> UpdateAssociatedTask([FromBody] IEnumerable<AssociatedTaskUpdateDto> associatedTasks)
-        {
-            List<AssociatedTaskResponseDto> response = new List<AssociatedTaskResponseDto>();
-
-            foreach (var associatedTask in associatedTasks)
-            {
-                response.Add(_storage.UpdateAssociatedTask(associatedTask));
-            }
-
-            return Ok(response);
-        }
+        return Ok(response);
     }
 }

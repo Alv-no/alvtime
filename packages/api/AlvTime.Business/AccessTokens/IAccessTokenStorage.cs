@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using AlvTime.Business.Models;
 
 namespace AlvTime.Business.AccessTokens
 {
     public interface IAccessTokenStorage
     {
-        IEnumerable<AccessTokenDto> GetActiveTokens(User user);
-        AccessTokenDto DeleteActiveTokens(int tokenId);
-        AccessTokenDto CreateLifetimeToken(PersonalAccessToken token);
+        Task<IEnumerable<AccessTokenDto>> GetActiveTokens(User user);
+        Task<AccessTokenDto> DeleteActiveTokens(int tokenId);
+        Task<AccessTokenDto> CreateLifetimeToken(PersonalAccessToken token);
     }
 }

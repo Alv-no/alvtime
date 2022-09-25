@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using AlvTime.Business.Models;
 using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
+using Task = System.Threading.Tasks.Task;
 using User = AlvTime.Persistence.DatabaseModels.User;
 
 namespace AlvTime.Persistence.Repositories
@@ -21,7 +22,7 @@ namespace AlvTime.Persistence.Repositories
             _context = context;
         }
 
-        public void AddUser(UserDto user)
+        public async Task AddUser(UserDto user)
         {
             var newUser = new User
             {
@@ -32,7 +33,7 @@ namespace AlvTime.Persistence.Repositories
             };
 
             _context.User.Add(newUser);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
         public async Task<IEnumerable<UserResponseDto>> GetUsers(UserQuerySearch criteria)
@@ -51,9 +52,9 @@ namespace AlvTime.Persistence.Repositories
                 }).ToListAsync();
         }
 
-        public void UpdateUser(UserDto userToBeUpdated)
+        public async Task UpdateUser(UserDto userToBeUpdated)
         {
-            var existingUser = _context.User.FirstOrDefault(u => u.Id == userToBeUpdated.Id);
+            var existingUser = await _context.User.FirstOrDefaultAsync(u => u.Id == userToBeUpdated.Id);
 
             if (userToBeUpdated.Name != null)
             {
@@ -72,7 +73,7 @@ namespace AlvTime.Persistence.Repositories
                 existingUser.EndDate = (DateTime)userToBeUpdated.EndDate;
             }
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
         public async Task<Business.Models.User> GetUserFromToken(Token token)
@@ -95,7 +96,7 @@ namespace AlvTime.Persistence.Repositories
             return null;
         }
 
-        public async Task<EmploymentRateResponse> CreateEmploymentRateForUser(EmploymentRateDto input)
+        public async Task<EmploymentRateResponseDto> CreateEmploymentRateForUser(EmploymentRateDto input)
         {
             var rate = new EmploymentRate
             {
@@ -107,7 +108,7 @@ namespace AlvTime.Persistence.Repositories
             _context.EmploymentRate.Add(rate);
             await _context.SaveChangesAsync();
 
-            return new EmploymentRateResponse
+            return new EmploymentRateResponseDto
             {
                 Id = rate.Id,
                 UserId = rate.UserId,
@@ -117,11 +118,11 @@ namespace AlvTime.Persistence.Repositories
             };
         }
 
-        public async Task<IEnumerable<EmploymentRateResponse>> GetEmploymentRates(EmploymentRateQueryFilter criteria)
+        public async Task<IEnumerable<EmploymentRateResponseDto>> GetEmploymentRates(EmploymentRateQueryFilter criteria)
         {
             var rates = await _context.EmploymentRate.AsQueryable()
                 .Filter(criteria)
-                .Select(er => new EmploymentRateResponse
+                .Select(er => new EmploymentRateResponseDto
             {
                 Id = er.Id,
                 UserId = er.Id,
@@ -132,7 +133,7 @@ namespace AlvTime.Persistence.Repositories
             return rates;
         }
 
-        public async Task<EmploymentRateResponse> UpdateEmploymentRateForUser(EmploymentRateChangeRequest request)
+        public async Task<EmploymentRateResponseDto> UpdateEmploymentRateForUser(EmploymentRateChangeRequest request)
         {
             var existingRate = await _context.EmploymentRate.FindAsync(request.RateId);
             if (existingRate == null)
@@ -145,7 +146,7 @@ namespace AlvTime.Persistence.Repositories
             existingRate.ToDate = request.ToDateInclusive;
 
             await _context.SaveChangesAsync();
-            return new EmploymentRateResponse
+            return new EmploymentRateResponseDto
             {
                 Id = existingRate.Id,
                 UserId = existingRate.UserId,

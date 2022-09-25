@@ -1,6 +1,7 @@
 ﻿using AlvTime.Business.Customers;
 using AlvTime.Persistence.Repositories;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Tests.UnitTests.Customers
@@ -8,16 +9,16 @@ namespace Tests.UnitTests.Customers
     public class CustomerStorageTests
     {
         [Fact]
-        public void CreateCustomer_NameSpecified_CustomerWithNameIsCreated()
+        public async Task CreateCustomer_NameSpecified_CustomerWithNameIsCreated()
         {
             var context = new AlvTimeDbContextBuilder().CreateDbContext();
 
             var storage = new CustomerStorage(context);
-            var creator = new CustomerCreator(storage);
+            var customerService = new CustomerService(storage);
 
             var previousCustomersAmount = context.Customer.ToList().Count();
 
-            creator.CreateCustomer(new CustomerDto
+            await customerService.CreateCustomer(new CustomerDto
             {
                 Name = "Test"
             });
@@ -28,25 +29,25 @@ namespace Tests.UnitTests.Customers
         }
 
         [Fact]
-        public void UpdateCustomer_ContactPersonProvided_UpdatesContactPerson()
+        public async Task UpdateCustomer_ContactPersonProvided_UpdatesContactPerson()
         {
             var context = new AlvTimeDbContextBuilder()
                 .WithCustomers()
                 .CreateDbContext();
 
             var storage = new CustomerStorage(context);
-            var creator = new CustomerCreator(storage);
+            var customerService = new CustomerService(storage);
 
-            creator.UpdateCustomer(new CustomerDto
+            await customerService.UpdateCustomer(new CustomerDto
             {
                 Id = 1,
                 InvoiceAddress = "Testveien 1"
             });
 
-            var customer = storage.GetCustomers(new CustomerQuerySearch
+            var customer = (await storage.GetCustomers(new CustomerQuerySearch
             {
                 Id = 1
-            }).Single();
+            })).Single();
 
             Assert.Equal("Testveien 1", customer.InvoiceAddress);
         }

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AlvTime.Business.AccessTokens;
 using AlvTime.Persistence.DatabaseModels;
+using Microsoft.EntityFrameworkCore;
 using User = AlvTime.Business.Models.User;
 
 namespace AlvTime.Persistence.Repositories
@@ -16,7 +18,7 @@ namespace AlvTime.Persistence.Repositories
             _dbContext = dbContext;
         }
 
-        public AccessTokenDto CreateLifetimeToken(PersonalAccessToken token)
+        public async Task<AccessTokenDto> CreateLifetimeToken(PersonalAccessToken token)
         {
             var accessToken = new AccessTokens
             {
@@ -27,29 +29,29 @@ namespace AlvTime.Persistence.Repositories
             };
 
             _dbContext.AccessTokens.Add(accessToken);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return new AccessTokenDto(accessToken.Id, accessToken.Value, accessToken.ExpiryDate, accessToken.FriendlyName);
         }
 
-        public AccessTokenDto DeleteActiveTokens(int tokenId)
+        public async Task<AccessTokenDto> DeleteActiveTokens(int tokenId)
         {
             var token = _dbContext.AccessTokens
                 .FirstOrDefault(t => t.Id == tokenId);
 
             token.ExpiryDate = DateTime.UtcNow;
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return new AccessTokenDto(token.Id, token.Value, token.ExpiryDate, token.FriendlyName);
         }
 
-        public IEnumerable<AccessTokenDto> GetActiveTokens(User user)
+        public async Task<IEnumerable<AccessTokenDto>> GetActiveTokens(User user)
         {
             var alvUser = _dbContext.User.First(dbUser => dbUser.Email.ToLower().Equals(user.Email.ToLower()));
 
-            var tokens = _dbContext.AccessTokens
+            var tokens = await _dbContext.AccessTokens
                 .Where(token => token.UserId == alvUser.Id && token.ExpiryDate >= DateTime.UtcNow)
-                .ToList();
+                .ToListAsync();
 
             return tokens.Select(token =>
                 new AccessTokenDto(token.Id, token.Value, token.ExpiryDate, token.FriendlyName));

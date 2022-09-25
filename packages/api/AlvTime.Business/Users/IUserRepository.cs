@@ -8,12 +8,12 @@ namespace AlvTime.Business.Users
     public interface IUserRepository
     {
         Task<IEnumerable<UserResponseDto>> GetUsers(UserQuerySearch criteria);
-        void AddUser(UserDto user);
-        void UpdateUser(UserDto user);
+        Task AddUser(UserDto user);
+        Task UpdateUser(UserDto user);
         Task<User> GetUserFromToken(Token token);
-        Task<EmploymentRateResponse> CreateEmploymentRateForUser(EmploymentRateDto input);
-        Task<IEnumerable<EmploymentRateResponse>> GetEmploymentRates(EmploymentRateQueryFilter criteria);
-        Task<EmploymentRateResponse> UpdateEmploymentRateForUser(EmploymentRateChangeRequest request);
+        Task<EmploymentRateResponseDto> CreateEmploymentRateForUser(EmploymentRateDto input);
+        Task<IEnumerable<EmploymentRateResponseDto>> GetEmploymentRates(EmploymentRateQueryFilter criteria);
+        Task<EmploymentRateResponseDto> UpdateEmploymentRateForUser(EmploymentRateChangeRequest request);
     }
 
     public class UserQuerySearch
