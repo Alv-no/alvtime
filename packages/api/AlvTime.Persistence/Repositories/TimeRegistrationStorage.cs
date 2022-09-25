@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Overtime;
 using AlvTime.Business.TimeEntries;
@@ -8,6 +9,7 @@ using AlvTime.Business.TimeRegistration;
 using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.DataBaseModels;
 using Microsoft.EntityFrameworkCore;
+using Task = System.Threading.Tasks.Task;
 
 namespace AlvTime.Persistence.Repositories;
 
@@ -20,10 +22,10 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
         _context = context;
     }
 
-    public IEnumerable<TimeEntryWithCompRateDto> GetTimeEntriesWithCompensationRate(TimeEntryQuerySearch criteria)
+    public async Task<IEnumerable<TimeEntryWithCompRateDto>> GetTimeEntriesWithCompensationRate(TimeEntryQuerySearch criteria)
     {
-        var timeEntries = GetTimeEntries(criteria);
-        var compensationRates = _context.CompensationRate.ToList();
+        var timeEntries = await GetTimeEntries(criteria);
+        var compensationRates = await _context.CompensationRate.ToListAsync();
         var timeEntriesWithCompensationRate =
             timeEntries.GroupJoin(compensationRates, timeEntry => timeEntry.TaskId, rate => rate.TaskId,
                 (dto, rates) => new TimeEntryWithCompRateDto
@@ -40,9 +42,9 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
         return timeEntriesWithCompensationRate;
     }
 
-    public IEnumerable<TimeEntryResponseDto> GetTimeEntries(TimeEntryQuerySearch criteria)
+    public async Task<IEnumerable<TimeEntryResponseDto>> GetTimeEntries(TimeEntryQuerySearch criteria)
     {
-        var hours = _context.Hours.AsQueryable()
+        var hours = await _context.Hours.AsQueryable()
             .Filter(criteria)
             .Select(x => new TimeEntryResponseDto
             {
@@ -52,25 +54,25 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
                 Date = x.Date,
                 TaskId = x.TaskId
             })
-            .ToList();
+            .ToListAsync();
 
         foreach (var entry in hours)
         {
-            entry.UserEmail = _context.User.FirstOrDefault(x => x.Id == entry.User).Email;
+            entry.UserEmail = (await _context.User.FirstOrDefaultAsync(x => x.Id == entry.User))?.Email;
         }
 
         return hours;
     }
 
-    public IEnumerable<DateEntry> GetDateEntries(TimeEntryQuerySearch criteria)
+    public async Task<IEnumerable<DateEntry>> GetDateEntries(TimeEntryQuerySearch criteria)
     {
-        var hours = _context.Hours
+        var hours = await _context.Hours
             .Include(h => h.Task)
             .AsQueryable()
             .Filter(criteria)
-            .ToList();
+            .ToListAsync();
 
-        var compensationRates = _context.CompensationRate.OrderByDescending(cr => cr.FromDate);
+        var compensationRates = await _context.CompensationRate.OrderByDescending(cr => cr.FromDate).ToListAsync();
 
         return hours.GroupBy(
             entry => entry.Date,
@@ -87,9 +89,9 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
             });
     }
 
-    public TimeEntryResponseDto GetTimeEntry(TimeEntryQuerySearch criteria)
+    public async Task<TimeEntryResponseDto> GetTimeEntry(TimeEntryQuerySearch criteria)
     {
-        var timeEntry = _context.Hours.AsQueryable()
+        var timeEntry = await _context.Hours.AsQueryable()
             .Filter(criteria)
             .Select(x => new TimeEntryResponseDto
             {
@@ -97,15 +99,15 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
                 Value = x.Value,
                 Date = x.Date,
                 TaskId = x.TaskId
-            }).FirstOrDefault();
+            }).FirstOrDefaultAsync();
 
         return timeEntry;
     }
 
-    public TimeEntryResponseDto CreateTimeEntry(CreateTimeEntryDto timeEntry, int userId)
+    public async Task<TimeEntryResponseDto> CreateTimeEntry(CreateTimeEntryDto timeEntry, int userId)
     {
-        var task = _context.Task
-            .FirstOrDefault(t => t.Id == timeEntry.TaskId);
+        var task = await _context.Task
+            .FirstOrDefaultAsync(t => t.Id == timeEntry.TaskId);
 
         if (!task.Locked)
         {
@@ -119,9 +121,9 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
                 Value = timeEntry.Value
             };
             _context.Hours.Add(hour);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            var user = _context.User.FirstOrDefault(u => u.Id == hour.User);
+            var user = await _context.User.FirstOrDefaultAsync(u => u.Id == hour.User);
             return new TimeEntryResponseDto
             {
                 Id = hour.Id,
@@ -136,9 +138,9 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
         throw new Exception("Kan ikke registrere time. Oppgaven er låst.");
     }
 
-    public TimeEntryResponseDto UpdateTimeEntry(CreateTimeEntryDto timeEntry, int userId)
+    public async Task<TimeEntryResponseDto> UpdateTimeEntry(CreateTimeEntryDto timeEntry, int userId)
     {
-        var hour = _context.Hours.AsQueryable()
+        var hour = await _context.Hours.AsQueryable()
             .Filter(new TimeEntryQuerySearch
             {
                 TaskId = timeEntry.TaskId,
@@ -146,15 +148,15 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
                 ToDateInclusive = timeEntry.Date.Date,
                 UserId = userId
             })
-            .FirstOrDefault();
+            .FirstOrDefaultAsync();
 
-        var task = _context.Task
-            .FirstOrDefault(t => t.Id == timeEntry.TaskId);
+        var task = await _context.Task
+            .FirstOrDefaultAsync(t => t.Id == timeEntry.TaskId);
 
         if (!hour.Locked && !task.Locked)
         {
             hour.Value = timeEntry.Value;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return new TimeEntryResponseDto
             {
@@ -170,9 +172,9 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
         throw new Exception("Kan ikke oppdatere registrering. Oppgaven eller timen er låst.");
     }
 
-    public List<EarnedOvertimeDto> GetEarnedOvertime(OvertimeQueryFilter criteria)
+    public async Task<List<EarnedOvertimeDto>> GetEarnedOvertime(OvertimeQueryFilter criteria)
     {
-        var overtimeEntries = _context.EarnedOvertime.AsQueryable()
+        var overtimeEntries = await _context.EarnedOvertime.AsQueryable()
             .Filter(criteria)
             .Select(entry => new EarnedOvertimeDto
             {
@@ -181,11 +183,11 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
                 CompensationRate = entry.CompensationRate,
                 UserId = entry.UserId
             })
-            .ToList();
+            .ToListAsync();
         return overtimeEntries;
     }
 
-    public void StoreOvertime(List<OvertimeEntry> overtimeEntries, int userId)
+    public async Task StoreOvertime(List<OvertimeEntry> overtimeEntries, int userId)
     {
         _context.EarnedOvertime.AddRange(overtimeEntries.Select(entry => new EarnedOvertime
         {
@@ -194,14 +196,14 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
             Value = entry.Hours,
             CompensationRate = entry.CompensationRate
         }));
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 
-    public virtual void DeleteOvertimeOnDate(DateTime date, int userId)
+    public virtual async Task DeleteOvertimeOnDate(DateTime date, int userId)
     {
         var earnedOvertimeOnDate =
             _context.EarnedOvertime.Where(ot => ot.Date.Date == date.Date && ot.UserId == userId);
         _context.RemoveRange(earnedOvertimeOnDate);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 }

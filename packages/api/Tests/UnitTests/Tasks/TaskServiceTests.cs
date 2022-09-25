@@ -7,6 +7,7 @@ using AlvTime.Business.Interfaces;
 using AlvTime.Persistence.DatabaseModels;
 using Moq;
 using Xunit;
+using Task = System.Threading.Tasks.Task;
 using User = AlvTime.Business.Models.User;
 
 namespace Tests.UnitTests.Tasks
@@ -14,7 +15,7 @@ namespace Tests.UnitTests.Tasks
     public class TaskStorageTests
     {
         [Fact]
-        public void GetTasks_NoCriterias_AllTasks()
+        public async Task GetTasks_NoCriterias_AllTasks()
         {
             var context = new AlvTimeDbContextBuilder()
                 .WithTasks()
@@ -24,13 +25,13 @@ namespace Tests.UnitTests.Tasks
 
             var taskService = CreateTaskService(context);
 
-            var tasks = taskService.GetTasksForUser(new TaskQuerySearch());
+            var tasks = await taskService.GetTasksForUser(new TaskQuerySearch());
 
             Assert.Equal(context.Task.Count(), tasks.Count());
         }
 
         [Fact]
-        public void GetTasks_ProjectIsGiven_AllTasksWithSpecifiedProject()
+        public async Task GetTasks_ProjectIsGiven_AllTasksWithSpecifiedProject()
         {
             var context = new AlvTimeDbContextBuilder()
                 .WithTasks()
@@ -40,7 +41,7 @@ namespace Tests.UnitTests.Tasks
             
             var taskService = CreateTaskService(context);
 
-            var tasks = taskService.GetTasksForUser(new TaskQuerySearch
+            var tasks = await taskService.GetTasksForUser(new TaskQuerySearch
             {
                 Project = 1
             });
@@ -49,7 +50,7 @@ namespace Tests.UnitTests.Tasks
         }
 
         [Fact]
-        public void GetTasks_ProjectAndLockedIsGiven_AllTasksWithSpecifiedProjectAndLocked()
+        public async Task GetTasks_ProjectAndLockedIsGiven_AllTasksWithSpecifiedProjectAndLocked()
         {
             var context = new AlvTimeDbContextBuilder()
                 .WithTasks()
@@ -58,7 +59,7 @@ namespace Tests.UnitTests.Tasks
                 .CreateDbContext();
 
             var taskService = CreateTaskService(context);
-            var tasks = taskService.GetTasksForUser(new TaskQuerySearch
+            var tasks = await taskService.GetTasksForUser(new TaskQuerySearch
             {
                 Project = 2,
                 Locked = true
@@ -102,13 +103,13 @@ namespace Tests.UnitTests.Tasks
 
             var taskService = CreateTaskService(context);
 
-            var previousCompensationRate = context.Task.FirstOrDefault(x => x.Id == 2).CompensationRate;
+            var previousCompensationRate = context.Task.FirstOrDefault(x => x.Id == 2)?.CompensationRate;
 
             taskService.UpdateFavoriteTasks(new List<(int id, bool favorite)> { (2, true) });
 
             var task = context.Task.FirstOrDefault(x => x.Id == 2);
 
-            Assert.Equal(previousCompensationRate, task.CompensationRate);
+            Assert.Equal(previousCompensationRate, task?.CompensationRate);
         }
 
         [Fact]
@@ -193,7 +194,7 @@ namespace Tests.UnitTests.Tasks
 
             var task = context.Task.FirstOrDefault(x => x.Id == 1);
 
-            Assert.Equal("MyExampleTask", task.Name);
+            Assert.Equal("MyExampleTask", task?.Name);
             Assert.True(task.Locked == true);
         }
         
@@ -208,8 +209,7 @@ namespace Tests.UnitTests.Tasks
                 Name = "Someone"
             };
 
-            mockUserContext.Setup(context => context.GetCurrentUser()).Returns(user);
-            
+            mockUserContext.Setup(context => context.GetCurrentUser()).Returns(Task.FromResult(user));
             return new TaskService(new TaskStorage(dbContext), mockUserContext.Object);
         }
     }

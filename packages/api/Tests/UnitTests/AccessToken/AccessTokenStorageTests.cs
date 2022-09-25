@@ -15,133 +15,132 @@ using Microsoft.Net.Http.Headers;
 using Moq;
 using Xunit;
 
-namespace Tests.UnitTests.AccessToken
+namespace Tests.UnitTests.AccessToken;
+
+public class AccessTokenStorageTests
 {
-    public class AccessTokenStorageTests
+    [Fact]
+    public async Task GetActiveAccessTokens_UserSpecified_ActiveTokensForUser()
     {
-        [Fact]
-        public void GetActiveAccessTokens_UserSpecified_ActiveTokensForUser()
+        var context = new AlvTimeDbContextBuilder()
+            .WithUsers()
+            .CreateDbContext();
+
+        var storage = new AccessTokenStorage(context);
+
+        var user = new User
         {
-            var context = new AlvTimeDbContextBuilder()
-                .WithUsers()
-                .CreateDbContext();
+            Name = context.User.First().Name,
+            Email = context.User.First().Email
+        };
 
-            var storage = new AccessTokenStorage(context);
+        var tokens = await storage.GetActiveTokens(user);
 
-            var user = new User
-            {
-                Name = context.User.First().Name,
-                Email = context.User.First().Email
-            };
+        Assert.Equal(context.AccessTokens.Where(x => x.UserId == 1).ToList().Count(), tokens.Count());
+    }
 
-            var tokens = storage.GetActiveTokens(user);
+    [Fact]
+    public async Task CreateLifetimeToken_FriendlyNameSpecified_TokenWithFriendlyNameCreated()
+    {
+        var context = new AlvTimeDbContextBuilder()
+            .WithPersonalAccessTokens()
+            .WithUsers()
+            .CreateDbContext();
 
-            Assert.Equal(context.AccessTokens.Where(x => x.UserId == 1).ToList().Count(), tokens.Count());
-        }
-
-        [Fact]
-        public void CreateLifetimeToken_FriendlyNameSpecified_TokenWithFriendlyNameCreated()
+        var user = new User
         {
-            var context = new AlvTimeDbContextBuilder()
-                .WithPersonalAccessTokens()
-                .WithUsers()
-                .CreateDbContext();
+            Name = context.User.First().Name,
+            Email = context.User.First().Email
+        };
 
-            var user = new User
-            {
-                Name = context.User.First().Name,
-                Email = context.User.First().Email
-            };
+        var storage = new AccessTokenStorage(context);
 
-            var storage = new AccessTokenStorage(context);
-
-            var token = new PersonalAccessToken
-            {
-                User = user,
-                Value = Guid.NewGuid().ToString(),
-                ExpiryDate = DateTime.Now.AddMonths(6),
-                FriendlyName = "new token"
-            };
-
-            storage.CreateLifetimeToken(token);
-
-            var tokens = storage.GetActiveTokens(user);
-
-            Assert.Equal(context.AccessTokens.Where(x => x.UserId == 1).ToList().Count(), tokens.Count());
-        }
-
-        [Fact]
-        public void DeleteToken_TokenIdSpecified_TokenWithIdDeleted()
+        var token = new PersonalAccessToken
         {
-            var context = new AlvTimeDbContextBuilder()
-                .WithPersonalAccessTokens()
-                .WithUsers()
-                .CreateDbContext();
+            User = user,
+            Value = Guid.NewGuid().ToString(),
+            ExpiryDate = DateTime.Now.AddMonths(6),
+            FriendlyName = "new token"
+        };
 
-            var user = new User
-            {
-                Name = context.User.First().Name,
-                Email = context.User.First().Email
-            };
+        await storage.CreateLifetimeToken(token);
 
-            var storage = new AccessTokenStorage(context);
+        var tokens = await storage.GetActiveTokens(user);
 
-            storage.DeleteActiveTokens(1);
+        Assert.Equal(context.AccessTokens.Where(x => x.UserId == 1).ToList().Count(), tokens.Count());
+    }
 
-            var tokens = storage.GetActiveTokens(user);
-            Assert.Empty(tokens);
-        }
+    [Fact]
+    public async Task DeleteToken_TokenIdSpecified_TokenWithIdDeleted()
+    {
+        var context = new AlvTimeDbContextBuilder()
+            .WithPersonalAccessTokens()
+            .WithUsers()
+            .CreateDbContext();
 
-        [Fact]
-        public async Task Authenticate_ExpiredUser_WithValidPAT_ShouldFail()
+        var user = new User
         {
-            // Arrange
-            var dbContext = new AlvTimeDbContextBuilder()
-                .WithPersonalAccessTokens()
-                .WithUsers()
-                .CreateDbContext();
+            Name = context.User.First().Name,
+            Email = context.User.First().Email
+        };
 
-            var storage = new UserRepository(dbContext);
+        var storage = new AccessTokenStorage(context);
 
-            // This user and the following access token are provided by the WithUsers|WithPATs methods above
-            storage.UpdateUser(new UserDto
-            {
-                Id = 1,
-                EndDate = DateTime.Now.AddMonths(-1)
-            });
+        await storage.DeleteActiveTokens(1);
 
-            var accessToken = await dbContext.AccessTokens.FindAsync(1);
+        var tokens = await storage.GetActiveTokens(user);
+        Assert.Empty(tokens);
+    }
 
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Headers.Add(HeaderNames.Authorization, $"Bearer {accessToken?.Value}");
+    [Fact]
+    public async Task Authenticate_ExpiredUser_WithValidPAT_ShouldFail()
+    {
+        // Arrange
+        var dbContext = new AlvTimeDbContextBuilder()
+            .WithPersonalAccessTokens()
+            .WithUsers()
+            .CreateDbContext();
 
-            // The options and loggerFactory objects must return these values. If not, we get a NullPtrException
-            // Source: https://stackoverflow.com/questions/58963133/unit-test-custom-authenticationhandler-middleware
-            var options = new Mock<IOptionsMonitor<PersonalAccessTokenOptions>>();
-            options.Setup(x => x.Get(It.IsAny<string>()))
-                .Returns(new PersonalAccessTokenOptions());
+        var storage = new UserRepository(dbContext);
 
-            var logger = new Mock<ILogger<PersonalAccessTokenHandler>>();
-            var loggerFactory = new Mock<ILoggerFactory>();
-            loggerFactory.Setup(x => x.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
+        // This user and the following access token are provided by the WithUsers|WithPATs methods above
+        await storage.UpdateUser(new UserDto
+        {
+            Id = 1,
+            EndDate = DateTime.Now.AddMonths(-1)
+        });
 
-            var authenticationHandler = new PersonalAccessTokenHandler(
-                options.Object,
-                loggerFactory.Object,
-                UrlEncoder.Default,
-                storage,
-                Mock.Of<SystemClock>());
+        var accessToken = await dbContext.AccessTokens.FindAsync(1);
 
-            await authenticationHandler.InitializeAsync(
-                new AuthenticationScheme(nameof(PersonalAccessTokenHandler), null, typeof(PersonalAccessTokenHandler)),
-                httpContext);
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Headers.Add(HeaderNames.Authorization, $"Bearer {accessToken?.Value}");
 
-            // Act
-            var result = await authenticationHandler.AuthenticateAsync();
+        // The options and loggerFactory objects must return these values. If not, we get a NullPtrException
+        // Source: https://stackoverflow.com/questions/58963133/unit-test-custom-authenticationhandler-middleware
+        var options = new Mock<IOptionsMonitor<PersonalAccessTokenOptions>>();
+        options.Setup(x => x.Get(It.IsAny<string>()))
+            .Returns(new PersonalAccessTokenOptions());
 
-            // Assert
-            Assert.False(result.Succeeded);
-            Assert.Equal("The user has an end date in the past", result.Failure?.Message);
-        }
+        var logger = new Mock<ILogger<PersonalAccessTokenHandler>>();
+        var loggerFactory = new Mock<ILoggerFactory>();
+        loggerFactory.Setup(x => x.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
+
+        var authenticationHandler = new PersonalAccessTokenHandler(
+            options.Object,
+            loggerFactory.Object,
+            UrlEncoder.Default,
+            storage,
+            Mock.Of<SystemClock>());
+
+        await authenticationHandler.InitializeAsync(
+            new AuthenticationScheme(nameof(PersonalAccessTokenHandler), null, typeof(PersonalAccessTokenHandler)),
+            httpContext);
+
+        // Act
+        var result = await authenticationHandler.AuthenticateAsync();
+
+        // Assert
+        Assert.False(result.Succeeded);
+        Assert.Equal("The user has an end date in the past", result.Failure?.Message);
     }
 }

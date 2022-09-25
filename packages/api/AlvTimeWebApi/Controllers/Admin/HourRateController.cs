@@ -2,41 +2,41 @@
 using AlvTimeWebApi.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace AlvTimeWebApi.Controllers.Admin
+namespace AlvTimeWebApi.Controllers.Admin;
+
+[Route("api/admin")]
+[ApiController]
+public class HourRateController : Controller
 {
-    [Route("api/admin")]
-    [ApiController]
-    public class HourRateController : Controller
+    private readonly IHourRateStorage _hourRateStorage;
+    private readonly HourRateService _hourRateService;
+
+    public HourRateController(IHourRateStorage hourRateStorage, HourRateService hourRateService)
     {
-        private readonly IHourRateStorage _storage;
-        private readonly HourRateService _service;
+        _hourRateStorage = hourRateStorage;
+        _hourRateService = hourRateService;
+    }
 
-        public HourRateController(IHourRateStorage storage, HourRateService service)
+    [HttpGet("HourRates")]
+    [AuthorizeAdmin]
+    public async Task<ActionResult<IEnumerable<HourRateResponseDto>>> FetchHourRates()
+    {
+        return Ok(await _hourRateStorage.GetHourRates(new HourRateQuerySearch()));
+    }
+
+    [HttpPost("HourRates")]
+    [AuthorizeAdmin]
+    public async Task<ActionResult<IEnumerable<HourRateResponseDto>>> CreateHourRate([FromBody] IEnumerable<CreateHourRateDto> hourRatesToBeCreated)
+    {
+        List<HourRateResponseDto> response = new List<HourRateResponseDto>();
+
+        foreach (var hourRate in hourRatesToBeCreated)
         {
-            _storage = storage;
-            _service = service;
+            response.Add(await _hourRateService.CreateHourRate(hourRate));
         }
 
-        [HttpGet("HourRates")]
-        [AuthorizeAdmin]
-        public ActionResult<IEnumerable<HourRateResponseDto>> FetchHourRates()
-        {
-            return Ok(_storage.GetHourRates(new HourRateQuerySearch()));
-        }
-
-        [HttpPost("HourRates")]
-        [AuthorizeAdmin]
-        public ActionResult<IEnumerable<HourRateResponseDto>> CreateHourRate([FromBody] IEnumerable<CreateHourRateDto> hourRatesToBeCreated)
-        {
-            List<HourRateResponseDto> response = new List<HourRateResponseDto>();
-
-            foreach (var hourRate in hourRatesToBeCreated)
-            {
-                response.Add(_service.CreateHourRate(hourRate));
-            }
-
-            return Ok(response);
-        }
+        return Ok(response);
     }
 }

@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Payouts;
 using AlvTime.Persistence.DatabaseModels;
+using Microsoft.EntityFrameworkCore;
+using Task = System.Threading.Tasks.Task;
 
 namespace AlvTime.Persistence.Repositories
 {
@@ -16,11 +19,11 @@ namespace AlvTime.Persistence.Repositories
             _context = context;
         }
 
-        public PayoutsDto GetRegisteredPayouts(PayoutQueryFilter criterias)
+        public async Task<PayoutsDto> GetRegisteredPayouts(PayoutQueryFilter criterias)
         {
-            var payouts = _context.PaidOvertime.AsQueryable()
+            var payouts = await _context.PaidOvertime.AsQueryable()
                 .Filter(criterias)
-                .ToList();
+                .ToListAsync();
 
             return new PayoutsDto
             {
@@ -38,7 +41,7 @@ namespace AlvTime.Persistence.Repositories
             };
         }
 
-        public List<PayoutDto> RegisterPayout(int userId, GenericHourEntry request, List<PayoutToRegister> payoutsToRegister)
+        public async Task<List<PayoutDto>> RegisterPayout(int userId, GenericHourEntry request, List<PayoutToRegister> payoutsToRegister)
         {
             var response = new List<PayoutDto>();
             foreach (var payoutToRegister in payoutsToRegister)
@@ -64,17 +67,17 @@ namespace AlvTime.Persistence.Repositories
                 });
             }
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return response;
         }
 
-        public List<PayoutDto> GetActivePayouts(int userId)
+        public async Task<List<PayoutDto>> GetActivePayouts(int userId)
         {
-            var allActivePayouts = _context.PaidOvertime
+            var allActivePayouts = await _context.PaidOvertime
                 .Where(p => p.Date.Month >= DateTime.Now.Month &&
                             p.Date.Year == DateTime.Now.Year &&
-                            p.User == userId).ToList();
+                            p.User == userId).ToListAsync();
 
             return allActivePayouts.Select(po => new PayoutDto
             {
@@ -86,11 +89,11 @@ namespace AlvTime.Persistence.Repositories
             }).ToList();
         }
 
-        public void CancelPayout(DateTime payoutDate)
+        public async Task CancelPayout(DateTime payoutDate)
         {
             var payouts = _context.PaidOvertime.Where(po => po.Date.Date == payoutDate);
             _context.PaidOvertime.RemoveRange(payouts);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }

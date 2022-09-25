@@ -1,26 +1,24 @@
 ﻿using AlvTime.Business.FlexiHours;
 using AlvTime.Business.TimeEntries;
 using System.ComponentModel.DataAnnotations;
+using FluentValidation;
+using ValidationException = FluentValidation.ValidationException;
 
-namespace AlvTime.Business.Validators
+namespace AlvTime.Business.Validators;
+
+public class QuarterHour : ValidationAttribute
 {
-    public class QuarterHour : ValidationAttribute
+    protected override ValidationResult IsValid(object value,
+        ValidationContext validationContext)
     {
-        private static string GetErrorMessage() =>
-            "Value must be a multiple of a quarter hour (0.25)";
+        var request = validationContext.ObjectInstance;
 
-        protected override ValidationResult IsValid(object value,
-            ValidationContext validationContext)
+        if (request is GenericHourEntry entry && entry.Hours % 0.25M != 0 ||
+            request is CreateTimeEntryDto entry2 && entry2.Value% 0.25M != 0)
         {
-            var request = validationContext.ObjectInstance;
-
-            if (request is GenericHourEntry entry && entry.Hours % 0.25M != 0 ||
-                request is CreateTimeEntryDto entry2 && entry2.Value% 0.25M != 0)
-            {
-                return new ValidationResult(GetErrorMessage());
-            }
-
-            return ValidationResult.Success;
+            throw new ValidationException("Ført time må gå opp i kvarter");
         }
+
+        return ValidationResult.Success;
     }
 }

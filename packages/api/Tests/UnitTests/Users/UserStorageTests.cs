@@ -10,13 +10,13 @@ namespace Tests.UnitTests.Users
     public class UserStorageTests
     {
         [Fact]
-        public void GetUsers_NoCriterias_AllUsers()
+        public async Task GetUsers_NoCriterias_AllUsers()
         {
             var context = new AlvTimeDbContextBuilder().CreateDbContext();
 
             var storage = new UserRepository(context);
 
-            var users = storage.GetUsers(new UserQuerySearch()).ToList();
+            var users = storage.GetUsers(new UserQuerySearch()).Result.ToList();
 
             Assert.Equal(context.User.Count(), users.Count());
         }
@@ -32,7 +32,7 @@ namespace Tests.UnitTests.Users
             var users = storage.GetUsers(new UserQuerySearch
             {
                 Email = "someone@alv.no",
-            }).ToList();
+            }).Result.ToList();
 
             Assert.Equal("someone@alv.no", users.Single().Email);
         }
@@ -45,10 +45,10 @@ namespace Tests.UnitTests.Users
                 .CreateDbContext();
 
             var storage = new UserRepository(context);
-            var users = await storage.GetUsers(new UserQuerySearch
+            var users = storage.GetUsers(new UserQuerySearch
             {
                 Name = "Someone"
-            }).ToList();
+            }).Result.ToList();
 
             Assert.Equal("Someone", users.Single().Name);
         }

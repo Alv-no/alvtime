@@ -2,6 +2,7 @@
 using AlvTimeWebApi.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace AlvTimeWebApi.Controllers.Admin
 {
@@ -9,31 +10,31 @@ namespace AlvTimeWebApi.Controllers.Admin
     [ApiController]
     public class CustomerController : Controller
     {
-        private readonly ICustomerStorage _storage;
-        private readonly CustomerCreator _creator;
+        private readonly ICustomerStorage _customerStorage;
+        private readonly CustomerService _customerService;
 
-        public CustomerController(ICustomerStorage storage, CustomerCreator creator)
+        public CustomerController(ICustomerStorage customerStorage, CustomerService customerService)
         {
-            _storage = storage;
-            _creator = creator;
+            _customerStorage = customerStorage;
+            _customerService = customerService;
         }
 
         [HttpGet("Customers")]
         [AuthorizeAdmin]
-        public ActionResult<IEnumerable<CustomerDto>> FetchCustomers()
+        public async Task<ActionResult<IEnumerable<CustomerDto>>> FetchCustomers()
         {
-            return Ok(_storage.GetCustomers(new CustomerQuerySearch()));
+            return Ok(await _customerStorage.GetCustomers(new CustomerQuerySearch()));
         }
 
         [HttpPost("Customers")]
         [AuthorizeAdmin]
-        public ActionResult<IEnumerable<CustomerDto>> CreateNewCustomers([FromBody] IEnumerable<CustomerDto> customersToBeCreated)
+        public async Task<ActionResult<IEnumerable<CustomerDto>>> CreateNewCustomers([FromBody] IEnumerable<CustomerDto> customersToBeCreated)
         {
             List<CustomerDto> response = new List<CustomerDto>();
 
             foreach (var customer in customersToBeCreated)
             {
-                response.Add(_creator.CreateCustomer(customer));
+                response.Add(await _customerService.CreateCustomer(customer));
             }
 
             return Ok(response);
@@ -41,13 +42,13 @@ namespace AlvTimeWebApi.Controllers.Admin
 
         [HttpPut("Customers")]
         [AuthorizeAdmin]
-        public ActionResult<IEnumerable<CustomerDto>> UpdateExistingCustomers([FromBody] IEnumerable<CustomerDto> customersToBeUpdated)
+        public async Task<ActionResult<IEnumerable<CustomerDto>>> UpdateExistingCustomers([FromBody] IEnumerable<CustomerDto> customersToBeUpdated)
         {
             List<CustomerDto> response = new List<CustomerDto>();
 
             foreach (var customer in customersToBeUpdated)
             {
-                response.Add(_creator.UpdateCustomer(customer));
+                response.Add(await _customerService.UpdateCustomer(customer));
             }
             return Ok(response);
         }

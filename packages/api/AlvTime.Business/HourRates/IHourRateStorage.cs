@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace AlvTime.Business.HourRates
 {
     public interface IHourRateStorage
     {
-        IEnumerable<HourRateResponseDto> GetHourRates(HourRateQuerySearch criterias);
-        void CreateHourRate(CreateHourRateDto hourRate);
-        void UpdateHourRate(CreateHourRateDto hourRate);
+        Task<IEnumerable<HourRateResponseDto>> GetHourRates(HourRateQuerySearch criterias);
+        Task CreateHourRate(CreateHourRateDto hourRate);
+        Task UpdateHourRate(CreateHourRateDto hourRate);
     }
 
     public class HourRateQuerySearch

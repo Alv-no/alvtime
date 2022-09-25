@@ -2,7 +2,10 @@
 using AlvTime.Business.Projects;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AlvTime.Persistence.DatabaseModels;
+using Microsoft.EntityFrameworkCore;
+using Task = System.Threading.Tasks.Task;
 
 namespace AlvTime.Persistence.Repositories
 {
@@ -15,9 +18,9 @@ namespace AlvTime.Persistence.Repositories
             _context = context;
         }
 
-        public IEnumerable<ProjectResponseDto> GetProjects(ProjectQuerySearch criterias)
+        public async Task<IEnumerable<ProjectResponseDto>> GetProjects(ProjectQuerySearch criterias)
         {
-            var projects = _context.Project.AsQueryable()
+            var projects = await _context.Project.AsQueryable()
                 .Filter(criterias)
                 .Select(x => new ProjectResponseDto
                 {
@@ -32,12 +35,12 @@ namespace AlvTime.Persistence.Repositories
                         ContactPhone = x.CustomerNavigation.ContactPhone,
                         InvoiceAddress = x.CustomerNavigation.InvoiceAddress
                     }
-                }).ToList();
+                }).ToListAsync();
 
             return projects;
         }
 
-        public void CreateProject(CreateProjectDto newProject)
+        public async Task CreateProject(CreateProjectDto newProject)
         {
             var project = new Project
             {
@@ -46,14 +49,13 @@ namespace AlvTime.Persistence.Repositories
             };
 
             _context.Project.Add(project);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void UpdateProject(CreateProjectDto request)
+        public async Task UpdateProject(CreateProjectDto request)
         {
-            var existingProject = _context.Project
-                   .Where(x => x.Id == request.Id)
-                   .FirstOrDefault();
+            var existingProject = await _context.Project
+                .FirstOrDefaultAsync(x => x.Id == request.Id);
 
             if (request.Customer != null)
             {
@@ -64,7 +66,7 @@ namespace AlvTime.Persistence.Repositories
                 existingProject.Name = request.Name;
             }
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -2,7 +2,7 @@ using System;
 
 namespace AlvTime.Business.Users;
 
-public class EmploymentRateResponse
+public class EmploymentRateResponseDto
 {
     public int Id { get; set; }
     public int UserId { get; set; }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Overtime;
 using AlvTime.Business.TimeEntries;
@@ -8,15 +9,15 @@ namespace AlvTime.Business.TimeRegistration
 {
     public interface ITimeRegistrationStorage
     {
-        IEnumerable<TimeEntryResponseDto> GetTimeEntries(TimeEntryQuerySearch criteria);
-        IEnumerable<TimeEntryWithCompRateDto> GetTimeEntriesWithCompensationRate(TimeEntryQuerySearch criteria);
-        TimeEntryResponseDto GetTimeEntry(TimeEntryQuerySearch criteria);
-        TimeEntryResponseDto CreateTimeEntry(CreateTimeEntryDto timeEntry, int userId);
-        TimeEntryResponseDto UpdateTimeEntry(CreateTimeEntryDto timeEntry, int userId);
-        IEnumerable<DateEntry> GetDateEntries(TimeEntryQuerySearch criteria);
-        List<EarnedOvertimeDto> GetEarnedOvertime(OvertimeQueryFilter criteria);
-        void StoreOvertime(List<OvertimeEntry> overtimeEntries, int userId);
-        void DeleteOvertimeOnDate(DateTime date, int userId);
+        Task<IEnumerable<TimeEntryResponseDto>> GetTimeEntries(TimeEntryQuerySearch criteria);
+        Task<IEnumerable<TimeEntryWithCompRateDto>> GetTimeEntriesWithCompensationRate(TimeEntryQuerySearch criteria);
+        Task<TimeEntryResponseDto> GetTimeEntry(TimeEntryQuerySearch criteria);
+        Task<TimeEntryResponseDto> CreateTimeEntry(CreateTimeEntryDto timeEntry, int userId);
+        Task<TimeEntryResponseDto> UpdateTimeEntry(CreateTimeEntryDto timeEntry, int userId);
+        Task<IEnumerable<DateEntry>> GetDateEntries(TimeEntryQuerySearch criteria);
+        Task<List<EarnedOvertimeDto>> GetEarnedOvertime(OvertimeQueryFilter criteria);
+        Task StoreOvertime(List<OvertimeEntry> overtimeEntries, int userId);
+        Task DeleteOvertimeOnDate(DateTime date, int userId);
     }
 
     public class TimeEntryQuerySearch

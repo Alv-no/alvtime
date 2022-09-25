@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using AlvTime.Business.Interfaces;
 using AlvTime.Business.Models;
 using AlvTime.Business.Users;
@@ -23,9 +24,9 @@ namespace AlvTimeWebApi.Controllers.Utils
 
         private string Email => _httpContextAccessor.HttpContext.User.FindFirstValue("preferred_username");
 
-        public User GetCurrentUser()
+        public async Task<User> GetCurrentUser()
         {
-            var dbUser = _userRepository.GetUsers(new UserQuerySearch { Email = Email }).First();
+            var dbUser = (await _userRepository.GetUsers(new UserQuerySearch { Email = Email })).First();
 
             return new User { Id = dbUser.Id, Email = Email, Name = Name, StartDate = DateTime.Parse(dbUser.StartDate) };
         }

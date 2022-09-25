@@ -16,9 +16,10 @@ public class UserService
 
     public async Task<UserResponseDto> CreateUser(UserDto user)
     {
-        if (!UserAlreadyExists(user))
+        var userAlreadyExists = await UserAlreadyExists(user);
+        if (!userAlreadyExists)
         {
-            _userRepository.AddUser(user);
+            await _userRepository.AddUser(user);
         }
 
         return await GetUser(user);
@@ -26,18 +27,18 @@ public class UserService
 
     public async Task<UserResponseDto> UpdateUser(UserDto user)
     {
-        _userRepository.UpdateUser(user);
+        await _userRepository.UpdateUser(user);
 
         return await GetUserById(user);
     }
 
-    private bool UserAlreadyExists(UserDto userToBeCreated)
+    private async Task<bool> UserAlreadyExists(UserDto userToBeCreated)
     {
-        var user = _userRepository.GetUsers(new UserQuerySearch
+        var user = (await _userRepository.GetUsers(new UserQuerySearch
         {
             Email = userToBeCreated.Email,
             Name = userToBeCreated.Name,
-        }).FirstOrDefault();
+        })).FirstOrDefault();
 
         return user != null;
     }
@@ -73,16 +74,15 @@ public class UserService
         return user;
     }
 
-    public async Task<decimal> GetCurrentEmploymentRateForUser(int userId)
+    public async Task<decimal> GetCurrentEmploymentRateForUser(int userId, DateTime timeEntryDate)
     {
         var rates = (await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = userId })).OrderByDescending(er => er.ToDateInclusive).ToList();
 
-        if (!rates.Any() || rates.First().ToDateInclusive < DateTime.Now)
+        if (rates.Any() && rates.First().FromDateInclusive.Date <= timeEntryDate.Date && rates.First().ToDateInclusive.Date >= timeEntryDate.Date)
         {
-            return 1;
+            return rates.First().Rate;
         }
 
-        var currentRate = 1;
-        return currentRate;
+        return 1;
     }
 }

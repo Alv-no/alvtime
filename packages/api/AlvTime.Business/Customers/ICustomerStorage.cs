@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace AlvTime.Business.Customers
 {
     public interface ICustomerStorage
     {
-        IEnumerable<CustomerDto> GetCustomers(CustomerQuerySearch criterias);
-        void CreateCustomer(CustomerDto customer);
-        void UpdateCustomer(CustomerDto customer);
+        Task<IEnumerable<CustomerDto>> GetCustomers(CustomerQuerySearch criterias);
+        Task CreateCustomer(CustomerDto customer);
+        Task UpdateCustomer(CustomerDto customer);
     }
 
     public class CustomerQuerySearch

@@ -2,35 +2,37 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace AlvTime.Business.HourRates
 {
     public class HourRateService
     {
-        private readonly IHourRateStorage _storage;
+        private readonly IHourRateStorage _hourRateStorage;
 
-        public HourRateService(IHourRateStorage storage)
+        public HourRateService(IHourRateStorage hourRateStorage)
         {
-            _storage = storage;
+            _hourRateStorage = hourRateStorage;
         }
 
-        public HourRateResponseDto CreateHourRate(CreateHourRateDto hourRate)
+        public async Task<HourRateResponseDto> CreateHourRate(CreateHourRateDto hourRate)
         {
-            if (!GetHourRate(hourRate).Any())
+            var hourRateExists = (await GetHourRate(hourRate)).Any();
+            if (!hourRateExists)
             {
-                _storage.CreateHourRate(hourRate);
+                await _hourRateStorage.CreateHourRate(hourRate);
             }
             else
             {
-                _storage.UpdateHourRate(hourRate);
+                await _hourRateStorage.UpdateHourRate(hourRate);
             }
 
-            return GetHourRate(hourRate).Single();
+            return (await GetHourRate(hourRate)).Single();
         }
 
-        public IEnumerable<HourRateResponseDto> GetHourRate(CreateHourRateDto hourRate)
+        private async Task<IEnumerable<HourRateResponseDto>> GetHourRate(CreateHourRateDto hourRate)
         {
-            return _storage.GetHourRates(new HourRateQuerySearch
+            return await _hourRateStorage.GetHourRates(new HourRateQuerySearch
             {
                 FromDate = hourRate.FromDate,
                 TaskId = hourRate.TaskId

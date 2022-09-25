@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace AlvTime.Business.Economy
 {
     public interface IEconomyStorage
     {
-        IEnumerable<DataDumpDto> GetEconomyInfo();
+        Task<IEnumerable<DataDumpDto>> GetEconomyInfo();
     }
 }
