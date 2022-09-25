@@ -1161,6 +1161,7 @@ public class TimeRegistrationServiceTests
         Assert.Equal(0.375M, overtime.AvailableHoursAfterCompensation);
     }
 
+
     private TimeRegistrationService CreateTimeRegistrationService()
     {
         return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
