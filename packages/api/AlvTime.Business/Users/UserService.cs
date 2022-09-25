@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -76,13 +77,13 @@ public class UserService
 
     public async Task<decimal> GetCurrentEmploymentRateForUser(int userId, DateTime timeEntryDate)
     {
-        var rates = (await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = userId })).OrderByDescending(er => er.ToDateInclusive).ToList();
+        var rates = (await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = userId })).Where(er => er.FromDateInclusive.Date <= timeEntryDate.Date && er.ToDateInclusive.Date >= timeEntryDate.Date).ToList();
 
-        if (rates.Any() && rates.First().FromDateInclusive.Date < timeEntryDate.Date && rates.First().ToDateInclusive.Date > timeEntryDate.Date)
+        if (rates.Count > 1)
         {
-            return rates.First().Rate;
+            throw new ValidationException("Bruker har mer enn 1 gyldig stillingsprosent for gitt dato");
         }
-
-        return 1;
+        
+        return rates.Any() ? rates.First().Rate : 1;
     }
 }

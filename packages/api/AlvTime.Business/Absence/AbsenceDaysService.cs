@@ -161,7 +161,7 @@ public class AbsenceDaysService : IAbsenceDaysService
         var allSpentVacation = plannedVacation.Concat(usedVacation);
         var spentVacationByYear = allSpentVacation.GroupBy(u => u.Date.Year).ToList();
         
-        var usersAvailableVacationDays = 0;
+        var usersAvailableVacationDays = 0M;
         
         var startDay = userStartDate.DayOfYear;
 
@@ -172,14 +172,14 @@ public class AbsenceDaysService : IAbsenceDaysService
             
             var earnedDaysUpToThisYear = userStartDate.Year == year ? 0 : (int)Math.Round(daysWorkedLastYear * (VacationDays / DaysInYear));
 
-            var spentVacationThisYear = spentVacationByYear.Where(v => v.Key == year).SelectMany(v => v).Count();
+            var spentVacationThisYear = spentVacationByYear.Where(v => v.Key == year).SelectMany(v => v).Sum(v => v.Value)/7.5M;
             usersAvailableVacationDays += Math.Max(earnedDaysUpToThisYear - spentVacationThisYear, 0);
         }
 
         return new VacationDaysDTO
         {
-            PlannedVacationDaysThisYear = plannedVacationThisYear.Count(),
-            UsedVacationDaysThisYear = usedVacationThisYear.Count(),
+            PlannedVacationDaysThisYear = plannedVacationThisYear.Sum(v => v.Value)/7.5M,
+            UsedVacationDaysThisYear = usedVacationThisYear.Sum(v => v.Value)/7.5M,
             AvailableVacationDays = usersAvailableVacationDays,
             PlannedTransactions = plannedVacation,
             UsedTransactions = usedVacation

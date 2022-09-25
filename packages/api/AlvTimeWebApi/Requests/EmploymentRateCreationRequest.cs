@@ -1,12 +1,12 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace AlvTime.Business.Users;
+namespace AlvTimeWebApi.Requests;
 
-public class EmploymentRateChangeRequest
+public class EmploymentRateCreationRequest
 {
     [Required]
-    public int RateId { get; set; }
+    public int UserId { get; set; }
     [Required]
     public decimal Rate { get; set; }
     [Required]

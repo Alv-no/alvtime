@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AlvTimeWebApi.Requests;
 using AlvTimeWebApi.Responses;
 using AlvTimeWebApi.Utils;
 
@@ -73,14 +74,20 @@ public class UserController : Controller
             Rate = er.Rate,
             FromDateInclusive = er.FromDateInclusive.ToDateOnly(),
             ToDateInclusive = er.ToDateInclusive.ToDateOnly()
-        }));
+        }).OrderByDescending(er => er.ToDateInclusive));
     }
 
     [HttpPost("user/employmentrate")]
     [AuthorizeAdmin]
-    public async Task<ActionResult<EmploymentRateResponse>> CreateEmploymentRateForUser(EmploymentRateDto request)
+    public async Task<ActionResult<EmploymentRateResponse>> CreateEmploymentRateForUser(EmploymentRateCreationRequest request)
     {
-        var createdEmploymentRate = await _userRepository.CreateEmploymentRateForUser(request);
+        var createdEmploymentRate = await _userRepository.CreateEmploymentRateForUser(new EmploymentRateDto
+        {
+            UserId = request.UserId,
+            Rate = request.Rate,
+            ToDateInclusive = request.ToDateInclusive,
+            FromDateInclusive = request.FromDateInclusive
+        });
         return Ok(new EmploymentRateResponse
         {
             Id = createdEmploymentRate.Id,
@@ -91,7 +98,7 @@ public class UserController : Controller
         });
     }
 
-    [HttpPut("User/employmentrate")]
+    [HttpPut("user/employmentrate")]
     [AuthorizeAdmin]
     public async Task<ActionResult<EmploymentRateResponse>> UpdateEmploymentRate(EmploymentRateChangeRequest request)
     {
