@@ -78,7 +78,7 @@ public class UserService
     {
         var rates = (await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = userId })).OrderByDescending(er => er.ToDateInclusive).ToList();
 
-        if (rates.Any() && rates.First().FromDateInclusive.Date < timeEntryDate.Date && rates.First().ToDateInclusive.Date > timeEntryDate.Date)
+        if (rates.Any() && rates.First().FromDateInclusive.Date <= timeEntryDate.Date && rates.First().ToDateInclusive.Date >= timeEntryDate.Date)
         {
             return rates.First().Rate;
         }

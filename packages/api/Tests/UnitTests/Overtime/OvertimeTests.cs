@@ -1138,7 +1138,28 @@ public class TimeRegistrationServiceTests
         var overtime = await timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2022, 01, 04));
         Assert.Equal(0M, overtime.AvailableHoursAfterCompensation);
     }
-
+    
+    [Fact]
+    public async System.Threading.Tasks.Task GetOvertime_RecordsOvertimeOnDayEmploymentRateStarts_GetsCorrectOvertime()
+    {
+        _context.EmploymentRate.Add(new EmploymentRate
+        {
+            UserId = 1,
+            Rate = 0.5M,
+            FromDate = new DateTime(2022, 01, 10),
+            ToDate = new DateTime(2022, 01, 20)
+        });
+        await _context.SaveChangesAsync();
+        
+        var timeRegistrationService = CreateTimeRegistrationService();
+        var timeEntry1 =
+            await CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 10), 4M, 1.5M); //Monday
+        await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry1.entry.Date, Value = timeEntry1.entry.Value, TaskId = timeEntry1.taskId } });
+        
+        var overtime = await timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2022, 01, 10));
+        Assert.Equal(0.375M, overtime.AvailableHoursAfterCompensation);
+    }
 
     private TimeRegistrationService CreateTimeRegistrationService()
     {

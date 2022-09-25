@@ -129,7 +129,7 @@ public class TimeRegistrationService
         if (timeEntriesOnDate.Values.Sum(te => te.Value) > anticipatedWorkHours &&
             timeEntriesOnDate.Values.Any(te => te.TaskId == _flexTask && te.Value > 0))
         {
-            throw new Exception($"Du kan ikke registrere mer enn {anticipatedWorkHours} timer når du avspaserer.");
+            throw new Exception($"Du kan ikke registrere mer enn {anticipatedWorkHours:0.00} timer når du avspaserer.");
         }
 
         if (await OvertimeOrFlexingAffectsFutureFlex(timeEntry, anticipatedWorkHours))
