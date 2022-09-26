@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Overtime;
 using AlvTime.Business.TimeRegistration;
+using AlvTime.Business.Utils;
 using AlvTimeWebApi.Controllers.Utils;
 using AlvTimeWebApi.Responses;
+using AlvTimeWebApi.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,9 +27,9 @@ namespace AlvTimeWebApi.Controllers
         
         [HttpGet("AvailableHours")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
-        public AvailableOvertimeResponse FetchAvailableHours()
+        public async Task<AvailableOvertimeResponse> FetchAvailableHours()
         {
-            var availableOvertime = _timeRegistrationService.GetAvailableOvertimeHoursNow();
+            var availableOvertime = await _timeRegistrationService.GetAvailableOvertimeHoursNow();
             return new AvailableOvertimeResponse
             {
                 AvailableHoursAfterCompensation = availableOvertime.AvailableHoursAfterCompensation,
@@ -42,9 +45,9 @@ namespace AlvTimeWebApi.Controllers
         
         [HttpGet("EarnedOvertime")]
         [Authorize(Policy = "AllowPersonalAccessToken")]
-        public List<EarnedOvertimeDto> FetchEarnedOvertime(DateTime startDate, DateTime endDate)
+        public async Task<List<EarnedOvertimeDto>> FetchEarnedOvertime(DateTime startDate, DateTime endDate)
         {
-            return _timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter { StartDate = startDate, EndDate = endDate});
+            return await _timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter { StartDate = startDate, EndDate = endDate});
         }
     }
 }

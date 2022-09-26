@@ -21,6 +21,7 @@ namespace AlvTime.Persistence.DatabaseModels
         public virtual DbSet<CompensationRate> CompensationRate { get; set; }
         public virtual DbSet<Customer> Customer { get; set; }
         public virtual DbSet<EarnedOvertime> EarnedOvertime { get; set; }
+        public virtual DbSet<EmploymentRate> EmploymentRate { get; set; }
         public virtual DbSet<HourRate> HourRate { get; set; }
         public virtual DbSet<Hours> Hours { get; set; }
         public virtual DbSet<PaidOvertime> PaidOvertime { get; set; }
@@ -124,6 +125,17 @@ namespace AlvTime.Persistence.DatabaseModels
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_EarnedOvertime_User");
+            });
+
+            modelBuilder.Entity<EmploymentRate>(entity =>
+            {
+                entity.Property(e => e.Rate).HasColumnType("decimal(7, 2)");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.EmploymentRates)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_EmploymentRate_User");
             });
 
             modelBuilder.Entity<HourRate>(entity =>

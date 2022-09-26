@@ -2,60 +2,114 @@
 using AlvTimeWebApi.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using AlvTimeWebApi.Requests;
+using AlvTimeWebApi.Responses;
+using AlvTimeWebApi.Utils;
 
-namespace AlvTimeWebApi.Controllers.Admin
+namespace AlvTimeWebApi.Controllers.Admin;
+
+[Route("api/admin")]
+[ApiController]
+public class UserController : Controller
 {
-    [Route("api/admin")]
-    [ApiController]
-    public class UserController : Controller
+    private readonly IUserRepository _userRepository;
+    private readonly UserService _userService;
+
+    public UserController(IUserRepository userRepository, UserService userService)
     {
-        private readonly IUserStorage _userStorage;
-        private readonly UserCreator _creator;
+        _userRepository = userRepository;
+        _userService = userService;
+    }
 
-        public UserController(IUserStorage userStorage, UserCreator creator)
-        {
-            _userStorage = userStorage;
-            _creator = creator;
-        }
+    [HttpGet("Users")]
+    [AuthorizeAdmin]
+    public async Task<ActionResult<IEnumerable<UserResponseDto>>> FetchUsers()
+    {
+        var users = await _userRepository.GetUsers(new UserQuerySearch());
+        return Ok(users);
+    }
 
-        [HttpGet("Users")]
-        [AuthorizeAdmin]
-        public ActionResult<IEnumerable<UserResponseDto>> FetchUsers()
+    [HttpPost("Users")]
+    [AuthorizeAdmin]
+    public async Task<ActionResult<IEnumerable<UserResponseDto>>> CreateNewUsers([FromBody] IEnumerable<UserDto> usersToBeCreated)
+    {
+        List<UserResponseDto> response = new List<UserResponseDto>();
+        foreach (var user in usersToBeCreated)
         {
-            var users = _userStorage.GetUser(new UserQuerySearch());
-            return Ok(users);
-        }
-
-        [HttpPost("Users")]
-        [AuthorizeAdmin]
-        public ActionResult<IEnumerable<UserResponseDto>> CreateNewUsers([FromBody] IEnumerable<CreateUserDto> usersToBeCreated)
-        {
-            List<UserResponseDto> response = new List<UserResponseDto>();
-            foreach (var user in usersToBeCreated)
+            response.Add(await _userService.CreateUser(new UserDto
             {
-                response.Add(_creator.CreateUser(new CreateUserDto
-                {
-                    Email = user.Email,
-                    Name = user.Name,
-                    StartDate = user.StartDate,
-                    EndDate = user.EndDate
-                }));
-            }
-
-            return Ok(response);
+                Email = user.Email,
+                Name = user.Name,
+                StartDate = user.StartDate,
+                EndDate = user.EndDate
+            }));
         }
 
-        [HttpPut("Users")]
-        [AuthorizeAdmin]
-        public ActionResult<IEnumerable<UserResponseDto>> UpdateUsers([FromBody] IEnumerable<CreateUserDto> usersToBeUpdated)
+        return Ok(response);
+    }
+
+    [HttpPut("Users")]
+    [AuthorizeAdmin]
+    public async Task<ActionResult<IEnumerable<UserResponseDto>>> UpdateUsers([FromBody] IEnumerable<UserDto> usersToBeUpdated)
+    {
+        List<UserResponseDto> response = new List<UserResponseDto>();
+        foreach (var user in usersToBeUpdated)
         {
-            List<UserResponseDto> response = new List<UserResponseDto>();
-            foreach (var user in usersToBeUpdated)
-            {
-                response.Add(_creator.UpdateUser(user));
-            }
-
-            return Ok(response);
+            response.Add(await _userService.UpdateUser(user));
         }
+
+        return Ok(response);
+    }
+
+    [HttpGet("user/{userId}/employmentrates")]
+    [AuthorizeAdmin]
+    public async Task<ActionResult<EmploymentRateResponse>> FetchEmploymentRatesForUser(int userId)
+    {
+        return Ok((await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = userId })).Select(er => new EmploymentRateResponse
+        {
+            Id = er.Id,
+            UserId = er.UserId,
+            Rate = er.Rate,
+            FromDateInclusive = er.FromDateInclusive.ToDateOnly(),
+            ToDateInclusive = er.ToDateInclusive.ToDateOnly()
+        }).OrderByDescending(er => er.ToDateInclusive));
+    }
+
+    [HttpPost("user/employmentrate")]
+    [AuthorizeAdmin]
+    public async Task<ActionResult<EmploymentRateResponse>> CreateEmploymentRateForUser(EmploymentRateCreationRequest request)
+    {
+        var createdEmploymentRate = await _userRepository.CreateEmploymentRateForUser(new EmploymentRateDto
+        {
+            UserId = request.UserId,
+            Rate = request.Rate,
+            ToDateInclusive = request.ToDateInclusive,
+            FromDateInclusive = request.FromDateInclusive
+        });
+        return Ok(new EmploymentRateResponse
+        {
+            Id = createdEmploymentRate.Id,
+            UserId = createdEmploymentRate.UserId,
+            Rate = createdEmploymentRate.Rate,
+            FromDateInclusive = createdEmploymentRate.FromDateInclusive.ToDateOnly(),
+            ToDateInclusive = createdEmploymentRate.ToDateInclusive.ToDateOnly()
+        });
+    }
+
+    [HttpPut("user/employmentrate")]
+    [AuthorizeAdmin]
+    public async Task<ActionResult<EmploymentRateResponse>> UpdateEmploymentRate(EmploymentRateChangeRequest request)
+    {
+        var updatedEmploymentRate = await _userRepository.UpdateEmploymentRateForUser(request);
+        return Ok(new EmploymentRateResponse
+        {
+            Id = updatedEmploymentRate.Id,
+            UserId = updatedEmploymentRate.UserId,
+            Rate = updatedEmploymentRate.Rate,
+            FromDateInclusive = updatedEmploymentRate.FromDateInclusive.ToDateOnly(),
+            ToDateInclusive = updatedEmploymentRate.ToDateInclusive.ToDateOnly()
+        });
     }
 }

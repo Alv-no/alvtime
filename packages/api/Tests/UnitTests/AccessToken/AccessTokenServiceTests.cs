@@ -6,6 +6,7 @@ using AlvTime.Business.Interfaces;
 using AlvTime.Persistence.DatabaseModels;
 using Moq;
 using Xunit;
+using Task = System.Threading.Tasks.Task;
 using User = AlvTime.Business.Models.User;
 
 namespace Tests.UnitTests.AccessToken
@@ -13,7 +14,7 @@ namespace Tests.UnitTests.AccessToken
     public class AccessTokenServiceTests
     {
         [Fact]
-        public void GetActiveAccessTokens_UserSpecified_ActiveTokensForUser()
+        public async Task GetActiveAccessTokens_UserSpecified_ActiveTokensForUser()
         {
             var dbContext = new AlvTimeDbContextBuilder()
                 .WithUsers()
@@ -21,13 +22,13 @@ namespace Tests.UnitTests.AccessToken
 
             var service = CreateAccessTokenService(dbContext);
 
-            var tokens = service.GetActiveTokens();
+            var tokens = await service.GetActiveTokens();
 
             Assert.Equal(dbContext.AccessTokens.Where(x => x.UserId == 1).ToList().Count, tokens.Count());
         }
 
         [Fact]
-        public void CreateLifetimeToken_FriendlyNameSpecified_TokenWithFriendlyNameCreated()
+        public async Task CreateLifetimeToken_FriendlyNameSpecified_TokenWithFriendlyNameCreated()
         {
             var dbContext = new AlvTimeDbContextBuilder()
                 .WithPersonalAccessTokens()
@@ -36,15 +37,15 @@ namespace Tests.UnitTests.AccessToken
 
             var service = CreateAccessTokenService(dbContext);
 
-            service.CreateLifeTimeToken("new token");
+            await service.CreateLifeTimeToken("new token");
 
-            var tokens = service.GetActiveTokens();
+            var tokens = await service.GetActiveTokens();
 
             Assert.Equal(dbContext.AccessTokens.Where(x => x.UserId == 1).ToList().Count(), tokens.Count());
         }
 
         [Fact]
-        public void DeleteToken_TokenIdSpecified_TokenWithIdDeleted()
+        public async Task DeleteToken_TokenIdSpecified_TokenWithIdDeleted()
         {
             var dbContext = new AlvTimeDbContextBuilder()
                 .WithPersonalAccessTokens()
@@ -53,9 +54,9 @@ namespace Tests.UnitTests.AccessToken
 
             var service = CreateAccessTokenService(dbContext);
 
-            service.DeleteActiveTokens(new List<int>{1});
+            await service.DeleteActiveTokens(new List<int>{1});
 
-            var tokens = service.GetActiveTokens();
+            var tokens = await service.GetActiveTokens();
 
             Assert.Empty(tokens);
         }
@@ -71,7 +72,7 @@ namespace Tests.UnitTests.AccessToken
                 Name = "Someone"
             };
 
-            mockUserContext.Setup(context => context.GetCurrentUser()).Returns(user);
+            mockUserContext.Setup(context => context.GetCurrentUser()).Returns(System.Threading.Tasks.Task.FromResult(user));
             
             return new AccessTokenService(new AccessTokenStorage(dbContext), mockUserContext.Object);
         }

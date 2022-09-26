@@ -1,17 +1,18 @@
 ﻿using AlvTime.Business.Tasks.Admin;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace AlvTime.Business.Tasks
 {
     public interface ITaskStorage
     {
-        IEnumerable<TaskResponseDto> GetTasks(TaskQuerySearch criterias);
-        IEnumerable<TaskResponseDto> GetUsersTasks(TaskQuerySearch criterias, int userId);
-        void CreateFavoriteTask(int taskId, int userId);
-        void RemoveFavoriteTask(int taskId, int userId);
-        bool IsFavorite(int taskId, int userId);
-        void CreateTask(CreateTaskDto task);
-        void UpdateTask(UpdateTaskDto taskToBeUpdated);
+        Task<IEnumerable<TaskResponseDto>> GetTasks(TaskQuerySearch criterias);
+        Task<IEnumerable<TaskResponseDto>> GetUsersTasks(TaskQuerySearch criterias, int userId);
+        Task CreateFavoriteTask(int taskId, int userId);
+        Task RemoveFavoriteTask(int taskId, int userId);
+        Task<bool> IsFavorite(int taskId, int userId);
+        Task CreateTask(CreateTaskDto task);
+        Task UpdateTask(UpdateTaskDto taskToBeUpdated);
     }
 
     public class TaskQuerySearch

@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace AlvTime.Business.Interfaces
 {
     public interface IDbContextScope
     {
-        void AsAtomic(Action atomicAction);
+        Task AsAtomic(Func<Task> atomicAction);
     }
 }

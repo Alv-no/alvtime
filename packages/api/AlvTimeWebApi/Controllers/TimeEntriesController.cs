@@ -7,10 +7,13 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AlvTime.Business.FlexiHours;
 using AlvTime.Business.TimeRegistration;
+using AlvTime.Business.Utils;
 using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Responses;
+using AlvTimeWebApi.Utils;
 
 namespace AlvTimeWebApi.Controllers;
 
@@ -36,18 +39,18 @@ public class TimeEntriesController : Controller
 
     [HttpGet("TimeEntries")]
     [Authorize(Policy = "AllowPersonalAccessToken")]
-    public ActionResult<IEnumerable<TimeEntryResponseDto>> FetchTimeEntries(DateTime fromDateInclusive, DateTime toDateInclusive)
+    public async Task<ActionResult<IEnumerable<TimeEntryResponseDto>>> FetchTimeEntries(DateTime fromDateInclusive, DateTime toDateInclusive)
     {
         try
         {
             var user = _userRetriever.RetrieveUser();
 
-            return Ok(_storage.GetTimeEntries(new TimeEntryQuerySearch
+            return Ok((await _storage.GetTimeEntries(new TimeEntryQuerySearch
                 {
                     UserId = user.Id,
                     FromDateInclusive = fromDateInclusive,
                     ToDateInclusive = toDateInclusive
-                })
+                }))
                 .Select(timeEntry => new
                 {
                     User = timeEntry.User,
@@ -70,14 +73,9 @@ public class TimeEntriesController : Controller
 
     [HttpPost("TimeEntries")]
     [Authorize(Policy = "AllowPersonalAccessToken")]
-    public ActionResult<List<TimeEntryResponseDto>> UpsertTimeEntry([FromBody] List<CreateTimeEntryDto> requests)
+    public async Task<ActionResult<List<TimeEntryResponseDto>>> UpsertTimeEntry([FromBody] List<CreateTimeEntryDto> requests)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState.Values);
-        }
-
-        return Ok(_timeRegistrationService.UpsertTimeEntry(requests)
+        return Ok((await _timeRegistrationService.UpsertTimeEntry(requests))
             .Select(timeEntry => new
             {
                 User = timeEntry.User,
@@ -91,9 +89,9 @@ public class TimeEntriesController : Controller
         
     [HttpGet("FlexedHours")]
     [Authorize(Policy = "AllowPersonalAccessToken")]
-    public ActionResult<TimeEntriesResponse> FetchFlexedHours()
+    public async Task<ActionResult<TimeEntriesResponse>> FetchFlexedHours()
     {
-        var flexedEntries = _timeRegistrationService.GetTimeEntries(new TimeEntryQuerySearch
+        var flexedEntries = await _timeRegistrationService.GetTimeEntries(new TimeEntryQuerySearch
         {
             TaskId = _timeEntryOptions.CurrentValue.FlexTask
         });
@@ -111,17 +109,17 @@ public class TimeEntriesController : Controller
 
     [HttpGet("TimeEntriesReport")]
     [Authorize(Policy = "AllowPersonalAccessToken")]
-    public ActionResult<IEnumerable<TimeEntryResponseDto>> FetchTimeEntriesReport(DateTime fromDateInclusive, DateTime toDateInclusive)
+    public async Task<ActionResult<IEnumerable<TimeEntryResponseDto>>> FetchTimeEntriesReport(DateTime fromDateInclusive, DateTime toDateInclusive)
     {
         var user = _userRetriever.RetrieveUser();
 
         if (user.Id == _reportUser)
         {
-            var report = _storage.GetTimeEntries(new TimeEntryQuerySearch
+            var report = (await _storage.GetTimeEntries(new TimeEntryQuerySearch
                 {
                     FromDateInclusive = fromDateInclusive,
                     ToDateInclusive = toDateInclusive
-                })
+                }))
                 .ToList()
                 .Select(timeEntry => new
                 {
@@ -141,8 +139,8 @@ public class TimeEntriesController : Controller
 
     [HttpPut("retrigger")]
     [AuthorizeAdmin]
-    public void RetriggerTimeEntriesOnDay([FromQuery] DateTime date, [FromQuery] int userId)
+    public async Task RetriggerTimeEntriesOnDay([FromQuery] DateTime date, [FromQuery] int userId)
     {
-        _timeRegistrationService.RetriggerDate(date, userId);
+        await _timeRegistrationService.RetriggerDate(date, userId);
     }
 }

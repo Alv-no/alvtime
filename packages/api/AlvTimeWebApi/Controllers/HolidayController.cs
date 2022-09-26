@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using AlvTime.Business.Absence;
 using AlvTime.Business.Extensions;
 using AlvTime.Business.Holidays;
@@ -56,7 +57,7 @@ public class HolidayController : Controller
 
     [HttpGet("user/UsedVacation")]
     [Authorize(Policy = "AllowPersonalAccessToken")]
-    public ActionResult<VacationOverviewDto> FetchUsedVacationHours([FromQuery] int? year)
+    public async Task<ActionResult<VacationOverviewDto>> FetchUsedVacationHours([FromQuery] int? year)
     {
         if (!year.HasValue)
         {
@@ -65,7 +66,7 @@ public class HolidayController : Controller
 
         var user = _userRetriever.RetrieveUser();
 
-        var entries = _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
+        var entries = await _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
         {
             FromDateInclusive = new DateTime(year.Value, 01, 01),
             ToDateInclusive = new DateTime(year.Value, 12, 31),
@@ -80,7 +81,7 @@ public class HolidayController : Controller
 
     [HttpGet("user/VacationOverview")]
     [Authorize(Policy = "AllowPersonalAccessToken")]
-    public ActionResult<VacationDaysDTO> FetchVacationOverview([FromQuery] int? year, int? month, int? day)
+    public async Task<ActionResult<VacationDaysDTO>> FetchVacationOverview([FromQuery] int? year, int? month, int? day)
     {
         if (!year.HasValue)
         {
@@ -99,7 +100,7 @@ public class HolidayController : Controller
 
         try
         {
-            return Ok(_absenceDaysService.GetAllTimeVacationOverview(year.Value));
+            return Ok(await _absenceDaysService.GetAllTimeVacationOverview(year.Value));
         }
         catch (Exception e)
         {
@@ -110,7 +111,7 @@ public class HolidayController : Controller
 
     [HttpGet("user/AbsenseOverview")]
     [Authorize(Policy = "AllowPersonalAccessToken")]
-    public ActionResult<AbsenceDaysDto> FetchRemainingAbsenseDays(int? year, DateTime? intervalStart)
+    public async Task<ActionResult<AbsenceDaysDto>> FetchRemainingAbsenseDays(int? year, DateTime? intervalStart)
     {
 
         if (!year.HasValue)
@@ -119,7 +120,7 @@ public class HolidayController : Controller
         }
         try
         {
-            AbsenceDaysDto absenceDays = _absenceDaysService.GetAbsenceDays(_userRetriever.RetrieveUser().Id, year.Value, intervalStart);
+            var absenceDays = await _absenceDaysService.GetAbsenceDays(_userRetriever.RetrieveUser().Id, year.Value, intervalStart);
             return Ok(absenceDays);
         }
         catch (Exception e)

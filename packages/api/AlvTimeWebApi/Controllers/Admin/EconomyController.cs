@@ -2,6 +2,7 @@
 using AlvTimeWebApi.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace AlvTimeWebApi.Controllers.Admin
 {
@@ -9,18 +10,18 @@ namespace AlvTimeWebApi.Controllers.Admin
     [ApiController]
     public class EconomyController : Controller
     {
-        private readonly IEconomyStorage _storage;
+        private readonly IEconomyStorage _economyStorage;
 
-        public EconomyController(IEconomyStorage storage)
+        public EconomyController(IEconomyStorage economyStorage)
         {
-            _storage = storage;
+            _economyStorage = economyStorage;
         }
 
         [HttpGet("EconomyInfo")]
         [AuthorizeAdmin]
-        public ActionResult<IEnumerable<DataDumpDto>> FetchEconomyInfo()
+        public async Task<ActionResult<IEnumerable<DataDumpDto>>> FetchEconomyInfo()
         {
-            return Ok(_storage.GetEconomyInfo());
+            return Ok(await _economyStorage.GetEconomyInfo());
         }
     }
 }

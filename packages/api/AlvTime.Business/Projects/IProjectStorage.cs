@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace AlvTime.Business.Projects
 {
     public interface IProjectStorage
     {
-        IEnumerable<ProjectResponseDto> GetProjects(ProjectQuerySearch criterias);
-        void UpdateProject(CreateProjectDto request);
-        void CreateProject(CreateProjectDto project);
+        Task<IEnumerable<ProjectResponseDto>> GetProjects(ProjectQuerySearch criterias);
+        Task UpdateProject(CreateProjectDto request);
+        Task CreateProject(CreateProjectDto project);
 
     }
 

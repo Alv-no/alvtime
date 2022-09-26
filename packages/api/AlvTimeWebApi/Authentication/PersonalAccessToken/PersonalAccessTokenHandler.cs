@@ -14,16 +14,16 @@ namespace AlvTimeWebApi.Authentication.PersonalAccessToken
 {
     public class PersonalAccessTokenHandler : AuthenticationHandler<PersonalAccessTokenOptions>
     {
-        private readonly IUserStorage _storage;
+        private readonly IUserRepository _repository;
 
         public PersonalAccessTokenHandler(
             IOptionsMonitor<PersonalAccessTokenOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
-            IUserStorage storage,
+            IUserRepository repository,
             ISystemClock clock) : base(options, logger, encoder, clock)
         {
-            _storage = storage;
+            _repository = repository;
         }
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -40,7 +40,7 @@ namespace AlvTimeWebApi.Authentication.PersonalAccessToken
                     "Authorization header either doesn't start with \"Bearer\" or the token payload is null");
             }
 
-            var user = await _storage.GetUserFromToken(new Token {Value = token});
+            var user = await _repository.GetUserFromToken(new Token {Value = token});
             if (user == null)
             {
                 return AuthenticateResult.Fail("No user could be retrieved from the given token");
