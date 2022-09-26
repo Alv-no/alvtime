@@ -16,13 +16,13 @@ namespace AlvTimeWebApi.Controllers
     public class ProfileController : Controller
     {
         private RetrieveUsers _userRetriever;
-        private readonly IUserStorage _userStorage;
+        private readonly IUserRepository _userRepository;
         private readonly int _reportUser;
 
-        public ProfileController(RetrieveUsers userRetriever, IUserStorage userStorage, IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
+        public ProfileController(RetrieveUsers userRetriever, IUserRepository userRepository, IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
         {
             _userRetriever = userRetriever;
-            _userStorage = userStorage;
+            _userRepository = userRepository;
             _reportUser = timeEntryOptions.CurrentValue.ReportUser;
         }
 
@@ -55,7 +55,7 @@ namespace AlvTimeWebApi.Controllers
 
             if (user.Id == _reportUser)
             {
-                var users = _userStorage.GetUser(new UserQuerySearch());
+                var users = _userRepository.GetUsers(new UserQuerySearch());
                 return Ok(users);
             }
 

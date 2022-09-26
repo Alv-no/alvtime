@@ -1,6 +1,7 @@
 ﻿using System;
 using AlvTime.Business.Interfaces;
 using AlvTime.Persistence.DatabaseModels;
+using Task = System.Threading.Tasks.Task;
 
 namespace AlvTime.Persistence.Repositories
 {
@@ -13,13 +14,11 @@ namespace AlvTime.Persistence.Repositories
             _dbContext = dbContext;
         }
         
-        public void AsAtomic(Action atomicAction)
+        public async Task AsAtomic(Func<Task> atomicAction)
         {
-            using (var transaction = _dbContext.Database.BeginTransaction())
-            {
-                atomicAction.Invoke();
-                transaction.Commit();
-            }
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+            await atomicAction.Invoke();
+            await transaction.CommitAsync();
         }
     }
 }

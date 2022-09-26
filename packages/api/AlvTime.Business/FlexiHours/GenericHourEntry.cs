@@ -7,7 +7,7 @@ namespace AlvTime.Business.FlexiHours
     {
         public DateTime Date { get; set; }
         
-        [HalfHour]
+        [QuarterHour]
         public decimal Hours { get; set; }
     }
 }

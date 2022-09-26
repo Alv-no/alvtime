@@ -5,8 +5,10 @@ using AlvTime.Business.Tasks.Admin;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
+using Task = AlvTime.Persistence.DatabaseModels.Task;
 
 namespace AlvTime.Persistence.Repositories
 {
@@ -19,9 +21,9 @@ namespace AlvTime.Persistence.Repositories
             _context = context;
         }
 
-        public IEnumerable<TaskResponseDto> GetTasks(TaskQuerySearch criterias)
+        public async Task<IEnumerable<TaskResponseDto>> GetTasks(TaskQuerySearch criterias)
         {
-            var tasks = _context.Task
+            var tasks = await _context.Task
                 .Include(t => t.CompensationRate).AsQueryable()
                 .Filter(criterias)
                 .Select(x => new TaskResponseDto
@@ -47,7 +49,7 @@ namespace AlvTime.Persistence.Repositories
                             InvoiceAddress = x.ProjectNavigation.CustomerNavigation.InvoiceAddress
                         }
                     }
-                }).ToList();
+                }).ToListAsync();
 
             return tasks;
         }
@@ -57,11 +59,11 @@ namespace AlvTime.Persistence.Repositories
             return compensationRate.OrderByDescending(cr => cr.FromDate).FirstOrDefault()?.Value ?? 0.0M;
         }
 
-        public IEnumerable<TaskResponseDto> GetUsersTasks(TaskQuerySearch criterias, int userId)
+        public async Task<IEnumerable<TaskResponseDto>> GetUsersTasks(TaskQuerySearch criterias, int userId)
         {
-            var usersFavoriteTaskIds = _context.TaskFavorites.Where(x => x.UserId == userId).Select(x => x.TaskId).ToList();
+            var usersFavoriteTaskIds = await _context.TaskFavorites.Where(x => x.UserId == userId).Select(x => x.TaskId).ToListAsync();
 
-            var tasks = GetTasks(criterias);
+            var tasks = await GetTasks(criterias);
 
             foreach (var task in tasks)
             {
@@ -71,7 +73,7 @@ namespace AlvTime.Persistence.Repositories
             return tasks;
         }
 
-        public void CreateTask(CreateTaskDto task)
+        public async System.Threading.Tasks.Task CreateTask(CreateTaskDto task)
         {
             var newTask = new Task
             {
@@ -90,13 +92,13 @@ namespace AlvTime.Persistence.Repositories
                 }
             };
             _context.Task.Add(newTask);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
         
-        public void UpdateTask(UpdateTaskDto task)
+        public async System.Threading.Tasks.Task UpdateTask(UpdateTaskDto task)
         {
-            var existingTask = _context.Task
-                .FirstOrDefault(x => x.Id == task.Id);
+            var existingTask = await _context.Task
+                .FirstOrDefaultAsync(x => x.Id == task.Id);
 
             if (task.Locked != null)
             {
@@ -108,15 +110,15 @@ namespace AlvTime.Persistence.Repositories
             }
             if (task.CompensationRate != null)
             {
-                var compensationRates = _context.CompensationRate.ToList().OrderByDescending(cr => cr.FromDate);
+                var compensationRates = (await _context.CompensationRate.ToListAsync()).OrderByDescending(cr => cr.FromDate);
                 var compRateToBeUpdated = compensationRates.First(cr => cr.TaskId == task.Id);
                 compRateToBeUpdated.Value = task.CompensationRate.Value;
             }
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void CreateFavoriteTask(int taskId, int userId)
+        public async System.Threading.Tasks.Task CreateFavoriteTask(int taskId, int userId)
         {
             TaskFavorites favorite = new TaskFavorites
             {
@@ -124,22 +126,22 @@ namespace AlvTime.Persistence.Repositories
                 UserId = userId
             };
             _context.TaskFavorites.Add(favorite);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void RemoveFavoriteTask(int taskId, int userId)
+        public async System.Threading.Tasks.Task RemoveFavoriteTask(int taskId, int userId)
         {
-            var favoriteEntry = _context.TaskFavorites
-                .FirstOrDefault(tf => tf.UserId == userId && tf.TaskId == taskId);
+            var favoriteEntry = await _context.TaskFavorites
+                .FirstOrDefaultAsync(tf => tf.UserId == userId && tf.TaskId == taskId);
 
             _context.TaskFavorites.Remove(favoriteEntry);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public bool IsFavorite(int taskId, int userId)
+        public async Task<bool> IsFavorite(int taskId, int userId)
         {
-            return _context.TaskFavorites
-                .FirstOrDefault(tf => tf.UserId == userId && tf.TaskId == taskId) != null;
+            return await _context.TaskFavorites
+                .FirstOrDefaultAsync(tf => tf.UserId == userId && tf.TaskId == taskId) != null;
         }
     }
 }

@@ -1,7 +1,10 @@
 ﻿using AlvTime.Business.Customers;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AlvTime.Persistence.DatabaseModels;
+using Microsoft.EntityFrameworkCore;
+using Task = System.Threading.Tasks.Task;
 
 namespace AlvTime.Persistence.Repositories
 {
@@ -14,7 +17,7 @@ namespace AlvTime.Persistence.Repositories
             _context = context;
         }
 
-        public void CreateCustomer(CustomerDto customer)
+        public async Task CreateCustomer(CustomerDto customer)
         {
             var newCustomer = new Customer
             {
@@ -26,12 +29,12 @@ namespace AlvTime.Persistence.Repositories
             };
 
             _context.Customer.Add(newCustomer);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public IEnumerable<CustomerDto> GetCustomers(CustomerQuerySearch criterias)
+        public async Task<IEnumerable<CustomerDto>> GetCustomers(CustomerQuerySearch criterias)
         {
-            return _context.Customer.AsQueryable()
+            return await _context.Customer.AsQueryable()
                 .Filter(criterias)
                 .Select(x => new CustomerDto
                 {
@@ -41,14 +44,13 @@ namespace AlvTime.Persistence.Repositories
                     ContactEmail = x.ContactEmail,
                     ContactPhone = x.ContactPhone,
                     InvoiceAddress = x.InvoiceAddress
-                }).ToList();
+                }).ToListAsync();
         }
 
-        public void UpdateCustomer(CustomerDto customer)
+        public async Task UpdateCustomer(CustomerDto customer)
         {
-            var existingCustomer = _context.Customer
-                .Where(x => x.Id == customer.Id)
-                .FirstOrDefault();
+            var existingCustomer = await _context.Customer
+                .FirstOrDefaultAsync(x => x.Id == customer.Id);
 
             if (customer.Name != null)
             {
@@ -71,7 +73,7 @@ namespace AlvTime.Persistence.Repositories
                 existingCustomer.InvoiceAddress = customer.InvoiceAddress;
             }
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }

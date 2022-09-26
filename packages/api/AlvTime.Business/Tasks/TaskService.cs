@@ -1,6 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AlvTime.Business.Interfaces;
 using AlvTime.Business.Tasks.Admin;
 
@@ -17,92 +17,93 @@ namespace AlvTime.Business.Tasks
             _userContext = userContext;
         }
 
-        public IEnumerable<TaskResponseDto> GetTasksForUser(TaskQuerySearch criteria)
+        public async Task<IEnumerable<TaskResponseDto>> GetTasksForUser(TaskQuerySearch criteria)
         {
-            var currentUser = _userContext.GetCurrentUser();
-            var tasks = _taskStorage.GetUsersTasks(criteria, currentUser.Id);
+            var currentUser = await _userContext.GetCurrentUser();
+            var tasks = await _taskStorage.GetUsersTasks(criteria, currentUser.Id);
 
             return tasks;
         }
         
-        public IEnumerable<TaskResponseDto> GetAllTasks(TaskQuerySearch criteria)
+        public async Task<IEnumerable<TaskResponseDto>> GetAllTasks(TaskQuerySearch criteria)
         {
-            return _taskStorage.GetTasks(criteria);
+            return await _taskStorage.GetTasks(criteria);
         }
 
-        public IEnumerable<TaskResponseDto> UpdateFavoriteTasks(IEnumerable<(int id, bool favorite)> tasksToUpdate)
+        public async Task<IEnumerable<TaskResponseDto>> UpdateFavoriteTasks(IEnumerable<(int id, bool favorite)> tasksToUpdate)
         {
-            var currentUser = _userContext.GetCurrentUser();
+            var currentUser = await _userContext.GetCurrentUser();
             
             List<TaskResponseDto> response = new List<TaskResponseDto>();
             foreach (var task in tasksToUpdate)
             {
-                response.Add(UpdateFavoriteTask(task.id, task.favorite, currentUser.Id));
+                response.Add(await UpdateFavoriteTask(task.id, task.favorite, currentUser.Id));
             }
 
             return response;
         }
         
-        private TaskResponseDto UpdateFavoriteTask(int taskId, bool isTaskFavorited, int userId)
+        private async Task<TaskResponseDto> UpdateFavoriteTask(int taskId, bool isTaskFavorited, int userId)
         {
-            var userHasFavorite = _taskStorage.IsFavorite(taskId, userId);
+            var userHasFavorite = await _taskStorage.IsFavorite(taskId, userId);
 
             if (userHasFavorite && !isTaskFavorited)
             {
-                _taskStorage.RemoveFavoriteTask(taskId, userId);
+                await _taskStorage.RemoveFavoriteTask(taskId, userId);
             }
             else if (!userHasFavorite && isTaskFavorited)
             {
-                _taskStorage.CreateFavoriteTask(taskId, userId);
+                await _taskStorage.CreateFavoriteTask(taskId, userId);
             }
 
-            return GetTaskForUser(taskId, userId);
+            return await GetTaskForUser(taskId, userId);
         }
         
-        public IEnumerable<TaskResponseDto> CreateTasks(IEnumerable<CreateTaskDto> tasksToBeCreated)
+        public async Task<IEnumerable<TaskResponseDto>> CreateTasks(IEnumerable<CreateTaskDto> tasksToBeCreated)
         {
             var response = new List<TaskResponseDto>();
             
             foreach (var task in tasksToBeCreated)
             {
-                if (!GetTask(task).Any())
+                var taskAlreadyExists = (await GetTask(task)).Any();
+                if (!taskAlreadyExists)
                 {
-                    _taskStorage.CreateTask(task);
+                    await _taskStorage.CreateTask(task);
                 }
-                response.Add(GetTask(task).Single());
+                response.Add((await GetTask(task)).Single());
             }
 
             return response;
         }
 
-        public IEnumerable<TaskResponseDto> UpdateTasks(IEnumerable<UpdateTaskDto> tasksToBeUpdated)
+        public async Task<IEnumerable<TaskResponseDto>> UpdateTasks(IEnumerable<UpdateTaskDto> tasksToBeUpdated)
         {
             var response = new List<TaskResponseDto>();
             foreach (var task in tasksToBeUpdated)
             {
-                _taskStorage.UpdateTask(task);
-                var responseDto = _taskStorage.GetTasks(new TaskQuerySearch
+                await _taskStorage.UpdateTask(task);
+                var responseDto = (await _taskStorage.GetTasks(new TaskQuerySearch
                 {
                     Id = task.Id
-                }).Single();
+                })).Single();
                 response.Add(responseDto);
             }
 
             return response;
         }
 
-        private IEnumerable<TaskResponseDto> GetTask(CreateTaskDto task)
+        private async Task<IEnumerable<TaskResponseDto>> GetTask(CreateTaskDto task)
         {
-            return _taskStorage.GetTasks(new TaskQuerySearch
+            return await _taskStorage.GetTasks(new TaskQuerySearch
             {
                 Name = task.Name,
                 Project = task.Project
             });
         }
         
-        private TaskResponseDto GetTaskForUser(int taskId, int userId)
+        private async Task<TaskResponseDto> GetTaskForUser(int taskId, int userId)
         {
-            var taskResponseDto = _taskStorage.GetUsersTasks(new TaskQuerySearch
+            var taskResponseDto = await _taskStorage.GetUsersTasks(new TaskQuerySearch
             {
                 Id = taskId
             }, userId);

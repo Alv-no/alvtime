@@ -2,7 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AlvTime.Persistence.DatabaseModels;
+using Microsoft.EntityFrameworkCore;
+using Task = System.Threading.Tasks.Task;
 
 namespace AlvTime.Persistence.Repositories
 {
@@ -15,7 +18,7 @@ namespace AlvTime.Persistence.Repositories
             _context = context;
         }
 
-        public void CreateCompensationRate(CompensationRateDto compensationRateDto)
+        public async Task CreateCompensationRate(CompensationRateDto compensationRateDto)
         {
             var compensationRate = new CompensationRate
             {
@@ -25,12 +28,12 @@ namespace AlvTime.Persistence.Repositories
             };
 
             _context.CompensationRate.Add(compensationRate);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public IEnumerable<CompensationRateSearchResultDto> GetCompensationRates(CompensationRateQuerySearch criterias)
+        public async Task<IEnumerable<CompensationRateSearchResultDto>> GetCompensationRates(CompensationRateQuerySearch criterias)
         {
-            var compRates = _context.CompensationRate.AsQueryable()
+            var compRates = await _context.CompensationRate.AsQueryable()
                 .Filter(criterias)
                 .Select(x => new CompensationRateSearchResultDto
                 {
@@ -38,12 +41,12 @@ namespace AlvTime.Persistence.Repositories
                     FromDate = x.FromDate,
                     Value = x.Value,
                     TaskId = x.TaskId
-                }).ToList();
+                }).ToListAsync();
 
             return compRates;
         }
 
-        public CompensationRateDto UpdateCompensationRate()
+        public Task<CompensationRateDto> UpdateCompensationRate()
         {
             throw new NotImplementedException();
         }

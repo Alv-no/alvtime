@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Interfaces;
 using AlvTime.Business.Overtime;
@@ -22,27 +23,27 @@ namespace AlvTime.Business.Payouts
             _timeRegistrationService = timeRegistrationService;
         }
 
-        public PayoutsDto GetRegisteredPayouts()
+        public async Task<PayoutsDto> GetRegisteredPayouts()
         {
-            var currentUser = _userContext.GetCurrentUser();
+            var currentUser = await _userContext.GetCurrentUser();
 
-            return _payoutStorage.GetRegisteredPayouts(new PayoutQueryFilter{ UserId = currentUser.Id });
+            return await _payoutStorage.GetRegisteredPayouts(new PayoutQueryFilter{ UserId = currentUser.Id });
         }
 
-        public PayoutDto RegisterPayout(GenericHourEntry request)
+        public async Task<PayoutDto> RegisterPayout(GenericHourEntry request)
         {
-            var currentUser = _userContext.GetCurrentUser();
+            var currentUser = await _userContext.GetCurrentUser();
 
-            var availableHours = _timeRegistrationService.GetAvailableOvertimeHoursAtDate(request.Date.Date);
+            var availableHours = await _timeRegistrationService.GetAvailableOvertimeHoursAtDate(request.Date.Date);
             var availableForPayout = availableHours.AvailableHoursBeforeCompensation;
-            var existingPayoutsOnDate = GetRegisteredPayouts().Entries.Where(e => e.Date.Date == request.Date.Date);
+            var existingPayoutsOnDate = (await GetRegisteredPayouts()).Entries.Where(e => e.Date.Date == request.Date.Date);
 
             if (existingPayoutsOnDate.Any())
             {
                 throw new ValidationException("Du har allerede bestilt en utbetaling denne dagen. Kanseller den forrige og bestill på nytt.");
             }
 
-            var futureFlexEntries = _timeRegistrationService.GetFlexTimeEntries().Where(entry => entry.Date > DateTime.Now);
+            var futureFlexEntries = (await _timeRegistrationService.GetFlexTimeEntries()).Where(entry => entry.Date > DateTime.Now);
 
             if (futureFlexEntries.Any(e => e.Value > 0))
             {
@@ -52,7 +53,7 @@ namespace AlvTime.Business.Payouts
             if (request.Hours <= availableForPayout)
             {
                 var listOfPayoutsToRegister = CalculatePayoutHoursBasedOnAvailableOvertime(request.Hours, availableHours);
-                var registeredPayouts = _payoutStorage.RegisterPayout(currentUser.Id, request, listOfPayoutsToRegister);
+                var registeredPayouts = await _payoutStorage.RegisterPayout(currentUser.Id, request, listOfPayoutsToRegister);
 
                 return new PayoutDto
                 {
@@ -67,11 +68,11 @@ namespace AlvTime.Business.Payouts
             throw new ValidationException("Ikke nok tilgjengelige timer.");
         }
 
-        public void CancelPayout(DateTime payoutDate)
+        public async Task CancelPayout(DateTime payoutDate)
         {
             var date = payoutDate.Date;
-            ValidatePayoutCancellation(date);
-            _payoutStorage.CancelPayout(date);
+            await ValidatePayoutCancellation(date);
+            await _payoutStorage.CancelPayout(date);
         }
 
         private List<PayoutToRegister> CalculatePayoutHoursBasedOnAvailableOvertime(decimal requestedHours, AvailableOvertimeDto availableHours)
@@ -110,17 +111,17 @@ namespace AlvTime.Business.Payouts
             return listOfPayouts;
         }
         
-        private void ValidatePayoutCancellation(DateTime payoutDate)
+        private async Task ValidatePayoutCancellation(DateTime payoutDate)
         {
-            var currentUser = _userContext.GetCurrentUser();
-            var allActivePayouts = _payoutStorage.GetActivePayouts(currentUser.Id);
+            var currentUser = await _userContext.GetCurrentUser();
+            var allActivePayouts = await _payoutStorage.GetActivePayouts(currentUser.Id);
 
             if (!allActivePayouts.Any())
             {
                 throw new ValidationException("Det er ingen aktive utbetalinger.");
             }
             
-            var payoutsToBeCancelled = GetRegisteredPayouts().Entries.Where(po => po.Date.Date == payoutDate).ToList();
+            var payoutsToBeCancelled = (await GetRegisteredPayouts()).Entries.Where(po => po.Date.Date == payoutDate).ToList();
 
             if (!payoutsToBeCancelled.Any())
             {

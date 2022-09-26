@@ -2,6 +2,7 @@
 using AlvTime.Persistence.Repositories;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Tests.UnitTests.HourRates
@@ -9,25 +10,25 @@ namespace Tests.UnitTests.HourRates
     public class HourRateStorageTests
     {
         [Fact]
-        public void GetHourRates_NoCriterias_AllHourRates()
+        public async Task GetHourRates_NoCriterias_AllHourRates()
         {
             var context = new AlvTimeDbContextBuilder().CreateDbContext();
 
             var storage = new HourRateStorage(context);
 
-            var hourRates = storage.GetHourRates(new HourRateQuerySearch());
+            var hourRates = await storage.GetHourRates(new HourRateQuerySearch());
 
             Assert.Equal(context.HourRate.Count(), hourRates.Count());
         }
 
         [Fact]
-        public void GetHourRates_RateSpecified_AllHourRatesWithSpecifiedRate()
+        public async Task GetHourRates_RateSpecified_AllHourRatesWithSpecifiedRate()
         {
             var context = new AlvTimeDbContextBuilder().CreateDbContext();
 
             var storage = new HourRateStorage(context);
 
-            var hourRates = storage.GetHourRates(new HourRateQuerySearch 
+            var hourRates = await storage.GetHourRates(new HourRateQuerySearch 
             {
                 Rate = 1000
             });
@@ -36,20 +37,20 @@ namespace Tests.UnitTests.HourRates
                 .Where(hr => hr.Rate == 1000)
                 .ToList();
 
-            Assert.Equal(contextHourRatesWithRate.Count(), hourRates.Count());
+            Assert.Equal(contextHourRatesWithRate.Count, hourRates.Count());
         }
 
         [Fact]
-        public void CreateHourRate_NewHourRate_HourRateIsCreated()
+        public async Task CreateHourRate_NewHourRate_HourRateIsCreated()
         {
             var context = new AlvTimeDbContextBuilder().WithCustomers().WithProjects().WithTasks().CreateDbContext();
 
             var storage = new HourRateStorage(context);
-            var creator = new HourRateCreator(storage);
+            var creator = new HourRateService(storage);
 
             var previousCountOfHourRates = context.HourRate.Count();
 
-            creator.CreateHourRate(new CreateHourRateDto
+            await creator.CreateHourRate(new CreateHourRateDto
             {
                 FromDate = new DateTime(2019, 05, 01),
                 Rate = 500,
@@ -62,14 +63,14 @@ namespace Tests.UnitTests.HourRates
         }
 
         [Fact]
-        public void CreateHourRate_HourRateExists_RateIsUpdated()
+        public async Task CreateHourRate_HourRateExists_RateIsUpdated()
         {
             var context = new AlvTimeDbContextBuilder().WithCustomers().WithProjects().WithTasks().CreateDbContext();
 
             var storage = new HourRateStorage(context);
-            var creator = new HourRateCreator(storage);
+            var creator = new HourRateService(storage);
 
-            creator.CreateHourRate(new CreateHourRateDto
+            await creator.CreateHourRate(new CreateHourRateDto
             {
                 FromDate = new DateTime(2019, 01, 01),
                 Rate = 800,
@@ -77,8 +78,7 @@ namespace Tests.UnitTests.HourRates
             });
 
             var hourRate = context.HourRate
-                .Where(hr => hr.FromDate == new DateTime(2019, 01, 01) && hr.TaskId == 1)
-                .FirstOrDefault();
+                .FirstOrDefault(hr => hr.FromDate == new DateTime(2019, 01, 01) && hr.TaskId == 1);
 
             Assert.Equal(800, hourRate.Rate);
         }

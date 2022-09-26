@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using AlvTime.Persistence.DatabaseModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace AlvTime.Persistence.Repositories
 {
@@ -15,9 +17,9 @@ namespace AlvTime.Persistence.Repositories
             _context = context;
         }
 
-        public IEnumerable<DataDumpDto> GetEconomyInfo()
+        public async Task<IEnumerable<DataDumpDto>> GetEconomyInfo()
         {
-            return _context.VDataDump
+            return await _context.VDataDump
                 .Select(x => new DataDumpDto
                 {
                     CustomerId = x.CustomerId,
@@ -35,7 +37,7 @@ namespace AlvTime.Persistence.Repositories
                     Earnings = x.Earnings,
                     IsBillable = x.IsBillable
                 })
-                .ToList();
+                .ToListAsync();
         }
     }
 }
