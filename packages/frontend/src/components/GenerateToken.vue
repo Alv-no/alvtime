@@ -22,7 +22,7 @@
       <div class="token">
         <div>
           <span>{{ token }}</span>
-          <span class="expires">expires: {{ expires }}</span>
+          <span class="expires">expires: {{ expiryDate }}</span>
         </div>
         <md-button class="icon_button" @click="onCopyClick">
           <md-icon class="icon">file_copy</md-icon>
@@ -34,12 +34,13 @@
 </template>
 
 <script lang="ts">
+import Input from "./Input.vue";
+import Tooltip from "./Tooltip.vue";
 import Vue from "vue";
 import YellowButton from "./YellowButton.vue";
-import Tooltip from "./Tooltip.vue";
-import Input from "./Input.vue";
 import config from "@/config";
 import httpClient from "../services/httpClient";
+import moment from "moment";
 
 export default Vue.extend({
   components: {
@@ -51,7 +52,7 @@ export default Vue.extend({
   data() {
     return {
       token: "",
-      expires: "",
+      expiryDate: "",
       friendlyName: "",
     };
   },
@@ -79,13 +80,15 @@ export default Vue.extend({
 
     async fetchAccessToken() {
       httpClient
-        .post<{ token: string; expires: string }>(
+        .post<{ token: string; expiryDate: string }>(
           `${config.API_HOST}/api/user/AccessToken`,
           { friendlyName: this.friendlyName }
         )
         .then(response => {
           this.token = response.data.token;
-          this.expires = response.data.expires;
+          this.expiryDate = moment(response.data.expiryDate).format(
+            "dddd D. MMMM YYYY"
+          );
         })
         .catch(e => {
           console.error(e);
