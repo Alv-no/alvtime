@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -26,6 +27,11 @@ namespace AlvTimeWebApi.Controllers.Utils
 
         public async Task<User> GetCurrentUser()
         {
+            if (string.IsNullOrEmpty(Email))
+            {
+                throw new ValidationException("Bruker eksisterer ikke");
+            }
+            
             var dbUser = (await _userRepository.GetUsers(new UserQuerySearch { Email = Email })).First();
 
             return new User { Id = dbUser.Id, Email = Email, Name = Name, StartDate = DateTime.Parse(dbUser.StartDate) };
