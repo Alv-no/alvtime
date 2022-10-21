@@ -35,7 +35,7 @@
     "mongoose-field-encryption": "3.0.4",
     "node-cron": "^2.0.3",
     "node-fetch": "^2.6.7",
-    "passport": "^0.4.1",
+    "passport": "^0.6.0",
     "passport-oauth2": "^1.6.1",
     "pino": "^6.13.3",
     "pino-http": "^5.8.0",
