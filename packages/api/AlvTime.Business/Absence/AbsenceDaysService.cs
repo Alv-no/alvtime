@@ -173,7 +173,16 @@ public class AbsenceDaysService : IAbsenceDaysService
             var earnedDaysUpToThisYear = userStartDate.Year == year ? 0 : (int)Math.Round(daysWorkedLastYear * (VacationDays / DaysInYear));
 
             var spentVacationThisYear = spentVacationByYear.Where(v => v.Key == year).SelectMany(v => v).Sum(v => v.Value)/7.5M;
-            usersAvailableVacationDays += Math.Max(earnedDaysUpToThisYear - spentVacationThisYear, 0);
+            
+            var sumThisYear = earnedDaysUpToThisYear - spentVacationThisYear;
+            if (sumThisYear < 0)
+            {
+                usersAvailableVacationDays -= Math.Min(Math.Abs(sumThisYear), usersAvailableVacationDays);
+            }
+            else
+            {
+                usersAvailableVacationDays += sumThisYear;
+            }
         }
 
         return new VacationDaysDTO
