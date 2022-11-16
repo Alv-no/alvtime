@@ -21,6 +21,8 @@ public class TimeRegistrationServiceTests
     private readonly AlvTime_dbContext _context;
     private readonly IOptionsMonitor<TimeEntryOptions> _options;
     private readonly Mock<IUserContext> _userContextMock;
+    private readonly TimeRegistrationService _timeRegistrationService;
+    private readonly PayoutService _payoutService;
         
     public TimeRegistrationServiceTests()
     {
@@ -52,78 +54,79 @@ public class TimeRegistrationServiceTests
             Name = "Someone"
         };
 
+        _timeRegistrationService = CreateTimeRegistrationService();
+
         _userContextMock.Setup(context => context.GetCurrentUser()).Returns(System.Threading.Tasks.Task.FromResult(user));
+
+        var payoutValidationServiceMock = new Mock<PayoutValidationService>(new UserService(new UserRepository(_context)),
+            _timeRegistrationService, new PayoutStorage(_context));
+        payoutValidationServiceMock.Setup(x => x.CheckForIncompleteDays(It.IsAny<GenericHourEntry>(), It.IsAny<int>())).Returns(System.Threading.Tasks.Task.FromResult(System.Threading.Tasks.Task.CompletedTask));
+        payoutValidationServiceMock.CallBase = true;
+        _payoutService = new PayoutService(new PayoutStorage(_context), _userContextMock.Object,
+            _timeRegistrationService, payoutValidationServiceMock.Object);
     }
         
     [Fact]
     public async System.Threading.Tasks.Task UpsertTimeEntry_FlexBeforeARegisteredPayoutDate_ShouldNotBeAbleToFlex()
     {
-        var timeRegistrationService = CreateTimeRegistrationService();
-        var payoutService = CreatePayoutService(timeRegistrationService);
 
         var timeEntry1 = CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 19.5M, 1.5M, out _); //Monday
-        await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             {new() {Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId}});
             
-        await payoutService.RegisterPayout(new GenericHourEntry
+        await _payoutService.RegisterPayout(new GenericHourEntry
         {
             Date = new DateTime(2021, 12, 14),
             Hours = 1
         });
 
         var flexTimeEntry = CreateTimeEntryForExistingTask(new DateTime(2021, 12, 13), 1, 18);
-        await Assert.ThrowsAsync<Exception>(async () => await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+        await Assert.ThrowsAsync<Exception>(async () => await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = flexTimeEntry.Date, Value = flexTimeEntry.Value, TaskId = flexTimeEntry.TaskId } }));
     }
         
     [Fact]
     public async System.Threading.Tasks.Task UpsertTimeEntry_EarningOvertimeBeforeRegisteredPayoutDate_ShouldNotBeAbleToRegisterOvertime()
     {
-        var timeRegistrationService = CreateTimeRegistrationService();
-        var payoutService = CreatePayoutService(timeRegistrationService);
-
         var timeEntry1 = CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 19.5M, 1.5M, out _); //Monday
-        await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             {new() {Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId}});
             
-        await payoutService.RegisterPayout(new GenericHourEntry
+        await _payoutService.RegisterPayout(new GenericHourEntry
         {
             Date = new DateTime(2021, 12, 14),
             Hours = 1
         });
 
         var timeEntry2 = CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 08), 19.5M, 1.5M, out _); //Monday
-        await Assert.ThrowsAsync<Exception>(async () => await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+        await Assert.ThrowsAsync<Exception>(async () => await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId } }));
     }
         
     [Fact]
     public async System.Threading.Tasks.Task UpsertTimeEntry_RecordedVacationOnChristmas_CannotRegisterVactionOnRedDay()
     {
-        var timeRegistrationService = CreateTimeRegistrationService();
         var vacationEntry =
             CreateTimeEntryForExistingTask(new DateTime(2021, 12, 24), 7.5M, 13);
 
-        await Assert.ThrowsAsync<Exception>(async () => await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+        await Assert.ThrowsAsync<Exception>(async () => await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             {new() {Date = vacationEntry.Date, Value = vacationEntry.Value, TaskId = vacationEntry.TaskId}}));
     }
         
     [Fact]
     public async System.Threading.Tasks.Task RegisterTimeEntry_PayoutWouldBeAffected_ExceptionThrown()
     {
-        var timeRegistrationService = CreateTimeRegistrationService();
         var timeEntry1 =
             CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 28), 5M, 0.5M, out _); //Friday
-        await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
 
         var timeEntry2 =
             CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 28), 5M, 1.5M, out int taskId2); //Friday
-        await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId } });
             
-        var payoutService = CreatePayoutService(timeRegistrationService);
-        await payoutService.RegisterPayout(new GenericHourEntry
+        await _payoutService.RegisterPayout(new GenericHourEntry
         {
             Date = new DateTime(2022, 01, 28), //Friday
             Hours = 2.5M
@@ -131,7 +134,7 @@ public class TimeRegistrationServiceTests
             
         var timeEntry3 =
             CreateTimeEntryForExistingTask(new DateTime(2022, 01, 28), 2M, taskId2); //Friday
-        await Assert.ThrowsAsync<Exception>(async () => await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+        await Assert.ThrowsAsync<Exception>(async () => await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId } }));
     }
         
@@ -141,35 +144,46 @@ public class TimeRegistrationServiceTests
         var currentYear = DateTime.Now.Year;
         var currentMonth = DateTime.Now.Month;
         var currentDay = DateTime.Now.Day;
-        var timeRegistrationService = CreateTimeRegistrationService();
         var overtimeEntry =
             CreateTimeEntryWithCompensationRate(new DateTime(currentYear, currentMonth, currentDay), 12M, 1.5M, out _);
-        await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = overtimeEntry.Date, Value = overtimeEntry.Value, TaskId = overtimeEntry.TaskId } });
 
         var futureDayToRegisterFlexOn = DateTime.Now.AddDays(5).DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday ? DateTime.Now.AddDays(7) : DateTime.Now.AddDays(5);
         var futureFlex =
             CreateTimeEntryForExistingTask(futureDayToRegisterFlexOn, 1M, 18);
-        await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = futureFlex.Date, Value = futureFlex.Value, TaskId = futureFlex.TaskId } });
 
         var dayToRegisterFlexOn = DateTime.Now.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday ? DateTime.Now.AddDays(2) : DateTime.Now;
         var flexToday =
             CreateTimeEntryForExistingTask(dayToRegisterFlexOn, 1M, 18);
-        await Assert.ThrowsAsync<Exception>(async () => await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+        await Assert.ThrowsAsync<Exception>(async () => await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = flexToday.Date, Value = flexToday.Value, TaskId = flexToday.TaskId } }));
+    }
+    
+    [Fact]
+    public async System.Threading.Tasks.Task RegisterVacation_UserIsEmployed50Percent_CannotRegister7Point5HoursVacation()
+    {
+        _context.EmploymentRate.Add(new EmploymentRate
+        {
+            UserId = 1,
+            Rate = 0.5M,
+            FromDate = new DateTime(2022, 01, 01),
+            ToDate = new DateTime(2022, 01, 08)
+        });
+        await _context.SaveChangesAsync();
+        
+        var timeRegistrationService = CreateTimeRegistrationService();
+        var vacationEntry = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 03), 7.5M, 13); //Monday
+        await Assert.ThrowsAsync<Exception>(async () => await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = vacationEntry.Date, Value = vacationEntry.Value, TaskId = vacationEntry.TaskId } }));
     }
         
     private TimeRegistrationService CreateTimeRegistrationService()
     {
         return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
             new TimeRegistrationStorage(_context), new DbContextScope(_context), new PayoutStorage(_context), new UserService(new UserRepository(_context)));
-    }
-
-    private PayoutService CreatePayoutService(TimeRegistrationService timeRegistrationService)
-    {
-        return new PayoutService(new PayoutStorage(_context), _userContextMock.Object,
-            timeRegistrationService);
     }
 
     private TaskUtils CreateTaskUtils()

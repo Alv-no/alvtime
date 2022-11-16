@@ -52,6 +52,7 @@ namespace AlvTimeWebApi
             services.AddScoped<TimeRegistrationService>();
             services.AddScoped<IDbContextScope, DbContextScope>();
             services.AddScoped<TaskService>();
+            services.AddScoped<PayoutValidationService>();
         }
     }
 }
