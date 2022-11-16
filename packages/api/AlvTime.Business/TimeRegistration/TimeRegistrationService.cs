@@ -163,13 +163,13 @@ public class TimeRegistrationService
         }
 
         var taskGivesOvertime = await _taskUtils.TaskGivesOvertime(timeEntry.TaskId);
-        if (timeEntry.Value > HoursInWorkday && !taskGivesOvertime)
+        if (timeEntry.Value > anticipatedWorkHours && !taskGivesOvertime)
         {
-            throw new Exception("Du kan ikke registrere mer enn 7.5 timer på den oppgaven.");
+            throw new Exception($"Du kan ikke registrere mer enn {anticipatedWorkHours:0.00} timer på den oppgaven.");
         }
 
         if (!taskGivesOvertime &&
-            (timeEntry.Date.DayOfWeek == DayOfWeek.Saturday || timeEntry.Date.DayOfWeek == DayOfWeek.Sunday))
+            timeEntry.Date.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday)
         {
             throw new Exception("Du kan ikke registrere den oppgaven på en helg.");
         }

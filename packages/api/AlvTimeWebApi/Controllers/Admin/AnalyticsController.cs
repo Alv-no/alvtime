@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AlvTimeWebApi.Requests;
-using AlvTimeWebApi.Responses;
 using AlvTimeWebApi.Utils;
 using AlvTime.Business.TimeRegistration;
 using System;
@@ -15,16 +13,14 @@ namespace AlvTimeWebApi.Controllers.Admin;
 
 [Route("api/admin")]
 [ApiController]
-public class AnalyticsController : Controller
+public class AnalyticsController : ControllerBase
 {
     private readonly IUserRepository _userRepository;
-    private readonly UserService _userService;
     private readonly TimeRegistrationService _timeRegistrationService;
 
-    public AnalyticsController(IUserRepository userRepository, UserService userService, TimeRegistrationService timeRegistrationService)
+    public AnalyticsController(IUserRepository userRepository, TimeRegistrationService timeRegistrationService)
     {
         _userRepository = userRepository;
-        _userService = userService;
         _timeRegistrationService = timeRegistrationService;
     }
 
