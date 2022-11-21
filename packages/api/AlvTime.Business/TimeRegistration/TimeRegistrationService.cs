@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.Interfaces;
+using AlvTime.Business.Models;
 using AlvTime.Business.Options;
 using AlvTime.Business.Overtime;
 using AlvTime.Business.Payouts;
@@ -254,7 +255,11 @@ public class TimeRegistrationService
     public async Task<AvailableOvertimeDto> GetAvailableOvertimeHoursAtDate(DateTime toDateInclusive)
     {
         var currentUser = await _userContext.GetCurrentUser();
+        return await GetAvailableOvertimeHoursAtDate(toDateInclusive, currentUser);
+    }
 
+    public async Task<AvailableOvertimeDto> GetAvailableOvertimeHoursAtDate(DateTime toDateInclusive, User currentUser)
+    {
         var earnedOvertime = await _timeRegistrationStorage.GetEarnedOvertime(new OvertimeQueryFilter
         {
             UserId = currentUser.Id,
@@ -268,24 +273,32 @@ public class TimeRegistrationService
             Hours = eo.Value,
             CompensationRate = eo.CompensationRate
         }));
+        var overtimeEntriesOnly = new List<TimeEntry>(overtimeEntries);
 
-        await CompensateForPayouts(overtimeEntries, toDateInclusive);
-        await CompensateForFlexedHours(overtimeEntries, toDateInclusive);
+        var compensatedPayouts = await CompensateForPayouts(overtimeEntries, toDateInclusive, currentUser);
+        var compensatedFlexHours = await CompensateForFlexedHours(overtimeEntries, toDateInclusive, currentUser);
 
         var availableBeforeCompRate = overtimeEntries.Sum(e => e.Hours);
         var availableAfterCompRate = overtimeEntries.Sum(e => e.Hours * e.CompensationRate);
 
         return new AvailableOvertimeDto
         {
+            UnCompensatedOvertime = overtimeEntriesOnly,
+            CompensatedPayouts = compensatedPayouts,
+            CompensatedFlexHours = compensatedFlexHours,
             AvailableHoursBeforeCompensation = availableBeforeCompRate,
             AvailableHoursAfterCompensation = availableAfterCompRate,
             Entries = overtimeEntries
         };
     }
 
-    private async Task CompensateForFlexedHours(List<TimeEntry> timeEntries, DateTime toDateInclusive)
+    private async Task<List<TimeEntry>> CompensateForFlexedHours(List<TimeEntry> timeEntries, DateTime toDateInclusive, User currentUser=null)
     {
-        var currentUser = await _userContext.GetCurrentUser();
+        if (currentUser is null)
+        {
+            currentUser = await _userContext.GetCurrentUser();
+        }
+        var compensatedFlexHours = new List<TimeEntry>();
 
         var flexedTimeEntries = (await _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
         {
@@ -323,14 +336,20 @@ public class TimeRegistrationService
                 };
 
                 timeEntries.Add(entry);
+                compensatedFlexHours.Add(entry);
                 sumFlexedHours += entry.Hours;
             }
         }
+        return compensatedFlexHours;
     }
 
-    private async Task CompensateForPayouts(List<TimeEntry> overtimeEntries, DateTime toDateInclusive)
+    private async Task<List<TimeEntry>> CompensateForPayouts(List<TimeEntry> overtimeEntries, DateTime toDateInclusive, User currentUser = null)
     {
-        var currentUser = await _userContext.GetCurrentUser();
+        if (currentUser is null)
+        {
+            currentUser = await _userContext.GetCurrentUser();
+        }
+        var compensatedPayouts = new List<TimeEntry>();
 
         var registeredPayouts = await _payoutStorage.GetRegisteredPayouts(new PayoutQueryFilter
         {
@@ -350,7 +369,9 @@ public class TimeRegistrationService
             };
 
             overtimeEntries.Add(payoutEntry);
+            compensatedPayouts.Add(payoutEntry);
         }
+        return compensatedPayouts;
     }
 
     private async Task UpdateEarnedOvertime(List<TimeEntryWithCompRateDto> timeEntriesOnDay)

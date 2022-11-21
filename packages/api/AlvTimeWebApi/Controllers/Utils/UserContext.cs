@@ -34,7 +34,7 @@ namespace AlvTimeWebApi.Controllers.Utils
             
             var dbUser = (await _userRepository.GetUsers(new UserQuerySearch { Email = Email })).First();
 
-            return new User { Id = dbUser.Id, Email = Email, Name = Name, StartDate = DateTime.Parse(dbUser.StartDate) };
+            return UserMapper.MapUserDtoToBusinessUser(dbUser);
         }
     }
 }
