@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Interfaces;
+using AlvTime.Business.Models;
 using AlvTime.Business.Overtime;
 using AlvTime.Business.TimeRegistration;
 using FluentValidation;
@@ -71,8 +72,9 @@ namespace AlvTime.Business.Payouts
         public async Task CancelPayout(DateTime payoutDate)
         {
             var date = payoutDate.Date;
-            await ValidatePayoutCancellation(date);
-            await _payoutStorage.CancelPayout(date);
+            var currentUser = await _userContext.GetCurrentUser();
+            await ValidatePayoutCancellation(date, currentUser);
+            await _payoutStorage.CancelPayout(date, currentUser);
         }
 
         private List<PayoutToRegister> CalculatePayoutHoursBasedOnAvailableOvertime(decimal requestedHours, AvailableOvertimeDto availableHours)
@@ -111,9 +113,8 @@ namespace AlvTime.Business.Payouts
             return listOfPayouts;
         }
         
-        private async Task ValidatePayoutCancellation(DateTime payoutDate)
+        private async Task ValidatePayoutCancellation(DateTime payoutDate, User currentUser)
         {
-            var currentUser = await _userContext.GetCurrentUser();
             var allActivePayouts = await _payoutStorage.GetActivePayouts(currentUser.Id);
 
             if (!allActivePayouts.Any())
