@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AlvTime.Business.FlexiHours;
+using AlvTime.Business.Models;
 
 namespace AlvTime.Business.Payouts
 {
@@ -9,7 +10,7 @@ namespace AlvTime.Business.Payouts
     {
         Task<PayoutsDto> GetRegisteredPayouts(PayoutQueryFilter criterias);
         Task<List<PayoutDto>> RegisterPayout(int userId, GenericHourEntry request, List<PayoutToRegister> payoutsToRegister);
-        Task CancelPayout(DateTime payoutDate);
+        Task CancelPayout(DateTime payoutDate, User currentUser);
         Task<List<PayoutDto>> GetActivePayouts(int userId);
     }
 
