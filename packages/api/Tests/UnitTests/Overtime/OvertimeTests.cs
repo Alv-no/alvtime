@@ -57,10 +57,9 @@ public class OvertimeTests
             Name = "Someone"
         };
 
+        _userContextMock.Setup(context => context.GetCurrentUser()).Returns(System.Threading.Tasks.Task.FromResult(user));
         _timeRegistrationService = CreateTimeRegistrationService();
 
-        _userContextMock.Setup(context => context.GetCurrentUser()).Returns(System.Threading.Tasks.Task.FromResult(user));
-        
         _payoutValidationServiceMock = new Mock<PayoutValidationService>(new UserService(new UserRepository(_context)),
             _timeRegistrationService, new PayoutStorage(_context));
         _payoutValidationServiceMock.Setup(x => x.CheckForIncompleteDays(It.IsAny<GenericHourEntry>(), It.IsAny<int>())).Returns(System.Threading.Tasks.Task.FromResult(System.Threading.Tasks.Task.CompletedTask));
@@ -76,7 +75,7 @@ public class OvertimeTests
             {new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId}});
 
         var earnedOvertime = await _timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
-            {StartDate = dateToTest, EndDate = dateToTest});
+            {FromDateInclusive = dateToTest, ToDateInclusive = dateToTest});
         Assert.Empty(earnedOvertime);
     }
 
@@ -90,11 +89,11 @@ public class OvertimeTests
             {new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId}});
 
         var earnedOvertime = await _timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
-            {StartDate = dateToTest, EndDate = dateToTest});
+            {FromDateInclusive = dateToTest, ToDateInclusive = dateToTest});
 
         Assert.Single(earnedOvertime);
         Assert.Equal(2, earnedOvertime.First().Value);
-        Assert.Equal(1.0M, earnedOvertime.First().CompensationRate);
+        Assert.Equal(1.5M, earnedOvertime.First().CompensationRate);
         Assert.Equal(1, earnedOvertime.First().UserId);
         Assert.Equal(dateToTest, earnedOvertime.First().Date);
     }
@@ -114,7 +113,7 @@ public class OvertimeTests
             {new() {Date = timeEntry3.entry.Date, Value = timeEntry3.entry.Value, TaskId = timeEntry3.taskId}});
 
         var earnedOvertime = await _timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
-            {StartDate = dateToTest, EndDate = dateToTest});
+            {FromDateInclusive = dateToTest, ToDateInclusive = dateToTest});
 
         Assert.Equal(3, earnedOvertime.Count);
         Assert.Equal(4, earnedOvertime.Sum(ot => ot.Value));
@@ -129,11 +128,11 @@ public class OvertimeTests
             {new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId}});
 
         var earnedOvertime = await _timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
-            {StartDate = dateToTest, EndDate = dateToTest});
+            {FromDateInclusive = dateToTest, ToDateInclusive = dateToTest});
 
         Assert.Single(earnedOvertime);
         Assert.Equal(2, earnedOvertime.Sum(ot => ot.Value));
-        Assert.Equal(1.0M, earnedOvertime.First().CompensationRate);
+        Assert.Equal(1.5M, earnedOvertime.First().CompensationRate);
     }
 
     [Fact]
@@ -145,11 +144,11 @@ public class OvertimeTests
             {new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId}});
 
         var earnedOvertime = await _timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
-            {StartDate = dateToTest, EndDate = dateToTest});
+            {FromDateInclusive = dateToTest, ToDateInclusive = dateToTest});
 
         Assert.Single(earnedOvertime);
         Assert.Equal(2, earnedOvertime.Sum(ot => ot.Value));
-        Assert.Equal(1.0M, earnedOvertime.First().CompensationRate);
+        Assert.Equal(1.5M, earnedOvertime.First().CompensationRate);
     }
 
     [Fact]
@@ -186,7 +185,7 @@ public class OvertimeTests
             {new() {Date = timeEntry3.entry.Date, Value = timeEntry3.entry.Value, TaskId = timeEntry3.taskId}});
 
         var earnedOvertimeOriginal = await _timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
-            {StartDate = dateToTest, EndDate = dateToTest});
+            {FromDateInclusive = dateToTest, ToDateInclusive = dateToTest});
 
         var timeEntry4 = CreateTimeEntryForExistingTask(dateToTest, 8M, timeEntry1.taskId);
         var timeEntry5 = CreateTimeEntryForExistingTask(dateToTest, 1.5M, timeEntry3.taskId);
@@ -196,7 +195,7 @@ public class OvertimeTests
             {new() {Date = timeEntry5.Date, Value = timeEntry5.Value, TaskId = timeEntry5.TaskId}});
 
         var earnedOvertimeUpdated = await _timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
-            {StartDate = dateToTest, EndDate = dateToTest});
+            {FromDateInclusive = dateToTest, ToDateInclusive = dateToTest});
 
         Assert.NotEqual(earnedOvertimeOriginal, earnedOvertimeUpdated);
         Assert.Equal(3, earnedOvertimeOriginal.Count);
@@ -227,7 +226,7 @@ public class OvertimeTests
             {new() {Date = timeEntry4.Date, Value = timeEntry4.Value, TaskId = timeEntry4.TaskId}});
 
         var earnedOvertime = await _timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
-            {StartDate = new DateTime(2021, 12, 6), EndDate = new DateTime(2021, 12, 8)});
+            {FromDateInclusive = new DateTime(2021, 12, 6), ToDateInclusive = new DateTime(2021, 12, 8)});
 
         Assert.Equal(3, earnedOvertime.Count);
         Assert.Equal(6.5M, earnedOvertime.Sum(ot => ot.Value));
@@ -274,7 +273,7 @@ public class OvertimeTests
         catch (Exception)
         {
             var earnedOvertime = await timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
-                {StartDate = dateToTest, EndDate = dateToTest});
+                {FromDateInclusive = dateToTest, ToDateInclusive = dateToTest});
 
             Assert.Empty(sqliteContext.Hours);
             Assert.Empty(earnedOvertime);
@@ -819,7 +818,7 @@ public class OvertimeTests
 
         var overtime = await _timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2022, 01, 08));
         var flexOvertimeEntry = overtime.Entries.First(e => e.Hours == -7.5M);
-        Assert.Equal(1.0M, flexOvertimeEntry.CompensationRate);
+        Assert.Equal(1.5M, flexOvertimeEntry.CompensationRate);
     }
         
     [Fact]
@@ -1120,7 +1119,172 @@ public class OvertimeTests
         var overtime = await _timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2022, 01, 10));
         Assert.Equal(0.375M, overtime.AvailableHoursAfterCompensation);
     }
+    
+    [Fact]
+    public async System.Threading.Tasks.Task GetFlex_RecordedOvertimeWithDifferentCompRates_FlexHappensFromHeaviestSide()
+    {
+        var timeEntry1 =
+            await CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 10), 10.5M, 1.5M); //Monday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry1.entry.Date, Value = timeEntry1.entry.Value, TaskId = timeEntry1.taskId } });
+        
+        var timeEntry2 =
+            await CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 11), 10.5M, 0.5M); //Tuesday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry2.entry.Date, Value = timeEntry2.entry.Value, TaskId = timeEntry2.taskId } });
 
+        var flexEntry = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 12), 2, 18); //Wednesday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = flexEntry.Date, Value = flexEntry.Value, TaskId = flexEntry.TaskId } });
+        
+        var overtime = await _timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2022, 01, 12));
+        Assert.Equal(1.5M, overtime.CompensatedFlexHours.First().CompensationRate);
+    }
+    
+    [Fact]
+    public async System.Threading.Tasks.Task GetFlex_RecordedOvertimeWithDifferentCompRates_FlexIsSplitBetweenCompRates()
+    {
+        var timeEntry1 =
+            await CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 10), 10.5M, 1.5M); //Monday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry1.entry.Date, Value = timeEntry1.entry.Value, TaskId = timeEntry1.taskId } });
+        
+        var timeEntry2 =
+            await CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 11), 10.5M, 0.5M); //Tuesday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry2.entry.Date, Value = timeEntry2.entry.Value, TaskId = timeEntry2.taskId } });
+
+        var flexEntry = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 12), 4, 18); //Wednesday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = flexEntry.Date, Value = flexEntry.Value, TaskId = flexEntry.TaskId } });
+        
+        var overtime = await _timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2022, 01, 12));
+        Assert.Equal(2, overtime.CompensatedFlexHours.Count);
+        Assert.Equal(-3, overtime.CompensatedFlexHours.First(f => f.CompensationRate == 1.5M).Hours);
+        Assert.Equal(-1, overtime.CompensatedFlexHours.First(f => f.CompensationRate == 0.5M).Hours);
+    }
+    
+    [Fact]
+    public async System.Threading.Tasks.Task UpdateFlex_HasFutureFlex_FutureFlexGetsUpdatedWithCorrectCompRate()
+    {
+        var timeEntry1 =
+            await CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 10), 9.5M, 1.5M); //Monday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry1.entry.Date, Value = timeEntry1.entry.Value, TaskId = timeEntry1.taskId } });
+        
+        var flexEntry1 =
+            CreateTimeEntryForExistingTask(new DateTime(2022, 01, 11), 2M, 18); //Tuesday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = flexEntry1.Date, Value = flexEntry1.Value, TaskId = flexEntry1.TaskId } });
+        
+        var timeEntry2 =
+            await CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 12), 9.5M, 0.5M); //Wednesday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry2.entry.Date, Value = timeEntry2.entry.Value, TaskId = timeEntry2.taskId } });
+
+        var flexEntry2 = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 13), 2, 18); //Thursday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = flexEntry2.Date, Value = flexEntry2.Value, TaskId = flexEntry2.TaskId } });
+        
+        var flexEntry3 =
+            CreateTimeEntryForExistingTask(new DateTime(2022, 01, 11), 1M, 18); //Tuesday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = flexEntry3.Date, Value = flexEntry3.Value, TaskId = flexEntry3.TaskId } });
+        
+        var overtime = await _timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2022, 01, 13));
+        Assert.Equal(0.5M, overtime.AvailableHoursAfterCompensation);
+
+        var registeredFlexOnThursday = (await _timeRegistrationService.GetFlexTimeEntries()).Where(f => f.Date == new DateTime(2022, 01, 13)).ToList();
+        Assert.Equal(2, registeredFlexOnThursday.Count);
+        Assert.Single(registeredFlexOnThursday.Where(f => f.CompensationRate == 1.5M));
+        Assert.Single(registeredFlexOnThursday.Where(f => f.CompensationRate == 0.5M));
+    }
+    
+    [Fact]
+    public async System.Threading.Tasks.Task UpdateOvertime_HasFutureFlex_GetsNegativeBalance()
+    {
+        var timeEntry1 =
+            CreateTimeEntryForExistingTask(new DateTime(2022, 01, 10), 9.5M, 1); //Monday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
+        
+        var flexEntry1 =
+            CreateTimeEntryForExistingTask(new DateTime(2022, 01, 11), 2M, 18); //Tuesday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = flexEntry1.Date, Value = flexEntry1.Value, TaskId = flexEntry1.TaskId } });
+        
+        var timeEntry2 =
+            await CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 12), 9.5M, 0.5M); //Wednesday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry2.entry.Date, Value = timeEntry2.entry.Value, TaskId = timeEntry2.taskId } });
+
+        var flexEntry2 = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 13), 2, 18); //Thursday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = flexEntry2.Date, Value = flexEntry2.Value, TaskId = flexEntry2.TaskId } });
+        
+        var timeEntry3 =
+            CreateTimeEntryForExistingTask(new DateTime(2022, 01, 10), 8.5M, 1); //Tuesday
+        await Assert.ThrowsAsync<Exception>(async () => await _timeRegistrationService.UpsertTimeEntry(
+            new List<CreateTimeEntryDto>
+                { new() { Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId } }));
+    }
+    
+    
+        [Fact]
+    public async System.Threading.Tasks.Task UpdateOvertime_HasFutureFlex_FutureFlexGetsCorrectCompRate()
+    {
+        var timeEntry1 =
+            CreateTimeEntryForExistingTask(new DateTime(2022, 01, 10), 10.5M, 3); //Monday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
+        
+        var flexEntry1 =
+            CreateTimeEntryForExistingTask(new DateTime(2022, 01, 11), 2M, 18); //Tuesday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = flexEntry1.Date, Value = flexEntry1.Value, TaskId = flexEntry1.TaskId } });
+        
+        var timeEntry2 =
+            await CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 10), 8.5M, 1.5M); //Monday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry2.entry.Date, Value = timeEntry2.entry.Value, TaskId = timeEntry2.entry.TaskId } });
+        
+        var timeEntry3 =
+            CreateTimeEntryForExistingTask(new DateTime(2022, 01, 10), 2M, 3); //Monday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId } });
+        
+        var overtime = await _timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2022, 01, 11));
+        Assert.Equal(0.5M, overtime.AvailableHoursAfterCompensation);
+        
+        var registeredFlexOnTuesday = (await _timeRegistrationService.GetFlexTimeEntries()).Where(f => f.Date == new DateTime(2022, 01, 11)).ToList();
+        Assert.Equal(2, registeredFlexOnTuesday.Count);
+        Assert.Equal(1, registeredFlexOnTuesday.First(f => f.CompensationRate == 1.5M).Hours);
+        Assert.Equal(1, registeredFlexOnTuesday.First(f => f.CompensationRate == 0.5M).Hours);
+    }
+    
+            [Fact]
+    public async System.Threading.Tasks.Task UpdateFlex_NotEnoughOvertime_CannotUpdate()
+    {
+        var timeEntry1 =
+            CreateTimeEntryForExistingTask(new DateTime(2022, 01, 10), 10.5M, 3); //Monday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
+        
+        var flexEntry1 =
+            CreateTimeEntryForExistingTask(new DateTime(2022, 01, 11), 2M, 18); //Tuesday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = flexEntry1.Date, Value = flexEntry1.Value, TaskId = flexEntry1.TaskId } });
+        
+        var timeEntry3 =
+            await CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 12), 8.5M, 1.5M); //Monday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry3.entry.Date, Value = timeEntry3.entry.Value, TaskId = timeEntry3.entry.TaskId } });
+        
+        var flexEntry2 =
+            CreateTimeEntryForExistingTask(new DateTime(2022, 01, 11), 4M, 18); //Tuesday
+        await Assert.ThrowsAsync<Exception>(async () => await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = flexEntry2.Date, Value = flexEntry2.Value, TaskId = flexEntry2.TaskId } }));
+    }
 
     private TimeRegistrationService CreateTimeRegistrationService()
     {
@@ -1154,8 +1318,8 @@ public class OvertimeTests
     {
         var taskId = new Random().Next(1000, 10000000);
         var task = new Task {Id = taskId, Project = 1,};
-        _context.Task.Add(task);
-        _context.CompensationRate.Add(new CompensationRate
+        await _context.Task.AddAsync(task);
+        await _context.CompensationRate.AddAsync(new CompensationRate
             {TaskId = taskId, Value = compensationRate, FromDate = new DateTime(2019, 01, 01)});
         await _context.SaveChangesAsync();
 
@@ -1173,8 +1337,8 @@ public class OvertimeTests
     {
         var taskId = new Random().Next(1000, 10000000);
         var task = new Task {Id = taskId, Project = 1, Imposed = true};
-        _context.Task.Add(task);
-        _context.CompensationRate.Add(new CompensationRate
+        await _context.Task.AddAsync(task);
+        await _context.CompensationRate.AddAsync(new CompensationRate
             {TaskId = taskId, Value = 2.0M, FromDate = new DateTime(2019, 01, 01)});
         await _context.SaveChangesAsync();
 

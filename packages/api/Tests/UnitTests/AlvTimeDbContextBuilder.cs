@@ -201,8 +201,7 @@ namespace Tests.UnitTests
                 Id = 1,
                 Description = "",
                 Project = 1,
-                Name = "ExampleTask",
-                Locked = false
+                Name = "ExampleTask"
             });
 
             _context.Task.Add(new Task
@@ -210,14 +209,30 @@ namespace Tests.UnitTests
                 Id = 2,
                 Description = "",
                 Project = 2,
-                Name = "ExampleTaskTwo",
+                Name = "ExampleTaskTwo"
+            });
+            
+            _context.Task.Add(new Task
+            {
+                Id = 3,
+                Description = "",
+                Project = 2,
+                Name = "ExampleTaskThree"
+            });
+            
+            _context.Task.Add(new Task
+            {
+                Id = 4,
+                Description = "",
+                Project = 2,
+                Name = "ExampleTaskFour",
                 Locked = true
             });
 
             _context.CompensationRate.Add(new CompensationRate
             {
                 TaskId = 1,
-                Value = 1.0M,
+                Value = 1.5M,
                 FromDate = new DateTime(2019, 01 ,01)
             });
 
@@ -225,6 +240,13 @@ namespace Tests.UnitTests
             {
                 TaskId = 2,
                 Value = 1.0M,
+                FromDate = new DateTime(2019, 01 ,01)
+            });
+            
+            _context.CompensationRate.Add(new CompensationRate
+            {
+                TaskId = 3,
+                Value = 0.5M,
                 FromDate = new DateTime(2019, 01 ,01)
             });
 

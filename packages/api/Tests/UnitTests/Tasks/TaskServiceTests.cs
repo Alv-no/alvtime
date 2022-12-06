@@ -65,7 +65,7 @@ namespace Tests.UnitTests.Tasks
                 Locked = true
             });
 
-            Assert.True(tasks.Single().Project.Id == 2 && true == tasks.Single().Locked);
+            Assert.True(tasks.Single().Project.Id == 2 && tasks.Single().Locked);
         }
 
         [Fact]

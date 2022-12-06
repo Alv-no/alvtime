@@ -29,7 +29,7 @@ namespace AlvTimeWebApi.Controllers
         [Authorize(Policy = "AllowPersonalAccessToken")]
         public async Task<AvailableOvertimeResponse> FetchAvailableHours()
         {
-            var availableOvertime = await _timeRegistrationService.GetAvailableOvertimeHoursNow();
+            var availableOvertime = await _timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(9999, 01, 01));
             return new AvailableOvertimeResponse
             {
                 AvailableHoursAfterCompensation = availableOvertime.AvailableHoursAfterCompensation,
@@ -47,7 +47,7 @@ namespace AlvTimeWebApi.Controllers
         [Authorize(Policy = "AllowPersonalAccessToken")]
         public async Task<List<EarnedOvertimeDto>> FetchEarnedOvertime(DateTime startDate, DateTime endDate)
         {
-            return await _timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter { StartDate = startDate, EndDate = endDate});
+            return await _timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter { FromDateInclusive = startDate, ToDateInclusive = endDate});
         }
     }
 }
