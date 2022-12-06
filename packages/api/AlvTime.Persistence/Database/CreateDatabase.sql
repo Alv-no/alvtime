@@ -325,6 +325,9 @@ ALTER TABLE [dbo].[RegisteredFlex]
     WITH CHECK ADD CONSTRAINT [FK_RegisteredFlex_User] FOREIGN KEY ([UserId])
         REFERENCES [dbo].[User] ([Id])
 GO
+ALTER TABLE [dbo].[RegisteredFlex]
+    ADD CONSTRAINT UC_RegisteredFlex UNIQUE (UserId, Date, CompensationRate);
+GO
 ALTER TABLE [dbo].[AssociatedTasks]
     ADD DEFAULT ('') FOR [EndDate]
 GO
@@ -412,6 +415,9 @@ GO
 ALTER TABLE [dbo].[PaidOvertime]
     CHECK CONSTRAINT [FK_PaidOvertime_User]
 GO
+ALTER TABLE [dbo].[PaidOvertime]
+    ADD CONSTRAINT UC_PaidOvertime UNIQUE ([User], Date, CompensationRate);
+GO
 ALTER TABLE [dbo].[Project]
     WITH CHECK ADD CONSTRAINT [FK_Project_Customer] FOREIGN KEY ([Customer])
         REFERENCES [dbo].[Customer] ([Id])
@@ -440,6 +446,9 @@ GO
 ALTER TABLE [dbo].[EarnedOvertime]
     WITH CHECK ADD CONSTRAINT [FK_EarnedOvertime_User] FOREIGN KEY ([UserId])
         REFERENCES [dbo].[User] ([Id])
+GO
+ALTER TABLE [dbo].[EarnedOvertime]
+    ADD CONSTRAINT UC_EarnedOvertime UNIQUE (UserId, Date, CompensationRate);
 GO
 ALTER TABLE [dbo].[TaskFavorites]
     CHECK CONSTRAINT [FK_TaskFavorites_User]

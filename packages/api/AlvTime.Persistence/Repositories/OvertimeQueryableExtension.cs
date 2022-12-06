@@ -12,13 +12,13 @@ namespace AlvTime.Persistence.Repositories
             {
                 query = query.Where(entry => entry.UserId == criterias.UserId);
             }
-            if (criterias.StartDate != null)
+            if (criterias.FromDateInclusive != null)
             {
-                query = query.Where(entry => entry.Date.Date >= criterias.StartDate);
+                query = query.Where(entry => entry.Date.Date >= criterias.FromDateInclusive);
             }
-            if (criterias.EndDate != null)
+            if (criterias.ToDateInclusive != null)
             {
-                query = query.Where(entry => entry.Date.Date <= criterias.EndDate);
+                query = query.Where(entry => entry.Date.Date <= criterias.ToDateInclusive);
             }
             if (criterias.CompensationRate != null)
             {

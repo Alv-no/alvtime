@@ -40,7 +40,7 @@ public class PayoutValidationService
         var futureFlexEntries =
             (await _timeRegistrationService.GetFlexTimeEntries()).Where(entry => entry.Date > DateTime.Now);
 
-        if (futureFlexEntries.Any(e => e.Value > 0))
+        if (futureFlexEntries.Any(e => e.Hours > 0))
         {
             throw new ValidationException("Fjern fremtidig avspasering før du gjør en bestilling.");
         }

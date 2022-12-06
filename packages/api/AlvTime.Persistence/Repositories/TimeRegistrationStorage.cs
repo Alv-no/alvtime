@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Overtime;
 using AlvTime.Business.TimeEntries;
 using AlvTime.Business.TimeRegistration;
@@ -19,6 +18,40 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
     public TimeRegistrationStorage(AlvTime_dbContext context)
     {
         _context = context;
+    }
+
+    public async Task<IEnumerable<TimeEntry>> GetFlexEntries(TimeEntryQuerySearch criteria)
+    {
+        var entries = await _context.RegisteredFlex.AsQueryable()
+            .Filter(criteria)
+            .Select(x => new TimeEntry
+            {
+                Date = x.Date,
+                Hours = x.Value,
+                CompensationRate = x.CompensationRate,
+            }).ToListAsync();
+        return entries;
+    }
+    
+    public async Task RegisterFlex(TimeEntry timeEntry, int userId)
+    {
+        var flexEntry = new RegisteredFlex
+        {
+            Date = timeEntry.Date,
+            UserId = userId,
+            Value = timeEntry.Hours,
+            CompensationRate = timeEntry.CompensationRate
+        };
+        await _context.RegisteredFlex.AddAsync(flexEntry);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteFlexOnDate(DateTime date, int userId)
+    {
+        var flexOnDate =
+            _context.RegisteredFlex.Where(ot => ot.Date.Date == date.Date && ot.UserId == userId);
+        _context.RemoveRange(flexOnDate);
+        await _context.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<TimeEntryWithCompRateDto>> GetTimeEntriesWithCompensationRate(TimeEntryQuerySearch criteria)
@@ -61,31 +94,6 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
         }
 
         return hours;
-    }
-
-    public async Task<IEnumerable<DateEntry>> GetDateEntries(TimeEntryQuerySearch criteria)
-    {
-        var hours = await _context.Hours
-            .Include(h => h.Task)
-            .AsQueryable()
-            .Filter(criteria)
-            .ToListAsync();
-
-        var compensationRates = await _context.CompensationRate.OrderByDescending(cr => cr.FromDate).ToListAsync();
-
-        return hours.GroupBy(
-            entry => entry.Date,
-            entry => entry,
-            (date, entry) => new DateEntry
-            {
-                Date = date,
-                Entries = entry.Select(e => new Entry
-                {
-                    TaskId = e.TaskId,
-                    Value = e.Value,
-                    CompensationRate = compensationRates.FirstOrDefault(cr => cr.TaskId == e.TaskId)?.Value ?? 1M,
-                })
-            });
     }
 
     public async Task<TimeEntryResponseDto> GetTimeEntry(TimeEntryQuerySearch criteria)
