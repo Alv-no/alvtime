@@ -10,9 +10,10 @@ namespace AlvTime.Persistence.DatabaseModels
             AccessTokens = new HashSet<AccessTokens>();
             AssociatedTasks = new HashSet<AssociatedTasks>();
             EarnedOvertime = new HashSet<EarnedOvertime>();
-            EmploymentRates = new HashSet<EmploymentRate>();
+            EmploymentRate = new HashSet<EmploymentRate>();
             Hours = new HashSet<Hours>();
             PaidOvertime = new HashSet<PaidOvertime>();
+            RegisteredFlex = new HashSet<RegisteredFlex>();
             TaskFavorites = new HashSet<TaskFavorites>();
         }
 
@@ -25,9 +26,10 @@ namespace AlvTime.Persistence.DatabaseModels
         public virtual ICollection<AccessTokens> AccessTokens { get; set; }
         public virtual ICollection<AssociatedTasks> AssociatedTasks { get; set; }
         public virtual ICollection<EarnedOvertime> EarnedOvertime { get; set; }
-        public virtual ICollection<EmploymentRate> EmploymentRates { get; set; }
+        public virtual ICollection<EmploymentRate> EmploymentRate { get; set; }
         public virtual ICollection<Hours> Hours { get; set; }
         public virtual ICollection<PaidOvertime> PaidOvertime { get; set; }
+        public virtual ICollection<RegisteredFlex> RegisteredFlex { get; set; }
         public virtual ICollection<TaskFavorites> TaskFavorites { get; set; }
     }
 }
