@@ -26,6 +26,7 @@ namespace AlvTime.Persistence.DatabaseModels
         public virtual DbSet<Hours> Hours { get; set; }
         public virtual DbSet<PaidOvertime> PaidOvertime { get; set; }
         public virtual DbSet<Project> Project { get; set; }
+        public virtual DbSet<RegisteredFlex> RegisteredFlex { get; set; }
         public virtual DbSet<Task> Task { get; set; }
         public virtual DbSet<TaskFavorites> TaskFavorites { get; set; }
         public virtual DbSet<User> User { get; set; }
@@ -33,9 +34,6 @@ namespace AlvTime.Persistence.DatabaseModels
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (!optionsBuilder.IsConfigured)
-            {
-            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -132,7 +130,7 @@ namespace AlvTime.Persistence.DatabaseModels
                 entity.Property(e => e.Rate).HasColumnType("decimal(7, 2)");
 
                 entity.HasOne(d => d.User)
-                    .WithMany(p => p.EmploymentRates)
+                    .WithMany(p => p.EmploymentRate)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_EmploymentRate_User");
@@ -199,6 +197,19 @@ namespace AlvTime.Persistence.DatabaseModels
                     .HasForeignKey(d => d.Customer)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Project_Customer");
+            });
+
+            modelBuilder.Entity<RegisteredFlex>(entity =>
+            {
+                entity.Property(e => e.CompensationRate).HasColumnType("decimal(4, 2)");
+
+                entity.Property(e => e.Value).HasColumnType("decimal(7, 2)");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.RegisteredFlex)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_RegisteredFlex_User");
             });
 
             modelBuilder.Entity<Task>(entity =>

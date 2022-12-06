@@ -308,6 +308,23 @@ CREATE TABLE [dbo].[EmploymentRate]
                 ) WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+CREATE TABLE [dbo].[RegisteredFlex]
+(
+    [Id]               [int] IDENTITY (1,1) NOT NULL,
+    [UserId]           [int]                NOT NULL,
+    [Value]            [decimal](7, 2)      NOT NULL,
+    [Date]             [datetime2]          NOT NULL,
+    [CompensationRate] [decimal](4, 2)      NOT NULL
+        PRIMARY KEY CLUSTERED
+            (
+             [Id] ASC
+                ) WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[RegisteredFlex]
+    WITH CHECK ADD CONSTRAINT [FK_RegisteredFlex_User] FOREIGN KEY ([UserId])
+        REFERENCES [dbo].[User] ([Id])
+GO
 ALTER TABLE [dbo].[AssociatedTasks]
     ADD DEFAULT ('') FOR [EndDate]
 GO
