@@ -150,7 +150,7 @@ public class TimeRegistrationServiceTests
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = overtimeEntry.Date, Value = overtimeEntry.Value, TaskId = overtimeEntry.TaskId } });
 
-        var futureDayToRegisterFlexOn = DateUtils.GetFutureNonWeekendDay();
+        var futureDayToRegisterFlexOn = TestDateUtils.GetFutureNonWeekendDay();
         var futureFlex =
             CreateTimeEntryForExistingTask(futureDayToRegisterFlexOn, 1M, 18);
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>

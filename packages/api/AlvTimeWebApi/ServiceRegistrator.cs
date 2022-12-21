@@ -8,6 +8,7 @@ using AlvTime.Business.Economy;
 using AlvTime.Business.Holidays;
 using AlvTime.Business.HourRates;
 using AlvTime.Business.Interfaces;
+using AlvTime.Business.InvoiceRate;
 using AlvTime.Business.Payouts;
 using AlvTime.Business.Projects;
 using AlvTime.Business.Tasks;
@@ -53,6 +54,7 @@ namespace AlvTimeWebApi
             services.AddScoped<IDbContextScope, DbContextScope>();
             services.AddScoped<TaskService>();
             services.AddScoped<PayoutValidationService>();
+            services.AddScoped<InvoiceRateService>();
         }
     }
 }

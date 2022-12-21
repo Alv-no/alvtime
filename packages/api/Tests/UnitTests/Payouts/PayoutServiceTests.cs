@@ -335,7 +335,7 @@ public class PayoutServiceTests
 
         var futureDayToRegisterFlexOn = DateTime.Now.AddDays(5).DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday ? DateTime.Now.AddDays(7) : DateTime.Now.AddDays(5);
         var futureFlex =
-            CreateTimeEntryForExistingTask(DateUtils.GetFutureNonWeekendDay(), 1M, 18);
+            CreateTimeEntryForExistingTask(TestDateUtils.GetFutureNonWeekendDay(), 1M, 18);
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = futureFlex.Date, Value = futureFlex.Value, TaskId = futureFlex.TaskId } });
 

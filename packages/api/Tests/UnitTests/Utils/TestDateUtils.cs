@@ -2,7 +2,7 @@ using System;
 
 namespace Tests.UnitTests.Utils;
 
-public static class DateUtils
+public static class TestDateUtils
 {
 
     public static DateTime GetFutureNonWeekendDay()

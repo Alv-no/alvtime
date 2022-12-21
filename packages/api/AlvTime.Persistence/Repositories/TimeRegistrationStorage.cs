@@ -7,7 +7,6 @@ using AlvTime.Business.Overtime;
 using AlvTime.Business.TimeEntries;
 using AlvTime.Business.TimeRegistration;
 using AlvTime.Persistence.DatabaseModels;
-using AlvTime.Persistence.DataBaseModels;
 using Microsoft.EntityFrameworkCore;
 using Task = System.Threading.Tasks.Task;
 
@@ -116,8 +115,8 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
                 Date = timeEntry.Date.Date,
                 TaskId = timeEntry.TaskId,
                 User = userId,
-                Year = (short) timeEntry.Date.Year,
-                DayNumber = (short) timeEntry.Date.DayOfYear,
+                Year = (short)timeEntry.Date.Year,
+                DayNumber = (short)timeEntry.Date.DayOfYear,
                 Value = timeEntry.Value
             };
             _context.Hours.Add(hour);
@@ -205,5 +204,26 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
             _context.EarnedOvertime.Where(ot => ot.Date.Date == date.Date && ot.UserId == userId);
         _context.RemoveRange(earnedOvertimeOnDate);
         await _context.SaveChangesAsync();
+    }
+
+
+
+    public Task<List<TimeEntryWithCustomerDto>> GetTimeEntriesWithCustomer(int userId, DateTime fromDate, DateTime toDate)
+    {
+        return (from hour in _context.Hours
+                join task in _context.Task on hour.TaskId equals task.Id
+                join project in _context.Project on task.Project equals project.Id
+                join customer in _context.Customer on project.Customer equals customer.Id
+                where hour.User == userId
+                      && hour.Date >= fromDate
+                      && hour.Date <= toDate
+                select new TimeEntryWithCustomerDto
+                {
+                    Date = hour.Date,
+                    Value = hour.Value,
+                    CustomerName = customer.Name,
+                    TaskId = hour.TaskId
+                }
+        ).ToListAsync();
     }
 }
