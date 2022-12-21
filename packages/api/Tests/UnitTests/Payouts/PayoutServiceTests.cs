@@ -14,6 +14,7 @@ using AlvTime.Persistence.Repositories;
 using FluentValidation;
 using Microsoft.Extensions.Options;
 using Moq;
+using Tests.UnitTests.Utils;
 using Xunit;
 
 namespace Tests.UnitTests.Payouts;
@@ -65,7 +66,7 @@ public class PayoutServiceTests
         _payoutValidationServiceMock.Setup(x => x.CheckForIncompleteDays(It.IsAny<GenericHourEntry>(), It.IsAny<int>())).Returns(System.Threading.Tasks.Task.FromResult(System.Threading.Tasks.Task.CompletedTask));
         _payoutValidationServiceMock.CallBase = true;
     }
-        
+
     [Fact]
     public async System.Threading.Tasks.Task GetRegisteredPayouts_Registered10Hours_10HoursRegistered()
     {
@@ -320,7 +321,7 @@ public class PayoutServiceTests
 
         await Assert.ThrowsAsync<ValidationException>(async () => await payoutService.CancelPayout(new DateTime(currentYear, previousMonth, 02)));
     }
-        
+
     [Fact]
     public async System.Threading.Tasks.Task RegisterPayout_HasFutureFlex_ExceptionThrown()
     {
@@ -334,10 +335,10 @@ public class PayoutServiceTests
 
         var futureDayToRegisterFlexOn = DateTime.Now.AddDays(5).DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday ? DateTime.Now.AddDays(7) : DateTime.Now.AddDays(5);
         var futureFlex =
-            CreateTimeEntryForExistingTask(futureDayToRegisterFlexOn, 1M, 18);
+            CreateTimeEntryForExistingTask(DateUtils.GetFutureNonWeekendDay(), 1M, 18);
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = futureFlex.Date, Value = futureFlex.Value, TaskId = futureFlex.TaskId } });
-            
+
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
         await Assert.ThrowsAsync<ValidationException>(async () => await payoutService.RegisterPayout(new GenericHourEntry
         {
@@ -345,7 +346,7 @@ public class PayoutServiceTests
             Hours = 1M
         }));
     }
-        
+
     [Fact]
     public async System.Threading.Tasks.Task RegisterPayout_HasIncompleteDaysBeforePayout_ExceptionThrown()
     {
@@ -357,7 +358,7 @@ public class PayoutServiceTests
             await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 { new() { Date = incompleteTimeEntry.Date, Value = incompleteTimeEntry.Value, TaskId = incompleteTimeEntry.TaskId } });
         }
-            
+
         var payoutService = CreatePayoutServiceWithIncompleteDaysValidation(_timeRegistrationService);
         await Assert.ThrowsAsync<ValidationException>(async () => await payoutService.RegisterPayout(new GenericHourEntry
         {
@@ -365,7 +366,7 @@ public class PayoutServiceTests
             Hours = 1M
         }));
     }
-    
+
     [Fact]
     public async System.Threading.Tasks.Task RegisterPayout_HasIncompleteDaysOnRedDayBeforePayout_PayoutRegistered()
     {
@@ -378,7 +379,7 @@ public class PayoutServiceTests
             await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 { new() { Date = completeTimeEntry.Date, Value = completeTimeEntry.Value, TaskId = completeTimeEntry.TaskId } });
         }
-            
+
         var payoutService = CreatePayoutServiceWithIncompleteDaysValidation(_timeRegistrationService);
         await payoutService.RegisterPayout(new GenericHourEntry { Date = startDate, Hours = 5 });
 
@@ -397,7 +398,7 @@ public class PayoutServiceTests
         return new PayoutService(new PayoutStorage(_context), _userContextMock.Object,
             timeRegistrationService, _payoutValidationServiceMock.Object);
     }
-    
+
     private PayoutService CreatePayoutServiceWithIncompleteDaysValidation(TimeRegistrationService timeRegistrationService)
     {
         return new PayoutService(new PayoutStorage(_context), _userContextMock.Object,
@@ -416,7 +417,7 @@ public class PayoutServiceTests
         var task = new Task { Id = taskId, Project = 1, };
         _context.Task.Add(task);
         _context.CompensationRate.Add(new CompensationRate
-            { TaskId = taskId, Value = compensationRate, FromDate = new DateTime(2021, 01, 01) });
+        { TaskId = taskId, Value = compensationRate, FromDate = new DateTime(2021, 01, 01) });
         _context.SaveChanges();
 
         return new Hours
@@ -428,7 +429,7 @@ public class PayoutServiceTests
             TaskId = taskId
         };
     }
-        
+
     private static Hours CreateTimeEntryForExistingTask(DateTime date, decimal value, int taskId)
     {
         return new Hours
