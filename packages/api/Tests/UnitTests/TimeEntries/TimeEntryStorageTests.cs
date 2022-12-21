@@ -18,6 +18,8 @@ public class TimeEntryStorageTests
     public TimeEntryStorageTests()
     {
         _context = new AlvTimeDbContextBuilder()
+            .WithCustomers()
+            .WithProjects()
             .WithTimeEntries()
             .WithTasks()
             .WithUsers()
@@ -34,7 +36,7 @@ public class TimeEntryStorageTests
         };
         Mock.Of<IOptionsMonitor<TimeEntryOptions>>(options => options.CurrentValue == entryOptions);
     }
-        
+
     [Fact]
     public async System.Threading.Tasks.Task GetTimeEntries_DatesSpecified_AllEntriesBetweenDates()
     {
@@ -119,8 +121,26 @@ public class TimeEntryStorageTests
         Assert.True(timeEntry.Value == 10);
     }
 
+    [Fact]
+    public async System.Threading.Tasks.Task GetTimeEntriesWithCustomer_BetweenDates_ForSingularUser()
+    {
+
+        var storage = CreateTimeEntryStorage();
+        var stats = await storage.GetTimeEntriesWithCustomer(1, new DateTime(2019, 05, 02), new DateTime(2019, 05, 02).AddHours(20));
+
+        // In that date-range we have exactly two entries
+        Assert.Equal(2, stats.Count());
+
+        var taskWithCustomer = stats.Find(task => task.TaskId == 1);
+
+        Assert.Equal("ExampleCustomer", taskWithCustomer.CustomerName);
+        Assert.Equal(6, taskWithCustomer.Value);
+    }
+
     private TimeRegistrationStorage CreateTimeEntryStorage()
     {
         return new TimeRegistrationStorage(_context);
     }
+
+
 }

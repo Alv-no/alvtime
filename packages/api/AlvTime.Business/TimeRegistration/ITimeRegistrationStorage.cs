@@ -18,6 +18,7 @@ namespace AlvTime.Business.TimeRegistration
         Task<List<EarnedOvertimeDto>> GetEarnedOvertime(OvertimeQueryFilter criteria);
         Task StoreOvertime(List<OvertimeEntry> overtimeEntries, int userId);
         Task DeleteOvertimeOnDate(DateTime date, int userId);
+        Task<List<TimeEntryWithCustomerDto>> GetTimeEntriesWithCustomer(int userId, DateTime fromDate, DateTime toDate);
     }
 
     public class TimeEntryQuerySearch
@@ -29,7 +30,7 @@ namespace AlvTime.Business.TimeRegistration
         public decimal? Value { get; set; }
         public int? TaskId { get; set; }
     }
-    
+
     public class OvertimeQueryFilter
     {
         public int? UserId { get; set; }
