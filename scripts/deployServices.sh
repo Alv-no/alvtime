@@ -8,10 +8,7 @@ echo "$SP_ALVTIME_ADMIN_RBAC_SECRET" | helm registry login "$CONTAINER_REGISTRY.
   --username "$SP_ALVTIME_ADMIN_CLIENT_ID" \
   --password-stdin
 
-helm chart pull "$CONTAINER_REGISTRY.azurecr.io/helm/service:v0"
-
-helm chart export "$CONTAINER_REGISTRY.azurecr.io/helm/service:v0" \
-  --destination .
+helm pull "oci://$CONTAINER_REGISTRY.azurecr.io/helm/chart" --version v1 --untar
 
 # Retrieve the access credentials for your cluster and automatically configure kubectl
 az aks get-credentials \
