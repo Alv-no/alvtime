@@ -11,6 +11,7 @@ import timeEntrie, { TimeEntrieState } from "./timeEntries";
 import router from "@/router";
 import overtime, { OvertimeState } from "./overtime";
 import absense, { AbsenseState } from "./absense";
+import invoice, { InvoiceRateState } from "./invoiceRate";
 import { EventMessage, EventType } from "@azure/msal-browser";
 import { registerErrorCallback } from "@/services/httpClient";
 
@@ -18,13 +19,14 @@ Vue.use(Vuex);
 
 export interface State
   extends TaskState,
-  TimeEntrieState,
-  AuthState,
-  ErrorState,
-  SwiperState,
-  OvertimeState,
-  AbsenseState,
-  AppState { }
+    TimeEntrieState,
+    AuthState,
+    ErrorState,
+    SwiperState,
+    OvertimeState,
+    AbsenseState,
+    InvoiceRateState,
+    AppState {}
 
 export const state = {
   ...timeEntrie.state,
@@ -35,6 +37,7 @@ export const state = {
   ...overtime.state,
   ...app.state,
   ...absense.state,
+  ...invoice.state,
 };
 
 export const mutations = {
@@ -46,6 +49,7 @@ export const mutations = {
   ...overtime.mutations,
   ...app.mutations,
   ...absense.mutations,
+  ...invoice.mutations,
 };
 
 export const getters = {
@@ -56,6 +60,7 @@ export const getters = {
   ...absense.getters,
   ...error.getters,
   ...timeEntrie.getters,
+  ...invoice.getters,
 };
 
 const actions = {
@@ -65,6 +70,7 @@ const actions = {
   ...overtime.actions,
   ...absense.actions,
   ...auth.actions,
+  ...invoice.actions,
 };
 
 const storeOptions = {
@@ -95,7 +101,7 @@ authService.addCallback((message: EventMessage) => {
   }
 });
 
-lifecycle.addEventListener("statechange", function (event: any) {
+lifecycle.addEventListener("statechange", function(event: any) {
   store.commit("UPDATE_INTERACTION_STATE", event);
 });
 

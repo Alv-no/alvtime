@@ -15,6 +15,7 @@
             </router-link>
           </div>
           <div class="md-toolbar-section-end">
+            <invoice-rate v-if="userFound" />
             <hamburger v-if="userFound" />
           </div>
         </div>
@@ -53,6 +54,7 @@ import Hamburger from "@/components/Hamburger.vue";
 import Drawer from "@/components/Drawer.vue";
 import DayFooter from "@/components/DayFooter.vue";
 import CenterColumnWrapper from "@/components/CenterColumnWrapper.vue";
+import InvoiceRate from '@/components/InvoiceRate.vue';
 
 export default Vue.extend({
   components: {
@@ -64,6 +66,7 @@ export default Vue.extend({
     Drawer,
     DayFooter,
     CenterColumnWrapper,
+    InvoiceRate
   },
 
   data() {
@@ -174,4 +177,7 @@ html {
 .logo_text {
   color: white;
 }
+.md-toolbar-section-end {
+  gap: 1rem;
+ }
 </style>
