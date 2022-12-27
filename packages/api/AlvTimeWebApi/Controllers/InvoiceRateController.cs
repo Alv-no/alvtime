@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using AlvTime.Business.InvoiceRate;
-using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,6 +32,6 @@ public class InvoiceRateController : ControllerBase
             fromDate = DateTime.Now.AddDays(-30);
         }
 
-        return await _invoiceRateService.GetEmployeeInvoiceRateForPeriod(fromDate.Value, toDate.Value);
+        return await _invoiceRateService.GetEmployeeInvoiceRateForPeriod(fromDate.Value.Date, toDate.Value.Date);
     }
 }
