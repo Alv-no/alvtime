@@ -34,4 +34,11 @@ public class InvoiceRateController : ControllerBase
 
         return await _invoiceRateService.GetEmployeeInvoiceRateForPeriod(fromDate.Value.Date, toDate.Value.Date);
     }
+
+    [HttpGet("InvoiceStatistics")]
+    [Authorize(Policy = "AllowPersonalAccessToken")]
+    public async Task<InvoiceStatisticsDto> FetchUserInvoiceStatistics(DateTime fromDate, DateTime toDate)
+    {
+        return await _invoiceRateService.GetEmployeeInvoiceStatisticsByMonth(fromDate.Date, toDate.Date);
+    }
 }

@@ -1,6 +1,10 @@
 <template>
   <CenterColumnWrapper>
-    <md-table v-if="getTimeEntriesSummed.length > 0">
+    <h2 class="padding">Faktureringsgrad</h2>
+    <invoice-statistics></invoice-statistics>
+
+    <h2 class="padding">Timesoversikt</h2>
+    <md-table class="padding" v-if="getTimeEntriesSummed.length > 0">
       <md-table-row>
         <md-table-head>Task</md-table-head>
         <md-table-head
@@ -24,7 +28,7 @@
         </md-table-cell>
       </md-table-row>
     </md-table>
-    <p v-else>Kan ikke finne noen timer ført de siste 3 månedene.</p>
+    <p class="padding" v-else>Kan ikke finne noen timer ført de siste 3 månedene.</p>
   </CenterColumnWrapper>
 </template>
 
@@ -32,11 +36,13 @@
 import Vue from "vue";
 import CenterColumnWrapper from "@/components/CenterColumnWrapper.vue";
 import { EntriesSummarizedPerMonthPerTask } from "@/store/timeEntries";
+import InvoiceStatistics from "../components/InvoiceStatistics.vue";
 
 export default Vue.extend({
   name: "Summarizedhours",
   components: {
     CenterColumnWrapper,
+    InvoiceStatistics,
   },
   computed: {
     getTimeEntriesSummed(): EntriesSummarizedPerMonthPerTask {
