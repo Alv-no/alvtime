@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using AlvTime.Business.TimeEntries;
 using AlvTime.Business.TimeRegistration;
 using AlvTime.Business.Interfaces;
+using System.Linq;
 
 namespace Tests.UnitTests.InvoiceRate;
 
@@ -157,6 +158,88 @@ public class InvoiceRateServiceTest
         decimal invoiceRate = await service.GetEmployeeInvoiceRateForPeriod(new DateTime(2022, 12, 12), new DateTime(2022, 12, 18));
 
         Assert.Equal(1m, invoiceRate);
+    }
+
+    [Fact]
+    public async Task GetEmployeeInvoiceStatisticsByMonth()
+    {
+        var startDate = new DateTime(2022, 01, 01);
+
+        var timeEntries = new List<TimeEntryWithCustomerDto>();
+
+        for (int i = 0; i < 59; i++)
+        {
+            var newDate = startDate.AddDays(i);
+
+            if (newDate.DayOfWeek == DayOfWeek.Sunday || newDate.DayOfWeek == DayOfWeek.Saturday)
+            {
+                continue;
+            }
+
+
+            timeEntries.Add(new TimeEntryWithCustomerDto
+            {
+                TaskId = 2,
+                CustomerName = "evil inc",
+                Value = 7.5m,
+                Date = newDate
+
+            });
+        }
+
+        var mockRepository = CreateMockRepository(timeEntries);
+        var service = new InvoiceRateService(mockRepository.Object, _redDaysService, _options, _userContextMock.Object);
+
+        var statistics = await service.GetEmployeeInvoiceStatisticsByMonth(new DateTime(2022, 01, 01), new DateTime(2022, 02, 28));
+
+        Assert.Equal(2, statistics.BillableHours.Count());
+
+        Assert.Equal(21 * 7.5m, statistics.BillableHours[0]);
+        Assert.Equal(20 * 7.5m, statistics.BillableHours[1]);
+
+        Assert.Equal(0m, statistics.VacationHours[0]);
+        Assert.Equal(0m, statistics.VacationHours[1]);
+
+        Assert.Equal(1m, statistics.InvoiceRate[0]);
+        Assert.Equal(1m, statistics.InvoiceRate[1]);
+    }
+
+    [Fact]
+    public async Task GetEmployeeInvoiceStatisticsByMonth_When_Spanning_Years()
+    {
+
+        var startDate = new DateTime(2021, 01, 01);
+
+        var timeEntries = new List<TimeEntryWithCustomerDto>();
+
+        for (int i = 0; i < 395; i++)
+        {
+            var newDate = startDate.AddDays(i);
+
+            if (newDate.DayOfWeek == DayOfWeek.Sunday || newDate.DayOfWeek == DayOfWeek.Saturday)
+            {
+                continue;
+            }
+
+
+            timeEntries.Add(new TimeEntryWithCustomerDto
+            {
+                TaskId = 2,
+                CustomerName = "evil inc",
+                Value = 7.5m,
+                Date = newDate
+
+            });
+        }
+
+
+        var mockRepository = CreateMockRepository(timeEntries);
+        var service = new InvoiceRateService(mockRepository.Object, _redDaysService, _options, _userContextMock.Object);
+
+        var statistics = await service.GetEmployeeInvoiceStatisticsByMonth(new DateTime(2021, 01, 01), new DateTime(2022, 01, 31));
+
+        Assert.Equal(13, statistics.BillableHours.Count());
+
     }
 
     private Mock<ITimeRegistrationStorage> CreateMockRepository(List<TimeEntryWithCustomerDto> result)

@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.Holidays;
 using AlvTime.Business.Interfaces;
+using AlvTime.Business.Models;
 using AlvTime.Business.Options;
 using AlvTime.Business.TimeEntries;
 using AlvTime.Business.TimeRegistration;
@@ -33,8 +35,9 @@ public class InvoiceRateService
     public async Task<decimal> GetEmployeeInvoiceRateForPeriod(DateTime fromDate, DateTime toDate)
     {
         var user = await _userContext.GetCurrentUser();
-        var userTasks = await _timeRegistrationStorage.GetTimeEntriesWithCustomer(user.Id, fromDate, toDate);
-        var availableHoursWithoutVacation = GetUserAvailableHours(fromDate, toDate);
+        var adjustedFromDate = GetUserStartDateOrFromDate(fromDate, user);
+        var userTasks = await _timeRegistrationStorage.GetTimeEntriesWithCustomer(user.Id, adjustedFromDate, toDate);
+        var availableHoursWithoutVacation = GetUserAvailableHours(adjustedFromDate, toDate);
 
         var taskDictionary = userTasks.GroupBy(GetTaskType)
                                       .ToDictionary(taskGroup => taskGroup.Key);
@@ -50,6 +53,78 @@ public class InvoiceRateService
         }
 
         return billableHours / availableHours;
+    }
+
+    public async Task<InvoiceStatisticsDto> GetEmployeeInvoiceStatisticsByMonth(DateTime fromDate, DateTime toDate)
+    {
+        var user = await _userContext.GetCurrentUser();
+        var adjustedFromDate = GetUserStartDateOrFromDate(fromDate, user);
+        adjustedFromDate = adjustedFromDate.AddDays(-adjustedFromDate.Day + 1);
+        DateTime adjustedToDate = toDate;
+
+        if (toDate > DateTime.Now)
+        {
+            adjustedToDate = DateTime.Now;
+        }
+
+        var userTasks = await _timeRegistrationStorage.GetTimeEntriesWithCustomer(user.Id, adjustedFromDate, adjustedToDate);
+        var offDays = GetNonWorkingDays(adjustedFromDate, adjustedToDate);
+
+        var taskDictionary = userTasks.GroupBy(GetTaskType)
+                                      .ToDictionary(taskGroup => taskGroup.Key);
+
+        var billableHours = GetMonthlyDataset(taskDictionary.ContainsKey(TaskType.BILLABLE) ? taskDictionary[TaskType.BILLABLE] : null, adjustedFromDate, adjustedToDate);
+        var nonBillableHours = GetMonthlyDataset(taskDictionary.ContainsKey(TaskType.NON_BILLABLE) ? taskDictionary[TaskType.NON_BILLABLE] : null, adjustedFromDate, adjustedToDate);
+        var vacationHours = GetMonthlyDataset(taskDictionary.ContainsKey(TaskType.VACATION) ? taskDictionary[TaskType.VACATION] : null, adjustedFromDate, adjustedToDate);
+
+
+        return new InvoiceStatisticsDto
+        {
+            BillableHours = billableHours,
+            NonBillableHours = nonBillableHours,
+            VacationHours = vacationHours,
+            InvoiceRate = GetInvoiceRateForArray(billableHours, vacationHours, adjustedFromDate, adjustedToDate)
+        };
+
+    }
+
+    private decimal[] GetInvoiceRateForArray(decimal[] billableHours, decimal[] vacationHours, DateTime fromDate, DateTime toDate)
+    {
+        var result = new decimal[billableHours.Count()];
+
+        for (int i = 0; i < billableHours.Count(); i++)
+        {
+            var toInterval = fromDate.AddMonths(i + 1).AddDays(-1);
+
+            if (toInterval > toDate)
+            {
+                toInterval = toDate;
+            }
+
+            var availableHours = GetUserAvailableHours(fromDate.AddMonths(i), toInterval) - vacationHours[i];
+            result[i] = billableHours[i] / (availableHours > 0 ? availableHours : 1);
+        }
+
+        return result;
+    }
+
+    private decimal[] GetMonthlyDataset(IEnumerable<TimeEntryWithCustomerDto> entries, DateTime fromDate, DateTime toDate)
+    {
+        var months = ((toDate.Year - fromDate.Year) * 12) + toDate.Month - fromDate.Month + 1;
+        var result = new decimal[months];
+
+        if (entries == null)
+        {
+            return result;
+        }
+
+        for (int i = 0; i < months; i++)
+        {
+            var period = fromDate.AddMonths(i);
+            result[i] = entries.Where(entry => entry.Date.Month == period.Month && entry.Date.Year == period.Year).Sum(entry => entry.Value);
+        }
+
+        return result;
     }
 
 
@@ -70,7 +145,7 @@ public class InvoiceRateService
 
     private decimal GetUserAvailableHours(DateTime fromDate, DateTime toDate)
     {
-        decimal redDayHours = GetAmountOfRedDayHours(fromDate, toDate);
+        decimal redDayHours = GetNonWorkingDays(fromDate, toDate).Count() * 7.5m;
 
         var workingHours = 7.5m + (toDate - fromDate).Days * 7.5m;
 
@@ -78,7 +153,7 @@ public class InvoiceRateService
     }
 
 
-    private decimal GetAmountOfRedDayHours(DateTime fromDate, DateTime toDate)
+    private IEnumerable<DateTime> GetNonWorkingDays(DateTime fromDate, DateTime toDate)
     {
         var redDays = _redDaysService.GetRedDaysFromYears(fromDate.Year, toDate.Year)
             .Select(dateString => DateTime.Parse(dateString))
@@ -86,8 +161,16 @@ public class InvoiceRateService
 
         var weekendDays = DateUtils.GetWeekendDays(fromDate, toDate).Where(day => !redDays.Any(redDay => redDay == day));
 
-        var amountOfRedDays = redDays.Count() + weekendDays.Count();
+        return weekendDays.Concat(redDays);
+    }
 
-        return amountOfRedDays * 7.5m;
+    private DateTime GetUserStartDateOrFromDate(DateTime fromDate, User user)
+    {
+        if (fromDate < user.StartDate)
+        {
+            return user.StartDate;
+        }
+
+        return fromDate;
     }
 }
