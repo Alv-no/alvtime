@@ -11,7 +11,7 @@ import timeEntrie, { TimeEntrieState } from "./timeEntries";
 import router from "@/router";
 import overtime, { OvertimeState } from "./overtime";
 import absense, { AbsenseState } from "./absense";
-import invoice, { InvoiceRateState } from "./invoiceRate";
+import invoice, { InvoiceStoreState } from "./invoiceRate";
 import { EventMessage, EventType } from "@azure/msal-browser";
 import { registerErrorCallback } from "@/services/httpClient";
 
@@ -25,7 +25,7 @@ export interface State
     SwiperState,
     OvertimeState,
     AbsenseState,
-    InvoiceRateState,
+    InvoiceStoreState,
     AppState {}
 
 export const state = {
