@@ -23,17 +23,17 @@ values
 
 insert into [dbo].[User]
 values
-('Ansatt En', 'ansatten@alv.no', '2019-08-01', NULL),
-('Ansatt To', 'ansatto@alv.no', '2019-09-01', NULL),
-('Ansatt Tre', 'ansattre@alv.no', '2019-10-01', NULL),
-('Ansatt Fire', 'ansattfire@alv.no', '2019-11-01', '2020-05-08'),
-('Ansatt Fem', 'ansattfem@alv.no', '2019-12-01', NULL),
-('Ansatt Seks', 'ansattseks@alv.no', '2019-08-01', '2021-02-01'),
-('Ansatt Syv', 'ansattsyv@alv.no', '2019-09-01', NULL),
-('Ansatt Atte', 'ansattatte@alv.no', '2019-10-01', NULL),
-('Ansatt Ni', 'ansattni@alv.no', '2019-11-01', '2020-12-31'),
-('Ansatt Ti', 'ansatti@alv.no', '2019-12-01', NULL),
-('Ahre Ketil Lillehagen', 'ahre-ketil.lillehagen@alvno.onmicrosoft.com', '2020-11-01', NULL)
+('Ansatt En', 'ansatten@alv.no', '2019-08-01', NULL, 1),
+('Ansatt To', 'ansatto@alv.no', '2019-09-01', NULL, 2),
+('Ansatt Tre', 'ansattre@alv.no', '2019-10-01', NULL, 3),
+('Ansatt Fire', 'ansattfire@alv.no', '2019-11-01', '2020-05-08', 4),
+('Ansatt Fem', 'ansattfem@alv.no', '2019-12-01', NULL, 5),
+('Ansatt Seks', 'ansattseks@alv.no', '2019-08-01', '2021-02-01', 6),
+('Ansatt Syv', 'ansattsyv@alv.no', '2019-09-01', NULL, 7),
+('Ansatt Atte', 'ansattatte@alv.no', '2019-10-01', NULL, 8),
+('Ansatt Ni', 'ansattni@alv.no', '2019-11-01', '2020-12-31', 9),
+('Ansatt Ti', 'ansatti@alv.no', '2019-12-01', NULL, 10),
+('Ahre Ketil Lillehagen', 'ahre-ketil.lillehagen@alvno.onmicrosoft.com', '2020-11-01', NULL, 11)
 
 
 insert into [dbo].[Task]
