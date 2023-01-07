@@ -87,6 +87,7 @@ CREATE TABLE [dbo].[User]
     [email]     [nvarchar](100)      NOT NULL,
     [StartDate] [datetime]           NOT NULL,
     [EndDate]   [datetime]           NULL,
+    [EmployeeId][int]                NOT NULL,
     PRIMARY KEY CLUSTERED
         (
          [Id] ASC

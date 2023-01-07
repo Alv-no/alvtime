@@ -30,21 +30,15 @@ public class UserController : Controller
         var users = await _userRepository.GetUsers(new UserQuerySearch());
         return Ok(users);
     }
-
+    //TODO: Validering for duplikat ansattnummer, epost eller navn
     [HttpPost("Users")]
     [AuthorizeAdmin]
     public async Task<ActionResult<IEnumerable<UserResponseDto>>> CreateNewUsers([FromBody] IEnumerable<UserDto> usersToBeCreated)
     {
-        List<UserResponseDto> response = new List<UserResponseDto>();
+        var response = new List<UserResponseDto>();
         foreach (var user in usersToBeCreated)
         {
-            response.Add(await _userService.CreateUser(new UserDto
-            {
-                Email = user.Email,
-                Name = user.Name,
-                StartDate = user.StartDate,
-                EndDate = user.EndDate
-            }));
+            response.Add(await _userService.CreateUser(user));
         }
 
         return Ok(response);
@@ -54,7 +48,7 @@ public class UserController : Controller
     [AuthorizeAdmin]
     public async Task<ActionResult<IEnumerable<UserResponseDto>>> UpdateUsers([FromBody] IEnumerable<UserDto> usersToBeUpdated)
     {
-        List<UserResponseDto> response = new List<UserResponseDto>();
+        var response = new List<UserResponseDto>();
         foreach (var user in usersToBeUpdated)
         {
             response.Add(await _userService.UpdateUser(user));
