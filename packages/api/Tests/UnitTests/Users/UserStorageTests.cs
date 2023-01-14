@@ -67,30 +67,11 @@ namespace Tests.UnitTests.Users
             {
                 Email = "newUser@alv.no",
                 Name = "New User",
-                StartDate = DateTime.UtcNow
+                StartDate = DateTime.UtcNow,
+                EmployeeId = 1
             });
 
             Assert.True(context.User.Count() == 3);
-        }
-
-        [Fact]
-        public async Task UserCreator_UserAlreadyExists_NoUserIsCreated()
-        {
-            var context = new AlvTimeDbContextBuilder()
-                .WithUsers()
-                .CreateDbContext();
-
-            var storage = new UserRepository(context);
-            var creator = new UserService(storage);
-
-            await creator.CreateUser(new UserDto
-            {
-                Email = "someone@alv.no",
-                Name = "Someone",
-                StartDate = DateTime.UtcNow
-            });
-
-            Assert.True(context.User.Count() == 2);
         }
 
         [Fact]

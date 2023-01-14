@@ -27,7 +27,7 @@ public class UserService
     public async Task<UserResponseDto> UpdateUser(UserDto user)
     {
         var allUsers = await _userRepository.GetUsers(new UserQuerySearch());
-        if (allUsers.Any(u => u.Id != user.Id && u.EmployeeId == user.EmployeeId))
+        if (allUsers.Any(u => u.Id != user.Id && (u.EmployeeId == user.EmployeeId || u.Email == user.Email || u.Name == user.Name)))
         {
             throw new DuplicateNameException("En bruker har allerede blitt tildelt det ansattnummeret");
         }

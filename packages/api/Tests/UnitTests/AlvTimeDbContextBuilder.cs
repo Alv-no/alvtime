@@ -331,7 +331,8 @@ namespace Tests.UnitTests
                 Id = 1,
                 Email = "someone@alv.no",
                 Name = "Someone",
-                StartDate = new DateTime(2020, 01, 02)
+                StartDate = new DateTime(2020, 01, 02),
+                EmployeeId = 999
             });
 
             _context.User.Add(new User
@@ -339,7 +340,8 @@ namespace Tests.UnitTests
                 Id = 2,
                 Email = "someone2@alv.no",
                 Name = "Someone2",
-                StartDate = DateTime.Now
+                StartDate = DateTime.Now,
+                EmployeeId = 888
             });
 
             _context.SaveChanges();
