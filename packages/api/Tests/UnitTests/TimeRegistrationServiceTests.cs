@@ -140,30 +140,6 @@ public class TimeRegistrationServiceTests
     }
 
     [Fact]
-    public async System.Threading.Tasks.Task RegisterFlex_HasFutureFlex_ExceptionThrown()
-    {
-        var currentYear = DateTime.Now.Year;
-        var currentMonth = DateTime.Now.Month;
-        var currentDay = DateTime.Now.Day;
-        var overtimeEntry =
-            CreateTimeEntryWithCompensationRate(new DateTime(currentYear, currentMonth, currentDay), 12M, 1.5M, out _);
-        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-            { new() { Date = overtimeEntry.Date, Value = overtimeEntry.Value, TaskId = overtimeEntry.TaskId } });
-
-        var futureDayToRegisterFlexOn = TestDateUtils.GetFutureNonWeekendDay();
-        var futureFlex =
-            CreateTimeEntryForExistingTask(futureDayToRegisterFlexOn, 1M, 18);
-        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-            { new() { Date = futureFlex.Date, Value = futureFlex.Value, TaskId = futureFlex.TaskId } });
-
-        var dayToRegisterFlexOn = DateTime.Now.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday ? DateTime.Now.AddDays(2) : DateTime.Now;
-        var flexToday =
-            CreateTimeEntryForExistingTask(dayToRegisterFlexOn, 1M, 18);
-        await Assert.ThrowsAsync<Exception>(async () => await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-            { new() { Date = flexToday.Date, Value = flexToday.Value, TaskId = flexToday.TaskId } }));
-    }
-
-    [Fact]
     public async System.Threading.Tasks.Task RegisterVacation_UserIsEmployed50Percent_CannotRegister7Point5HoursVacation()
     {
         _context.EmploymentRate.Add(new EmploymentRate

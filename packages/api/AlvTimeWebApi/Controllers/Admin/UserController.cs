@@ -30,15 +30,22 @@ public class UserController : Controller
         var users = await _userRepository.GetUsers(new UserQuerySearch());
         return Ok(users);
     }
-    //TODO: Validering for duplikat ansattnummer, epost eller navn
+    
     [HttpPost("Users")]
     [AuthorizeAdmin]
-    public async Task<ActionResult<IEnumerable<UserResponseDto>>> CreateNewUsers([FromBody] IEnumerable<UserDto> usersToBeCreated)
+    public async Task<ActionResult<IEnumerable<UserResponseDto>>> CreateNewUsers([FromBody] IEnumerable<UserCreateRequest> usersToBeCreated)
     {
         var response = new List<UserResponseDto>();
         foreach (var user in usersToBeCreated)
         {
-            response.Add(await _userService.CreateUser(user));
+            response.Add(await _userService.CreateUser(new UserDto
+            {
+                Name = user.Name,
+                Email = user.Email,
+                EmployeeId = user.EmployeeId,
+                StartDate = user.StartDate,
+                EndDate = user.EndDate
+            }));
         }
 
         return Ok(response);
@@ -46,12 +53,20 @@ public class UserController : Controller
 
     [HttpPut("Users")]
     [AuthorizeAdmin]
-    public async Task<ActionResult<IEnumerable<UserResponseDto>>> UpdateUsers([FromBody] IEnumerable<UserDto> usersToBeUpdated)
+    public async Task<ActionResult<IEnumerable<UserResponseDto>>> UpdateUsers([FromBody] IEnumerable<UserUpdateRequest> usersToBeUpdated)
     {
         var response = new List<UserResponseDto>();
         foreach (var user in usersToBeUpdated)
         {
-            response.Add(await _userService.UpdateUser(user));
+            response.Add(await _userService.UpdateUser(new UserDto
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                EmployeeId = user.EmployeeId,
+                StartDate = user.StartDate ,
+                EndDate = user.EndDate
+            }));
         }
 
         return Ok(response);

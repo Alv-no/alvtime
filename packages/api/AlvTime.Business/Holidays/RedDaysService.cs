@@ -2,42 +2,41 @@
 using System.Globalization;
 using System.Linq;
 
-namespace AlvTime.Business.Holidays
+namespace AlvTime.Business.Holidays;
+
+public class RedDaysService : IRedDaysService
 {
-    public class RedDaysService : IRedDaysService
+    public List<string> GetRedDaysFromYear(int year)
     {
-        public List<string> GetRedDaysFromYear(int year)
+        var dates = new List<string>();
+
+        var redDays = new RedDays(year);
+
+        foreach (var date in redDays.Dates)
         {
-            var dates = new List<string>();
-
-                var redDays = new RedDays(year);
-
-                foreach (var date in redDays.Dates)
-                {
-                    dates.Add(date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
-                }
-
-            return dates;
+            dates.Add(date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
         }
 
-        public List<string> GetRedDaysFromYears(int fromYearInclusive, int toYearInclusive)
+        return dates.Distinct().ToList();
+    }
+
+    public List<string> GetRedDaysFromYears(int fromYearInclusive, int toYearInclusive)
+    {
+        var dates = new List<string>();
+
+        var yearsToInclude = toYearInclusive - fromYearInclusive + 1;
+        var years = Enumerable.Range(fromYearInclusive, yearsToInclude);
+
+        foreach (var yearToFindDays in years)
         {
-            var dates = new List<string>();
+            var redDays = new RedDays(yearToFindDays);
 
-                var yearsToInclude = toYearInclusive - fromYearInclusive + 1;
-                var years = Enumerable.Range(fromYearInclusive, yearsToInclude);
-
-                foreach (var yearToFindDays in years)
-                {
-                    var redDays = new RedDays(yearToFindDays);
-
-                    foreach (var date in redDays.Dates)
-                    {
-                        dates.Add(date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
-                    }
+            foreach (var date in redDays.Dates)
+            {
+                dates.Add(date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
             }
-
-            return dates;
         }
+
+        return dates.Distinct().ToList();
     }
 }
