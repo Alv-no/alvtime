@@ -101,18 +101,19 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[hours]
 (
-    [Id]        [int] IDENTITY (1,1) NOT NULL,
-    [User]      [int]                NOT NULL,
-    [Value]     [decimal](6, 2)      NOT NULL,
-    [Date]      [datetime]           NOT NULL,
-    [DayNumber] [smallint]           NOT NULL,
-    [Year]      [smallint]           NOT NULL,
-    [TaskId]    [int]                NOT NULL,
-    [Locked]    [bit]                NOT NULL,
-    PRIMARY KEY CLUSTERED
-        (
-         [Id] ASC
-            ) WITH (STATISTICS_NORECOMPUTE = ON, IGNORE_DUP_KEY = OFF, FILLFACTOR = 80) ON [PRIMARY],
+    [Id]             [int] IDENTITY (1,1) NOT NULL,
+    [User]           [int]                NOT NULL,
+    [Value]          [decimal](6, 2)      NOT NULL,
+    [Date]           [datetime]           NOT NULL,
+    [DayNumber]      [smallint]           NOT NULL,
+    [Year]           [smallint]           NOT NULL,
+    [TaskId]         [int]                NOT NULL,
+    [Locked]         [bit]                NOT NULL,
+    [TimeRegistered] [datetime2]          NOT NULL
+        PRIMARY KEY CLUSTERED
+            (
+             [Id] ASC
+                ) WITH (STATISTICS_NORECOMPUTE = ON, IGNORE_DUP_KEY = OFF, FILLFACTOR = 80) ON [PRIMARY],
     CONSTRAINT [UC_hours_user_task] UNIQUE NONCLUSTERED
         (
          [Date] ASC,

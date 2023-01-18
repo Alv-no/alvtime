@@ -125,7 +125,8 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
                 User = userId,
                 Year = (short)timeEntry.Date.Year,
                 DayNumber = (short)timeEntry.Date.DayOfYear,
-                Value = timeEntry.Value
+                Value = timeEntry.Value,
+                TimeRegistered = DateTime.UtcNow
             };
             _context.Hours.Add(hour);
             await _context.SaveChangesAsync();
@@ -163,6 +164,7 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
         if (!hour.Locked && !task.Locked)
         {
             hour.Value = timeEntry.Value;
+            hour.TimeRegistered = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
             return new TimeEntryResponseDto
