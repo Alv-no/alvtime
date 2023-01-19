@@ -13,7 +13,7 @@ namespace AlvTime.Persistence.DatabaseModels
         public short Year { get; set; }
         public int TaskId { get; set; }
         public bool Locked { get; set; }
-        public DateTime TimeRegistered { get; set; }
+        public DateTime? TimeRegistered { get; set; }
 
         public virtual Task Task { get; set; }
         public virtual User UserNavigation { get; set; }
