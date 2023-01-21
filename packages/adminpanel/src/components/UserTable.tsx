@@ -5,6 +5,7 @@ import { AlvtimeContext } from "../App";
 import { norsk } from "./norsk";
 import tableIcons from "./tableIcons";
 import { globalTableOptions, setCache } from "./Tables";
+import EmploymentRateTable from "./EmploymentRateTable"
 
 export default function UserTable() {
   const { alvtimeFetcher } = useContext(AlvtimeContext);
@@ -71,6 +72,13 @@ export default function UserTable() {
         onRowUpdate: handleRowUpdate,
       }}
       localization={norsk}
+      detailPanel={(rowData) => {
+        return (
+          <div style={{ paddingLeft: "1rem" }}>
+            <EmploymentRateTable user={rowData} />
+          </div>
+        );
+      }}
     />
   );
 }

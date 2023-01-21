@@ -72,51 +72,57 @@ public class UserController : Controller
         return Ok(response);
     }
 
-    [HttpGet("user/{userId}/employmentrates")]
+    [HttpGet("users/{userId:int}/employmentrates")]
     [AuthorizeAdmin]
-    public async Task<ActionResult<EmploymentRateResponse>> FetchEmploymentRatesForUser(int userId)
+    public async Task<ActionResult<IEnumerable<EmploymentRateResponse>>> FetchEmploymentRatesForUser(int userId)
     {
         return Ok((await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = userId })).Select(er => new EmploymentRateResponse
         {
             Id = er.Id,
             UserId = er.UserId,
-            Rate = er.Rate,
+            RatePercentage = er.Rate * 100,
             FromDateInclusive = er.FromDateInclusive.ToDateOnly(),
             ToDateInclusive = er.ToDateInclusive.ToDateOnly()
         }).OrderByDescending(er => er.ToDateInclusive));
     }
 
-    [HttpPost("user/employmentrate")]
+    [HttpPost("users/{userId:int}/employmentrates")]
     [AuthorizeAdmin]
-    public async Task<ActionResult<EmploymentRateResponse>> CreateEmploymentRateForUser(EmploymentRateCreationRequest request)
+    public async Task<ActionResult<EmploymentRateResponse>> CreateEmploymentRateForUser(EmploymentRateCreationRequest request, int userId)
     {
         var createdEmploymentRate = await _userRepository.CreateEmploymentRateForUser(new EmploymentRateDto
         {
-            UserId = request.UserId,
-            Rate = request.Rate,
-            ToDateInclusive = request.ToDateInclusive,
-            FromDateInclusive = request.FromDateInclusive
+            UserId = userId,
+            Rate = request.RatePercentage / 100,
+            ToDateInclusive = request.ToDateInclusive.Date,
+            FromDateInclusive = request.FromDateInclusive.Date
         });
         return Ok(new EmploymentRateResponse
         {
             Id = createdEmploymentRate.Id,
             UserId = createdEmploymentRate.UserId,
-            Rate = createdEmploymentRate.Rate,
+            RatePercentage = createdEmploymentRate.Rate * 100,
             FromDateInclusive = createdEmploymentRate.FromDateInclusive.ToDateOnly(),
             ToDateInclusive = createdEmploymentRate.ToDateInclusive.ToDateOnly()
         });
     }
 
-    [HttpPut("user/employmentrate")]
+    [HttpPut("users/{userId:int}/employmentrates")]
     [AuthorizeAdmin]
-    public async Task<ActionResult<EmploymentRateResponse>> UpdateEmploymentRate(EmploymentRateChangeRequest request)
+    public async Task<ActionResult<EmploymentRateResponse>> UpdateEmploymentRate(EmploymentRateChangeRequest request, int userId)
     {
-        var updatedEmploymentRate = await _userRepository.UpdateEmploymentRateForUser(request);
+        var updatedEmploymentRate = await _userRepository.UpdateEmploymentRateForUser(new EmploymentRateChangeRequestDto
+        {
+            Rate = request.RatePercentage / 100,
+            ToDateInclusive = request.ToDateInclusive,
+            FromDateInclusive = request.FromDateInclusive,
+            RateId = request.RateId
+        });
         return Ok(new EmploymentRateResponse
         {
             Id = updatedEmploymentRate.Id,
             UserId = updatedEmploymentRate.UserId,
-            Rate = updatedEmploymentRate.Rate,
+            RatePercentage = updatedEmploymentRate.Rate * 100,
             FromDateInclusive = updatedEmploymentRate.FromDateInclusive.ToDateOnly(),
             ToDateInclusive = updatedEmploymentRate.ToDateInclusive.ToDateOnly()
         });

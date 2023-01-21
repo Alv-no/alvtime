@@ -99,5 +99,61 @@ namespace Tests.UnitTests.Users
             Assert.Equal("SomeoneElse", user.Name);
             Assert.Equal(DateTime.UtcNow.Date, user.EndDate);
         }
+        
+        [Fact]
+        public async Task UserStorage_AddEmploymentRate_RateIsAdded()
+        {
+            var context = new AlvTimeDbContextBuilder()
+                .WithUsers()
+                .CreateDbContext();
+
+            var storage = new UserRepository(context);
+
+            await storage.CreateEmploymentRateForUser(new EmploymentRateDto
+            {
+                UserId = 1,
+                FromDateInclusive = new DateTime(2022, 01, 01),
+                ToDateInclusive = new DateTime(2022, 01, 31),
+                Rate = 0.5M
+            });
+
+            var rate = await storage.GetEmploymentRates(new EmploymentRateQueryFilter
+            {
+                UserId = 1
+            });
+            Assert.Single(rate);
+            Assert.Equal(0.5M, rate.First().Rate);
+        }
+        
+        [Fact]
+        public async Task UserStorage_UpdateEmploymentRate_RateIsUpdated()
+        {
+            var context = new AlvTimeDbContextBuilder()
+                .WithUsers()
+                .CreateDbContext();
+
+            var storage = new UserRepository(context);
+
+            var createdRate = await storage.CreateEmploymentRateForUser(new EmploymentRateDto
+            {
+                UserId = 1,
+                FromDateInclusive = new DateTime(2022, 01, 01),
+                ToDateInclusive = new DateTime(2022, 01, 31),
+                Rate = 0.5M
+            });
+            
+            await storage.UpdateEmploymentRateForUser(new EmploymentRateChangeRequestDto
+            {
+                RateId = createdRate.Id,
+                Rate = 0.6M
+            });
+
+            var rate = await storage.GetEmploymentRates(new EmploymentRateQueryFilter
+            {
+                UserId = 1
+            });
+            Assert.Single(rate);
+            Assert.Equal(0.6M, rate.First().Rate);
+        }
     }
 }

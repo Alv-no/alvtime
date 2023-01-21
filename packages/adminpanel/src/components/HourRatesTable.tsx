@@ -5,7 +5,7 @@ import { AlvtimeContext } from "../App";
 import { norsk } from "./norsk";
 import tableIcons from "./tableIcons";
 import { globalTableOptions, setCache } from "./Tables";
-import { format, getUnixTime } from "date-fns";
+import { format } from "date-fns";
 
 export default function HourRates(props: { task: object }) {
   const task = (props.task as unknown) as {
