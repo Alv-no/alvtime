@@ -1,16 +1,11 @@
-using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System;
 
 namespace AlvTime.Business.Users;
 
-public class EmploymentRateChangeRequest
+public class EmploymentRateChangeRequestDto
 {
-    [Required]
     public int RateId { get; set; }
-    [Required]
     public decimal Rate { get; set; }
-    [Required]
     public DateTime FromDateInclusive { get; set; }
-    [Required]
     public DateTime ToDateInclusive { get; set; }
 }
