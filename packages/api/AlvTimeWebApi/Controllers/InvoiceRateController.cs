@@ -29,7 +29,8 @@ public class InvoiceRateController : ControllerBase
 
         if (!fromDate.HasValue)
         {
-            fromDate = DateTime.Now.AddDays(-30);
+            var now = DateTime.Now;
+            fromDate = new DateTime(now.Year, now.Month, 1);
         }
 
         return await _invoiceRateService.GetEmployeeInvoiceRateForPeriod(fromDate.Value.Date, toDate.Value.Date);
