@@ -21,6 +21,17 @@ const months = [
   "Desember",
 ];
 
+export function getCurrentMonthName(lowerCase = false): string {
+  const currentMonthNumber = new Date().getMonth();
+  const month = months[currentMonthNumber];
+
+  if (lowerCase) {
+    return month.toLowerCase();
+  }
+
+  return month;
+}
+
 export function createTimeString(
   year: number,
   month: number,
