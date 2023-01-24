@@ -6,6 +6,7 @@
 import { State } from "@/store";
 import Vue from "vue";
 import { Store } from "vuex";
+import { getCurrentMonthName } from "../utils/timestamp-text-util";
 export default Vue.extend({
   props: {
     small: {
@@ -13,15 +14,17 @@ export default Vue.extend({
       default: false,
     },
   },
-  computed: {
-    invoiceRate(): string {
-      return `Fakturering siste 30 d ${this.$store.getters.getInvoiceRate}%`;
-    },
-  },
   data() {
     return {
       unsubscribe: () => {},
     };
+  },
+  computed: {
+    invoiceRate(): string {
+      return `Fakturering ${getCurrentMonthName(true)} ${
+        this.$store.getters.getInvoiceRate
+      }%`;
+    },
   },
   async created() {
     await this.$store.dispatch("FETCH_INVOICE_RATE");
@@ -41,5 +44,4 @@ export default Vue.extend({
   },
 });
 </script>
-<style>
-</style>
+<style></style>
