@@ -3,9 +3,9 @@
     <h3 class="card-title">{{ cardData.title }}</h3>
     <div class="section" v-for="value in cardData.values" :key="value.title">
       <h4>{{ value.title }}</h4>
-      <div class="value">
-        <h4>{{ value.value }}</h4>
-        <p>{{ value.unit }}</p>
+      <div class="content">
+        <div class="value"><b>{{ value.value }}</b></div>
+        <div class="unit">{{ value.unit }}</div>
       </div>
     </div>
   </div>
@@ -46,17 +46,21 @@ export default Vue.extend({
   color: #041938;
 }
 
-.value {
+.content {
   display: flex;
   gap: 0.25rem;
   justify-content: center;
 }
 
-.value > * {
-  margin: 0;
+.value {
+  font-size: 35px;
 }
 
-.value h4 {
-  font-size: 18px;
+.unit {
+  font-size: 25px;
+}
+
+.value > * {
+  margin: 0;
 }
 </style>
