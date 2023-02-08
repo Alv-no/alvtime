@@ -23,6 +23,12 @@ export default Vue.extend({
       default: "",
     },
   },
+  watch: {
+    defaultDate: function (newDate: string, oldDate: string) {
+      console.log(newDate);
+      this.currentDate = newDate;
+    }
+  },
   data() {
     return {
       currentDate: this.defaultDate || "",
@@ -38,7 +44,7 @@ export default Vue.extend({
       if (this.currentDate === target.value) {
         return;
       }
-
+      console.log("the gold");
       this.currentDate = target.value;
       this.$emit("dateSelected", this.currentDate);
     },

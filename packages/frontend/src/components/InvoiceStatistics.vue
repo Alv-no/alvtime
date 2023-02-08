@@ -3,14 +3,19 @@
     <div class="date-inputs">
       <simple-date-picker
         :label="'Fra måned'"
-        :default-date="initialFromDate"
+        :defaultDate="initialFromDate"
         @dateSelected="setFromDate($event)"
       ></simple-date-picker>
       <simple-date-picker
         :label="'Til måned'"
-        :default-date="initialToDate"
+        :defaultDate="initialToDate"
         @dateSelected="setToDate($event)"
       ></simple-date-picker>
+    </div>
+    <div class="interval-shortcuts">
+      <interval-shortcuts
+        @januarSelected="setInterval($event)"
+      ></interval-shortcuts>
     </div>
     <div class="statistics">
       <div class="statistic-cards">
@@ -31,10 +36,12 @@
 import Vue from "vue";
 import InvoiceChart from "./InvoiceChart.vue";
 import SimpleDatePicker from "./SimpleDatePicker.vue";
+import IntervalShortcuts from "./IntervalShortcuts.vue";
 import { InvoiceStatisticsFilters } from "../store/invoiceRate";
 import InvoiceStatisticCard from "./InvoiceStatisticCard.vue";
+import { fromPairs } from "lodash";
 export default Vue.extend({
-  components: { InvoiceChart, SimpleDatePicker, InvoiceStatisticCard },
+  components: { InvoiceChart, SimpleDatePicker, InvoiceStatisticCard, IntervalShortcuts },
   data() {
     const filters = this.$store.getters
       .getInvoiceFilters as InvoiceStatisticsFilters;
@@ -58,11 +65,21 @@ export default Vue.extend({
   },
   methods: {
     setToDate(event: string) {
+      this.initialToDate = event;
       this.$store.dispatch("CHANGE_INVOICE_FILTERS", { toDate: event });
     },
 
     setFromDate(event: string) {
+      this.initialFromDate = event;
       this.$store.dispatch("CHANGE_INVOICE_FILTERS", { fromDate: event });
+    },
+    setDateFilters(toDate: string, fromDate: string) {
+      this.$store.dispatch("CHANGE_INVOICE_FILTERS", { toDate, fromDate });
+    },
+    setInterval(event: {toDate: string, fromDate: string}) {
+      this.initialFromDate = event.fromDate;
+      this.initialToDate = event.toDate;
+      this.setDateFilters(event.toDate, event.fromDate);
     },
   },
 });
