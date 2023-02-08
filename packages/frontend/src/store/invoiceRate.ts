@@ -33,7 +33,7 @@ export interface InvoiceStatistics {
 
 export interface SummarizedStatistics {
   title: string;
-  values: { title: string; value: number; unit?: string }[];
+  values: { title?: string; value: number; unit?: string }[];
 }
 
 interface InvoiceRateModel {
@@ -87,34 +87,29 @@ const getters = {
         title: "Faktureringsgrad",
         values: [
           {
-            title: "Rate",
             value: averageFromArray(
               state.invoiceState.invoiceStatistics.invoiceRate
             ),
             unit: "%",
-          },
+          }
+        ],
+      },
+      {
+        title: "Fakturerbare timer",
+        values: [
           {
-            title: "Timer",
             value: state.invoiceState.invoiceStatistics.billableHours.reduce(
               (a, b) => a + b,
               0
             ),
-          },
-        ],
+          }
+        ]
       },
       {
         title: "Interntimer",
         values: [
-          {
-            title: "Grad",
-            value: averageFromArray(
-              state.invoiceState.invoiceStatistics.nonBillableInvoiceRate
-            ),
-            unit: "%",
-          },
 
           {
-            title: "Timer",
             value: state.invoiceState.invoiceStatistics.nonBillableHours.reduce(
               (a, b) => a + b,
               0
@@ -123,18 +118,16 @@ const getters = {
         ],
       },
       {
-        title: "Ferie",
+        title: "Feriedager",
         values: [
           {
-            title: "Dager",
             value: Math.round(
               state.invoiceState.invoiceStatistics.vacationHours.reduce(
                 (a, b) => a + b,
                 0
               ) / 7.5
-            ),
-            unit: "dager",
-          },
+            )
+          }
         ],
       },
     ];
