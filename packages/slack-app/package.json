@@ -68,7 +68,7 @@
     "concurrently": "^6.4.0",
     "eslint": "^8.4.1",
     "jest": "^27.4.5",
-    "nodemon": "^2.0.15",
+    "nodemon": "^2.0.20",
     "pino-pretty": "^7.5.1",
     "ts-jest": "^27.1.1",
     "ts-node": "^10.4.0",
