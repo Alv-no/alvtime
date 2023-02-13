@@ -61,7 +61,7 @@ public class PayoutServiceTests
 
         _userContextMock.Setup(context => context.GetCurrentUser()).Returns(System.Threading.Tasks.Task.FromResult(user));
 
-        _payoutValidationServiceMock = new Mock<PayoutValidationService>(new UserService(new UserRepository(_context)),
+        _payoutValidationServiceMock = new Mock<PayoutValidationService>(new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)),
             _timeRegistrationService, new PayoutStorage(_context));
         _payoutValidationServiceMock.Setup(x => x.CheckForIncompleteDays(It.IsAny<GenericHourEntry>(), It.IsAny<int>())).Returns(System.Threading.Tasks.Task.FromResult(System.Threading.Tasks.Task.CompletedTask));
         _payoutValidationServiceMock.CallBase = true;
@@ -390,7 +390,7 @@ public class PayoutServiceTests
     private TimeRegistrationService CreateTimeRegistrationService()
     {
         return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
-            new TimeRegistrationStorage(_context), new DbContextScope(_context), new PayoutStorage(_context), new UserService(new UserRepository(_context)));
+            new TimeRegistrationStorage(_context), new DbContextScope(_context), new PayoutStorage(_context), new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
     }
 
     private PayoutService CreatePayoutServiceWithoutIncompleteDaysValidation(TimeRegistrationService timeRegistrationService)
@@ -402,7 +402,7 @@ public class PayoutServiceTests
     private PayoutService CreatePayoutServiceWithIncompleteDaysValidation(TimeRegistrationService timeRegistrationService)
     {
         return new PayoutService(new PayoutStorage(_context), _userContextMock.Object,
-            timeRegistrationService, new PayoutValidationService(new UserService(new UserRepository(_context)), timeRegistrationService, new PayoutStorage(_context)));
+            timeRegistrationService, new PayoutValidationService(new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)), timeRegistrationService, new PayoutStorage(_context)));
     }
 
     private TaskUtils CreateTaskUtils()

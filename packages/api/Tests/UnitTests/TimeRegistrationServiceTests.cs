@@ -59,7 +59,7 @@ public class TimeRegistrationServiceTests
 
         _userContextMock.Setup(context => context.GetCurrentUser()).Returns(System.Threading.Tasks.Task.FromResult(user));
 
-        var payoutValidationServiceMock = new Mock<PayoutValidationService>(new UserService(new UserRepository(_context)),
+        var payoutValidationServiceMock = new Mock<PayoutValidationService>(new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)),
             _timeRegistrationService, new PayoutStorage(_context));
         payoutValidationServiceMock.Setup(x => x.CheckForIncompleteDays(It.IsAny<GenericHourEntry>(), It.IsAny<int>())).Returns(System.Threading.Tasks.Task.FromResult(System.Threading.Tasks.Task.CompletedTask));
         payoutValidationServiceMock.CallBase = true;
@@ -160,7 +160,7 @@ public class TimeRegistrationServiceTests
     private TimeRegistrationService CreateTimeRegistrationService()
     {
         return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
-            new TimeRegistrationStorage(_context), new DbContextScope(_context), new PayoutStorage(_context), new UserService(new UserRepository(_context)));
+            new TimeRegistrationStorage(_context), new DbContextScope(_context), new PayoutStorage(_context), new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
     }
 
     private TaskUtils CreateTaskUtils()

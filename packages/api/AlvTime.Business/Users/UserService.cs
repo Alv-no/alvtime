@@ -1,19 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using AlvTime.Business.TimeRegistration;
+using AlvTime.Business.Utils;
+using FluentValidation;
 
 namespace AlvTime.Business.Users;
 
 public class UserService
 {
     private readonly IUserRepository _userRepository;
+    private readonly ITimeRegistrationStorage _timeRegistrationStorage;
 
-    public UserService(IUserRepository userRepository)
+    public UserService(IUserRepository userRepository, ITimeRegistrationStorage timeRegistrationStorage)
     {
         _userRepository = userRepository;
+        _timeRegistrationStorage = timeRegistrationStorage;
     }
 
     public async Task<UserResponseDto> CreateUser(UserDto user)
@@ -110,5 +114,44 @@ public class UserService
         }
 
         return rates.Any() ? rates.First().Rate : 1;
+    }
+
+    public async Task<EmploymentRateResponseDto> CreateEmploymentRateForUser(EmploymentRateDto request)
+    {
+        var existingEmploymentRates = await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = request.UserId });
+        await ValidateRateUpdate(request.FromDateInclusive, request.ToDateInclusive, request.UserId, existingEmploymentRates);
+
+        return await _userRepository.CreateEmploymentRateForUser(request);
+    }
+    
+    public async Task<EmploymentRateResponseDto> UpdateEmploymentRateForUser(EmploymentRateChangeRequestDto request)
+    {
+        var existingEmploymentRates = (await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = request.UserId })).Where(rate => rate.Id != request.RateId);
+        await ValidateRateUpdate(request.FromDateInclusive, request.ToDateInclusive, request.UserId, existingEmploymentRates);
+
+        return await _userRepository.UpdateEmploymentRateForUser(request);
+    }
+
+    private async Task ValidateRateUpdate(DateTime fromDateInclusive, DateTime toDateInclusive, int userId, IEnumerable<EmploymentRateResponseDto> existingEmploymentRates)
+    {
+        var datesForExistingRates =
+            existingEmploymentRates.SelectMany(e => DateUtils.EachDay(e.FromDateInclusive, e.ToDateInclusive));
+        var datesForNewRate = DateUtils.EachDay(fromDateInclusive, toDateInclusive);
+        if (datesForExistingRates.Intersect(datesForNewRate).Any())
+        {
+            throw new ValidationException("Brukeren har allerede en stillingsprosent på valgt dato.");
+        }
+
+        var userTimeEntriesInDateRange = (await _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
+        {
+            FromDateInclusive = fromDateInclusive,
+            ToDateInclusive = toDateInclusive,
+            UserId = userId
+        })).Where(te => te.Value > 0);
+
+        if (userTimeEntriesInDateRange.Any())
+        {
+            throw new ValidationException("Brukeren har allerede førte timer på en dato stillingsprosenten gjelder for.");
+        }
     }
 }
