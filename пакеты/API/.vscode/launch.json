@@ -19,7 +19,7 @@
                 "ASPNETCORE_SHUTDOWNTIMEOUTSECONDS": "3",
                 "ConnectionStrings__AlvTime_db": "Data Source=tcp:mssql-db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32"
             },
-            "stopAtEntry": false,
+            "stopAtEntry": true,
             "console": "internalConsole"
         }
     ]
