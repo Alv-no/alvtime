@@ -141,7 +141,7 @@ public class UserRepository : IUserRepository
 
     public async Task<EmploymentRateResponseDto> UpdateEmploymentRateForUser(EmploymentRateChangeRequestDto request)
     {
-        var existingRate = await _context.EmploymentRate.FindAsync(request.RateId);
+        var existingRate = await _context.EmploymentRate.FirstOrDefaultAsync(e => e.Id == request.RateId);
         if (existingRate == null)
         {
             throw new SqlNullValueException("Rate was not found");

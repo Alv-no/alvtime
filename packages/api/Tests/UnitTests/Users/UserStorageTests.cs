@@ -60,8 +60,7 @@ namespace Tests.UnitTests.Users
                 .WithUsers()
                 .CreateDbContext();
 
-            var storage = new UserRepository(context);
-            var creator = new UserService(storage);
+            var creator = new UserService(new UserRepository(context), new TimeRegistrationStorage(context));
 
             await creator.CreateUser(new UserDto
             {
@@ -75,16 +74,15 @@ namespace Tests.UnitTests.Users
         }
 
         [Fact]
-        public void UserCreator_UpdateExistingUser_UserIsUpdated()
+        public async Task UserCreator_UpdateExistingUser_UserIsUpdated()
         {
             var context = new AlvTimeDbContextBuilder()
                 .WithUsers()
                 .CreateDbContext();
 
-            var storage = new UserRepository(context);
-            var creator = new UserService(storage);
+            var creator = new UserService(new UserRepository(context), new TimeRegistrationStorage(context));
 
-            creator.UpdateUser(new UserDto
+            await creator.UpdateUser(new UserDto
             {
                 Id = 1,
                 Email = "someoneElse@alv.no",

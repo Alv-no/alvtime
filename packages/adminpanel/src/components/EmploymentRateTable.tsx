@@ -1,4 +1,4 @@
-import MaterialTable, { Column } from "material-table";
+import MaterialTable, { Column, Options } from "material-table";
 import React, { useContext } from "react";
 import useSWR from "swr";
 import { AlvtimeContext } from "../App";
@@ -17,14 +17,18 @@ export default function EmploymentRateTable(props: { user: object }) {
     field: string;
     editable: string;
     type: string;
-    hidden: boolean
+    hidden: boolean;
+    fromDateInclusive: string;
+    toDateInclusive: string;
+    ratePercentage: number;
+    id: number;
   }
 
   const columns: Column<RowData>[] = [
-    { title: "Stillingsprosent (%)", field: "rate", editable: "always", type: "numeric", hidden: false },
+    { title: "Stillingsprosent (%)", field: "ratePercentage", editable: "always", type: "numeric", hidden: false },
     { title: "Fra dato (inklusiv)", field: "fromDateInclusive", editable: "always", type: "date", hidden: false },
     { title: "Til dato (inklusiv)", field: "toDateInclusive", editable: "always", type: "date", hidden: false },
-    { title: "RateId", field: "rateId", editable: "never", type: "boolean", hidden: true}
+    { title: "RateId", field: "id", editable: "never", type: "boolean", hidden: true}
   ];
 
   const path = `/api/admin/users/${user.id}/employmentrates`;
@@ -36,28 +40,33 @@ export default function EmploymentRateTable(props: { user: object }) {
     const addedData = await alvtimeFetcher(path, {
       method: "post",
       body: 
+      [
         {
-          rate: newData.rate,
+          ratePercentage: newData.ratePercentage,
           fromDateInclusive: newData.fromDateInclusive,
           toDateInclusive: newData.toDateInclusive
         },
+      ]
     });
-    setCache(path, [...addedData, ...data]);
+    setCache(path, [...addedData, ...data])
   };
 
-  const handleRowUpdate = async (newData: RowData, oldData: RowData) => {
+  const handleRowUpdate = async (newData: RowData, oldData: RowData | undefined)  => {
     const dataUpdate = [...data];
-    const index = dataUpdate.findIndex((x) => x.id === oldData.rateId);
+    const index = dataUpdate.findIndex((x) => x.id === oldData?.id);
     dataUpdate[index] = newData;
     setCache(path, [...dataUpdate]);
     const updatedData = await alvtimeFetcher(path, {
       method: "put",
-      body: 
+      body:
+      [ 
         { 
-            rateId: oldData.rateId, 
-            rate: newData.rate,
+            id: oldData?.id, 
+            ratePercentage: newData.ratePercentage,
             fromDateInclusive: newData.fromDateInclusive,
-            toDateInclusive: newData.toDateInclusive },
+            toDateInclusive: newData.toDateInclusive 
+        }
+      ],
     });
     dataUpdate[index] = updatedData[0];
     setCache(path, [...dataUpdate]);
@@ -79,7 +88,7 @@ export default function EmploymentRateTable(props: { user: object }) {
       columns={columns}
       data={filteredData}
       isLoading={isLoading}
-      options={{ ...globalTableOptions }}
+      options={globalTableOptions as Options<RowData>}
       editable={{
         onRowAdd: handleRowAdd,
         onRowUpdate: handleRowUpdate,

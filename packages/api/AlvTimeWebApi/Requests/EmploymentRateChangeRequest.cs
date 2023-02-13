@@ -6,7 +6,7 @@ namespace AlvTimeWebApi.Requests;
 public class EmploymentRateChangeRequest
 {
     [Required]
-    public int RateId { get; set; }
+    public int Id { get; set; }
     [Required]
     public decimal RatePercentage { get; set; }
     [Required]

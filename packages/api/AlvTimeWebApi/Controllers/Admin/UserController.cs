@@ -88,43 +88,56 @@ public class UserController : Controller
 
     [HttpPost("users/{userId:int}/employmentrates")]
     [AuthorizeAdmin]
-    public async Task<ActionResult<EmploymentRateResponse>> CreateEmploymentRateForUser(EmploymentRateCreationRequest request, int userId)
+    public async Task<ActionResult<IEnumerable<EmploymentRateResponse>>> CreateEmploymentRateForUser(IEnumerable<EmploymentRateCreationRequest> requests, int userId)
     {
-        var createdEmploymentRate = await _userRepository.CreateEmploymentRateForUser(new EmploymentRateDto
+        var response = new List<EmploymentRateResponse>();
+        foreach (var req in requests)
         {
-            UserId = userId,
-            Rate = request.RatePercentage / 100,
-            ToDateInclusive = request.ToDateInclusive.Date,
-            FromDateInclusive = request.FromDateInclusive.Date
-        });
-        return Ok(new EmploymentRateResponse
-        {
-            Id = createdEmploymentRate.Id,
-            UserId = createdEmploymentRate.UserId,
-            RatePercentage = createdEmploymentRate.Rate * 100,
-            FromDateInclusive = createdEmploymentRate.FromDateInclusive.ToDateOnly(),
-            ToDateInclusive = createdEmploymentRate.ToDateInclusive.ToDateOnly()
-        });
+            var createdEmploymentRate = await _userService.CreateEmploymentRateForUser(new EmploymentRateDto
+            {
+                UserId = userId,
+                Rate = req.RatePercentage / 100M,
+                ToDateInclusive = req.ToDateInclusive.Date,
+                FromDateInclusive = req.FromDateInclusive.Date
+            });
+            response.Add(new EmploymentRateResponse
+            {
+                Id = createdEmploymentRate.Id,
+                UserId = createdEmploymentRate.UserId,
+                RatePercentage = createdEmploymentRate.Rate * 100M,
+                FromDateInclusive = createdEmploymentRate.FromDateInclusive.ToDateOnly(),
+                ToDateInclusive = createdEmploymentRate.ToDateInclusive.ToDateOnly()
+            });
+        }
+
+        return Ok(response);
     }
 
     [HttpPut("users/{userId:int}/employmentrates")]
     [AuthorizeAdmin]
-    public async Task<ActionResult<EmploymentRateResponse>> UpdateEmploymentRate(EmploymentRateChangeRequest request, int userId)
+    public async Task<ActionResult<IEnumerable<EmploymentRateResponse>>> UpdateEmploymentRate(IEnumerable<EmploymentRateChangeRequest> requests, int userId)
     {
-        var updatedEmploymentRate = await _userRepository.UpdateEmploymentRateForUser(new EmploymentRateChangeRequestDto
+        var response = new List<EmploymentRateResponse>();
+        foreach (var req in requests)
         {
-            Rate = request.RatePercentage / 100,
-            ToDateInclusive = request.ToDateInclusive,
-            FromDateInclusive = request.FromDateInclusive,
-            RateId = request.RateId
-        });
-        return Ok(new EmploymentRateResponse
-        {
-            Id = updatedEmploymentRate.Id,
-            UserId = updatedEmploymentRate.UserId,
-            RatePercentage = updatedEmploymentRate.Rate * 100,
-            FromDateInclusive = updatedEmploymentRate.FromDateInclusive.ToDateOnly(),
-            ToDateInclusive = updatedEmploymentRate.ToDateInclusive.ToDateOnly()
-        });
+            var updatedEmploymentRate = await _userService.UpdateEmploymentRateForUser(new EmploymentRateChangeRequestDto
+            {
+                Rate = req.RatePercentage / 100,
+                ToDateInclusive = req.ToDateInclusive,
+                FromDateInclusive = req.FromDateInclusive,
+                RateId = req.Id,
+                UserId = userId
+            });
+            response.Add(new EmploymentRateResponse
+            {
+                Id = updatedEmploymentRate.Id,
+                UserId = updatedEmploymentRate.UserId,
+                RatePercentage = updatedEmploymentRate.Rate * 100,
+                FromDateInclusive = updatedEmploymentRate.FromDateInclusive.ToDateOnly(),
+                ToDateInclusive = updatedEmploymentRate.ToDateInclusive.ToDateOnly()
+            });
+        }
+
+        return Ok(response);
     }
 }
