@@ -60,7 +60,9 @@ public class InvoiceRateService
     {
         var user = await _userContext.GetCurrentUser();
         var invoicePeriodStart = GetInvoicePeriodStart(fromDate, invoicePeriod, extendPeriod);
+        invoicePeriodStart = (invoicePeriodStart >= user.StartDate) ? invoicePeriodStart : user.StartDate.Date;
         var invoicePeriodEnd = GetInvoicePeriodEnd(toDate, invoicePeriod, extendPeriod);
+        invoicePeriodEnd = (invoicePeriodEnd <= DateTime.Now) ? invoicePeriodEnd : DateTime.Now.Date.AddSeconds(86399);
 
         var userTasks = await _timeRegistrationStorage.GetTimeEntriesWithCustomer(user.Id, invoicePeriodStart, invoicePeriodEnd);
         var taskPeriodGrouping = GroupTasksByInvoicePeriod(userTasks, invoicePeriod);
