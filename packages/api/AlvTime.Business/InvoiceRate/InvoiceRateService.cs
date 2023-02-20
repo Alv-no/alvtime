@@ -65,7 +65,10 @@ public class InvoiceRateService
         invoicePeriodEnd = (invoicePeriodEnd <= DateTime.Now) ? invoicePeriodEnd : DateTime.Now.Date.AddSeconds(86399);
 
         var userTasks = await _timeRegistrationStorage.GetTimeEntriesWithCustomer(user.Id, invoicePeriodStart, invoicePeriodEnd);
-        var taskPeriodGrouping = GroupTasksByInvoicePeriod(userTasks, invoicePeriod);
+        var filteredTasks = userTasks
+            .Where(timeEntry => timeEntry.TaskId != _timeEntryOptions.AlvDayTask)
+            .ToList();
+        var taskPeriodGrouping = GroupTasksByInvoicePeriod(filteredTasks, invoicePeriod);
 
         var billableHours = new List<decimal>();
         var nonBillableHours = new List<decimal>();
