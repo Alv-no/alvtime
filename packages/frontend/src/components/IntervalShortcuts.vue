@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <button @click="onIntervalClicked()">{{ typeInterval }}</button>
-  </div>
+  <md-button class="md-primary md-raised" @click="onIntervalClicked()">{{ typeInterval }}</md-button>
 </template>
   
 <script lang="ts">
@@ -64,5 +62,11 @@ export default Vue.extend({
 });
 </script>
   
-<style scoped></style>
+<style scoped>
+.md-button {
+  min-width: 125px;
+  --md-theme-default-primary: #1c92d0;
+
+}
+</style>
   

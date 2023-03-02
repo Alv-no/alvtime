@@ -1,19 +1,17 @@
 <template>
   <div class="wrapper">
-    <div class="date-inputs">
-      <simple-date-picker :label="'Fra måned'" :defaultDate="initialFromDate"
-        @dateSelected="setFromDate($event)"></simple-date-picker>
-      <simple-date-picker :label="'Til måned'" :defaultDate="initialToDate"
-        @dateSelected="setToDate($event)"></simple-date-picker>
-    </div>
-    <div class="interval-shortcuts">
-      <interval-shortcuts @januarSelected="setInterval($event)" :typeInterval="halfyearInterval"></interval-shortcuts>
-    </div>
-    <div class="interval-shortcuts">
-      <interval-shortcuts @januarSelected="setInterval($event)" :typeInterval="yearInterval"></interval-shortcuts>
-    </div>
-    <div class="interval-shortcuts">
-      <interval-shortcuts @januarSelected="setInterval($event)" :typeInterval="quarterInterval"></interval-shortcuts>
+    <div class="filter-wrapper">
+      <div class="date-inputs">
+        <simple-date-picker :label="'Fra måned'" :defaultDate="initialFromDate"
+          @dateSelected="setFromDate($event)"></simple-date-picker>
+        <simple-date-picker :label="'Til måned'" :defaultDate="initialToDate"
+          @dateSelected="setToDate($event)"></simple-date-picker>
+      </div>
+      <div class="interval-shortcuts">
+        <interval-shortcuts @januarSelected="setInterval($event)" :typeInterval="yearInterval"></interval-shortcuts>
+        <interval-shortcuts @januarSelected="setInterval($event)" :typeInterval="halfyearInterval"></interval-shortcuts>
+        <interval-shortcuts @januarSelected="setInterval($event)" :typeInterval="quarterInterval"></interval-shortcuts>
+      </div>
     </div>
     <div class="statistics">
       <div class="statistic-cards">
@@ -128,5 +126,17 @@ export default Vue.extend({
   justify-content: start;
   gap: 0.5rem;
   margin-bottom: 0.5rem;
+}
+
+.interval-shortcuts {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.filter-wrapper {
+  justify-content: space-between;
+  display: flex;
+  align-items: center;
 }
 </style>
