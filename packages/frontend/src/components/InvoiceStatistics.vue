@@ -1,29 +1,24 @@
 <template>
   <div class="wrapper">
     <div class="date-inputs">
-      <simple-date-picker
-        :label="'Fra måned'"
-        :defaultDate="initialFromDate"
-        @dateSelected="setFromDate($event)"
-      ></simple-date-picker>
-      <simple-date-picker
-        :label="'Til måned'"
-        :defaultDate="initialToDate"
-        @dateSelected="setToDate($event)"
-      ></simple-date-picker>
+      <simple-date-picker :label="'Fra måned'" :defaultDate="initialFromDate"
+        @dateSelected="setFromDate($event)"></simple-date-picker>
+      <simple-date-picker :label="'Til måned'" :defaultDate="initialToDate"
+        @dateSelected="setToDate($event)"></simple-date-picker>
     </div>
     <div class="interval-shortcuts">
-      <interval-shortcuts
-        @januarSelected="setInterval($event)"
-      ></interval-shortcuts>
+      <interval-shortcuts @januarSelected="setInterval($event)" :typeInterval="halfyearInterval"></interval-shortcuts>
+    </div>
+    <div class="interval-shortcuts">
+      <interval-shortcuts @januarSelected="setInterval($event)" :typeInterval="yearInterval"></interval-shortcuts>
+    </div>
+    <div class="interval-shortcuts">
+      <interval-shortcuts @januarSelected="setInterval($event)" :typeInterval="quarterInterval"></interval-shortcuts>
     </div>
     <div class="statistics">
       <div class="statistic-cards">
-        <invoice-statistic-card
-          v-for="cardData in summarizedStatistics"
-          :key="cardData.title"
-          :cardData="cardData"
-        ></invoice-statistic-card>
+        <invoice-statistic-card v-for="cardData in summarizedStatistics" :key="cardData.title"
+          :cardData="cardData"></invoice-statistic-card>
       </div>
       <div class="chart-wrapper">
         <invoice-chart></invoice-chart>
@@ -49,7 +44,10 @@ export default Vue.extend({
       initialFromDate: filters.fromDate,
       initialToDate: filters.toDate,
       summarizedStatistics: [],
-      unsubscribe: () => {},
+      halfyearInterval: "Siste halvår",
+      yearInterval: "Siste år",
+      quarterInterval: "Siste kvartal",
+      unsubscribe: () => { },
     };
   },
   created() {
@@ -76,7 +74,7 @@ export default Vue.extend({
     setDateFilters(toDate: string, fromDate: string) {
       this.$store.dispatch("CHANGE_INVOICE_FILTERS", { toDate, fromDate });
     },
-    setInterval(event: {toDate: string, fromDate: string}) {
+    setInterval(event: { toDate: string, fromDate: string }) {
       this.initialFromDate = event.fromDate;
       this.initialToDate = event.toDate;
       this.setDateFilters(event.toDate, event.fromDate);
@@ -110,7 +108,7 @@ export default Vue.extend({
   gap: 0.5rem;
 }
 
-.statistic-cards > div {
+.statistic-cards>div {
   flex: 1 0;
 }
 
