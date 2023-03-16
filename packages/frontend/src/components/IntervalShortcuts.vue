@@ -53,7 +53,7 @@ export default Vue.extend({
           lastquarter.setMonth(month - 3)
           this.toDate = moment(today).format("YYYY-MM-DD");
           this.fromDate = moment(lastquarter).format("YYYY-MM-DD");
-
+          break;
         default: break;
       }
       this.$emit("januarSelected", { fromDate: this.fromDate, toDate: this.toDate });
