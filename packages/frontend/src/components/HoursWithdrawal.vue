@@ -3,7 +3,7 @@
     <div class="padding">
       <div class="availablehours">
         <div class="absense available-flex">
-          <h2>Feriedager</h2>
+          <h2>Betalte feriedager</h2>
           <NoHolidayData v-if="emptyHolidayData"></NoHolidayData>
           <OvertimeVisualizer
             v-else
@@ -52,7 +52,7 @@
         </div>
         <div
           class="md-content md-table-content md-scrollbar md-theme-default"
-          style="height: 400px; max-height: 400px;"
+          style="height: 400px; max-height: 400px"
         >
           <table>
             <thead>
@@ -109,9 +109,9 @@
                     <div
                       v-if="
                         transaction.subItems &&
-                          transaction.subItems.length !== 0
+                        transaction.subItems.length !== 0
                       "
-                      style="display:inline;"
+                      style="display: inline"
                     >
                       <md-icon v-if="!isExpanded(transaction.id)"
                         >unfold_more</md-icon
@@ -369,23 +369,23 @@ export default Vue.extend({
     await this.$store.dispatch("FETCH_TRANSACTIONS");
     this.processTransactions();
     await this.$store.dispatch("FETCH_AVAILABLE_HOURS");
-    this.overtimeData = (this.$store as Store<
-      State
-    >).getters.getCategorizedFlexHours;
+    this.overtimeData = (
+      this.$store as Store<State>
+    ).getters.getCategorizedFlexHours;
     this.unsubscribe = (this.$store as Store<State>).subscribe(
       (mutation, _) => {
         if (mutation.type === "SET_AVAILABLEHOURS") {
-          this.overtimeData = (this.$store as Store<
-            State
-          >).getters.getCategorizedFlexHours;
+          this.overtimeData = (
+            this.$store as Store<State>
+          ).getters.getCategorizedFlexHours;
         }
       }
     );
     await this.$store.dispatch("FETCH_VACATIONOVERVIEW");
     this.holidayData = (this.$store as Store<State>).getters.getAbsenseOverview;
-    this.holidaySubtractions = (this.$store as Store<
-      State
-    >).getters.getAbsenseOverviewSubtractions;
+    this.holidaySubtractions = (
+      this.$store as Store<State>
+    ).getters.getAbsenseOverviewSubtractions;
   },
   methods: {
     onRowSelect(transaction: any) {

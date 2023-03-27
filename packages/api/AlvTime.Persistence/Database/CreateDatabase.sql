@@ -323,6 +323,25 @@ CREATE TABLE [dbo].[RegisteredFlex]
                 ) WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+CREATE TABLE [dbo].[VacationDaysEarnedOverride]
+(
+    [Id]         [int] IDENTITY (1,1) NOT NULL,
+    [UserId]     [int]                NOT NULL,
+    [DaysEarned] [int]                NOT NULL,
+    [Year]       [int]                NOT NULL,
+    PRIMARY KEY CLUSTERED
+        (
+         [Id] ASC
+            ) WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[VacationDaysEarnedOverride]
+    ADD CONSTRAINT UC_VacationDaysEarnedOverride UNIQUE (UserId, Year);
+GO
+ALTER TABLE [dbo].[VacationDaysEarnedOverride]
+    WITH CHECK ADD CONSTRAINT [FK_VacationDaysEarnedOverride_User] FOREIGN KEY ([UserId])
+        REFERENCES [dbo].[User] ([Id])
+GO
 ALTER TABLE [dbo].[RegisteredFlex]
     WITH CHECK ADD CONSTRAINT [FK_RegisteredFlex_User] FOREIGN KEY ([UserId])
         REFERENCES [dbo].[User] ([Id])
