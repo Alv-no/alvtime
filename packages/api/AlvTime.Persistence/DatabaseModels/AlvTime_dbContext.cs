@@ -31,6 +31,7 @@ namespace AlvTime.Persistence.DatabaseModels
         public virtual DbSet<TaskFavorites> TaskFavorites { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<VDataDump> VDataDump { get; set; }
+        public virtual DbSet<VacationDaysEarnedOverride> VacationDaysEarnedOverride { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -114,6 +115,9 @@ namespace AlvTime.Persistence.DatabaseModels
 
             modelBuilder.Entity<EarnedOvertime>(entity =>
             {
+                entity.HasIndex(e => new { e.UserId, e.Date, e.CompensationRate }, "UC_EarnedOvertime")
+                    .IsUnique();
+
                 entity.Property(e => e.CompensationRate).HasColumnType("decimal(4, 2)");
 
                 entity.Property(e => e.Value).HasColumnType("decimal(7, 2)");
@@ -173,6 +177,9 @@ namespace AlvTime.Persistence.DatabaseModels
 
             modelBuilder.Entity<PaidOvertime>(entity =>
             {
+                entity.HasIndex(e => new { e.User, e.Date, e.CompensationRate }, "UC_PaidOvertime")
+                    .IsUnique();
+
                 entity.Property(e => e.CompensationRate).HasColumnType("decimal(5, 2)");
 
                 entity.Property(e => e.HoursAfterCompRate).HasColumnType("decimal(6, 2)");
@@ -201,6 +208,9 @@ namespace AlvTime.Persistence.DatabaseModels
 
             modelBuilder.Entity<RegisteredFlex>(entity =>
             {
+                entity.HasIndex(e => new { e.UserId, e.Date, e.CompensationRate }, "UC_RegisteredFlex")
+                    .IsUnique();
+
                 entity.Property(e => e.CompensationRate).HasColumnType("decimal(4, 2)");
 
                 entity.Property(e => e.Value).HasColumnType("decimal(7, 2)");
@@ -315,6 +325,18 @@ namespace AlvTime.Persistence.DatabaseModels
                 entity.Property(e => e.Value)
                     .HasColumnType("decimal(6, 2)")
                     .HasColumnName("value");
+            });
+
+            modelBuilder.Entity<VacationDaysEarnedOverride>(entity =>
+            {
+                entity.HasIndex(e => new { e.UserId, e.Year }, "UC_VacationDaysEarnedOverride")
+                    .IsUnique();
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.VacationDaysEarnedOverride)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_VacationDaysEarnedOverride_User");
             });
 
             OnModelCreatingPartial(modelBuilder);

@@ -15,6 +15,7 @@ namespace AlvTime.Persistence.DatabaseModels
             PaidOvertime = new HashSet<PaidOvertime>();
             RegisteredFlex = new HashSet<RegisteredFlex>();
             TaskFavorites = new HashSet<TaskFavorites>();
+            VacationDaysEarnedOverride = new HashSet<VacationDaysEarnedOverride>();
         }
 
         public int Id { get; set; }
@@ -32,5 +33,6 @@ namespace AlvTime.Persistence.DatabaseModels
         public virtual ICollection<PaidOvertime> PaidOvertime { get; set; }
         public virtual ICollection<RegisteredFlex> RegisteredFlex { get; set; }
         public virtual ICollection<TaskFavorites> TaskFavorites { get; set; }
+        public virtual ICollection<VacationDaysEarnedOverride> VacationDaysEarnedOverride { get; set; }
     }
 }
