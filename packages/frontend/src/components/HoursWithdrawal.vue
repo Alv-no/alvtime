@@ -5,55 +5,32 @@
         <div class="absense available-flex">
           <h2>Betalte feriedager</h2>
           <NoHolidayData v-if="emptyHolidayData"></NoHolidayData>
-          <OvertimeVisualizer
-            v-else
-            :bar-data="holidayData"
-          ></OvertimeVisualizer>
+          <OvertimeVisualizer v-else :bar-data="holidayData" :canSplit=true></OvertimeVisualizer>
         </div>
         <div class="available available-flex">
           <h2>Overtidstimer</h2>
-          <OvertimeVisualizer
-            :bar-data="overtimeData"
-            :subtract="hours"
-          ></OvertimeVisualizer>
+          <OvertimeVisualizer :bar-data="overtimeData" :subtract="hours"></OvertimeVisualizer>
         </div>
       </div>
       <hr />
 
-      <small
-        >Du har <b>{{ overtime }}</b> {{ hoursText }} tilgjengelig i timebanken.
+      <small>Du har <b>{{ overtime }}</b> {{ hoursText }} tilgjengelig i timebanken.
         Tast inn antall timer du ønsker å ta ut som overtidsbetaling.
-        Utbetalingen kommer på neste lønning.</small
-      >
+        Utbetalingen kommer på neste lønning.</small>
 
       <div class="order-payout-field">
-        <Input
-          v-model="hours"
-          :error="erroneousInput"
-          placeholder="Antall timer"
-          type="number"
-        />
-        <YellowButton
-          icon-id="add_circle_outline"
-          :text="buttonText"
-          :disabled="disabled"
-          @click="orderHours"
-        />
+        <Input v-model="hours" :error="erroneousInput" placeholder="Antall timer" type="number" />
+        <YellowButton icon-id="add_circle_outline" :text="buttonText" :disabled="disabled" @click="orderHours" />
       </div>
       <small class="validationtext">{{ errorMessage }}</small>
 
       <hr />
 
       <div class="md-content md-table md-theme-default">
-        <div
-          class="md-toolbar md-table-toolbar md-transparent md-theme-default md-elevation-0"
-        >
+        <div class="md-toolbar md-table-toolbar md-transparent md-theme-default md-elevation-0">
           <h2 class="md-title">Transaksjoner</h2>
         </div>
-        <div
-          class="md-content md-table-content md-scrollbar md-theme-default"
-          style="height: 400px; max-height: 400px"
-        >
+        <div class="md-content md-table-content md-scrollbar md-theme-default" style="height: 400px; max-height: 400px">
           <table>
             <thead>
               <tr>
@@ -94,28 +71,16 @@
             </thead>
             <tbody>
               <template v-for="transaction in sortedTransactions">
-                <tr
-                  class="md-table-row"
-                  :class="
-                    transaction.subItems && transaction.subItems.length !== 0
-                      ? 'selectable'
-                      : ''
-                  "
-                  @click="onRowSelect(transaction)"
-                  :key="transaction.id"
-                >
+                <tr class="md-table-row" :class="transaction.subItems && transaction.subItems.length !== 0
+                    ? 'selectable'
+                    : ''
+                  " @click="onRowSelect(transaction)" :key="transaction.id">
                   <td class="md-table-cell">
                     <!-- more icon -->
-                    <div
-                      v-if="
-                        transaction.subItems &&
-                        transaction.subItems.length !== 0
-                      "
-                      style="display: inline"
-                    >
-                      <md-icon v-if="!isExpanded(transaction.id)"
-                        >unfold_more</md-icon
-                      >
+                    <div v-if="transaction.subItems &&
+                      transaction.subItems.length !== 0
+                      " style="display: inline">
+                      <md-icon v-if="!isExpanded(transaction.id)">unfold_more</md-icon>
                       <md-icon v-else>unfold_less</md-icon>
                     </div>
                   </td>
@@ -145,20 +110,12 @@
                     </div>
                   </td>
                   <td class="md-table-cell">
-                    <md-icon
-                      v-if="transaction.delete"
-                      class="delete-transaction"
-                      @click.native="removeHourOrder(transaction.date, $event)"
-                      >delete</md-icon
-                    >
+                    <md-icon v-if="transaction.delete" class="delete-transaction"
+                      @click.native="removeHourOrder(transaction.date, $event)">delete</md-icon>
                   </td>
                 </tr>
                 <template v-if="isExpanded(transaction.id)">
-                  <tr
-                    class="md-table-row md-table-subrow"
-                    v-for="subItem in transaction.subItems"
-                    :key="subItem.id"
-                  >
+                  <tr class="md-table-row md-table-subrow" v-for="subItem in transaction.subItems" :key="subItem.id">
                     <td class="md-table-cell"><!-- more icon --></td>
                     <td class="md-table-cell">
                       <div class="md-table-cell-container"></div>
@@ -267,7 +224,7 @@ export default Vue.extend({
       overtimeData: [],
       holidayData: [],
       holidaySubtractions: [],
-      unsubscribe: () => {},
+      unsubscribe: () => { },
     };
   },
   computed: {
@@ -520,6 +477,7 @@ hr {
     padding: 0;
     transform: scale(1, 0);
   }
+
   100% {
     height: 2rem;
     padding: 0.5rem 0;
@@ -534,6 +492,7 @@ hr {
 .md-table-subrow {
   background-color: #e9e9e9;
 }
+
 .availablehours .absense {
   margin-bottom: 50px;
 }
@@ -556,6 +515,7 @@ hr {
 .delete-transaction {
   cursor: pointer;
 }
+
 .delete-transaction:hover {
   color: #000 !important;
 }
