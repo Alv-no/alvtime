@@ -61,7 +61,9 @@ const getters = {
     absenseOverview[AVAILABLE_HOURS_INDEX].value =
       yearlyHours - transferredHours;
 
-    absenseOverview[AVAILABLE_HOURS_INDEX].name = "Opptjent";
+    if (transferredHours !== 0) {
+      absenseOverview[AVAILABLE_HOURS_INDEX].name = "Opptjent";
+    }
     return absenseOverview;
   },
 };
