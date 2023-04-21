@@ -357,7 +357,29 @@ public class AbsenceDayStorageTests
 
         Assert.Equal(25, holidayOverview.AvailableVacationDays);
     }
-    
+
+    [Fact]
+    public async Task GetVacationDays_AvailableVacationDaysTransferedFromLastYear()
+    {
+        CreateUserWithStartDate(new DateTime(DateTime.Now.Year - 2, 08, 01));
+
+        _context.VacationDaysEarnedOverride.Add(new VacationDaysEarnedOverride
+        {
+            UserId = 2,
+            Year = DateTime.Now.Year - 1,
+            DaysEarned = 25
+        });
+        await _context.SaveChangesAsync();
+
+        var timeRegistrationStorage = CreateTimeRegistrationStorage();
+        var absenseService = CreateAbsenseDaysService(timeRegistrationStorage);
+
+        var holidayOverview = await absenseService.GetAllTimeVacationOverview(DateTime.Now.Year);
+
+        //Assert.Equal(15, holidayOverview.AvailableVacationDays);
+				Assert.Equal(25, holidayOverview.AvailableVacationDaysTransferedFromLastYear );
+    }
+
     //Tests that using more days than generated is still supported
     [Fact]
     public async Task GetVacationDays_GraduateStartedTwoYearsAgoAndPaidFor15VacationDaysLastYearAndUsed15DaysLastYear_Has15VacationDays()
