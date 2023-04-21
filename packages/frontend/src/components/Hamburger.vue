@@ -21,7 +21,6 @@ export default Vue.extend({
 
   methods: {
     toggleMenu() {
-      console.log("clickety-click!");
       this.$store.commit("TOGGLE_DRAWER");
     },
   },

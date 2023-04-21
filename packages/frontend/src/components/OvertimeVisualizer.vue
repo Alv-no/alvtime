@@ -4,7 +4,7 @@
       <template v-if="color.value > 0">
         <div class="color-bar-content">
           <div class="color-bar-name">{{ color.name }}</div>
-          <div :style="createColorString(color)" class="color-bar-value" @mouseover="doSomething(canSplit)">
+          <div :style="createColorString(color)" class="color-bar-value">
             {{ color.value }}
           </div>
         </div>
@@ -43,10 +43,6 @@ export default Vue.extend({
       default: () => [],
       type: Array as () => TargetedSubtract[],
     },
-    canSplit: {
-      default: false,
-      type: Boolean
-    }
   },
   data() {
     return {
@@ -72,11 +68,6 @@ export default Vue.extend({
     }, 750);
   },
   methods: {
-    doSomething(canSplit: Boolean) {
-      if (canSplit) {
-        console.log("heihei")
-      }
-    },
     createColorString(colorConfig: OvertimeData): string {
       return `background: ${colorConfig.colorValue};`;
     },
@@ -89,11 +80,8 @@ export default Vue.extend({
       )};`;
     },
     createCalculatedWidthString(value: number): string {
-      const width: number = this.getElementWidth();
-      const pixelWidth: number = Math.floor(
-        (value / this.getValuePercentage()) * width
-      );
-      return `width: ${pixelWidth}px;`;
+      const flexPercentage: number = Math.floor((value / this.getValuePercentage()) * 100);
+      return `flex-grow: ${flexPercentage};`;
     },
     getValuePercentage(): number {
       let valueSum = 0;
@@ -153,7 +141,7 @@ export default Vue.extend({
 }
 
 .color-bar {
-  transition: width 0.5s;
+  transition: flex 0.5s;
 }
 
 .color-bar-value {
@@ -167,5 +155,7 @@ export default Vue.extend({
 .color-bar-name {
   text-align: center;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
 }
 </style>
