@@ -88,16 +88,6 @@ public class HolidayController : Controller
             year = DateTime.Now.Year;
         }
 
-        if (!month.HasValue)
-        {
-            month = DateTime.Now.Month;
-        }
-
-        if (!day.HasValue)
-        {
-            day = DateTime.Now.Day;
-        }
-
         try
         {
             return Ok(await _absenceDaysService.GetAllTimeVacationOverview(year.Value));
