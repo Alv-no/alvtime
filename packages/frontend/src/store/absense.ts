@@ -7,6 +7,7 @@ interface VacationOverview {
   availableVacationDays: number;
   plannedVacationDaysThisYear: number;
   usedVacationDaysThisYear: number;
+  transferredFromLastYear: number;
 }
 
 interface AbsenseOverview {
@@ -28,6 +29,7 @@ const initState: AbsenseStateModel = {
     usedVacationDaysThisYear: 0,
     plannedVacationDaysThisYear: 0,
     availableVacationDays: 0,
+    availableVacationDaysTransferredFromLastYear: 0,
   },
   absenseOverview: {
     absenseDaysInAYear: 0,
@@ -46,20 +48,26 @@ const getters = {
         name: "Planlagt i år",
         colorValue: "#00B050",
         value: state.absenseState.vacationOverview.plannedVacationDaysThisYear,
-        priority: 2,
+        priority: 3,
       },
       {
         name: "Brukt i år",
         colorValue: "#E8B925",
         value: state.absenseState.vacationOverview.usedVacationDaysThisYear,
-        priority: 1,
+        priority: 4,
       },
       {
         name: "Tilgjengelig",
         colorValue: "#1D92CE",
         value: state.absenseState.vacationOverview.availableVacationDays,
-        priority: 3,
+        priority: 1,
       },
+      {
+        name: "Overført fra i fjor",
+        colorValue: "#ea899a",
+        value: state.absenseState.vacationOverview.availableVacationDaysTransferredFromLastYear,
+        priority: 2
+      }
     ];
   },
 };

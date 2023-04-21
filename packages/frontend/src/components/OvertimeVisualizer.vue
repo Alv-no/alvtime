@@ -1,15 +1,10 @@
 <template>
   <div ref="cl" class="color-list">
-    <div
-      v-for="color in filteredColors"
-      :key="color.priority"
-      :style="createWidthString(color)"
-      class="color-bar"
-    >
+    <div v-for="color in filteredColors" :key="color.priority" :style="createWidthString(color)" class="color-bar">
       <template v-if="color.value > 0">
         <div class="color-bar-content">
           <div class="color-bar-name">{{ color.name }}</div>
-          <div :style="createColorString(color)" class="color-bar-value">
+          <div :style="createColorString(color)" class="color-bar-value" @mouseover="doSomething(canSplit)">
             {{ color.value }}
           </div>
         </div>
@@ -48,10 +43,14 @@ export default Vue.extend({
       default: () => [],
       type: Array as () => TargetedSubtract[],
     },
+    canSplit: {
+      default: false,
+      type: Boolean
+    }
   },
   data() {
     return {
-      unsubscribe: () => {},
+      unsubscribe: () => { },
       targetSubtract: [] as TargetedSubtract[],
     };
   },
@@ -73,6 +72,11 @@ export default Vue.extend({
     }, 750);
   },
   methods: {
+    doSomething(canSplit: Boolean) {
+      if (canSplit) {
+        console.log("heihei")
+      }
+    },
     createColorString(colorConfig: OvertimeData): string {
       return `background: ${colorConfig.colorValue};`;
     },
@@ -147,9 +151,11 @@ export default Vue.extend({
   display: flex;
   align-content: stretch;
 }
+
 .color-bar {
   transition: width 0.5s;
 }
+
 .color-bar-value {
   height: 30px;
   display: flex;
@@ -157,6 +163,7 @@ export default Vue.extend({
   align-items: center;
   font-weight: 600;
 }
+
 .color-bar-name {
   text-align: center;
   font-weight: 600;
