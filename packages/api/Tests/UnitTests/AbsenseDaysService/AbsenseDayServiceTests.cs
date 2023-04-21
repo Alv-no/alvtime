@@ -368,7 +368,7 @@ public class AbsenceDayStorageTests
         var holidayOverview = await absenseService.GetAllTimeVacationOverview(DateTime.Now.Year);
 
         Assert.Equal(50, holidayOverview.AvailableVacationDays);
-        Assert.Equal(25, holidayOverview.AvailableVacationDaysTransferedFromLastYear);
+        Assert.Equal(25, holidayOverview.AvailableVacationDaysTransferredFromLastYear);
     }
 
     [Fact]
@@ -381,7 +381,7 @@ public class AbsenceDayStorageTests
         var holidayOverview = await absenseService.GetAllTimeVacationOverview(DateTime.Now.Year);
 
         Assert.Equal(35, holidayOverview.AvailableVacationDays);
-        Assert.Equal(10, holidayOverview.AvailableVacationDaysTransferedFromLastYear);
+        Assert.Equal(10, holidayOverview.AvailableVacationDaysTransferredFromLastYear);
     }
 
     //Tests that using more days than generated is still supported

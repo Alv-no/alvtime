@@ -164,7 +164,7 @@ public class AbsenceDaysService : IAbsenceDaysService
 
         var overridenVacation = (await _absenceStorage.GetCustomVacationEarned(currentUser.Id)).ToList();
 
-				var usersAvailableVacationDaysThisYear = 0;
+        var usersAvailableVacationDaysThisYear = 0;
 
         foreach (var year in yearsWorked)
         {
@@ -188,10 +188,10 @@ public class AbsenceDaysService : IAbsenceDaysService
                 usersAvailableVacationDays += sumVacationDaysThisYear;
             }
 
-						if(year == currentYear)
-						{
-							usersAvailableVacationDaysThisYear = earnedDaysFromPreviousYear;	
-						}
+            if (year == currentYear)
+            {
+                usersAvailableVacationDaysThisYear = earnedDaysFromPreviousYear;
+            }
         }
 
         return new VacationDaysDTO
@@ -199,7 +199,8 @@ public class AbsenceDaysService : IAbsenceDaysService
             PlannedVacationDaysThisYear = plannedVacationThisYear.Sum(v => v.Value) / 7.5M,
             UsedVacationDaysThisYear = usedVacationThisYear.Sum(v => v.Value) / 7.5M,
             AvailableVacationDays = usersAvailableVacationDays,
-						AvailableVacationDaysTransferedFromLastYear = usersAvailableVacationDays - usersAvailableVacationDaysThisYear,
+            AvailableVacationDaysTransferredFromLastYear =
+                usersAvailableVacationDays - usersAvailableVacationDaysThisYear,
             PlannedTransactions = plannedVacation,
             UsedTransactions = usedVacation
         };
