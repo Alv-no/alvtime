@@ -199,8 +199,7 @@ public class AbsenceDaysService : IAbsenceDaysService
             PlannedVacationDaysThisYear = plannedVacationThisYear.Sum(v => v.Value) / 7.5M,
             UsedVacationDaysThisYear = usedVacationThisYear.Sum(v => v.Value) / 7.5M,
             AvailableVacationDays = usersAvailableVacationDays,
-            AvailableVacationDaysTransferredFromLastYear =
-                usersAvailableVacationDays - usersAvailableVacationDaysThisYear,
+            AvailableVacationDaysTransferredFromLastYear = Math.Max(0, usersAvailableVacationDays - usersAvailableVacationDaysThisYear),
             PlannedTransactions = plannedVacation,
             UsedTransactions = usedVacation
         };
