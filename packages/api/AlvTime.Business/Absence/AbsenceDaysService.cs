@@ -142,7 +142,7 @@ public class AbsenceDaysService : IAbsenceDaysService
             var redDaysInYear = new RedDays(year).Dates.Select(d => d.ToShortDateString());
             allRedDays.AddRange(redDaysInYear);
         }
-        
+
         var now = DateTime.Now;
         var plannedVacation = allVacationTransactions.Where(entry =>
                 entry.Value > 0 && entry.Date.CompareTo(now) > 0 &&
@@ -163,6 +163,8 @@ public class AbsenceDaysService : IAbsenceDaysService
         var userStartDay = currentUserStartDate.DayOfYear;
 
         var overridenVacation = (await _absenceStorage.GetCustomVacationEarned(currentUser.Id)).ToList();
+
+				var usersAvailableVacationDaysThisYear = 0;
 
         foreach (var year in yearsWorked)
         {
@@ -185,6 +187,11 @@ public class AbsenceDaysService : IAbsenceDaysService
             {
                 usersAvailableVacationDays += sumVacationDaysThisYear;
             }
+
+						if(year == currentYear)
+						{
+							usersAvailableVacationDaysThisYear = earnedDaysFromPreviousYear;	
+						}
         }
 
         return new VacationDaysDTO
@@ -192,6 +199,7 @@ public class AbsenceDaysService : IAbsenceDaysService
             PlannedVacationDaysThisYear = plannedVacationThisYear.Sum(v => v.Value) / 7.5M,
             UsedVacationDaysThisYear = usedVacationThisYear.Sum(v => v.Value) / 7.5M,
             AvailableVacationDays = usersAvailableVacationDays,
+						AvailableVacationDaysTransferedFromLastYear = usersAvailableVacationDays - usersAvailableVacationDaysThisYear,
             PlannedTransactions = plannedVacation,
             UsedTransactions = usedVacation
         };
