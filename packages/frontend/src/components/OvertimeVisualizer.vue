@@ -54,7 +54,7 @@ export default Vue.extend({
     filteredColors(): OvertimeData[] {
       return this.withDrawFromList(
         this.barData as OvertimeData[],
-        Number.parseInt(this.subtract, 10),
+        Number.parseFloat(this.subtract),
         this.targetSubtract as TargetedSubtract[]
       );
     },
