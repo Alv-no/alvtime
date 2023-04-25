@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using AlvTimeWebApi.Authorization.Requirements;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 
-namespace AlvTimeWebApi.Authorization
+namespace AlvTimeWebApi.Authorization.Policies
 {
     internal class AllowPersonalAccessTokenPolicy
     {
@@ -9,6 +10,7 @@ namespace AlvTimeWebApi.Authorization
 
         internal static void Build(AuthorizationPolicyBuilder builder) => builder
             .RequireAuthenticatedUser()
-            .AddAuthenticationSchemes("PersonalAccessTokenScheme", JwtBearerDefaults.AuthenticationScheme);
+            .AddAuthenticationSchemes("PersonalAccessTokenScheme", JwtBearerDefaults.AuthenticationScheme)
+            .AddRequirements(new EmployeeStillActiveRequirement());
     }
 }
