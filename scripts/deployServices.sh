@@ -16,6 +16,8 @@ az aks get-credentials \
   --subscription "$SUBSCRIPTION" \
   --name "$KUBERNETES_CLUSTER_NAME"
 
+kubelogin convert-kubeconfig -l azurecli
+
 \cp "packages/api/k8s_environments/$ENV-env.yaml" chart/env.yaml
 helm upgrade api ./chart \
   --install \

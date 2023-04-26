@@ -8,3 +8,13 @@ steps:
   - task: DockerInstaller@0
     inputs:
       dockerVersion: "20.10.5"
+
+  - task: Bash@3
+    displayName: Install Kubelogin
+    inputs:
+      targetType: inline
+      script: |
+        wget https://github.com/Azure/kubelogin/releases/download/v0.0.28/kubelogin-linux-amd64.zip
+        unzip kubelogin-linux-amd64.zip
+        mv bin/linux_amd64/kubelogin /usr/local/bin
+        kubelogin --version
