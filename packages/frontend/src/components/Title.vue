@@ -28,7 +28,7 @@ export default Vue.extend({
       // @ts-ignore
       const screenSize = this.$mq;
       if (screenSize === "sm") return this.day;
-      if (screenSize !== "sm") return "Auth test" + this.month;
+      if (screenSize !== "sm") return this.month;
       return "";
     },
 
