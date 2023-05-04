@@ -26,8 +26,6 @@ declare module "express-session" {
   }
 }
 
-oauth2Router.use(passport.initialize());
-oauth2Router.use(passport.session());
 oauth2Router.use(
   session({
     secret: config.SESSION_SECRET,
@@ -35,6 +33,8 @@ oauth2Router.use(
     saveUninitialized: true,
   })
 );
+oauth2Router.use(passport.initialize());
+oauth2Router.use(passport.session());
 
 oauth2Router.get("/login", (req, res) => {
   const loginPayload = jwt.decode(
