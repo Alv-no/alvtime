@@ -9,38 +9,38 @@ namespace AlvTimeWebApi.Authorization.Handlers;
 
 public class EmployeeStillActiveHandler : AuthorizationHandler<EmployeeStillActiveRequirement>
 {
-    private readonly AlvTime_dbContext _alvtimeContext;
+    private readonly AlvTime_dbContext _alvtimeDbContext;
 
-    public EmployeeStillActiveHandler(AlvTime_dbContext alvtimeContext)
+    public EmployeeStillActiveHandler(AlvTime_dbContext alvtimeDbContext)
     {
-        _alvtimeContext = alvtimeContext;
+        _alvtimeDbContext = alvtimeDbContext;
     }
     
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, EmployeeStillActiveRequirement requirement)
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext authContext, EmployeeStillActiveRequirement requirement)
     {
-        var userEmail = context.User.Claims.FirstOrDefault(c => c.Type == "preferred_username")?.Value;
+        var userEmail = authContext.User.Claims.FirstOrDefault(c => c.Type == "preferred_username")?.Value;
         
         if (userEmail is null)
         {
-            context.Fail(new AuthorizationFailureReason(this, "User email not set in token"));
+            authContext.Fail(new AuthorizationFailureReason(this, "User email not set in token"));
             return Task.CompletedTask;
         }
 
-        var employee = _alvtimeContext.User.FirstOrDefault(u => u.Email.ToLower().Equals(userEmail.ToLower()));
+        var employee = _alvtimeDbContext.User.FirstOrDefault(u => u.Email.ToLower().Equals(userEmail.ToLower()));
 
         if (employee is null)
         {
-            context.Fail(new AuthorizationFailureReason(this, "Employee not found"));
+            authContext.Fail(new AuthorizationFailureReason(this, "Employee not found"));
             return Task.CompletedTask;
         }
 
         if (employee.EndDate < DateTime.Now)
         {
-            context.Fail(new AuthorizationFailureReason(this, "Employee is no longer active"));
+            authContext.Fail(new AuthorizationFailureReason(this, "Employee is no longer active"));
         }
         else
         {
-            context.Succeed(requirement);
+            authContext.Succeed(requirement);
         }
 
         return Task.CompletedTask;

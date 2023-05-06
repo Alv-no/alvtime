@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using AlvTime.Business.InvoiceRate;
-using Microsoft.AspNetCore.Authorization;
+using AlvTimeWebApi.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static AlvTime.Business.InvoiceRate.InvoiceStatisticsDto;
 
@@ -9,6 +9,7 @@ namespace AlvTimeWebApi.Controllers;
 
 [Route("api/user")]
 [ApiController]
+[AuthorizePersonalAccessToken]
 public class InvoiceRateController : ControllerBase
 {
 
@@ -20,7 +21,6 @@ public class InvoiceRateController : ControllerBase
     }
 
     [HttpGet("InvoiceRate")]
-    [Authorize(Policy = "AllowPersonalAccessToken")]
     public async Task<decimal> FetchUserInvoiceRate(DateTime? fromDate, DateTime? toDate)
     {
         if (!toDate.HasValue)
@@ -38,7 +38,6 @@ public class InvoiceRateController : ControllerBase
     }
 
     [HttpGet("InvoiceStatistics")]
-    [Authorize(Policy = "AllowPersonalAccessToken")]
     public async Task<InvoiceStatisticsDto> FetchUserInvoiceStatistics(DateTime fromDate, DateTime toDate, 
         InvoicePeriods period = InvoicePeriods.Monthly, ExtendPeriod extendPeriod = ExtendPeriod.None, bool includeZeroPeriods = false)
     {

@@ -12,6 +12,7 @@ using AlvTime.Business.FlexiHours;
 using AlvTime.Business.TimeRegistration;
 using AlvTime.Business.Utils;
 using AlvTimeWebApi.Authentication;
+using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.Responses;
 using AlvTimeWebApi.Utils;
 
@@ -38,7 +39,7 @@ public class TimeEntriesController : Controller
     }
 
     [HttpGet("TimeEntries")]
-    [Authorize(Policy = "AllowPersonalAccessToken")]
+    [AuthorizePersonalAccessToken]
     public async Task<ActionResult<IEnumerable<TimeEntryResponseDto>>> FetchTimeEntries(DateTime fromDateInclusive, DateTime toDateInclusive)
     {
         try
@@ -72,7 +73,7 @@ public class TimeEntriesController : Controller
     }
 
     [HttpPost("TimeEntries")]
-    [Authorize(Policy = "AllowPersonalAccessToken")]
+    [AuthorizePersonalAccessToken]
     public async Task<ActionResult<List<TimeEntryResponseDto>>> UpsertTimeEntry([FromBody] List<CreateTimeEntryDto> requests)
     {
         return Ok((await _timeRegistrationService.UpsertTimeEntry(requests))
@@ -88,7 +89,7 @@ public class TimeEntriesController : Controller
     }
         
     [HttpGet("FlexedHours")]
-    [Authorize(Policy = "AllowPersonalAccessToken")]
+    [AuthorizePersonalAccessToken]
     public async Task<ActionResult<TimeEntriesResponse>> FetchFlexedHours()
     {
         var flexedEntries = await _timeRegistrationService.GetTimeEntries(new TimeEntryQuerySearch
@@ -108,7 +109,7 @@ public class TimeEntriesController : Controller
     }
 
     [HttpGet("TimeEntriesReport")]
-    [Authorize(Policy = "AllowPersonalAccessToken")]
+    [AuthorizePersonalAccessToken]
     public async Task<ActionResult<IEnumerable<TimeEntryResponseDto>>> FetchTimeEntriesReport(DateTime fromDateInclusive, DateTime toDateInclusive)
     {
         var user = _userRetriever.RetrieveUser();

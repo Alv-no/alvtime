@@ -8,11 +8,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Globalization;
+using AlvTimeWebApi.Authorization;
 
 namespace AlvTimeWebApi.Controllers
 {
     [Route("api/user")]
     [ApiController]
+    [AuthorizePersonalAccessToken]
     public class ProfileController : Controller
     {
         private RetrieveUsers _userRetriever;
@@ -27,7 +29,6 @@ namespace AlvTimeWebApi.Controllers
         }
 
         [HttpGet("Profile")]
-        [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<User> GetUserProfile()
         {
             var user = _userRetriever.RetrieveUser();
@@ -48,7 +49,6 @@ namespace AlvTimeWebApi.Controllers
         }
 
         [HttpGet("UsersReport")]
-        [Authorize(Policy = "AllowPersonalAccessToken")]
         public ActionResult<IEnumerable<UserResponseDto>> FetchUsersReport()
         {
             var user = _userRetriever.RetrieveUser();

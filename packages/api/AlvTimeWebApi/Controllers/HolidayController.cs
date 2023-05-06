@@ -11,6 +11,7 @@ using AlvTime.Business.Absence;
 using AlvTime.Business.Extensions;
 using AlvTime.Business.Holidays;
 using AlvTime.Business.TimeRegistration;
+using AlvTimeWebApi.Authorization;
 using Microsoft.Extensions.Logging;
 
 namespace AlvTimeWebApi.Controllers;
@@ -56,7 +57,7 @@ public class HolidayController : Controller
     }
 
     [HttpGet("user/UsedVacation")]
-    [Authorize(Policy = "AllowPersonalAccessToken")]
+    [AuthorizePersonalAccessToken]
     public async Task<ActionResult<VacationOverviewDto>> FetchUsedVacationHours([FromQuery] int? year)
     {
         if (!year.HasValue)
@@ -80,7 +81,7 @@ public class HolidayController : Controller
     }
 
     [HttpGet("user/VacationOverview")]
-    [Authorize(Policy = "AllowPersonalAccessToken")]
+    [AuthorizePersonalAccessToken]
     public async Task<ActionResult<VacationDaysDTO>> FetchVacationOverview([FromQuery] int? year, int? month, int? day)
     {
         if (!year.HasValue)
@@ -100,7 +101,7 @@ public class HolidayController : Controller
     }
 
     [HttpGet("user/AbsenseOverview")]
-    [Authorize(Policy = "AllowPersonalAccessToken")]
+    [AuthorizePersonalAccessToken]
     public async Task<ActionResult<AbsenceDaysDto>> FetchRemainingAbsenseDays(int? year, DateTime? intervalStart)
     {
 

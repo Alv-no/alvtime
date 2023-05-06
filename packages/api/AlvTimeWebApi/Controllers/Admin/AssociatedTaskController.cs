@@ -8,6 +8,7 @@ namespace AlvTimeWebApi.Controllers.Admin;
 
 [Route("api/admin")]
 [ApiController]
+[AuthorizeAdmin]
 public class AssociatedTaskController : Controller
 {
     private readonly IAssociatedTaskStorage _associatedTaskStorage;
@@ -18,7 +19,6 @@ public class AssociatedTaskController : Controller
     }
 
     [HttpGet("AssociatedTasks")]
-    [AuthorizeAdmin]
     public async Task<ActionResult<IEnumerable<AssociatedTaskResponseDto>>> FetchAssociatedTasks()
     {
         var tasks = await _associatedTaskStorage.GetAssociatedTasks();
@@ -27,7 +27,6 @@ public class AssociatedTaskController : Controller
     }
 
     [HttpPost("AssociatedTasks")]
-    [AuthorizeAdmin]
     public async Task<ActionResult<IEnumerable<AssociatedTaskResponseDto>>> CreateAssociatedTask([FromBody] IEnumerable<AssociatedTaskRequestDto> associatedTasks)
     {
         List<AssociatedTaskResponseDto> response = new List<AssociatedTaskResponseDto>();
@@ -41,7 +40,6 @@ public class AssociatedTaskController : Controller
     }
 
     [HttpPut("AssociatedTasks")]
-    [AuthorizeAdmin]
     public async Task<ActionResult<IEnumerable<AssociatedTaskResponseDto>>> UpdateAssociatedTask([FromBody] IEnumerable<AssociatedTaskUpdateDto> associatedTasks)
     {
         List<AssociatedTaskResponseDto> response = new List<AssociatedTaskResponseDto>();

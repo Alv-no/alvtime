@@ -2,20 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Overtime;
 using AlvTime.Business.TimeRegistration;
-using AlvTime.Business.Utils;
-using AlvTimeWebApi.Controllers.Utils;
+using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.Responses;
 using AlvTimeWebApi.Utils;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AlvTimeWebApi.Controllers
 {
     [Route("api/user")]
     [ApiController]
+    [AuthorizePersonalAccessToken]
     public class OvertimeController : ControllerBase
     {
         private readonly TimeRegistrationService _timeRegistrationService;
@@ -26,7 +24,6 @@ namespace AlvTimeWebApi.Controllers
         }
         
         [HttpGet("AvailableHours")]
-        [Authorize(Policy = "AllowPersonalAccessToken")]
         public async Task<AvailableOvertimeResponse> FetchAvailableHours()
         {
             var availableOvertime = await _timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(9999, 01, 01));
@@ -44,7 +41,6 @@ namespace AlvTimeWebApi.Controllers
         }
         
         [HttpGet("EarnedOvertime")]
-        [Authorize(Policy = "AllowPersonalAccessToken")]
         public async Task<List<EarnedOvertimeDto>> FetchEarnedOvertime(DateTime startDate, DateTime endDate)
         {
             return await _timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter { FromDateInclusive = startDate, ToDateInclusive = endDate});
