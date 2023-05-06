@@ -13,6 +13,7 @@ namespace AlvTimeWebApi.Controllers.Admin;
 
 [Route("api/admin")]
 [ApiController]
+[AuthorizeAdmin]
 public class AnalyticsController : ControllerBase
 {
     private readonly IUserRepository _userRepository;
@@ -25,7 +26,6 @@ public class AnalyticsController : ControllerBase
     }
 
     [HttpGet("Data")]
-    [AuthorizeAdmin]
     public async Task<List<string>> FetchData()
     {
         var users = await _userRepository.GetUsers(new UserQuerySearch());

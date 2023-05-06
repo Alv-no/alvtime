@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.AccessTokens;
 using AlvTime.Business.Utils;
+using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.Controllers.Utils;
 using AlvTimeWebApi.Requests;
 using AlvTimeWebApi.Responses;
@@ -14,6 +15,7 @@ namespace AlvTimeWebApi.Controllers
 {
     [Route("api/user")]
     [ApiController]
+    [AuthorizePersonalAccessToken]
     public class AccessTokenController : Controller
     {
         private readonly AccessTokenService _tokenService;
@@ -24,7 +26,6 @@ namespace AlvTimeWebApi.Controllers
         }
 
         [HttpPost("AccessToken")]
-        [Authorize]
         public async Task<ActionResult<AccessTokenCreatedResponse>> CreateLifetimeToken(
             [FromBody] AccessTokenCreateRequest createRequest)
         {
@@ -34,7 +35,6 @@ namespace AlvTimeWebApi.Controllers
         }
 
         [HttpDelete("AccessToken")]
-        [Authorize]
         public async Task<ActionResult<IEnumerable<AccessTokenFriendlyNameResponse>>> DeleteAccessToken(
             [FromBody] IEnumerable<AccessTokenDeleteRequest> tokenIds)
         {
@@ -45,7 +45,6 @@ namespace AlvTimeWebApi.Controllers
         }
 
         [HttpGet("ActiveAccessTokens")]
-        [Authorize]
         public async Task<ActionResult<IEnumerable<AccessTokenFriendlyNameResponse>>> FetchFriendlyNames()
         {
             var accessTokens = await _tokenService.GetActiveTokens();

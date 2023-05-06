@@ -8,6 +8,7 @@ namespace AlvTimeWebApi.Controllers.Admin
 {
     [Route("api/admin")]
     [ApiController]
+    [AuthorizeAdmin]
     public class EconomyController : Controller
     {
         private readonly IEconomyStorage _economyStorage;
@@ -18,7 +19,6 @@ namespace AlvTimeWebApi.Controllers.Admin
         }
 
         [HttpGet("EconomyInfo")]
-        [AuthorizeAdmin]
         public async Task<ActionResult<IEnumerable<DataDumpDto>>> FetchEconomyInfo()
         {
             return Ok(await _economyStorage.GetEconomyInfo());

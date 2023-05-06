@@ -8,6 +8,7 @@ namespace AlvTimeWebApi.Controllers.Admin
 {
     [Route("api/admin")]
     [ApiController]
+    [AuthorizeAdmin]
     public class CustomerController : Controller
     {
         private readonly ICustomerStorage _customerStorage;
@@ -20,14 +21,12 @@ namespace AlvTimeWebApi.Controllers.Admin
         }
 
         [HttpGet("Customers")]
-        [AuthorizeAdmin]
         public async Task<ActionResult<IEnumerable<CustomerDto>>> FetchCustomers()
         {
             return Ok(await _customerStorage.GetCustomers(new CustomerQuerySearch()));
         }
 
         [HttpPost("Customers")]
-        [AuthorizeAdmin]
         public async Task<ActionResult<IEnumerable<CustomerDto>>> CreateNewCustomers([FromBody] IEnumerable<CustomerDto> customersToBeCreated)
         {
             List<CustomerDto> response = new List<CustomerDto>();
@@ -41,7 +40,6 @@ namespace AlvTimeWebApi.Controllers.Admin
         }
 
         [HttpPut("Customers")]
-        [AuthorizeAdmin]
         public async Task<ActionResult<IEnumerable<CustomerDto>>> UpdateExistingCustomers([FromBody] IEnumerable<CustomerDto> customersToBeUpdated)
         {
             List<CustomerDto> response = new List<CustomerDto>();

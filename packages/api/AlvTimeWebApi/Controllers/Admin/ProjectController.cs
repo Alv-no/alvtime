@@ -8,6 +8,7 @@ namespace AlvTimeWebApi.Controllers.Admin;
 
 [Route("api/admin")]
 [ApiController]
+[AuthorizeAdmin]
 public class ProjectController : Controller
 {
     private readonly IProjectStorage _projectStorage;
@@ -20,14 +21,12 @@ public class ProjectController : Controller
     }
 
     [HttpGet("Projects")]
-    [AuthorizeAdmin]
     public async Task<ActionResult<IEnumerable<ProjectResponseDto>>> FetchProjects()
     {
         return Ok(await _projectStorage.GetProjects(new ProjectQuerySearch()));
     }
 
     [HttpPost("Projects")]
-    [AuthorizeAdmin]
     public async Task<ActionResult<IEnumerable<ProjectResponseDto>>> CreateNewProject([FromBody] IEnumerable<CreateProjectDto> projectsToBeCreated)
     {
         List<ProjectResponseDto> response = new List<ProjectResponseDto>();
@@ -41,7 +40,6 @@ public class ProjectController : Controller
     }
 
     [HttpPut("Projects")]
-    [AuthorizeAdmin]
     public async Task<ActionResult<IEnumerable<ProjectResponseDto>>> UpdateProject([FromBody] IEnumerable<CreateProjectDto> projectsToBeCreated)
     {
         List<ProjectResponseDto> response = new List<ProjectResponseDto>();

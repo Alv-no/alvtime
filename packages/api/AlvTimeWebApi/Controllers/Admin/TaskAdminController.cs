@@ -13,6 +13,7 @@ namespace AlvTimeWebApi.Controllers.Admin;
 
 [Route("api/admin")]
 [ApiController]
+[AuthorizeAdmin]
 public class TaskAdminController : Controller
 {
     private readonly TaskService _taskService;
@@ -23,7 +24,6 @@ public class TaskAdminController : Controller
     }
 
     [HttpGet("Tasks")]
-    [AuthorizeAdmin]
     public async Task<ActionResult<IEnumerable<TaskResponse>>> FetchTasks()
     {
         var tasks = await _taskService.GetAllTasks(new TaskQuerySearch());
@@ -32,7 +32,6 @@ public class TaskAdminController : Controller
     }
 
     [HttpPost("Tasks")]
-    [AuthorizeAdmin]
     public async Task<ActionResult<IEnumerable<TaskResponse>>> CreateNewTask(
         [FromBody] IEnumerable<TaskCreateRequest> tasksToBeCreated)
     {
@@ -54,7 +53,6 @@ public class TaskAdminController : Controller
     }
 
     [HttpPut("Tasks")]
-    [AuthorizeAdmin]
     public async Task<ActionResult<IEnumerable<TaskResponse>>> UpdateTask(
         [FromBody] IEnumerable<TaskUpdateRequest> tasksToBeUpdated)
     {

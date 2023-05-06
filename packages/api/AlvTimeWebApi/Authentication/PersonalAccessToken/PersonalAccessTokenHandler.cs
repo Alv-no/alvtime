@@ -46,11 +46,6 @@ namespace AlvTimeWebApi.Authentication.PersonalAccessToken
                 return AuthenticateResult.Fail("No user could be retrieved from the given token");
             }
 
-            // if (user.EndDate != null && user.EndDate < DateTime.Now)
-            // {
-            //     return AuthenticateResult.Fail("The user has an end date in the past");
-            // }
-
             var claims = CreateClaims(user);
 
             return AuthenticateResult.Success(CreateTicket(claims));

@@ -8,6 +8,7 @@ namespace AlvTimeWebApi.Controllers.Admin;
 
 [Route("api/admin")]
 [ApiController]
+[AuthorizeAdmin]
 public class HourRateController : Controller
 {
     private readonly IHourRateStorage _hourRateStorage;
@@ -20,14 +21,12 @@ public class HourRateController : Controller
     }
 
     [HttpGet("HourRates")]
-    [AuthorizeAdmin]
     public async Task<ActionResult<IEnumerable<HourRateResponseDto>>> FetchHourRates()
     {
         return Ok(await _hourRateStorage.GetHourRates(new HourRateQuerySearch()));
     }
 
     [HttpPost("HourRates")]
-    [AuthorizeAdmin]
     public async Task<ActionResult<IEnumerable<HourRateResponseDto>>> CreateHourRate([FromBody] IEnumerable<CreateHourRateDto> hourRatesToBeCreated)
     {
         List<HourRateResponseDto> response = new List<HourRateResponseDto>();

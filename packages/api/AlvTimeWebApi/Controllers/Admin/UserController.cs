@@ -12,6 +12,7 @@ namespace AlvTimeWebApi.Controllers.Admin;
 
 [Route("api/admin")]
 [ApiController]
+[AuthorizeAdmin]
 public class UserController : Controller
 {
     private readonly IUserRepository _userRepository;
@@ -24,7 +25,6 @@ public class UserController : Controller
     }
 
     [HttpGet("Users")]
-    [AuthorizeAdmin]
     public async Task<ActionResult<IEnumerable<UserResponseDto>>> FetchUsers()
     {
         var users = await _userRepository.GetUsers(new UserQuerySearch());
@@ -32,7 +32,6 @@ public class UserController : Controller
     }
     
     [HttpPost("Users")]
-    [AuthorizeAdmin]
     public async Task<ActionResult<IEnumerable<UserResponseDto>>> CreateNewUsers([FromBody] IEnumerable<UserCreateRequest> usersToBeCreated)
     {
         var response = new List<UserResponseDto>();
@@ -52,7 +51,6 @@ public class UserController : Controller
     }
 
     [HttpPut("Users")]
-    [AuthorizeAdmin]
     public async Task<ActionResult<IEnumerable<UserResponseDto>>> UpdateUsers([FromBody] IEnumerable<UserUpdateRequest> usersToBeUpdated)
     {
         var response = new List<UserResponseDto>();
@@ -73,7 +71,6 @@ public class UserController : Controller
     }
 
     [HttpGet("users/{userId:int}/employmentrates")]
-    [AuthorizeAdmin]
     public async Task<ActionResult<IEnumerable<EmploymentRateResponse>>> FetchEmploymentRatesForUser(int userId)
     {
         return Ok((await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = userId })).Select(er => new EmploymentRateResponse
@@ -87,7 +84,6 @@ public class UserController : Controller
     }
 
     [HttpPost("users/{userId:int}/employmentrates")]
-    [AuthorizeAdmin]
     public async Task<ActionResult<IEnumerable<EmploymentRateResponse>>> CreateEmploymentRateForUser(IEnumerable<EmploymentRateCreationRequest> requests, int userId)
     {
         var response = new List<EmploymentRateResponse>();
@@ -114,7 +110,6 @@ public class UserController : Controller
     }
 
     [HttpPut("users/{userId:int}/employmentrates")]
-    [AuthorizeAdmin]
     public async Task<ActionResult<IEnumerable<EmploymentRateResponse>>> UpdateEmploymentRate(IEnumerable<EmploymentRateChangeRequest> requests, int userId)
     {
         var response = new List<EmploymentRateResponse>();

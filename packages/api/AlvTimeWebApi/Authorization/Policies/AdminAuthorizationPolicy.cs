@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using System;
+using AlvTimeWebApi.Authorization.Requirements;
 
 namespace AlvTimeWebApi.Authorization.Policies
 {
@@ -7,7 +8,9 @@ namespace AlvTimeWebApi.Authorization.Policies
     {
         public static string Name => "Admin";
 
-        public static void Build(AuthorizationPolicyBuilder builder) =>
-            builder.RequireClaim("groups", Environment.GetEnvironmentVariable("AdminGroup"));
+        public static void Build(AuthorizationPolicyBuilder builder) => builder
+                .RequireAuthenticatedUser()
+                .RequireClaim("groups", Environment.GetEnvironmentVariable("AdminGroup"))
+                .AddRequirements(new EmployeeStillActiveRequirement());
     }
 }

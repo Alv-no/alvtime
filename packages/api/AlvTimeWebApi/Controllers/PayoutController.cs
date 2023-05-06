@@ -4,18 +4,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Payouts;
-using AlvTime.Business.Utils;
-using AlvTimeWebApi.Controllers.Utils;
+using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.Requests;
 using AlvTimeWebApi.Responses;
 using AlvTimeWebApi.Utils;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AlvTimeWebApi.Controllers
 {
     [Route("api/user")]
     [ApiController]
+    [AuthorizePersonalAccessToken]
     public class PayoutController : ControllerBase
     {
         private readonly PayoutService _payoutService;
@@ -26,7 +25,6 @@ namespace AlvTimeWebApi.Controllers
         }
         
         [HttpGet("Payouts")]
-        [Authorize(Policy = "AllowPersonalAccessToken")]
         public async Task<PayoutsResponse> FetchPaidOvertime()
         {
             var payouts = await _payoutService.GetRegisteredPayouts();
@@ -48,7 +46,6 @@ namespace AlvTimeWebApi.Controllers
         }
         
         [HttpPost("Payouts")]
-        [Authorize(Policy = "AllowPersonalAccessToken")]
         public async Task<GenericHourEntry> RegisterPaidOvertime([FromBody] PayoutRequest request)
         {
             var response = await _payoutService.RegisterPayout(new GenericHourEntry{ Date = request.Date, Hours = request.Hours});
@@ -61,7 +58,6 @@ namespace AlvTimeWebApi.Controllers
         }
         
         [HttpDelete("Payouts")]
-        [Authorize(Policy = "AllowPersonalAccessToken")]
         public async Task<ActionResult> CancelPaidOvertime([FromQuery] DateTime payoutDate)
         {
             await _payoutService.CancelPayout(payoutDate);

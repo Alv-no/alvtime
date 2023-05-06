@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.Requests;
 using AlvTimeWebApi.Responses;
 
@@ -11,6 +12,7 @@ namespace AlvTimeWebApi.Controllers
 {
     [Route("api/user")]
     [ApiController]
+    [AuthorizePersonalAccessToken]
     public class TasksController : Controller
     {
         private readonly TaskService _taskService;
@@ -21,7 +23,6 @@ namespace AlvTimeWebApi.Controllers
         }
  
         [HttpGet("Tasks")]
-        [Authorize(Policy = "AllowPersonalAccessToken")]
         public async Task<ActionResult<IEnumerable<TaskResponse>>> FetchTasks()
         {
             return Ok((await _taskService.GetTasksForUser(new TaskQuerySearch()))
@@ -29,7 +30,6 @@ namespace AlvTimeWebApi.Controllers
         }
 
         [HttpPost("Tasks")]
-        [Authorize(Policy = "AllowPersonalAccessToken")]
         public async Task<ActionResult<IEnumerable<TaskResponse>>> UpdateFavoriteTasks([FromBody] IEnumerable<TaskFavoriteRequest> tasksToBeUpdated)
         {
             var updatedTasks = await _taskService.UpdateFavoriteTasks(tasksToBeUpdated.Select(t => (t.Id, t.Favorite)));
