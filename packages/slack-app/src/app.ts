@@ -27,6 +27,9 @@ mongoose
     logger.error("Database connection error: " + error);
   });
 
+// https://expressjs.com/en/guide/behind-proxies.html
+app.set("trust proxy", 1);
+
 app.use(loggerMiddleware);
 app.use(express.static("public"));
 app.use("/slack", slackRouter);

@@ -58,7 +58,7 @@
     "@types/node": "16.11.13",
     "@types/node-cron": "^2.0.3",
     "@types/node-fetch": "^2.5.12",
-    "@types/passport": "^1.0.3",
+    "@types/passport": "^1.0.12",
     "@types/passport-oauth2": "^1.4.9",
     "@types/pino": "^6.3.12",
     "@types/pino-http": "^5.8.1",
