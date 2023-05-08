@@ -29,8 +29,9 @@ declare module "express-session" {
 oauth2Router.use(
   session({
     secret: config.SESSION_SECRET,
-    resave: true,
+    resave: false,
     saveUninitialized: true,
+    cookie: { secure: true },
   })
 );
 oauth2Router.use(passport.initialize());
@@ -52,6 +53,7 @@ oauth2Router.get(
   "/cb",
   passport.authenticate("azureAd", {
     failureRedirect: "/something-went-wrong",
+    keepSessionInfo: true,
   }),
   async (req, res, next) => {
     const { slackTeamDomain, slackChannelID } = req.session.loginPayload;
