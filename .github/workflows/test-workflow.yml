@@ -1,0 +1,16 @@
+name: Test workflow
+
+on:
+  - pull_request
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ var.APP_ID }}
+          subscription-id: ${{ var.SUBSCRIPTION_ID }}
+          tenant-id: ${{ var.TENANT_ID }}
