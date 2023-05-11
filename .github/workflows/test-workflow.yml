@@ -11,6 +11,6 @@ jobs:
       - name: Azure login
         uses: azure/login@v1
         with:
-          client-id: ${{ var.APP_ID }}
-          subscription-id: ${{ var.SUBSCRIPTION_ID }}
-          tenant-id: ${{ var.TENANT_ID }}
+          client-id: ${{ vars.APP_ID }}
+          subscription-id: ${{ vars.SUBSCRIPTION_ID }}
+          tenant-id: ${{ vars.TENANT_ID }}
