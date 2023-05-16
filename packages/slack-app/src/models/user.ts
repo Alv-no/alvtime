@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import mongooseFieldEncryption from "mongoose-field-encryption";
-import env from "../environment";
 import { logger } from "../createLogger";
+import env from "../environment";
 
 const userSchema = new mongoose.Schema({
   _id: String,
@@ -36,6 +36,7 @@ interface Model {
   ) => { exec: () => Promise<{}> };
   find: (query: {}) => { exec: () => Promise<Document[]> };
   findById: (id: string) => { exec: () => Promise<Document> };
+  deleteOne: (query: { _id: string }) => { exec: () => Promise<boolean> };
 }
 
 interface Document {
@@ -95,8 +96,17 @@ export function createUserDB(model: Model) {
       return prune(doc);
     },
 
-    async save(user: UserData): Promise<boolean> {
-      let saved = false;
+    async deleteById(slackUserID: string): Promise<boolean> {
+      let deleted = false;
+      try {
+        await model.deleteOne({ _id: slackUserID }).exec();
+      } catch (e) {
+        logger.error("Unable to delete user data: ", e);
+      }
+      return deleted;
+    },
+
+    async save(user: UserData): Promise<UserData> {
       try {
         const document: UserData & { _id: string } = {
           _id: user.slackUserID,
@@ -104,11 +114,10 @@ export function createUserDB(model: Model) {
         };
         const doc = new model(document);
         await doc.save();
-        saved = true;
+        return document;
       } catch (e) {
         logger.error("Unable to save user data: ", e);
       }
-      return saved;
     },
   };
 }

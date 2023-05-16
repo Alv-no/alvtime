@@ -4,10 +4,10 @@ import jwt from "jwt-simple";
 import passport from "passport";
 import config from "../../config";
 import { TokenPayload } from "../../messages/index";
-import userDB from "../../models/user";
+import userDB, { UserData } from "../../models/user";
+import respondToResponseURL from "../../response/respondToResponseURL";
 import { slackWebClient } from "../../routes/slack";
 import runCommand from "../slack/runCommand";
-import respondToResponseURL from "../../response/respondToResponseURL";
 import { actionTypes, CommandBody } from "../slack/slashCommand";
 import azureAdStrategy, { AuthenticatedUser, DoneFunc } from "./azureAd";
 import createLoginPage from "./loginPage";
@@ -57,11 +57,11 @@ oauth2Router.get(
   }),
   async (req, res, next) => {
     const { slackTeamDomain, slackChannelID } = req.session.loginPayload;
-    const written = await writeUserToDb(
+    res.locals.user = await writeUserToDb(
       req.user as AuthenticatedUser,
       req.session.loginPayload
     );
-    if (written) {
+    if (res.locals.user) {
       next();
     } else {
       res.redirect(
@@ -81,7 +81,10 @@ oauth2Router.get(
       slackChannelID
     );
     if (action && actionTypes.COMMAND === action.type) {
-      runCommand(action.value as unknown as CommandBody);
+      runCommand(
+        action.value as unknown as CommandBody,
+        res.locals.user as UserData
+      );
       respondToResponseURL(action.value.response_url, loginSuccessMessage);
     } else {
       slackWebClient.chat.postMessage({
@@ -131,10 +134,10 @@ async function writeUserToDb(
   authenticatedUser: AuthenticatedUser,
   loginPayload: LoginTokenData
 ) {
-  let written = false;
+  let user: UserData;
   const { slackUserName, slackUserID } = loginPayload;
 
-  const user = await userDB.findById(slackUserID);
+  user = await userDB.findById(slackUserID);
   if (!user) {
     const { name, email, auth } = authenticatedUser;
     const doc = {
@@ -145,7 +148,7 @@ async function writeUserToDb(
       auth,
     };
 
-    written = await userDB.save(doc);
+    user = await userDB.save(doc);
   }
-  return written;
+  return user;
 }

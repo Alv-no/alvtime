@@ -1,6 +1,13 @@
-import createCommands from "../../actions/index";
-import userDB from "../../models/user";
+import {
+  admin,
+  logg,
+  register,
+  registerVacation,
+  registerWeek,
+  tasks,
+} from "../../actions";
 import { logger } from "../../createLogger";
+import userDB, { UserData } from "../../models/user";
 import { CommandBody } from "./slashCommand";
 
 const { LOGG, TASKS, REG, UKE, ADMIN, FERIE } = Object.freeze({
@@ -12,37 +19,45 @@ const { LOGG, TASKS, REG, UKE, ADMIN, FERIE } = Object.freeze({
   FERIE: "FERIE",
 });
 
-export default async function runCommand(commandBody: CommandBody) {
+export default async function runCommand(
+  commandBody: CommandBody,
+  userData: UserData
+) {
   try {
     const textArray = commandBody.text.split(" ");
     const command = textArray[0].toUpperCase();
     const params = textArray.filter((_t, i) => i !== 0);
-    const userData = await userDB.findById(commandBody.user_id);
-    const commands = await createCommands(params, commandBody, userData);
+    const accessToken = userData.auth.accessToken;
+    const state = {
+      accessToken,
+      params,
+      commandBody,
+      userData,
+    };
 
     switch (command) {
       case LOGG:
-        commands.logg();
+        logg(state);
         break;
 
       case TASKS:
-        commands.tasks();
+        tasks(state);
         break;
 
       case REG:
-        commands.register();
+        register(state);
         break;
 
       case UKE:
-        commands.registerWeek();
+        registerWeek(state);
         break;
 
       case FERIE:
-        commands.registerVacation();
+        registerVacation(state);
         break;
 
       case ADMIN:
-        commands.admin();
+        admin(state);
         break;
 
       default:
