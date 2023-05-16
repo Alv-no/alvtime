@@ -5,18 +5,20 @@ import {
   registerVacation,
   registerWeek,
   tasks,
+  logout,
 } from "../../actions";
 import { logger } from "../../createLogger";
 import userDB, { UserData } from "../../models/user";
 import { CommandBody } from "./slashCommand";
 
-const { LOGG, TASKS, REG, UKE, ADMIN, FERIE } = Object.freeze({
+const { LOGG, TASKS, REG, UKE, ADMIN, FERIE, LOGOUT } = Object.freeze({
   TASKS: "TASKS",
   LOGG: "LOGG",
   REG: "REG",
   UKE: "UKE",
   ADMIN: "ADMIN",
   FERIE: "FERIE",
+  LOGOUT: "LOGOUT",
 });
 
 export default async function runCommand(
@@ -60,10 +62,14 @@ export default async function runCommand(
         admin(state);
         break;
 
+      case LOGOUT:
+        logout(state);
+        break;
+
       default:
         break;
     }
   } catch (e) {
-    logger.error("error", e);
+    logger.error(e);
   }
 }

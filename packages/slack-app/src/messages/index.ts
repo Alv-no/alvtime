@@ -131,10 +131,24 @@ export function vacationLoggMessage({
   fromDateInclusive,
   toDateInclusive,
 }: DateRange) {
-  const fromDate = configuredMoment(fromDateInclusive).format("dddd D. MMMM YYYY");
+  const fromDate =
+    configuredMoment(fromDateInclusive).format("dddd D. MMMM YYYY");
   const toDate = configuredMoment(toDateInclusive).format("dddd D. MMMM YYYY");
 
-  return { text: `Du har ført ferie fra og med ${fromDate} til og med ${toDate}` };
+  return {
+    text: `Du har ført ferie fra og med ${fromDate} til og med ${toDate}`,
+  };
+}
+
+export function logoutMessage() {
+  return {
+    text: "",
+    blocks: [
+      {
+        ...section("Alvtime slack bot har blitt koblet vekk fra Alvtime :wave:"),
+      },
+    ],
+  };
 }
 
 export function loginMessage(tokenPayload: TokenPayload) {

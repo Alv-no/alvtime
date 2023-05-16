@@ -2,6 +2,7 @@ import { UserData } from "../models/user";
 import { CommandBody } from "../routes/slack/slashCommand";
 import { admin } from "./admin";
 import { logg } from "./logg";
+import { logout } from "./logout";
 import { register, registerVacation, registerWeek } from "./register";
 import { tasks } from "./tasks";
 
@@ -12,4 +13,4 @@ export interface State {
   userData: UserData;
 }
 
-export { logg, tasks, register, registerWeek, registerVacation, admin };
+export { logg, tasks, register, registerWeek, registerVacation, admin, logout };
