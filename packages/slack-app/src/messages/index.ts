@@ -146,7 +146,7 @@ export function loginMessage(tokenPayload: TokenPayload) {
       hello(slackUserID),
       {
         ...section(
-          "Du har ikke koblet Alvtime sammen med Slack enda. Trykk på knappen under og følg instruksjonene. Så vil du kanskje få det du ba om :wink:"
+          "Du må koble Alvtime sammen med Slack. Trykk på knappen og følg instruksjonene. Så vil du kanskje få det du ba om :wink:"
         ),
         accessory: loginButton(tokenPayload),
       },
