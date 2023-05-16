@@ -5,10 +5,24 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Docker",
+      "name": "Slack app in built docker",
+      "port": 9229,
       "type": "node",
       "request": "attach",
-      "port": 9229
+      "skipFiles": ["<node_internals>/**"],
+      "localRoot": "${workspaceFolder}/packages/slack-app/dist",
+      "remoteRoot": "/app/dist",
+      "sourceMaps": true
+    },
+    {
+      "name": "Slack app in dev docker",
+      "port": 9229,
+      "type": "node",
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "localRoot": "${workspaceFolder}/packages/slack-app/dist",
+      "remoteRoot": "/src/dist",
+      "sourceMaps": true
     }
   ]
 }
