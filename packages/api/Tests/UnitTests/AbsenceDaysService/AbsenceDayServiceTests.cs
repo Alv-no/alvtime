@@ -1,5 +1,4 @@
 using System;
-using AlvTime.Business.Absence;
 using AlvTime.Business.Interfaces;
 using AlvTime.Business.Options;
 using AlvTime.Business.TimeEntries;
@@ -10,7 +9,7 @@ using Moq;
 using Xunit;
 using Task = System.Threading.Tasks.Task;
 
-namespace Tests.UnitTests.AbsenseDaysService;
+namespace Tests.UnitTests.AbsenceDaysService;
 
 public class AbsenceDayStorageTests
 {
@@ -52,8 +51,8 @@ public class AbsenceDayStorageTests
     public async Task CheckRemainingHolidays_NoWithDrawls()
     {
         var timeRegistrationStorage = CreateTimeRegistrationStorage();
-        var absenseService = CreateAbsenseDaysService(timeRegistrationStorage);
-        var days = await absenseService.GetAbsenceDays(1, 2020, null);
+        var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
+        var days = await absenceService.GetAbsenceDays(1, 2020, null);
 
         Assert.Equal(0, days.UsedAbsenceDays);
     }
@@ -62,7 +61,7 @@ public class AbsenceDayStorageTests
     public async Task CheckRemainingHolidays_SickdaysTaken()
     {
         var timeRegistrationStorage = CreateTimeRegistrationStorage();
-        var absenseService = CreateAbsenseDaysService(timeRegistrationStorage);
+        var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
 
         // One day of sick leave
         await timeRegistrationStorage.CreateTimeEntry(new CreateTimeEntryDto
@@ -72,7 +71,7 @@ public class AbsenceDayStorageTests
             TaskId = _options.CurrentValue.SickDaysTask
         }, 1);
 
-        var days = await absenseService.GetAbsenceDays(1, 2021, null);
+        var days = await absenceService.GetAbsenceDays(1, 2021, null);
 
         Assert.Equal(3, days.UsedAbsenceDays);
 
@@ -84,7 +83,7 @@ public class AbsenceDayStorageTests
     public async Task TestConcurrentDays()
     {
         var timeRegistrationStorage = CreateTimeRegistrationStorage();
-        var absenseService = CreateAbsenseDaysService(timeRegistrationStorage);
+        var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
 
         await timeRegistrationStorage.CreateTimeEntry(new CreateTimeEntryDto
         {
@@ -99,7 +98,7 @@ public class AbsenceDayStorageTests
             TaskId = _options.CurrentValue.SickDaysTask
         }, 1);
 
-        var days = await absenseService.GetAbsenceDays(1, 2021, null);
+        var days = await absenceService.GetAbsenceDays(1, 2021, null);
 
         Assert.Equal(3, days.UsedAbsenceDays);
     }
@@ -108,7 +107,7 @@ public class AbsenceDayStorageTests
     public async Task TestConcurrentDays_MoreThanThree()
     {
         var timeRegistrationStorage = CreateTimeRegistrationStorage();
-        var absenseService = CreateAbsenseDaysService(timeRegistrationStorage);
+        var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
 
         await timeRegistrationStorage.CreateTimeEntry(new CreateTimeEntryDto
         {
@@ -135,7 +134,7 @@ public class AbsenceDayStorageTests
             TaskId = _options.CurrentValue.SickDaysTask
         }, 1);
 
-        var days = await absenseService.GetAbsenceDays(1, 2021, null);
+        var days = await absenceService.GetAbsenceDays(1, 2021, null);
 
         // We withdraw three whole days
         Assert.Equal(6, days.UsedAbsenceDays);
@@ -147,7 +146,7 @@ public class AbsenceDayStorageTests
         CreateUserWithStartDate(new DateTime(2019, 11, 01));
 
         var timeRegistrationStorage = CreateTimeRegistrationStorage();
-        var absenseService = CreateAbsenseDaysService(timeRegistrationStorage);
+        var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
 
         for (int i = 3; i < 7; i++)
         {
@@ -174,7 +173,7 @@ public class AbsenceDayStorageTests
             }, 2);
         }
 
-        var holidayOverview = await absenseService.GetAllTimeVacationOverview(2022);
+        var holidayOverview = await absenceService.GetAllTimeVacationOverview(2022);
 
         Assert.Equal(30, holidayOverview.AvailableVacationDays);
         Assert.Equal(0, holidayOverview.UsedVacationDaysThisYear);
@@ -198,7 +197,7 @@ public class AbsenceDayStorageTests
         CreateUserWithStartDate(new DateTime(DateTime.Now.AddYears(-2).Year, 01, 01));
 
         var timeRegistrationStorage = CreateTimeRegistrationStorage();
-        var absenseService = CreateAbsenseDaysService(timeRegistrationStorage);
+        var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
 
         await timeRegistrationStorage.CreateTimeEntry(new CreateTimeEntryDto
         {
@@ -207,7 +206,7 @@ public class AbsenceDayStorageTests
             TaskId = _options.CurrentValue.PaidHolidayTask
         }, 2);
 
-        var holidayOverview = await absenseService.GetAllTimeVacationOverview(DateTime.Now.Year);
+        var holidayOverview = await absenceService.GetAllTimeVacationOverview(DateTime.Now.Year);
 
         Assert.Equal(50, holidayOverview.AvailableVacationDays);
     }
@@ -218,9 +217,9 @@ public class AbsenceDayStorageTests
         CreateUserWithStartDate(new DateTime(DateTime.Now.AddYears(-2).Year, 01, 01));
 
         var timeRegistrationStorage = CreateTimeRegistrationStorage();
-        var absenseService = CreateAbsenseDaysService(timeRegistrationStorage);
+        var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
 
-        var holidayOverview = await absenseService.GetAllTimeVacationOverview(DateTime.Now.Year);
+        var holidayOverview = await absenceService.GetAllTimeVacationOverview(DateTime.Now.Year);
 
         Assert.Equal(50, holidayOverview.AvailableVacationDays);
         Assert.Equal(0, holidayOverview.UsedVacationDaysThisYear);
@@ -232,9 +231,9 @@ public class AbsenceDayStorageTests
         CreateUserWithStartDate(new DateTime(DateTime.Now.AddYears(-1).Year, 07, 01));
 
         var timeRegistrationStorage = CreateTimeRegistrationStorage();
-        var absenseService = CreateAbsenseDaysService(timeRegistrationStorage);
+        var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
 
-        var holidayOverview = await absenseService.GetAllTimeVacationOverview(DateTime.Now.Year);
+        var holidayOverview = await absenceService.GetAllTimeVacationOverview(DateTime.Now.Year);
 
         Assert.Equal(13, holidayOverview.AvailableVacationDays);
     }
@@ -245,9 +244,9 @@ public class AbsenceDayStorageTests
         CreateUserWithStartDate(new DateTime(DateTime.Now.Year, 01, 01));
 
         var timeRegistrationStorage = CreateTimeRegistrationStorage();
-        var absenseService = CreateAbsenseDaysService(timeRegistrationStorage);
+        var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
 
-        var holidayOverview = await absenseService.GetAllTimeVacationOverview(DateTime.Now.Year);
+        var holidayOverview = await absenceService.GetAllTimeVacationOverview(DateTime.Now.Year);
 
         Assert.Equal(0, holidayOverview.AvailableVacationDays);
     }
@@ -258,9 +257,9 @@ public class AbsenceDayStorageTests
         CreateUserWithStartDate(new DateTime(DateTime.Now.Year - 1, 01, 02));
 
         var timeRegistrationStorage = CreateTimeRegistrationStorage();
-        var absenseService = CreateAbsenseDaysService(timeRegistrationStorage);
+        var absenceDaysService = CreateAbsenceDaysService(timeRegistrationStorage);
 
-        var holidayOverview = await absenseService.GetAllTimeVacationOverview(DateTime.Now.Year);
+        var holidayOverview = await absenceDaysService.GetAllTimeVacationOverview(DateTime.Now.Year);
 
         Assert.Equal(25, holidayOverview.AvailableVacationDays);
     }
@@ -271,9 +270,9 @@ public class AbsenceDayStorageTests
         CreateUserWithStartDate(new DateTime(DateTime.Now.Year, 01, 01));
 
         var timeRegistrationStorage = CreateTimeRegistrationStorage();
-        var absenseService = CreateAbsenseDaysService(timeRegistrationStorage);
+        var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
 
-        var holidayOverview = await absenseService.GetAllTimeVacationOverview(DateTime.Now.Year);
+        var holidayOverview = await absenceService.GetAllTimeVacationOverview(DateTime.Now.Year);
 
         Assert.Equal(0, holidayOverview.AvailableVacationDays);
     }
@@ -284,9 +283,9 @@ public class AbsenceDayStorageTests
         CreateUserWithStartDate(new DateTime(DateTime.Now.Year, 07, 01));
 
         var timeRegistrationStorage = CreateTimeRegistrationStorage();
-        var absenseService = CreateAbsenseDaysService(timeRegistrationStorage);
+        var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
 
-        var holidayOverview = await absenseService.GetAllTimeVacationOverview(DateTime.Now.Year);
+        var holidayOverview = await absenceService.GetAllTimeVacationOverview(DateTime.Now.Year);
 
         Assert.Equal(0, holidayOverview.AvailableVacationDays);
     }
@@ -297,7 +296,7 @@ public class AbsenceDayStorageTests
         CreateUserWithStartDate(new DateTime(DateTime.Now.Year - 1, 01, 01));
 
         var timeRegistrationStorage = CreateTimeRegistrationStorage();
-        var absenseService = CreateAbsenseDaysService(timeRegistrationStorage);
+        var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
 
         var limit = 20;
         for (int i = 1; i <= limit; i++)
@@ -333,7 +332,7 @@ public class AbsenceDayStorageTests
             }, 2);
         }
 
-        var holidayOverview = await absenseService.GetAllTimeVacationOverview(DateTime.Now.Year);
+        var holidayOverview = await absenceService.GetAllTimeVacationOverview(DateTime.Now.Year);
 
         Assert.Equal(5, holidayOverview.AvailableVacationDays);
     }
@@ -351,9 +350,9 @@ public class AbsenceDayStorageTests
         await _context.SaveChangesAsync();
 
         var timeRegistrationStorage = CreateTimeRegistrationStorage();
-        var absenseService = CreateAbsenseDaysService(timeRegistrationStorage);
+        var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
 
-        var holidayOverview = await absenseService.GetAllTimeVacationOverview(DateTime.Now.Year);
+        var holidayOverview = await absenceService.GetAllTimeVacationOverview(DateTime.Now.Year);
 
         Assert.Equal(25, holidayOverview.AvailableVacationDays);
     }
@@ -363,9 +362,9 @@ public class AbsenceDayStorageTests
     {
         CreateUserWithStartDate(new DateTime(DateTime.Now.Year - 2, 1, 1));
         var timeRegistrationStorage = CreateTimeRegistrationStorage();
-        var absenseService = CreateAbsenseDaysService(timeRegistrationStorage);
+        var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
 
-        var holidayOverview = await absenseService.GetAllTimeVacationOverview(DateTime.Now.Year);
+        var holidayOverview = await absenceService.GetAllTimeVacationOverview(DateTime.Now.Year);
 
         Assert.Equal(50, holidayOverview.AvailableVacationDays);
         Assert.Equal(25, holidayOverview.AvailableVacationDaysTransferredFromLastYear);
@@ -376,9 +375,9 @@ public class AbsenceDayStorageTests
     {
         CreateUserWithStartDate(new DateTime(DateTime.Now.Year - 2, 8, 1));
         var timeRegistrationStorage = CreateTimeRegistrationStorage();
-        var absenseService = CreateAbsenseDaysService(timeRegistrationStorage);
+        var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
 
-        var holidayOverview = await absenseService.GetAllTimeVacationOverview(DateTime.Now.Year);
+        var holidayOverview = await absenceService.GetAllTimeVacationOverview(DateTime.Now.Year);
 
         Assert.Equal(35, holidayOverview.AvailableVacationDays);
         Assert.Equal(10, holidayOverview.AvailableVacationDaysTransferredFromLastYear);
@@ -399,7 +398,7 @@ public class AbsenceDayStorageTests
         await _context.SaveChangesAsync();
 
         var timeRegistrationStorage = CreateTimeRegistrationStorage();
-        var absenseService = CreateAbsenseDaysService(timeRegistrationStorage);
+        var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
 
         var limit = 15;
         for (int i = 1; i <= limit; i++)
@@ -418,7 +417,7 @@ public class AbsenceDayStorageTests
             }, 2);
         }
 
-        var holidayOverview = await absenseService.GetAllTimeVacationOverview(DateTime.Now.Year);
+        var holidayOverview = await absenceService.GetAllTimeVacationOverview(DateTime.Now.Year);
 
         Assert.Equal(15, holidayOverview.AvailableVacationDays);
     }
@@ -436,9 +435,9 @@ public class AbsenceDayStorageTests
         await _context.SaveChangesAsync();
 
         var timeRegistrationStorage = CreateTimeRegistrationStorage();
-        var absenseService = CreateAbsenseDaysService(timeRegistrationStorage);
+        var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
 
-        var holidayOverview = await absenseService.GetAllTimeVacationOverview(DateTime.Now.Year);
+        var holidayOverview = await absenceService.GetAllTimeVacationOverview(DateTime.Now.Year);
 
         Assert.Equal(25, holidayOverview.AvailableVacationDays);
     }
@@ -448,8 +447,8 @@ public class AbsenceDayStorageTests
         return new TimeRegistrationStorage(_context);
     }
 
-    private AbsenceDaysService CreateAbsenseDaysService(TimeRegistrationStorage storage)
+    private AlvTime.Business.Absence.AbsenceDaysService CreateAbsenceDaysService(TimeRegistrationStorage storage)
     {
-        return new AbsenceDaysService(storage, _options, _userContextMock.Object, new AbsenceStorage(_context));
+        return new AlvTime.Business.Absence.AbsenceDaysService(storage, _options, _userContextMock.Object, new AbsenceStorage(_context));
     }
 }
