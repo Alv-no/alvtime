@@ -1,9 +1,6 @@
 ﻿using AlvTimeWebApi.Authorization.Policies;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 using AlvTimeWebApi.Authorization.Handlers;
-using AlvTimeWebApi.Authorization.Requirements;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 
 namespace AlvTimeWebApi.Authorization;

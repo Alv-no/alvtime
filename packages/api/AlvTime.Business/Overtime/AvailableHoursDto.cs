@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 
-namespace AlvTime.Business.Overtime
+namespace AlvTime.Business.Overtime;
+
+public class AvailableHoursDto
 {
-    public class AvailableHoursDto
-    {
-        public decimal AvailableHoursBeforeCompensation { get; set; }
-        public decimal AvailableHoursAfterCompensation { get; set; }
-        public List<OvertimeEntry> Entries { get; set; }
-    }
+    public decimal AvailableHoursBeforeCompensation { get; set; }
+    public decimal AvailableHoursAfterCompensation { get; set; }
+    public List<OvertimeEntry> Entries { get; set; }
 }

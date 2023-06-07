@@ -1,9 +1,8 @@
-﻿namespace AlvTime.Business.Payouts
+﻿namespace AlvTime.Business.Payouts;
+
+public class PayoutToRegister
 {
-    public class PayoutToRegister
-    {
-        public decimal HoursBeforeCompRate { get; set; }
-        public decimal HoursAfterCompRate { get; set; }
-        public decimal CompRate { get; set; }
-    }
+    public decimal HoursBeforeCompRate { get; set; }
+    public decimal HoursAfterCompRate { get; set; }
+    public decimal CompRate { get; set; }
 }

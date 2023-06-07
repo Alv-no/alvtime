@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Net.Http.Headers;
-using System;
 
 namespace AlvTimeWebApi.Cors
 {

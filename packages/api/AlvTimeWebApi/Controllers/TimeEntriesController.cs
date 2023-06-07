@@ -1,16 +1,13 @@
 using AlvTime.Business.Options;
 using AlvTime.Business.TimeEntries;
 using AlvTimeWebApi.Controllers.Utils;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AlvTime.Business.FlexiHours;
 using AlvTime.Business.TimeRegistration;
-using AlvTime.Business.Utils;
 using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.Responses;

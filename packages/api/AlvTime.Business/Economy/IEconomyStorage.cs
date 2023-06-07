@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace AlvTime.Business.Economy
+namespace AlvTime.Business.Economy;
+
+public interface IEconomyStorage
 {
-    public interface IEconomyStorage
-    {
-        Task<IEnumerable<DataDumpDto>> GetEconomyInfo();
-    }
+    Task<IEnumerable<DataDumpDto>> GetEconomyInfo();
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using AlvTime.Business.Users;
 using AlvTime.Persistence.DatabaseModels;
 

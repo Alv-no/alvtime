@@ -1,12 +1,9 @@
-﻿using AlvTime.Persistence.DataBaseModels;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using AlvTime.Persistence.DatabaseModels;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Tests.UnitTests
 {

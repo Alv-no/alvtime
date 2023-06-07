@@ -1,22 +1,14 @@
 ﻿using System;
 using System.Linq;
 using System.Security.Claims;
-using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using AlvTime.Business.AccessTokens;
-using AlvTime.Business.Models;
 using AlvTime.Business.Users;
 using AlvTime.Persistence.Repositories;
-using AlvTimeWebApi.Authentication.PersonalAccessToken;
 using AlvTimeWebApi.Authorization.Handlers;
 using AlvTimeWebApi.Authorization.Requirements;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
-using Moq;
 using Xunit;
 
 namespace Tests.UnitTests.Authorization;

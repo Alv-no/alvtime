@@ -1,5 +1,3 @@
-using System;
-
 namespace AlvTime.Business.Users;
 
 public class EmploymentRateInfo

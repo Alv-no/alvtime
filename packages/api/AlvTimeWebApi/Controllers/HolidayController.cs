@@ -1,7 +1,6 @@
 ﻿using AlvTime.Business.Options;
 using AlvTime.Business.TimeEntries;
 using AlvTimeWebApi.Controllers.Utils;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System;
