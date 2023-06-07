@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AlvTime.Business.Models;
+using AlvTime.Business.AccessTokens;
 
 namespace AlvTime.Business.Users
 {

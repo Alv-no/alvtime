@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AlvTime.Business.Overtime;
-using AlvTime.Business.TimeEntries;
+using AlvTime.Business.TimeRegistration.TimeEntries;
 
 namespace AlvTime.Business.TimeRegistration
 {

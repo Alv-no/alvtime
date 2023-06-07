@@ -1,7 +1,7 @@
 using System;
 using AlvTime.Business.Interfaces;
 using AlvTime.Business.Options;
-using AlvTime.Business.TimeEntries;
+using AlvTime.Business.TimeRegistration.TimeEntries;
 using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;
 using Microsoft.Extensions.Options;
@@ -37,7 +37,7 @@ public class AbsenceDayStorageTests
 
         _userContextMock = new Mock<IUserContext>();
 
-        var user = new AlvTime.Business.Models.User
+        var user = new AlvTime.Business.Users.User
         {
             Id = 1,
             Email = "someone@alv.no",
@@ -181,7 +181,7 @@ public class AbsenceDayStorageTests
 
     private void CreateUserWithStartDate(DateTime date)
     {
-        var user2 = new AlvTime.Business.Models.User
+        var user2 = new AlvTime.Business.Users.User
         {
             Id = 2,
             Email = "someone_else@alv.no",

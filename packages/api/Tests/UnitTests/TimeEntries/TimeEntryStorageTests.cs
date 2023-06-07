@@ -1,4 +1,4 @@
-﻿using AlvTime.Business.TimeEntries;
+﻿using AlvTime.Business.TimeRegistration.TimeEntries;
 using AlvTime.Persistence.Repositories;
 using System;
 using System.Linq;

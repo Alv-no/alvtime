@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using AlvTime.Business.FlexiHours;
-using AlvTime.Business.TimeEntries;
+using AlvTime.Business.TimeRegistration.TimeEntries;
 using ValidationException = FluentValidation.ValidationException;
 
 namespace AlvTime.Business.Validators;

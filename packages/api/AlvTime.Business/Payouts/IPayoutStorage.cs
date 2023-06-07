@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AlvTime.Business.FlexiHours;
-using AlvTime.Business.Models;
+using AlvTime.Business.Users;
 
 namespace AlvTime.Business.Payouts;
 

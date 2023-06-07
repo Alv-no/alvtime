@@ -5,7 +5,7 @@ using System.Data.SqlTypes;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using AlvTime.Business.Models;
+using AlvTime.Business.AccessTokens;
 using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Task = System.Threading.Tasks.Task;
@@ -82,7 +82,7 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<Business.Models.User> GetUserFromToken(Token token)
+    public async Task<Business.Users.User> GetUserFromToken(Token token)
     {
         var databaseToken = await _context.AccessTokens.FirstOrDefaultAsync(x => x.Value == token.Value && x.ExpiryDate >= DateTime.UtcNow);
 
@@ -90,7 +90,7 @@ public class UserRepository : IUserRepository
         {
             var databaseUser = await _context.User.FirstOrDefaultAsync(x => x.Id == databaseToken.UserId);
 
-            return new Business.Models.User
+            return new Business.Users.User
             {
                 Id = databaseUser.Id,
                 Email = databaseUser.Email,

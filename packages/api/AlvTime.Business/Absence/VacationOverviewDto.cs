@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using AlvTime.Business.TimeRegistration.TimeEntries;
 
-namespace AlvTime.Business.TimeEntries;
+namespace AlvTime.Business.Absence;
 
 public class VacationOverviewDto
 {

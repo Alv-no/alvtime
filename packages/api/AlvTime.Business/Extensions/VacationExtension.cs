@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AlvTime.Business.TimeEntries;
+using AlvTime.Business.Absence;
+using AlvTime.Business.TimeRegistration.TimeEntries;
 
 namespace AlvTime.Business.Extensions
 {

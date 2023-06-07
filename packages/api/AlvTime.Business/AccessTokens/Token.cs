@@ -1,4 +1,4 @@
-﻿namespace AlvTime.Business.Models
+﻿namespace AlvTime.Business.AccessTokens
 {
     public class Token
     {

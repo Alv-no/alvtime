@@ -5,8 +5,8 @@ using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Interfaces;
 using AlvTime.Business.Options;
 using AlvTime.Business.Payouts;
-using AlvTime.Business.TimeEntries;
 using AlvTime.Business.TimeRegistration;
+using AlvTime.Business.TimeRegistration.TimeEntries;
 using AlvTime.Business.Users;
 using AlvTime.Business.Utils;
 using AlvTime.Persistence.DatabaseModels;
@@ -50,7 +50,7 @@ public class PayoutServiceTests
 
         _userContextMock = new Mock<IUserContext>();
 
-        var user = new AlvTime.Business.Models.User
+        var user = new AlvTime.Business.Users.User
         {
             Id = 1,
             Email = "someone@alv.no",

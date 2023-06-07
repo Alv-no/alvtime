@@ -7,7 +7,7 @@ using AlvTime.Business.Payouts;
 using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Task = System.Threading.Tasks.Task;
-using User = AlvTime.Business.Models.User;
+using User = AlvTime.Business.Users.User;
 
 namespace AlvTime.Persistence.Repositories;
 

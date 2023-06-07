@@ -1,5 +1,4 @@
-﻿using AlvTime.Business.Models;
-using System;
+﻿using System;
 using AlvTime.Business.Users;
 
 namespace AlvTimeWebApi.Controllers.Utils;

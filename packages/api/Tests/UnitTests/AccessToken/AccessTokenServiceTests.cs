@@ -7,7 +7,7 @@ using AlvTime.Persistence.DatabaseModels;
 using Moq;
 using Xunit;
 using Task = System.Threading.Tasks.Task;
-using User = AlvTime.Business.Models.User;
+using User = AlvTime.Business.Users.User;
 
 namespace Tests.UnitTests.AccessToken
 {

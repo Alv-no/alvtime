@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using AlvTime.Business.Models;
+using AlvTime.Business.Users;
 
 namespace AlvTime.Business.Interfaces
 {
