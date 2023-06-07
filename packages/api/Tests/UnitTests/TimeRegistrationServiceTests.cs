@@ -12,7 +12,6 @@ using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;
 using Microsoft.Extensions.Options;
 using Moq;
-using Tests.UnitTests.Utils;
 using Xunit;
 
 namespace Tests.UnitTests;

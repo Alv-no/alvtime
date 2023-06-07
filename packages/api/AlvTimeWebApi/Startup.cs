@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using AlvTime.Business.Options;
 using AlvTime.Persistence.DatabaseModels;
 using AlvTimeWebApi.Authentication;
@@ -13,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
 
 namespace AlvTimeWebApi
 {

@@ -30,7 +30,6 @@ namespace AlvTimeWebApi
             services.AddHttpContextAccessor();
             services.AddScoped<RetrieveUsers>();
             services.AddScoped<UserService>();
-            services.AddScoped<AlvHoursCalculator>();
             services.AddScoped<ITaskStorage, TaskStorage>();
             services.AddScoped<ITimeRegistrationStorage, TimeRegistrationStorage>();
             services.AddScoped<IHourRateStorage, HourRateStorage>();

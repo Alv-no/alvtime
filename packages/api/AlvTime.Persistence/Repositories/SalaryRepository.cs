@@ -1,15 +1,8 @@
 ﻿using AlvTime.Business.Users;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
-using System.Globalization;
-using System.Linq;
 using System.Threading.Tasks;
-using AlvTime.Business.Models;
 using AlvTime.Persistence.DatabaseModels;
-using Microsoft.EntityFrameworkCore;
-using Task = System.Threading.Tasks.Task;
-using User = AlvTime.Persistence.DatabaseModels.User;
 
 namespace AlvTime.Persistence.Repositories
 {

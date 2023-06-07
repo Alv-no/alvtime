@@ -3,7 +3,6 @@ using AlvTime.Business.Options;
 using AlvTime.Business.Users;
 using AlvTime.Persistence.DatabaseModels;
 using AlvTimeWebApi.Controllers.Utils;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;

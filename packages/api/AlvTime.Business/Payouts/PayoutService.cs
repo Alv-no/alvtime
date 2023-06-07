@@ -4,10 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Interfaces;
-using AlvTime.Business.Models;
 using AlvTime.Business.Overtime;
 using AlvTime.Business.TimeRegistration;
-using FluentValidation;
 
 namespace AlvTime.Business.Payouts;
 
