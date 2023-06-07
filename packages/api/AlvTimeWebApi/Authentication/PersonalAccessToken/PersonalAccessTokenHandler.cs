@@ -3,7 +3,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using AlvTime.Business.Models;
+using AlvTime.Business.AccessTokens;
 using AlvTime.Business.Users;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;

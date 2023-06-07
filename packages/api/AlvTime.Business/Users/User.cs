@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AlvTime.Business.Models
+namespace AlvTime.Business.Users
 {
     public class User
     {

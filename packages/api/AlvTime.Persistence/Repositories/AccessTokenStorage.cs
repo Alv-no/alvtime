@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using AlvTime.Business.AccessTokens;
 using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
-using User = AlvTime.Business.Models.User;
+using User = AlvTime.Business.Users.User;
 
 namespace AlvTime.Persistence.Repositories
 {

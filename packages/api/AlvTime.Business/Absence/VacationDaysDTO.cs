@@ -1,7 +1,8 @@
 using System.Collections.Generic;
-using AlvTime.Business.TimeEntries;
+using AlvTime.Business.TimeRegistration.TimeEntries;
 
-namespace AlvTime.Business.Absence {
+namespace AlvTime.Business.Absence
+{
     public class VacationDaysDTO
     {
         public decimal AvailableVacationDays { get; set; }

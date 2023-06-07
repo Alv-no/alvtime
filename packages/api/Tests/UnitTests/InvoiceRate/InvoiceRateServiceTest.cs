@@ -33,7 +33,7 @@ public class InvoiceRateServiceTest
 
         _userContextMock = new Mock<IUserContext>();
 
-        var user = new AlvTime.Business.Models.User
+        var user = new AlvTime.Business.Users.User
         {
             Id = 1,
             Email = "someone@alv.no",

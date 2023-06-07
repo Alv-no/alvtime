@@ -1,6 +1,6 @@
 using System;
 
-namespace AlvTime.Business.TimeEntries;
+namespace AlvTime.Business.TimeRegistration.TimeEntries;
 
 public class TimeEntryWithCustomerDto
 {

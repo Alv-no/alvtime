@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.Interfaces;
 using AlvTime.Business.Options;
-using AlvTime.Business.TimeEntries;
 using AlvTime.Business.TimeRegistration;
+using AlvTime.Business.TimeRegistration.TimeEntries;
 using Microsoft.Extensions.Options;
 
 namespace AlvTime.Business.Absence;

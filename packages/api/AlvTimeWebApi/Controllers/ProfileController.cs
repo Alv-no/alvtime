@@ -1,7 +1,6 @@
 ﻿using System;
 using AlvTime.Business.Options;
 using AlvTime.Business.Users;
-using AlvTime.Persistence.DatabaseModels;
 using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -28,7 +27,7 @@ namespace AlvTimeWebApi.Controllers
         }
 
         [HttpGet("Profile")]
-        public ActionResult<User> GetUserProfile()
+        public ActionResult<UserResponseDto> GetUserProfile()
         {
             var user = _userRetriever.RetrieveUser();
 

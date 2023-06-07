@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.AccessTokens;
-using AlvTime.Business.Models;
+using AlvTime.Business.Users;
 using AlvTime.Persistence.Repositories;
 using Xunit;
 

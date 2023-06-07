@@ -1,5 +1,4 @@
 using AlvTime.Business.Options;
-using AlvTime.Business.TimeEntries;
 using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -12,6 +11,7 @@ using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.Responses;
 using AlvTimeWebApi.Utils;
+using AlvTime.Business.TimeRegistration.TimeEntries;
 
 namespace AlvTimeWebApi.Controllers;
 
