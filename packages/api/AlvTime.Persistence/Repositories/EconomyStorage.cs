@@ -17,10 +17,10 @@ namespace AlvTime.Persistence.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<DataDumpDto>> GetEconomyInfo()
+        public async Task<IEnumerable<EconomyInfoDto>> GetEconomyInfo()
         {
             return await _context.VDataDump
-                .Select(x => new DataDumpDto
+                .Select(x => new EconomyInfoDto
                 {
                     CustomerId = x.CustomerId,
                     CustomerName = x.CustomerName,

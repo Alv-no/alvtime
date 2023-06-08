@@ -5,5 +5,5 @@ namespace AlvTime.Business.Economy;
 
 public interface IEconomyStorage
 {
-    Task<IEnumerable<DataDumpDto>> GetEconomyInfo();
+    Task<IEnumerable<EconomyInfoDto>> GetEconomyInfo();
 }

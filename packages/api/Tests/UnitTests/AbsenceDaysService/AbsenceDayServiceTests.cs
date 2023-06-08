@@ -1,7 +1,7 @@
 using System;
-using AlvTime.Business.Interfaces;
 using AlvTime.Business.Options;
 using AlvTime.Business.TimeRegistration.TimeEntries;
+using AlvTime.Business.Users;
 using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;
 using Microsoft.Extensions.Options;

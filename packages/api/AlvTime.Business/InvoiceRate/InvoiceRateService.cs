@@ -1,5 +1,3 @@
-using AlvTime.Business.Holidays;
-using AlvTime.Business.Interfaces;
 using AlvTime.Business.Options;
 using AlvTime.Business.TimeRegistration;
 using AlvTime.Business.TimeRegistration.TimeEntries;
@@ -11,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using static AlvTime.Business.InvoiceRate.InvoiceStatisticsDto;
 using AlvTime.Business.Users;
+using AlvTime.Business.Absence;
 
 namespace AlvTime.Business.InvoiceRate;
 

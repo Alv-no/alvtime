@@ -2,12 +2,12 @@
 using AlvTime.Persistence.Repositories;
 using System.Linq;
 using AlvTime.Business.AccessTokens;
-using AlvTime.Business.Interfaces;
 using AlvTime.Persistence.DatabaseModels;
 using Moq;
 using Xunit;
 using Task = System.Threading.Tasks.Task;
 using User = AlvTime.Business.Users.User;
+using AlvTime.Business.Users;
 
 namespace Tests.UnitTests.AccessToken
 {

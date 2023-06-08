@@ -2,7 +2,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Payouts;
 using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.Requests;
@@ -46,11 +45,11 @@ namespace AlvTimeWebApi.Controllers
         }
         
         [HttpPost("Payouts")]
-        public async Task<GenericHourEntry> RegisterPaidOvertime([FromBody] PayoutRequest request)
+        public async Task<GenericPayoutHourEntry> RegisterPaidOvertime([FromBody] PayoutRequest request)
         {
-            var response = await _payoutService.RegisterPayout(new GenericHourEntry{ Date = request.Date, Hours = request.Hours});
+            var response = await _payoutService.RegisterPayout(new GenericPayoutHourEntry{ Date = request.Date, Hours = request.Hours});
 
-            return new GenericHourEntry
+            return new GenericPayoutHourEntry
             {
                 Date = response.Date,
                 Hours = response.HoursBeforeCompensation

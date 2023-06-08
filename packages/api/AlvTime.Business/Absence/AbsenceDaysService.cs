@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AlvTime.Business.Interfaces;
 using AlvTime.Business.Options;
 using AlvTime.Business.TimeRegistration;
 using AlvTime.Business.TimeRegistration.TimeEntries;
+using AlvTime.Business.Users;
 using Microsoft.Extensions.Options;
 
 namespace AlvTime.Business.Absence;

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using AlvTime.Business.FlexiHours;
-using AlvTime.Business.Interfaces;
 using AlvTime.Business.Options;
 using AlvTime.Business.Payouts;
 using AlvTime.Business.TimeRegistration;
@@ -60,7 +58,7 @@ public class TimeRegistrationServiceTests
 
         var payoutValidationServiceMock = new Mock<PayoutValidationService>(new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)),
             _timeRegistrationService, new PayoutStorage(_context));
-        payoutValidationServiceMock.Setup(x => x.CheckForIncompleteDays(It.IsAny<GenericHourEntry>(), It.IsAny<int>())).Returns(System.Threading.Tasks.Task.FromResult(System.Threading.Tasks.Task.CompletedTask));
+        payoutValidationServiceMock.Setup(x => x.CheckForIncompleteDays(It.IsAny<GenericPayoutHourEntry>(), It.IsAny<int>())).Returns(System.Threading.Tasks.Task.FromResult(System.Threading.Tasks.Task.CompletedTask));
         payoutValidationServiceMock.CallBase = true;
         _payoutService = new PayoutService(new PayoutStorage(_context), _userContextMock.Object,
             _timeRegistrationService, payoutValidationServiceMock.Object);
@@ -74,7 +72,7 @@ public class TimeRegistrationServiceTests
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             {new() {Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId}});
 
-        await _payoutService.RegisterPayout(new GenericHourEntry
+        await _payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2021, 12, 14),
             Hours = 1
@@ -92,7 +90,7 @@ public class TimeRegistrationServiceTests
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             {new() {Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId}});
 
-        await _payoutService.RegisterPayout(new GenericHourEntry
+        await _payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2021, 12, 14),
             Hours = 1
@@ -126,7 +124,7 @@ public class TimeRegistrationServiceTests
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId } });
 
-        await _payoutService.RegisterPayout(new GenericHourEntry
+        await _payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2022, 01, 28), //Friday
             Hours = 2.5M

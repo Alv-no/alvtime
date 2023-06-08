@@ -19,7 +19,7 @@ namespace AlvTimeWebApi.Controllers.Admin
         }
 
         [HttpGet("EconomyInfo")]
-        public async Task<ActionResult<IEnumerable<DataDumpDto>>> FetchEconomyInfo()
+        public async Task<ActionResult<IEnumerable<EconomyInfoDto>>> FetchEconomyInfo()
         {
             return Ok(await _economyStorage.GetEconomyInfo());
         }

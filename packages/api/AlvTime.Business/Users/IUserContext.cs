@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
-using AlvTime.Business.Users;
 
-namespace AlvTime.Business.Interfaces
+namespace AlvTime.Business.Users
 {
     public interface IUserContext
     {

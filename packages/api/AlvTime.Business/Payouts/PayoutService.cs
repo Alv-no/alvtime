@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AlvTime.Business.FlexiHours;
-using AlvTime.Business.Interfaces;
 using AlvTime.Business.Overtime;
 using AlvTime.Business.TimeRegistration;
+using AlvTime.Business.Users;
 
 namespace AlvTime.Business.Payouts;
 
@@ -32,7 +31,7 @@ public class PayoutService
         return await _payoutStorage.GetRegisteredPayouts(new PayoutQueryFilter { UserId = currentUser.Id });
     }
 
-    public async Task<PayoutDto> RegisterPayout(GenericHourEntry request)
+    public async Task<PayoutDto> RegisterPayout(GenericPayoutHourEntry request)
     {
         var currentUser = await _userContext.GetCurrentUser();
 

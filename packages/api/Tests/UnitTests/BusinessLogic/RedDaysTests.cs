@@ -1,5 +1,6 @@
 ﻿using AlvTime.Business;
 using System;
+using AlvTime.Business.Absence;
 using Xunit;
 
 namespace Tests.UnitTests.BusinessLogic

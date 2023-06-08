@@ -6,8 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AlvTime.Business.Absence;
-using AlvTime.Business.Extensions;
-using AlvTime.Business.Holidays;
 using AlvTime.Business.TimeRegistration;
 using AlvTimeWebApi.Authorization;
 using Microsoft.Extensions.Logging;
