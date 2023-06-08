@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AlvTime.Business
+namespace AlvTime.Business.Absence
 {
     public class RedDays
     {
@@ -60,7 +60,7 @@ namespace AlvTime.Business
                     new DateTime(year, 12, 31).Date,
                 };
             }
-            
+
         }
 
         public DateTime GetPalmeSondag(int year)

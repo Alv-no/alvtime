@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using AlvTime.Business.FlexiHours;
+using AlvTime.Business.Payouts;
 using AlvTime.Business.TimeRegistration.TimeEntries;
 using ValidationException = FluentValidation.ValidationException;
 
@@ -12,7 +12,7 @@ public class QuarterHour : ValidationAttribute
     {
         var request = validationContext.ObjectInstance;
 
-        if ((request is GenericHourEntry entry && entry.Hours % 0.25M != 0) ||
+        if ((request is GenericPayoutHourEntry entry && entry.Hours % 0.25M != 0) ||
             (request is CreateTimeEntryDto entry2 && entry2.Value % 0.25M != 0))
             throw new ValidationException("Ført time må gå opp i kvarter");
 

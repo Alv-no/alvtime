@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AlvTime.Business.Absence;
 using AlvTime.Business.Interfaces;
 using AlvTime.Business.Options;
 using AlvTime.Business.Overtime;

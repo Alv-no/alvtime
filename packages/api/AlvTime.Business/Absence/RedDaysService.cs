@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Linq;
 
-namespace AlvTime.Business.Holidays;
+namespace AlvTime.Business.Absence;
 
 public class RedDaysService : IRedDaysService
 {

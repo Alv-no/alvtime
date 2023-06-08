@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace AlvTime.Business.Holidays
+namespace AlvTime.Business.Absence
 {
     public interface IRedDaysService
     {

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AlvTime.Business.Absence;
 using AlvTime.Business.TimeRegistration.TimeEntries;
 
-namespace AlvTime.Business.Extensions
+namespace AlvTime.Business.Absence
 {
     public static class VacationExtension
     {

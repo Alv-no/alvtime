@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AlvTime.Business.FlexiHours;
-using AlvTime.Business.Interfaces;
 using AlvTime.Business.Options;
 using AlvTime.Business.Payouts;
 using AlvTime.Business.TimeRegistration;
@@ -63,7 +61,7 @@ public class PayoutServiceTests
 
         _payoutValidationServiceMock = new Mock<PayoutValidationService>(new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)),
             _timeRegistrationService, new PayoutStorage(_context));
-        _payoutValidationServiceMock.Setup(x => x.CheckForIncompleteDays(It.IsAny<GenericHourEntry>(), It.IsAny<int>())).Returns(System.Threading.Tasks.Task.FromResult(System.Threading.Tasks.Task.CompletedTask));
+        _payoutValidationServiceMock.Setup(x => x.CheckForIncompleteDays(It.IsAny<GenericPayoutHourEntry>(), It.IsAny<int>())).Returns(System.Threading.Tasks.Task.FromResult(System.Threading.Tasks.Task.CompletedTask));
         _payoutValidationServiceMock.CallBase = true;
     }
 
@@ -76,7 +74,7 @@ public class PayoutServiceTests
             { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
 
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
-        var registerOvertimeResponse = await payoutService.RegisterPayout(new GenericHourEntry
+        var registerOvertimeResponse = await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2022, 12, 13),
             Hours = 10
@@ -99,17 +97,17 @@ public class PayoutServiceTests
 
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
 
-        await payoutService.RegisterPayout(new GenericHourEntry
+        await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2021, 12, 13),
             Hours = 3
         });
-        await payoutService.RegisterPayout(new GenericHourEntry
+        await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2021, 12, 14),
             Hours = 3
         });
-        await payoutService.RegisterPayout(new GenericHourEntry
+        await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2021, 12, 15),
             Hours = 4
@@ -134,7 +132,7 @@ public class PayoutServiceTests
 
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
 
-        var registeredPayout = await payoutService.RegisterPayout(new GenericHourEntry
+        var registeredPayout = await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2021, 12, 14),
             Hours = 10
@@ -168,7 +166,7 @@ public class PayoutServiceTests
 
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
 
-        var registeredPayout = await payoutService.RegisterPayout(new GenericHourEntry
+        var registeredPayout = await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2021, 12, 16),
             Hours = 6
@@ -188,7 +186,7 @@ public class PayoutServiceTests
 
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
 
-        await Assert.ThrowsAsync<ValidationException>(async () => await payoutService.RegisterPayout(new GenericHourEntry
+        await Assert.ThrowsAsync<ValidationException>(async () => await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2021, 12, 13),
             Hours = 7
@@ -205,7 +203,7 @@ public class PayoutServiceTests
 
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
 
-        await Assert.ThrowsAsync<ValidationException>(async () => await payoutService.RegisterPayout(new GenericHourEntry
+        await Assert.ThrowsAsync<ValidationException>(async () => await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2021, 12, 12),
             Hours = 1
@@ -230,7 +228,7 @@ public class PayoutServiceTests
             { new() { Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId } });
 
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
-        await payoutService.RegisterPayout(new GenericHourEntry
+        await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2021, 12, 14), //Tuesday
             Hours = 4
@@ -286,7 +284,7 @@ public class PayoutServiceTests
 
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
 
-        await payoutService.RegisterPayout(new GenericHourEntry
+        await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(currentYear, currentMonth, 02),
             Hours = 1
@@ -313,7 +311,7 @@ public class PayoutServiceTests
 
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
 
-        await payoutService.RegisterPayout(new GenericHourEntry
+        await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(yearToTest, previousMonth, 02),
             Hours = 5
@@ -340,7 +338,7 @@ public class PayoutServiceTests
             { new() { Date = futureFlex.Date, Value = futureFlex.Value, TaskId = futureFlex.TaskId } });
 
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
-        await Assert.ThrowsAsync<ValidationException>(async () => await payoutService.RegisterPayout(new GenericHourEntry
+        await Assert.ThrowsAsync<ValidationException>(async () => await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(currentYear, currentMonth, currentDay),
             Hours = 1M
@@ -360,7 +358,7 @@ public class PayoutServiceTests
         }
 
         var payoutService = CreatePayoutServiceWithIncompleteDaysValidation(_timeRegistrationService);
-        await Assert.ThrowsAsync<ValidationException>(async () => await payoutService.RegisterPayout(new GenericHourEntry
+        await Assert.ThrowsAsync<ValidationException>(async () => await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = DateTime.Now,
             Hours = 1M
@@ -381,7 +379,7 @@ public class PayoutServiceTests
         }
 
         var payoutService = CreatePayoutServiceWithIncompleteDaysValidation(_timeRegistrationService);
-        await payoutService.RegisterPayout(new GenericHourEntry { Date = startDate, Hours = 5 });
+        await payoutService.RegisterPayout(new GenericPayoutHourEntry { Date = startDate, Hours = 5 });
 
         var registeredPayouts = await payoutService.GetRegisteredPayouts();
         Assert.Single(registeredPayouts.Entries);

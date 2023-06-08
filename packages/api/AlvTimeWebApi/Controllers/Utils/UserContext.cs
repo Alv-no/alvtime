@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using AlvTime.Business.Interfaces;
 using AlvTime.Business.Users;
 using Microsoft.AspNetCore.Http;
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AlvTime.Business.Interfaces;
+using AlvTime.Business.Users;
 
 namespace AlvTime.Business.AccessTokens
 {

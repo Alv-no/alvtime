@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AlvTime.Business.FlexiHours
+namespace AlvTime.Business.Payouts
 {
     public class GenericPayoutEntry
     {

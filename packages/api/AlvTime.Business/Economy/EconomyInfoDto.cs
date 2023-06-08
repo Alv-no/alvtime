@@ -1,6 +1,6 @@
 ﻿namespace AlvTime.Business.Economy;
 
-public class DataDumpDto
+public class EconomyInfoDto
 {
     public int TaskId { get; set; }
     public string TaskName { get; set; }

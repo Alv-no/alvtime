@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using AlvTime.Business.FlexiHours;
+using AlvTime.Business.Absence;
 using AlvTime.Business.TimeRegistration;
 using AlvTime.Business.Users;
 using FluentValidation;
@@ -24,7 +24,7 @@ public class PayoutValidationService
         _payoutStorage = payoutStorage;
     }
 
-    public async Task ValidatePayout(GenericHourEntry request, int userId)
+    public async Task ValidatePayout(GenericPayoutHourEntry request, int userId)
     {
         var availableHours = await _timeRegistrationService.GetAvailableOvertimeHoursAtDate(request.Date.Date);
         var availableForPayout = availableHours.AvailableHoursBeforeCompensation;
@@ -53,7 +53,7 @@ public class PayoutValidationService
         await CheckForIncompleteDays(request, userId);
     }
 
-    public virtual async Task CheckForIncompleteDays(GenericHourEntry request, int userId)
+    public virtual async Task CheckForIncompleteDays(GenericPayoutHourEntry request, int userId)
     {
         var entriesPast30Days = (await _timeRegistrationService.GetTimeEntries(new TimeEntryQuerySearch
         {

@@ -1,8 +1,8 @@
-using AlvTime.Business.Holidays;
-using AlvTime.Business.Interfaces;
+using AlvTime.Business.Absence;
 using AlvTime.Business.InvoiceRate;
 using AlvTime.Business.Options;
 using AlvTime.Business.TimeRegistration;
+using AlvTime.Business.Users;
 using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;
 using Microsoft.Extensions.Options;

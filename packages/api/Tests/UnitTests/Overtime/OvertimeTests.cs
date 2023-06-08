@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AlvTime.Business.FlexiHours;
-using AlvTime.Business.Interfaces;
 using AlvTime.Business.Options;
 using AlvTime.Business.Payouts;
 using AlvTime.Business.TimeRegistration;
@@ -62,7 +60,7 @@ public class OvertimeTests
 
         _payoutValidationServiceMock = new Mock<PayoutValidationService>(new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)),
             _timeRegistrationService, new PayoutStorage(_context));
-        _payoutValidationServiceMock.Setup(x => x.CheckForIncompleteDays(It.IsAny<GenericHourEntry>(), It.IsAny<int>())).Returns(System.Threading.Tasks.Task.FromResult(System.Threading.Tasks.Task.CompletedTask));
+        _payoutValidationServiceMock.Setup(x => x.CheckForIncompleteDays(It.IsAny<GenericPayoutHourEntry>(), It.IsAny<int>())).Returns(System.Threading.Tasks.Task.FromResult(System.Threading.Tasks.Task.CompletedTask));
         _payoutValidationServiceMock.CallBase = true;
     }
 
@@ -423,7 +421,7 @@ public class OvertimeTests
             {new() {Date = timeEntry1.entry.Date, Value = timeEntry1.entry.Value, TaskId = timeEntry1.taskId}});
 
         var payoutService = CreatePayoutService(_timeRegistrationService);
-        await payoutService.RegisterPayout(new GenericHourEntry
+        await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2021, 12, 07), // Tuesday
             Hours = 5
@@ -454,7 +452,7 @@ public class OvertimeTests
             {new() {Date = timeEntry3.entry.Date, Value = timeEntry3.entry.Value, TaskId = timeEntry3.taskId}});
 
         var payoutService = CreatePayoutService(_timeRegistrationService);
-        var registeredPayout = await payoutService.RegisterPayout(new GenericHourEntry
+        var registeredPayout = await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2021, 12, 07), // Wednesday
             Hours = 11
@@ -728,7 +726,7 @@ public class OvertimeTests
         Assert.Equal(3M, availableOvertime3.AvailableHoursAfterCompensation);
             
         var payoutService = CreatePayoutService(_timeRegistrationService);
-        await payoutService.RegisterPayout(new GenericHourEntry
+        await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2021, 12, 15), //Wednesday
             Hours = 1
@@ -747,7 +745,7 @@ public class OvertimeTests
             await _timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2021, 12, 16));
         Assert.Equal(3M, availableOvertime5.AvailableHoursAfterCompensation);
             
-        await payoutService.RegisterPayout(new GenericHourEntry
+        await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2021, 12, 17), //Friday
             Hours = 2
@@ -780,7 +778,7 @@ public class OvertimeTests
             { new() { Date = timeEntry4.entry.Date, Value = timeEntry4.entry.Value, TaskId = timeEntry4.taskId } });
 
         var payoutService = CreatePayoutService(_timeRegistrationService);
-        var response = await payoutService.RegisterPayout(new GenericHourEntry
+        var response = await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2022, 01, 04), //Tuesday
             Hours = 9
@@ -805,7 +803,7 @@ public class OvertimeTests
             { new() { Date = timeEntry3.entry.Date, Value = timeEntry3.entry.Value, TaskId = timeEntry3.taskId } });
 
         var payoutService = CreatePayoutService(_timeRegistrationService);
-        await payoutService.RegisterPayout(new GenericHourEntry
+        await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2022, 01, 06), //Thursday
             Hours = 10
@@ -838,7 +836,7 @@ public class OvertimeTests
             { new() { Date = timeEntry3.entry.Date, Value = timeEntry3.entry.Value, TaskId = timeEntry3.taskId } });
 
         var payoutService = CreatePayoutService(_timeRegistrationService);
-        await payoutService.RegisterPayout(new GenericHourEntry
+        await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2022, 01, 06), //Thursday
             Hours = 10
@@ -872,7 +870,7 @@ public class OvertimeTests
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry4.entry.Date, Value = timeEntry4.entry.Value, TaskId = timeEntry4.taskId } });
             
-        await payoutService.RegisterPayout(new GenericHourEntry
+        await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2022, 01, 11), //Tuesday
             Hours = 1
@@ -912,7 +910,7 @@ public class OvertimeTests
             { new() { Date = imposedTimeEntry.Date, Value = imposedTimeEntry.Value, TaskId = imposedTimeEntry.TaskId } });
 
         var payoutService = CreatePayoutService(_timeRegistrationService);
-        var payout = await payoutService.RegisterPayout(new GenericHourEntry
+        var payout = await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2022, 01, 03), //Thursday
             Hours = 2
@@ -962,7 +960,7 @@ public class OvertimeTests
             { new() { Date = imposedTimeEntry.Date, Value = imposedTimeEntry.Value, TaskId = imposedTimeEntry.TaskId } });
         
         var payoutService = CreatePayoutService(_timeRegistrationService);
-        var payout = await payoutService.RegisterPayout(new GenericHourEntry
+        var payout = await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2022, 01, 03), //Thursday
             Hours = 2.5M

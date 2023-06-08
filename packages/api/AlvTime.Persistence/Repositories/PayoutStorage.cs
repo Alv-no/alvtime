@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AlvTime.Business.FlexiHours;
 using AlvTime.Business.Payouts;
 using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
@@ -42,7 +41,7 @@ public class PayoutStorage : IPayoutStorage
         };
     }
 
-    public async Task<List<PayoutDto>> RegisterPayout(int userId, GenericHourEntry request, List<PayoutToRegister> payoutsToRegister)
+    public async Task<List<PayoutDto>> RegisterPayout(int userId, GenericPayoutHourEntry request, List<PayoutToRegister> payoutsToRegister)
     {
         var response = new List<PayoutDto>();
         foreach (var payoutToRegister in payoutsToRegister)
