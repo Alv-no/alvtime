@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using AlvTime.Business.Validators;
 
-namespace AlvTime.Business.TimeRegistration.TimeEntries;
+namespace AlvTime.Business.TimeRegistration;
 
 public class CreateTimeEntryDto
 {

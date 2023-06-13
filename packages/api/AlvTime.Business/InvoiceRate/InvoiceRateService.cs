@@ -1,6 +1,5 @@
 using AlvTime.Business.Options;
 using AlvTime.Business.TimeRegistration;
-using AlvTime.Business.TimeRegistration.TimeEntries;
 using AlvTime.Business.Utils;
 using Microsoft.Extensions.Options;
 using System;

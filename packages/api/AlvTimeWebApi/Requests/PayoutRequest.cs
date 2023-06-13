@@ -1,5 +1,5 @@
 ﻿using System;
-using AlvTimeWebApi.Validators;
+using AlvTime.Business.Validators;
 
 namespace AlvTimeWebApi.Requests;
 
@@ -7,6 +7,5 @@ public class PayoutRequest
 {
     public DateTime Date { get; set; }
         
-    [HalfHour]
     public decimal Hours { get; set; }
 }

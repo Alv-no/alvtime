@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using AlvTime.Business.Payouts;
-using AlvTime.Business.TimeRegistration.TimeEntries;
+using AlvTime.Business.TimeRegistration;
 using ValidationException = FluentValidation.ValidationException;
 
 namespace AlvTime.Business.Validators;

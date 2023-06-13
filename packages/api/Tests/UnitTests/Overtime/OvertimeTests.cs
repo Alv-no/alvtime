@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using AlvTime.Business.Options;
 using AlvTime.Business.Payouts;
 using AlvTime.Business.TimeRegistration;
-using AlvTime.Business.TimeRegistration.TimeEntries;
 using AlvTime.Business.Users;
 using AlvTime.Business.Utils;
 using AlvTime.Persistence.DatabaseModels;
