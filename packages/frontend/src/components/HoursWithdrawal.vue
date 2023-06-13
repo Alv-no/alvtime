@@ -236,8 +236,8 @@ const rules: ValidationRule[] = [
     validator: (hours, _) => Number(hours) > 0,
   },
   {
-    errorMessage: "Kun utbetaling i halve timer",
-    validator: (hours, _) => Number(hours) % 0.5 === 0,
+    errorMessage: "Kun utbetaling i kvarte timer",
+    validator: (hours, _) => Number(hours) % 0.25 === 0,
   },
   {
     errorMessage: "Du kan ikke ta ut flere timer enn du har i banken",
