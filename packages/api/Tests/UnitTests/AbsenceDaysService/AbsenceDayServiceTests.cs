@@ -1,6 +1,6 @@
 using System;
 using AlvTime.Business.Options;
-using AlvTime.Business.TimeRegistration.TimeEntries;
+using AlvTime.Business.TimeRegistration;
 using AlvTime.Business.Users;
 using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;

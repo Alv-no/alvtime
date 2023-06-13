@@ -11,7 +11,6 @@ using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.Responses;
 using AlvTimeWebApi.Utils;
-using AlvTime.Business.TimeRegistration.TimeEntries;
 
 namespace AlvTimeWebApi.Controllers;
 

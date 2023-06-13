@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.Overtime;
 using AlvTime.Business.TimeRegistration;
-using AlvTime.Business.TimeRegistration.TimeEntries;
 using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Task = System.Threading.Tasks.Task;

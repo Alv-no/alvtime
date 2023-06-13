@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.Options;
 using AlvTime.Business.TimeRegistration;
-using AlvTime.Business.TimeRegistration.TimeEntries;
 using AlvTime.Business.Users;
 using Microsoft.Extensions.Options;
 

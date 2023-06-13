@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using AlvTime.Business.TimeRegistration.TimeEntries;
+using AlvTime.Business.TimeRegistration;
 
 namespace AlvTime.Business.Absence;
 
