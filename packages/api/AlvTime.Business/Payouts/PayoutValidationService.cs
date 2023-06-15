@@ -26,6 +26,10 @@ public class PayoutValidationService
 
     public async Task ValidatePayout(GenericPayoutHourEntry request, int userId)
     {
+        if (request.Hours % 0.25M != 0)
+        {
+            throw new ValidationException("Bestilling må gå opp i kvarter.");
+        }
         var availableHours = await _timeRegistrationService.GetAvailableOvertimeHoursAtDate(request.Date.Date);
         var availableForPayout = availableHours.AvailableHoursBeforeCompensation;
         var existingPayoutsOnDate =
