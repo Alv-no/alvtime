@@ -163,7 +163,7 @@ public class AbsenceDaysService : IAbsenceDaysService
 
         var overridenVacation = (await _absenceStorage.GetCustomVacationEarned(currentUser.Id)).ToList();
 
-        var usersAvailableVacationDaysThisYear = 0;
+        var usersAvailableVacationDaysThisYear = 0M;
 
         foreach (var year in yearsWorked)
         {

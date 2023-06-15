@@ -327,7 +327,7 @@ CREATE TABLE [dbo].[VacationDaysEarnedOverride]
 (
     [Id]         [int] IDENTITY (1,1) NOT NULL,
     [UserId]     [int]                NOT NULL,
-    [DaysEarned] [int]                NOT NULL,
+    [DaysEarned] [decimal](6,2)               NOT NULL,
     [Year]       [int]                NOT NULL,
     PRIMARY KEY CLUSTERED
         (
