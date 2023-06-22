@@ -1,4 +1,5 @@
-﻿using AlvTime.Business.Users;
+﻿using System;
+using AlvTime.Business.Users;
 using AlvTimeWebApi.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using AlvTimeWebApi.Requests;
 using AlvTimeWebApi.Responses;
 using AlvTimeWebApi.Utils;
+using FluentValidation;
 
 namespace AlvTimeWebApi.Controllers.Admin;
 
@@ -37,6 +39,10 @@ public class UserController : Controller
         var response = new List<UserResponseDto>();
         foreach (var user in usersToBeCreated)
         {
+            if (user.EndDate.HasValue && user.StartDate >= user.EndDate)
+            {
+                return BadRequest($"Sluttdato må være etter startdato for {user.Name}");
+            }
             response.Add(await _userService.CreateUser(new UserDto
             {
                 Name = user.Name,
@@ -56,6 +62,11 @@ public class UserController : Controller
         var response = new List<UserResponseDto>();
         foreach (var user in usersToBeUpdated)
         {
+            if (user.StartDate.HasValue && user.EndDate.HasValue && user.StartDate.Value >= user.EndDate.Value)
+            {
+                return BadRequest($"Sluttdato må være etter startdato for {user.Name}");
+            }
+
             response.Add(await _userService.UpdateUser(new UserDto
             {
                 Id = user.Id,
