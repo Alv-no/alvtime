@@ -9,6 +9,7 @@ using AlvTime.Business.Overtime;
 using AlvTime.Business.Payouts;
 using AlvTime.Business.Users;
 using AlvTime.Business.Utils;
+using FluentValidation;
 using Microsoft.Extensions.Options;
 
 namespace AlvTime.Business.TimeRegistration;
@@ -170,6 +171,12 @@ public class TimeRegistrationService
             IsWeekend(timeEntry.Date.Date) || allRedDays.Contains(timeEntry.Date.Date)
                 ? 0M
                 : HoursInWorkday * usersEmploymentRate;
+
+        if (timeEntry.TaskId == _paidHolidayTask && timeEntry.Value > HoursInWorkday)
+        {
+            throw new ValidationException($"Du kan ikke føre mer enn {HoursInWorkday} timer med ferie på en dag");
+
+        }
 
         if (timeEntry.TaskId == _flexTask)
         {

@@ -12,10 +12,12 @@ namespace AlvTimeWebApi.Controllers.Admin;
 public class AssociatedTaskController : Controller
 {
     private readonly IAssociatedTaskStorage _associatedTaskStorage;
+    private readonly AssociatedTaskService _associatedTaskService;
 
-    public AssociatedTaskController(IAssociatedTaskStorage associatedTaskStorage)
+    public AssociatedTaskController(IAssociatedTaskStorage associatedTaskStorage, AssociatedTaskService associatedTaskService)
     {
         _associatedTaskStorage = associatedTaskStorage;
+        _associatedTaskService = associatedTaskService;
     }
 
     [HttpGet("AssociatedTasks")]
@@ -29,11 +31,11 @@ public class AssociatedTaskController : Controller
     [HttpPost("AssociatedTasks")]
     public async Task<ActionResult<IEnumerable<AssociatedTaskResponseDto>>> CreateAssociatedTask([FromBody] IEnumerable<AssociatedTaskRequestDto> associatedTasks)
     {
-        List<AssociatedTaskResponseDto> response = new List<AssociatedTaskResponseDto>();
+        List<AssociatedTaskResponseDto> response = new();
 
         foreach (var associatedTask in associatedTasks)
         {
-            response.Add(await _associatedTaskStorage.CreateAssociatedTask(associatedTask));
+            response.Add(await _associatedTaskService.CreateAssociatedTask(associatedTask));
         }
 
         return Ok(response);
@@ -42,11 +44,11 @@ public class AssociatedTaskController : Controller
     [HttpPut("AssociatedTasks")]
     public async Task<ActionResult<IEnumerable<AssociatedTaskResponseDto>>> UpdateAssociatedTask([FromBody] IEnumerable<AssociatedTaskUpdateDto> associatedTasks)
     {
-        List<AssociatedTaskResponseDto> response = new List<AssociatedTaskResponseDto>();
+        List<AssociatedTaskResponseDto> response = new();
 
         foreach (var associatedTask in associatedTasks)
         {
-            response.Add(await _associatedTaskStorage.UpdateAssociatedTask(associatedTask));
+            response.Add(await _associatedTaskService.UpdateAssociatedTask(associatedTask));
         }
 
         return Ok(response);
