@@ -78,8 +78,12 @@ export default Vue.extend({
         scales: {
           y: {
             stacked: true,
+            ticks: {
+                callback: (value: string|number, _index: number, _ticks: unknown[]) => {
+                    return `${value} %`;
+                }
+            },
           },
-
           x: {
             stacked: true,
           },
