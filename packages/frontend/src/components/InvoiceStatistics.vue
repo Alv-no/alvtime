@@ -109,6 +109,8 @@ export default Vue.extend({
     this.$store.subscribe(mutation => {
       if (mutation.type === "SET_INVOICE_STATISTIC") {
         this.summarizedStatistics = this.$store.getters.getSummarizedStatistics;
+      } else if (mutation.type === "SET_INVOICE_STATISTIC_FILTERS") {
+        this.selectedGranularity = this.$store.getters.getInvoiceFilters.granularity;
       }
     });
   },
@@ -119,7 +121,6 @@ export default Vue.extend({
     setToDate(event: string) {
       this.$store.dispatch("CHANGE_INVOICE_FILTERS", { toDate: event });
     },
-
     setFromDate(event: string) {
       this.$store.dispatch("CHANGE_INVOICE_FILTERS", { fromDate: event });
     },
@@ -127,7 +128,6 @@ export default Vue.extend({
       const { fromDate, toDate, granularity } = event;
       this.initialFromDate = fromDate;
       this.initialToDate = toDate;
-      this.selectedGranularity = granularity;
       this.$store.dispatch("CHANGE_INVOICE_FILTERS", { fromDate, toDate, granularity });
     },
     setGranularity(event: any) {
