@@ -43,6 +43,11 @@ export default Vue.extend({
       this.$emit("dateSelected", this.currentDate);
     },
   },
+  watch: {
+    defaultDate() {
+      this.currentDate = this.defaultDate;
+    }
+  }
 });
 </script>
 

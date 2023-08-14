@@ -3,7 +3,7 @@ import { ActionContext } from "vuex";
 import config from "@/config";
 import httpClient from "../services/httpClient";
 import {
-  mapTimestampToMothYearString,
+  mapTimeStampToLabel,
   createTimeString,
   decimalToRoundedPercentage,
   formatDecimalArray,
@@ -16,9 +16,31 @@ export interface InvoiceStoreState {
 // add new type: list of hours separeted by type (billable, non-billable, vacation etc)
 // typescript interface for that.
 
+
+export enum InvoicePeriods {
+  Daily = 0,
+  Weekly = 1,
+  Monthly = 2,
+  Annualy = 3
+}
+
 export interface InvoiceStatisticsFilters {
   toDate?: string;
   fromDate?: string;
+  granularity?: InvoicePeriods; 
+};
+
+export enum InvoiceStatisticsPresetTypes {
+  YEAR_INTERVAL,
+  HALF_YEAR_INTERVAL,
+  QUARTER_INTERVAL,
+  WEEK_INTERVAL
+};
+
+export interface InvoiceStatisticsPreset {
+  type: InvoiceStatisticsPresetTypes,
+  granularity: InvoicePeriods;
+  label: string;
 }
 
 //endepunktet:
@@ -40,6 +62,7 @@ interface InvoiceRateModel {
   invoiceRate: number;
   invoiceStatistics: InvoiceStatistics;
   invoiceStatisticFilters: InvoiceStatisticsFilters;
+  invoiceStatisticPreset: InvoiceStatisticsPreset | null;
 }
 
 const initStatistics: InvoiceStatistics = {
@@ -55,6 +78,7 @@ const initState: InvoiceRateModel = {
   invoiceRate: 0,
   invoiceStatistics: initStatistics,
   invoiceStatisticFilters: createDefaultStatisticInterval(),
+  invoiceStatisticPreset: null
 };
 
 const state: InvoiceStoreState = {
@@ -146,8 +170,9 @@ const mutations = {
       invoiceStatistics.nonBillableInvoiceRate
     );
     state.invoiceState.invoiceStatistics = invoiceStatistics;
+    const granularity = state.invoiceState.invoiceStatisticFilters.granularity ?? InvoicePeriods.Monthly;
     state.invoiceState.invoiceStatistics.labels = invoiceStatistics.labels.map(
-      timeStamp => mapTimestampToMothYearString(timeStamp)
+      timeStamp => mapTimeStampToLabel(timeStamp, granularity)
     );
   },
   SET_INVOICE_STATISTIC_FILTERS(
@@ -175,9 +200,11 @@ const actions = {
   }: ActionContext<State, State>) => {
     const fromDate = state.invoiceState.invoiceStatisticFilters.fromDate;
     const toDate = state.invoiceState.invoiceStatisticFilters.toDate;
+    const granularity = state.invoiceState.invoiceStatisticFilters.granularity ?? InvoicePeriods.Monthly;
+
     return httpClient
       .get(
-        `${config.API_HOST}/api/user/InvoiceStatistics?fromDate=${fromDate}&toDate=${toDate}`
+        `${config.API_HOST}/api/user/InvoiceStatistics?fromDate=${fromDate}&toDate=${toDate}&period=${granularity}`
       )
       .then(response => {
         commit("SET_INVOICE_STATISTIC", response.data);
@@ -199,6 +226,7 @@ function createDefaultStatisticInterval(): InvoiceStatisticsFilters {
   return {
     fromDate: createTimeString(from.getFullYear(), from.getMonth() + 1, 1),
     toDate: createTimeString(to.getFullYear(), to.getMonth() + 2, 1),
+    granularity: InvoicePeriods.Monthly
   };
 }
 
