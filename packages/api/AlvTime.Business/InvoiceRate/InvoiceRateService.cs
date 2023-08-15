@@ -65,6 +65,7 @@ public class InvoiceRateService
         var userTasks = await _timeRegistrationStorage.GetTimeEntriesWithCustomer(user.Id, invoicePeriodStart, invoicePeriodEnd);
         var filteredTasks = userTasks
             .Where(timeEntry => timeEntry.TaskId != _timeEntryOptions.AlvDayTask)
+            .OrderBy(timeEntry => timeEntry.Date)
             .ToList();
         var taskPeriodGrouping = GroupTasksByInvoicePeriod(filteredTasks, invoicePeriod);
 
@@ -112,7 +113,6 @@ public class InvoiceRateService
 
             previousPeriodEnd = periodEnd;
         }
-
 
         return new InvoiceStatisticsDto
         {
