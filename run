@@ -21,6 +21,11 @@ if [ "adminpanel" = "$1" ]; then
   docker-compose exec adminpanel npm start
 fi
 
+if [ "adminpanel-v2" = "$1" ]; then
+  docker-compose up --detach adminpanel-v2
+  docker-compose exec adminpanel-v2 npm start
+fi
+
 if [ "slack-app" = "$1" ]; then
   NGROK_AUTH="$(getSecret ngrok-auth)"
   export NGROK_AUTH

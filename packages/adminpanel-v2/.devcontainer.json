@@ -1,0 +1,16 @@
+{
+  "name": "adminpanel-v2",
+  "dockerComposeFile": ["../../docker-compose.yaml"],
+  "service": "adminpanel-v2",
+  "workspaceFolder": "/src",
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash"
+  },
+  "extensions": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-azuretools.vscode-docker"
+  ],
+  "remoteUser": "vscode",
+  "shutdownAction": "none"
+}
