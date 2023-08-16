@@ -5,7 +5,7 @@ export const mapTimeStampToLabel = (timeStamp: string, granularity: InvoicePerio
     case InvoicePeriods.Annualy:
       return timeStamp.slice(0, 4);
     case InvoicePeriods.Monthly:
-      return mapTimestampToMothYearString(timeStamp);
+      return mapTimestampToMonthYearString(timeStamp);
     case InvoicePeriods.Weekly:
       const weekNumber = getWeekNumber(timeStamp);
       return `Uke ${weekNumber}`;
@@ -36,7 +36,7 @@ const getWeekNumber = (timestamp: string) => {
   return weekNumber
 }
 
-export function mapTimestampToMothYearString(timeStamp: string): string {
+export function mapTimestampToMonthYearString(timeStamp: string): string {
   const year = timeStamp.slice(0, 4);
   const monthString = timeStamp.slice(5, 7);
   const month = Number.parseInt(monthString, 10);

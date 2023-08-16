@@ -30,12 +30,16 @@ export default Vue.extend({
 <style scoped>
 .card {
   background-color: #f7f7f7;
-  padding: 0.25rem 1rem 1.25rem 1rem ;
+  padding: 0.25rem 1rem 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .card-title {
   color: #1c92d0;
   font-weight: lighter;
+  text-align: center;
 }
 
 .section {
