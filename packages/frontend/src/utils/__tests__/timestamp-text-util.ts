@@ -1,15 +1,15 @@
 import {
-  mapTimestampToMothYearString,
+  mapTimestampToMonthYearString,
   decimalToRoundedPercentage,
 } from "../timestamp-text-util";
 
-describe("mapTimeStampToMonthYearString", () => {
+describe("mapTimeStampToMonthYearString", () => {  
   it("should map month and year correctly", () => {
-    expect(mapTimestampToMothYearString("2022-01-01T00:00:00")).toBe(
+    expect(mapTimestampToMonthYearString("2022-01-01T00:00:00")).toBe(
       "Januar 2022"
     );
 
-    expect(mapTimestampToMothYearString("2022-12-01T00:00:00")).toBe(
+    expect(mapTimestampToMonthYearString("2022-12-01T00:00:00")).toBe(
       "Desember 2022"
     );
   });
