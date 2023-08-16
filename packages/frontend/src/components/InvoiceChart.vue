@@ -79,9 +79,13 @@ export default Vue.extend({
           y: {
             stacked: true,
             ticks: {
-                callback: (value: string|number, _index: number, _ticks: unknown[]) => {
-                    return `${value} %`;
-                }
+              callback: (
+                value: string | number,
+                _index: number,
+                _ticks: unknown[]
+              ) => {
+                return `${value} %`;
+              },
             },
           },
           x: {
@@ -136,8 +140,8 @@ export default Vue.extend({
 });
 </script>
 <style scoped>
- #context {
-   height: 100%;
-   width: 100%;
- }
-</style>>
+#context {
+  height: 100%;
+  width: 100%;
+}</style
+>>

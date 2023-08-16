@@ -1,23 +1,28 @@
 import { InvoicePeriods } from "@/store/invoiceRate";
 
-export const mapTimeStampToLabel = (timeStamp: string, granularity: InvoicePeriods): string => {
+export const mapTimeStampToLabel = (
+  timeStamp: string,
+  granularity: InvoicePeriods
+): string => {
   switch (granularity) {
     case InvoicePeriods.Annualy:
       return timeStamp.slice(0, 4);
     case InvoicePeriods.Monthly:
       return mapTimestampToMonthYearString(timeStamp);
-    case InvoicePeriods.Weekly:
+    case InvoicePeriods.Weekly: {
       const weekNumber = getWeekNumber(timeStamp);
       return `Uke ${weekNumber}`;
-    case InvoicePeriods.Daily:
+    }
+    case InvoicePeriods.Daily: {
       const monthString = timeStamp.slice(5, 7);
       const month = Number.parseInt(monthString, 10);
       return `${timeStamp.slice(8, 10)}. ${months[month - 1]}`;
+    }
     default:
       console.warn(`Unknown granularity type: ${granularity}`);
-      return '';
+      return "";
   }
-}
+};
 
 /**
  * Finds the week of year that the given timestamp is in.
@@ -29,12 +34,11 @@ const getWeekNumber = (timestamp: string) => {
   const currentDate = new Date(timestamp);
   const startDate = new Date(currentDate.getFullYear(), 0, 1);
   const days = Math.floor(
-    (currentDate.getTime() - startDate.getTime()) /
-    (24 * 60 * 60 * 1000)
+    (currentDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)
   );
   const weekNumber = Math.ceil(days / 7);
-  return weekNumber
-}
+  return weekNumber;
+};
 
 export function mapTimestampToMonthYearString(timeStamp: string): string {
   const year = timeStamp.slice(0, 4);

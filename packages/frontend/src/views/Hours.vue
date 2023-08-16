@@ -33,10 +33,6 @@ export default Vue.extend({
     };
   },
 
-  created() {
-    this.$store.dispatch("FETCH_TASKS");
-  },
-
   computed: {
     progressBarVisible() {
       return this.$store.state.timeEntriesLoading;
@@ -56,6 +52,10 @@ export default Vue.extend({
         this.delayed = false;
       }
     },
+  },
+
+  created() {
+    this.$store.dispatch("FETCH_TASKS");
   },
 });
 </script>

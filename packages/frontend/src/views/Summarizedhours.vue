@@ -4,7 +4,7 @@
     <invoice-statistics></invoice-statistics>
 
     <h2 class="padding">Timesoversikt</h2>
-    <md-table class="padding" v-if="getTimeEntriesSummed.length > 0">
+    <md-table v-if="getTimeEntriesSummed.length > 0" class="padding">
       <md-table-row>
         <md-table-head>Task</md-table-head>
         <md-table-head
@@ -28,7 +28,9 @@
         </md-table-cell>
       </md-table-row>
     </md-table>
-    <p class="padding" v-else>Kan ikke finne noen timer ført de siste 3 månedene.</p>
+    <p v-else class="padding">
+      Kan ikke finne noen timer ført de siste 3 månedene.
+    </p>
   </CenterColumnWrapper>
 </template>
 

@@ -1,10 +1,12 @@
 <template>
   <div class="card">
     <h3 class="card-title">{{ cardData.title }}</h3>
-    <div class="section" v-for="value in cardData.values" :key="value.title">
+    <div v-for="value in cardData.values" :key="value.title" class="section">
       <h4>{{ value.title }}</h4>
       <div class="content">
-        <div class="value"><b>{{ value.value }}</b></div>
+        <div class="value">
+          <b>{{ value.value }}</b>
+        </div>
         <div class="unit">{{ value.unit }}</div>
       </div>
     </div>

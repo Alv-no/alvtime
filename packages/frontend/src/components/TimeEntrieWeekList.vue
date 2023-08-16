@@ -13,7 +13,7 @@
       <div v-for="task in tasks" :key="task.id" class="row">
         <TimeEntrieText
           :task="task"
-          :isExpanded="task.id === selectedEntryKey"
+          :is-expanded="task.id === selectedEntryKey"
           @expand-entry="onExpandEntry"
         />
         <TimeEntrieWeek :task="task" :week="week" />
@@ -69,7 +69,7 @@ export default Vue.extend({
       const tasks: Task[] = [];
       for (const entrie of this.weeksTimeEntries) {
         const task = this.$store.getters.getTask(entrie.taskId);
-        if (!tasks.some((t) => t.id === task.id)) {
+        if (!tasks.some(t => t.id === task.id)) {
           tasks.push(task);
         }
       }
@@ -78,7 +78,7 @@ export default Vue.extend({
 
     tasksWithoutHours(): Task[] {
       return this.$store.getters.favoriteTasks.filter(
-        (task: Task) => !this.tasksWithHours.some((t) => t.id === task.id)
+        (task: Task) => !this.tasksWithHours.some(t => t.id === task.id)
       );
     },
 

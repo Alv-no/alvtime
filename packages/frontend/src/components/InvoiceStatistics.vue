@@ -13,16 +13,28 @@
           @dateSelected="setToDate($event)"
         ></simple-date-picker>
         <div>
-          <b>Oppløsning</b><br>
+          <b>Oppløsning</b><br />
           <div class="granularity-select-wrapper">
-            <select class="granularity-select" @change="setGranularity"> 
-              <option v-for="option in granularityOptions" :value="option.value" :selected="option.value == selectedGranularity">{{ option.label }}</option>
+            <select class="granularity-select" @change="setGranularity">
+              <option
+                v-for="(option, index) in granularityOptions"
+                :key="index"
+                :value="option.value"
+                :selected="option.value == selectedGranularity"
+                >{{ option.label }}</option
+              >
             </select>
           </div>
         </div>
       </div>
       <div class="interval-shortcuts">
-        <md-button v-for="preset in invoiceStatisticPresets" class="md-primary md-raised" @click="setDateFiltersFromPreset(preset.type, preset.granularity)">{{ preset.label }}</md-button>
+        <md-button
+          v-for="(preset, index) in invoiceStatisticPresets"
+          :key="index"
+          class="md-primary md-raised"
+          @click="setDateFiltersFromPreset(preset.type, preset.granularity)"
+          >{{ preset.label }}</md-button
+        >
       </div>
     </div>
     <div class="statistics">
@@ -30,7 +42,7 @@
         <invoice-statistic-card
           v-for="cardData in summarizedStatistics"
           :key="cardData.title"
-          :cardData="cardData"
+          :card-data="cardData"
         ></invoice-statistic-card>
       </div>
       <div class="chart-wrapper">
@@ -44,50 +56,55 @@
 import Vue from "vue";
 import InvoiceChart from "./InvoiceChart.vue";
 import SimpleDatePicker from "./SimpleDatePicker.vue";
-import { InvoiceStatisticsFilters, InvoiceStatisticsPreset, InvoiceStatisticsPresetTypes, InvoicePeriods } from "../store/invoiceRate";
+import {
+  InvoiceStatisticsFilters,
+  InvoiceStatisticsPreset,
+  InvoiceStatisticsPresetTypes,
+  InvoicePeriods,
+} from "../store/invoiceRate";
 import InvoiceStatisticCard from "./InvoiceStatisticCard.vue";
 import { createTimeString } from "@/utils/timestamp-text-util";
 
 const invoiceStatisticPresets: InvoiceStatisticsPreset[] = [
   {
     type: InvoiceStatisticsPresetTypes.YEAR_INTERVAL,
-    label: 'Siste år',
-    granularity: InvoicePeriods.Monthly
+    label: "Siste år",
+    granularity: InvoicePeriods.Monthly,
   },
   {
     type: InvoiceStatisticsPresetTypes.HALF_YEAR_INTERVAL,
-    label: 'Siste halvår',
-    granularity: InvoicePeriods.Monthly
+    label: "Siste halvår",
+    granularity: InvoicePeriods.Monthly,
   },
   {
     type: InvoiceStatisticsPresetTypes.QUARTER_INTERVAL,
-    label: 'Siste kvartal',
-    granularity: InvoicePeriods.Weekly
+    label: "Siste kvartal",
+    granularity: InvoicePeriods.Weekly,
   },
   {
     type: InvoiceStatisticsPresetTypes.WEEK_INTERVAL,
-    label: 'Siste uke',
-    granularity: InvoicePeriods.Daily
+    label: "Siste uke",
+    granularity: InvoicePeriods.Daily,
   },
 ];
 
 const granularityOptions = [
   {
     value: InvoicePeriods.Annualy,
-    label: 'År',
+    label: "År",
   },
   {
     value: InvoicePeriods.Monthly,
-    label: 'Måned',
+    label: "Måned",
   },
   {
     value: InvoicePeriods.Weekly,
-    label: 'Uke',
+    label: "Uke",
   },
   {
     value: InvoicePeriods.Daily,
-    label: 'Dag',
-  }
+    label: "Dag",
+  },
 ];
 
 export default Vue.extend({
@@ -124,18 +141,33 @@ export default Vue.extend({
     setFromDate(event: string) {
       this.$store.dispatch("CHANGE_INVOICE_FILTERS", { fromDate: event });
     },
-    setInterval(event: { fromDate: string, toDate: string, granularity?: InvoicePeriods }) {
+    setInterval(event: {
+      fromDate: string;
+      toDate: string;
+      granularity?: InvoicePeriods;
+    }) {
       const { fromDate, toDate, granularity } = event;
       this.initialFromDate = fromDate;
       this.initialToDate = toDate;
-      this.$store.dispatch("CHANGE_INVOICE_FILTERS", { fromDate, toDate, granularity });
+      this.$store.dispatch("CHANGE_INVOICE_FILTERS", {
+        fromDate,
+        toDate,
+        granularity,
+      });
     },
     setGranularity(event: any) {
       const granularity: InvoicePeriods = +event.target.value;
-      const currentFilters: InvoiceStatisticsFilters = this.$store.getters.getInvoiceFilters;
-      this.$store.dispatch("CHANGE_INVOICE_FILTERS", { ...currentFilters, granularity });
+      const currentFilters: InvoiceStatisticsFilters = this.$store.getters
+        .getInvoiceFilters;
+      this.$store.dispatch("CHANGE_INVOICE_FILTERS", {
+        ...currentFilters,
+        granularity,
+      });
     },
-    setDateFiltersFromPreset(type: InvoiceStatisticsPresetTypes, granularity: InvoicePeriods) {
+    setDateFiltersFromPreset(
+      type: InvoiceStatisticsPresetTypes,
+      granularity: InvoicePeriods
+    ) {
       const toDate = new Date();
       let fromDate = new Date(toDate.getTime());
 
@@ -152,11 +184,12 @@ export default Vue.extend({
         case InvoiceStatisticsPresetTypes.QUARTER_INTERVAL:
           fromDate.setMonth(toMonth - 3);
           break;
-        case InvoiceStatisticsPresetTypes.WEEK_INTERVAL:
+        case InvoiceStatisticsPresetTypes.WEEK_INTERVAL: {
           const toDay = toDate.getDate();
           fromDate.setMonth(toMonth);
           fromDate.setDate(toDay - 7);
           break;
+        }
         default:
           console.warn(`Unknown preset type: ${type}`);
           return;
@@ -173,8 +206,12 @@ export default Vue.extend({
         toDate.getDate()
       );
 
-      this.setInterval({ fromDate: formattedFromDate, toDate: formattedToDate, granularity });
-    }
+      this.setInterval({
+        fromDate: formattedFromDate,
+        toDate: formattedToDate,
+        granularity,
+      });
+    },
   },
 });
 </script>
@@ -266,6 +303,4 @@ export default Vue.extend({
   gap: 0.5rem;
   margin-bottom: 0.5rem;
 }
-
-
 </style>

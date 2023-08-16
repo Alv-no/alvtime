@@ -3,7 +3,11 @@
     <HolidayPill v-if="holiday" :holiday="holiday" />
     <div v-if="rows.length < 1"><ZeroSelectedTasks /></div>
     <div v-for="row in rows" :key="row.task.id" class="grid">
-      <TimeEntrieText :task="row.task" :isExpanded="row.task.id === selectedEntryKey" @expand-entry="onExpandEntry"/>
+      <TimeEntrieText
+        :task="row.task"
+        :is-expanded="row.task.id === selectedEntryKey"
+        @expand-entry="onExpandEntry"
+      />
       <HourInput :time-entrie="row.timeEntrie" :is-locked="row.task.locked" />
     </div>
   </div>
@@ -42,9 +46,9 @@ export default Vue.extend({
   },
   data() {
     return {
-      selectedEntryKey: -1
-    }
-  }, 
+      selectedEntryKey: -1,
+    };
+  },
   computed: {
     rows(): Row[] {
       return [...this.rowsWithHours, ...this.rowsWithoutHours].sort(sortList);
@@ -123,7 +127,7 @@ export default Vue.extend({
       } else {
         this.selectedEntryKey = id;
       }
-    }
+    },
   },
 });
 
