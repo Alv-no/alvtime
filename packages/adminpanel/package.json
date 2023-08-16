@@ -35,5 +35,9 @@
 		"vite": "^4.4.2",
 		"vitest": "^0.32.2"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"iconify-icon": "^1.0.8",
+		"react-icons": "^4.10.1"
+	}
 }
