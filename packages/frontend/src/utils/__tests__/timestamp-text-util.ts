@@ -3,7 +3,7 @@ import {
   decimalToRoundedPercentage,
 } from "../timestamp-text-util";
 
-describe("mapTimeStampToMonthYearString", () => {  
+describe("mapTimeStampToMonthYearString", () => {
   it("should map month and year correctly", () => {
     expect(mapTimestampToMonthYearString("2022-01-01T00:00:00")).toBe(
       "Januar 2022"

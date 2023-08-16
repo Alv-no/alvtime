@@ -17,6 +17,7 @@ module.exports = {
       files: [
         "**/__tests__/*.{j,t}s?(x)",
         "**/tests/unit/**/*.spec.{j,t}s?(x)",
+        "**/jest_global_mocks.js",
       ],
       env: {
         jest: true,

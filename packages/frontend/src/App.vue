@@ -54,7 +54,7 @@ import Hamburger from "@/components/Hamburger.vue";
 import Drawer from "@/components/Drawer.vue";
 import DayFooter from "@/components/DayFooter.vue";
 import CenterColumnWrapper from "@/components/CenterColumnWrapper.vue";
-import InvoiceRate from '@/components/InvoiceRate.vue';
+import InvoiceRate from "@/components/InvoiceRate.vue";
 
 export default Vue.extend({
   components: {
@@ -66,7 +66,7 @@ export default Vue.extend({
     Drawer,
     DayFooter,
     CenterColumnWrapper,
-    InvoiceRate
+    InvoiceRate,
   },
 
   data() {
@@ -179,5 +179,5 @@ html {
 }
 .md-toolbar-section-end {
   gap: 1rem;
- }
+}
 </style>

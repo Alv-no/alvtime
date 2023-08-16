@@ -295,7 +295,9 @@ function splitIntoTasks(
   return timeEntriesSplitIntoTasks;
 }
 
-function monthSum(timeEntriesInLastThreeMonthsForSingleTask: TimeEntriesDateFormated[]) {
+function monthSum(
+  timeEntriesInLastThreeMonthsForSingleTask: TimeEntriesDateFormated[]
+) {
   const summedHoursPerMonth: SummedHoursPrMonth[] = getLastThreeMonths().map(
     month => {
       return {

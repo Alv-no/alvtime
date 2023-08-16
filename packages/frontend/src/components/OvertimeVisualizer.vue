@@ -1,6 +1,11 @@
 <template>
   <div ref="cl" class="color-list">
-    <div v-for="color in filteredColors" :key="color.priority" :style="createWidthString(color)" class="color-bar">
+    <div
+      v-for="color in filteredColors"
+      :key="color.priority"
+      :style="createWidthString(color)"
+      class="color-bar"
+    >
       <template v-if="color.value > 0">
         <div class="color-bar-content">
           <div class="color-bar-name">{{ color.name }}</div>
@@ -46,7 +51,7 @@ export default Vue.extend({
   },
   data() {
     return {
-      unsubscribe: () => { },
+      unsubscribe: () => {},
       targetSubtract: [] as TargetedSubtract[],
     };
   },
@@ -80,7 +85,9 @@ export default Vue.extend({
       )};`;
     },
     createCalculatedWidthString(value: number): string {
-      const flexPercentage: number = Math.floor((value / this.getValuePercentage()) * 100);
+      const flexPercentage: number = Math.floor(
+        (value / this.getValuePercentage()) * 100
+      );
       return `flex-grow: ${flexPercentage};`;
     },
     getValuePercentage(): number {

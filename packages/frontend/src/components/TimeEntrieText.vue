@@ -1,17 +1,23 @@
 <template>
-  <div class="entry-container" v-bind:class="zoomClass" @click="$emit('expand-entry', task.id)">
-    <div class="entry-text" v-if="!isExpanded">
-      <span class="customer-name truncate-text">{{ task.project.customer.name }} - {{ task.project.name }}</span>  
+  <div
+    class="entry-container"
+    :class="zoomClass"
+    @click="$emit('expand-entry', task.id)"
+  >
+    <div v-if="!isExpanded" class="entry-text">
+      <span class="customer-name truncate-text"
+        >{{ task.project.customer.name }} - {{ task.project.name }}</span
+      >
       <span class="activity-name truncate-text">{{ task.name }}</span>
     </div>
-    <div class="entry-text-expanded" v-if="isExpanded">
+    <div v-if="isExpanded" class="entry-text-expanded">
       <label class="expanded-label">
         Kunde:
-        <span class="expanded-text">{{ task.project.customer.name }}</span>  
+        <span class="expanded-text">{{ task.project.customer.name }}</span>
       </label>
       <label class="expanded-label">
         Prosjekt:
-        <span class="expanded-text">{{ task.project.name }}</span>  
+        <span class="expanded-text">{{ task.project.name }}</span>
       </label>
       <label class="expanded-label">
         Oppgave:
@@ -20,13 +26,13 @@
       <label class="expanded-label">
         Rate:
         <small class="expanded-text">{{ compensationRatePercentage }}</small>
-      </label>      
+      </label>
     </div>
     <div v-show="showPadlock" class="padlock-container">
       <md-icon class="padlock-icon">lock</md-icon>
     </div>
-    <div class="rate-container"  v-if="!isExpanded">
-        <small class="rate-text">{{ compensationRatePercentage }}</small>
+    <div v-if="!isExpanded" class="rate-container">
+      <small class="rate-text">{{ compensationRatePercentage }}</small>
     </div>
   </div>
 </template>
@@ -43,7 +49,7 @@ export default Vue.extend({
         return {} as Task;
       },
     },
-    isExpanded: Boolean
+    isExpanded: Boolean,
   },
   computed: {
     compensationRatePercentage(): string {
@@ -52,9 +58,9 @@ export default Vue.extend({
     showPadlock(): boolean {
       return this.task.locked;
     },
-    zoomClass (): string {
-      return this.isExpanded ? 'zoom-out' : 'zoom-in'
-    }
+    zoomClass(): string {
+      return this.isExpanded ? "zoom-out" : "zoom-in";
+    },
   },
 });
 </script>
@@ -66,7 +72,7 @@ export default Vue.extend({
   flex-direction: row;
   justify-content: flex-end;
   min-width: 0;
-  margin-right: .4rem;
+  margin-right: 0.4rem;
 }
 
 .zoom-in {
@@ -87,9 +93,9 @@ export default Vue.extend({
   display: flex;
   flex-direction: column;
   min-width: 0;
-  margin-right: auto; 
-  margin-top: .4rem;
-  margin-bottom: .4rem;
+  margin-right: auto;
+  margin-top: 0.4rem;
+  margin-bottom: 0.4rem;
   word-break: break-word;
 }
 
@@ -119,7 +125,7 @@ export default Vue.extend({
 
 .rate-container {
   align-self: center;
-  margin-left: .2rem;
+  margin-left: 0.2rem;
 }
 
 .rate-text {
@@ -129,10 +135,9 @@ export default Vue.extend({
 
 .padlock-container {
   align-self: center;
-  
 }
 
 .padlock-icon {
-  margin-left: .2rem;
+  margin-left: 0.2rem;
 }
 </style>

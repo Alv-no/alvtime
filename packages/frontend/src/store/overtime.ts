@@ -162,7 +162,9 @@ const getters = {
 
     transactions.push(
       ...state.overtimeState.availableHours
-        .filter(transaction => transaction.taskId !== 0 && transaction.hours > 0)
+        .filter(
+          transaction => transaction.taskId !== 0 && transaction.hours > 0
+        )
         .map(transaction => {
           return {
             type: "available",
@@ -184,7 +186,7 @@ const getters = {
             hoursAfterCompRate: transaction.hoursAfterCompRate,
             active: transaction.active,
             id: transaction.id,
-            rate: transaction.compensationRate
+            rate: transaction.compensationRate,
           },
         };
       })

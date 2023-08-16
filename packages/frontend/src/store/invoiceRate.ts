@@ -16,29 +16,28 @@ export interface InvoiceStoreState {
 // add new type: list of hours separeted by type (billable, non-billable, vacation etc)
 // typescript interface for that.
 
-
 export enum InvoicePeriods {
   Daily = 0,
   Weekly = 1,
   Monthly = 2,
-  Annualy = 3
+  Annualy = 3,
 }
 
 export interface InvoiceStatisticsFilters {
   toDate?: string;
   fromDate?: string;
-  granularity?: InvoicePeriods; 
-};
+  granularity?: InvoicePeriods;
+}
 
 export enum InvoiceStatisticsPresetTypes {
   YEAR_INTERVAL,
   HALF_YEAR_INTERVAL,
   QUARTER_INTERVAL,
-  WEEK_INTERVAL
-};
+  WEEK_INTERVAL,
+}
 
 export interface InvoiceStatisticsPreset {
-  type: InvoiceStatisticsPresetTypes,
+  type: InvoiceStatisticsPresetTypes;
   granularity: InvoicePeriods;
   label: string;
 }
@@ -78,7 +77,7 @@ const initState: InvoiceRateModel = {
   invoiceRate: 0,
   invoiceStatistics: initStatistics,
   invoiceStatisticFilters: createDefaultStatisticInterval(),
-  invoiceStatisticPreset: null
+  invoiceStatisticPreset: null,
 };
 
 const state: InvoiceStoreState = {
@@ -115,7 +114,7 @@ const getters = {
               state.invoiceState.invoiceStatistics.invoiceRate
             ),
             unit: "%",
-          }
+          },
         ],
       },
       {
@@ -126,13 +125,12 @@ const getters = {
               (a, b) => a + b,
               0
             ),
-          }
-        ]
+          },
+        ],
       },
       {
         title: "Interntimer",
         values: [
-
           {
             value: state.invoiceState.invoiceStatistics.nonBillableHours.reduce(
               (a, b) => a + b,
@@ -150,8 +148,8 @@ const getters = {
                 (a, b) => a + b,
                 0
               ) / 7.5
-            )
-          }
+            ),
+          },
         ],
       },
     ];
@@ -170,7 +168,9 @@ const mutations = {
       invoiceStatistics.nonBillableInvoiceRate
     );
     state.invoiceState.invoiceStatistics = invoiceStatistics;
-    const granularity = state.invoiceState.invoiceStatisticFilters.granularity ?? InvoicePeriods.Monthly;
+    const granularity =
+      state.invoiceState.invoiceStatisticFilters.granularity ??
+      InvoicePeriods.Monthly;
     state.invoiceState.invoiceStatistics.labels = invoiceStatistics.labels.map(
       timeStamp => mapTimeStampToLabel(timeStamp, granularity)
     );
@@ -200,7 +200,9 @@ const actions = {
   }: ActionContext<State, State>) => {
     const fromDate = state.invoiceState.invoiceStatisticFilters.fromDate;
     const toDate = state.invoiceState.invoiceStatisticFilters.toDate;
-    const granularity = state.invoiceState.invoiceStatisticFilters.granularity ?? InvoicePeriods.Monthly;
+    const granularity =
+      state.invoiceState.invoiceStatisticFilters.granularity ??
+      InvoicePeriods.Monthly;
 
     return httpClient
       .get(
@@ -226,7 +228,7 @@ function createDefaultStatisticInterval(): InvoiceStatisticsFilters {
   return {
     fromDate: createTimeString(from.getFullYear(), from.getMonth() + 1, 1),
     toDate: createTimeString(to.getFullYear(), to.getMonth() + 2, 1),
-    granularity: InvoicePeriods.Monthly
+    granularity: InvoicePeriods.Monthly,
   };
 }
 

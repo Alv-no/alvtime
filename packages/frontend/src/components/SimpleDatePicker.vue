@@ -1,6 +1,7 @@
 <template>
   <div>
-    <b>{{ label }}</b><br>
+    <b>{{ label }}</b
+    ><br />
     <input
       class="simple-date-input"
       :value="currentDate"
@@ -28,12 +29,17 @@ export default Vue.extend({
       currentDate: this.defaultDate || "",
     };
   },
+  watch: {
+    defaultDate() {
+      this.currentDate = this.defaultDate;
+    },
+  },
   methods: {
     onDateChange(event: InputEvent) {
       const target = event?.target as HTMLInputElement;
       if (!target.value) {
         target.value = this.defaultDate;
-      } 
+      }
 
       if (this.currentDate === target.value) {
         return;
@@ -43,11 +49,6 @@ export default Vue.extend({
       this.$emit("dateSelected", this.currentDate);
     },
   },
-  watch: {
-    defaultDate() {
-      this.currentDate = this.defaultDate;
-    }
-  }
 });
 </script>
 
