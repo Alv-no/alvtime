@@ -206,7 +206,7 @@ const actions = {
 
     return httpClient
       .get(
-        `${config.API_HOST}/api/user/InvoiceStatistics?fromDate=${fromDate}&toDate=${toDate}&period=${granularity}`
+        `${config.API_HOST}/api/user/InvoiceStatistics?fromDate=${fromDate}&toDate=${toDate}&period=${granularity}&includeZeroPeriods=${true}`
       )
       .then(response => {
         commit("SET_INVOICE_STATISTIC", response.data);

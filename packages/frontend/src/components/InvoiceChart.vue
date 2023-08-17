@@ -15,8 +15,8 @@ import {
 
 import Vue from "vue";
 import ChartDataLabels, { Context } from "chartjs-plugin-datalabels";
-import { InvoiceStatistics } from "../store/invoiceRate";
-import { HorizontalLinePlugin } from "../utils/horizontal-line-chart-plugin";
+import Annotation, { AnnotationOptions, AnnotationTypeRegistry } from "chartjs-plugin-annotation";
+import { ChartConfiguration } from "chart.js";
 
 Chart.register(
   BarController,
@@ -25,34 +25,50 @@ Chart.register(
   BarElement,
   Title,
   ChartDataLabels,
-  HorizontalLinePlugin,
+  Annotation,
   Tooltip
 );
 
-export default Vue.extend({
-  data: (): {
-    invoiceStatistics: InvoiceStatistics | null;
-    chart: Chart | null;
-    unsubscribe: () => void;
-  } => {
-    return {
-      invoiceStatistics: null,
-      chart: null,
-      unsubscribe: () => {},
-    };
+const budgetedInvoiceRate = 90;
+
+const budgetedInvoiceRateAnnotation: AnnotationOptions<keyof AnnotationTypeRegistry> = {
+  type: 'line',
+  borderColor: 'rgba(240, 50, 50, .6)',
+  borderWidth: 3,
+  borderDash: [10],
+  scaleID: 'y',
+  value: budgetedInvoiceRate,
+  label: {
+    content: `Budsjettert faktureringsgrad: ${budgetedInvoiceRate}%`,
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
   },
+  enter({ element }, _event) {
+    if (element.label) {
+      element.label.options.display = true;
+    }
+    return true;
+  },
+  leave({ element }, _event) {
+    if (element.label) {
+      element.label.options.display = false;
+    }
+    return true;
+  }
+}
+
+export default Vue.extend({
   mounted() {
-    const context = document.getElementById("context") as HTMLCanvasElement;
-    this.chart = new Chart(context, {
+    const chartConfig: ChartConfiguration = {
       type: "bar",
       data: {
         datasets: [],
       },
       options: {
         plugins: {
-          horizontalLinePlugin: {
-            yValue: 90,
-            color: "rgba(240, 50, 50, .6)",
+          annotation: {
+            annotations: {
+              budgetedInvoiceRateAnnotation
+            },
           },
           datalabels: {
             align: "center",
@@ -92,32 +108,23 @@ export default Vue.extend({
             stacked: true,
           },
         },
-      },
-    });
-  },
-  async created() {
-    this.$store.subscribe(mutation => {
-      if (mutation.type === "SET_INVOICE_STATISTIC_FILTERS") {
-        this.$store.dispatch("FETCH_INVOICE_STATISTICS").then(() => {
-          this.updateChartData();
-        });
       }
-    });
-    await this.$store.dispatch("FETCH_INVOICE_STATISTICS");
-    this.updateChartData();
+    };
+    const context = document.getElementById("context") as HTMLCanvasElement;
+    this.chart = new Chart(context, chartConfig);
   },
-  beforeDestroy() {
-    this.unsubscribe();
+  computed: {
+    invoiceStatistics: function () {
+      return this.$store.getters.getInvoiceStatistics;
+    }
   },
-  methods: {
-    updateChartData() {
-      this.invoiceStatistics = this.$store.getters.getInvoiceStatistics;
-
+  watch: {
+    invoiceStatistics: function () {
       if (!this.chart) {
         return;
       }
-      this.chart.data.labels = this.invoiceStatistics?.labels;
 
+      this.chart.data.labels = this.invoiceStatistics?.labels;
       this.chart.data.datasets = [
         {
           label: "Faktureringsgrad",
@@ -135,8 +142,22 @@ export default Vue.extend({
       ];
 
       this.chart.update();
-    },
+    }
   },
+  async created() {
+    // create non-reactive component variable
+    this.chart = null;
+
+    // subscribe to mutations
+    this.$store.subscribe(mutation => {
+      if (mutation.type === "SET_INVOICE_STATISTIC_FILTERS") {
+        this.$store.dispatch("FETCH_INVOICE_STATISTICS");
+      }
+    });
+
+    // fetch invoice statistics
+    await this.$store.dispatch("FETCH_INVOICE_STATISTICS");
+  }
 });
 </script>
 <style scoped>
