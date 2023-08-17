@@ -127,7 +127,11 @@ export default Vue.extend({
       if (mutation.type === "SET_INVOICE_STATISTIC") {
         this.summarizedStatistics = this.$store.getters.getSummarizedStatistics;
       } else if (mutation.type === "SET_INVOICE_STATISTIC_FILTERS") {
-        const { granularity, fromDate, toDate } = this.$store.getters.getInvoiceFilters;
+        const {
+          granularity,
+          fromDate,
+          toDate,
+        } = this.$store.getters.getInvoiceFilters;
         this.selectedGranularity = granularity;
         this.initialFromDate = fromDate;
         this.initialToDate = toDate;
