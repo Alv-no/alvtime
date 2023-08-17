@@ -15,7 +15,10 @@ import {
 
 import Vue from "vue";
 import ChartDataLabels, { Context } from "chartjs-plugin-datalabels";
-import Annotation, { AnnotationOptions, AnnotationTypeRegistry } from "chartjs-plugin-annotation";
+import Annotation, {
+  AnnotationOptions,
+  AnnotationTypeRegistry,
+} from "chartjs-plugin-annotation";
 import { ChartConfiguration } from "chart.js";
 
 Chart.register(
@@ -32,15 +35,15 @@ Chart.register(
 const budgetedInvoiceRate = 90;
 
 const budgetedInvoiceRateAnnotation: AnnotationOptions<keyof AnnotationTypeRegistry> = {
-  type: 'line',
-  borderColor: 'rgba(240, 50, 50, .6)',
+  type: "line",
+  borderColor: "rgba(240, 50, 50, .6)",
   borderWidth: 3,
   borderDash: [10],
-  scaleID: 'y',
+  scaleID: "y",
   value: budgetedInvoiceRate,
   label: {
     content: `Budsjettert faktureringsgrad: ${budgetedInvoiceRate}%`,
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    backgroundColor: "rgba(0, 0, 0, 0.75)",
   },
   enter({ element }, _event) {
     if (element.label) {
@@ -53,10 +56,41 @@ const budgetedInvoiceRateAnnotation: AnnotationOptions<keyof AnnotationTypeRegis
       element.label.options.display = false;
     }
     return true;
-  }
-}
+  },
+};
 
 export default Vue.extend({
+  computed: {
+    invoiceStatistics: function() {
+      return this.$store.getters.getInvoiceStatistics;
+    },
+  },
+  watch: {
+    invoiceStatistics: function() {
+      if (!this.chart) {
+        return;
+      }
+
+      this.chart.data.labels = this.invoiceStatistics?.labels;
+      this.chart.data.datasets = [
+        {
+          label: "Faktureringsgrad",
+          data: this.invoiceStatistics?.invoiceRate || [],
+          backgroundColor: "#041938dd",
+          borderWidth: 1,
+        },
+
+        {
+          label: "Grad interntimer",
+          data: this.invoiceStatistics?.nonBillableInvoiceRate || [],
+          backgroundColor: "#1c92d0dd",
+          borderWidth: 1,
+        },
+      ];
+
+      this.chart.update();
+    },
+  },
   mounted() {
     const chartConfig: ChartConfiguration = {
       type: "bar",
@@ -67,7 +101,7 @@ export default Vue.extend({
         plugins: {
           annotation: {
             annotations: {
-              budgetedInvoiceRateAnnotation
+              budgetedInvoiceRateAnnotation,
             },
           },
           datalabels: {
@@ -108,41 +142,10 @@ export default Vue.extend({
             stacked: true,
           },
         },
-      }
+      },
     };
     const context = document.getElementById("context") as HTMLCanvasElement;
     this.chart = new Chart(context, chartConfig);
-  },
-  computed: {
-    invoiceStatistics: function () {
-      return this.$store.getters.getInvoiceStatistics;
-    }
-  },
-  watch: {
-    invoiceStatistics: function () {
-      if (!this.chart) {
-        return;
-      }
-
-      this.chart.data.labels = this.invoiceStatistics?.labels;
-      this.chart.data.datasets = [
-        {
-          label: "Faktureringsgrad",
-          data: this.invoiceStatistics?.invoiceRate || [],
-          backgroundColor: "#041938dd",
-          borderWidth: 1,
-        },
-
-        {
-          label: "Grad interntimer",
-          data: this.invoiceStatistics?.nonBillableInvoiceRate || [],
-          backgroundColor: "#1c92d0dd",
-          borderWidth: 1,
-        },
-      ];
-
-      this.chart.update();
-    }
   },
   async created() {
     // create non-reactive component variable
@@ -157,7 +160,7 @@ export default Vue.extend({
 
     // fetch invoice statistics
     await this.$store.dispatch("FETCH_INVOICE_STATISTICS");
-  }
+  },
 });
 </script>
 <style scoped>
