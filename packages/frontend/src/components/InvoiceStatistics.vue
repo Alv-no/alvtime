@@ -127,7 +127,10 @@ export default Vue.extend({
       if (mutation.type === "SET_INVOICE_STATISTIC") {
         this.summarizedStatistics = this.$store.getters.getSummarizedStatistics;
       } else if (mutation.type === "SET_INVOICE_STATISTIC_FILTERS") {
-        this.selectedGranularity = this.$store.getters.getInvoiceFilters.granularity;
+        const { granularity, fromDate, toDate } = this.$store.getters.getInvoiceFilters;
+        this.selectedGranularity = granularity;
+        this.initialFromDate = fromDate;
+        this.initialToDate = toDate;
       }
     });
   },
@@ -147,8 +150,6 @@ export default Vue.extend({
       granularity?: InvoicePeriods;
     }) {
       const { fromDate, toDate, granularity } = event;
-      this.initialFromDate = fromDate;
-      this.initialToDate = toDate;
       this.$store.dispatch("CHANGE_INVOICE_FILTERS", {
         fromDate,
         toDate,
