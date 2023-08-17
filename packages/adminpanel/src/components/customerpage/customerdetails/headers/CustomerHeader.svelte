@@ -1,22 +1,28 @@
 <script lang="ts">
-	import type { TCustomer } from "$lib/types";
+	import type { TCustomer, TProject } from "$lib/types";
+	import CustomerInfo from "./customerinfo/CustomerInfo.svelte";
+	import ProjectInfo from "./projectinfo/ProjectInfo.svelte";
 
     export let activeCustomer: TCustomer | null
+    export let activeProject: TProject | null
 
 </script>
 
-
-<div class="header">
-    <p> {activeCustomer?.name || "Kunde"} </p>
-    {#if activeCustomer}
-        <p> Kundenummer: { activeCustomer.id}</p>
-    {/if}
+<div class="container">
+    <CustomerInfo {activeCustomer} />
+    <div class="line"></div>
+    <ProjectInfo {activeProject} />
 </div>
 
-
 <style>
-    .header {
-        border: 1px solid black;
+    .line {
+        height: 100%;
+        border-left: 1px solid black;
+    }
+
+    .container {
+        display: flex;
         width: 100%;
     }
 </style>
+

@@ -7,6 +7,7 @@
     import ListHeader from "./headers/ListHeader.svelte";
 
     export let activeCustomer : TCustomer | null
+    export let activeProject: TProject | null
     export let chosenActivities : TActivity[]
     export let updateRandomPrice : Function
     export let chosenProjects : TProject[]
@@ -16,7 +17,7 @@
 </script>
 
 <div class="customer">
-    <CustomerHeader {activeCustomer} />
+    <CustomerHeader {activeCustomer} {activeProject} />
     <ListHeader /> 
     <div class="listcontainer">
         <Projects {chosenProjects} {selectProject} />

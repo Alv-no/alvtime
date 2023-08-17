@@ -7,6 +7,7 @@
 
     let activeCustomer : TCustomer | null =  null
     let chosenProjects: TProject[] = [];
+    let activeProject: TProject | null = null
     let chosenActivities: TActivity[] = [];
 
 
@@ -15,13 +16,18 @@
         if (activeCustomer != customer) {
             activeCustomer = customer!
             chosenProjects = activeCustomer?.projects
+            activeProject = null
             chosenActivities = []
         }
     }
 
     function selectProject(projectId: number) {
-        chosenActivities = chosenProjects.find(p => p.id == projectId)?.activities!
-        updateActivitiesPrices()
+        let project = chosenProjects.find(p => p.id == projectId)
+        if (activeProject != project) {
+            activeProject = project!
+            chosenActivities = activeProject.activities
+            updateActivitiesPrices()
+        }
     }
 
     function getRandomPrice() {
@@ -38,12 +44,11 @@
             activity.price = getRandomPrice();
         });
     }
-    const randomnumber = 3
   </script>
 
 <div class="container">
     <CustomerList {customers} {selectCustomer} />
-    <CustomerDetails {activeCustomer} {chosenActivities} {chosenProjects} {selectProject} {updateRandomPrice} />
+    <CustomerDetails {activeCustomer} {activeProject} {chosenActivities} {chosenProjects} {selectProject} {updateRandomPrice} />
 </div>
 
 <style>
