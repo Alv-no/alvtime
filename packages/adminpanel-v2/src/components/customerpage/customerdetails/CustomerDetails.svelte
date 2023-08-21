@@ -1,24 +1,18 @@
 <script lang="ts">
 	import Activities from "./activities/Activities.svelte";
 	import Projects from "./projects/Projects.svelte";
-    import type { TCustomer, TProject } from "$lib/types.ts";
-    import type { TActivity } from "$lib/types";
 	import CustomerHeader from "./headers/CustomerHeader.svelte";
     import ListHeader from "./headers/ListHeader.svelte";
-    export let activeCustomer : TCustomer | null
-    export let activeProject: TProject | null
-    export let chosenActivities : TActivity[]
     export let updateRandomPrice : Function
-    export let chosenProjects : TProject[]
     export let selectProject : Function
 </script>
 
 <div class="customer">
-    <CustomerHeader {activeCustomer} {activeProject} />
+    <CustomerHeader />
     <ListHeader /> 
     <div class="listcontainer">
-        <Projects {chosenProjects} {selectProject} />
-        <Activities {chosenActivities} {updateRandomPrice} />
+        <Projects {selectProject} />
+        <Activities {updateRandomPrice} />
     </div>
 </div>
 

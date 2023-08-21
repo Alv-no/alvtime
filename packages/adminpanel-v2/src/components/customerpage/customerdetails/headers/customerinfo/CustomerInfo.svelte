@@ -1,13 +1,14 @@
 <script lang="ts">
 	import type { TCustomer } from "$lib/types";
-    export let activeCustomer: TCustomer | null
+	import { customers } from "../../../../../stores/CustomerStore";
+    $: customer = $customers.customers.find((c) => c.id == $customers.active.customer)
 </script>
 
 
 <div class="header">
-    <p> {activeCustomer?.name || "Kunde"} </p>
-    {#if activeCustomer}
-        <p> Kundenummer: { activeCustomer.id}</p>
+    <p> {customer?.name || "Kunde"} </p>
+    {#if customer}
+        <p> Kundenummer: { customer.id}</p>
     {/if}
 </div>
 

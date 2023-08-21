@@ -1,13 +1,15 @@
 <script lang="ts">
-    import type { TActivity } from "$lib/types";
+	import { customers } from "../../../../stores/CustomerStore";
     import Activity from "./activity/Activity.svelte";
-    export let chosenActivities : TActivity[]
     export let updateRandomPrice : Function
+
+    $: activities = $customers.customers.find((c) => c.id == $customers.active.customer)?.projects.find((p) => p.id == $customers.active.project)?.activities || []
+
 </script>
 
 <div class="right-component">
     <ul class="activity-list">
-        {#each chosenActivities as activity (activity.name)}
+        {#each activities as activity (activity.name)}
             <Activity {activity} {updateRandomPrice} />
         {/each}
     </ul>
