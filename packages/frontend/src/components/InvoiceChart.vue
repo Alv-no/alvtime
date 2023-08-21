@@ -15,10 +15,7 @@ import {
 
 import Vue from "vue";
 import ChartDataLabels, { Context } from "chartjs-plugin-datalabels";
-import Annotation, {
-  AnnotationOptions,
-  AnnotationTypeRegistry,
-} from "chartjs-plugin-annotation";
+import { HorizontalLinePlugin } from "../utils/horizontal-line-chart-plugin";	
 import { ChartConfiguration } from "chart.js";
 
 Chart.register(
@@ -28,37 +25,12 @@ Chart.register(
   BarElement,
   Title,
   ChartDataLabels,
-  Annotation,
+  HorizontalLinePlugin,
   Tooltip
 );
 
 let chart: Chart | null = null;
 const budgetedInvoiceRate = 90;
-
-const budgetedInvoiceRateAnnotation: AnnotationOptions<keyof AnnotationTypeRegistry> = {
-  type: "line",
-  borderColor: "rgba(240, 50, 50, .6)",
-  borderWidth: 3,
-  borderDash: [10],
-  scaleID: "y",
-  value: budgetedInvoiceRate,
-  label: {
-    content: `Budsjettert faktureringsgrad: ${budgetedInvoiceRate}%`,
-    backgroundColor: "rgba(0, 0, 0, 0.75)",
-  },
-  enter({ element }, _event) {
-    if (element.label) {
-      element.label.options.display = true;
-    }
-    return true;
-  },
-  leave({ element }, _event) {
-    if (element.label) {
-      element.label.options.display = false;
-    }
-    return true;
-  },
-};
 
 export default Vue.extend({
   computed: {
@@ -98,10 +70,9 @@ export default Vue.extend({
       },
       options: {
         plugins: {
-          annotation: {
-            annotations: {
-              budgetedInvoiceRateAnnotation,
-            },
+          horizontalLinePlugin: {
+            yValue: budgetedInvoiceRate,
+            color: "rgba(240, 50, 50, .6)",
           },
           datalabels: {
             align: "center",
