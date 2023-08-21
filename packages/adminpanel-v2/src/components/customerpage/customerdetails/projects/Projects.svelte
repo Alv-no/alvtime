@@ -1,13 +1,14 @@
 <script lang="ts">
-    import type { TProject } from "$lib/types.ts";
+	import { customers } from "../../../../stores/CustomerStore";
     import Project from "./project/Project.svelte";
-    export let chosenProjects : TProject[]
     export let selectProject : Function
+
+    $: projects = $customers.customers.find((c) => c.id == $customers.active.customer)?.projects || []
 </script>
 
 <div class="mid-component">
     <ul class="project-list">
-        {#each chosenProjects as project}
+        {#each projects as project}
             <Project {project} {selectProject} />
         {/each}
     </ul>

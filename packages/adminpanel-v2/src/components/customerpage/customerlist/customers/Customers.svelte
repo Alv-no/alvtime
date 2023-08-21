@@ -1,13 +1,13 @@
 <script lang="ts">
 	import type { TCustomer } from "$lib/types";
+	import { customers } from "../../../../stores/CustomerStore";
     import Customer from "./customer/Customer.svelte";
-    export let customers : TCustomer[]
     export let selectCustomer : Function
 </script>
 
 <div class="left-component">
     <ul class="customer-list">
-        {#each customers as customer}
+        {#each $customers.customers as customer}
             <Customer {customer} {selectCustomer}/>
         {/each}
     </ul>

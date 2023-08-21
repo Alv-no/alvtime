@@ -1,13 +1,14 @@
 <script lang="ts">
 	import type { TProject } from "$lib/types";
-    export let activeProject: TProject | null
+	import { customers } from "../../../../../stores/CustomerStore";
+    $: project = $customers.customers.find((c) => c.id == $customers.active.customer)?.projects.find((p) => p.id == $customers.active.project)
 </script>
 
 
 <div class="header">
-    <p> {activeProject?.name || "Prosjekt"} </p>
-    {#if activeProject}
-        <p> Prosjektnummer: { activeProject.id}</p>
+    <p> {project?.name || "Prosjekt"} </p>
+    {#if project}
+        <p> Prosjektnummer: { project.id}</p>
     {/if}
 </div>
 

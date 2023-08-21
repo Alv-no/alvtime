@@ -2,15 +2,18 @@
 	import type { TCustomer, TProject } from "$lib/types";
 	import CustomerInfo from "./customerinfo/CustomerInfo.svelte";
 	import ProjectInfo from "./projectinfo/ProjectInfo.svelte";
-    export let activeCustomer: TCustomer | null
-    export let activeProject: TProject | null
+	import { customers } from "../../../../stores/CustomerStore";
+    $: customer = $customers.customers.find((c) => c.id == $customers.active.customer)
 </script>
 
 <div class="container">
-    <CustomerInfo {activeCustomer} />
+    <CustomerInfo />
     <div class="line"></div>
-    <ProjectInfo {activeProject} />
+    <ProjectInfo />
 </div>
+
+
+
 
 <style>
     .line {
