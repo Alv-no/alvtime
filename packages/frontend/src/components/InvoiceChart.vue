@@ -32,6 +32,7 @@ Chart.register(
   Tooltip
 );
 
+let chart: Chart | null = null;
 const budgetedInvoiceRate = 90;
 
 const budgetedInvoiceRateAnnotation: AnnotationOptions<keyof AnnotationTypeRegistry> = {
@@ -67,12 +68,10 @@ export default Vue.extend({
   },
   watch: {
     invoiceStatistics: function() {
-      if (!this.chart) {
-        return;
-      }
+      if (!chart) return;
 
-      this.chart.data.labels = this.invoiceStatistics?.labels;
-      this.chart.data.datasets = [
+      chart.data.labels = this.invoiceStatistics?.labels;
+      chart.data.datasets = [
         {
           label: "Faktureringsgrad",
           data: this.invoiceStatistics?.invoiceRate || [],
@@ -88,7 +87,7 @@ export default Vue.extend({
         },
       ];
 
-      this.chart.update();
+      chart.update();
     },
   },
   mounted() {
@@ -145,12 +144,9 @@ export default Vue.extend({
       },
     };
     const context = document.getElementById("context") as HTMLCanvasElement;
-    this.chart = new Chart(context, chartConfig);
+    chart = new Chart(context, chartConfig);
   },
   async created() {
-    // create non-reactive component variable
-    this.chart = null;
-
     // subscribe to mutations
     this.$store.subscribe(mutation => {
       if (mutation.type === "SET_INVOICE_STATISTIC_FILTERS") {
