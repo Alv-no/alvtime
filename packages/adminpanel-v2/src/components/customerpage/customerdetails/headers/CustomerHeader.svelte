@@ -1,27 +1,10 @@
 <script lang="ts">
-	import type { TCustomer, TProject } from "$lib/types";
 	import CustomerInfo from "./customerinfo/CustomerInfo.svelte";
 	import ProjectInfo from "./projectinfo/ProjectInfo.svelte";
-	import { customers } from "../../../../stores/CustomerStore";
-    $: customer = $customers.customers.find((c) => c.id == $customers.active.customer)
 </script>
 
-<div class="container">
+<div class="w-full h-20 flex align-center justify-between bg-neutral-50 p-2">
     <CustomerInfo />
-    <div class="line"></div>
+    <div class="h-full pl-2 border border-solid border-transparent border-l-black"></div>
     <ProjectInfo />
 </div>
-
-
-
-
-<style>
-    .line {
-        height: 100%;
-        border-left: 1px solid black;
-    }
-    .container {
-        display: flex;
-        width: 100%;
-    }
-</style>

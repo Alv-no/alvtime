@@ -1,23 +1,41 @@
 <script lang="ts">
-	import type { TProject } from "$lib/types";
 	import { customers } from "../../../../../stores/CustomerStore";
+	import EditButton from "../../../../generic/buttons/EditButton.svelte";
     $: project = $customers.customers.find((c) => c.id == $customers.active.customer)?.projects.find((p) => p.id == $customers.active.project)
+
+    let edit: boolean = false
+
+    let updateFunction = () => {
+        edit = !edit
+    }
+
+    let updateProjectName = () => {
+        customers.updateProject(project!)
+    }
+
+    let updateProjectNumber = () => {
+        customers.updateProject(project!)
+    }
+
 </script>
 
 
 <div class="header">
-    <p> {project?.name || "Prosjekt"} </p>
     {#if project}
-        <p> Prosjektnummer: { project.id}</p>
+        <p>Prosjekt: <input type="text" disabled={!edit} bind:value={project.name} on:change={(e) => updateProjectName()}></p>
+        <p>Prosjektnummer: <input type="text" disabled={!edit} bind:value={project.prosjektnummer} on:change={(e) => updateProjectNumber()}></p>
+        <EditButton {updateFunction} />
+    {:else}
+        <p> Prosjekt </p>
     {/if}
 </div>
 
 
 <style>
     .header {
-        border: 1px solid black;
-        width: 100%;
+        width: 45%;
         display: flex;
         justify-content: space-between;
+        align-items: center;
     }
 </style>

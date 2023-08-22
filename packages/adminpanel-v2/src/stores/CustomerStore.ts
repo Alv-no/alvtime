@@ -1,5 +1,5 @@
 //import { TCustomer, TProject, TActivity} from "$lib/types"
-import type { TCustomer } from "$lib/types";
+import type { TCustomer, TProject } from "$lib/types";
 import { get, writable } from "svelte/store";
 import { customers as mock}  from "$lib/mock/customers";
 
@@ -29,9 +29,9 @@ function createCustomers() {
 		//fetch from backend
 	}
 
-	const setCustomers = () => {
-		update((n) => {n.customers = mock; return n})
-		
+	const setCustomers = (customers: TCustomer[]) => {
+		update((n) => {n.customers = customers; return n})
+		console.log(customers)
 	}
 
     const setCustomer = (id: number) => {
@@ -68,6 +68,20 @@ function createCustomers() {
 		return store.customers.find((c) => c.id == store.active.customer)?.projects.find((p) => p.id == store.active.project)?.activities.find((a) => a.id == store.active.activity)
 	}
 
+	const updateCustomer = (customer: TCustomer) => {
+		const store = get(customerStore)
+		const customers = store.customers
+		customers.map((c) => c.id == store.active.customer ? customer : c)
+		setCustomers(customers)
+	}
+
+	const updateProject = (project: TProject) => {
+		const store = get(customerStore)
+		const customers = store.customers
+		customers.map((c) => c.id == store.active.customer?  c.projects.map((p) => p.id == store.active.project ? project : p) : c)
+		setCustomers(customers)
+	}
+
 
 	return {
 		subscribe,
@@ -78,6 +92,8 @@ function createCustomers() {
 		getActiveCustomer,
 		getActiveProject,
 		getActiveActivity,
+		updateCustomer,
+		updateProject,
 	};
 }
 
