@@ -2,11 +2,8 @@
 	import Customers from "./customers/Customers.svelte";
     import SearchBar from "./searchbar/SearchBar.svelte";
     import type { TCustomer } from "$lib/types";
-
     export let customers : TCustomer[]
     export let selectCustomer : Function
-
-
 </script>
 <div class="customerlist">
     <SearchBar />
