@@ -6,25 +6,8 @@
     $: projects = $customers.customers.find((c) => c.id == $customers.active.customer)?.projects || []
 </script>
 
-<div class="mid-component">
-    <ul class="project-list">
-        {#each projects as project}
-            <Project {project} {selectProject} />
-        {/each}
-    </ul>
+<div class="w-3/12 bg-gray-200 h-screen items-center">
+    {#each projects as project}
+        <Project {project} {selectProject} />
+    {/each}
 </div>
-
-<style>
-    .mid-component {
-      width: 16.67%; /* 2 out of 12 columns */
-      padding: 10px;
-      box-sizing: border-box;
-      border-right: 1px solid #ccc;
-      height: 100vh; /* Full viewport height */
-    }
-    
-    .project-list {
-      list-style: none;
-      padding: 0;
-    }
-</style>

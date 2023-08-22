@@ -1,19 +1,20 @@
 <script lang="ts">
 	import ListHeaderText from "./ListHeaderText.svelte";
 
-    let projectHeaderTexts: string[] = ["Prosjekt"]
-    let activityHeaderTexts: string[] = ["Aktivitet", "Pris", "Overtidsfaktor"]
+    let PROJECT_HEADER_TEXTS: string[] = ["Prosjekt"]
+    let ACTIVITY_HEADER_TEXTS: string[] = ["Aktivitet", "Pris", "Overtidsfaktor"]
 </script>
 
 <div class="grid-container grid grid-cols-12 items-center bg-slate-50">
+    
     <!-- Project header list-->
-    <div class="col-span-2 flex justify-between border-r border-b border-slate-300">
-        <ListHeaderText headerTexts={projectHeaderTexts} />
+    <div class="col-span-3 flex justify-between border-r border-b border-slate-300">
+        <ListHeaderText headerTexts={PROJECT_HEADER_TEXTS} />
     </div>
 
     <!-- Activity header list-->
-    <div class="col-span-10 flex justify-between border-r border-b border-slate-300">
-        <ListHeaderText headerTexts={activityHeaderTexts} />
+    <div class="col-span-9 flex justify-between border-r border-b border-slate-300">
+        <ListHeaderText headerTexts={ACTIVITY_HEADER_TEXTS} />
     </div>
     
 </div>
