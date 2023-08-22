@@ -3,23 +3,26 @@
 	import { customers } from "../../../../stores/CustomerStore";
     import Customer from "./customer/Customer.svelte";
     export let selectCustomer : Function
+    export let searchQuery = '';
+
+  
+  // Filter function which is dependent on the searchQuery
+  function filterCustomers(customers: TCustomer[], searchQuery: string) {
+    return customers.filter(customer =>
+      customer.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }
+  
+  // reactivity
+  $: filteredCustomers = filterCustomers($customers.customers, searchQuery)
+
 </script>
 
-<div class="left-component">
-    <ul class="customer-list">
-        {#each $customers.customers as customer}
-            <Customer {customer} {selectCustomer}/>
-        {/each}
-    </ul>
-</div>
+
+{#each filteredCustomers as customer}
+    <Customer {customer} {selectCustomer}/>
+{/each}
 
 <style>
-    .left-component {
-      width: 100%; /* 2 out of 12 columns */
-      
-    }
-    .customer-list {
-      list-style: none;
-      padding: 0;
-    }
+
 </style>

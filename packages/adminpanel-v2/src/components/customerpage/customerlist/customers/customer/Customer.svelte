@@ -5,15 +5,8 @@
 </script>
 
 
-<li class="customer-item">
-    <iconify-icon icon="mdi:person"></iconify-icon>
-    <button on:click={() => selectCustomer(customer.id)}>
-        {customer.name}
-    </button>
-</li>
-
-<style>
-    .customer-item {
-        gap: 10px;
-    }
-</style>
+<button on:click={() => selectCustomer(customer.id)} class="border-r border-b border-gray-300 bg-white w-full flex">
+    <div class="p-4">
+        <span class="text-sm  text-gray-800">{customer.name}</span>
+    </div>
+</button>
