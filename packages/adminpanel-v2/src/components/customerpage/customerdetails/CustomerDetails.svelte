@@ -7,7 +7,7 @@
     export let selectProject : Function
 </script>
 
-<div class="customer">
+<div class="bg-gray-200 w-full">
     <CustomerHeader />
     <ListHeader /> 
     <div class="listcontainer">
@@ -15,11 +15,3 @@
         <Activities {updateRandomPrice} />
     </div>
 </div>
-
-<style>
-.customer {
-    width: 100%;
-    
-}
-
-</style>

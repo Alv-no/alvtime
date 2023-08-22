@@ -1,23 +1,32 @@
 <script lang="ts">
-	import type { TCustomer } from "$lib/types";
 	import { customers } from "../../../../../stores/CustomerStore";
+    import EditButton from "../../../../generic/buttons/EditButton.svelte";
+
     $: customer = $customers.customers.find((c) => c.id == $customers.active.customer)
+
+    let edit: boolean = false
+
+    let updateFunction = () => {
+        edit = !edit
+    }
+
+    let updateCustomerName = () => {
+        customers.updateCustomer(customer!)
+    }
+
+    let updateCustomerNumber = () => {
+        customers.updateCustomer(customer!)
+    }
+
 </script>
 
 
-<div class="header">
-    <p> {customer?.name || "Kunde"} </p>
+<div class="w-1/2 flex justify-between items-center">
     {#if customer}
-        <p> Kundenummer: { customer.id}</p>
+        <p>Kunde: <input type="text" disabled={!edit} bind:value={customer.name} on:change={(e) => updateCustomerName()}></p>
+        <p>Kundenummer: <input type="text" disabled={!edit} bind:value={customer.kundenummer} on:change={(e) => updateCustomerNumber()}></p>
+        <EditButton {updateFunction} />
+    {:else}
+        <p> Kunde </p>
     {/if}
 </div>
-
-
-<style>
-    .header {
-        border: 1px solid black;
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-    }
-</style>
