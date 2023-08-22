@@ -7,9 +7,10 @@
     "terminal.integrated.shell.linux": "/bin/bash"
   },
   "extensions": [
-    "dbaeumer.vscode-eslint",
-    "esbenp.prettier-vscode",
-    "ms-azuretools.vscode-docker"
+  	"dbaeumer.vscode-eslint",
+  	"esbenp.prettier-vscode",
+  	"ms-azuretools.vscode-docker",
+  	"svelte.svelte-vscode"
   ],
   "remoteUser": "vscode",
   "shutdownAction": "none"
