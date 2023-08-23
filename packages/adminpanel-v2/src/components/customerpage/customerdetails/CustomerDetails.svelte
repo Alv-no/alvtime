@@ -3,15 +3,14 @@
 	import Projects from "./projects/Projects.svelte";
 	import CustomerHeader from "./headers/CustomerHeader.svelte";
     import ListHeader from "./headers/ListHeader.svelte";
-    export let updateRandomPrice : Function
     export let selectProject : Function
 </script>
 
 <div class="bg-gray-200 w-full">
     <CustomerHeader />
     <ListHeader /> 
-    <div class="listcontainer">
+    <div class="flex">
         <Projects {selectProject} />
-        <Activities {updateRandomPrice} />
+        <Activities/>
     </div>
 </div>

@@ -1,4 +1,11 @@
-export type TActivity = {id: number, name: string, aktivitetnummer: number, price?: number, changedDate?: Date}
+export type TActivity = {
+    id: number, 
+    name: string, 
+    aktivitetnummer?: number,
+    price?: number, 
+    changedDate?: Date,
+    overtimeFactor?: number
+}
 
 export type TProject = {id: number, name: string, prosjektnummer: number, activities: TActivity[]}
 

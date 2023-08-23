@@ -26,7 +26,7 @@
 
 <div class="container">
     <CustomerList {selectCustomer} />
-    <CustomerDetails {selectProject} {updateRandomPrice} />
+    <CustomerDetails {selectProject} />
 </div>
 
 <style>
