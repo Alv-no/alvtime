@@ -4,6 +4,7 @@
     export let selectProject : Function
 
     $: projects = $customers.customers.find((c) => c.id == $customers.active.customer)?.projects || []
+    
 </script>
 
 <div class="w-3/12 bg-gray-200 h-screen items-center">
