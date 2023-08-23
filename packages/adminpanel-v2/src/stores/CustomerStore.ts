@@ -1,10 +1,13 @@
 //import { TCustomer, TProject, TActivity} from "$lib/types"
 import type { TActivity, TCustomer, TProject } from "$lib/types";
 import { get, writable } from "svelte/store";
-import { customers as mock}  from "$lib/mock/customers";
+import { customers as mock}  from "$lib/mock/customersOld";
 
 type TCustomerStore = {
 	customers: TCustomer[],
+	//TODO: Update store object structure to match backend
+	//projects: TProject[],
+	//tasks: TTask[],
 	active: {
 		customer: number | undefined,
 		project: number | undefined,
@@ -66,6 +69,16 @@ function createCustomers() {
 		const store = get(customerStore)
 		return store.customers.find((c) => c.id == store.active.customer)?.projects.find((p) => p.id == store.active.project)?.activities.find((a) => a.id == store.active.activity)
 	}
+
+	/* const getProjects = () => {
+		const store = get(customerStore)
+		return store.projects.filter((p) => p.CustomerId == store.active.customer)
+	} */
+
+	/* const getActivities = () => {
+		const store = get(customerStore)
+		return store.tasks.filter((t) => t.ProjectId == store.active.project)
+	} */
 
 	const updateCustomer = (customer: TCustomer) => {
 		const store = get(customerStore)

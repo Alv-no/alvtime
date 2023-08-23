@@ -3,7 +3,7 @@
     import Project from "./project/Project.svelte";
     export let selectProject : Function
 
-    $: projects = $customers.customers.find((c) => c.id == $customers.active.customer)?.projects || []
+    $: projects = $customers.customers.find((c) => c.id == $customers.active.customer)?.projects || [] //change to getProjects when implemented
     
 </script>
 

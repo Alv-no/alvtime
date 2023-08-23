@@ -1,9 +1,9 @@
-import type { TActivity, TEmployee } from "$lib/types";
+import type { TActivity, TEmployee, TUser } from "$lib/types";
 import { get, writable } from "svelte/store";
 import { employees as mock}  from "$lib/mock/employees";
 
 type TEmployeeStore = {
-	employees: TEmployee[],
+	employees: TUser[],
 	active: {
 		employee: number | undefined,
 	}
@@ -24,26 +24,26 @@ function createEmployees() {
 		//fetch from backend
 	}
 
-	const setEmployees = (employees: TEmployee[]) => {
+	const setEmployees = (employees: TUser[]) => {
 		update((n) => {n.employees = employees; return n})
 		console.log(employees)
 	}
 
-    const setEmployee = (id: number) => {
-		if (id != get(employeeStore).active.employee) {
-			update((n) => {n.active.employee = id; return n})
+    const setEmployee = (Id: number) => {
+		if (Id != get(employeeStore).active.employee) {
+			update((n) => {n.active.employee = Id; return n})
 		}
 	}
 
 	const getActiveEmployee = () => {
 		const store = get(employeeStore)
-		return store.employees.find((e) => e.id == store.active.employee)
+		return store.employees.find((e) => e.Id == store.active.employee)
 	}
 
-	const updateEmployee = (employee: TEmployee) => {
+	const updateEmployee = (employee: TUser) => {
 		const store = get(employeeStore)
 		const employees = store.employees
-		employees.map((e) => e.id == store.active.employee ? employee : e)
+		employees.map((e) => e.Id == store.active.employee ? employee : e)
 		setEmployees(employees)
 	}
 
