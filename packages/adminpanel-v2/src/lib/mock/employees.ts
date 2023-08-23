@@ -1,42 +1,30 @@
 export const employees = [
     {
-        id: 1,
-        name: 'Rune Rutinert',
-        ansattnummer: 1,
-        activities: [
-            { id: 1, name: "Design Planning", aktivitetnummer: 1, price: 1000 },
-            { id: 2, name: "Material Procurement", aktivitetnummer: 2 },
-            { id: 3, name: "Construction Phase 1", aktivitetnummer: 3 },
-        ]
+        Id: 1,
+        Name: 'Rune Rutinert',
+        Email: 'rune@alv.no',
+        StartDate: new Date(),
+        EmployeeId: 1,
     },
     {
-        id: 2,
-        name: 'Gunnar Grønn',
-        ansattnummer: 2,
-        activities: [
-            { id: 1, name: "Design Planning", aktivitetnummer: 1, price: 1000 },
-            { id: 2, name: "Material Procurement", aktivitetnummer: 2 },
-            { id: 3, name: "Construction Phase 1", aktivitetnummer: 3 },
-        ]
+        Id: 2,
+        Name: 'Gunnar Grønn',
+        Email: 'gunnar@alv.no',
+        StartDate: new Date(),
+        EmployeeId: 2,
     },
     {
-        id: 3,
-        name: 'Stine Stille',
-        ansattnummer: 3,
-        activities: [
-            { id: 1, name: "Design Planning", aktivitetnummer: 1, price: 1000 },
-            { id: 2, name: "Material Procurement", aktivitetnummer: 2 },
-            { id: 3, name: "Construction Phase 1", aktivitetnummer: 3 },
-        ]
+        Id: 3,
+        Name: 'Stine Stille',
+        Email: 'stine@alv.no',
+        StartDate: new Date(),
+        EmployeeId: 3,
     },
     {
-        id: 4,
-        name: 'Frida Flittig',
-        ansattnummer: 4,
-        activities: [
-            { id: 1, name: "Design Planning", aktivitetnummer: 1, price: 1000 },
-            { id: 2, name: "Material Procurement", aktivitetnummer: 2 },
-            { id: 3, name: "Construction Phase 1", aktivitetnummer: 3 },
-        ]
+        Id: 4,
+        Name: 'Frida Flittig',
+        Email: 'frida@alv.no',
+        StartDate: new Date(),
+        EmployeeId: 4,
     }
-    ];
+];
