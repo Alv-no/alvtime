@@ -4,5 +4,7 @@ export type TProject = {id: number, name: string, prosjektnummer: number, activi
 
 export type TCustomer = {id: number, name: string, kundenummer: number, projects: TProject[]}
 
+export type TEmployee = {id: number, name: string, ansattnummer: number, activities: TActivity[]}
+
 
 
