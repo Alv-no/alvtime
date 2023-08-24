@@ -1,4 +1,12 @@
-export const createProject = async ({ body, token }) => {
+import type { TProject } from '$lib/types';
+
+export const createProject = async ({
+	body,
+	token
+}: {
+	body: Partial<TProject>;
+	token: string;
+}) => {
 	const res = await fetch('http://localhost:8081/api/admin/Projects', {
 		method: 'POST',
 		headers: {
@@ -11,7 +19,13 @@ export const createProject = async ({ body, token }) => {
 	return await res.json();
 };
 
-export const updateProject = async ({ body, token }) => {
+export const updateProject = async ({
+	body,
+	token
+}: {
+	body: Partial<TProject>;
+	token: string;
+}) => {
 	const res = await fetch('http://localhost:8081/api/admin/Projects', {
 		method: 'PUT',
 		headers: {
@@ -24,7 +38,7 @@ export const updateProject = async ({ body, token }) => {
 	return await res.json();
 };
 
-export const getProjects = async ({ token }) => {
+export const fetchProjects = async ({ token }: { token: string }) => {
 	const res = await fetch(`http://localhost:8081/api/admin/Projects`, {
 		method: 'GET',
 		headers: {
@@ -32,5 +46,5 @@ export const getProjects = async ({ token }) => {
 		}
 	});
 
-	return await res.json();
+	return (await res.json()) as TProject[];
 };

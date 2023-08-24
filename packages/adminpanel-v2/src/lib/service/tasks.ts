@@ -1,4 +1,6 @@
-export const createTask = async ({ body, token }) => {
+import type { TTask } from '$lib/types';
+
+export const createTask = async ({ body, token }: { body: Partial<TTask>; token: string }) => {
 	const res = await fetch('http://localhost:8081/api/admin/Task', {
 		method: 'POST',
 		headers: {
@@ -11,7 +13,7 @@ export const createTask = async ({ body, token }) => {
 	return await res.json();
 };
 
-export const updateTask = async ({ body, token }) => {
+export const updateTask = async ({ body, token }: { body: Partial<TTask>; token: string }) => {
 	const res = await fetch('http://localhost:8081/api/admin/Task', {
 		method: 'PUT',
 		headers: {
@@ -24,7 +26,7 @@ export const updateTask = async ({ body, token }) => {
 	return await res.json();
 };
 
-export const getTasks = async ({ token }) => {
+export const fetchTasks = async ({ token, Ids }: { token: string; Ids: number[] }) => {
 	const res = await fetch(`http://localhost:8081/api/admin/Tasks`, {
 		method: 'GET',
 		headers: {
@@ -32,5 +34,5 @@ export const getTasks = async ({ token }) => {
 		}
 	});
 
-	return await res.json();
+	return (await res.json()) as TTask[];
 };

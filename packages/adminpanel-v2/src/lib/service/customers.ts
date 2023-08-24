@@ -1,4 +1,12 @@
-export const createCustomer = async ({ body, token }) => {
+import type { TCustomer } from '$lib/types';
+
+export const createCustomer = async ({
+	body,
+	token
+}: {
+	body: Partial<TCustomer>;
+	token: string;
+}) => {
 	const res = await fetch('http://localhost:8081/api/admin/Customers', {
 		method: 'POST',
 		headers: {
@@ -12,7 +20,13 @@ export const createCustomer = async ({ body, token }) => {
 	return await res.json();
 };
 
-export const updateCustomer = async ({ body, token }) => {
+export const updateCustomer = async ({
+	body,
+	token
+}: {
+	body: Partial<TCustomer>;
+	token: string;
+}) => {
 	const res = await fetch('http://localhost:8081/api/admin/Customers', {
 		method: 'PUT',
 		headers: {
@@ -25,7 +39,7 @@ export const updateCustomer = async ({ body, token }) => {
 	return await res.json();
 };
 
-export const getCustomers = async ({ token }) => {
+export const fetchCustomers = async ({ token }: { token: string }) => {
 	const res = await fetch(`http://localhost:8081/api/admin/Customers`, {
 		method: 'GET',
 		headers: {
@@ -33,5 +47,5 @@ export const getCustomers = async ({ token }) => {
 		}
 	});
 
-	return await res.json();
+	return (await res.json()) as TCustomer[];
 };
