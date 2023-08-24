@@ -1,5 +1,5 @@
-export const createCustomer = async ({ body, token }) => {
-	const res = await fetch('http://localhost:8081/api/admin/Customers', {
+export const createTask = async ({ body, token }) => {
+	const res = await fetch('http://localhost:8081/api/admin/Task', {
 		method: 'POST',
 		headers: {
 			Authorization: `Bearer ${token}`,
@@ -7,13 +7,12 @@ export const createCustomer = async ({ body, token }) => {
 		},
 		body: JSON.stringify(body)
 	});
-	console.log(res.ok);
 
 	return await res.json();
 };
 
-export const updateCustomer = async ({ body, token }) => {
-	const res = await fetch('http://localhost:8081/api/admin/Customers', {
+export const updateTask = async ({ body, token }) => {
+	const res = await fetch('http://localhost:8081/api/admin/Task', {
 		method: 'PUT',
 		headers: {
 			Authorization: `Bearer ${token}`,
@@ -25,8 +24,8 @@ export const updateCustomer = async ({ body, token }) => {
 	return await res.json();
 };
 
-export const getCustomers = async ({ token }) => {
-	const res = await fetch(`http://localhost:8081/api/admin/Customers`, {
+export const getTasks = async ({ token }) => {
+	const res = await fetch(`http://localhost:8081/api/admin/Tasks`, {
 		method: 'GET',
 		headers: {
 			Authorization: `Bearer ${token}`
