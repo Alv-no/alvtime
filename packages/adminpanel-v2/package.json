@@ -38,8 +38,6 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@auth/core": "^0.12.0",
-		"@auth/sveltekit": "^0.3.6",
 		"iconify-icon": "^1.0.8",
 		"react-icons": "^4.10.1"
 	}

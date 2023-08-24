@@ -3,7 +3,7 @@
     export let edit: boolean;
     
 
-    $: project = $customers.projects.find((p) => p.Id == $customers.active.project)
+    $: project = $customers.projects.find((p) => p.id == $customers.active.project)
     $: editStyling = edit 
         ? "rounded border border-gray-300 focus:outline-none focus:border-blue-500 disabled:bg-transparent" 
         : "bg-transparent rounded border border-transparent"
@@ -13,11 +13,11 @@
 {#if project}
     <p>
         Prosjekt: 
-        <input type="text" bind:value={project.Name} class={editStyling} disabled={!edit}/>
+        <input type="text" bind:value={project.name} class={editStyling} disabled={!edit}/>
     </p>
     <p>
         Prosjektnr:
-        <input type="text" bind:value={project.ProjectNumber} class={editStyling} disabled={!edit}/>
+        <input type="text" bind:value={project.projectNumber} class={editStyling} disabled={!edit}/>
     </p>
 {:else}
     <p>Prosjekt:</p>
