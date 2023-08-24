@@ -1,22 +1,25 @@
 <script lang="ts">
-    import type {TActivity} from "../../../../../lib/types.ts"
+	import { HourRate } from "$lib/mock/customers.ts";
+    import type { TTask } from "../../../../../lib/types.ts"
     import { customers } from "../../../../../stores/CustomerStore.ts";
     let name: string
     let price: number
     let overtimeFactor: number
     
-    let addActivity = () => {
-        let newActivity: TActivity = {
-            id: Date.now(),
-            name: name, 
-            price: price, 
-            overtimeFactor: overtimeFactor
+    /* let addTask = () => {
+        let newTask: TTask = {
+            Id: Date.now(),
+            Name: name, 
+            CompensationRate: //todo
+            HourRate: //todo
+            //price: price, 
+            //overtimeFactor: overtimeFactor
         };
 
-        customers.addNewActivity(newActivity);
+        customers.addNewTask(newTask);
         name = "";
         
-    }
+    } */
 </script>
 
 <button 
@@ -39,7 +42,7 @@
         bind:value={overtimeFactor} />
     <button 
         class="text-sm col-span-1 text-gray-800 flex justify-end align-center leading-none"
-        on:click={addActivity}>       
+        on:click={/* addTask */() => {}}>       
 
         <div class="rounded border-2 border-transparent justify-center align-center">
             <iconify-icon width="2em" icon="icon-park:plus"></iconify-icon>

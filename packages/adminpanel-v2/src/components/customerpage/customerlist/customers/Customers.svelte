@@ -9,7 +9,7 @@
   // Filter function which is dependent on the searchQuery
   function filterCustomers(customers: TCustomer[], searchQuery: string) {
     return customers.filter(customer =>
-      customer.name.toLowerCase().includes(searchQuery.toLowerCase())
+      customer.Name.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }
   

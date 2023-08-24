@@ -3,22 +3,14 @@
 	import { customers } from "../../../../../stores/CustomerStore.ts";
     export let customer : TCustomer
     export let selectCustomer : Function
+
+    $: customerStyling = customer.Id == $customers.active.customer ? "border-2 border-blue-500 bg-sky-50 w-full flex" : "border-r border-b border-gray-300 bg-white w-full flex"
 </script>
 
 
-{#if customer.id == customers.getActiveCustomer()?.id}
-    <button 
-        on:click={() => selectCustomer(customer.id)} 
-        class="border-2 border-blue-500 bg-sky-50 w-full flex"
-    >
-        <div class="p-4">
-            <span class="text-sm  text-gray-800">{customer.name}</span>
-        </div>
-    </button>
-{:else}
-    <button on:click={() => selectCustomer(customer.id)} class="border-r border-b border-gray-300 bg-white w-full flex">
-        <div class="p-4">
-            <span class="text-sm  text-gray-800">{customer.name}</span>
-        </div>
-    </button>
-{/if}
+
+<button on:click={() => selectCustomer(customer.Id)} class={customerStyling}>
+    <div class="p-4">
+        <span class="text-sm  text-gray-800">{customer.Name}</span>
+    </div>
+</button>

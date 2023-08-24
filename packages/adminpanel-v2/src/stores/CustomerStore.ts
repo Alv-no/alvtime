@@ -1,28 +1,32 @@
-//import { TCustomer, TProject, TActivity} from "$lib/types"
-import type { TActivity, TCustomer, TProject } from "$lib/types";
+import type { TCompensationRate, TCustomer, THourRate, TProject, TTask } from "$lib/types";
 import { get, writable } from "svelte/store";
-import { customers as mock}  from "$lib/mock/customersOld";
+import { Customers, Projects, Tasks, CompensationRate, HourRate}  from "$lib/mock/customers";
 
 type TCustomerStore = {
 	customers: TCustomer[],
-	//TODO: Update store object structure to match backend
-	//projects: TProject[],
-	//tasks: TTask[],
+	projects: TProject[],
+	tasks: TTask[],
+	compensationRate: TCompensationRate[],
+	hourRate: THourRate[],
 	active: {
 		customer: number | undefined,
 		project: number | undefined,
-		activity: number | undefined
+		task: number | undefined
 	}
 }
 
 function createCustomers() {
 	const customerStore = writable<TCustomerStore>(
 		{
-			customers: mock,
+			customers: Customers,
+			projects: Projects,
+			tasks: Tasks,
+			compensationRate: CompensationRate,
+			hourRate: HourRate,
 			active: {
 				customer: undefined,
 				project: undefined,
-				activity: undefined
+				task: undefined
 			} 
 		}
 	);
@@ -36,38 +40,46 @@ function createCustomers() {
 		update((n) => {n.customers = customers; return n})
 	}
 
-    const setCustomer = (id: number) => {
-		if (id != get(customerStore).active.customer) {
-			update((n) => {n.active.customer = id; return n})
+	const setProjects = (projects: TProject[]) => {
+		update((n) => {n.projects = projects; return n})
+	}
+
+	const setTasks = (tasks: TTask[]) => {
+		update((n) => {n.tasks = tasks; return n})
+	}
+
+    const setCustomer = (Id: number) => {
+		if (Id != get(customerStore).active.customer) {
+			update((n) => {n.active.customer = Id; return n})
 			update((n) => {n.active.project = undefined; return n})
-			update((n) => {n.active.activity = undefined; return n})
+			update((n) => {n.active.task = undefined; return n})
 		}
 	}
 
-	const setProject = (id: number) => {
-		if (id != get(customerStore).active.project) {
-			update((n) => {n.active.project = id; return n})
-			update((n) => {n.active.activity = undefined; return n})
-		}
+	const setProject = (Id: number) => {
+		if (Id != get(customerStore).active.project) {
+			update((n) => {n.active.project = Id; return n})
+			update((n) => {n.active.task = undefined; return n})
+		} 
 	}
 
-	const setActivity = (id: number) => {
-		update((n) => {n.active.activity = id; return n})
+	const setTask = (Id: number) => {
+		update((n) => {n.active.task = Id; return n})
 	}
 
 	const getActiveCustomer = () => {
 		const store = get(customerStore)
-		return store.customers.find((c) => c.id == store.active.customer)
+		return store.customers.find((c) => c.Id == store.active.customer)
 	}
 
 	const getActiveProject = () => {
 		const store = get(customerStore)
-		return store.customers.find((c) => c.id == store.active.customer)?.projects.find((p) => p.id == store.active.project)
+		return store.projects.find((p) => p.Id == store.active.project)
 	}
 
-	const getActiveActivity = () => {
+	const getActiveTask = () => {
 		const store = get(customerStore)
-		return store.customers.find((c) => c.id == store.active.customer)?.projects.find((p) => p.id == store.active.project)?.activities.find((a) => a.id == store.active.activity)
+		return store.tasks.find((t) => t.Id == store.active.task)
 	}
 
 	/* const getProjects = () => {
@@ -83,90 +95,37 @@ function createCustomers() {
 	const updateCustomer = (customer: TCustomer) => {
 		const store = get(customerStore)
 		const customers = store.customers
-		customers.map((c) => c.id == store.active.customer ? customer : c)
+		customers.map((c) => c.Id == store.active.customer ? customer : c)
 		setCustomers(customers)
 	}
 
 	const updateProject = (project: TProject) => {
 		const store = get(customerStore)
-		const customers = store.customers
-		customers.map((c) => c.id == store.active.customer?  c.projects.map((p) => p.id == store.active.project ? project : p) : c)
-		setCustomers(customers)
+		const projects = store.projects
+		projects.map((p) => p.Id == store.active.project ? project : p)
+		setProjects(projects)
 	}
-
-	
-
-	// HELPER FUNCTIONS FOR updateActivity
-	const _handleSingleCustomerUpdate = (targetCustomerId: number, targetProjectId: number, targetActivityId: number, newActivity: TActivity) => (customer: TCustomer) => {
-		if (customer.id !== targetCustomerId) return customer;
-
-		// Update projects within the customer
-		const updatedProjects = customer.projects.map(_handleSingleProjectUpdate(targetProjectId, targetActivityId, newActivity));
-		return { ...customer, projects: updatedProjects };
-	};
-
-	const _handleSingleProjectUpdate = (targetProjectId: number, targetActivityId: number, newActivity: TActivity) => (project: TProject) => {
-		if (project.id !== targetProjectId) return project;
-
-		// Update activities within the project
-		const updatedActivities = project.activities.map(_handleSingleActivityUpdate(targetActivityId, newActivity));
-		return { ...project, activities: updatedActivities };
-		};
-
-	const _handleSingleActivityUpdate = (targetActivityId: number, newActivity: TActivity) => (act: TActivity) => {
-		if (act.id !== targetActivityId) return act;
-		return { ...newActivity, id: targetActivityId };
-	};
-
 
 
 	/**
 	 * Update an activity given a already active customer and active project.
 	 *
-	 * @param {TActivity} newActivity - The new activity data to replace the existing activity with.
+	 * @param {TTask} Task - The new activity data to replace the existing activity with.
 	 */
-	const updateActivity = (newActivity: TActivity) => {
+	const updateTask= (task: TTask) => {
 		// Retrieve data from the customer store
 		const store = get(customerStore);
-		const customers = store.customers;
-		const { customer, project, activity } = store.active;
-
-		// Check if all necessary data is available for update
-		if (customer !== undefined && project !== undefined && activity !== undefined) {
-			// Update customers based on the provided information
-			const updatedCustomers = customers.map(_handleSingleCustomerUpdate(customer, project, activity, newActivity));
-			setCustomers(updatedCustomers);
-		}
-	};
+		const tasks = store.tasks;
+		tasks.map((t) => t.Id == store.active.task ? task : t)
+		setTasks(tasks)
+	}
 	
-	// HELPER FUNCTIONS addNewActivity
-	const _handleSingleCustomerAddNew = (targetCustomerId: number, targetProjectId: number, newActivity: TActivity) => (customer: TCustomer) => {
-		if (customer.id !== targetCustomerId) return customer;
 
-		// Update projects within the customer
-		const updatedProjects = customer.projects.map(_handleSingleProjectAddNew(targetProjectId, newActivity));
-		return { ...customer, projects: updatedProjects };
-	};
-
-	const _handleSingleProjectAddNew = (targetProjectId: number, newActivity: TActivity) => (project: TProject) => {
-		if (project.id !== targetProjectId) return project;
-
-		// Update activities within the project
-		project.activities.unshift(newActivity);
-		return { ...project, activities: project.activities};
-	};
-
-	const addNewActivity = (newActivity: TActivity) => {
+	const addNewTask = (task: TTask) => {
 		// Retrieve data from the customer store
 		const store = get(customerStore);
-		const customers = store.customers;
-
-		// Check if all necessary data is available for update
-		if (store.active.customer !== undefined && store.active.project !== undefined ) {
-			// Update customers based on the provided information
-			const updatedCustomers = customers.map(_handleSingleCustomerAddNew(store.active.customer, store.active.project,  newActivity));
-			setCustomers(updatedCustomers);
-		}
+		const tasks = [...store.tasks, task]
+		setTasks(tasks)
 	};
 	
 	
@@ -176,16 +135,18 @@ function createCustomers() {
 	return {
 		subscribe,
 		setCustomers,
+		setProjects,
+		setTasks,
         setCustomer,
 		setProject,
-		setActivity,
+		setTask,
 		getActiveCustomer,
 		getActiveProject,
-		getActiveActivity,
+		getActiveTask,
 		updateCustomer,
 		updateProject,
-		updateActivity,
-		addNewActivity
+		updateTask,
+		addNewTask
 	};
 }
 

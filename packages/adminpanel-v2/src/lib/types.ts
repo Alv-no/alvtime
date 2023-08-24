@@ -1,21 +1,3 @@
-export type TActivity = {
-    id: number, 
-    name: string, 
-    aktivitetnummer?: number,
-    price?: number, 
-    changedDate?: Date,
-    overtimeFactor?: number
-}
-
-export type TProject = {id: number, name: string, prosjektnummer: number, activities: TActivity[]}
-
-export type TCustomer = {id: number, name: string, kundenummer: number, projects: TProject[]}
-
-export type TEmployee = {id: number, name: string, ansattnummer: number, activities: TActivity[]}
-
-
-//Types from backend
-
 export type TCompensationRate = {
     Id: number,
     FromDate: Date,
@@ -35,28 +17,28 @@ export type TTask = {
     Name: string,
     TaskNumber?: number,
     Description: string,
-    //Project: number (samme som customer i TProject)
-    CompensationRate: TCompensationRate[]
-    HourRate: THourRate[]
+    Project: number,
+    CompensationRate: number[]
+    HourRate: number[]
     changedDate?: Date}
 
-export type TProjectBackend = {
+export type TProject = {
     Id: number,
     Name: string,
-    //customer: number, (trengs ikke fordi store er nøstet?)
-    pprojectNumber?: number,
-    Task: TTask[]
+    Customer: number,
+    ProjectNumber?: number,
+    Task: number[]
 }
 
-export type TCustomerBackend = {
-    id: number,
-    name: string,
+export type TCustomer = {
+    Id: number,
+    Name: string,
     InvoiceAddress: string,
     ContactPerson: string,
     ContactEmail: string,
     ContactPhone: string,
     CustomerNumber?: number,
-    Project: TProject[],
+    Project: number[],
 }
 
 export type TUser = {
