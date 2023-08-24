@@ -1,22 +1,11 @@
-<script lang="ts">
-    import 'iconify-icon'
-
-    export let page_name : string 
-    export let page_route : string
-    export let icon : string
+<script>
+	import SidebarLink from './SidebarLink.svelte';
 </script>
 
-<a href={page_route} class="Sidebar-entry no-underline hover:underline">
-    <iconify-icon icon={icon} class="text-alv-dark-blue" width="30px"></iconify-icon>
-    <div class="text-alv-dark-blue">
-        {page_name}
-    </div>
-    
-</a>
-
-<style>
-    .Sidebar-entry {
-        display: flex;
-        vertical-align: center;
-    }
-</style>
+<div class="relative w-12">
+	<nav class="h-full w-12 overflow-hidden hover:w-max bg-white hover:pr-4 absolute">
+		<SidebarLink text={'Home'} url={'/'} icon={'majesticons:home'} />
+		<SidebarLink text={'Kunder'} url={'/customers'} icon={'ic:round-corporate-fare'} />
+		<SidebarLink text={'Ansatte'} url={'/employees'} icon={'fluent:person-20-filled'} />
+	</nav>
+</div>
