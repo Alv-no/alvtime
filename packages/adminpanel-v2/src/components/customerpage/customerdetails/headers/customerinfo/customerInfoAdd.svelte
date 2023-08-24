@@ -1,35 +1,33 @@
 <script lang="ts">
-    import { onMount } from 'svelte'
-	import type { TCustomer } from "$lib/types";
-    import { customers } from "../../../../../stores/CustomerStore";
-    
-    let newCustomer: TCustomer;
-    console.log("Mounting")
-    const customer: TCustomer = {
-        Id: Date.now(),
-        Name: "",
-        InvoiceAddress: "ExampleInvoiceAddress",
-        ContactPerson: "ExampleContactPerson",
-        ContactEmail: "ExampleContactEmail",
-        ContactPhone: "ExampleContactPhone",
-        CustomerNumber: 0,
-        Project: [],
-    };
-    
-    
-    customers.addNewCustomer(customer);
-    customers.setCustomer(customer.Id);
-    $: reactiveCustomer = customer;
-    
-    const addStyling: string ="rounded border border-gray-300 focus:outline-none focus:border-blue-500 disabled:bg-transparent"
+	import type { TCustomer } from '$lib/types';
+	import { customers } from '../../../../../stores/CustomerStore';
 
+	let newCustomer: TCustomer;
+
+	const customer: TCustomer = {
+		id: Date.now(),
+		name: '',
+		invoiceAddress: 'ExampleInvoiceAddress',
+		contactPerson: 'ExampleContactPerson',
+		contactEmail: 'ExampleContactEmail',
+		contactPhone: 'ExampleContactPhone',
+		customerNumber: 0,
+		project: []
+	};
+
+	customers.addNewCustomer(customer);
+	customers.setCustomer(customer.id, 'test');
+	$: reactiveCustomer = customer;
+
+	const addStyling: string =
+		'rounded border border-gray-300 focus:outline-none focus:border-blue-500 disabled:bg-transparent';
 </script>
 
 <p>
-    Kunde: 
-    <input type="text" bind:value={reactiveCustomer.Name} class={addStyling}/>
+	Kunde:
+	<input type="text" bind:value={reactiveCustomer.name} class={addStyling} />
 </p>
 <p>
-    Kundenummer: 
-    <input type="text" bind:value={reactiveCustomer.CustomerNumber} class={addStyling}/>
+	Kundenummer:
+	<input type="text" bind:value={reactiveCustomer.customerNumber} class={addStyling} />
 </p>

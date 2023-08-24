@@ -9,16 +9,16 @@
     }
 
     const project: TProject = {
-        Id: Date.now(),
-        Name: "",
-        ProjectNumber: 1,
-        Customer: activeCustomer.Id,
-        Task: []
+        id: Date.now(),
+        name: "",
+        projectNumber: 1,
+        customer: activeCustomer.id,
+        task: []
     };
     
     
     customers.addNewProject(project);
-    customers.setProject(project.Id);
+    customers.setProject(project.id);
     $: reactiveProject = project;
     
     const addStyling: string ="rounded border border-gray-300 focus:outline-none focus:border-blue-500 disabled:bg-transparent"
@@ -27,9 +27,9 @@
 
 <p>
     Prosjekt:
-    <input type="text" bind:value={reactiveProject.Name} class={addStyling}/>
+    <input type="text" bind:value={reactiveProject.name} class={addStyling}/>
 </p>
 <p>
     Prosjektnr:
-    <input type="text" bind:value={reactiveProject.ProjectNumber} class={addStyling}/>
+    <input type="text" bind:value={reactiveProject.projectNumber} class={addStyling}/>
 </p>

@@ -1,58 +1,58 @@
 export type TCompensationRate = {
-    Id: number,
-    FromDate: Date,
-    Value: number,
-    TaskId: number,
-}
+	id: number;
+	fromDate: Date;
+	endDate?: Date;
+	value: number;
+	taskId: number;
+};
 
 export type THourRate = {
-    FromDate: Date,
-    Rate: number,
-    TaskId: number,
-    Id: number,
-}
+	fromDate: Date;
+	endDate?: Date;
+	rate: number;
+	taskId: number;
+	id: number;
+};
 
 export type TTask = {
-    Id: number,
-    Name: string,
-    TaskNumber?: number,
-    Description: string,
-    StartDate?: Date,
-    EndDate?: Date,
-    Project: number,
-    CompensationRate: number[]
-    HourRate: number[]
-    changedDate?: Date}
+	id: number;
+	name: string;
+	taskNumber?: number;
+	description: string;
+	project: number;
+	compensationRate: number[];
+	hourRate: number[];
+	changedDate?: Date;
+	startDate?: Date;
+	endDate?: Date;
+};
 
 export type TProject = {
-    Id: number,
-    Name: string,
-    Customer: number,
-    ProjectNumber?: number,
-    StartDate?: Date,
-    EndDate?: Date,
-    Task: number[]
-}
+	id: number;
+	name: string;
+	customer: number;
+	projectNumber?: number;
+	task: number[];
+	startDate?: Date;
+	endDate?: Date;
+};
 
 export type TCustomer = {
-    Id: number,
-    Name: string,
-    InvoiceAddress: string,
-    ContactPerson: string,
-    ContactEmail: string,
-    ContactPhone: string,
-    CustomerNumber?: number,
-    Project: number[],
-}
+	id: number;
+	name: string;
+	invoiceAddress: string;
+	contactPerson: string;
+	contactEmail: string;
+	contactPhone: string;
+	customerNumber?: number;
+	project: number[];
+};
 
 export type TUser = {
-    Id: number,
-    Name: string,
-    Email: string,
-    StartDate: Date,
-    EndDate?: Date,
-    EmployeeId: number,
-}
-
-
-
+	id: number;
+	name: string;
+	email: string;
+	startDate: Date;
+	endDate?: Date;
+	employeeId: number;
+};
