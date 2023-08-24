@@ -2,8 +2,8 @@
 	import { customers } from "../../../../stores/CustomerStore";
     import Project from "./project/Project.svelte";
     export let selectProject : Function
-
-    $: projects = $customers.customers.find((c) => c.id == $customers.active.customer)?.projects || [] //change to getProjects when implemented
+    
+    $: projects = $customers.projects.filter((p) => p.Customer == $customers.active.customer)
     
 </script>
 

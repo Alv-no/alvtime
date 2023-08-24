@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { customers } from "../../../../../stores/CustomerStore";
 	import EditButton from "../../../../generic/buttons/EditButton.svelte";
-    $: project = $customers.customers.find((c) => c.id == $customers.active.customer)?.projects.find((p) => p.id == $customers.active.project)
+    $: project = $customers.projects.find((p) => p.Id == $customers.active.project)
 
     let edit: boolean = false
 
@@ -22,8 +22,8 @@
 
 <div class="header">
     {#if project}
-        <p>Prosjekt: <input type="text" disabled={!edit} bind:value={project.name} on:change={(e) => updateProjectName()}></p>
-        <p>Prosjektnummer: <input type="text" disabled={!edit} bind:value={project.prosjektnummer} on:change={(e) => updateProjectNumber()}></p>
+        <p>Prosjekt: <input type="text" disabled={!edit} bind:value={project.Name} on:change={(e) => updateProjectName()}></p>
+        <p>Prosjektnummer: <input type="text" disabled={!edit} bind:value={project.ProjectNumber} on:change={(e) => updateProjectNumber()}></p>
         <EditButton {updateFunction} />
     {:else}
         <p> Prosjekt </p>

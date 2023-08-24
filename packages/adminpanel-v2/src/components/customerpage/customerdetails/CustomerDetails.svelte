@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Activities from "./activities/Activities.svelte";
+	import Tasks from "./tasks/Tasks.svelte";
 	import Projects from "./projects/Projects.svelte";
 	import CustomerHeader from "./headers/CustomerHeader.svelte";
     import ListHeader from "./headers/ListHeader.svelte";
@@ -11,6 +11,6 @@
     <ListHeader /> 
     <div class="flex">
         <Projects {selectProject} />
-        <Activities/>
+        <Tasks/>
     </div>
 </div>
