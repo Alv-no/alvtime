@@ -8,6 +8,7 @@
   
   // Filter function which is dependent on the searchQuery
   function filterCustomers(customers: TCustomer[], searchQuery: string) {
+    console.log("filterCustomers")
     return customers.filter(customer =>
       customer.Name.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -20,7 +21,7 @@
 
 
 {#each filteredCustomers as customer}
-    <Customer {customer} {selectCustomer}/>
+    <Customer customerId={customer.Id} {selectCustomer}/>
 {/each}
 
 <style>

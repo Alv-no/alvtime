@@ -1,32 +1,52 @@
 <script lang="ts">
-	import { customers } from "../../../../../stores/CustomerStore";
+	import type { TCustomer } from "$lib/types";
+    import { customers } from "../../../../../stores/CustomerStore";
+	import AddButton from "../../../../generic/buttons/AddButton.svelte";
     import EditButton from "../../../../generic/buttons/EditButton.svelte";
-
-    $: customer = $customers.customers.find((c) => c.Id == $customers.active.customer)
+	import CustomerInfoAdd from "./customerInfoAdd.svelte";
+	import CustomerInfoEdit from "./customerInfoEdit.svelte";
+    
+    const BUTTON_CLASS_DEFAULT: string = "w-8 h-8 flex items-center justify-center content-center rounded";
+    
+    $: customer = $customers.customers.find((c: TCustomer) => c.Id == $customers.active.customer)
 
     let edit: boolean = false
+    let add: boolean = false
 
     let updateFunction = () => {
-        edit = !edit
+        if (edit && customer === undefined) {
+            throw new Error('Not valid state for program...');
+        }
+        if (edit && customer) {
+            customers.updateCustomer(customer)
+        }
+        edit = !edit;
     }
-
-    let updateCustomerName = () => {
-        customers.updateCustomer(customer!)
-    }
-
-    let updateCustomerNumber = () => {
-        customers.updateCustomer(customer!)
-    }
+    
+    let addFunction = () => {
+        if (add && customer === undefined) {
+            throw new Error('Not valid state for program...');
+        }
+        if (add && customer) {
+            customers.updateCustomer(customer)
+        }
+        add = !add;
+    };
 
 </script>
 
-
 <div class="w-1/2 flex justify-between items-center">
-    {#if customer}
-        <p>Kunde: <input type="text" disabled={!edit} bind:value={customer.Name} on:change={(e) => updateCustomerName()}></p>
-        <p>Kundenummer: <input type="text" disabled={!edit} bind:value={customer.CustomerNumber} on:change={(e) => updateCustomerNumber()}></p>
-        <EditButton {updateFunction} />
+    {#if add}
+        <CustomerInfoAdd />
+    {:else if customer}
+        <CustomerInfoEdit {edit} />
     {:else}
         <p> Kunde </p>
     {/if}
+
+    {#if customer!==undefined}
+        <EditButton buttonClassDefault={BUTTON_CLASS_DEFAULT} {updateFunction} isDisabled={add} />
+        {/if}
+    <AddButton buttonClassDefault={BUTTON_CLASS_DEFAULT}  {addFunction} isDisabled={edit} />
+    
 </div>
