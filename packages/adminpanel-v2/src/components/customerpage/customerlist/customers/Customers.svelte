@@ -4,18 +4,20 @@
     import Customer from "./customer/Customer.svelte";
     export let selectCustomer : Function
     export let searchQuery = '';
+    export let filterInactiveCustomers: boolean
 
   
   // Filter function which is dependent on the searchQuery
-  function filterCustomers(customers: TCustomer[], searchQuery: string) {
-    console.log("filterCustomers")
-    return customers.filter(customer =>
-      customer.Name.toLowerCase().includes(searchQuery.toLowerCase())
+  function filterCustomers(customers: TCustomer[], filter: boolean, searchQuery: string) {
+    return customers.filter((customer) => filter ?
+      (customer.Name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      ($customers.projects.filter((p) => p.Customer == customer.Id && !p.EndDate).length || customer.Id == $customers.active.customer))
+      : customer.Name.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }
   
   // reactivity
-  $: filteredCustomers = filterCustomers($customers.customers, searchQuery)
+  $: filteredCustomers = filterCustomers($customers.customers, filterInactiveCustomers, searchQuery)
 
 </script>
 

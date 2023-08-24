@@ -9,12 +9,12 @@
     
     <!-- Project header list-->
     <div class="col-span-3 flex justify-between border-r border-b border-slate-300">
-        <ListHeaderText headerTexts={PROJECT_HEADER_TEXTS} />
+        <ListHeaderText on:Prosjekt headerTexts={PROJECT_HEADER_TEXTS} />
     </div>
 
     <!-- Activity header list-->
     <div class="col-span-9 flex justify-between border-r border-b border-slate-300">
-        <ListHeaderText headerTexts={ACTIVITY_HEADER_TEXTS} />
+        <ListHeaderText on:Aktivitet headerTexts={ACTIVITY_HEADER_TEXTS} />
     </div>
     
 </div>

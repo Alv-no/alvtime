@@ -1,13 +1,13 @@
 export type TCompensationRate = {
     Id: number,
     FromDate: Date,
-    Value: number, //Skal være desimaltall, er dette number i js?
+    Value: number,
     TaskId: number,
 }
 
 export type THourRate = {
     FromDate: Date,
-    Rate: number, //desimal
+    Rate: number,
     TaskId: number,
     Id: number,
 }
@@ -17,6 +17,8 @@ export type TTask = {
     Name: string,
     TaskNumber?: number,
     Description: string,
+    StartDate?: Date,
+    EndDate?: Date,
     Project: number,
     CompensationRate: number[]
     HourRate: number[]
@@ -27,6 +29,8 @@ export type TProject = {
     Name: string,
     Customer: number,
     ProjectNumber?: number,
+    StartDate?: Date,
+    EndDate?: Date,
     Task: number[]
 }
 

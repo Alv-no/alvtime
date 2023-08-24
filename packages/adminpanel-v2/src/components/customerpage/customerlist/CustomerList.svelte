@@ -7,6 +7,13 @@ import ListHeaderText from "../customerdetails/headers/ListHeaderText.svelte";
     const CUSTOMER_HEADER_TEXT: string[] = ["Kunde"];
 
     let searchQuery: string = "";
+
+    let filterInactiveCustomers: boolean = false
+    const handleCustomerFilter = () => {
+        filterInactiveCustomers = !filterInactiveCustomers
+        console.log(filterInactiveCustomers)
+    }
+
 </script>
 
 <div class="w-1/6 bg-gray-200 h-screen items-center">
@@ -18,7 +25,7 @@ import ListHeaderText from "../customerdetails/headers/ListHeaderText.svelte";
     />
         <!-- Customer list header-->
         <div class="flex justify-between border-r border-b border-slate-300 bg-slate-50">
-            <ListHeaderText headerTexts={CUSTOMER_HEADER_TEXT} />
+            <ListHeaderText on:Kunde={() => handleCustomerFilter()} headerTexts={CUSTOMER_HEADER_TEXT} />
         </div>
-    <Customers {selectCustomer} {searchQuery}/>
+    <Customers {filterInactiveCustomers} {selectCustomer} {searchQuery}/>
 </div>

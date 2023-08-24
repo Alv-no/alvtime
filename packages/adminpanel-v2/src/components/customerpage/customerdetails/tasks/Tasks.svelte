@@ -2,10 +2,11 @@
 	import { customers } from "../../../../stores/CustomerStore";
     import Task from "./task/Task.svelte";
     import NewTask from "./NewTask/NewTask.svelte";
+    export let filterInactiveTasks: boolean
 
     // checks if we should display the new activity input fields
     $: isActiveProject = $customers.active.project !== undefined;
-    $: tasks = $customers.tasks.filter((t) => t.Project == $customers.active.project)
+    $: tasks = $customers.tasks.filter((t) => filterInactiveTasks ? t.Project == $customers.active.project && !t.EndDate : t.Project == $customers.active.project)
 
 </script>
 

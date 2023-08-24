@@ -4,7 +4,9 @@
     export let project : TProject
     export let selectProject : Function
 
-    $: buttonStyling = project.Id == $customers.active.project ? "border-2 border-blue-500 bg-sky-50 w-full flex" : "border-r border-b border-gray-300 bg-white w-full flex"
+    $: inactive = project.EndDate ? true : false
+    $: buttonStyling = project.Id == $customers.active.project ? "border-2 border-blue-500 bg-sky-50 w-full flex" :
+        inactive ? "border-r border-b border-gray-300 bg-gray-100 w-full flex" : "border-r border-b border-gray-300 bg-white w-full flex"
 </script>
 
 
