@@ -18,6 +18,14 @@
 
 <script lang="ts">
     export let headerTexts: string[] = []
+
+    import { createEventDispatcher } from "svelte"
+
+    const dispatch = createEventDispatcher()
+
+    const dispatchFilter = () => {
+        dispatch(headerTexts[0])
+    }
 </script>
 
 
@@ -30,9 +38,9 @@
         </span>
     </p>
 {/each}
-<p class="text-slate-500 mr-1">
+<button class="text-slate-500 mr-1" on:click={() => dispatchFilter()}>
     <span class="border-slate-300">
         <iconify-icon icon="akar-icons:sort"></iconify-icon>
         </span>
     <span>Filter</span>
-</p>
+</button>

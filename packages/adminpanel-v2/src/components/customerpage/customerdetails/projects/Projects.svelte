@@ -2,8 +2,9 @@
 	import { customers } from "../../../../stores/CustomerStore";
     import Project from "./project/Project.svelte";
     export let selectProject : Function
+    export let filterInactiveProjects: boolean
     
-    $: projects = $customers.projects.filter((p) => p.Customer == $customers.active.customer)
+    $: projects = $customers.projects.filter((p) => filterInactiveProjects ? p.Customer == $customers.active.customer && !p.EndDate : p.Customer == $customers.active.customer)
     
 </script>
 
