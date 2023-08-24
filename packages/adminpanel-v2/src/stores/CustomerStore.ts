@@ -36,6 +36,7 @@ function createCustomers() {
 	const loadCustomers = async (token: string) => {
 		setCustomers(await fetchCustomers({ token }));
 		setProjects(await fetchProjects({ token }));
+		console.log('loaded');
 	};
 
 	const setCustomers = (customers: TCustomer[]) => {
@@ -173,6 +174,9 @@ function createCustomers() {
 		getActiveCustomer,
 		getActiveProject,
 		getActiveTask,
+		loadCustomers,
+		getProjects,
+		getTasks,
 		updateCustomer,
 		updateProject,
 		updateTask,
