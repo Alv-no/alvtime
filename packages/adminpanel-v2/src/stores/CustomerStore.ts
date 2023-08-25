@@ -48,6 +48,14 @@ function createCustomers() {
 		update((n) => {n.tasks = tasks; return n})
 	}
 
+	const setHourRates = (hourRate: THourRate[]) => {
+		update((n) => {n.hourRate = hourRate; return n})
+	}
+
+	const setCompensationRates = (compensationRate: TCompensationRate[]) => {
+		update((n) => {n.compensationRate = compensationRate; return n})
+	}
+
     const setCustomer = (Id: number) => {
 		if (Id != get(customerStore).active.customer) {
 			update((n) => {n.active.customer = Id; return n})
@@ -112,12 +120,19 @@ function createCustomers() {
 	 *
 	 * @param {TTask} Task - The new activity data to replace the existing activity with.
 	 */
-	const updateTask= (task: TTask) => {
+	const updateTask= (task: TTask, hourRate: THourRate, compensationRate: TCompensationRate) => {
 		// Retrieve data from the customer store
 		const store = get(customerStore);
 		const tasks = store.tasks;
-		tasks.map((t) => t.Id == store.active.task ? task : t)
+		const hourRates = store.hourRate;
+		const activeTask = store.active.task
+		const compensationRates = store.compensationRate;
+		tasks.map((t) => t.Id == activeTask ? task : t)
+		hourRates.map(h => h.TaskId == activeTask ? hourRate : h )
+		compensationRates.map(c => c.TaskId == activeTask ? compensationRate : c)
 		setTasks(tasks)
+		setHourRates(hourRates)
+		setCompensationRates(compensationRates)
 	}
 	
 

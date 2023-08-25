@@ -1,10 +1,10 @@
 <script lang="ts">
 	import type { TCustomer } from "$lib/types";
 	import { customers } from "../../../../stores/CustomerStore";
-    import Customer from "./customer/Customer.svelte";
-    export let selectCustomer : Function
-    export let searchQuery = '';
-    export let filterInactiveCustomers: boolean
+  import Customer from "./customer/Customer.svelte";
+  export let selectCustomer : Function
+  export let searchQuery = '';
+  export let filterInactiveCustomers: boolean
 
   
   // Filter function which is dependent on the searchQuery
@@ -25,7 +25,3 @@
 {#each filteredCustomers as customer}
     <Customer customerId={customer.Id} {selectCustomer}/>
 {/each}
-
-<style>
-
-</style>
