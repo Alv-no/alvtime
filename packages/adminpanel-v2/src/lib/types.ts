@@ -54,5 +54,8 @@ export type TUser = {
     EmployeeId: number,
 }
 
-
+export enum sortOptions {
+    Alfabetisk = 'Alfabetisk',
+    KundeID = 'KundeID'
+}
 

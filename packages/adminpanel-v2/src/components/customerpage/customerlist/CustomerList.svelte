@@ -1,7 +1,9 @@
 <script lang="ts">
 
-import ListHeaderText from "../customerdetails/headers/ListHeaderText.svelte";
+    import ListHeaderText from "../customerdetails/headers/ListHeaderText.svelte";
 	import Customers from "./customers/Customers.svelte";
+
+    import {sortOptions} from "../../../lib/types.ts";
 
     export let selectCustomer : Function
     const CUSTOMER_HEADER_TEXT: string[] = ["Kunde"];
@@ -13,6 +15,9 @@ import ListHeaderText from "../customerdetails/headers/ListHeaderText.svelte";
         filterInactiveCustomers = !filterInactiveCustomers
         console.log(filterInactiveCustomers)
     }
+    let selected : sortOptions;
+
+    let activeSearchOptions = [sortOptions.Alfabetisk, sortOptions.KundeID]
 
 </script>
 
@@ -28,4 +33,7 @@ import ListHeaderText from "../customerdetails/headers/ListHeaderText.svelte";
             <ListHeaderText on:Kunde={() => handleCustomerFilter()} headerTexts={CUSTOMER_HEADER_TEXT} />
         </div>
     <Customers {filterInactiveCustomers} {selectCustomer} {searchQuery}/>
+            <ListHeaderText headerTexts={CUSTOMER_HEADER_TEXT} activeSearchOptions={activeSearchOptions} {selected} />
+        </div>
+    <Customers {selectCustomer} {searchQuery} {selected}/>
 </div>

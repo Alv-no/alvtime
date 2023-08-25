@@ -17,6 +17,9 @@
 -->
 
 <script lang="ts">
+	import type { EnsureDefined } from "../../../../routes/$types";
+    import type {sortOptions} from "../../../../lib/types";
+
     export let headerTexts: string[] = []
 
     import { createEventDispatcher } from "svelte"
@@ -26,6 +29,15 @@
     const dispatchFilter = () => {
         dispatch(headerTexts[0])
     }
+    export let activeSearchOptions : sortOptions[]
+
+    let isDropdownOpen = false
+
+    const handleDropdownClick = () => {
+        isDropdownOpen = !isDropdownOpen // togle state on click
+    }
+
+    export let selected : sortOptions;
 </script>
 
 
@@ -33,10 +45,21 @@
 {#each headerTexts as headerText}
     <p class="text-slate-500 ml-1">
         <span>{headerText}</span>
-        <span class="text-slate-300">
+        <button class="text-slate-300" on:click={handleDropdownClick}>
             <iconify-icon icon="icon-park:sort" ></iconify-icon>
-        </span>
+        </button>
     </p>
+    {#if isDropdownOpen}
+    <select
+        bind:value={selected}
+    >
+        {#each activeSearchOptions as searchOption}
+            <option value={searchOption}>
+                {searchOption}
+            </option>
+        {/each}
+    </select>
+    {/if}
 {/each}
 <button class="text-slate-500 mr-1" on:click={() => dispatchFilter()}>
     <span class="border-slate-300">
