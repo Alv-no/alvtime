@@ -12,6 +12,5 @@
   	"ms-azuretools.vscode-docker",
   	"svelte.svelte-vscode"
   ],
-  "remoteUser": "vscode",
-"shutdownAction": "none"
+  "remoteUser": "vscode"
 }
