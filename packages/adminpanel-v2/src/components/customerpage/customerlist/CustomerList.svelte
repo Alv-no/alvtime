@@ -1,6 +1,5 @@
 <script lang="ts">
-
-import ListHeaderText from "../customerdetails/headers/ListHeaderText.svelte";
+    import ListHeaderText from "../customerdetails/headers/ListHeaderText.svelte";
 	import Customers from "./customers/Customers.svelte";
 
     export let selectCustomer : Function
