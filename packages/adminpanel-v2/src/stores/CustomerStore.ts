@@ -134,6 +134,13 @@ function createCustomers() {
 		const customers = [newCustomer, ...store.customers]
 		setCustomers(customers);
 	};
+
+	const addNewProject = (newProject: TProject) => {
+		// Retrieve data from the customer store
+		const store = get(customerStore);
+		const projects = [newProject, ...store.projects]
+		setProjects(projects);
+	};
 	
 	
 
@@ -153,7 +160,8 @@ function createCustomers() {
 		updateProject,
 		updateTask,
 		addNewTask,
-		addNewCustomer
+		addNewCustomer,
+		addNewProject
 	};
 }
 
