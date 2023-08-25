@@ -1,25 +1,37 @@
 <script lang="ts">
 	import { HourRate } from "$lib/mock/customers.ts";
-    import type { TTask } from "../../../../../lib/types.ts"
+    import type { TCompensationRate, THourRate, TProject, TTask } from "../../../../../lib/types.ts"
     import { customers } from "../../../../../stores/CustomerStore.ts";
     let name: string
-    let price: number
-    let overtimeFactor: number
+    let hourRate: number
+    let compensationRate: number
     
-    /* let addTask = () => {
-        let newTask: TTask = {
-            Id: Date.now(),
-            Name: name, 
-            CompensationRate: //todo
-            HourRate: //todo
-            //price: price, 
-            //overtimeFactor: overtimeFactor
-        };
+    const addTask = () => {
 
-        customers.addNewTask(newTask);
+        let taskId: number =  Date.now();
+        let activeProject: TProject | undefined = customers.getActiveProject();
+        if (activeProject === undefined) {
+            throw new Error("Not in valid state of program, can't add a task without an active project");
+        }
+
+        let newTask: TTask = {
+            id: taskId,
+            name: name, 
+            project: activeProject.id,
+            compensationRate: [],
+            hourRate: [],
+            description: "",
+        };
+        customers.addNewTask(newTask, hourRate, compensationRate);
+        customers.setTask(taskId);
+        clearInputFields()
+    }
+
+    const clearInputFields = () => {
         name = "";
-        
-    } */
+        hourRate = 0
+        compensationRate = 0
+    }
 </script>
 
 <button 
@@ -31,18 +43,21 @@
         bind:value={name} />
 
     <input
-        type="text"
-        class="col-span-2 rounded border border-gray-300 focus:outline-none focus:border-blue-500"
-    bind:value={price} />
+        type="number"
+        min="0"
+            class="col-span-2 rounded border border-gray-300 focus:outline-none focus:border-blue-500"
+    bind:value={hourRate} />
 
     <span class="col-span-2"></span>
     <input
-        type="text"
-        class="w-1/3 col-span-4 rounded border border-gray-300 focus:outline-none focus:border-blue-500"
-        bind:value={overtimeFactor} />
+        type="number"
+        min="0"
+        class="col-span-2 rounded border border-gray-300 focus:outline-none focus:border-blue-500"
+        bind:value={compensationRate} />
+    <span class="col-span-2"></span>
     <button 
         class="text-sm col-span-1 text-gray-800 flex justify-end align-center leading-none"
-        on:click={/* addTask */() => {}}>       
+        on:click={addTask}>       
 
         <div class="rounded border-2 border-transparent justify-center align-center">
             <iconify-icon width="2em" icon="icon-park:plus"></iconify-icon>

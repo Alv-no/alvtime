@@ -162,26 +162,29 @@ function createCustomers() {
 	 *
 	 * @param {TTask} Task - The new activity data to replace the existing activity with.
 	 */
-	const updateTask = (task: TTask, hourRate: THourRate, compensationRate: TCompensationRate) => {
+	const updateTask= (task: TTask, hourRate: number, compensationRate: number) => {
 		// Retrieve data from the customer store
 		const store = get(customerStore);
 		const tasks = store.tasks;
-		const hourRates = store.hourRate;
-		const activeTask = store.active.task;
-		const compensationRates = store.compensationRate;
-		tasks.map((t) => (t.id == activeTask ? task : t));
-		hourRates.map((h) => (h.taskId == activeTask ? hourRate : h));
-		compensationRates.map((c) => (c.taskId == activeTask ? compensationRate : c));
-		setTasks(tasks);
-		setHourRates(hourRates);
-		setCompensationRates(compensationRates);
-	};
+		const activeTask = store.active.task
+		const newHourRate = addNewHourRate(task.id, hourRate)
+		if (newHourRate) task.hourRate = [...task.hourRate, newHourRate.id]
+		const newCompensationRate = addNewCompensationRate(task.id, compensationRate)
+		if (newCompensationRate) task.compensationRate = [...task.compensationRate, newCompensationRate.id]
+		tasks.map((t) => t.id == activeTask ? task : t)
+		setTasks(tasks)
+	}
+	
 
-	const addNewTask = (task: TTask) => {
+	const addNewTask = (task: TTask, hourRate: number, compensationRate: number) => {
 		// Retrieve data from the customer store
 		const store = get(customerStore);
-		const tasks = [task, ...store.tasks];
-		setTasks(tasks);
+		const newHourRate = addNewHourRate(task.id, hourRate)
+		if (newHourRate) task.hourRate = [newHourRate.id]
+		const newCompensationRate = addNewCompensationRate(task.id, compensationRate)
+		if (newCompensationRate) task.compensationRate = [newCompensationRate.id]
+		const tasks = [task, ...store.tasks]
+		setTasks(tasks)
 	};
 
 	const addNewCustomer = (newCustomer: TCustomer) => {
@@ -197,6 +200,49 @@ function createCustomers() {
 		const projects = [newProject, ...store.projects];
 		setProjects(projects);
 	};
+
+	const setCompensationRateEndDate = (compensationRate: TCompensationRate) => {
+		compensationRate.endDate = new Date()
+		return compensationRate
+	}
+
+	const addNewCompensationRate = (taskId: number, compensationRate: number) => {
+		const store = get(customerStore);
+		if (store.compensationRate.find(c => c.taskId == taskId && !c.endDate)?.value !== compensationRate) {
+			const newCompensationRate: TCompensationRate = {
+				fromDate: new Date(),
+				value: compensationRate,
+				taskId: taskId,
+				id: Date.now()
+			}
+			const compensationRates = [...store.compensationRate.map(c => c.taskId == taskId ? setCompensationRateEndDate(c) : c), newCompensationRate];
+			setCompensationRates(compensationRates);
+			return newCompensationRate
+		}
+	}
+
+	const setHourRateEndDate = (hourRate: THourRate) => {
+		hourRate.endDate = new Date()
+		return hourRate
+	}
+
+	const addNewHourRate = (taskId: number, hourRate: number) => {
+		const store = get(customerStore);
+		if (store.hourRate.find(h => h.taskId == taskId && !h.endDate)?.rate !== hourRate) {
+			const newHourRate: THourRate = {
+				fromDate: new Date(),
+				rate: hourRate,
+				taskId: taskId,
+				id: Date.now()
+			}
+			const hourRates = [...store.hourRate.map(h => h.taskId == taskId ? setHourRateEndDate(h) : h), newHourRate];
+			setHourRates(hourRates);
+			return newHourRate
+		}
+	}
+	
+	
+
 
 	return {
 		subscribe,
@@ -217,7 +263,9 @@ function createCustomers() {
 		updateTask,
 		addNewTask,
 		addNewCustomer,
-		addNewProject
+		addNewProject,
+		addNewCompensationRate,
+		addNewHourRate
 	};
 }
 
