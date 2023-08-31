@@ -467,7 +467,14 @@ public class OvertimeTests
     [Fact]
     public async System.Threading.Tasks.Task GetOvertime_RegisterOvertimeSameDateAsStartDate_5OvertimeAfterComp()
     {
-        _context.User.First().StartDate = new DateTime(2021, 12, 6);
+        var user = new AlvTime.Business.Users.User
+        {
+            Id = 1,
+            Email = "someone@alv.no",
+            Name = "Someone",
+            StartDate = new DateTime(2021, 12, 6)
+        };
+        _userContextMock.Setup(context => context.GetCurrentUser()).Returns(System.Threading.Tasks.Task.FromResult(user));
         var timeEntry1 =
             await CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 6), 12.5M, 1.0M); // Monday
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>

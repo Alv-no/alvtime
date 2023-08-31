@@ -37,7 +37,7 @@ public class UserService
         }
         await _userRepository.UpdateUser(user);
 
-        return await GetUserById(user);
+        return await GetUserById(user.Id);
     }
 
     private async Task CheckForDuplicateUserDetails(UserDto userToBeCreated)
@@ -86,16 +86,16 @@ public class UserService
         return user;
     }
 
-    private async Task<UserResponseDto> GetUserById(UserDto userToFetch)
+    public async Task<UserResponseDto> GetUserById(int userId)
     {
         var user = (await _userRepository.GetUsers(new UserQuerySearch
         {
-            Id = userToFetch.Id
+            Id = userId
         })).FirstOrDefault();
 
         if (user == null)
         {
-            throw new Exception($"User with name {userToFetch.Name} was not found");
+            throw new Exception($"User with id {userId} was not found");
         }
 
         return user;

@@ -53,10 +53,10 @@ public class PayoutServiceTests
             Email = "someone@alv.no",
             Name = "Someone"
         };
+        _userContextMock.Setup(context => context.GetCurrentUser()).Returns(System.Threading.Tasks.Task.FromResult(user));
 
         _timeRegistrationService = CreateTimeRegistrationService();
 
-        _userContextMock.Setup(context => context.GetCurrentUser()).Returns(System.Threading.Tasks.Task.FromResult(user));
 
         _payoutValidationServiceMock = new Mock<PayoutValidationService>(new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)),
             _timeRegistrationService, new PayoutStorage(_context));
@@ -347,7 +347,7 @@ public class PayoutServiceTests
     [Fact]
     public async System.Threading.Tasks.Task RegisterPayout_HasIncompleteDaysBeforePayout_ExceptionThrown()
     {
-        for (int i = 0; i < 10; i++)
+        for (var i = 0; i < 10; i++)
         {
             var date = DateTime.Now.AddDays(-i);
             var incompleteTimeEntry =
@@ -368,11 +368,15 @@ public class PayoutServiceTests
     public async System.Threading.Tasks.Task RegisterPayout_HasIncompleteDaysOnRedDayBeforePayout_PayoutRegistered()
     {
         var startDate = new DateTime(2021, 05, 24); //2. pinsedag
-        for (int i = 1; i < 31; i++)
+        for (var i = 1; i < 31; i++)
         {
             var date = startDate.AddDays(-i);
             var completeTimeEntry =
                 CreateTimeEntryWithCompensationRate(date, 7.5M, 1.5M, out _);
+            if (date.Day == 17)
+            {
+                completeTimeEntry.Value = 5;
+            }
             await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 { new() { Date = completeTimeEntry.Date, Value = completeTimeEntry.Value, TaskId = completeTimeEntry.TaskId } });
         }
@@ -382,6 +386,30 @@ public class PayoutServiceTests
 
         var registeredPayouts = await payoutService.GetRegisteredPayouts();
         Assert.Single(registeredPayouts.Entries);
+    }
+    
+    [Fact]
+    public async System.Threading.Tasks.Task RegisterPayout_UserStartedLessThan30DaysAgoAndHasIncompleteDaysBeforeThat_PayoutRegistered()
+    {
+        _context.User.First(u => u.Id == 1).StartDate = DateTime.Now.AddDays(-10);
+        await _context.SaveChangesAsync();
+        
+        for (var i = 0; i < 10; i++)
+        {
+            var date = DateTime.Now.AddDays(-i);
+            var completeTimeEntry =
+                CreateTimeEntryWithCompensationRate(date, 8M, 1.5M, out _);
+            await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                { new() { Date = completeTimeEntry.Date, Value = completeTimeEntry.Value, TaskId = completeTimeEntry.TaskId } });
+        }
+
+        var payoutService = CreatePayoutServiceWithIncompleteDaysValidation(_timeRegistrationService);
+        var payout = await payoutService.RegisterPayout(new GenericPayoutHourEntry
+        {
+            Date = DateTime.Now,
+            Hours = 1M
+        });
+        Assert.Equal(1, payout.HoursBeforeCompensation);
     }
 
     private TimeRegistrationService CreateTimeRegistrationService()
