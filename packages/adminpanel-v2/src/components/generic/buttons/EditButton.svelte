@@ -1,7 +1,7 @@
 <script lang="ts">
 	export let updateFunction: Function;
 	export let isDisabled: boolean;
-	let isActive: boolean = false;
+	export let isActive: boolean = false;
 
 	const BUTTON_CLASS_DEFAULT: string =
 		'w-8 h-8 flex items-center justify-center content-center rounded';

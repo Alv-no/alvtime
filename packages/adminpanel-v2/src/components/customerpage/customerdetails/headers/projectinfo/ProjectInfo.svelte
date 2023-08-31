@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { clickOutside } from '$lib/functions/clickOutside';
 	import { customers } from '../../../../../stores/CustomerStore';
 	import AddButton from '../../../../generic/buttons/AddButton.svelte';
 	import EditButton from '../../../../generic/buttons/EditButton.svelte';
@@ -29,17 +30,27 @@
 		}
 		edit = !edit;
 	};
+
+	const handleClickOutside = () => {
+		edit = false
+	}
+
 </script>
 
-<div class="w-1/2 flex justify-between items-center">
+<div class="w-3/5 flex justify-between items-center"
+	use:clickOutside
+	on:message={handleClickOutside}
+	>
 	{#if add}
 		<ProjectInfoAdd />
+	{:else if project}
+		<ProjectInfoEdit {project} {edit} />
 	{:else}
-		<ProjectInfoEdit {edit} />
+		<p>Prosjekt</p>
 	{/if}
 
 	{#if project !== undefined}
-		<EditButton {updateFunction} isDisabled={add} />
+		<EditButton {updateFunction} isActive={edit} isDisabled={add} />
 	{/if}
 	<AddButton
 		{addFunction}

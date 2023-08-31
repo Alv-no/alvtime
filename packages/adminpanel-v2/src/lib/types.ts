@@ -34,7 +34,7 @@ export type TProject = {
 	projectNumber?: number;
 	task: number[];
 	startDate?: Date;
-	endDate?: Date;
+	endDate?: string;
 };
 
 export type TCustomer = {
@@ -53,6 +53,6 @@ export type TUser = {
 	name: string;
 	email: string;
 	startDate: Date;
-	endDate?: Date;
+	endDate?: string;
 	employeeId: number;
 };

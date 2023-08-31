@@ -1,13 +1,11 @@
 <script lang="ts">
+	import { clickOutside } from '$lib/functions/clickOutside';
 	import type { TCustomer } from '$lib/types';
 	import { customers } from '../../../../../stores/CustomerStore';
 	import AddButton from '../../../../generic/buttons/AddButton.svelte';
 	import EditButton from '../../../../generic/buttons/EditButton.svelte';
 	import CustomerInfoAdd from './customerInfoAdd.svelte';
 	import CustomerInfoEdit from './customerInfoEdit.svelte';
-
-	const BUTTON_CLASS_DEFAULT: string =
-		'w-8 h-8 flex items-center justify-center content-center rounded';
 
 	$: customer = $customers.customers.find((c: TCustomer) => c.id == $customers.active.customer);
 
@@ -34,12 +32,16 @@
 		add = !add;
 	};
 
-	let updateCustomerNumber = () => {
-		customers.updateCustomer(customer!);
-	};
+	const handleClickOutside = () => {
+		edit = false
+	}
+
 </script>
 
-<div class="w-1/2 flex justify-between items-center">
+<div class="w-2/5 flex justify-between items-center"
+	use:clickOutside
+	on:message={handleClickOutside}
+	>
 	{#if add}
 		<CustomerInfoAdd />
 	{:else if customer}
@@ -49,7 +51,7 @@
 	{/if}
 
 	{#if customer !== undefined}
-		<EditButton buttonClassDefault={BUTTON_CLASS_DEFAULT} {updateFunction} isDisabled={add} />
+		<EditButton {updateFunction} isActive={edit} isDisabled={add} />
 	{/if}
-	<AddButton buttonClassDefault={BUTTON_CLASS_DEFAULT} {addFunction} isDisabled={edit} />
+	<AddButton {addFunction} isDisabled={edit} />
 </div>

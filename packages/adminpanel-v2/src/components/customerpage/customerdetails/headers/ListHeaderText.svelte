@@ -30,13 +30,16 @@
 
 
 
-{#each headerTexts as headerText}
+{#each headerTexts as headerText, i}
     <p class="text-slate-500 ml-1">
         <span>{headerText}</span>
         <span class="text-slate-300">
             <iconify-icon icon="icon-park:sort" ></iconify-icon>
         </span>
     </p>
+    {#if i == 0}
+        <span class="col-span-2"></span>
+    {/if}
 {/each}
 <button class="text-slate-500 mr-1" on:click={() => dispatchFilter()}>
     <span class="border-slate-300">
