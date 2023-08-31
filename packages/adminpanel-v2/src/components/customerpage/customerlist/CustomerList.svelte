@@ -15,11 +15,11 @@
 
 </script>
 
-<div class="w-1/6 bg-gray-200 h-screen items-center">
+<div class="w-1/6 bg-gray-200 h-screen pt-10 items-center">
     <input
         type="text"
         placeholder="Search..."
-        class="w-full px-3 py-2 rounded border border-gray-300 focus:outline-none focus:border-blue-500"
+        class="w-full px-3 h-10 rounded border border-gray-300 focus:outline-none focus:border-blue-500"
         bind:value={searchQuery}
     />
         <!-- Customer list header-->

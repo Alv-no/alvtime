@@ -45,7 +45,7 @@ export const Projects: TProject[] = [
 		name: 'Super Toll',
 		projectNumber: 3,
 		startDate: new Date('December 17, 1995 03:24:00'),
-		endDate: new Date('December 18, 1995 03:24:00'),
+		endDate: '2003-04-11',
 		customer: 2,
 		task: [5, 6]
 	},
@@ -54,7 +54,7 @@ export const Projects: TProject[] = [
 		name: 'Tolling Build',
 		projectNumber: 4,
 		startDate: new Date('December 17, 1995 03:24:00'),
-		endDate: new Date('December 18, 1995 03:24:00'),
+		endDate: '2003-04-11',
 		customer: 2,
 		task: [7, 8]
 	}
@@ -255,97 +255,97 @@ export const CompensationRate: TCompensationRate[] = [
 export const HourRate: THourRate[] = [
 	{
 		fromDate: new Date('December 17, 1995 03:24:00'),
-		rate: 1.5,
+		rate: 1200,
 		taskId: 1,
 		id: 1
 	},
 	{
 		fromDate: new Date('December 17, 1995 03:24:00'),
-		rate: 1.5,
+		rate: 1200,
 		taskId: 1,
 		id: 2
 	},
 	{
 		fromDate: new Date('December 17, 1995 03:24:00'),
-		rate: 1.5,
+		rate: 1200,
 		taskId: 2,
 		id: 3
 	},
 	{
 		fromDate: new Date('December 17, 1995 03:24:00'),
-		rate: 1.5,
+		rate: 1200,
 		taskId: 2,
 		id: 4
 	},
 	{
 		fromDate: new Date('December 17, 1995 03:24:00'),
-		rate: 1.5,
+		rate: 1200,
 		taskId: 3,
 		id: 5
 	},
 	{
 		fromDate: new Date('December 17, 1995 03:24:00'),
-		rate: 1.5,
+		rate: 1200,
 		taskId: 3,
 		id: 6
 	},
 	{
 		fromDate: new Date('December 17, 1995 03:24:00'),
-		rate: 1.5,
+		rate: 1200,
 		taskId: 4,
 		id: 7
 	},
 	{
 		fromDate: new Date('December 17, 1995 03:24:00'),
-		rate: 1.5,
+		rate: 1200,
 		taskId: 4,
 		id: 8
 	},
 	{
 		fromDate: new Date('December 17, 1995 03:24:00'),
-		rate: 1.5,
+		rate: 1200,
 		taskId: 5,
 		id: 9
 	},
 	{
 		fromDate: new Date('December 17, 1995 03:24:00'),
-		rate: 1.5,
+		rate: 1200,
 		taskId: 5,
 		id: 10
 	},
 	{
 		fromDate: new Date('December 17, 1995 03:24:00'),
-		rate: 1.5,
+		rate: 1200,
 		taskId: 6,
 		id: 11
 	},
 	{
 		fromDate: new Date('December 17, 1995 03:24:00'),
-		rate: 1.5,
+		rate: 1200,
 		taskId: 6,
 		id: 12
 	},
 	{
 		fromDate: new Date('December 17, 1995 03:24:00'),
-		rate: 1.5,
+		rate: 1200,
 		taskId: 7,
 		id: 13
 	},
 	{
 		fromDate: new Date('December 17, 1995 03:24:00'),
-		rate: 1.5,
+		rate: 1200,
 		taskId: 7,
 		id: 14
 	},
 	{
 		fromDate: new Date('December 17, 1995 03:24:00'),
-		rate: 1.5,
+		rate: 1200,
 		taskId: 8,
 		id: 15
 	},
 	{
 		fromDate: new Date('December 17, 1995 03:24:00'),
-		rate: 1.5,
+		rate: 1200,
 		taskId: 8,
 		id: 16
 	}

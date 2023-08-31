@@ -162,7 +162,7 @@ function createCustomers() {
 	 *
 	 * @param {TTask} Task - The new activity data to replace the existing activity with.
 	 */
-	const updateTask= (task: TTask, hourRate: number, compensationRate: number) => {
+	const updateTask= (task: TTask, hourRate: number, compensationRate: number, endDate?: string) => {
 		// Retrieve data from the customer store
 		const store = get(customerStore);
 		const tasks = store.tasks;
@@ -171,6 +171,7 @@ function createCustomers() {
 		if (newHourRate) task.hourRate = [...task.hourRate, newHourRate.id]
 		const newCompensationRate = addNewCompensationRate(task.id, compensationRate)
 		if (newCompensationRate) task.compensationRate = [...task.compensationRate, newCompensationRate.id]
+		if (endDate) task.endDate = new Date(endDate)
 		tasks.map((t) => t.id == activeTask ? task : t)
 		setTasks(tasks)
 	}

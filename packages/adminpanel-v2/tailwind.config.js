@@ -9,6 +9,9 @@ export default {
 					'dark-blue': '#061838',
 					yellow: '#EABB26'
 				}
+			},
+			gridTemplateColumns: {
+				'16': 'repeat(16, minmax(0, 1fr))',
 			}
 		}
 	},
