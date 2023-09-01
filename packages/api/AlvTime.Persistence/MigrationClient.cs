@@ -1,8 +1,11 @@
-﻿using AlvTime.Persistence.DatabaseModels;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Task = System.Threading.Tasks.Task;
 
-namespace AlvTime.MigrationClient;
+namespace AlvTime.Persistence;
 
 public static class MigrationClient
 {
@@ -10,7 +13,7 @@ public static class MigrationClient
     {
         var optionsBuilder = new DbContextOptionsBuilder<AlvTime_dbContext>()
             .UseSqlServer(connectionString);
-        using var context = new AlvTime_dbContext(optionsBuilder.Options);
+        await using var context = new AlvTime_dbContext(optionsBuilder.Options);
         Console.WriteLine("Running migrations...");
         try
         {
@@ -59,7 +62,7 @@ public static class MigrationClient
         if (!compensationRates.Any())
         {
             var tasks = await context.Task.ToListAsync();
-            var newCompensationRates = new[] { 1.5M, 1.5M, 1.5M, 1.5M, 0M, 0M };
+            var newCompensationRates = new[] { 1.5M, 1.5M, 1.5M, 1.5M, 0.5M, 0.5M };
 
             for (var i = 0; i < tasks.Count; i++)
             {

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AlvTime.Persistence.Migrations
 {
     [DbContext(typeof(AlvTime_dbContext))]
-    [Migration("20230831141313_InitialCreate")]
+    [Migration("20230901074020_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
