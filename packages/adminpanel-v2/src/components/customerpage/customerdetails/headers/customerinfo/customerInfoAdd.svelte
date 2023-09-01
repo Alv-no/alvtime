@@ -1,23 +1,7 @@
 <script lang="ts">
-	import type { TCustomer } from '$lib/types';
-	import { customers } from '../../../../../stores/CustomerStore';
-
-	let newCustomer: TCustomer;
-
-	const customer: TCustomer = {
-		id: Date.now(),
-		name: '',
-		invoiceAddress: 'ExampleInvoiceAddress',
-		contactPerson: 'ExampleContactPerson',
-		contactEmail: 'ExampleContactEmail',
-		contactPhone: 'ExampleContactPhone',
-		customerNumber: 0,
-		project: []
-	};
-
-	customers.addNewCustomer(customer);
-	customers.setCustomer(customer.id, 'test');
-	$: reactiveCustomer = customer;
+	export let newCustomerName: string|undefined
+	export let newCustomerNumber: number|undefined
+	export let updateFunction: Function
 
 	const addStyling: string =
 		'rounded border border-gray-300 focus:outline-none focus:border-blue-500 disabled:bg-transparent';
@@ -25,9 +9,9 @@
 
 <p>
 	Kunde:
-	<input type="text" bind:value={reactiveCustomer.name} class={addStyling} />
+	<input type="text" bind:value={newCustomerName} on:change={() => updateFunction(newCustomerName, newCustomerNumber)} class={addStyling} />
 </p>
 <p>
 	Kundenummer:
-	<input type="text" bind:value={reactiveCustomer.customerNumber} class={addStyling} />
+	<input type="number" bind:value={newCustomerNumber} on:change={() => updateFunction(newCustomerName, newCustomerNumber)} class={addStyling} />
 </p>

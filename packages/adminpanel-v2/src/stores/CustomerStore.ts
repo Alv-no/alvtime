@@ -188,18 +188,37 @@ function createCustomers() {
 		setTasks(tasks)
 	};
 
-	const addNewCustomer = (newCustomer: TCustomer) => {
+	const addNewCustomer = (name: string, number: number) => {
 		// Retrieve data from the customer store
 		const store = get(customerStore);
+		const newCustomer: TCustomer = {
+			id: Date.now(),
+			name: name,
+			invoiceAddress: 'ExampleInvoiceAddress',
+			contactPerson: 'ExampleContactPerson',
+			contactEmail: 'ExampleContactEmail',
+			contactPhone: 'ExampleContactPhone',
+			customerNumber: number,
+			project: []
+		};
 		const customers = [newCustomer, ...store.customers];
 		setCustomers(customers);
+		setCustomer(newCustomer.id, '5801gj90-jf39-5j30-fjk3-480fj39kl409')
 	};
 
-	const addNewProject = (newProject: TProject) => {
+	const addNewProject = (name: string, number: number, customerId: number) => {
 		// Retrieve data from the customer store
 		const store = get(customerStore);
+		const newProject: TProject = {
+			id: Date.now(),
+			name: name,
+			projectNumber: number,
+			customer: customerId,
+			task: []
+		};
 		const projects = [newProject, ...store.projects];
 		setProjects(projects);
+		setProject(newProject.id)
 	};
 
 	const setCompensationRateEndDate = (compensationRate: TCompensationRate) => {

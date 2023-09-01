@@ -2,9 +2,9 @@
 	import { HourRate } from "$lib/mock/customers.ts";
     import type { TCompensationRate, THourRate, TProject, TTask } from "../../../../../lib/types.ts"
     import { customers } from "../../../../../stores/CustomerStore.ts";
-    let name: string
-    let hourRate: number
-    let compensationRate: number
+    let name: string|undefined = undefined;
+    let hourRate: number|undefined = undefined;
+    let compensationRate: number|undefined = undefined;
     
     const addTask = () => {
 
@@ -12,25 +12,30 @@
         let activeProject: TProject | undefined = customers.getActiveProject();
         if (activeProject === undefined) {
             throw new Error("Not in valid state of program, can't add a task without an active project");
-        }
+        } else if (!(name && hourRate && compensationRate)) {
+            throw new Error("Not all fields have valid input");
 
-        let newTask: TTask = {
-            id: taskId,
-            name: name, 
-            project: activeProject.id,
-            compensationRate: [],
-            hourRate: [],
-            description: "",
-        };
-        customers.addNewTask(newTask, hourRate, compensationRate);
-        customers.setTask(taskId);
-        clearInputFields()
+        } else {
+
+            
+            let newTask: TTask = {
+                id: taskId,
+                name: name, 
+                project: activeProject.id,
+                compensationRate: [],
+                hourRate: [],
+                description: "",
+            };
+            customers.addNewTask(newTask, hourRate, compensationRate);
+            customers.setTask(taskId);
+            clearInputFields()
+        }
     }
 
     const clearInputFields = () => {
-        name = "";
-        hourRate = 0
-        compensationRate = 0
+        name = undefined;
+        hourRate = undefined;
+        compensationRate = undefined;
     }
 </script>
 
