@@ -9,17 +9,22 @@
 	$: activeCustomer = $customers.active.customer;
 	$: project = $customers.projects.find((p) => p.id == $customers.active.project);
 
+	let newProjectName: string|undefined;
+    let newProjectNumber: number|undefined;
 
 	let edit: boolean = false;
 	let add: boolean = false;
 
 	let addFunction = () => {
-		if (add && project === undefined) {
+		if (add && !(activeCustomer && newProjectName && newProjectNumber)) {
 			throw new Error('Not valid state for program...');
-		} else if (add && project) {
-			customers.updateProject(project);
-		}
-		add = !add;
+		} else if (add) {
+			customers.addNewProject(newProjectName!, newProjectNumber!, activeCustomer!)
+			add = !add;
+			newProjectName = undefined;
+			newProjectNumber = undefined;
+			console.log(newProjectName, newProjectNumber)
+		} else add = !add
 	};
 
 	let updateFunction = () => {
@@ -33,6 +38,12 @@
 
 	const handleClickOutside = () => {
 		edit = false
+		add = false
+	}
+
+	const updateAddNewProject = (projectName: string, projectNumber: number) => {
+		newProjectName = projectName;
+		newProjectNumber = projectNumber;
 	}
 
 </script>
@@ -42,7 +53,7 @@
 	on:message={handleClickOutside}
 	>
 	{#if add}
-		<ProjectInfoAdd />
+		<ProjectInfoAdd updateFunction={updateAddNewProject} {newProjectName} {newProjectNumber} />
 	{:else if project}
 		<ProjectInfoEdit {project} {edit} />
 	{:else}
@@ -54,6 +65,7 @@
 	{/if}
 	<AddButton
 		{addFunction}
+		isActive={add}
 		isDisabled={edit || activeCustomer === undefined}
 	/>
 </div>

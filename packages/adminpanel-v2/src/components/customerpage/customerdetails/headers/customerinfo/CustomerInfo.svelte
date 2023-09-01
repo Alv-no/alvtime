@@ -12,6 +12,9 @@
 	let edit: boolean = false;
 	let add: boolean = false;
 
+	let newCustomerName: string|undefined;
+	let newCustomerNumber: number|undefined;
+
 	let updateFunction = () => {
 		if (edit && customer === undefined) {
 			throw new Error('Not valid state for program...');
@@ -23,17 +26,25 @@
 	};
 
 	let addFunction = () => {
-		if (add && customer === undefined) {
+		if (add && !(newCustomerName && newCustomerNumber)) {
 			throw new Error('Not valid state for program...');
 		}
-		if (add && customer) {
-			customers.updateCustomer(customer);
-		}
-		add = !add;
+		else if (add) {
+			customers.addNewCustomer(newCustomerName!, newCustomerNumber!)
+			add = !add;
+			newCustomerName = undefined;
+			newCustomerNumber = undefined;
+		} else add = !add;
 	};
 
 	const handleClickOutside = () => {
 		edit = false
+		add = false
+	}
+
+	const updateAddNewCustomer = (customerName: string, customerNumber: number) => {
+		newCustomerName = customerName;
+		newCustomerNumber = customerNumber;
 	}
 
 </script>
@@ -43,7 +54,7 @@
 	on:message={handleClickOutside}
 	>
 	{#if add}
-		<CustomerInfoAdd />
+		<CustomerInfoAdd updateFunction= {updateAddNewCustomer} {newCustomerName} {newCustomerNumber} />
 	{:else if customer}
 		<CustomerInfoEdit {edit} />
 	{:else}
@@ -53,5 +64,5 @@
 	{#if customer !== undefined}
 		<EditButton {updateFunction} isActive={edit} isDisabled={add} />
 	{/if}
-	<AddButton {addFunction} isDisabled={edit} />
+	<AddButton {addFunction} isActive={add} isDisabled={edit} />
 </div>

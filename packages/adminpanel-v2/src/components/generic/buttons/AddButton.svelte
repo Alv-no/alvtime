@@ -1,12 +1,11 @@
 <script lang="ts">
     export let addFunction: Function;
     export let isDisabled: boolean;
-    let isActive: boolean = false;
+    export let isActive: boolean = false;
 
     
     
     function onClick() {
-        isActive = !isActive;
         addFunction();
     }
     
