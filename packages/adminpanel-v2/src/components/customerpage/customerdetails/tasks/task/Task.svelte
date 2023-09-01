@@ -24,8 +24,8 @@
     $: compensationRateStyling = isEditingTask ? "col-span-2 bg-transparent rounded border border-gray-300 focus:outline-none focus:border-blue-500" 
         : "col-span-2 bg-transparent rounded border border-transparent"
 
-    $: endDateStyling = isEditingTask ? "col-span-3 bg-transparent rounded border border-gray-300 focus:outline-none focus:border-blue-500" 
-        : "col-span-3 bg-transparent rounded border border-transparent"
+    $: endDateStyling = isEditingTask ? "col-span-2 bg-transparent rounded border border-gray-300 focus:outline-none focus:border-blue-500" 
+        : "col-span-2 bg-transparent rounded border border-transparent"
 
     let editTask = () => {
         console.log(isEditingTask)
@@ -75,7 +75,6 @@
         disabled={!isEditingTask}
     />
     
-    <span class="col-span-1"></span>
     <input
         type="number"
         class={compensationRateStyling}
@@ -83,7 +82,9 @@
         on:focusout={(editTask)}
         disabled={!isEditingTask} 
     />
-    <span class="col-span-2"></span>
+    <span class="col-span-1"></span>
+    <p class="col-span-2 text-slate-400">{task.changedDate}</p>
+    <span class="col-span-1"></span>
     <input 
         type="date"
         class={endDateStyling}

@@ -22,7 +22,7 @@ export type TTask = {
 	project: number;
 	compensationRate: number[];
 	hourRate: number[];
-	changedDate?: Date;
+	changedDate?: string;
 	startDate?: Date;
 	endDate?: Date;
 };
@@ -35,6 +35,7 @@ export type TProject = {
 	task: number[];
 	startDate?: Date;
 	endDate?: string;
+	changedDate?: string;
 };
 
 export type TCustomer = {
