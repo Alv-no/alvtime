@@ -153,6 +153,7 @@ function createCustomers() {
 	const updateProject = (project: TProject) => {
 		const store = get(customerStore);
 		const projects = store.projects;
+		project.changedDate = new Date().toLocaleString('en-GB', { timeZone: 'UTC' }).split(',')[0]
 		projects.map((p) => (p.id == store.active.project ? project : p));
 		setProjects(projects);
 	};
@@ -166,14 +167,17 @@ function createCustomers() {
 		// Retrieve data from the customer store
 		const store = get(customerStore);
 		const tasks = store.tasks;
+		const project = store.projects.find(p  => p.id == task.project)
 		const activeTask = store.active.task
 		const newHourRate = addNewHourRate(task.id, hourRate)
 		if (newHourRate) task.hourRate = [...task.hourRate, newHourRate.id]
 		const newCompensationRate = addNewCompensationRate(task.id, compensationRate)
 		if (newCompensationRate) task.compensationRate = [...task.compensationRate, newCompensationRate.id]
 		if (endDate) task.endDate = new Date(endDate)
+		task.changedDate = new Date().toLocaleString('en-GB', { timeZone: 'UTC' }).split(',')[0]
 		tasks.map((t) => t.id == activeTask ? task : t)
 		setTasks(tasks)
+		if (project) updateProject(project)
 	}
 	
 
@@ -184,6 +188,7 @@ function createCustomers() {
 		if (newHourRate) task.hourRate = [newHourRate.id]
 		const newCompensationRate = addNewCompensationRate(task.id, compensationRate)
 		if (newCompensationRate) task.compensationRate = [newCompensationRate.id]
+		task.changedDate = new Date().toLocaleString('en-GB', { timeZone: 'UTC' }).split(',')[0]
 		const tasks = [task, ...store.tasks]
 		setTasks(tasks)
 	};
@@ -214,6 +219,7 @@ function createCustomers() {
 			name: name,
 			projectNumber: number,
 			customer: customerId,
+			changedDate: new Date().toLocaleString('en-GB', { timeZone: 'UTC' }).split(',')[0],
 			task: []
 		};
 		const projects = [newProject, ...store.projects];

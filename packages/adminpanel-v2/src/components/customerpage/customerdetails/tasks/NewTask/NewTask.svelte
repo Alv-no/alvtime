@@ -52,13 +52,12 @@
         min="0"
             class="col-span-2 rounded border border-gray-300 focus:outline-none focus:border-blue-500"
     bind:value={hourRate} />
-    <span class="col-span-1"></span>
     <input
         type="number"
         min="0"
         class="col-span-2 rounded border border-gray-300 focus:outline-none focus:border-blue-500"
         bind:value={compensationRate} />
-    <span class="col-span-5"></span>
+    <span class="col-span-6"></span>
     <button 
         class="text-sm col-span-1 text-gray-800 flex justify-end align-center leading-none"
         on:click={addTask}>       

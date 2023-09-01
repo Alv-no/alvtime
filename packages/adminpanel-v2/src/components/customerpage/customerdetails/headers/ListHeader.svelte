@@ -2,7 +2,7 @@
 	import ListHeaderText from "./ListHeaderText.svelte";
 
     let PROJECT_HEADER_TEXTS: string[] = ["Prosjekt"]
-    let ACTIVITY_HEADER_TEXTS: string[] = ["Aktivitet", "Pris", "Overtidsfaktor", "Sluttdato"]
+    let ACTIVITY_HEADER_TEXTS: string[] = ["Aktivitet", "Pris", "Overtidsfaktor", "Sist oppdatert", "Sluttdato"]
 </script>
 
 <div class="grid-container grid grid-cols-12 items-center bg-slate-50">

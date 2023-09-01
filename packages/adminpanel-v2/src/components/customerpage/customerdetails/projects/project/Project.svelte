@@ -14,7 +14,8 @@
 </script>
 
 <button on:click={() => selectProject(project.id)} class={buttonStyling}>
-	<div class="p-4">
+	<div class="p-4 w-full flex justify-between">
 		<span class="text-sm text-gray-800">{project.name}</span>
+		<span class="text-sm text-slate-400">Sist oppdatert: {project.changedDate}</span>
 	</div>
 </button>

@@ -30,6 +30,7 @@ export const Projects: TProject[] = [
 		projectNumber: 1,
 		startDate: new Date('December 17, 1995 03:24:00'),
 		customer: 1,
+		changedDate: new Date('December 17, 1995 03:24:00').toLocaleString('en-GB', { timeZone: 'UTC' }).split(',')[0],
 		task: [1, 2]
 	},
 	{
@@ -38,6 +39,7 @@ export const Projects: TProject[] = [
 		projectNumber: 2,
 		startDate: new Date('December 17, 1995 03:24:00'),
 		customer: 1,
+		changedDate: new Date('December 17, 1995 03:24:00').toLocaleString('en-GB', { timeZone: 'UTC' }).split(',')[0],
 		task: [3, 4]
 	},
 	{
@@ -47,6 +49,7 @@ export const Projects: TProject[] = [
 		startDate: new Date('December 17, 1995 03:24:00'),
 		endDate: '2003-04-11',
 		customer: 2,
+		changedDate: new Date('December 17, 1995 03:24:00').toLocaleString('en-GB', { timeZone: 'UTC' }).split(',')[0],
 		task: [5, 6]
 	},
 	{
@@ -56,6 +59,7 @@ export const Projects: TProject[] = [
 		startDate: new Date('December 17, 1995 03:24:00'),
 		endDate: '2003-04-11',
 		customer: 2,
+		changedDate: new Date('December 17, 1995 03:24:00').toLocaleString('en-GB', { timeZone: 'UTC' }).split(',')[0],
 		task: [7, 8]
 	}
 ];
@@ -70,7 +74,7 @@ export const Tasks: TTask[] = [
 		project: 1,
 		compensationRate: [1, 2],
 		hourRate: [1, 2],
-		changedDate: new Date('December 17, 1995 03:24:00')
+		changedDate: new Date('December 17, 1995 03:24:00').toLocaleString('en-GB', { timeZone: 'UTC' }).split(',')[0]
 	},
 	{
 		id: 2,
@@ -82,7 +86,7 @@ export const Tasks: TTask[] = [
 		project: 1,
 		compensationRate: [3, 4],
 		hourRate: [3, 4],
-		changedDate: new Date('December 17, 1995 03:24:00')
+		changedDate: new Date('December 17, 1995 03:24:00').toLocaleString('en-GB', { timeZone: 'UTC' }).split(',')[0]
 	},
 	{
 		id: 3,
@@ -94,7 +98,7 @@ export const Tasks: TTask[] = [
 		project: 2,
 		compensationRate: [5, 6],
 		hourRate: [5, 6],
-		changedDate: new Date('December 17, 1995 03:24:00')
+		changedDate: new Date('December 17, 1995 03:24:00').toLocaleString('en-GB', { timeZone: 'UTC' }).split(',')[0]
 	},
 	{
 		id: 4,
@@ -105,7 +109,7 @@ export const Tasks: TTask[] = [
 		project: 2,
 		compensationRate: [7, 8],
 		hourRate: [7, 8],
-		changedDate: new Date('December 17, 1995 03:24:00')
+		changedDate: new Date('December 17, 1995 03:24:00').toLocaleString('en-GB', { timeZone: 'UTC' }).split(',')[0]
 	},
 	{
 		id: 5,
@@ -116,7 +120,7 @@ export const Tasks: TTask[] = [
 		project: 3,
 		compensationRate: [9, 10],
 		hourRate: [9, 10],
-		changedDate: new Date('December 17, 1995 03:24:00')
+		changedDate: new Date('December 17, 1995 03:24:00').toLocaleString('en-GB', { timeZone: 'UTC' }).split(',')[0]
 	},
 	{
 		id: 6,
@@ -127,7 +131,7 @@ export const Tasks: TTask[] = [
 		project: 3,
 		compensationRate: [11, 12],
 		hourRate: [11, 12],
-		changedDate: new Date('December 17, 1995 03:24:00')
+		changedDate: new Date('December 17, 1995 03:24:00').toLocaleString('en-GB', { timeZone: 'UTC' }).split(',')[0]
 	},
 	{
 		id: 7,
@@ -138,7 +142,7 @@ export const Tasks: TTask[] = [
 		project: 4,
 		compensationRate: [13, 14],
 		hourRate: [13, 14],
-		changedDate: new Date('December 17, 1995 03:24:00')
+		changedDate: new Date('December 17, 1995 03:24:00').toLocaleString('en-GB', { timeZone: 'UTC' }).split(',')[0]
 	},
 	{
 		id: 8,
@@ -149,7 +153,7 @@ export const Tasks: TTask[] = [
 		project: 4,
 		compensationRate: [15, 16],
 		hourRate: [15, 16],
-		changedDate: new Date('December 17, 1995 03:24:00')
+		changedDate: new Date('December 17, 1995 03:24:00').toLocaleString('en-GB', { timeZone: 'UTC' }).split(',')[0]
 	}
 ];
 
