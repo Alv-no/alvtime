@@ -4,14 +4,14 @@
 
 ## Packages
 
-| Packages                                    | Type           | Description                                    |
-| ------------------------------------------- | -------------- | ---------------------------------------------- |
-| [Adminpanel](./packages/adminpanel)         | Frontend       | Admin panel for Alvtime                        |
-| [Frontend](./packages/frontend)             | Frontend       | Enduser frontend for Alvtime                   |
-| [Slack-app](./packages/slack-app)           | Slack-app      | Slack app                                      |
-| [Api](./packages/api)                       | Backend        | Backend api                                    |
-| [Charts](./packages/charts)                 | Charts         | Helm charts                                    |
-| [Shell](./packages/shell)                   | Terminal CLI   | Terminal ClI tool for interacting with Alvtime |
+| Packages                            | Type         | Description                                    |
+| ----------------------------------- | ------------ | ---------------------------------------------- |
+| [Adminpanel](./packages/adminpanel) | Frontend     | Admin panel for Alvtime                        |
+| [Frontend](./packages/frontend)     | Frontend     | Enduser frontend for Alvtime                   |
+| [Slack-app](./packages/slack-app)   | Slack-app    | Slack app                                      |
+| [Api](./packages/api)               | Backend      | Backend api                                    |
+| [Charts](./packages/charts)         | Charts       | Helm charts                                    |
+| [Shell](./packages/shell)           | Terminal CLI | Terminal ClI tool for interacting with Alvtime |
 
 ## Architecture
 
@@ -34,7 +34,7 @@ This can be done in several different ways. Select the method that suits you and
 Dependencies:
 
 - [Node.js 14](https://nodejs.org/en/)
-- [.NET Core 3.1](https://dotnet.microsoft.com/download/dotnet/3.1)
+- [.NET Core 7.0](https://dotnet.microsoft.com/download/dotnet/7.0)
 - [MsSQL](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
 - [MongoDB](https://www.mongodb.com/try/download/enterprise)
 
