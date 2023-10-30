@@ -235,4 +235,23 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
                 }
         ).ToListAsync();
     }
+
+    public async Task<IEnumerable<TimeEntryEmployeeResponseDto>> GetTimeEntriesForEmployees(MultipleTimeEntriesQuerySearch criteria)
+    {
+
+        var hours = await _context.Hours.AsQueryable()
+             .Filter(criteria)
+             .Select(x => new TimeEntryEmployeeResponseDto
+             {
+                 User = x.User,
+                 EmployeeId = x.UserNavigation.EmployeeId,
+                 Value = x.Value,
+                 Date = x.Date,
+                 TaskId = x.TaskId,
+                 ProjectId = x.Task.Project
+             })
+             .ToListAsync();
+
+        return hours;
+    }
 }

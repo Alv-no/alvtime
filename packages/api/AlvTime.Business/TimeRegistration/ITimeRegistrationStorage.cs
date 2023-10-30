@@ -8,6 +8,7 @@ namespace AlvTime.Business.TimeRegistration
     public interface ITimeRegistrationStorage
     {
         Task<IEnumerable<TimeEntryResponseDto>> GetTimeEntries(TimeEntryQuerySearch criteria);
+        Task<IEnumerable<TimeEntryEmployeeResponseDto>> GetTimeEntriesForEmployees(MultipleTimeEntriesQuerySearch criteria);
         Task<IEnumerable<TimeEntryWithCompRateDto>> GetTimeEntriesWithCompensationRate(TimeEntryQuerySearch criteria);
         Task<TimeEntryResponseDto> GetTimeEntry(TimeEntryQuerySearch criteria);
         Task<TimeEntryResponseDto> CreateTimeEntry(CreateTimeEntryDto timeEntry, int userId);
@@ -29,6 +30,14 @@ namespace AlvTime.Business.TimeRegistration
         public DateTime? ToDateInclusive { get; set; }
         public decimal? Value { get; set; }
         public int? TaskId { get; set; }
+    }
+
+    public class MultipleTimeEntriesQuerySearch
+    {
+        public IEnumerable<int> EmployeeIds { get; set; }
+        public DateTime? FromDateInclusive { get; set; }
+        public DateTime? ToDateInclusive { get; set; }
+        public IEnumerable<int> TaskIds { get; set; }
     }
 
     public class OvertimeQueryFilter
