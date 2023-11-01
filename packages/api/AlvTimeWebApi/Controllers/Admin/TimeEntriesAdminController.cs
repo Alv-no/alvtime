@@ -11,7 +11,7 @@ namespace AlvTimeWebApi.Controllers.Admin
 {
     [Route("api/admin")]
     [ApiController]
-    [AuthorizeAdmin]
+    [AuthorizeOrakelet]
     public class TimeEntriesAdminController : Controller
     {
         private readonly ITimeRegistrationStorage _storage;
