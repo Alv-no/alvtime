@@ -12,6 +12,7 @@ public static class AuthorizationExtensions
         services.AddAuthorization(options =>
         {
             options.AddPolicy(AdminAuthorizationPolicy.Name, AdminAuthorizationPolicy.Build);
+            options.AddPolicy(OrakeletAuthorizationPolicy.Name, OrakeletAuthorizationPolicy.Build);
             options.AddPolicy(AllowPersonalAccessTokenPolicy.Name, AllowPersonalAccessTokenPolicy.Build);
             options.AddPolicy(ReportAuthorizationPolicy.Name, ReportAuthorizationPolicy.Build);
         });

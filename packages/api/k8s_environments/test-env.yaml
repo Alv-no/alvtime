@@ -1,5 +1,6 @@
 config:
   AdminGroup: "5850c192-c101-4b64-9c45-cbbf73542805"
+  OrakeletGroup: "a12d39f3-af84-4b0b-8937-b725859ab7aa"
   ASPNETCORE_ENVIRONMENT: "Staging"
   AzureAd__ClientId: "c9126a83-01c3-43c0-8bb3-298d352d2d7f"
   AzureAd__Domain: "api://c9126a83-01c3-43c0-8bb3-298d352d2d7f"
