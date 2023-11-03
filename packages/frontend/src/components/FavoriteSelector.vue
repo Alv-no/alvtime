@@ -16,7 +16,7 @@
           :is-expanded="task.id === selectedEntryKey"
           @expand-entry="onExpandEntry"
         />
-        <md-checkbox
+        <input checkbox
           :value="!task.favorite"
           type="checkbox"
           :disabled="!isOnline"

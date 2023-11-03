@@ -33,13 +33,13 @@
         @click="() => onDeleteClick(tkn)"
       />
     </div>
-    <md-dialog-confirm
-      :md-active.sync="active"
-      md-title="Slette tokens?"
-      md-content="Er du sikker på at du vil slette tokens? De vil da ikke lenger fungere på steder du har implementert dem."
-      md-confirm-text="Slett"
-      md-cancel-text="Avbryt"
-      @md-confirm="onConfirm"
+    <ConfirmationDialog
+      v-if="active"
+      title="Slette tokens?"
+      content="Er du sikker på at du vil slette tokens? De vil da ikke lenger fungere på steder du har implementert dem."
+      confirm-text="Slett"
+      cancel-text="Avbryt"
+      @confirm="onConfirm"
     />
   </div>
 </template>
@@ -50,6 +50,7 @@ import moment from "moment";
 import YellowButton from "./YellowButton.vue";
 import config from "@/config";
 import httpClient from "../services/httpClient";
+import ConfirmationDialog from "@/components/ConfirmationDialog.vue";
 
 interface Token {
   id: number;
@@ -59,6 +60,7 @@ interface Token {
 
 export default Vue.extend({
   components: {
+    ConfirmationDialog,
     YellowButton,
   },
 

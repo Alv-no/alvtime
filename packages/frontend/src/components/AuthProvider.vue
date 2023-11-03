@@ -1,8 +1,8 @@
 <template>
-  <md-list-item @click="logout">
-    <md-icon>meeting_room</md-icon>
+  <li @click="logout">
+    <span>meeting_room</span>
     <span class="md-list-item-text">Logg ut</span>
-  </md-list-item>
+  </li>
 </template>
 
 <script lang="ts">

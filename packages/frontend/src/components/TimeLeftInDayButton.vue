@@ -1,7 +1,7 @@
 <template>
   <div class="containing-block">
     <div class="container">
-      <md-button @click="onTimeLeftInDayClick">{{ timeLeftInDay }}</md-button>
+      <button class="button" @click="onTimeLeftInDayClick">{{ timeLeftInDay }}</button>
     </div>
   </div>
 </template>
@@ -52,34 +52,36 @@ export default Vue.extend({
 <style scoped>
 .container {
   position: absolute;
-  left: -46px;
+  right: 3rem;
 }
 
 .containing-block {
   position: relative;
 }
 
-.container >>> .md-button.md-theme-default {
+.container {
   min-width: 2rem;
   color: inherit;
   border: 2px solid #eabb26;
-  border-radius: 30px;
-  background-color: white;
+  border-radius: 4px;
+  background-color: #eabb26;
 }
 
-.md-button {
+.button {
   height: 33px;
   margin: 0;
 }
 
-.container >>> .md-button .md-ripple {
-  padding: 0 0px;
+.container .button  {
+  background-color: #eabb26;
+  padding: 0 12px;
   display: flex;
   justify-content: center;
   align-items: center;
+  border: none;
 }
 
-.container >>> .md-button.md-theme-default:hover {
+.container .button:hover {
   color: black;
   background-color: #eabb26;
   transition: background-color 500ms ease-in-out;

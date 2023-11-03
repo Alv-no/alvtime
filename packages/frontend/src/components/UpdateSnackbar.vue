@@ -1,16 +1,11 @@
 <template>
-  <md-snackbar
-    :md-position="position"
-    :md-duration="duration"
-    :md-active.sync="updateExists"
-    md-persistent
-  >
+  <div class="snackbar" v-if="updateExists">
     <span>New version available! Click to update</span>
-    <md-button class="md-primary" @click="refreshApp">
+    <button @click="refreshApp">
       Update
       <Tooltip text="Oppdater til siste versjon av appen" />
-    </md-button>
-  </md-snackbar>
+    </button>
+  </div>
 </template>
 
 <script lang="ts">

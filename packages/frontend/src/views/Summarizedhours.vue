@@ -4,30 +4,30 @@
     <invoice-statistics></invoice-statistics>
 
     <h2 class="padding">Timesoversikt</h2>
-    <md-table v-if="getTimeEntriesSummed.length > 0" class="padding">
-      <md-table-row>
-        <md-table-head>Task</md-table-head>
-        <md-table-head
+    <table v-if="getTimeEntriesSummed.length > 0" class="padding">
+      <tr>
+        <th>Task</th>
+        <th
           v-for="month in getLastThreeMonths"
           :key="month.getMonth()"
         >
           {{ month.toLocaleString("no-nb", { month: "long" }) }}
-        </md-table-head>
-      </md-table-row>
-      <md-table-row v-for="row in getTimeEntriesSummed" :key="row.id">
-        <md-table-cell>{{
+        </th>
+      </tr>
+      <tr v-for="row in getTimeEntriesSummed" :key="row.id">
+        <td>{{
           row.task
             ? `${row.task.project.customer.name} - ${row.task.name} ${row.task.project.name}`
             : "Ukjent navn"
-        }}</md-table-cell>
-        <md-table-cell
+        }}</td>
+        <td
           v-for="element in row.summarizedHours"
           :key="element.date.getMonth()"
         >
           {{ element.value }}
-        </md-table-cell>
-      </md-table-row>
-    </md-table>
+        </td>
+      </tr>
+    </table>
     <p v-else class="padding">
       Kan ikke finne noen timer ført de siste 3 månedene.
     </p>

@@ -1,9 +1,9 @@
 <template>
-  <md-button :disabled="disabled" @click="onClick">
-    <md-icon v-if="iconId">{{ iconIdToShow }}</md-icon>
+  <button :disabled="disabled" @click="onClick">
+    <span v-if="iconId">{{ iconIdToShow }}</span>
     <span v-if="text" class="text">{{ text }}</span>
     <Tooltip :text="tooltip" />
-  </md-button>
+  </button>
 </template>
 
 <script lang="ts">
@@ -59,7 +59,7 @@ export default Vue.extend({
   margin: 0 0.5rem;
 }
 
-.md-button.md-theme-default {
+/*.md-button.md-theme-default {
   min-width: auto;
   color: inherit;
   border: 2px solid #eabb26;
@@ -70,7 +70,7 @@ export default Vue.extend({
   color: black;
   background-color: #eabb26;
   transition: background-color 500ms ease-in-out;
-}
+}*/
 
 .md-toolbar.md-theme-default .md-icon {
   color: inherit;

@@ -2,8 +2,8 @@
   <div>
     <Progress :visible="progressBarVisible" />
     <div class="grid">
-      <md-button v-if="!$store.state.account" @click="login"
-        >Logg inn med SSO</md-button
+      <button v-if="!$store.state.account" @click="login"
+        >Logg inn med SSO</button
       >
     </div>
   </div>

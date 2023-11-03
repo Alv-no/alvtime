@@ -1,8 +1,8 @@
 <template>
-  <md-button @click="onClick">
+  <button @click="onClick">
     <md-icon md-src="/img/icons/slack.svg" />
     <Tooltip :text="tooltip" />
-  </md-button>
+  </button>
 </template>
 
 <script lang="ts">

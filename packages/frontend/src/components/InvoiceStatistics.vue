@@ -28,12 +28,12 @@
         </div>
       </div>
       <div class="interval-shortcuts">
-        <md-button
+        <button
           v-for="(preset, index) in invoiceStatisticPresets"
           :key="index"
           class="md-primary md-raised"
           @click="setDateFiltersFromPreset(preset.type, preset.granularity)"
-          >{{ preset.label }}</md-button
+          >{{ preset.label }}</button
         >
       </div>
     </div>

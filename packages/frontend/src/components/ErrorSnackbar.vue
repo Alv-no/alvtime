@@ -1,20 +1,22 @@
 <template>
-  <md-snackbar
-    :md-position="position"
-    :md-duration="duration"
-    :md-active.sync="show"
-    md-persistent
-  >
+  <div>
+<!--  <md-snackbar-->
+<!--    :md-position="position"-->
+<!--    :md-duration="duration"-->
+<!--    :md-active.sync="show"-->
+<!--    md-persistent-->
+<!--  >-->
     <span id="error_text_element" class="issues">{{ issueText }}</span>
     <SlackButton
       tooltip="Kopier feilteksten og åpne Slack"
       @click="onSlackClick"
     />
-    <md-button class="icon_button" @click="close">
-      <md-icon class="icon">close</md-icon>
+    <button class="icon_button" @click="close">
+<!--      <md-icon class="icon">close</md-icon>-->
       <Tooltip text="Lukk" />
-    </md-button>
-  </md-snackbar>
+    </button>
+<!--  </md-snackbar>-->
+    </div>
 </template>
 
 <script lang="ts">
@@ -75,7 +77,7 @@ export default Vue.extend({
 
   methods: {
     onSlackClick() {
-      this.$copyText(this.$store.getters.getAllErrors);
+      console.log(this.$store.getters.getAllErrors);
       this.close();
     },
 

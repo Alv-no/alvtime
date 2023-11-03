@@ -24,10 +24,10 @@
           <span>{{ token }}</span>
           <span class="expires">expires: {{ expiryDate }}</span>
         </div>
-        <md-button class="icon_button" @click="onCopyClick">
-          <md-icon class="icon">file_copy</md-icon>
+        <button class="icon_button" @click="onCopyClick">
+          <Icon class="icon" icon-id="file_copy"></Icon>
           <Tooltip text="Copy access token" />
-        </md-button>
+        </button>
       </div>
     </div>
   </div>
@@ -41,12 +41,14 @@ import YellowButton from "./YellowButton.vue";
 import config from "@/config";
 import httpClient from "../services/httpClient";
 import moment from "moment";
+import Icon from "@/components/Icon.vue";
 
 export default Vue.extend({
   components: {
     YellowButton,
     Tooltip,
     Input,
+    Icon,
   },
 
   data() {
@@ -75,7 +77,8 @@ export default Vue.extend({
 
     onCopyClick() {
       const text = this.token.split(" ")[0];
-      this.$copyText(text);
+      //TODO: Copy to clipboard instead
+      console.log(text)
     },
 
     async fetchAccessToken() {

@@ -1,9 +1,7 @@
 <template>
   <div>
-    <md-app md-waterfall md-mode="fixed-last">
-      <md-app-toolbar class="app-toolbar md-large md-dense">
-        <div class="md-toolbar-row">
-          <div class="md-toolbar-section-start">
+        <div class="toolbar">
+          <div class="toolbar-row">
             <router-link to="/">
               <div class="logo_grid" @click="openGapestokk">
                 <img
@@ -14,31 +12,29 @@
               </div>
             </router-link>
           </div>
-          <div class="md-toolbar-section-end">
+          <div class="toolbar-row">
             <invoice-rate v-if="userFound" />
             <hamburger v-if="userFound" />
           </div>
         </div>
 
-        <div class="md-toolbar-row">
+        <div class="toolbar-row">
           <CenterColumnWrapper>
             <Toolbar />
           </CenterColumnWrapper>
         </div>
-      </md-app-toolbar>
 
-      <md-app-drawer :md-active.sync="$store.state.drawerOpen" md-right>
+
+
         <Drawer />
-      </md-app-drawer>
-      <md-app-content>
+
         <div>
           <router-view />
           <UpdateSnackbar />
           <OnlineSnackbar />
           <ErrorSnackbar />
         </div>
-      </md-app-content>
-    </md-app>
+
     <DayFooter />
   </div>
 </template>
@@ -179,5 +175,13 @@ html {
 }
 .md-toolbar-section-end {
   gap: 1rem;
+}
+
+.toolbar {
+  min-height: 96px;
+  background: #00083d;
+}
+.toolbar-row{
+
 }
 </style>

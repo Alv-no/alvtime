@@ -1,6 +1,6 @@
 <template>
   <transition name="slide" appear>
-    <md-progress-bar v-if="visible" md-mode="indeterminate"></md-progress-bar>
+    <span v-if="visible">Laster ...</span>
   </transition>
 </template>
 

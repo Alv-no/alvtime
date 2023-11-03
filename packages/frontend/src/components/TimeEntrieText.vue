@@ -29,7 +29,7 @@
       </label>
     </div>
     <div v-show="showPadlock" class="padlock-container">
-      <md-icon class="padlock-icon">lock</md-icon>
+      <Icon icon-id="lock"></Icon>
     </div>
     <div v-if="!isExpanded" class="rate-container">
       <small class="rate-text">{{ compensationRatePercentage }}</small>
@@ -40,8 +40,12 @@
 <script lang="ts">
 import Vue from "vue";
 import { Task } from "@/store/tasks";
+import Icon from "@/components/Icon.vue";
 
 export default Vue.extend({
+  components: {
+    Icon,
+  },
   props: {
     task: {
       type: Object as () => Task,

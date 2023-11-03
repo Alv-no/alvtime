@@ -1,8 +1,8 @@
 <template>
   <div>
-    <md-datepicker v-model="selectedDate">
-      <label>Select date</label>
-    </md-datepicker>
+    <label>Select date</label>
+    <input type="text" v-model="selectedDate">
+    </input>
   </div>
 </template>
 

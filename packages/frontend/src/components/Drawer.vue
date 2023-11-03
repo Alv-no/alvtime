@@ -1,8 +1,8 @@
 <template>
-  <div>
-    <md-toolbar class="md-transparent" md-elevation="0">
+  <div  v-if="$store.state.drawerOpen">
+    <div class="toolbar">
       <span class="md-title">{{ name }}</span>
-      <div class="md-toolbar-section-end">
+      <div class="toolbar-end">
         <div class="close_button">
           <YellowButton
             icon-id="close"
@@ -11,31 +11,31 @@
           />
         </div>
       </div>
-    </md-toolbar>
+    </div>
 
-    <md-list>
-      <md-list-item
+    <ul>
+      <li
         v-for="item in items"
         :key="item.routeName"
         @click="navTo(item.routeName)"
       >
-        <md-icon>{{ item.icon }}</md-icon>
+        <span>{{ item.icon }}</span>
 
         <span
           :class="{ active: $store.state.currentRoute.name === item.routeName }"
           class="md-list-item-text"
           >{{ item.text }}</span
         >
-      </md-list-item>
-      <md-list-item @click="navToAdminpanel">
+      </li>
+      <li @click="navToAdminpanel">
         <md-icon>admin_panel_settings</md-icon>
         <span class="md-list-item-text">Adminpanel</span>
-      </md-list-item>
-      <md-list-item @click="authAction">
-        <md-icon>meeting_room</md-icon>
+      </li>
+      <li @click="authAction">
+        <Icon class="icon" icon-id="meeting_room"></Icon>
         <span class="md-list-item-text">{{ authText }}</span>
-      </md-list-item>
-    </md-list>
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -45,9 +45,11 @@ import YellowButton from "@/components/YellowButton.vue";
 import authService from "../services/auth";
 import config from "@/config";
 import { AccountInfo } from "@azure/msal-common";
+import Icon from "@/components/Icon.vue";
 
 export default Vue.extend({
   components: {
+    Icon,
     YellowButton,
   },
 
@@ -111,6 +113,13 @@ export default Vue.extend({
 </script>
 
 <style scoped>
+.toolbar {
+
+}
+
+.toolbar-end {
+
+}
 .close_button {
   margin: 0.4rem 0rem;
 }

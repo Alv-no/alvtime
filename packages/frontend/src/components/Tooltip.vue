@@ -1,7 +1,7 @@
 <template>
-  <md-tooltip v-if="calculatedText" class="tooltip">
+  <span v-if="calculatedText" class="tooltip">
     {{ calculatedText }}
-  </md-tooltip>
+  </span>
 </template>
 
 <script lang="ts">

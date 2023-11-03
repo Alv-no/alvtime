@@ -1,21 +1,22 @@
 <template>
-  <md-empty-state
-    md-icon="account_box"
-    :md-label="label"
-    md-description="Logg ut og prøv med en annen bruker eller spør høyere makter om hjelp."
-  >
+  <div class="unauthorized">
+    <Icon icon-id="account_box"></Icon>
+    <strong>{{ label }}</strong>
+    <p>Logg ut og prøv med en annen bruker eller spør høyere makter om hjelp.</p>
     <YellowButton icon-id="meeting_room" text="Logg ut" @click="logout" />
-  </md-empty-state>
+  </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import YellowButton from "./YellowButton.vue";
 import authService from "../services/auth";
+import Icon from "@/components/Icon.vue";
 
 export default Vue.extend({
   components: {
     YellowButton,
+    Icon,
   },
 
   computed: {

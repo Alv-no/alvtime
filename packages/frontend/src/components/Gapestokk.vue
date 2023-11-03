@@ -44,9 +44,9 @@
         </p>
 
         <md-dialog-actions>
-          <md-button class="md-primary" @click="onDialogActionClick">{{
+          <button class="md-primary" @click="onDialogActionClick">{{
             actionText
-          }}</md-button>
+          }}</button>
         </md-dialog-actions>
       </div>
     </md-dialog>

@@ -41,7 +41,7 @@ export default {
   },
   data() {
     return {
-      showHelperButtons: false,
+      showHelperButtons: true,
       enableBlur: true,
       localValue: "0",
       hovered: false,
