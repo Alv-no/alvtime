@@ -1,7 +1,10 @@
 <template>
-  <span v-if="calculatedText" class="tooltip">
-    {{ calculatedText }}
-  </span>
+  <div class="tooltip-wrapper">
+    <slot />
+    <span v-if="calculatedText" class="tooltip">
+      {{ calculatedText }}
+    </span>
+  </div>
 </template>
 
 <script lang="ts">
@@ -24,7 +27,20 @@ export default Vue.extend({
 </script>
 
 <style scoped>
+.tooltip-wrapper {
+  display: block;
+
+}
+
 .tooltip {
-  z-index: 15;
+  display: block;
+  z-index: 115;
+  visibility: hidden;
+  background-color: rgba(80,80,80,0.88);
+  padding: 8px;
+  position: relative;
+}
+.tooltip-wrapper:hover .tooltip {
+  visibility: visible;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show">
+  <div v-if="show" class="nav_buttons">
     <YellowButton
       icon-id="arrow_back"
       tooltip="Gå til forrige uke"
@@ -52,3 +52,10 @@ export default Vue.extend({
   },
 });
 </script>
+
+<style>
+  .nav_buttons {
+    margin-right: 1rem;
+    display: flex;
+  }
+</style>

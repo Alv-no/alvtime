@@ -1,9 +1,10 @@
 <template>
-  <button :disabled="disabled" @click="onClick">
-    <span v-if="iconId">{{ iconIdToShow }}</span>
-    <span v-if="text" class="text">{{ text }}</span>
-    <Tooltip :text="tooltip" />
-  </button>
+  <Tooltip :text="tooltip">
+    <button :disabled="disabled" @click="onClick" class="yellow-button">
+      <Icon icon-id="iconIdToShow" />
+      <span v-if="text" class="text">{{ text }}</span>
+    </button>
+  </Tooltip>
 </template>
 
 <script lang="ts">
@@ -59,20 +60,23 @@ export default Vue.extend({
   margin: 0 0.5rem;
 }
 
-/*.md-button.md-theme-default {
+button.yellow-button {
   min-width: auto;
   color: inherit;
   border: 2px solid #eabb26;
   border-radius: 30px;
+  background-color: transparent;
+  height: 36px;
+  margin: 6px 8px;
 }
 
-.md-button.md-theme-default:hover {
+button.yellow-button:hover {
   color: black;
   background-color: #eabb26;
   transition: background-color 500ms ease-in-out;
-}*/
+}
 
-.md-toolbar.md-theme-default .md-icon {
+button.yellow-button .icon {
   color: inherit;
 }
 </style>

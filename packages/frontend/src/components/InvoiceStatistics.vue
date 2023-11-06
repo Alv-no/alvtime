@@ -252,7 +252,7 @@ export default Vue.extend({
 
 .interval-shortcuts {
   display: flex;
-  justify-content: end;
+  justify-content: flex-end;
   gap: 0.1rem;
   margin: 1rem 0;
 }

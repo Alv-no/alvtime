@@ -2,9 +2,12 @@
   <div>
     <Progress :visible="delayed" />
 
+    <mq-layout mq="sm">
       <DaySwiper />
-<!--  TODO for store skjermer:  -->
-<!--      <WeekSwiper />-->
+    </mq-layout>
+    <mq-layout mq="md+">
+      <WeekSwiper />
+    </mq-layout>
 
   </div>
 </template>

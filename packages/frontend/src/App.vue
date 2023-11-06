@@ -1,39 +1,38 @@
 <template>
   <div>
-        <div class="toolbar">
-          <div class="toolbar-row">
-            <router-link to="/">
-              <div class="logo_grid" @click="openGapestokk">
-                <img
-                  class="light logo"
-                  src="/img/logo_white.svg"
-                  alt="Hvit Alv-logo"
-                />
-              </div>
-            </router-link>
-          </div>
-          <div class="toolbar-row">
-            <invoice-rate v-if="userFound" />
-            <hamburger v-if="userFound" />
-          </div>
+    <div class="toolbar">
+      <div class="toolbar-row">
+        <div class="toolbar-section toolbar-section-start">
+          <router-link to="/">
+            <div class="logo_grid" @click="openGapestokk">
+              <img
+                class="light logo"
+                src="/img/logo_white.svg"
+                alt="Hvit Alv-logo"
+              />
+            </div>
+          </router-link>
         </div>
-
-        <div class="toolbar-row">
-          <CenterColumnWrapper>
-            <Toolbar />
-          </CenterColumnWrapper>
+        <div class="toolbar-section toolbar-section-end">
+          <invoice-rate v-if="userFound" />
+          <hamburger v-if="userFound" />
         </div>
+      </div>
+      <div class="toolbar-row">
+        <CenterColumnWrapper>
+          <Toolbar />
+        </CenterColumnWrapper>
+      </div>
+    </div>
 
+    <Drawer />
 
-
-        <Drawer />
-
-        <div>
-          <router-view />
-          <UpdateSnackbar />
-          <OnlineSnackbar />
-          <ErrorSnackbar />
-        </div>
+    <div class="app-content">
+      <router-view />
+      <UpdateSnackbar />
+      <OnlineSnackbar />
+      <ErrorSnackbar />
+    </div>
 
     <DayFooter />
   </div>
@@ -122,6 +121,11 @@ html {
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
 }
+body {
+  font-size: 14px;
+  letter-spacing: .01em;
+  margin: 0;
+}
 </style>
 
 <style scoped>
@@ -129,12 +133,9 @@ html {
   height: calc(100vh);
 }
 
-.md-toolbar.md-theme-default {
+.toolbar {
   background-color: #00083d;
   color: white;
-}
-
-.md-toolbar {
   padding: 0;
 }
 
@@ -173,15 +174,29 @@ html {
 .logo_text {
   color: white;
 }
-.md-toolbar-section-end {
+.toolbar-row {
   gap: 1rem;
+  min-height: 64px;
+  display: flex;
 }
 
 .toolbar {
   min-height: 96px;
   background: #00083d;
 }
-.toolbar-row{
 
+.toolbar-section {
+  display: flex;
+  align-items: center;
+  flex: 1;
 }
+.toolbar-section-start {
+  justify-content: flex-start;
+  order: 0;
+}
+.toolbar-section-end {
+  justify-content: flex-start;
+  order: 1;
+}
+
 </style>

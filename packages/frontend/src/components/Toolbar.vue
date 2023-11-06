@@ -5,7 +5,7 @@
     <mq-layout mq="sm">
       <AvailableHours v-if="userFound" small />
     </mq-layout>
-    <div class="nav_buttons"><NavButtons v-if="userFound" /></div>
+    <NavButtons v-if="userFound" />
   </div>
 </template>
 
@@ -47,10 +47,6 @@ export default Vue.extend({
 
 .title {
   justify-self: center;
-}
-
-.nav_buttons {
-  margin-right: 1rem;
 }
 
 .available_hours {

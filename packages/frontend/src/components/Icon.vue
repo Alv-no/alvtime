@@ -1,5 +1,5 @@
 <template>
-  <span v-if="iconId">{{iconId}}</span>
+  <span v-if="iconId"></span>
 </template>
 
 <script setup lang="ts">
