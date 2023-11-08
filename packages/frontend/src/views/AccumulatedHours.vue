@@ -3,10 +3,10 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import HoursWithdrawal from "@/components/HoursWithdrawal.vue";
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     HoursWithdrawal,
   },

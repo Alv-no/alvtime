@@ -8,12 +8,12 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import YellowButton from "./YellowButton.vue";
 import authService from "../services/auth";
 import Icon from "@/components/Icon.vue";
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     YellowButton,
     Icon,

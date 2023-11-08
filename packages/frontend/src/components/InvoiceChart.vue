@@ -13,7 +13,7 @@ import {
   Tooltip,
 } from "chart.js";
 
-import Vue from "vue";
+import {defineComponent} from "vue";
 import ChartDataLabels, { Context } from "chartjs-plugin-datalabels";
 import { HorizontalLinePlugin } from "../utils/horizontal-line-chart-plugin";	
 import { ChartConfiguration } from "chart.js";
@@ -32,7 +32,7 @@ Chart.register(
 let chart: Chart | null = null;
 const budgetedInvoiceRate = 90;
 
-export default Vue.extend({
+export default defineComponent({
   computed: {
     invoiceStatistics: function() {
       return this.$store.getters.getInvoiceStatistics;

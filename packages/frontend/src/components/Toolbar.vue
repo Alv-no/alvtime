@@ -10,13 +10,13 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import NavButtons from "@/components/NavButtons.vue";
 import Title from "@/components/Title.vue";
 import HourSums from "@/components/HourSums.vue";
 import AvailableHours from "@/components/AvailableHours.vue";
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     NavButtons,
     Title,

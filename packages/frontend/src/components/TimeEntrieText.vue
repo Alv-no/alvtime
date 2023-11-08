@@ -38,11 +38,11 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import { Task } from "@/store/tasks";
 import Icon from "@/components/Icon.vue";
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     Icon,
   },

@@ -11,10 +11,10 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import moment, { Moment } from "moment";
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     date: {
       type: Object as () => Moment,

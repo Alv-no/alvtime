@@ -1,6 +1,6 @@
 import authService from "@/services/auth";
 import lifecycle from "@/services/lifecycle.es5.js";
-import Vue from "vue";
+import {defineComponent} from "vue";
 import Vuex from "vuex";
 import app, { AppState } from "./app";
 import auth, { AuthState } from "./auth";

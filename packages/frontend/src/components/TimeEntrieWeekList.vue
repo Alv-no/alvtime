@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import TimeEntrieWeek from "./TimeEntrieWeek.vue";
 import TimeEntrieText from "./TimeEntrieText.vue";
 import DayPill from "./DayPill.vue";
@@ -34,7 +34,7 @@ import config from "@/config";
 import { Moment } from "moment";
 import CenterColumnWrapper from "@/components/CenterColumnWrapper.vue";
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     TimeEntrieWeek,
     TimeEntrieText,

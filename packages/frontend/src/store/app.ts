@@ -1,7 +1,8 @@
 import { State } from "./index";
-import { Route } from "vue-router";
+import {RouteLocationNormalizedLoaded} from "vue-router";
 import moment from "moment";
 import store from "store2";
+import {Ref} from "vue";
 
 export interface InteractionState {
   oldState: string;
@@ -16,7 +17,7 @@ export interface AppState {
   interactionState: InteractionState;
   editing: boolean;
   drawerOpen: boolean;
-  currentRoute: Route;
+  currentRoute: Ref<RouteLocationNormalizedLoaded>;
   dontShowGapestokk: boolean;
 }
 
@@ -28,7 +29,7 @@ const state = {
   interactionState: { oldState: "", newState: "" },
   editing: false,
   drawerOpen: false,
-  currentRoute: {} as Route,
+  currentRoute: {},
   dontShowGapestokk: store("dontShowGapestokk"),
 };
 
@@ -69,7 +70,7 @@ const mutations = {
     state.drawerOpen = !state.drawerOpen;
   },
 
-  SET_CURRENT_ROUTE(state: State, route: Route) {
+  SET_CURRENT_ROUTE(state: State, route: Ref<RouteLocationNormalizedLoaded>) {
     state.currentRoute = route;
   },
 

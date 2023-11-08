@@ -10,14 +10,14 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import HourInput from "./HourInput.vue";
 import config from "@/config";
 import { Moment } from "moment";
 import { FrontendTimentrie } from "@/store/timeEntries";
 import { Task } from "@/store/tasks";
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     HourInput,
   },

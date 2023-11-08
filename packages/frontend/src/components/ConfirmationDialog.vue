@@ -1,7 +1,7 @@
-<script setup lang="ts">
-import Vue from "vue";
+<script lang="ts">
+import {defineComponent} from "vue";
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     title: {
       type: String,
@@ -23,7 +23,9 @@ export default Vue.extend({
 </script>
 
 <template>
-
+<div class="confirmation-dialog">
+  <h3>{{ title }}</h3>
+</div>
 </template>
 
 <style scoped>

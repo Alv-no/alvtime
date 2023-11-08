@@ -35,12 +35,12 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import CenterColumnWrapper from "@/components/CenterColumnWrapper.vue";
 import { EntriesSummarizedPerMonthPerTask } from "@/store/timeEntries";
 import InvoiceStatistics from "../components/InvoiceStatistics.vue";
 
-export default Vue.extend({
+export default defineComponent({
   name: "Summarizedhours",
   components: {
     CenterColumnWrapper,

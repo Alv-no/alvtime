@@ -7,10 +7,10 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import config from "@/config";
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     timeEntrie: {
       type: Object,

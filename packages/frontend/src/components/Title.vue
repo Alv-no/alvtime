@@ -3,11 +3,11 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import { Moment } from "moment";
 import { createWeek } from "@/mixins/date";
 
-export default Vue.extend({
+export default defineComponent({
   computed: {
     week(): Moment[] {
       return createWeek(this.activeDate);

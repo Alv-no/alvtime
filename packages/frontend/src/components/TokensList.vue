@@ -45,7 +45,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import moment from "moment";
 import YellowButton from "./YellowButton.vue";
 import config from "@/config";
@@ -58,7 +58,7 @@ interface Token {
   expiryDate: string;
 }
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     ConfirmationDialog,
     YellowButton,

@@ -12,7 +12,7 @@ module.exports = {
     },
   },
   devServer: {
-    disableHostCheck: true,
+    allowedHosts: 'all',
   },
   chainWebpack: (config) => {
     config.resolve.alias.set('vue', '@vue/compat')

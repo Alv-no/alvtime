@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import moment from "moment";
 import ErrorSnackbar from "@/components/ErrorSnackbar.vue";
 import UpdateSnackbar from "@/components/UpdateSnackbar.vue";
@@ -51,7 +51,7 @@ import DayFooter from "@/components/DayFooter.vue";
 import CenterColumnWrapper from "@/components/CenterColumnWrapper.vue";
 import InvoiceRate from "@/components/InvoiceRate.vue";
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     ErrorSnackbar,
     UpdateSnackbar,

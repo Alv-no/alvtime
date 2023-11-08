@@ -13,13 +13,13 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 
 import DaySwiper from "@/components/DaySwiper.vue";
 import WeekSwiper from "@/components/WeekSwiper.vue";
 import Progress from "@/components/Progress.vue";
 
-export default Vue.extend({
+export default defineComponent({
   name: "Hours",
 
   components: {

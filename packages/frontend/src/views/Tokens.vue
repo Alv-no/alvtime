@@ -8,12 +8,12 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import TokensList from "@/components/TokensList.vue";
 import GenerateToken from "@/components/GenerateToken.vue";
 import CenterColumnWrapper from "@/components/CenterColumnWrapper.vue";
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     TokensList,
     GenerateToken,

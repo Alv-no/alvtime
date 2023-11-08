@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import { Store } from "vuex";
 
 export interface OvertimeData {
@@ -34,7 +34,7 @@ export interface TargetedSubtract {
   value: number;
 }
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     subtract: {
       default: "",

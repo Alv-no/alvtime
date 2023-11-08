@@ -16,14 +16,14 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import { Moment } from "moment";
 import TimeEntrieWeekList from "./TimeEntrieWeekList.vue";
 import { GLOBAL_SWIPER_OPTIONS } from "@/store/swiper";
 
 import Swiper from "swiper";
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     TimeEntrieWeekList,
   },

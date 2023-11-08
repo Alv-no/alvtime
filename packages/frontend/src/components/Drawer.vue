@@ -40,14 +40,14 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import YellowButton from "@/components/YellowButton.vue";
 import authService from "../services/auth";
 import config from "@/config";
 import { AccountInfo } from "@azure/msal-common";
 import Icon from "@/components/Icon.vue";
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     Icon,
     YellowButton,

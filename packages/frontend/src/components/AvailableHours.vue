@@ -11,10 +11,10 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import { Store } from "vuex";
 import { State } from "../store/index";
-export default Vue.extend({
+export default defineComponent({
   props: {
     small: {
       type: Boolean,

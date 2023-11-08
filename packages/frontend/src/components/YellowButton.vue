@@ -8,10 +8,10 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import Vue, {defineComponent} from "vue";
 import Tooltip from "@/components/Tooltip.vue";
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     Tooltip,
   },

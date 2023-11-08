@@ -10,11 +10,11 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import authService from "../services/auth";
 import Progress from "@/components/Progress.vue";
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     Progress,
   },

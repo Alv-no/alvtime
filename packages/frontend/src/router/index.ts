@@ -1,4 +1,4 @@
-import Vue from "vue";
+import {defineComponent} from "vue";
 import VueRouter, {createRouter, createWebHistory} from "vue-router";
 import Hours from "../views/Hours.vue";
 import Tasks from "../views/Tasks.vue";

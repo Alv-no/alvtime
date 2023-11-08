@@ -6,10 +6,10 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import authService from "../services/auth";
 
-export default Vue.extend({
+export default defineComponent({
   methods: {
     logout() {
       authService.logout();

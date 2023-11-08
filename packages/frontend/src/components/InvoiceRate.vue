@@ -4,10 +4,10 @@
 
 <script lang="ts">
 import { State } from "@/store";
-import Vue from "vue";
+import {defineComponent} from "vue";
 import { Store } from "vuex";
 import { getCurrentMonthName } from "../utils/timestamp-text-util";
-export default Vue.extend({
+export default defineComponent({
   props: {
     small: {
       type: Boolean,

@@ -36,14 +36,14 @@
 <script lang="ts">
 import Input from "./Input.vue";
 import Tooltip from "./Tooltip.vue";
-import Vue from "vue";
+import {defineComponent} from "vue";
 import YellowButton from "./YellowButton.vue";
 import config from "@/config";
 import httpClient from "../services/httpClient";
 import moment from "moment";
 import Icon from "@/components/Icon.vue";
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     YellowButton,
     Tooltip,

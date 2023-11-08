@@ -96,9 +96,8 @@
               </tr>
             </thead>
             <tbody>
-              <template v-for="transaction in sortedTransactions">
+              <template v-for="transaction in sortedTransactions" :key="transaction.id">
                 <tr
-                  :key="transaction.id"
                   class="md-table-row"
                   :class="
                     transaction.subItems && transaction.subItems.length !== 0
@@ -197,7 +196,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import { v4 as uuidv4 } from "uuid";
 import YellowButton from "./YellowButton.vue";
 import { isFloat } from "@/store/timeEntries";
@@ -253,7 +252,7 @@ const HOUR_TYPES = {
   FLEX: "Flex",
 };
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     YellowButton,
     Input,

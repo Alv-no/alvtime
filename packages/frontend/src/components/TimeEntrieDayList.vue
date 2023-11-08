@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import TimeEntrieText from "./TimeEntrieText.vue";
 import HourInput from "./HourInput.vue";
 import HolidayPill from "./HolidayPill.vue";
@@ -29,7 +29,7 @@ interface Row {
   timeEntrie: FrontendTimentrie;
 }
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     TimeEntrieText,
     HourInput,

@@ -53,7 +53,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import InvoiceChart from "./InvoiceChart.vue";
 import SimpleDatePicker from "./SimpleDatePicker.vue";
 import {
@@ -107,7 +107,7 @@ const granularityOptions = [
   },
 ];
 
-export default Vue.extend({
+export default defineComponent({
   components: { InvoiceChart, SimpleDatePicker, InvoiceStatisticCard },
   data() {
     const filters = this.$store.getters

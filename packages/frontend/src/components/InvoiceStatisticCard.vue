@@ -14,9 +14,9 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import { SummarizedStatistics } from "../store/invoiceRate";
-export default Vue.extend({
+export default defineComponent({
   props: {
     cardData: {
       type: Object as () => SummarizedStatistics,

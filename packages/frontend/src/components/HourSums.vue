@@ -12,14 +12,14 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import config from "@/config";
 import { FrontendTimentrie } from "@/store/timeEntries";
 import { createWeek } from "@/mixins/date";
 import { Moment } from "moment";
 import AvailableHours from "./AvailableHours.vue";
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     AvailableHours,
   },

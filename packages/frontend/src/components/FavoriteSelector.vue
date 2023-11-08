@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import { Task } from "@/store/tasks";
 import TimeEntrieText from "./TimeEntrieText.vue";
 import Input from "./Input.vue";
@@ -36,7 +36,7 @@ import YellowButton from "./YellowButton.vue";
 import CenterColumnWrapper from "@/components/CenterColumnWrapper.vue";
 import Fuse from "fuse.js";
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     TimeEntrieText,
     CenterColumnWrapper,
@@ -112,12 +112,12 @@ export default Vue.extend({
   padding-top: 1rem;
 }
 
-.list >>> .md-checkbox.md-theme-default.md-checked .md-checkbox-container {
+.list :deep(.md-checkbox.md-theme-default.md-checked .md-checkbox-container ){
   background-color: #008dcf;
   border-color: #008dcf;
 }
 
-.list >>> .md-checkbox.md-theme-default.md-checked .md-ripple {
+.list :deep(.md-checkbox.md-theme-default.md-checked .md-ripple ){
   color: #008dcf;
 }
 </style>

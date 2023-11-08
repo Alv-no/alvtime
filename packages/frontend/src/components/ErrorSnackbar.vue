@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 import { ErrorResponse } from "../services/httpClient";
 import SlackButton from "@/components/SlackButton.vue";
 import Tooltip from "@/components/Tooltip.vue";
@@ -31,7 +31,7 @@ declare global {
   }
 }
 
-export default Vue.extend({
+export default defineComponent({
   components: {
     SlackButton,
     Tooltip,

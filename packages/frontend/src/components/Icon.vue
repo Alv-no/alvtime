@@ -2,9 +2,9 @@
   <span v-if="iconId"></span>
 </template>
 
-<script setup lang="ts">
-import Vue from "vue";
-export default Vue.extend({
+<script lang="ts">
+import {defineComponent} from "vue";
+export default defineComponent({
   props: {
     iconId: {
       type: String,

@@ -54,9 +54,9 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import {defineComponent} from "vue";
 
-export default Vue.extend({
+export default defineComponent({
   data: () => ({
     showDialog: true,
   }),
@@ -104,12 +104,12 @@ img {
   }
 }
 
-.body >>> .md-button,
+.body :deep(.md-button),
 .md-button-clean {
   white-space: unset;
 }
 
-.body >>> .md-button {
+.body :deep(.md-button ){
   text-transform: unset;
 }
 </style>
