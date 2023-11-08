@@ -1,5 +1,5 @@
 import Vue from "vue";
-import VueRouter from "vue-router";
+import VueRouter, {createRouter, createWebHistory} from "vue-router";
 import Hours from "../views/Hours.vue";
 import Tasks from "../views/Tasks.vue";
 import AccumulatedHours from "../views/AccumulatedHours.vue";
@@ -9,8 +9,6 @@ import Login from "../views/Login.vue";
 import Summarizedhours from "../views/Summarizedhours.vue";
 import store from "@/store";
 import authService from "@/services/auth";
-
-Vue.use(VueRouter);
 
 const routes = [
   { path: "/", redirect: { name: "hours" } },
@@ -51,8 +49,9 @@ const routes = [
   },
 ];
 
-const router = new VueRouter({
+const router = createRouter({
   routes,
+  history: createWebHistory()
 });
 
 router.beforeEach(async (to, _from, next) => {

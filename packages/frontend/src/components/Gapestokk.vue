@@ -55,7 +55,6 @@
 
 <script lang="ts">
 import Vue from "vue";
-import store from "store2";
 
 export default Vue.extend({
   data: () => ({

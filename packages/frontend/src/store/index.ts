@@ -15,7 +15,7 @@ import invoice, { InvoiceStoreState } from "./invoiceRate";
 import { EventMessage, EventType } from "@azure/msal-browser";
 import { registerErrorCallback } from "@/services/httpClient";
 
-Vue.use(Vuex);
+import { createStore } from 'vuex';
 
 export interface State
   extends TaskState,
@@ -87,7 +87,7 @@ registerErrorCallback(e => {
   store.commit("ADD_TO_ERROR_LIST", e);
 });
 
-const store = new Vuex.Store(storeOptions);
+const store = createStore(storeOptions);
 authService.getAccountAsync().then(accountInfo => {
   store.commit("SET_ACCOUNT", accountInfo);
 });
