@@ -12,7 +12,7 @@ namespace AlvTimeWebApi.Controllers.Admin
     [Route("api/admin")]
     [ApiController]
     [AuthorizeOrakelet]
-    public class TimeEntriesAdminController : Controller
+    public class TimeEntriesAdminController : ControllerBase
     {
         private readonly ITimeRegistrationStorage _storage;
 
@@ -26,23 +26,23 @@ namespace AlvTimeWebApi.Controllers.Admin
         {
             try
             {
-                return Ok((await _storage.GetTimeEntriesForEmployees(new MultipleTimeEntriesQuerySearch
+            return Ok((await _storage.GetTimeEntriesForEmployees(new MultipleTimeEntriesQuerySearch
+            {
+                EmployeeIds = employeeIds,
+                FromDateInclusive = fromDate,
+                ToDateInclusive = toDate,
+                TaskIds = taskIds
+            }))
+                .Select(timeEntry => new
                 {
-                    EmployeeIds = employeeIds,
-                    FromDateInclusive = fromDate,
-                    ToDateInclusive = toDate,
-                    TaskIds = taskIds
-                }))
-                    .Select(timeEntry => new
-                    {
-                        User = timeEntry.User,
-                        EmployeeId = timeEntry.EmployeeId,
-                        Date = timeEntry.Date.ToDateOnly(),
-                        Value = timeEntry.Value,
-                        TaskId = timeEntry.TaskId,
-                        ProjectId = timeEntry.ProjectId,
-                    }));
-            }
+                    User = timeEntry.User,
+                    EmployeeId = timeEntry.EmployeeId,
+                    Date = timeEntry.Date.ToDateOnly(),
+                    Value = timeEntry.Value,
+                    TaskId = timeEntry.TaskId,
+                    ProjectId = timeEntry.ProjectId,
+                }));
+        }
             catch (Exception e)
             {
                 return BadRequest(new

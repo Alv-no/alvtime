@@ -241,6 +241,7 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
 
         var hours = await _context.Hours.AsQueryable()
              .Filter(criteria)
+<<<<<<< HEAD
              .Select(x => new TimeEntryEmployeeResponseDto
              {
                  User = x.User,
@@ -249,6 +250,16 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
                  Date = x.Date,
                  TaskId = x.TaskId,
                  ProjectId = x.Task.Project
+=======
+             .Select(hour => new TimeEntryEmployeeResponseDto
+             {
+                 User = hour.User,
+                 EmployeeId = hour.UserNavigation.EmployeeId,
+                 Value = hour.Value,
+                 Date = hour.Date,
+                 TaskId = hour.TaskId,
+                 ProjectId = hour.Task.Project
+>>>>>>> origin/master
              })
              .ToListAsync();
 
