@@ -24,6 +24,8 @@ namespace AlvTimeWebApi.Controllers.Admin
         [HttpGet("TimeEntries")]
         public async Task<ActionResult<IEnumerable<TimeEntryEmployeeResponseDto>>> GetTimeEntriesForEmployees([FromQuery] int[] employeeIds, [FromQuery] int[] taskIds, DateTime fromDate, DateTime toDate)
         {
+            try
+            {
             return Ok((await _storage.GetTimeEntriesForEmployees(new MultipleTimeEntriesQuerySearch
             {
                 EmployeeIds = employeeIds,
@@ -40,6 +42,14 @@ namespace AlvTimeWebApi.Controllers.Admin
                     TaskId = timeEntry.TaskId,
                     ProjectId = timeEntry.ProjectId,
                 }));
+        }
+            catch (Exception e)
+            {
+                return BadRequest(new
+                {
+                    Message = e.ToString(),
+                });
+            }
         }
     }
 }

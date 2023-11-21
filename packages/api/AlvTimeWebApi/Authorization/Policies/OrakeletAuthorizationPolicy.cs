@@ -10,7 +10,6 @@ namespace AlvTimeWebApi.Authorization.Policies
 
         public static void Build(AuthorizationPolicyBuilder builder) => builder
                 .RequireAuthenticatedUser()
-                .RequireClaim("groups", Environment.GetEnvironmentVariable("OrakeletGroup"))
-                .AddRequirements(new EmployeeStillActiveRequirement());
+                .RequireClaim("groups", Environment.GetEnvironmentVariable("OrakeletGroup"));
     }
 }
