@@ -52,5 +52,4 @@ namespace AlvTimeWebApi.Controllers.Admin
             }
         }
     }
-    }
 }
