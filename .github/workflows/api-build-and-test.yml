@@ -1,6 +1,7 @@
 name: Build and test API
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - "packages/api/**"
