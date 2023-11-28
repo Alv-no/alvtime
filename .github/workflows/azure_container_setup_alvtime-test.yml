@@ -14,6 +14,7 @@ on:
 jobs:
   build:
     runs-on: 'ubuntu-latest'
+    environment: test
 
     steps:
     - uses: actions/checkout@v2
@@ -25,21 +26,21 @@ jobs:
       uses: docker/login-action@v2
       with:
         registry: https://commoninfrastructuretest.azurecr.io/
-        username: ${{ secrets.AzureAppService_ContainerUsername_11510f2f6bf64633a871f60eed2d4625 }}
+        username: ${{ var.AzureAppService_ContainerUsername_11510f2f6bf64633a871f60eed2d4625 }}
         password: ${{ secrets.AzureAppService_ContainerPassword_dcfd19edf6f3408abde7828a7c85ecb8 }}
 
     - name: Build and push container image to registry
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: commoninfrastructuretest.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_11510f2f6bf64633a871f60eed2d4625 }}/mcr.microsoft.com/appsvc/staticsite:${{ github.sha }}
+        tags: commoninfrastructuretest.azurecr.io/${{ var.AzureAppService_ContainerUsername_11510f2f6bf64633a871f60eed2d4625 }}/mcr.microsoft.com/appsvc/staticsite:${{ github.sha }}
         file: ./Dockerfile
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
     environment:
-      name: 'production'
+      name: test
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
