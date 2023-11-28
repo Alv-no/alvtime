@@ -4,8 +4,8 @@ set -e
 
 export HELM_EXPERIMENTAL_OCI=1
 
-echo "$SP_ALVTIME_ADMIN_RBAC_SECRET" | helm registry login "$CONTAINER_REGISTRY.azurecr.io" \
-  --username "$SP_ALVTIME_ADMIN_CLIENT_ID" \
+echo $(AZURE-SERVICE-PRINCIPAL-PASSWORD) | helm registry login "$CONTAINER_REGISTRY.azurecr.io" \
+  --username $(AZURE-SERVICE-PRINCIPAL-USERNAME) \
   --password-stdin
 
 helm pull "oci://$CONTAINER_REGISTRY.azurecr.io/helm/chart" --version v1 --untar
