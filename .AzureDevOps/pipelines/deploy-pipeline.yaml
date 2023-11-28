@@ -11,6 +11,8 @@ pool:
 stages:
   - stage: testbuild
     displayName: Test environment
+    variables:
+      - group: azure-credentials-test
     jobs:
       - job: testbuild
         displayName: Plan and build
