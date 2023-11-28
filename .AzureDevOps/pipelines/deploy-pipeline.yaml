@@ -34,8 +34,8 @@ stages:
                 # Authenticate Acure container registry
                 echo "servicePrincipalId: "$servicePrincipalId
                 docker login alvkubernetesclustertestacr.azurecr.io \
-                  --username $(azure-service-principal-password) \
-                  --password $(azure-service-principal-username)
+                  --username $(azure-acr-name) \
+                  --password $(aazure-acr-secret)
 
                 # Run scripts to build for test environment
                 source scripts/setup.sh test --no-input
