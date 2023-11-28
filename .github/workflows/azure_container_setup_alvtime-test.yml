@@ -49,5 +49,5 @@ jobs:
       with:
         app-name: 'alvtime-test'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_0ff39f6d58ec48d5beee2ee0214c4d14 }}
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_0f7423cf4b0c41bcbbc595791bd10baf }}
         images: 'commoninfrastructuretest.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_11510f2f6bf64633a871f60eed2d4625 }}/mcr.microsoft.com/appsvc/staticsite:${{ github.sha }}'
