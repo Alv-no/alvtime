@@ -26,14 +26,14 @@ jobs:
       uses: docker/login-action@v2
       with:
         registry: https://commoninfrastructuretest.azurecr.io/
-        username: ${{ var.AzureAppService_ContainerUsername_11510f2f6bf64633a871f60eed2d4625 }}
+        username: ${{ vars.AzureAppService_ContainerUsername_11510f2f6bf64633a871f60eed2d4625 }}
         password: ${{ secrets.AzureAppService_ContainerPassword_dcfd19edf6f3408abde7828a7c85ecb8 }}
 
     - name: Build and push container image to registry
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: commoninfrastructuretest.azurecr.io/${{ var.AzureAppService_ContainerUsername_11510f2f6bf64633a871f60eed2d4625 }}/mcr.microsoft.com/appsvc/staticsite:${{ github.sha }}
+        tags: commoninfrastructuretest.azurecr.io/${{ vars.AzureAppService_ContainerUsername_11510f2f6bf64633a871f60eed2d4625 }}/mcr.microsoft.com/appsvc/staticsite:${{ github.sha }}
         file: ./Dockerfile
 
   deploy:
@@ -51,4 +51,4 @@ jobs:
         app-name: 'alvtime-test'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_0f7423cf4b0c41bcbbc595791bd10baf }}
-        images: 'commoninfrastructuretest.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_11510f2f6bf64633a871f60eed2d4625 }}/mcr.microsoft.com/appsvc/staticsite:${{ github.sha }}'
+        images: 'commoninfrastructuretest.azurecr.io/${{ vars.AzureAppService_ContainerUsername_11510f2f6bf64633a871f60eed2d4625 }}/mcr.microsoft.com/appsvc/staticsite:${{ github.sha }}'
