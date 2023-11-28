@@ -3,12 +3,14 @@
 
 name: Build and deploy container app to Azure Web App - alvtime-test
 
-on:
+on: 
+  workflow_dispatch: 
   push:
     branches:
-      - azure_container_setup
-  workflow_dispatch:
-
+      - master
+    paths:
+      - "packages/api/**"
+      
 jobs:
   build:
     runs-on: 'ubuntu-latest'
