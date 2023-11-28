@@ -35,7 +35,7 @@ stages:
                 echo "servicePrincipalId: "$servicePrincipalId
                 docker login alvkubernetesclustertestacr.azurecr.io \
                   --username $(azure-acr-name) \
-                  --password $(aazure-acr-secret)
+                  --password $(azure-acr-secret)
 
                 # Run scripts to build for test environment
                 source scripts/setup.sh test --no-input
