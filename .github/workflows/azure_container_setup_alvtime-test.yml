@@ -32,7 +32,7 @@ jobs:
     - name: Build and push container image to registry
       uses: docker/build-push-action@v3
       with:
-        path: ./packages/api/
+        context: ./packages/api/
         push: true
         tags: commoninfrastructuretest.azurecr.io/${{ vars.AzureAppService_ContainerUsername_11510f2f6bf64633a871f60eed2d4625 }}/alvtimewebapi:${{ github.sha }}
         file: ./packages/api/Dockerfile
