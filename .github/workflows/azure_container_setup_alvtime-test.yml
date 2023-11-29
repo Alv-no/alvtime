@@ -34,7 +34,7 @@ jobs:
       with:
         context: ./packages/api/
         push: true
-        tags: commoninfrastructuretest.azurecr.io/${{ vars.AzureAppService_ContainerUsername_11510f2f6bf64633a871f60eed2d4625 }}/alvtimewebapi:${{ github.sha }}
+        tags: commoninfrastructuretest.azurecr.io/alvtimewebapi:${{ github.sha }}
         file: ./packages/api/Dockerfile
 
   deploy:
@@ -52,4 +52,4 @@ jobs:
         app-name: 'alvtime-test'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_0f7423cf4b0c41bcbbc595791bd10baf }}
-        images: 'commoninfrastructuretest.azurecr.io/${{ vars.AzureAppService_ContainerUsername_11510f2f6bf64633a871f60eed2d4625 }}/alvtimewebapi:${{ github.sha }}'
+        images: 'commoninfrastructuretest.azurecr.io/alvtimewebapi:${{ github.sha }}'
