@@ -58,6 +58,7 @@ jobs:
       uses: Azure/appservice-settings@v1
       with:
        app-name: 'alvtime-test'
+       slot-name: 'production'
        app-settings-json: |
          '[
              {
