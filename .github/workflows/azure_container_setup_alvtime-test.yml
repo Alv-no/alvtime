@@ -59,10 +59,10 @@ jobs:
       with:
        app-name: 'alvtime-test'
        app-settings-json: |
-         [
+         '[
              {
                  "name": "stuff",
                  "value": "stuff",
                  "slotSetting": false
              }
-         ]
+         ]'
