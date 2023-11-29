@@ -35,7 +35,7 @@ jobs:
         working-directory: ./packages/api/
         push: true
         tags: commoninfrastructuretest.azurecr.io/${{ vars.AzureAppService_ContainerUsername_11510f2f6bf64633a871f60eed2d4625 }}/alvtimewebapi:${{ github.sha }}
-        file: Dockerfile
+        file: ./packages/api/Dockerfile
 
   deploy:
     runs-on: ubuntu-latest
