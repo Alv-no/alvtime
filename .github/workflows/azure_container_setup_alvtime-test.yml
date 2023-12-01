@@ -74,8 +74,7 @@ jobs:
       uses: Azure/appservice-settings@v1
       env:
           settings: '"name":"ConnectionStrings__AlvTime_db", "value":${{ steps.myGetSecretAction.outputs.sql-connection-string }}'
-      
       with:
        app-name: 'alvtime-test'
        slot-name: 'production' 
-       app-settings-json: '[{$settings}]'
+       app-settings-json: 'format("[{0}{1}{2}]", "{", $settings, "}")]
