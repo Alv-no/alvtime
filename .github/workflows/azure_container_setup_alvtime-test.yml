@@ -39,7 +39,7 @@ jobs:
 #
   deploy:
     runs-on: ubuntu-latest
-    needs: build
+#    needs: build
     environment:
       name: test
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
