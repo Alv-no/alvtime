@@ -60,6 +60,7 @@ jobs:
       with:
        app-name: 'alvtime-test'
        slot-name: 'production'
+       publish-profile: ${{ secrets.AzureAppService_PublishProfile_0f7423cf4b0c41bcbbc595791bd10baf }}
        app-settings-json: |
          '[
              {
