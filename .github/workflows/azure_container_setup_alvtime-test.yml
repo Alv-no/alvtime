@@ -53,14 +53,17 @@ jobs:
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_0f7423cf4b0c41bcbbc595791bd10baf }}
         images: 'commoninfrastructuretest.azurecr.io/alvtimewebapi:${{ github.sha }}'
+    
+    - uses: azure/login@v1
+      with:
+        creds: '${{ secrets.GITHUBACTIONDEPLOYMENTCREDENTIALS }}'
 
     - name: Set appsettings
       uses: Azure/appservice-settings@v1
       id: settings
       with:
        app-name: 'alvtime-test'
-       slot-name: 'production'
-       publish-profile: ${{ secrets.AzureAppService_PublishProfile_0f7423cf4b0c41bcbbc595791bd10baf }}
+       slot-name: 'production' 
        app-settings-json: |
          '[
              {
