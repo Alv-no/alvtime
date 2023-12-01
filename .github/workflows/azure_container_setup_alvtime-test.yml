@@ -71,7 +71,10 @@ jobs:
        app-settings-json: '${{ vars.Api_AppSettings }}'
 
     - name: printer
-      run: echo format('[{{"name":"ConnectionStrings__AlvTime_db", "value":{0}}}]',${{ steps.myGetSecretAction.outputs.sql-connection-string }})
+      env: 
+        settings: format('[{{"name":"ConnectionStrings__AlvTime_db", "value":{0}}}]',${{ steps.myGetSecretAction.outputs.sql-connection-string }})
+      run: echo |
+        "${settings}"
     
     - name: Set appsettings from keyvault
       uses: Azure/appservice-settings@v1 
