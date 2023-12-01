@@ -72,7 +72,7 @@ jobs:
 
     - name: printer
       env: 
-        settings: format('[{{"name":"ConnectionStrings__AlvTime_db", "value":{0}}}]',${{ steps.myGetSecretAction.outputs.sql-connection-string }})
+        settings: ${{format('[{{"name":"ConnectionStrings__AlvTime_db", "value":{0}}}]',${{ steps.myGetSecretAction.outputs.sql-connection-string }})}}
       run: |
         "echo ${settings}"
     
