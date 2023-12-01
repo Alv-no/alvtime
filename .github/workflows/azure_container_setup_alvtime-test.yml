@@ -49,13 +49,13 @@ jobs:
       with:
         creds: '${{ secrets.GITHUBACTIONDEPLOYMENTCREDENTIALS }}'
     
-    - name: Deploy to Azure Web App
-      id: deploy-to-webapp
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: 'alvtime-test'
-        slot-name: 'production'
-        images: 'commoninfrastructuretest.azurecr.io/alvtimewebapi:${{ github.sha }}'
+#    - name: Deploy to Azure Web App
+#      id: deploy-to-webapp
+#      uses: azure/webapps-deploy@v2
+#      with:
+#        app-name: 'alvtime-test'
+#        slot-name: 'production'
+#        images: 'commoninfrastructuretest.azurecr.io/alvtimewebapi:${{ github.sha }}'
 
     - uses: Azure/get-keyvault-secrets@v1
       with:
