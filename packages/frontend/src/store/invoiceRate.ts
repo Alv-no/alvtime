@@ -229,7 +229,11 @@ function createDefaultStatisticInterval(): InvoiceStatisticsFilters {
 
   return {
     fromDate: createTimeString(from.getFullYear(), from.getMonth() + 1, 1),
-    toDate: createTimeString(to.getFullYear(), to.getMonth() + 2, 1),
+    toDate: createTimeString(
+      to.getFullYear(),
+      to.getMonth() + 2 <= 12 ? to.getMonth() + 2 : 12,
+      1
+    ),
     granularity: InvoicePeriods.Monthly,
   };
 }
