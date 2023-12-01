@@ -77,4 +77,4 @@ jobs:
       with:
        app-name: 'alvtime-test'
        slot-name: 'production' 
-       app-settings-json: format("[{0}{1}{2}]", "{{", ${settings}, "}}")]
+       app-settings-json: format("[{0}{1}{2}]", ${settings})]
