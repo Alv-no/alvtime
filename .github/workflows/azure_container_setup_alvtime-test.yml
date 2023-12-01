@@ -72,7 +72,7 @@ jobs:
 
     - name: printer
       env: 
-        settings: ${{format('[{{"name":"ConnectionStrings__AlvTime_db", "value":{0}}}]',${{ steps.myGetSecretAction.outputs.sql-connection-string }})}}
+        settings: format('[{{"name":"ConnectionStrings__AlvTime_db", "value":{0}}}]',${{ steps.myGetSecretAction.outputs.sql-connection-string }})
       run: |
         "echo ${settings}"
     
@@ -81,4 +81,4 @@ jobs:
       with:
        app-name: 'alvtime-test'
        slot-name: 'production' 
-       app-settings-json: format('[{{"name":"ConnectionStrings__AlvTime_db", "value":{0}}}]',${{ steps.myGetSecretAction.outputs.sql-connection-string }})
+       app-settings-json: '[{"name": "ConnectionStrings__AlvTime_db", "value": "${{ steps.myGetSecretAction.outputs.sql-connection-string }}"}]'
