@@ -58,10 +58,22 @@ jobs:
       with:
         creds: '${{ secrets.GITHUBACTIONDEPLOYMENTCREDENTIALS }}'
 
+    - uses: Azure/get-keyvault-secrets@v1
+      with:
+        keyvault: "k8sconfig-test-kv"
+        secrets: 'sql-connection-string'
+      id: myGetSecretAction
+
     - name: Set appsettings
       uses: Azure/appservice-settings@v1
-      id: settings
       with:
        app-name: 'alvtime-test'
        slot-name: 'production' 
        app-settings-json: '${{ vars.Api_AppSettings }}'
+    
+    - name: Set appsettings from keyvault
+      uses: Azure/appservice-settings@v1
+      with:
+       app-name: 'alvtime-test'
+       slot-name: 'production' 
+       app-settings-json: '["name":"ConnectionStrings__AlvTime_db", "value":${{ steps.myGetSecretAction.outputs.sql-connection-string }}]'
