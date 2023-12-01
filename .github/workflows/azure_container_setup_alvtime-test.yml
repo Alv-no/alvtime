@@ -45,18 +45,17 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
+    - uses: azure/login@v1
+      with:
+        creds: '${{ secrets.GITHUBACTIONDEPLOYMENTCREDENTIALS }}'
+    
     - name: Deploy to Azure Web App
       id: deploy-to-webapp
       uses: azure/webapps-deploy@v2
       with:
         app-name: 'alvtime-test'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_0f7423cf4b0c41bcbbc595791bd10baf }}
         images: 'commoninfrastructuretest.azurecr.io/alvtimewebapi:${{ github.sha }}'
-    
-    - uses: azure/login@v1
-      with:
-        creds: '${{ secrets.GITHUBACTIONDEPLOYMENTCREDENTIALS }}'
 
     - uses: Azure/get-keyvault-secrets@v1
       with:
