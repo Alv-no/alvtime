@@ -27,6 +27,10 @@
         Rate:
         <small class="expanded-text">{{ compensationRatePercentage }}</small>
       </label>
+       <label class="expanded-label">
+        Beskrivelse:
+        <small class="expanded-text">{{ task.description }}</small>
+      </label>
     </div>
     <div v-show="showPadlock" class="padlock-container">
       <md-icon class="padlock-icon">lock</md-icon>
