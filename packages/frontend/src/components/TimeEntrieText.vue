@@ -27,7 +27,7 @@
         Rate:
         <small class="expanded-text">{{ compensationRatePercentage }}</small>
       </label>
-       <label class="expanded-label">
+      <label class="expanded-label">
         Beskrivelse:
         <small class="expanded-text">{{ task.description }}</small>
       </label>
