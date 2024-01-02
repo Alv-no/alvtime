@@ -35,10 +35,36 @@ public class PayoutStorage : IPayoutStorage
                 Date = po.Date,
                 HoursAfterCompRate = po.HoursAfterCompRate,
                 HoursBeforeCompRate = po.HoursBeforeCompRate,
-                Active = po.Date.Month >= DateTime.Now.Month && po.Date.Year == DateTime.Now.Year,
+                Active = IsPayoutActive(po),
                 CompRate = po.CompensationRate
             }).ToList()
         };
+    }
+
+    private static bool IsPayoutActive(PaidOvertime po)
+    {
+        //If payout made previous year and current day is more than 8, payout is inactive
+        if (po.Date.Year < DateTime.Now.Year)
+        {
+            return po.Date.Month == 12 && po.Date.Day > 8 && DateTime.Now.DayOfYear <= 8;
+        }
+
+        //If payout is made after the 8th the previous month, or current date is before the 8th the succeeding month, payout is active
+        if (po.Date.Month < DateTime.Now.Month)
+        {
+            if (po.Date.Day <= 8 || DateTime.Now.Day > 8)
+            {
+                return false;
+            }
+
+            if (po.Date.Day > 8 && DateTime.Now.Day <= 8 && DateTime.Now.Month == po.Date.Month + 1)
+            {
+                return true;
+            }
+        }
+
+        //If payout made same month either after the 8th, or current date is before the 8th, payout is active
+        return po.Date.Month == DateTime.Now.Month && (po.Date.Day > 8 || DateTime.Now.Day <= 8);
     }
 
     public async Task<List<PayoutDto>> RegisterPayout(int userId, GenericPayoutHourEntry request, List<PayoutToRegister> payoutsToRegister)
