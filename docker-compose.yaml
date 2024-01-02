@@ -51,7 +51,8 @@ services:
     build:
       context: ./packages/api
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - ConnectionStrings__AlvTime_db=Data Source=tcp:db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32
       - AzureAd__Domain=api://c9126a83-01c3-43c0-8bb3-298d352d2d7f
@@ -79,6 +80,12 @@ services:
         /opt/mssql/bin/sqlservr &
         # So that the container doesn't shut down, sleep this thread
         sleep infinity
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "AlvTimeTestErMoro32" -Q "SELECT 1" -b -o /dev/null
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
 
   slack-app:
     tty: true
