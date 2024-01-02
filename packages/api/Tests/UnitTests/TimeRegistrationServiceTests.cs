@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using AlvTime.Business.Options;
 using AlvTime.Business.Payouts;
 using AlvTime.Business.TimeRegistration;
@@ -151,6 +152,44 @@ public class TimeRegistrationServiceTests
         var vacationEntry = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 03), 7.5M, 13); //Monday
         await Assert.ThrowsAsync<Exception>(async () => await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = vacationEntry.Date, Value = vacationEntry.Value, TaskId = vacationEntry.TaskId } }));
+    }
+    
+    [Fact]
+    public async System.Threading.Tasks.Task RegisterFlexAndHasImposedOvertime_ImposedOvertimeIsSubtractedLast()
+    {
+        var timeRegistrationService = CreateTimeRegistrationService();
+        var timeEntry1 = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 03), 12.5M, 1); //Monday
+        var timeEntry2 = CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 04), 12.5M, 2.0M, out var taskId); //Tuesday
+        await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
+        await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() { Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = taskId } });
+        
+        var flexTimeEntry = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 05), 6, 18);
+        await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() { Date = flexTimeEntry.Date, Value = flexTimeEntry.Value, TaskId = flexTimeEntry.TaskId } });
+
+        var overTime = await timeRegistrationService.GetAvailableOvertimeHoursNow();
+        Assert.Equal(4, overTime.AvailableHoursBeforeCompensation);
+        Assert.Equal(8, overTime.AvailableHoursAfterCompensation);
+    }
+    
+    [Fact]
+    public async System.Threading.Tasks.Task RegisterFlexAndHasImposedOvertime_ImposedOvertimeIsSubtractedLast2()
+    {
+        var timeRegistrationService = CreateTimeRegistrationService();
+        var timeEntry1 = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 03), 8.5M, 1); //Monday
+        var timeEntry2 = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 04), 8.5M, 2); //Tuesday
+        var timeEntry3 = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 05), 8.5M, 3); //Wednesday
+        var timeEntry4 = CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 06), 8.5M, 2.0M, out var taskId); //Thursday
+        await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
+        await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() { Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId } });
+        await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() { Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId } });
+        await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() { Date = timeEntry4.Date, Value = timeEntry4.Value, TaskId = taskId } });
+        
+        var flexTimeEntry = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 07), 3, 18);
+        await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() { Date = flexTimeEntry.Date, Value = flexTimeEntry.Value, TaskId = flexTimeEntry.TaskId } });
+
+        var overTime = await timeRegistrationService.GetAvailableOvertimeHoursNow();
+        Assert.Equal(1, overTime.AvailableHoursBeforeCompensation);
+        Assert.Equal(2, overTime.AvailableHoursAfterCompensation);
     }
 
     private TimeRegistrationService CreateTimeRegistrationService()

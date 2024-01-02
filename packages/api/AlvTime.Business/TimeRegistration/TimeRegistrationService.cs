@@ -101,16 +101,26 @@ public class TimeRegistrationService
             await _timeRegistrationStorage.DeleteFlexOnDate(date, userId);
             var amountToFlex = entriesOnDay.Where(e => e.TaskId == _flexTask).Sum(f => f.Value);
             var availableOvertime = await GetAvailableOvertimeHoursAtDate(date);
-            var relevantOvertimeGroupedByCompRate = availableOvertime.Entries
-                .Where(ot => ot.Date <= date)
+            var nonImposedOverTime = availableOvertime.Entries
+                .Where(ot => ot.Date <= date && ot.CompensationRate < 2.0M)
                 .GroupBy(eo => eo.CompensationRate)
                 .Select(eo => new
                 {
                     CompensationRate = eo.Key,
                     Hours = eo.Sum(entry => entry.Hours)
                 }).OrderByDescending(e => e.CompensationRate);
+            
+            var imposedOverTime = availableOvertime.Entries.Where(ot => ot.Date <= date && ot.CompensationRate >= 2.0M)
+                .GroupBy(eo => eo.CompensationRate)
+                .Select(eo => new
+                {
+                    CompensationRate = eo.Key,
+                    Hours = eo.Sum(entry => entry.Hours)
+                }).OrderByDescending(e => e.CompensationRate);
+            
+            var overtimeGroupedByCompRate = nonImposedOverTime.Concat(imposedOverTime).ToList(); //Imposed overtime should be subtracted last
 
-            foreach (var overtimeGroup in relevantOvertimeGroupedByCompRate)
+            foreach (var overtimeGroup in overtimeGroupedByCompRate)
             {
                 if (amountToFlex <= 0)
                 {
