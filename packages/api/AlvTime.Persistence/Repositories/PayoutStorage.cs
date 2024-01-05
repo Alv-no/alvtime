@@ -40,23 +40,24 @@ public class PayoutStorage : IPayoutStorage
             }).ToList()
         };
     }
-
-    private static DateTime FindClosestPreviousCuttoffDate()
-    {
-        var cuttoffDate = DateTime.Now;
-        while (cuttoffDate.Day != 9)
-        {
-            cuttoffDate = cuttoffDate.AddDays(-1);
-        }
-        
-        return new DateTime(year: cuttoffDate.Year, day: cuttoffDate.Day, month: cuttoffDate.Month);
-    }
-
+    
     private static bool IsPayoutActive(PaidOvertime po)
     {
-        var cuttOffDate = FindClosestPreviousCuttoffDate();
-        return po.Date > cuttOffDate;
+        var cutOffDate = FindClosestPreviousCutoffDate();
+        return po.Date > cutOffDate;
     }
+
+    private static DateTime FindClosestPreviousCutoffDate()
+    {
+        var cutoffDate = DateTime.Now;
+        while (cutoffDate.Day != 9)
+        {
+            cutoffDate = cutoffDate.AddDays(-1);
+        }
+        
+        return new DateTime(year: cutoffDate.Year, month: cutoffDate.Month, day: cutoffDate.Day);
+    }
+
 
     public async Task<List<PayoutDto>> RegisterPayout(int userId, GenericPayoutHourEntry request, List<PayoutToRegister> payoutsToRegister)
     {
