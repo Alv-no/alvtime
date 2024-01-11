@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.Payouts;
+using AlvTime.Business.Utils;
 using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Task = System.Threading.Tasks.Task;
@@ -13,10 +14,12 @@ namespace AlvTime.Persistence.Repositories;
 public class PayoutStorage : IPayoutStorage
 {
     private readonly AlvTime_dbContext _context;
+    private readonly DateAlvTime dateAlvTime;
 
-    public PayoutStorage(AlvTime_dbContext context)
+    public PayoutStorage(AlvTime_dbContext context, DateAlvTime dateAlvTime)
     {
         _context = context;
+        this.dateAlvTime = dateAlvTime;
     }
 
     public async Task<PayoutsDto> GetRegisteredPayouts(PayoutQueryFilter criterias)
@@ -41,15 +44,15 @@ public class PayoutStorage : IPayoutStorage
         };
     }
     
-    private static bool IsPayoutActive(PaidOvertime po)
+    private bool IsPayoutActive(PaidOvertime po)
     {
         var cutOffDate = FindClosestPreviousCutoffDate();
         return po.Date > cutOffDate;
     }
 
-    private static DateTime FindClosestPreviousCutoffDate()
+    private DateTime FindClosestPreviousCutoffDate()
     {
-        var cutoffDate = DateTime.Now;
+        var cutoffDate = dateAlvTime.Now;
         while (cutoffDate.Day != 9)
         {
             cutoffDate = cutoffDate.AddDays(-1);
@@ -93,8 +96,8 @@ public class PayoutStorage : IPayoutStorage
     public async Task<List<PayoutDto>> GetActivePayouts(int userId)
     {
         var allActivePayouts = await _context.PaidOvertime
-            .Where(p => p.Date.Month >= DateTime.Now.Month &&
-                        p.Date.Year == DateTime.Now.Year &&
+            .Where(p => p.Date.Month >= dateAlvTime.Now.Month &&
+                        p.Date.Year == dateAlvTime.Now.Year &&
                         p.User == userId).ToListAsync();
 
         return allActivePayouts.Select(po => new PayoutDto
