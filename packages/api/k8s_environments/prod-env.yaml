@@ -1,5 +1,5 @@
 config:
-  AdminGroup: "d2bff530-4037-4a53-823e-a29dac3905ef"
+  AdminGroup: "99e2967b-0a82-4381-8686-3b21c1f9693b"
   OrakeletGroup: "f4f38a59-7518-47ca-a28d-30905343e488"
   ASPNETCORE_ENVIRONMENT: "Production"
   AzureAd__ClientId: "3644a03b-f801-4b67-b487-3353684fe7fc"
