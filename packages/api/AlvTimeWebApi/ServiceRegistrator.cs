@@ -54,6 +54,7 @@ namespace AlvTimeWebApi
             services.AddScoped<InvoiceRateService>();
             services.AddScoped<IAbsenceStorage, AbsenceStorage>();
             services.AddScoped<AssociatedTaskService>();
+            services.AddScoped<DateAlvTime>();
         }
     }
 }

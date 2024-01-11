@@ -58,7 +58,7 @@ public class OvertimeTests
         _timeRegistrationService = CreateTimeRegistrationService();
 
         _payoutValidationServiceMock = new Mock<PayoutValidationService>(new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)),
-            _timeRegistrationService, new PayoutStorage(_context));
+            _timeRegistrationService, new PayoutStorage(_context, new DateAlvTime()));
         _payoutValidationServiceMock.Setup(x => x.CheckForIncompleteDays(It.IsAny<GenericPayoutHourEntry>(), It.IsAny<int>())).Returns(System.Threading.Tasks.Task.FromResult(System.Threading.Tasks.Task.CompletedTask));
         _payoutValidationServiceMock.CallBase = true;
     }
@@ -259,7 +259,7 @@ public class OvertimeTests
             .Throws(new Exception());
         mockRepo.CallBase = true;
         var timeRegistrationService = new TimeRegistrationService(_options, _userContextMock.Object,
-            CreateTaskUtils(), mockRepo.Object, new DbContextScope(sqliteContext), new PayoutStorage(sqliteContext), new UserService(new UserRepository(sqliteContext), new TimeRegistrationStorage(sqliteContext)));
+            CreateTaskUtils(), mockRepo.Object, new DbContextScope(sqliteContext), new PayoutStorage(sqliteContext, new DateAlvTime()), new UserService(new UserRepository(sqliteContext), new TimeRegistrationStorage(sqliteContext)));
         var dateToTest = new DateTime(2021, 12, 13); //Monday
         var timeEntry = CreateTimeEntryForExistingTask(dateToTest, 10M, 1);
         try
@@ -1293,12 +1293,12 @@ public class OvertimeTests
     private TimeRegistrationService CreateTimeRegistrationService()
     {
         return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
-            new TimeRegistrationStorage(_context), new DbContextScope(_context), new PayoutStorage(_context), new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
+            new TimeRegistrationStorage(_context), new DbContextScope(_context), new PayoutStorage(_context, new DateAlvTime()), new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
     }
         
     private PayoutService CreatePayoutService(TimeRegistrationService timeRegistrationService)
     {
-        return new PayoutService(new PayoutStorage(_context), _userContextMock.Object,
+        return new PayoutService(new PayoutStorage(_context, new DateAlvTime()), _userContextMock.Object,
             timeRegistrationService, _payoutValidationServiceMock.Object);
     }
 
