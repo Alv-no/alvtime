@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\buildMultiTargeting\Alvtime.Adminpanel.Client.props" />
+</Project>
