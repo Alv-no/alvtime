@@ -1,0 +1,132 @@
+﻿@page "/ansatte"
+@using Alvtime.Adminpanel.Client.Models
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using System.Net.Http.Headers
+
+@inject HttpClient HttpClient
+@inject IAccessTokenProvider TokenProvider
+
+<PageTitle>Ansatte</PageTitle>
+
+<MudTable Items="@AllEmployees" Hover="true" Loading="@Loading" Striped="true" Dense="true" CanCancelEdit="true" Filter="new Func<EmployeeModel, bool>(FilterFunc)"
+          @bind-SelectedItem="_selectedEmployee" SortLabel="Sort By" CommitEditTooltip="Lagre endring"
+          OnCommitEditClick="EmployeeChangeCommitted" RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues" CancelEditTooltip="Avbryt"
+          IsEditRowSwitchingBlocked="false" ApplyButtonPosition="TableApplyButtonPosition.End" EditButtonPosition="TableEditButtonPosition.End" EditTrigger="@_editTrigger">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Ansatte</MudText>
+        <MudSpacer/>
+        <MudTextField @bind-Value="_searchString" Immediate="true" Placeholder="Søk" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>
+            <MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<EmployeeModel, object>(x => x.Name)">Navn</MudTableSortLabel>
+        </MudTh>
+        <MudTh>
+            <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.Email)">Epost</MudTableSortLabel>
+        </MudTh>
+        <MudTh>
+            <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.StartDate)">Startdato</MudTableSortLabel>
+        </MudTh>
+        <MudTh>
+            <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.EndDate)">Sluttdato</MudTableSortLabel>
+        </MudTh>
+        <MudTh>
+            <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.EmployeeId)">Ansattnummer</MudTableSortLabel>
+        </MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Navn">@context.Name</MudTd>
+        <MudTd DataLabel="Epost">@context.Email</MudTd>
+        <MudTd DataLabel="Startdato">@context.StartDate</MudTd>
+        <MudTd DataLabel="Sluttdato">@context.EndDate</MudTd>
+        <MudTd DataLabel="Ansattnummer">@context.EmployeeId</MudTd>
+    </RowTemplate>
+    <RowEditingTemplate>
+        <MudTd DataLabel="Navn">
+            <MudTextField @bind-Value="@context.Name" Required/>
+        </MudTd>
+        <MudTd DataLabel="Epost">
+            <MudTextField @bind-Value="@context.Email" Required/>
+        </MudTd>
+        <MudTd DataLabel="Startdato">
+            <MudTextField @bind-Value="@context.StartDate" Required/>
+        </MudTd>
+        <MudTd DataLabel="Sluttdato">
+            <MudTextField @bind-Value="@context.EndDate"/>
+        </MudTd>
+        <MudTd DataLabel="Ansattnummer">
+            <MudNumericField @bind-Value="@context.EmployeeId" Required/>
+        </MudTd>
+    </RowEditingTemplate>
+    <PagerContent>
+        <MudTablePager/>
+    </PagerContent>
+    <EditButtonContent Context="button">
+        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled"/>
+    </EditButtonContent>
+</MudTable>
+
+@code {
+    private List<string> _editEvents = [];
+    private string _searchString = "";
+    private EmployeeModel? _selectedEmployee;
+    private EmployeeModel _employeeBeforeEdit;
+    private TableEditTrigger _editTrigger = TableEditTrigger.RowClick;
+    private bool Loading => AllEmployees == null;
+    private IEnumerable<EmployeeModel>? AllEmployees { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RequestAuthToken();
+
+        try
+        {
+            AllEmployees = await HttpClient.GetFromJsonAsync<EmployeeModel[]>("api/admin/users");
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+    }
+
+    private bool FilterFunc(EmployeeModel element)
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+        return element.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase) || element.Email.Contains(_searchString, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async Task RequestAuthToken()
+    {
+        var requestToken = await TokenProvider.RequestAccessToken();
+        requestToken.TryGetToken(out var token);
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
+    }
+
+    private void BackupItem(object employee)
+    {
+        _employeeBeforeEdit = new EmployeeModel
+        {
+            Name = ((EmployeeModel)employee).Name,
+            Email = ((EmployeeModel)employee).Email,
+            StartDate = ((EmployeeModel)employee).StartDate,
+            EndDate = ((EmployeeModel)employee).EndDate,
+            EmployeeId = ((EmployeeModel)employee).EmployeeId
+        };
+    }
+
+    private async Task EmployeeChangeCommitted(MouseEventArgs args)
+    {
+        await HttpClient.PutAsJsonAsync<EmployeeModel[]>("api/admin/users", [_selectedEmployee]);
+    }
+
+    private void ResetItemToOriginalValues(object employee)
+    {
+        ((EmployeeModel)employee).Name = _employeeBeforeEdit.Name;
+        ((EmployeeModel)employee).Email = _employeeBeforeEdit.Email;
+        ((EmployeeModel)employee).StartDate = _employeeBeforeEdit.StartDate;
+        ((EmployeeModel)employee).EndDate = _employeeBeforeEdit.EndDate;
+        ((EmployeeModel)employee).EmployeeId = _employeeBeforeEdit.EmployeeId;
+    }
+
+}
