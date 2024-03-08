@@ -1,12 +1,14 @@
-﻿using System;
-using AlvTime.Business.Options;
+﻿using AlvTime.Business.Options;
 using AlvTime.Business.Users;
 using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
-using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
 using AlvTimeWebApi.Authorization;
+using AlvTimeWebApi.Responses;
+using AlvTimeWebApi.Utils;
 
 namespace AlvTimeWebApi.Controllers
 {
@@ -27,7 +29,7 @@ namespace AlvTimeWebApi.Controllers
         }
 
         [HttpGet("Profile")]
-        public ActionResult<UserResponseDto> GetUserProfile()
+        public ActionResult<UserResponse> GetUserProfile()
         {
             var user = _userRetriever.RetrieveUser();
 
@@ -36,25 +38,25 @@ namespace AlvTimeWebApi.Controllers
                 return NotFound("User not found");
             }
 
-            return Ok(new UserResponseDto()
+            return Ok(new UserResponse
             {
                 Id = user.Id,
-                StartDate = user.StartDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                EndDate = user.EndDate != null ? ((DateTime)user.EndDate).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : null,
+                StartDate = user.StartDate.ToDateOnly(),
+                EndDate = user.EndDate?.ToDateOnly(),
                 Email = user.Email,
                 Name = user.Name
             });
         }
 
         [HttpGet("UsersReport")]
-        public ActionResult<IEnumerable<UserResponseDto>> FetchUsersReport()
+        public async Task<ActionResult<IEnumerable<UserResponse>>> FetchUsersReport()
         {
             var user = _userRetriever.RetrieveUser();
 
             if (user.Id == _reportUser)
             {
-                var users = _userRepository.GetUsers(new UserQuerySearch());
-                return Ok(users);
+                var users = await _userRepository.GetUsers(new UserQuerySearch());
+                return Ok(users.Select(u => u.MapToUserResponse()));
             }
 
             return Unauthorized();
