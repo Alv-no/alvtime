@@ -31,7 +31,7 @@ public class UserService
         return response;
     }
 
-    public async Task<UserDto> CreateUser(UserDto user)
+    private async Task<UserDto> CreateUser(UserDto user)
     {
         await CheckForDuplicateUserDetails(user);
         if (user.EndDate.HasValue && user.StartDate >= user.EndDate)
@@ -62,7 +62,7 @@ public class UserService
         return response;
     }
 
-    public async Task<UserDto> UpdateUser(UserDto user)
+    private async Task<UserDto> UpdateUser(UserDto user)
     {
         var allUsers = await _userRepository.GetUsers(new UserQuerySearch());
         if (allUsers.Any(u => u.Id != user.Id && (u.EmployeeId == user.EmployeeId || u.Email == user.Email || u.Name == user.Name)))
@@ -169,7 +169,7 @@ public class UserService
         return response;
     }
 
-    public async Task<EmploymentRateResponseDto> CreateEmploymentRateForUser(EmploymentRateDto request)
+    private async Task<EmploymentRateResponseDto> CreateEmploymentRateForUser(EmploymentRateDto request)
     {
         var existingEmploymentRates = await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = request.UserId });
         await ValidateRateUpdate(request.FromDateInclusive, request.ToDateInclusive, request.UserId, existingEmploymentRates);
@@ -189,7 +189,7 @@ public class UserService
         return response;
     }
 
-    public async Task<EmploymentRateResponseDto> UpdateEmploymentRateForUser(EmploymentRateChangeRequestDto request)
+    private async Task<EmploymentRateResponseDto> UpdateEmploymentRateForUser(EmploymentRateChangeRequestDto request)
     {
         var existingEmploymentRates = (await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = request.UserId })).Where(rate => rate.Id != request.RateId);
         await ValidateRateUpdate(request.FromDateInclusive, request.ToDateInclusive, request.UserId, existingEmploymentRates);
