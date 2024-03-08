@@ -60,7 +60,7 @@ public class PayoutValidationService
     public virtual async Task CheckForIncompleteDays(GenericPayoutHourEntry request, int userId)
     {
         var user = await _userService.GetUserById(userId);
-        var daysToCheck = Math.Min((request.Date - (DateTime)user.StartDate!).Days, 30);
+        var daysToCheck = Math.Min((request.Date - DateTime.Parse(user.StartDate)).Days, 30);
         
         var entriesPast30Days = (await _timeRegistrationService.GetTimeEntries(new TimeEntryQuerySearch
         {
