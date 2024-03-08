@@ -28,7 +28,7 @@ public class UserRepository : IUserRepository
         {
             Name = user.Name,
             Email = user.Email,
-            StartDate = user.StartDate!.Value.Date,
+            StartDate = (DateTime)user.StartDate?.Date,
             EndDate = user.EndDate,
             EmployeeId = user.EmployeeId ?? 0
         };
@@ -37,40 +37,20 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<UserDto>> GetUsers(UserQuerySearch criteria)
+    public async Task<IEnumerable<UserResponseDto>> GetUsers(UserQuerySearch criteria)
     {
         return await _context.User.AsQueryable()
             .Filter(criteria)
-            .Select(u => new UserDto
+            .Select(u => new UserResponseDto
             {
                 Email = u.Email,
                 Id = u.Id,
                 Name = u.Name,
-                StartDate = u.StartDate,
-                EndDate = u.EndDate,
+                StartDate = u.StartDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                EndDate = u.EndDate != null
+                    ? ((DateTime)u.EndDate).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                    : null,
                 EmployeeId = u.EmployeeId
-            }).ToListAsync();
-    }
-    
-    public async Task<IEnumerable<UserDto>> GetUsersWithEmploymentRates(UserQuerySearch criteria)
-    {
-        return await _context.User.AsQueryable()
-            .Filter(criteria)
-            .Select(u => new UserDto
-            {
-                Email = u.Email,
-                Id = u.Id,
-                Name = u.Name,
-                StartDate = u.StartDate,
-                EndDate = u.EndDate,
-                EmployeeId = u.EmployeeId,
-                EmploymentRates = u.EmploymentRate.Select(er => new UserEmploymentRateDto
-                {
-                    Id = er.Id,
-                    Rate = er.Rate,
-                    FromDateInclusive = er.FromDate,
-                    ToDateInclusive = er.ToDate
-                })
             }).ToListAsync();
     }
 
