@@ -17,7 +17,7 @@ public static class MigrationClient
         Console.WriteLine("Running migrations...");
         try
         {
-            context.Database.Migrate();
+            await context.Database.MigrateAsync();
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Migrations completed successfully");
 

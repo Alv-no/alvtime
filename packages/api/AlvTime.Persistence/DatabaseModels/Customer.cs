@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace AlvTime.Persistence.DatabaseModels
 {
@@ -16,6 +17,8 @@ namespace AlvTime.Persistence.DatabaseModels
         public string ContactPerson { get; set; }
         public string ContactEmail { get; set; }
         public string ContactPhone { get; set; }
+        [MaxLength(10)]
+        public string? OrgNr { get; set; }
 
         public virtual ICollection<Project> Project { get; set; }
     }

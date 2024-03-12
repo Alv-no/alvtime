@@ -4,6 +4,7 @@ using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AlvTime.Persistence.Migrations
 {
     [DbContext(typeof(AlvTime_dbContext))]
-    partial class AlvTime_dbContextModelSnapshot : ModelSnapshot
+    [Migration("20240312103659_Customer_AddOrgNr")]
+    partial class Customer_AddOrgNr
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
