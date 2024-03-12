@@ -22,8 +22,7 @@ interface RefreshAccessTokenErrorRespons {
   correlation_id: string;
 }
 
-export default async function getAccessToken(userData: UserData) {
-  let accessToken;
+export default async function validateUpdateAccessToken(userData: UserData) {
   const nowInSecounds = Math.floor(new Date().getTime() / 1000);
   const expiresOn = userData.auth.expiresOn;
   const isExpired = nowInSecounds > expiresOn;
@@ -31,12 +30,10 @@ export default async function getAccessToken(userData: UserData) {
   if (isExpired) {
     const refreshTokenBody = await refreshAccessToken(userData);
     updateUserAuth(userData.slackUserID, refreshTokenBody);
-    accessToken = refreshTokenBody.access_token;
-  } else {
-    accessToken = userData.auth.accessToken;
+    userData.auth.accessToken = refreshTokenBody.access_token;
   }
 
-  return accessToken;
+  return userData;
 }
 
 async function refreshAccessToken(userData: UserData) {
@@ -62,7 +59,7 @@ async function refreshAccessToken(userData: UserData) {
     throw response.statusText;
   }
 
-  const json = ((await response.json()) as unknown) as RefreshAccessTokenRespons &
+  const json = (await response.json()) as unknown as RefreshAccessTokenRespons &
     RefreshAccessTokenErrorRespons;
 
   if (json.error) {
