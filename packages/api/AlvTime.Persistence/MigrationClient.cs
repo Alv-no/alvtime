@@ -245,6 +245,21 @@ public static class MigrationClient
                     StartDate = new DateTime(2020, 11, 01),
                     EndDate = null,
                     EmployeeId = 3,
+                    EmploymentRate = new List<EmploymentRate>
+                    {
+                        new()
+                        {
+                            Rate = 0.5M,
+                            FromDate = new DateTime(2022, 01, 01),
+                            ToDate = new DateTime(2022, 03, 01),
+                        },
+                        new()
+                        {
+                            Rate = 0.7M,
+                            FromDate = new DateTime(2023, 01, 01),
+                            ToDate = new DateTime(2024, 03, 01),
+                        }
+                    }
                 }
             };
             await context.User.AddRangeAsync(newUsers);
