@@ -1,23 +1,37 @@
 ﻿@page "/ansatte"
 @using Alvtime.Adminpanel.Client.Models
+@using Alvtime.Adminpanel.Client.Utils
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
-@using System.Net.Http.Headers
 
 @inject HttpClient HttpClient
-@inject IAccessTokenProvider TokenProvider
 
 <PageTitle>Ansatte</PageTitle>
 
-<MudTable Items="@AllEmployees" Hover="true" Loading="@Loading" Striped="true" Dense="true" CanCancelEdit="true" Filter="new Func<EmployeeModel, bool>(FilterFunc)"
-          @bind-SelectedItem="_selectedEmployee" SortLabel="Sort By" CommitEditTooltip="Lagre endring"
-          OnCommitEditClick="EmployeeChangeCommitted" RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues" CancelEditTooltip="Avbryt"
-          IsEditRowSwitchingBlocked="false" ApplyButtonPosition="TableApplyButtonPosition.End" EditButtonPosition="TableEditButtonPosition.End" EditTrigger="@_editTrigger">
+<MudTable Items="@AllEmployees"
+          Hover="true"
+          Loading="@Loading"
+          Striped="true"
+          Dense="true"
+          CanCancelEdit="true"
+          Filter="new Func<EmployeeModel, bool>(FilterFunc)"
+          @bind-SelectedItem="_selectedEmployee"
+          SortLabel="Sort By"
+          CommitEditTooltip="Lagre endring"
+          OnCommitEditClick="EmployeeChangeCommitted"
+          RowEditPreview="BackupItem"
+          RowEditCancel="ResetItemToOriginalValues"
+          CancelEditTooltip="Avbryt"
+          IsEditRowSwitchingBlocked="false"
+          ApplyButtonPosition="TableApplyButtonPosition.End"
+          EditButtonPosition="TableEditButtonPosition.End"
+          EditTrigger="@_editTrigger">
     <ToolBarContent>
         <MudText Typo="Typo.h6">Ansatte</MudText>
         <MudSpacer/>
         <MudTextField @bind-Value="_searchString" Immediate="true" Placeholder="Søk" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <HeaderContent>
+
         <MudTh>
             <MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<EmployeeModel, object>(x => x.Name)">Navn</MudTableSortLabel>
         </MudTh>
@@ -33,13 +47,18 @@
         <MudTh>
             <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.EmployeeId)">Ansattnummer</MudTableSortLabel>
         </MudTh>
+        <MudTh>
+        </MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Navn">@context.Name</MudTd>
         <MudTd DataLabel="Epost">@context.Email</MudTd>
-        <MudTd DataLabel="Startdato">@context.StartDate</MudTd>
-        <MudTd DataLabel="Sluttdato">@context.EndDate</MudTd>
+        <MudTd DataLabel="Startdato">@context.StartDate?.ToString("dd/MM/yyyy")</MudTd>
+        <MudTd DataLabel="Sluttdato">@context.EndDate?.ToString("dd/MM/yyyy")</MudTd>
         <MudTd DataLabel="Ansattnummer">@context.EmployeeId</MudTd>
+        <MudTd>
+            <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="@(() => ShowDetails(context.Name))">@(context.ShowDetails ? "\u25b2" : "\u25bc") Stillingsprosent</MudButton>
+        </MudTd>
     </RowTemplate>
     <RowEditingTemplate>
         <MudTd DataLabel="Navn">
@@ -49,15 +68,61 @@
             <MudTextField @bind-Value="@context.Email" Required/>
         </MudTd>
         <MudTd DataLabel="Startdato">
-            <MudTextField @bind-Value="@context.StartDate" Required/>
+            <MudDatePicker @bind-Date="@context.StartDate" Required/>
         </MudTd>
         <MudTd DataLabel="Sluttdato">
-            <MudTextField @bind-Value="@context.EndDate"/>
+            <MudDatePicker @bind-Date="@context.EndDate"/>
         </MudTd>
         <MudTd DataLabel="Ansattnummer">
             <MudNumericField @bind-Value="@context.EmployeeId" Required/>
         </MudTd>
     </RowEditingTemplate>
+    <ChildRowContent>
+        @if (context.ShowDetails)
+        {
+            <MudTr>
+                <td colspan="2">
+                    <MudCard Elevation="0">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.body1">Stillingsprosenter for <strong>@context.Name</strong></MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent Class="pl-6">
+                            <MudTable Items="@context.EmploymentRates" Context="EmploymentRateContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
+                                <ColGroup>
+                                    <col/>
+                                    <col/>
+                                    <col/>
+                                </ColGroup>
+                                <HeaderContent>
+                                    <MudTh>Stillingsprosent</MudTh>
+                                    <MudTh>Fra dato (inkl.)</MudTh>
+                                    <MudTh>Til dato (inkl.)</MudTh>
+                                </HeaderContent>
+                                <RowTemplate>
+                                    <MudTd DataLabel="Stillingsprosent">@EmploymentRateContext.RatePercentage.ToString("####")</MudTd>
+                                    <MudTd DataLabel="StillingFraDato">@EmploymentRateContext.FromDateInclusive?.ToString("dd/MM/yyyy")</MudTd>
+                                    <MudTd DataLabel="StillingTilDato">@EmploymentRateContext.ToDateInclusive?.ToString("dd/MM/yyyy")</MudTd>
+                                </RowTemplate>
+                                <RowEditingTemplate>
+                                    <MudTd DataLabel="Stillingsprosent">
+                                        <MudNumericField @bind-Value="@EmploymentRateContext.RatePercentage" Required/>
+                                    </MudTd>
+                                    <MudTd DataLabel="StillingFraDato">
+                                        <MudDatePicker @bind-Date="@EmploymentRateContext.FromDateInclusive" Required/>
+                                    </MudTd>
+                                    <MudTd DataLabel="StillingTilDato">
+                                        <MudDatePicker @bind-Date="@EmploymentRateContext.ToDateInclusive" Required/>
+                                    </MudTd>
+                                </RowEditingTemplate>
+                            </MudTable>
+                        </MudCardContent>
+                    </MudCard>
+                </td>
+            </MudTr>
+        }
+    </ChildRowContent>
     <PagerContent>
         <MudTablePager/>
     </PagerContent>
@@ -67,21 +132,18 @@
 </MudTable>
 
 @code {
-    private List<string> _editEvents = [];
     private string _searchString = "";
     private EmployeeModel? _selectedEmployee;
-    private EmployeeModel _employeeBeforeEdit;
+    private EmployeeModel? _employeeBeforeEdit;
     private TableEditTrigger _editTrigger = TableEditTrigger.RowClick;
     private bool Loading => AllEmployees == null;
     private IEnumerable<EmployeeModel>? AllEmployees { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        await RequestAuthToken();
-
         try
         {
-            AllEmployees = await HttpClient.GetFromJsonAsync<EmployeeModel[]>("api/admin/users");
+            AllEmployees = await HttpClient.GetFromJsonAsync<EmployeeModel[]>(ApiRoutes.UsersBase);
         }
         catch (AccessTokenNotAvailableException exception)
         {
@@ -89,18 +151,17 @@
         }
     }
 
-    private bool FilterFunc(EmployeeModel element)
+    private void ShowDetails(string name)
+    {
+        var employee = AllEmployees!.First(e => e.Name == name);
+        employee.ShowDetails = !employee.ShowDetails;
+    }
+
+    private bool FilterFunc(EmployeeModel employee)
     {
         if (string.IsNullOrWhiteSpace(_searchString))
             return true;
-        return element.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase) || element.Email.Contains(_searchString, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private async Task RequestAuthToken()
-    {
-        var requestToken = await TokenProvider.RequestAccessToken();
-        requestToken.TryGetToken(out var token);
-        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Value);
+        return employee.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase) || employee.Email.Contains(_searchString, StringComparison.OrdinalIgnoreCase);
     }
 
     private void BackupItem(object employee)
@@ -117,12 +178,12 @@
 
     private async Task EmployeeChangeCommitted(MouseEventArgs args)
     {
-        await HttpClient.PutAsJsonAsync<EmployeeModel[]>("api/admin/users", [_selectedEmployee]);
+        await HttpClient.PutAsJsonAsync<EmployeeModel[]>(ApiRoutes.UsersBase, [_selectedEmployee]);
     }
 
     private void ResetItemToOriginalValues(object employee)
     {
-        ((EmployeeModel)employee).Name = _employeeBeforeEdit.Name;
+        ((EmployeeModel)employee).Name = _employeeBeforeEdit!.Name;
         ((EmployeeModel)employee).Email = _employeeBeforeEdit.Email;
         ((EmployeeModel)employee).StartDate = _employeeBeforeEdit.StartDate;
         ((EmployeeModel)employee).EndDate = _employeeBeforeEdit.EndDate;

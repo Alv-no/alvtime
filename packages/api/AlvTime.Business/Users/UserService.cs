@@ -107,7 +107,7 @@ public class UserService
 
     public async Task<List<UserDto>> GetUsers(UserQuerySearch criteria)
     {
-        var users = (await _userRepository.GetUsers(criteria)).ToList();
+        var users = (await _userRepository.GetUsersWithEmploymentRates(criteria)).ToList();
 
         return users;
     }
