@@ -27,7 +27,7 @@ public static class UserMapper
             EmploymentRates = user.EmploymentRates?.Select(rate => new UserEmploymentRateResponse
             {
                 Id = rate.Id,
-                RatePercentage = rate.Rate * 100,
+                RatePercentage = decimal.Parse((rate.Rate * 100).ToString("0")),
                 FromDateInclusive = rate.FromDateInclusive.ToDateOnly(),
                 ToDateInclusive = rate.ToDateInclusive.ToDateOnly()
             })
@@ -76,7 +76,7 @@ public static class UserMapper
         {
             Id = rate.Id,
             UserId = rate.UserId,
-            RatePercentage = rate.Rate * 100M,
+            RatePercentage = decimal.Parse((rate.Rate * 100M).ToString("0")),
             FromDateInclusive = rate.FromDateInclusive.ToDateOnly(),
             ToDateInclusive = rate.ToDateInclusive.ToDateOnly()
         };
