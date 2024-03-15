@@ -12,28 +12,29 @@
           Loading="@Loading"
           Striped="true"
           Dense="true"
+          Elevation="4"
           CanCancelEdit="true"
           Filter="new Func<EmployeeModel, bool>(FilterFunc)"
           @bind-SelectedItem="_selectedEmployee"
           SortLabel="Sort By"
           CommitEditTooltip="Lagre endring"
           OnCommitEditClick="EmployeeChangeCommitted"
-          RowEditPreview="BackupItem"
-          RowEditCancel="ResetItemToOriginalValues"
+          RowEditPreview="BackupEmployee"
+          RowEditCancel="ResetEmployeeToOriginalValues"
           CancelEditTooltip="Avbryt"
           IsEditRowSwitchingBlocked="false"
           ApplyButtonPosition="TableApplyButtonPosition.End"
           EditButtonPosition="TableEditButtonPosition.End"
           EditTrigger="@_editTrigger">
     <ToolBarContent>
-        <MudText Typo="Typo.h6">Ansatte</MudText>
+        <MudText Typo="Typo.h6">Alver</MudText>
         <MudSpacer/>
-        <MudTextField @bind-Value="_searchString" Immediate="true" Placeholder="Søk" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        <MudTextField @bind-Value="_searchString" Immediate="true" Placeholder="Søk" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 pl-6"></MudTextField>
     </ToolBarContent>
     <HeaderContent>
 
         <MudTh>
-            <MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<EmployeeModel, object>(x => x.Name)">Navn</MudTableSortLabel>
+            <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.Name)">Navn</MudTableSortLabel>
         </MudTh>
         <MudTh>
             <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.Email)">Epost</MudTableSortLabel>
@@ -45,35 +46,35 @@
             <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.EndDate)">Sluttdato</MudTableSortLabel>
         </MudTh>
         <MudTh>
-            <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.EmployeeId)">Ansattnummer</MudTableSortLabel>
+            <MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<EmployeeModel, object>(x => x.EmployeeId)">Ansattnummer</MudTableSortLabel>
         </MudTh>
         <MudTh>
         </MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd DataLabel="Navn">@context.Name</MudTd>
-        <MudTd DataLabel="Epost">@context.Email</MudTd>
-        <MudTd DataLabel="Startdato">@context.StartDate?.ToString("dd/MM/yyyy")</MudTd>
-        <MudTd DataLabel="Sluttdato">@context.EndDate?.ToString("dd/MM/yyyy")</MudTd>
-        <MudTd DataLabel="Ansattnummer">@context.EmployeeId</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Email">@context.Email</MudTd>
+        <MudTd DataLabel="StartDate">@context.StartDate?.ToString("dd/MM/yyyy")</MudTd>
+        <MudTd DataLabel="EndDate">@context.EndDate?.ToString("dd/MM/yyyy")</MudTd>
+        <MudTd DataLabel="EmployeeId">@context.EmployeeId</MudTd>
         <MudTd>
             <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="@(() => ShowDetails(context.Name))">@(context.ShowDetails ? "\u25b2" : "\u25bc") Stillingsprosent</MudButton>
         </MudTd>
     </RowTemplate>
     <RowEditingTemplate>
-        <MudTd DataLabel="Navn">
+        <MudTd DataLabel="Name">
             <MudTextField @bind-Value="@context.Name" Required/>
         </MudTd>
-        <MudTd DataLabel="Epost">
+        <MudTd DataLabel="Email">
             <MudTextField @bind-Value="@context.Email" Required/>
         </MudTd>
-        <MudTd DataLabel="Startdato">
+        <MudTd DataLabel="StartDate">
             <MudDatePicker @bind-Date="@context.StartDate" Required/>
         </MudTd>
-        <MudTd DataLabel="Sluttdato">
+        <MudTd DataLabel="EndDate">
             <MudDatePicker @bind-Date="@context.EndDate"/>
         </MudTd>
-        <MudTd DataLabel="Ansattnummer">
+        <MudTd DataLabel="EmployeeId">
             <MudNumericField @bind-Value="@context.EmployeeId" Required/>
         </MudTd>
     </RowEditingTemplate>
@@ -82,37 +83,46 @@
         {
             <MudTr>
                 <td colspan="2">
-                    <MudCard Elevation="0">
+                    <MudCard>
                         <MudCardHeader>
                             <CardHeaderContent>
                                 <MudText Typo="Typo.body1">Stillingsprosenter for <strong>@context.Name</strong></MudText>
                             </CardHeaderContent>
                         </MudCardHeader>
                         <MudCardContent Class="pl-6">
-                            <MudTable Items="@context.EmploymentRates" Context="EmploymentRateContext" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="0">
-                                <ColGroup>
-                                    <col/>
-                                    <col/>
-                                    <col/>
-                                </ColGroup>
+                            <MudTable Items="@context.EmploymentRates"
+                                      Context="EmploymentRateContext"
+                                      Breakpoint="Breakpoint.Sm"
+                                      Elevation="2"
+                                      @bind-SelectedItem="_selectedEmploymentRate"
+                                      CanCancelEdit="true"
+                                      CommitEditTooltip="Lagre endring"
+                                      OnCommitEditClick="@(args => EmploymentRateChangeCommitted(args, context.Id))"
+                                      RowEditPreview="BackupEmploymentRate"
+                                      RowEditCancel="ResetEmploymentRateToOriginalValues"
+                                      CancelEditTooltip="Avbryt"
+                                      IsEditRowSwitchingBlocked="false"
+                                      ApplyButtonPosition="TableApplyButtonPosition.End"
+                                      EditButtonPosition="TableEditButtonPosition.End"
+                                      EditTrigger="@_editTrigger">
                                 <HeaderContent>
                                     <MudTh>Stillingsprosent</MudTh>
                                     <MudTh>Fra dato (inkl.)</MudTh>
                                     <MudTh>Til dato (inkl.)</MudTh>
                                 </HeaderContent>
                                 <RowTemplate>
-                                    <MudTd DataLabel="Stillingsprosent">@EmploymentRateContext.RatePercentage.ToString("####")</MudTd>
-                                    <MudTd DataLabel="StillingFraDato">@EmploymentRateContext.FromDateInclusive?.ToString("dd/MM/yyyy")</MudTd>
-                                    <MudTd DataLabel="StillingTilDato">@EmploymentRateContext.ToDateInclusive?.ToString("dd/MM/yyyy")</MudTd>
+                                    <MudTd DataLabel="RatePercentage">@EmploymentRateContext.RatePercentage.ToString("####")</MudTd>
+                                    <MudTd DataLabel="RateFromDateInclusive">@EmploymentRateContext.FromDateInclusive?.ToString("dd/MM/yyyy")</MudTd>
+                                    <MudTd DataLabel="RateToDateInclusive">@EmploymentRateContext.ToDateInclusive?.ToString("dd/MM/yyyy")</MudTd>
                                 </RowTemplate>
                                 <RowEditingTemplate>
-                                    <MudTd DataLabel="Stillingsprosent">
+                                    <MudTd DataLabel="RatePercentage">
                                         <MudNumericField @bind-Value="@EmploymentRateContext.RatePercentage" Required/>
                                     </MudTd>
-                                    <MudTd DataLabel="StillingFraDato">
+                                    <MudTd DataLabel="RateFromDateInclusive">
                                         <MudDatePicker @bind-Date="@EmploymentRateContext.FromDateInclusive" Required/>
                                     </MudTd>
-                                    <MudTd DataLabel="StillingTilDato">
+                                    <MudTd DataLabel="RateToDateInclusive">
                                         <MudDatePicker @bind-Date="@EmploymentRateContext.ToDateInclusive" Required/>
                                     </MudTd>
                                 </RowEditingTemplate>
@@ -124,31 +134,36 @@
         }
     </ChildRowContent>
     <PagerContent>
-        <MudTablePager/>
+        <MudTablePager RowsPerPageString="Alver per side:"/>
     </PagerContent>
-    <EditButtonContent Context="button">
-        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled"/>
-    </EditButtonContent>
 </MudTable>
+        <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@AddEmptyEmployee">Legg til ny alv</MudButton>
 
 @code {
     private string _searchString = "";
     private EmployeeModel? _selectedEmployee;
     private EmployeeModel? _employeeBeforeEdit;
+    private EmployeeEmploymentRateModel? _selectedEmploymentRate;
+    private EmployeeEmploymentRateModel? _employmentRateBeforeEdit;
     private TableEditTrigger _editTrigger = TableEditTrigger.RowClick;
     private bool Loading => AllEmployees == null;
-    private IEnumerable<EmployeeModel>? AllEmployees { get; set; }
+    private HashSet<EmployeeModel>? AllEmployees { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            AllEmployees = await HttpClient.GetFromJsonAsync<EmployeeModel[]>(ApiRoutes.UsersBase);
+            AllEmployees = await HttpClient.GetFromJsonAsync<HashSet<EmployeeModel>>(ApiRoutes.UsersBase);
         }
         catch (AccessTokenNotAvailableException exception)
         {
             exception.Redirect();
         }
+    }
+
+    private void AddEmptyEmployee()
+    {
+        AllEmployees!.Add(new EmployeeModel());
     }
 
     private void ShowDetails(string name)
@@ -164,7 +179,7 @@
         return employee.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase) || employee.Email.Contains(_searchString, StringComparison.OrdinalIgnoreCase);
     }
 
-    private void BackupItem(object employee)
+    private void BackupEmployee(object employee)
     {
         _employeeBeforeEdit = new EmployeeModel
         {
@@ -178,16 +193,61 @@
 
     private async Task EmployeeChangeCommitted(MouseEventArgs args)
     {
-        await HttpClient.PutAsJsonAsync<EmployeeModel[]>(ApiRoutes.UsersBase, [_selectedEmployee]);
+        if (_selectedEmployee is { Id: 0 })
+        {
+            await HttpClient.PostAsJsonAsync<EmployeeModel[]>(ApiRoutes.UsersBase, [_selectedEmployee]);
+        }
+        else
+        {
+            await HttpClient.PutAsJsonAsync<EmployeeModel[]>(ApiRoutes.UsersBase, [_selectedEmployee]);
+        }
     }
 
-    private void ResetItemToOriginalValues(object employee)
+    private void ResetEmployeeToOriginalValues(object? employee)
     {
+        if (_selectedEmployee == null || employee == null)
+        {
+            return;
+        }
+
+        if (_selectedEmployee.Id == 0)
+        {
+            AllEmployees!.Remove(_selectedEmployee);
+            StateHasChanged();
+        }
+
         ((EmployeeModel)employee).Name = _employeeBeforeEdit!.Name;
         ((EmployeeModel)employee).Email = _employeeBeforeEdit.Email;
         ((EmployeeModel)employee).StartDate = _employeeBeforeEdit.StartDate;
         ((EmployeeModel)employee).EndDate = _employeeBeforeEdit.EndDate;
         ((EmployeeModel)employee).EmployeeId = _employeeBeforeEdit.EmployeeId;
+    }
+
+    private void BackupEmploymentRate(object employmentRate)
+    {
+        _employmentRateBeforeEdit = new EmployeeEmploymentRateModel
+        {
+            RatePercentage = ((EmployeeEmploymentRateModel)employmentRate).RatePercentage,
+            FromDateInclusive = ((EmployeeEmploymentRateModel)employmentRate).FromDateInclusive,
+            ToDateInclusive = ((EmployeeEmploymentRateModel)employmentRate).ToDateInclusive,
+        };
+    }
+
+    private async Task EmploymentRateChangeCommitted(MouseEventArgs args, int userId)
+    {
+        await HttpClient.PutAsJsonAsync<EmployeeEmploymentRateModel[]>(ApiRoutes.EmploymentRateForUser(userId), [_selectedEmploymentRate]);
+    }
+
+    private void ResetEmploymentRateToOriginalValues(object? employmentRate)
+    {
+        if (_selectedEmploymentRate == null || employmentRate == null)
+        {
+            return;
+        }
+
+        ((EmployeeEmploymentRateModel)employmentRate).RatePercentage = _employmentRateBeforeEdit!.RatePercentage;
+        ((EmployeeEmploymentRateModel)employmentRate).FromDateInclusive = _employmentRateBeforeEdit.FromDateInclusive;
+        ((EmployeeEmploymentRateModel)employmentRate).ToDateInclusive = _employmentRateBeforeEdit.ToDateInclusive;
     }
 
 }
