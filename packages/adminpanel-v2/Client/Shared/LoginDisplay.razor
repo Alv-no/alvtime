@@ -2,13 +2,13 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inject NavigationManager Navigation
 
-<AuthorizeView>
+<AuthorizeView >
     <Authorized>
         Hei, @context.User.Identity?.Name!
         <button class="nav-link btn btn-link pl-4" @onclick="BeginLogOut" Style="@($"color:{Colors.DeepPurple.Accent1};")">Logg ut</button>
     </Authorized>
     <NotAuthorized>
-        <a href="authentication/login">Logg inn</a>
+        <a href="authentication/login" Style="@($"color:{Colors.DeepPurple.Accent1};")">Logg inn</a>
     </NotAuthorized>
 </AuthorizeView>
 
