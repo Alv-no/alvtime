@@ -29,6 +29,7 @@
     <ToolBarContent>
         <MudText Typo="Typo.h6">Alver</MudText>
         <MudSpacer/>
+        <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@AddEmptyEmployee">Legg til ny alv</MudButton>
         <MudTextField @bind-Value="_searchString" Immediate="true" Placeholder="Søk" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 pl-6"></MudTextField>
     </ToolBarContent>
     <HeaderContent>
@@ -90,6 +91,7 @@
                             </CardHeaderContent>
                         </MudCardHeader>
                         <MudCardContent Class="pl-6">
+                            <div style="margin-bottom: 10px;">
                             <MudTable Items="@context.EmploymentRates"
                                       Context="EmploymentRateContext"
                                       Breakpoint="Breakpoint.Sm"
@@ -97,7 +99,7 @@
                                       @bind-SelectedItem="_selectedEmploymentRate"
                                       CanCancelEdit="true"
                                       CommitEditTooltip="Lagre endring"
-                                      OnCommitEditClick="@(args => EmploymentRateChangeCommitted(args, context.Id))"
+                                      OnCommitEditClick="@(() => EmploymentRateChangeCommitted(context.Id))"
                                       RowEditPreview="BackupEmploymentRate"
                                       RowEditCancel="ResetEmploymentRateToOriginalValues"
                                       CancelEditTooltip="Avbryt"
@@ -111,7 +113,7 @@
                                     <MudTh>Til dato (inkl.)</MudTh>
                                 </HeaderContent>
                                 <RowTemplate>
-                                    <MudTd DataLabel="RatePercentage">@EmploymentRateContext.RatePercentage.ToString("####")</MudTd>
+                                    <MudTd DataLabel="RatePercentage" Placeholder="50">@EmploymentRateContext.RatePercentage.ToString("####")</MudTd>
                                     <MudTd DataLabel="RateFromDateInclusive">@EmploymentRateContext.FromDateInclusive?.ToString("dd/MM/yyyy")</MudTd>
                                     <MudTd DataLabel="RateToDateInclusive">@EmploymentRateContext.ToDateInclusive?.ToString("dd/MM/yyyy")</MudTd>
                                 </RowTemplate>
@@ -127,6 +129,10 @@
                                     </MudTd>
                                 </RowEditingTemplate>
                             </MudTable>
+                            </div>
+                            <div>
+                            <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => AddEmptyEmploymentRate(context.Id))">Ny stillingsprosent</MudButton>
+                            </div>
                         </MudCardContent>
                     </MudCard>
                 </td>
@@ -137,7 +143,6 @@
         <MudTablePager RowsPerPageString="Alver per side:"/>
     </PagerContent>
 </MudTable>
-        <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@AddEmptyEmployee">Legg til ny alv</MudButton>
 
 @code {
     private string _searchString = "";
@@ -163,7 +168,16 @@
 
     private void AddEmptyEmployee()
     {
-        AllEmployees!.Add(new EmployeeModel());
+        AllEmployees!.Add(new EmployeeModel
+        {
+            EmploymentRates = new List<EmployeeEmploymentRateModel>()
+        });
+    }
+    
+    private void AddEmptyEmploymentRate(int userId)
+    {
+        var employee = AllEmployees!.First(e => e.Id == userId);
+        employee.EmploymentRates!.Add(new EmployeeEmploymentRateModel());
     }
 
     private void ShowDetails(string name)
@@ -191,7 +205,7 @@
         };
     }
 
-    private async Task EmployeeChangeCommitted(MouseEventArgs args)
+    private async Task EmployeeChangeCommitted()
     {
         if (_selectedEmployee is { Id: 0 })
         {
@@ -201,6 +215,7 @@
         {
             await HttpClient.PutAsJsonAsync<EmployeeModel[]>(ApiRoutes.UsersBase, [_selectedEmployee]);
         }
+        StateHasChanged();
     }
 
     private void ResetEmployeeToOriginalValues(object? employee)
@@ -233,9 +248,17 @@
         };
     }
 
-    private async Task EmploymentRateChangeCommitted(MouseEventArgs args, int userId)
+    private async Task EmploymentRateChangeCommitted(int userId)
     {
-        await HttpClient.PutAsJsonAsync<EmployeeEmploymentRateModel[]>(ApiRoutes.EmploymentRateForUser(userId), [_selectedEmploymentRate]);
+        if (_selectedEmploymentRate is { Id: 0 })
+        {
+            await HttpClient.PostAsJsonAsync<EmployeeEmploymentRateModel[]>(ApiRoutes.EmploymentRateForUser(userId), [_selectedEmploymentRate]);
+        }
+        else
+        {
+            await HttpClient.PutAsJsonAsync<EmployeeEmploymentRateModel[]>(ApiRoutes.EmploymentRateForUser(userId), [_selectedEmploymentRate]);
+        }
+        StateHasChanged();
     }
 
     private void ResetEmploymentRateToOriginalValues(object? employmentRate)
@@ -244,10 +267,16 @@
         {
             return;
         }
+        
+        if (_selectedEmploymentRate.Id == 0)
+        {
+            var employee = AllEmployees!.First(e => e.EmploymentRates != null && e.EmploymentRates.Any(er => er.Id == 0));
+            employee.EmploymentRates!.Remove(_selectedEmploymentRate);
+            StateHasChanged();
+        }
 
         ((EmployeeEmploymentRateModel)employmentRate).RatePercentage = _employmentRateBeforeEdit!.RatePercentage;
         ((EmployeeEmploymentRateModel)employmentRate).FromDateInclusive = _employmentRateBeforeEdit.FromDateInclusive;
         ((EmployeeEmploymentRateModel)employmentRate).ToDateInclusive = _employmentRateBeforeEdit.ToDateInclusive;
     }
-
 }
