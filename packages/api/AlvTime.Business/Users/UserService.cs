@@ -192,12 +192,12 @@ public class UserService
     private async Task<EmploymentRateResponseDto> UpdateEmploymentRateForUser(EmploymentRateChangeRequestDto request)
     {
         var existingEmploymentRates = (await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = request.UserId })).Where(rate => rate.Id != request.RateId);
-        await ValidateRateUpdate(request.FromDateInclusive, request.ToDateInclusive, request.UserId, existingEmploymentRates);
+        await ValidateRateUpdate(request.FromDateInclusive, request.ToDateInclusive, request.UserId, existingEmploymentRates, request.RateId);
 
         return await _userRepository.UpdateEmploymentRateForUser(request);
     }
 
-    private async Task ValidateRateUpdate(DateTime fromDateInclusive, DateTime toDateInclusive, int userId, IEnumerable<EmploymentRateResponseDto> existingEmploymentRates)
+    private async Task ValidateRateUpdate(DateTime fromDateInclusive, DateTime toDateInclusive, int userId, IEnumerable<EmploymentRateResponseDto> existingEmploymentRates, int? rateToUpdateId = null)
     {
         var datesForExistingRates =
             existingEmploymentRates.SelectMany(e => DateUtils.EachDay(e.FromDateInclusive, e.ToDateInclusive));
@@ -216,7 +216,24 @@ public class UserService
 
         if (userTimeEntriesInDateRange.Any())
         {
-            throw new ValidationException("Brukeren har allerede førte timer på en dato stillingsprosenten gjelder for.");
+            throw new ValidationException("Endringen vil påvirke eksisterende timer.");
+        }
+
+        if (rateToUpdateId != null)
+        {
+            var existingRate = (await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = userId })).First(rate => rate.Id == rateToUpdateId);
+            
+            var userEntriesInDateRange = (await _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
+            {
+                FromDateInclusive = existingRate.FromDateInclusive,
+                ToDateInclusive = existingRate.ToDateInclusive,
+                UserId = userId
+            })).Where(te => te.Value > 0);
+            
+            if (userEntriesInDateRange.Any())
+            {
+                throw new ValidationException("Endringen vil påvirke eksisterende timer.");
+            }
         }
     }
 }
