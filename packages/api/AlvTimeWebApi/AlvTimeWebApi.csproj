@@ -28,6 +28,15 @@
     <Compile Update="Responses\TimeEntryResponse.cs">
       <DependentUpon>AvailableOvertimeResponse.cs</DependentUpon>
     </Compile>
+    <Compile Update="Responses\Admin\ProjectAdminResponse.cs">
+      <DependentUpon>CustomerAdminResponse.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Responses\Admin\TaskAdminResponse.cs">
+      <DependentUpon>ProjectAdminResponse.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Responses\Admin\HourRateAdminResponse.cs">
+      <DependentUpon>TaskAdminResponse.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

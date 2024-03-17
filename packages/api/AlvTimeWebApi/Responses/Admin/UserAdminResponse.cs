@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace AlvTimeWebApi.Responses;
+namespace AlvTimeWebApi.Responses.Admin;
 
-public class UserResponse
+public class UserAdminResponse
 {
     public int Id { get; set; }
     public string Name { get; set; }
@@ -10,10 +10,10 @@ public class UserResponse
     public string StartDate { get; set; }
     public string EndDate { get; set; }
     public int? EmployeeId { get; set; }
-    public IEnumerable<UserEmploymentRateResponse> EmploymentRates { get; set; }
+    public IEnumerable<UserEmploymentRateAdminResponse> EmploymentRates { get; set; }
 }
 
-public class UserEmploymentRateResponse
+public class UserEmploymentRateAdminResponse
 {
     public int Id { get; set; }
     public decimal RatePercentage { get; set; }

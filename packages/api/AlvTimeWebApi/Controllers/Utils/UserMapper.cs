@@ -3,6 +3,7 @@ using System.Linq;
 using AlvTime.Business.Users;
 using AlvTimeWebApi.Requests;
 using AlvTimeWebApi.Responses;
+using AlvTimeWebApi.Responses.Admin;
 using AlvTimeWebApi.Utils;
 
 namespace AlvTimeWebApi.Controllers.Utils;
@@ -14,9 +15,9 @@ public static class UserMapper
         return new User { Id = dbUser.Id, Email = dbUser.Email, Name = dbUser.Name, StartDate = dbUser.StartDate!.Value };
     }
     
-    public static UserResponse MapToUserResponse(this UserDto user)
+    public static UserAdminResponse MapToUserResponse(this UserDto user)
     {
-        return new UserResponse
+        return new UserAdminResponse
         {
             Id = user.Id,
             Name = user.Name,
@@ -24,7 +25,7 @@ public static class UserMapper
             StartDate = user.StartDate?.ToDateOnly(),
             EndDate = user.EndDate?.ToDateOnly(),
             EmployeeId = user.EmployeeId,
-            EmploymentRates = user.EmploymentRates?.Select(rate => new UserEmploymentRateResponse
+            EmploymentRates = user.EmploymentRates?.Select(rate => new UserEmploymentRateAdminResponse
             {
                 Id = rate.Id,
                 RatePercentage = decimal.Parse((rate.Rate * 100).ToString("0")),

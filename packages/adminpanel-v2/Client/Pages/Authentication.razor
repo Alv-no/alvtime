@@ -1,7 +1,29 @@
 ﻿@page "/authentication/{action}"
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
-<RemoteAuthenticatorView Action="@Action" />
+<RemoteAuthenticatorView Action="@Action">
+    <LogInFailed>
+        <div class="alert alert-danger" role="alert">@strLogInFailed</div>
+    </LogInFailed>
+    <LogOut>
+        <div class="alert alert-info" role="alert">@strLogOut</div>
+    </LogOut>
+    <LogOutSucceeded>
+        <div class="alert alert-success" role="alert">@strLogOutSucceeded</div>
+    </LogOutSucceeded>
+    <LoggingIn>
+        <div class="alert alert-info" role="alert">@strLoggingIn</div>
+    </LoggingIn>
+    <CompletingLoggingIn>
+        <div class="alert alert-success" role="alert">@strCompletingLoggingIn</div>
+    </CompletingLoggingIn>
+</RemoteAuthenticatorView>
 
-@code{
-    [Parameter] public string? Action { get; set; }
+@code {
+    [Parameter] public string Action { get; set; }
+
+    string strLogInFailed = "Login var ikke vellykket.";
+    string strLogOut = "Logger ut.";
+    string strLogOutSucceeded = "Du er logget ut. Vennligst logg inn oppe til høyre.";
+    string strLoggingIn = "Logger inn.";
+    string strCompletingLoggingIn = "Logget inn.";
 }

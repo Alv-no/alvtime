@@ -1,4 +1,5 @@
-﻿using AlvTime.Business.Tasks;
+﻿using System;
+using AlvTime.Business.Tasks;
 using AlvTimeWebApi.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -19,14 +20,6 @@ public class TaskController : ControllerBase
     public TaskController(TaskService taskService)
     {
         _taskService = taskService;
-    }
-
-    [HttpGet("Tasks")]
-    public async Task<ActionResult<IEnumerable<TaskResponse>>> FetchTasks()
-    {
-        var tasks = await _taskService.GetAllTasks(new TaskQuerySearch());
-        return Ok(tasks.Select(task => new TaskResponse(task.Id, task.Name, task.Description, task.Favorite,
-            task.Locked, task.CompensationRate, task.Project)));
     }
 
     [HttpPost("Tasks")]

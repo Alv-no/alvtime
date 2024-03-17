@@ -33,7 +33,6 @@
         <MudTextField @bind-Value="_searchString" Immediate="true" Placeholder="Søk" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 pl-6"></MudTextField>
     </ToolBarContent>
     <HeaderContent>
-
         <MudTh>
             <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.Name)">Navn</MudTableSortLabel>
         </MudTh>
@@ -92,46 +91,46 @@
                         </MudCardHeader>
                         <MudCardContent Class="pl-6">
                             <div style="margin-bottom: 10px;">
-                            <MudTable Items="@context.EmploymentRates"
-                                      Context="EmploymentRateContext"
-                                      Breakpoint="Breakpoint.Sm"
-                                      Elevation="2"
-                                      @bind-SelectedItem="_selectedEmploymentRate"
-                                      CanCancelEdit="true"
-                                      CommitEditTooltip="Lagre endring"
-                                      OnCommitEditClick="@(() => EmploymentRateChangeCommitted(context.Id))"
-                                      RowEditPreview="BackupEmploymentRate"
-                                      RowEditCancel="ResetEmploymentRateToOriginalValues"
-                                      CancelEditTooltip="Avbryt"
-                                      IsEditRowSwitchingBlocked="false"
-                                      ApplyButtonPosition="TableApplyButtonPosition.End"
-                                      EditButtonPosition="TableEditButtonPosition.End"
-                                      EditTrigger="@_editTrigger">
-                                <HeaderContent>
-                                    <MudTh>Stillingsprosent</MudTh>
-                                    <MudTh>Fra dato (inkl.)</MudTh>
-                                    <MudTh>Til dato (inkl.)</MudTh>
-                                </HeaderContent>
-                                <RowTemplate>
-                                    <MudTd DataLabel="RatePercentage" Placeholder="50">@EmploymentRateContext.RatePercentage.ToString("####")</MudTd>
-                                    <MudTd DataLabel="RateFromDateInclusive">@EmploymentRateContext.FromDateInclusive?.ToString("dd/MM/yyyy")</MudTd>
-                                    <MudTd DataLabel="RateToDateInclusive">@EmploymentRateContext.ToDateInclusive?.ToString("dd/MM/yyyy")</MudTd>
-                                </RowTemplate>
-                                <RowEditingTemplate>
-                                    <MudTd DataLabel="RatePercentage">
-                                        <MudNumericField @bind-Value="@EmploymentRateContext.RatePercentage" Required/>
-                                    </MudTd>
-                                    <MudTd DataLabel="RateFromDateInclusive">
-                                        <MudDatePicker @bind-Date="@EmploymentRateContext.FromDateInclusive" Required/>
-                                    </MudTd>
-                                    <MudTd DataLabel="RateToDateInclusive">
-                                        <MudDatePicker @bind-Date="@EmploymentRateContext.ToDateInclusive" Required/>
-                                    </MudTd>
-                                </RowEditingTemplate>
-                            </MudTable>
+                                <MudTable Items="@context.EmploymentRates"
+                                          Context="EmploymentRateContext"
+                                          Breakpoint="Breakpoint.Sm"
+                                          Elevation="2"
+                                          @bind-SelectedItem="_selectedEmploymentRate"
+                                          CanCancelEdit="true"
+                                          CommitEditTooltip="Lagre endring"
+                                          OnCommitEditClick="@(() => EmploymentRateChangeCommitted(context.Id))"
+                                          RowEditPreview="BackupEmploymentRate"
+                                          RowEditCancel="ResetEmploymentRateToOriginalValues"
+                                          CancelEditTooltip="Avbryt"
+                                          IsEditRowSwitchingBlocked="false"
+                                          ApplyButtonPosition="TableApplyButtonPosition.End"
+                                          EditButtonPosition="TableEditButtonPosition.End"
+                                          EditTrigger="@_editTrigger">
+                                    <HeaderContent>
+                                        <MudTh>Stillingsprosent</MudTh>
+                                        <MudTh>Fra dato (inkl.)</MudTh>
+                                        <MudTh>Til dato (inkl.)</MudTh>
+                                    </HeaderContent>
+                                    <RowTemplate>
+                                        <MudTd DataLabel="RatePercentage" Placeholder="50">@EmploymentRateContext.RatePercentage.ToString("####")</MudTd>
+                                        <MudTd DataLabel="RateFromDateInclusive">@EmploymentRateContext.FromDateInclusive?.ToString("dd/MM/yyyy")</MudTd>
+                                        <MudTd DataLabel="RateToDateInclusive">@EmploymentRateContext.ToDateInclusive?.ToString("dd/MM/yyyy")</MudTd>
+                                    </RowTemplate>
+                                    <RowEditingTemplate>
+                                        <MudTd DataLabel="RatePercentage">
+                                            <MudNumericField @bind-Value="@EmploymentRateContext.RatePercentage" Required/>
+                                        </MudTd>
+                                        <MudTd DataLabel="RateFromDateInclusive">
+                                            <MudDatePicker @bind-Date="@EmploymentRateContext.FromDateInclusive" Required/>
+                                        </MudTd>
+                                        <MudTd DataLabel="RateToDateInclusive">
+                                            <MudDatePicker @bind-Date="@EmploymentRateContext.ToDateInclusive" Required/>
+                                        </MudTd>
+                                    </RowEditingTemplate>
+                                </MudTable>
                             </div>
                             <div>
-                            <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => AddEmptyEmploymentRate(context.Id))">Ny stillingsprosent</MudButton>
+                                <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => AddEmptyEmploymentRate(context.Id))">Ny stillingsprosent</MudButton>
                             </div>
                         </MudCardContent>
                     </MudCard>
@@ -173,7 +172,7 @@
             EmploymentRates = new List<EmployeeEmploymentRateModel>()
         });
     }
-    
+
     private void AddEmptyEmploymentRate(int userId)
     {
         var employee = AllEmployees!.First(e => e.Id == userId);
@@ -215,6 +214,7 @@
         {
             await HttpClient.PutAsJsonAsync<EmployeeModel[]>(ApiRoutes.UsersBase, [_selectedEmployee]);
         }
+
         StateHasChanged();
     }
 
@@ -252,12 +252,17 @@
     {
         if (_selectedEmploymentRate is { Id: 0 })
         {
-            await HttpClient.PostAsJsonAsync<EmployeeEmploymentRateModel[]>(ApiRoutes.EmploymentRateForUser(userId), [_selectedEmploymentRate]);
+            var response = await HttpClient.PostAsJsonAsync<EmployeeEmploymentRateModel[]>(ApiRoutes.EmploymentRateForUser(userId), [_selectedEmploymentRate]);
+            if (!response.IsSuccessStatusCode)
+            {
+                UndoNewEmploymentRate();
+            }
         }
         else
         {
             await HttpClient.PutAsJsonAsync<EmployeeEmploymentRateModel[]>(ApiRoutes.EmploymentRateForUser(userId), [_selectedEmploymentRate]);
         }
+
         StateHasChanged();
     }
 
@@ -267,16 +272,22 @@
         {
             return;
         }
-        
+
         if (_selectedEmploymentRate.Id == 0)
         {
-            var employee = AllEmployees!.First(e => e.EmploymentRates != null && e.EmploymentRates.Any(er => er.Id == 0));
-            employee.EmploymentRates!.Remove(_selectedEmploymentRate);
-            StateHasChanged();
+            UndoNewEmploymentRate();
         }
 
         ((EmployeeEmploymentRateModel)employmentRate).RatePercentage = _employmentRateBeforeEdit!.RatePercentage;
         ((EmployeeEmploymentRateModel)employmentRate).FromDateInclusive = _employmentRateBeforeEdit.FromDateInclusive;
         ((EmployeeEmploymentRateModel)employmentRate).ToDateInclusive = _employmentRateBeforeEdit.ToDateInclusive;
     }
+
+    private void UndoNewEmploymentRate()
+    {
+        var employee = AllEmployees!.First(e => e.EmploymentRates != null && e.EmploymentRates.Any(er => er.Id == 0));
+        employee.EmploymentRates!.Remove(_selectedEmploymentRate!);
+        StateHasChanged();
+    }
+
 }
