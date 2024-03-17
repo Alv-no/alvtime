@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using AlvTimeWebApi.Controllers.Utils;
 using AlvTimeWebApi.Requests;
 using AlvTimeWebApi.Responses;
+using AlvTimeWebApi.Responses.Admin;
 
 namespace AlvTimeWebApi.Controllers.Admin;
 
@@ -26,21 +27,21 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("Users")]
-    public async Task<ActionResult<IEnumerable<UserResponse>>> FetchUsers()
+    public async Task<ActionResult<IEnumerable<UserAdminResponse>>> FetchUsers()
     {
         var users = await _userService.GetUsers(new UserQuerySearch());
         return Ok(users.Select(u => u.MapToUserResponse()));
     }
     
     [HttpPost("Users")]
-    public async Task<ActionResult<IEnumerable<UserResponse>>> CreateNewUsers([FromBody] List<UserCreateRequest> usersToBeCreated)
+    public async Task<ActionResult<IEnumerable<UserAdminResponse>>> CreateNewUsers([FromBody] List<UserCreateRequest> usersToBeCreated)
     {
         var createdUsers = await _userService.CreateUsers(usersToBeCreated.Select(u => u.MapToUserDto()));
         return Ok(createdUsers.Select(u => u.MapToUserResponse()));
     }
 
     [HttpPut("Users")]
-    public async Task<ActionResult<IEnumerable<UserResponse>>> UpdateUsers([FromBody] List<UserUpdateRequest> usersToBeUpdated)
+    public async Task<ActionResult<IEnumerable<UserAdminResponse>>> UpdateUsers([FromBody] List<UserUpdateRequest> usersToBeUpdated)
     {
         var updatedUsers = await _userService.UpdateUsers(usersToBeUpdated.Select(u => u.MapToUserDto()));
         return Ok(updatedUsers.Select(u => u.MapToUserResponse()));

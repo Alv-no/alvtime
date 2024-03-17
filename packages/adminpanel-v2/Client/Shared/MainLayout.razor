@@ -8,7 +8,7 @@
     <MudAppBar Style="@($"color:{Colors.DeepPurple.Accent1}; background:{Colors.BlueGrey.Darken4};")">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(_ => DrawerToggle())"/>
         Alvtime adminpanel
-        <MudSpacer />
+        <MudSpacer/>
         <LoginDisplay/>
     </MudAppBar>
     <MudDrawer @bind-Open="@_drawerOpen">
@@ -19,6 +19,7 @@
             @Body
         </MudContainer>
     </MudMainContent>
+
 </MudLayout>
 
 @code {

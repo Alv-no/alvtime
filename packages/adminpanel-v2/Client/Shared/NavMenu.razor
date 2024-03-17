@@ -1,4 +1,9 @@
 ﻿<MudNavMenu>
     <MudNavLink Href="/" Match="NavLinkMatch.All">Forside</MudNavLink>
-    <MudNavLink Href="/ansatte" Match="NavLinkMatch.Prefix">Ansatte</MudNavLink>
+    <AuthorizeView>
+        <Authorized>
+            <MudNavLink Href="/ansatte" Match="NavLinkMatch.Prefix">Ansatte</MudNavLink>
+            <MudNavLink Href="/kunder" Match="NavLinkMatch.Prefix">Kunder</MudNavLink>
+        </Authorized>
+    </AuthorizeView>
 </MudNavMenu>

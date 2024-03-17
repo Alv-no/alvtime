@@ -4,4 +4,11 @@
 
 <h1>Velkommen til Alvtime adminpanel!</h1>
 
-Velg hva du vil administrere i panelet til venstre.
+<AuthorizeView>
+    <Authorized>
+        Velg hva du vil administrere i panelet til venstre.
+    </Authorized>
+    <NotAuthorized>
+        Vennligst logg inn oppe til høyre.
+    </NotAuthorized>
+</AuthorizeView>

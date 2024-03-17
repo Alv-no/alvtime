@@ -1,4 +1,5 @@
-﻿using AlvTime.Business.HourRates;
+﻿using System;
+using AlvTime.Business.HourRates;
 using AlvTimeWebApi.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -18,12 +19,6 @@ public class HourRateController : Controller
     {
         _hourRateStorage = hourRateStorage;
         _hourRateService = hourRateService;
-    }
-
-    [HttpGet("HourRates")]
-    public async Task<ActionResult<IEnumerable<HourRateResponseDto>>> FetchHourRates()
-    {
-        return Ok(await _hourRateStorage.GetHourRates(new HourRateQuerySearch()));
     }
 
     [HttpPost("HourRates")]

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.Responses;
+using AlvTimeWebApi.Responses.Admin;
 using AlvTimeWebApi.Utils;
 
 namespace AlvTimeWebApi.Controllers
@@ -29,7 +30,7 @@ namespace AlvTimeWebApi.Controllers
         }
 
         [HttpGet("Profile")]
-        public ActionResult<UserResponse> GetUserProfile()
+        public ActionResult<UserAdminResponse> GetUserProfile()
         {
             var user = _userRetriever.RetrieveUser();
 
@@ -38,7 +39,7 @@ namespace AlvTimeWebApi.Controllers
                 return NotFound("User not found");
             }
 
-            return Ok(new UserResponse
+            return Ok(new UserAdminResponse
             {
                 Id = user.Id,
                 StartDate = user.StartDate.ToDateOnly(),
@@ -49,7 +50,7 @@ namespace AlvTimeWebApi.Controllers
         }
 
         [HttpGet("UsersReport")]
-        public async Task<ActionResult<IEnumerable<UserResponse>>> FetchUsersReport()
+        public async Task<ActionResult<IEnumerable<UserAdminResponse>>> FetchUsersReport()
         {
             var user = _userRetriever.RetrieveUser();
 

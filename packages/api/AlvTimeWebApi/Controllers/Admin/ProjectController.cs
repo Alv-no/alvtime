@@ -1,4 +1,5 @@
-﻿using AlvTime.Business.Projects;
+﻿using System;
+using AlvTime.Business.Projects;
 using AlvTimeWebApi.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -18,12 +19,6 @@ public class ProjectController : Controller
     {
         _projectStorage = projectStorage;
         _projectService = projectService;
-    }
-
-    [HttpGet("Projects")]
-    public async Task<ActionResult<IEnumerable<ProjectResponseDto>>> FetchProjects()
-    {
-        return Ok(await _projectStorage.GetProjects(new ProjectQuerySearch()));
     }
 
     [HttpPost("Projects")]

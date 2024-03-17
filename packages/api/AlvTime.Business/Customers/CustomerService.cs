@@ -13,6 +13,12 @@ namespace AlvTime.Business.Customers
             _customerStorage = customerStorage;
         }
 
+        public async Task<IEnumerable<CustomerAdminDto>> GetCustomersDetailed()
+        {
+            var customers = await _customerStorage.GetCustomersDetailed();
+            return customers;
+        }
+
         public async Task<CustomerDto> CreateCustomer(CustomerDto customer)
         {
             var customerAlreadyExists = (await GetCustomer(customer)).Any();
