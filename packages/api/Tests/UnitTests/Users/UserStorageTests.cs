@@ -62,13 +62,13 @@ namespace Tests.UnitTests.Users
 
             var creator = new UserService(new UserRepository(context), new TimeRegistrationStorage(context));
 
-            await creator.CreateUser(new UserDto
+            await creator.CreateUsers(new[] {new UserDto
             {
                 Email = "newUser@alv.no",
                 Name = "New User",
                 StartDate = DateTime.UtcNow,
                 EmployeeId = 1
-            });
+            }});
 
             Assert.True(context.User.Count() == 3);
         }
@@ -82,14 +82,14 @@ namespace Tests.UnitTests.Users
 
             var creator = new UserService(new UserRepository(context), new TimeRegistrationStorage(context));
 
-            await creator.UpdateUser(new UserDto
+            await creator.UpdateUsers(new[] {new UserDto
             {
                 Id = 1,
                 Email = "someoneElse@alv.no",
                 Name = "SomeoneElse",
                 StartDate = DateTime.UtcNow,
                 EndDate = DateTime.UtcNow.Date
-            });
+            }});
 
             var user = context.User.FirstOrDefault(u => u.Id == 1);
 

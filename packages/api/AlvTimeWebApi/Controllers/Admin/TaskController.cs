@@ -12,11 +12,11 @@ namespace AlvTimeWebApi.Controllers.Admin;
 [Route("api/admin")]
 [ApiController]
 [AuthorizeAdmin]
-public class TaskAdminController : Controller
+public class TaskController : ControllerBase
 {
     private readonly TaskService _taskService;
 
-    public TaskAdminController(TaskService taskService)
+    public TaskController(TaskService taskService)
     {
         _taskService = taskService;
     }
