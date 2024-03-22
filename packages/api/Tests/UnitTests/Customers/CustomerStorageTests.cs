@@ -18,14 +18,17 @@ namespace Tests.UnitTests.Customers
 
             var previousCustomersAmount = context.Customer.ToList().Count();
 
-            await customerService.CreateCustomer(new CustomerDto
+            await customerService.CreateCustomers(new[]
             {
-                Name = "Test"
+                new CustomerDto
+                {
+                    Name = "Test"
+                }
             });
 
             var newCustomersAmount = context.Customer.ToList().Count();
 
-            Assert.Equal(previousCustomersAmount+1, newCustomersAmount);
+            Assert.Equal(previousCustomersAmount + 1, newCustomersAmount);
         }
 
         [Fact]
@@ -38,10 +41,13 @@ namespace Tests.UnitTests.Customers
             var storage = new CustomerStorage(context);
             var customerService = new CustomerService(storage);
 
-            await customerService.UpdateCustomer(new CustomerDto
+            await customerService.UpdateCustomers(new[]
             {
-                Id = 1,
-                InvoiceAddress = "Testveien 1"
+                new CustomerDto
+                {
+                    Id = 1,
+                    InvoiceAddress = "Testveien 1"
+                }
             });
 
             var customer = (await storage.GetCustomers(new CustomerQuerySearch

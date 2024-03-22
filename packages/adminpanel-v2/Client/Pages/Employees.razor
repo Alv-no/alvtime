@@ -3,8 +3,6 @@
 @using Alvtime.Adminpanel.Client.Utils
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 
-@inject HttpClient HttpClient
-
 <PageTitle>Ansatte</PageTitle>
 
 <MudTable Items="@AllEmployees"
@@ -25,7 +23,7 @@
           IsEditRowSwitchingBlocked="false"
           ApplyButtonPosition="TableApplyButtonPosition.End"
           EditButtonPosition="TableEditButtonPosition.End"
-          EditTrigger="@_editTrigger">
+          EditTrigger="TableEditTrigger.RowClick">
     <ToolBarContent>
         <MudText Typo="Typo.h6">Alver</MudText>
         <MudSpacer/>
@@ -105,7 +103,7 @@
                                           IsEditRowSwitchingBlocked="false"
                                           ApplyButtonPosition="TableApplyButtonPosition.End"
                                           EditButtonPosition="TableEditButtonPosition.End"
-                                          EditTrigger="@_editTrigger">
+                                          EditTrigger="TableEditTrigger.RowClick">
                                     <HeaderContent>
                                         <MudTh>Stillingsprosent</MudTh>
                                         <MudTh>Fra dato (inkl.)</MudTh>
@@ -144,12 +142,13 @@
 </MudTable>
 
 @code {
+    [Inject] private HttpClient HttpClient { get; set; }
+
     private string _searchString = "";
     private EmployeeModel? _selectedEmployee;
     private EmployeeModel? _employeeBeforeEdit;
     private EmployeeEmploymentRateModel? _selectedEmploymentRate;
     private EmployeeEmploymentRateModel? _employmentRateBeforeEdit;
-    private TableEditTrigger _editTrigger = TableEditTrigger.RowClick;
     private bool Loading => AllEmployees == null;
     private HashSet<EmployeeModel>? AllEmployees { get; set; }
 

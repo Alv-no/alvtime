@@ -29,7 +29,8 @@ namespace AlvTime.Persistence.Repositories
                 InvoiceAddress = customer.InvoiceAddress ?? "",
                 ContactPhone = customer.ContactPhone ?? "",
                 ContactEmail = customer.ContactEmail ?? "",
-                ContactPerson = customer.ContactPerson ?? ""
+                ContactPerson = customer.ContactPerson ?? "",
+                OrgNr = customer.OrgNr
             };
 
             _context.Customer.Add(newCustomer);
@@ -40,14 +41,15 @@ namespace AlvTime.Persistence.Repositories
         {
             return await _context.Customer.AsQueryable()
                 .Filter(criterias)
-                .Select(x => new CustomerDto
+                .Select(c => new CustomerDto
                 {
-                    Id = x.Id,
-                    Name = x.Name,
-                    ContactPerson = x.ContactPerson,
-                    ContactEmail = x.ContactEmail,
-                    ContactPhone = x.ContactPhone,
-                    InvoiceAddress = x.InvoiceAddress
+                    Id = c.Id,
+                    Name = c.Name,
+                    ContactPerson = c.ContactPerson,
+                    ContactEmail = c.ContactEmail,
+                    ContactPhone = c.ContactPhone,
+                    InvoiceAddress = c.InvoiceAddress,
+                    OrgNr = c.OrgNr
                 }).ToListAsync();
         }
         
@@ -68,6 +70,7 @@ namespace AlvTime.Persistence.Repositories
                     ContactPerson = customer.ContactPerson,
                     ContactEmail = customer.ContactEmail,
                     ContactPhone = customer.ContactPhone,
+                    OrgNr = customer.OrgNr,
                     Projects = customer.Project.Select(p => new ProjectAdminDto
                     {
                         Id = p.Id,

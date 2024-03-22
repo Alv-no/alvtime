@@ -8,5 +8,6 @@
         public string ContactPerson { get; set; }
         public string ContactEmail { get; set; }
         public string ContactPhone { get; set; }
+        public string OrgNr { get; set; }
     }
 }
