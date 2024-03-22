@@ -2,7 +2,7 @@
 
 namespace AlvTimeWebApi.Responses.Admin;
 
-public class CustomerAdminResponse
+public class CustomerDetailedResponse
 {
     public int? Id { get; set; }
     public string Name { get; set; }
@@ -10,5 +10,6 @@ public class CustomerAdminResponse
     public string ContactPerson { get; set; }
     public string ContactEmail { get; set; }
     public string ContactPhone { get; set; }
+    public string OrgNr { get; set; }
     public IEnumerable<ProjectAdminResponse> Projects { get; set; }
 }

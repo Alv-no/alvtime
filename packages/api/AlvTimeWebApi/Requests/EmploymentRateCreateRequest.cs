@@ -1,12 +1,10 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace AlvTimeWebApi.Requests;
 
-public class EmploymentRateChangeRequest
+public class EmploymentRateCreateRequest
 {
-    [Required]
-    public int Id { get; set; }
     [Required]
     public decimal RatePercentage { get; set; }
     [Required]

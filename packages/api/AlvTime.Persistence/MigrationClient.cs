@@ -319,6 +319,7 @@ public static class MigrationClient
                     ContactPerson = "Supermann",
                     ContactEmail = "supermann@supermat.no",
                     ContactPhone = "81549300",
+                    OrgNr = "738927593"
                 },
                 new()
                 {
@@ -327,6 +328,7 @@ public static class MigrationClient
                     ContactPerson = "Willy",
                     ContactEmail = "willy@rutsjebaner.no",
                     ContactPhone = "53153162",
+                    OrgNr = "893275893"
                 },
                 new()
                 {
@@ -335,6 +337,7 @@ public static class MigrationClient
                     ContactPerson = "Halvstrøm",
                     ContactEmail = "halvstrom@filmtv.no",
                     ContactPhone = "64136423",
+                    OrgNr = "09532957"
                 },
                 new()
                 {
@@ -343,6 +346,7 @@ public static class MigrationClient
                     ContactPerson = "Sjefen",
                     ContactEmail = "sjefen@alv.no",
                     ContactPhone = "53178685",
+                    OrgNr = "217983742"
                 }
             };
             await context.Customer.AddRangeAsync(newCustomers);

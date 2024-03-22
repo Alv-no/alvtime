@@ -1,6 +1,549 @@
 ﻿@page "/kunder"
+@using Alvtime.Adminpanel.Client.Models
+@using Alvtime.Adminpanel.Client.Requests
+@using Alvtime.Adminpanel.Client.Utils
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Alvtime.Adminpanel.Client.Mappers
 <h3>Kunder</h3>
 
+<MudTable Items="@AllCustomers"
+          Hover="true"
+          Loading="@Loading"
+          Striped="true"
+          Dense="true"
+          Elevation="4"
+          CanCancelEdit="true"
+          Filter="new Func<CustomerModel, bool>(FilterCustomer)"
+          @bind-SelectedItem="_selectedCustomer"
+          SortLabel="Sort By"
+          CommitEditTooltip="Lagre endring"
+          OnCommitEditClick="CustomerChangeCommitted"
+          RowEditPreview="BackupCustomer"
+          RowEditCancel="ResetCustomerToOriginalValues"
+          CancelEditTooltip="Avbryt"
+          IsEditRowSwitchingBlocked="false"
+          ApplyButtonPosition="TableApplyButtonPosition.End"
+          EditButtonPosition="TableEditButtonPosition.End"
+          EditTrigger="TableEditTrigger.RowClick">
+<ToolBarContent>
+    <MudText Typo="Typo.h6">Kunder</MudText>
+    <MudSpacer/>
+    <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@AddEmptyCustomer">Legg til ny kunde</MudButton>
+    <MudTextField @bind-Value="_customerSearchString" Immediate="true" Placeholder="Søk" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 pl-6"></MudTextField>
+</ToolBarContent>
+<HeaderContent>
+    <MudTh>
+        <MudTableSortLabel SortBy="new Func<CustomerModel, object>(x => x.Name)">Navn</MudTableSortLabel>
+    </MudTh>
+    <MudTh>
+        <MudTableSortLabel SortBy="new Func<CustomerModel, object>(x => x.ContactPerson)">Kontaktperson</MudTableSortLabel>
+    </MudTh>
+    <MudTh>
+        <MudTableSortLabel SortBy="new Func<CustomerModel, object>(x => x.ContactEmail)">Epost</MudTableSortLabel>
+    </MudTh>
+    <MudTh>
+        <MudTableSortLabel SortBy="new Func<CustomerModel, object>(x => x.ContactPhone)">Telefon</MudTableSortLabel>
+    </MudTh>
+    <MudTh>
+        <MudTableSortLabel SortBy="new Func<CustomerModel, object>(x => x.InvoiceAddress)">Fakturaaddresse</MudTableSortLabel>
+    </MudTh>
+        <MudTh>
+            <MudTableSortLabel SortBy="new Func<CustomerModel, object>(x => x.OrgNr)">OrgNr</MudTableSortLabel>
+        </MudTh>
+</HeaderContent>
+<RowTemplate>
+    <MudTd DataLabel="Name">@context.Name</MudTd>
+    <MudTd DataLabel="ContactPerson">@context.ContactPerson</MudTd>
+    <MudTd DataLabel="ContactEmail">@context.ContactEmail</MudTd>
+    <MudTd DataLabel="ContactPhone">@context.ContactPhone</MudTd>
+    <MudTd DataLabel="InvoiceAddress">@context.InvoiceAddress</MudTd>
+    <MudTd DataLabel="OrgNr">@context.OrgNr</MudTd>
+    <MudTd>
+        <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="@(() => ShowCustomerDetails(context.Name))">@(context.ShowDetails ? "\u25b2" : "\u25bc") Prosjekter</MudButton>
+    </MudTd>
+</RowTemplate>
+<RowEditingTemplate>
+    <MudTd DataLabel="Name">
+        <MudTextField @bind-Value="@context.Name" Required/>
+    </MudTd>
+    <MudTd DataLabel="ContactPerson">
+        <MudTextField @bind-Value="@context.ContactPerson"/>
+    </MudTd>
+    <MudTd DataLabel="ContactEmail">
+        <MudTextField @bind-Value="@context.ContactEmail"/>
+    </MudTd>
+    <MudTd DataLabel="ContactPhone">
+        <MudTextField @bind-Value="@context.ContactPhone"/>
+    </MudTd>
+    <MudTd DataLabel="InvoiceAddress">
+        <MudTextField @bind-Value="@context.InvoiceAddress"/>
+    </MudTd>
+        <MudTd DataLabel="OrgNr">
+            <MudTextField @bind-Value="@context.OrgNr"/>
+        </MudTd>
+</RowEditingTemplate>
+<ChildRowContent>
+    @if (context.ShowDetails)
+    {
+        <MudTr>
+            <td colspan="2">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.body1">Prosjekter for <strong>@context.Name</strong></MudText>
+                            <MudSpacer/>
+                            <MudTextField @bind-Value="_projectSearchString" Immediate="true" Placeholder="Søk" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 pl-6"></MudTextField>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent Class="pl-6">
+                        <div style="margin-bottom: 10px;">
+                            <MudTable Items="@context.Projects"
+                                      Context="ProjectContext"
+                                      Breakpoint="Breakpoint.Sm"
+                                      Elevation="2"
+                                      @bind-SelectedItem="_selectedProject"
+                                      Filter="new Func<ProjectModel, bool>(FilterProject)"
+                                      CanCancelEdit="true"
+                                      CommitEditTooltip="Lagre endring"
+                                      OnCommitEditClick="@(() => ProjectChangeCommitted())"
+                                      RowEditPreview="BackupProject"
+                                      RowEditCancel="ResetProjectToOriginalValues"
+                                      CancelEditTooltip="Avbryt"
+                                      IsEditRowSwitchingBlocked="false"
+                                      ApplyButtonPosition="TableApplyButtonPosition.End"
+                                      EditButtonPosition="TableEditButtonPosition.End"
+                                      EditTrigger="TableEditTrigger.RowClick">
+                                <HeaderContent>
+                                    <MudTh>Navn</MudTh>
+                                </HeaderContent>
+                                <RowTemplate>
+                                    <MudTd DataLabel="Name">@ProjectContext.Name</MudTd>
+                                    <MudTd>
+                                        <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="@(() => ShowProjectDetails(ProjectContext.Name))">@(ProjectContext.ShowDetails ? "\u25b2" : "\u25bc") Timekoder</MudButton>
+                                    </MudTd>
+                                </RowTemplate>
+                                <RowEditingTemplate>
+                                    <MudTd DataLabel="Name">
+                                        <MudTextField @bind-Value="@ProjectContext.Name" Required/>
+                                    </MudTd>
+                                </RowEditingTemplate>
+                                <ChildRowContent>
+                                    @if (ProjectContext.ShowDetails)
+                                    {
+                                        <MudTr>
+                                            <td colspan="2">
+                                                <MudCard>
+                                                    <MudCardHeader>
+                                                        <CardHeaderContent>
+                                                            <MudText Typo="Typo.body1">Timekoder for <strong>@ProjectContext.Name</strong></MudText>
+                                                            <MudSpacer/>
+                                                            <MudTextField @bind-Value="_taskSearchString" Immediate="true" Placeholder="Søk" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 pl-6"></MudTextField>
+                                                        </CardHeaderContent>
+                                                    </MudCardHeader>
+                                                    <MudCardContent Class="pl-6">
+                                                        <div style="margin-bottom: 10px;">
+                                                            <MudTable Items="@ProjectContext.Tasks"
+                                                                      Context="TaskContext"
+                                                                      Breakpoint="Breakpoint.Sm"
+                                                                      Elevation="2"
+                                                                      @bind-SelectedItem="_selectedTask"
+                                                                      Filter="new Func<TaskModel, bool>(FilterTask)"
+                                                                      CanCancelEdit="true"
+                                                                      CommitEditTooltip="Lagre endring"
+                                                                      OnCommitEditClick="@(() => TaskChangeCommitted())"
+                                                                      RowEditPreview="BackupTask"
+                                                                      RowEditCancel="ResetTaskToOriginalValues"
+                                                                      CancelEditTooltip="Avbryt"
+                                                                      IsEditRowSwitchingBlocked="false"
+                                                                      ApplyButtonPosition="TableApplyButtonPosition.End"
+                                                                      EditButtonPosition="TableEditButtonPosition.End"
+                                                                      EditTrigger="TableEditTrigger.RowClick">
+                                                                <HeaderContent>
+                                                                    <MudTh>Navn</MudTh>
+                                                                    <MudTh>Beskrivelse</MudTh>
+                                                                    <MudTh>Låst</MudTh>
+                                                                    <MudTh>Pålagt</MudTh>
+                                                                    <MudTh>Overtidsfaktor</MudTh>
+                                                                </HeaderContent>
+                                                                <RowTemplate>
+                                                                    <MudTd DataLabel="Name">@TaskContext.Name</MudTd>
+                                                                    <MudTd DataLabel="Description">@TaskContext.Description</MudTd>
+                                                                    <MudTd DataLabel="Locked">@TaskContext.Locked</MudTd>
+                                                                    <MudTd DataLabel="Imposed">@TaskContext.Imposed</MudTd>
+                                                                    <MudTd DataLabel="CompensationRate">@TaskContext.CompensationRate</MudTd>
+                                                                    <MudTd>
+                                                                        <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="@(() => ShowTaskDetails(TaskContext.Name))">@(TaskContext.ShowDetails ? "\u25b2" : "\u25bc") Timerater</MudButton>
+                                                                    </MudTd>
+                                                                </RowTemplate>
+                                                                <RowEditingTemplate>
+                                                                    <MudTd DataLabel="Name">
+                                                                        <MudTextField @bind-Value="@TaskContext.Name" Required/>
+                                                                    </MudTd>
+                                                                    <MudTd DataLabel="Description">
+                                                                        <MudTextField @bind-Value="@TaskContext.Description"/>
+                                                                    </MudTd>
+                                                                    <MudTd DataLabel="Locked">
+                                                                        <MudCheckBox @bind-Value="@TaskContext.Locked"/>
+                                                                    </MudTd>
+                                                                    <MudTd DataLabel="Imposed">
+                                                                        <MudCheckBox @bind-Value="@TaskContext.Imposed"/>
+                                                                    </MudTd>
+                                                                    <MudTd DataLabel="CompensationRate">
+                                                                        <MudNumericField @bind-Value="@TaskContext.CompensationRate" Required/>
+                                                                    </MudTd>
+                                                                </RowEditingTemplate>
+                                                                <ChildRowContent>
+                                                                    @if (TaskContext.ShowDetails)
+                                                                    {
+                                                                        <MudTr>
+                                                                            <td colspan="2">
+                                                                                <MudCard>
+                                                                                    <MudCardHeader>
+                                                                                        <CardHeaderContent>
+                                                                                            <MudText Typo="Typo.body1">Timerater for <strong>@TaskContext.Name</strong></MudText>
+                                                                                        </CardHeaderContent>
+                                                                                    </MudCardHeader>
+                                                                                    <MudCardContent Class="pl-6">
+                                                                                        <div style="margin-bottom: 10px;">
+                                                                                            <MudTable Items="@TaskContext.HourRates"
+                                                                                                      Context="HourRateContext"
+                                                                                                      Breakpoint="Breakpoint.Sm"
+                                                                                                      Elevation="2"
+                                                                                                      @bind-SelectedItem="_selectedHourRate"
+                                                                                                      CanCancelEdit="true"
+                                                                                                      CommitEditTooltip="Lagre endring"
+                                                                                                      OnCommitEditClick="@(() => HourRateChangeCommitted())"
+                                                                                                      RowEditPreview="BackupHourRate"
+                                                                                                      RowEditCancel="ResetHourRateToOriginalValues"
+                                                                                                      CancelEditTooltip="Avbryt"
+                                                                                                      IsEditRowSwitchingBlocked="false"
+                                                                                                      ApplyButtonPosition="TableApplyButtonPosition.End"
+                                                                                                      EditButtonPosition="TableEditButtonPosition.End"
+                                                                                                      EditTrigger="TableEditTrigger.RowClick">
+                                                                                                <HeaderContent>
+                                                                                                    <MudTh>Fra dato (inkl.)</MudTh>
+                                                                                                    <MudTh>Rate</MudTh>
+                                                                                                </HeaderContent>
+                                                                                                <RowTemplate>
+                                                                                                    <MudTd DataLabel="FromDate">@HourRateContext.FromDate?.ToString("dd/MM/yyyy")</MudTd>
+                                                                                                    <MudTd DataLabel="Rate">@HourRateContext.Rate</MudTd>
+                                                                                                </RowTemplate>
+                                                                                                <RowEditingTemplate>
+                                                                                                    <MudTd DataLabel="FromDate">
+                                                                                                        <MudDatePicker @bind-Date="@HourRateContext.FromDate" Required/>
+                                                                                                    </MudTd>
+                                                                                                    <MudTd DataLabel="Rate">
+                                                                                                        <MudNumericField @bind-Value="@HourRateContext.Rate"/>
+                                                                                                    </MudTd>
+                                                                                                </RowEditingTemplate>
+                                                                                            </MudTable>
+                                                                                        </div>
+                                                                                        <div>
+                                                                                            @* <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => AddEmptyEmploymentRate(context.Id))">Ny stillingsprosent</MudButton> *@
+                                                                                        </div>
+                                                                                    </MudCardContent>
+                                                                                </MudCard>
+                                                                            </td>
+                                                                        </MudTr>
+                                                                    }
+                                                                </ChildRowContent>
+                                                            </MudTable>
+                                                        </div>
+                                                        <div>
+                                                            @* <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => AddEmptyEmploymentRate(context.Id))">Ny stillingsprosent</MudButton> *@
+                                                        </div>
+                                                    </MudCardContent>
+                                                </MudCard>
+                                            </td>
+                                        </MudTr>
+                                    }
+                                </ChildRowContent>
+                            </MudTable>
+                        </div>
+                        <div>
+                            @* <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => AddEmptyEmploymentRate(context.Id))">Ny stillingsprosent</MudButton> *@
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </td>
+        </MudTr>
+    }
+</ChildRowContent>
+<PagerContent>
+    <MudTablePager RowsPerPageString="Kunder per side:"/>
+</PagerContent>
+</MudTable>
+
+
 @code {
-    
+    [Inject] private HttpClient HttpClient { get; set; }
+
+    private string _customerSearchString = "";
+    private CustomerModel? _selectedCustomer;
+    private CustomerModel? _customerBeforeEdit;
+    private HashSet<CustomerModel>? AllCustomers { get; set; }
+
+    private string _projectSearchString = "";
+    private ProjectModel? _selectedProject;
+    private ProjectModel? _projectBeforeEdit;
+    private HashSet<ProjectModel>? AllProjects { get; set; }
+
+    private string _taskSearchString = "";
+    private TaskModel? _selectedTask;
+    private TaskModel? _taskBeforeEdit;
+    private HashSet<TaskModel>? AllTasks { get; set; }
+
+    private HourRateModel? _selectedHourRate;
+    private HourRateModel? _hourRateBeforeEdit;
+    private HashSet<HourRateModel>? AllHourRates { get; set; }
+
+    private bool Loading => AllCustomers == null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var customerResponse = await HttpClient.GetAsync(ApiRoutes.CustomersBase);
+
+            if (customerResponse.IsSuccessStatusCode)
+            {
+                AllCustomers = (await customerResponse.Content.ReadFromJsonAsync<HashSet<CustomerModel>>())?.OrderBy(c => c.Id).ToHashSet();
+                AllProjects = AllCustomers?.SelectMany(c => c.Projects).ToHashSet();
+                AllTasks = AllProjects?.SelectMany(p => p.Tasks).ToHashSet();
+                AllHourRates = AllTasks?.SelectMany(t => t.HourRates).ToHashSet();
+            }
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+    }
+
+    private bool FilterCustomer(CustomerModel customer)
+    {
+        if (string.IsNullOrWhiteSpace(_customerSearchString))
+            return true;
+        return customer.Name.Contains(_customerSearchString, StringComparison.OrdinalIgnoreCase) || customer.ContactEmail.Contains(_customerSearchString, StringComparison.OrdinalIgnoreCase) || customer.ContactPerson.Contains(_customerSearchString, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void AddEmptyCustomer()
+    {
+        AllCustomers!.Add(new CustomerModel());
+    }
+
+    private async Task CustomerChangeCommitted()
+    {
+        if (_selectedCustomer is { Id: 0 })
+        {
+            await HttpClient.PostAsJsonAsync<CustomerCreateRequest[]>(ApiRoutes.CustomersBase, [_selectedCustomer.MapToCustomerCreateRequest()]);
+        }
+        else
+        {
+            await HttpClient.PutAsJsonAsync<CustomerUpdateRequest[]>(ApiRoutes.CustomersBase, [_selectedCustomer!.MapToCustomerUpdateRequest()]);
+        }
+
+        StateHasChanged();
+    }
+
+    private void BackupCustomer(object customer)
+    {
+        _customerBeforeEdit = new CustomerModel
+        {
+            Name = ((CustomerModel)customer).Name,
+            ContactEmail = ((CustomerModel)customer).ContactEmail,
+            ContactPerson = ((CustomerModel)customer).ContactPerson,
+            ContactPhone = ((CustomerModel)customer).ContactPhone,
+            InvoiceAddress = ((CustomerModel)customer).InvoiceAddress,
+            OrgNr = ((CustomerModel)customer).OrgNr,
+        };
+    }
+
+    private void ResetCustomerToOriginalValues(object? customer)
+    {
+        if (_selectedCustomer == null || customer == null)
+        {
+            return;
+        }
+
+        if (_selectedCustomer.Id == 0)
+        {
+            AllCustomers!.Remove(_selectedCustomer);
+            StateHasChanged();
+        }
+
+        ((CustomerModel)customer).Name = _customerBeforeEdit!.Name;
+        ((CustomerModel)customer).ContactEmail = _customerBeforeEdit.ContactEmail;
+        ((CustomerModel)customer).ContactPerson = _customerBeforeEdit.ContactPerson;
+        ((CustomerModel)customer).ContactPhone = _customerBeforeEdit.ContactPhone;
+        ((CustomerModel)customer).InvoiceAddress = _customerBeforeEdit.InvoiceAddress;
+        ((CustomerModel)customer).OrgNr = _customerBeforeEdit.OrgNr;
+    }
+
+    private void ShowCustomerDetails(string name)
+    {
+        var customer = AllCustomers!.First(e => e.Name == name);
+        customer.ShowDetails = !customer.ShowDetails;
+    }
+
+    private bool FilterProject(ProjectModel project)
+    {
+        return string.IsNullOrWhiteSpace(_projectSearchString) || project.Name.Contains(_projectSearchString, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async Task ProjectChangeCommitted()
+    {
+        if (_selectedProject is { Id: 0 })
+        {
+            await HttpClient.PostAsJsonAsync<ProjectModel[]>(ApiRoutes.CustomersBase, [_selectedProject]);
+        }
+        else
+        {
+            await HttpClient.PutAsJsonAsync<ProjectModel[]>(ApiRoutes.CustomersBase, [_selectedProject]);
+        }
+
+        StateHasChanged();
+    }
+
+    private void BackupProject(object project)
+    {
+        _projectBeforeEdit = new ProjectModel
+        {
+            Name = ((ProjectModel)project).Name,
+        };
+    }
+
+    private void ResetProjectToOriginalValues(object? project)
+    {
+        if (_selectedProject == null || project == null)
+        {
+            return;
+        }
+
+        if (_selectedProject.Id == 0)
+        {
+            UndoNewProject();
+        }
+
+        ((ProjectModel)project).Name = _projectBeforeEdit!.Name;
+    }
+
+    private void UndoNewProject()
+    {
+        AllProjects!.Remove(_selectedProject!);
+        StateHasChanged();
+    }
+
+    private void ShowProjectDetails(string name)
+    {
+        var project = AllProjects!.First(p => p.Name == name);
+        project.ShowDetails = !project.ShowDetails;
+    }
+
+    private bool FilterTask(TaskModel task)
+    {
+        return string.IsNullOrWhiteSpace(_projectSearchString) || task.Name.Contains(_projectSearchString, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async Task TaskChangeCommitted()
+    {
+        if (_selectedTask is { Id: 0 })
+        {
+            await HttpClient.PostAsJsonAsync<TaskModel[]>(ApiRoutes.CustomersBase, [_selectedTask]);
+        }
+        else
+        {
+            await HttpClient.PutAsJsonAsync<TaskModel[]>(ApiRoutes.CustomersBase, [_selectedTask]);
+        }
+
+        StateHasChanged();
+    }
+
+    private void BackupTask(object task)
+    {
+        _taskBeforeEdit = new TaskModel
+        {
+            Name = ((TaskModel)task).Name,
+            Description = ((TaskModel)task).Description,
+            Locked = ((TaskModel)task).Locked,
+            Imposed = ((TaskModel)task).Imposed,
+            CompensationRate = ((TaskModel)task).CompensationRate,
+        };
+    }
+
+    private void ResetTaskToOriginalValues(object? task)
+    {
+        if (_selectedTask == null || task == null)
+        {
+            return;
+        }
+
+        if (_selectedTask.Id == 0)
+        {
+            UndoNewTask();
+        }
+
+        ((TaskModel)task).Name = _taskBeforeEdit!.Name;
+        ((TaskModel)task).Description = _taskBeforeEdit!.Description;
+        ((TaskModel)task).Locked = _taskBeforeEdit!.Locked;
+        ((TaskModel)task).Imposed = _taskBeforeEdit!.Imposed;
+        ((TaskModel)task).CompensationRate = _taskBeforeEdit!.CompensationRate;
+    }
+
+    private void UndoNewTask()
+    {
+        AllTasks!.Remove(_selectedTask!);
+        StateHasChanged();
+    }
+
+    private void ShowTaskDetails(string name)
+    {
+        var task = AllTasks!.First(t => t.Name == name);
+        task.ShowDetails = !task.ShowDetails;
+    }
+
+    private async Task HourRateChangeCommitted()
+    {
+        if (_selectedHourRate is { Id: 0 })
+        {
+            await HttpClient.PostAsJsonAsync<TaskModel[]>(ApiRoutes.CustomersBase, [_selectedTask]);
+        }
+        else
+        {
+            await HttpClient.PutAsJsonAsync<TaskModel[]>(ApiRoutes.CustomersBase, [_selectedTask]);
+        }
+
+        StateHasChanged();
+    }
+
+    private void BackupHourRate(object hourRate)
+    {
+        _hourRateBeforeEdit = new HourRateModel
+        {
+            FromDate = ((HourRateModel)hourRate).FromDate,
+            Rate = ((HourRateModel)hourRate).Rate,
+        };
+    }
+
+    private void ResetHourRateToOriginalValues(object? hourRate)
+    {
+        if (_selectedHourRate == null || hourRate == null)
+        {
+            return;
+        }
+
+        if (_selectedHourRate.Id == 0)
+        {
+            UndoNewHourRate();
+        }
+
+        ((HourRateModel)hourRate).FromDate = _hourRateBeforeEdit!.FromDate;
+        ((HourRateModel)hourRate).Rate = _hourRateBeforeEdit!.Rate;
+    }
+
+    private void UndoNewHourRate()
+    {
+        AllHourRates!.Remove(_selectedHourRate!);
+        StateHasChanged();
+    }
+
 }

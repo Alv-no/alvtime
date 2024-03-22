@@ -60,7 +60,7 @@ public static class UserMapper
         };
     }
     
-    public static EmploymentRateDto MapToEmploymentRateDto(this EmploymentRateCreationRequest request, int userId)
+    public static EmploymentRateDto MapToEmploymentRateDto(this EmploymentRateCreateRequest request, int userId)
     {
         return new EmploymentRateDto
         {
@@ -83,7 +83,7 @@ public static class UserMapper
         };
     }
     
-    public static EmploymentRateChangeRequestDto MapToEmploymentRateChangeRequestDto(this EmploymentRateChangeRequest request, int userId)
+    public static EmploymentRateChangeRequestDto MapToEmploymentRateChangeRequestDto(this EmploymentRateUpdateRequest request, int userId)
     {
         return new EmploymentRateChangeRequestDto
         {

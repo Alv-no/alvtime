@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
-using AlvTime.Business.Projects;
+﻿namespace AlvTimeWebApi.Responses.Admin;
 
-namespace AlvTime.Business.Customers;
-
-public class CustomerAdminDto
+public class CustomerResponse
 {
     public int? Id { get; set; }
     public string Name { get; set; }
@@ -12,5 +9,4 @@ public class CustomerAdminDto
     public string ContactEmail { get; set; }
     public string ContactPhone { get; set; }
     public string OrgNr { get; set; }
-    public IEnumerable<ProjectAdminDto> Projects { get; set; }
 }

@@ -29,7 +29,7 @@
       <DependentUpon>AvailableOvertimeResponse.cs</DependentUpon>
     </Compile>
     <Compile Update="Responses\Admin\ProjectAdminResponse.cs">
-      <DependentUpon>CustomerAdminResponse.cs</DependentUpon>
+      <DependentUpon>CustomerDetailedResponse.cs</DependentUpon>
     </Compile>
     <Compile Update="Responses\Admin\TaskAdminResponse.cs">
       <DependentUpon>ProjectAdminResponse.cs</DependentUpon>

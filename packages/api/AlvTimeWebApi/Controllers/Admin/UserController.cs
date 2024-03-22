@@ -56,14 +56,14 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("users/{userId:int}/employmentrates")]
-    public async Task<ActionResult<IEnumerable<EmploymentRateResponse>>> CreateEmploymentRateForUser(List<EmploymentRateCreationRequest> requests, int userId)
+    public async Task<ActionResult<IEnumerable<EmploymentRateResponse>>> CreateEmploymentRateForUser(List<EmploymentRateCreateRequest> requests, int userId)
     {
         var createdRates = await _userService.CreateEmploymentRatesForUser(requests.Select(r => r.MapToEmploymentRateDto(userId)));
         return Ok(createdRates.Select(rate => rate.MapToEmploymentRateResponse()));
     }
 
     [HttpPut("users/{userId:int}/employmentrates")]
-    public async Task<ActionResult<IEnumerable<EmploymentRateResponse>>> UpdateEmploymentRate(List<EmploymentRateChangeRequest> requests, int userId)
+    public async Task<ActionResult<IEnumerable<EmploymentRateResponse>>> UpdateEmploymentRate(List<EmploymentRateUpdateRequest> requests, int userId)
     {
         var updatedRates = await _userService.UpdateEmploymentRatesForUser(requests.Select(r => r.MapToEmploymentRateChangeRequestDto(userId)));
         return Ok(updatedRates.Select(rate => rate.MapToEmploymentRateResponse()));
