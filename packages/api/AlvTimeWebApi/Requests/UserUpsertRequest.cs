@@ -3,9 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AlvTimeWebApi.Requests;
 
-public class UserUpdateRequest
+public class UserUpsertRequest
 {
-    public int Id { get; set; }
     [Required]
     public string Name { get; set; }
     [Required]

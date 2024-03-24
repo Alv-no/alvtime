@@ -5,23 +5,9 @@ namespace Alvtime.Adminpanel.Client.Mappers;
 
 public static class CustomerMapper
 {
-    public static CustomerUpdateRequest MapToCustomerUpdateRequest(this CustomerModel customer)
+    public static CustomerUpsertRequest MapToCustomerUpsertRequest(this CustomerModel customer)
     {
-        return new CustomerUpdateRequest
-        {
-            Id = customer.Id,
-            Name = customer.Name,
-            InvoiceAddress = customer.InvoiceAddress,
-            ContactPerson = customer.ContactPerson,
-            ContactEmail = customer.ContactEmail,
-            ContactPhone = customer.ContactPhone,
-            OrgNr = customer.OrgNr
-        };
-    }
-    
-    public static CustomerCreateRequest MapToCustomerCreateRequest(this CustomerModel customer)
-    {
-        return new CustomerCreateRequest
+        return new CustomerUpsertRequest
         {
             Name = customer.Name,
             InvoiceAddress = customer.InvoiceAddress,

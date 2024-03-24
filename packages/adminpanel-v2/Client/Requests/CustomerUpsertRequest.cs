@@ -1,6 +1,6 @@
 ﻿namespace Alvtime.Adminpanel.Client.Requests;
 
-public class CustomerCreateRequest
+public class CustomerUpsertRequest
 {
     public string? Name { get; set; }
     public string? InvoiceAddress { get; set; }

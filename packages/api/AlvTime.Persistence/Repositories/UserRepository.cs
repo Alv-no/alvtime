@@ -159,7 +159,7 @@ public class UserRepository : IUserRepository
         return rates;
     }
 
-    public async Task<EmploymentRateResponseDto> UpdateEmploymentRateForUser(EmploymentRateChangeRequestDto request)
+    public async Task<EmploymentRateResponseDto> UpdateEmploymentRateForUser(EmploymentRateDto request)
     {
         var existingRate = await _context.EmploymentRate.FirstOrDefaultAsync(e => e.Id == request.RateId);
         if (existingRate == null)

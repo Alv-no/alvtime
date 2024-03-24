@@ -1,0 +1,152 @@
+﻿@using Alvtime.Adminpanel.Client.Models
+@using Alvtime.Adminpanel.Client.Utils
+<MudCard>
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.body1">Timekoder for <strong>@ProjectContext.Name</strong></MudText>
+            <MudSpacer/>
+            <MudTextField @bind-Value="_taskSearchString" Immediate="true" Placeholder="Søk" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 pl-6"></MudTextField>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent Class="pl-6">
+        <div style="margin-bottom: 10px;">
+            <MudTable Items="@ProjectContext.Tasks"
+                      Context="TaskContext"
+                      Breakpoint="Breakpoint.Sm"
+                      Elevation="2"
+                      @bind-SelectedItem="_selectedTask"
+                      Filter="new Func<TaskModel, bool>(FilterTask)"
+                      CanCancelEdit="true"
+                      CommitEditTooltip="Lagre endring"
+                      OnCommitEditClick="@(() => TaskChangeCommitted())"
+                      RowEditPreview="BackupTask"
+                      RowEditCancel="ResetTaskToOriginalValues"
+                      CancelEditTooltip="Avbryt"
+                      IsEditRowSwitchingBlocked="false"
+                      ApplyButtonPosition="TableApplyButtonPosition.End"
+                      EditButtonPosition="TableEditButtonPosition.End"
+                      EditTrigger="TableEditTrigger.RowClick">
+                <HeaderContent>
+                    <MudTh>Navn</MudTh>
+                    <MudTh>Beskrivelse</MudTh>
+                    <MudTh>Låst</MudTh>
+                    <MudTh>Pålagt</MudTh>
+                    <MudTh>Overtidsfaktor</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Name">@TaskContext.Name</MudTd>
+                    <MudTd DataLabel="Description">@TaskContext.Description</MudTd>
+                    <MudTd DataLabel="Locked">@(TaskContext.Locked ? "Ja" : "Nei")</MudTd>
+                    <MudTd DataLabel="Imposed">@(TaskContext.Imposed ? "Ja" : "Nei")</MudTd>
+                    <MudTd DataLabel="CompensationRate">@TaskContext.CompensationRate</MudTd>
+                    <MudTd>
+                        <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="@(() => ShowTaskDetails(TaskContext.Name))">@(TaskContext.ShowDetails ? "\u25b2" : "\u25bc") Timerater</MudButton>
+                    </MudTd>
+                </RowTemplate>
+                <RowEditingTemplate>
+                    <MudTd DataLabel="Name">
+                        <MudTextField @bind-Value="@TaskContext.Name" Required/>
+                    </MudTd>
+                    <MudTd DataLabel="Description">
+                        <MudTextField @bind-Value="@TaskContext.Description"/>
+                    </MudTd>
+                    <MudTd DataLabel="Locked">
+                        <MudCheckBox @bind-Value="@TaskContext.Locked"/>
+                    </MudTd>
+                    <MudTd DataLabel="Imposed">
+                        <MudCheckBox @bind-Value="@TaskContext.Imposed"/>
+                    </MudTd>
+                    <MudTd DataLabel="CompensationRate">
+                        <MudNumericField @bind-Value="@TaskContext.CompensationRate" Required/>
+                    </MudTd>
+                </RowEditingTemplate>
+                <ChildRowContent>
+                    @if (TaskContext.ShowDetails)
+                    {
+                        <MudTr>
+                            <td colspan="2">
+                                <HourRates TaskContext="TaskContext"></HourRates>
+                            </td>
+                        </MudTr>
+                    }
+                </ChildRowContent>
+            </MudTable>
+        </div>
+        <div>
+            @* <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => AddEmptyEmploymentRate(context.Id))">Ny stillingsprosent</MudButton> *@
+        </div>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Inject] private HttpClient HttpClient { get; set; }
+
+    private string _taskSearchString = "";
+    private TaskModel? _selectedTask;
+    private TaskModel? _taskBeforeEdit;
+
+    [Parameter] public ProjectModel ProjectContext { get; set; }
+
+    private bool FilterTask(TaskModel task)
+    {
+        return string.IsNullOrWhiteSpace(_taskSearchString) || task.Name.Contains(_taskSearchString, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async Task TaskChangeCommitted()
+    {
+        if (_selectedTask is { Id: 0 })
+        {
+            await HttpClient.PostAsJsonAsync<TaskModel[]>(ApiRoutes.CustomersBase, [_selectedTask]);
+        }
+        else
+        {
+            await HttpClient.PutAsJsonAsync<TaskModel[]>(ApiRoutes.CustomersBase, [_selectedTask]);
+        }
+
+        StateHasChanged();
+    }
+
+    private void BackupTask(object task)
+    {
+        _taskBeforeEdit = new TaskModel
+        {
+            Name = ((TaskModel)task).Name,
+            Description = ((TaskModel)task).Description,
+            Locked = ((TaskModel)task).Locked,
+            Imposed = ((TaskModel)task).Imposed,
+            CompensationRate = ((TaskModel)task).CompensationRate,
+        };
+    }
+
+    private void ResetTaskToOriginalValues(object? task)
+    {
+        if (_selectedTask == null || task == null)
+        {
+            return;
+        }
+
+        if (_selectedTask.Id == 0)
+        {
+            UndoNewTask();
+        }
+
+        ((TaskModel)task).Name = _taskBeforeEdit!.Name;
+        ((TaskModel)task).Description = _taskBeforeEdit!.Description;
+        ((TaskModel)task).Locked = _taskBeforeEdit!.Locked;
+        ((TaskModel)task).Imposed = _taskBeforeEdit!.Imposed;
+        ((TaskModel)task).CompensationRate = _taskBeforeEdit!.CompensationRate;
+    }
+
+    private void UndoNewTask()
+    {
+        ProjectContext.Tasks!.Remove(_selectedTask!);
+        StateHasChanged();
+    }
+
+    private void ShowTaskDetails(string name)
+    {
+        var task = ProjectContext.Tasks!.First(t => t.Name == name);
+        task.ShowDetails = !task.ShowDetails;
+    }
+
+}

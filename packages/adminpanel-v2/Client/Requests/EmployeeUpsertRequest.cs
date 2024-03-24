@@ -1,6 +1,6 @@
 ﻿namespace Alvtime.Adminpanel.Client.Requests;
 
-public class EmployeeUpdateRequest
+public class EmployeeUpsertRequest
 {
     public string Name { get; set; }
     public string Email { get; set; }

@@ -35,7 +35,7 @@ public static class UserMapper
         };
     }
 
-    public static UserDto MapToUserDto(this UserCreateRequest user)
+    public static UserDto MapToUserDto(this UserUpsertRequest user)
     {
         return new UserDto
         {
@@ -47,27 +47,16 @@ public static class UserMapper
         };
     }
 
-    public static UserDto MapToUserDto(this UserUpdateRequest user)
+    public static UserDto MapToUserDto(this UserUpsertRequest user, int userId)
     {
         return new UserDto
         {
-            Id = user.Id,
+            Id = userId,
             Name = user.Name,
             Email = user.Email,
             StartDate = user.StartDate,
             EndDate = user.EndDate,
             EmployeeId = user.EmployeeId
-        };
-    }
-    
-    public static EmploymentRateDto MapToEmploymentRateDto(this EmploymentRateCreateRequest request, int userId)
-    {
-        return new EmploymentRateDto
-        {
-            UserId = userId,
-            Rate = request.RatePercentage / 100M,
-            ToDateInclusive = request.ToDateInclusive.Date,
-            FromDateInclusive = request.FromDateInclusive.Date
         };
     }
     
@@ -83,15 +72,15 @@ public static class UserMapper
         };
     }
     
-    public static EmploymentRateChangeRequestDto MapToEmploymentRateChangeRequestDto(this EmploymentRateUpdateRequest request, int userId)
+    public static EmploymentRateDto MapToEmploymentRateDto(this EmploymentRateUpsertRequest request, int userId, int? employmentRateId)
     {
-        return new EmploymentRateChangeRequestDto
+        return new EmploymentRateDto
         {
             UserId = userId,
             Rate = request.RatePercentage / 100M,
             ToDateInclusive = request.ToDateInclusive.Date,
             FromDateInclusive = request.FromDateInclusive.Date,
-            RateId = request.Id
+            RateId = employmentRateId
         };
     }
 }

@@ -60,15 +60,15 @@ namespace Tests.UnitTests.Users
                 .WithUsers()
                 .CreateDbContext();
 
-            var creator = new UserService(new UserRepository(context), new TimeRegistrationStorage(context));
+            var userService = new UserService(new UserRepository(context), new TimeRegistrationStorage(context));
 
-            await creator.CreateUsers(new[] {new UserDto
+            await userService.CreateUser(new UserDto
             {
                 Email = "newUser@alv.no",
                 Name = "New User",
                 StartDate = DateTime.UtcNow,
                 EmployeeId = 1
-            }});
+            });
 
             Assert.True(context.User.Count() == 3);
         }
@@ -80,16 +80,16 @@ namespace Tests.UnitTests.Users
                 .WithUsers()
                 .CreateDbContext();
 
-            var creator = new UserService(new UserRepository(context), new TimeRegistrationStorage(context));
+            var userService = new UserService(new UserRepository(context), new TimeRegistrationStorage(context));
 
-            await creator.UpdateUsers(new[] {new UserDto
+            await userService.UpdateUser(new UserDto
             {
                 Id = 1,
                 Email = "someoneElse@alv.no",
                 Name = "SomeoneElse",
                 StartDate = DateTime.UtcNow,
                 EndDate = DateTime.UtcNow.Date
-            }});
+            });
 
             var user = context.User.FirstOrDefault(u => u.Id == 1);
 
@@ -140,7 +140,7 @@ namespace Tests.UnitTests.Users
                 Rate = 0.5M
             });
             
-            await storage.UpdateEmploymentRateForUser(new EmploymentRateChangeRequestDto
+            await storage.UpdateEmploymentRateForUser(new EmploymentRateDto
             {
                 RateId = createdRate.Id,
                 Rate = 0.6M

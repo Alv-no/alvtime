@@ -1,0 +1,124 @@
+﻿@using Alvtime.Adminpanel.Client.Models
+@using Alvtime.Adminpanel.Client.Utils
+
+<MudCard>
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.body1">Prosjekter for <strong>@CustomerContext.Name</strong></MudText>
+            <MudSpacer/>
+            <MudTextField @bind-Value="_projectSearchString" Immediate="true" Placeholder="Søk" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 pl-6"></MudTextField>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent Class="pl-6">
+        <div style="margin-bottom: 10px;">
+            <MudTable Items="@CustomerContext.Projects"
+                      Context="ProjectContext"
+                      Breakpoint="Breakpoint.Sm"
+                      Elevation="2"
+                      @bind-SelectedItem="_selectedProject"
+                      Filter="new Func<ProjectModel, bool>(FilterProject)"
+                      CanCancelEdit="true"
+                      CommitEditTooltip="Lagre endring"
+                      OnCommitEditClick="@(() => ProjectChangeCommitted())"
+                      RowEditPreview="BackupProject"
+                      RowEditCancel="ResetProjectToOriginalValues"
+                      CancelEditTooltip="Avbryt"
+                      IsEditRowSwitchingBlocked="false"
+                      ApplyButtonPosition="TableApplyButtonPosition.End"
+                      EditButtonPosition="TableEditButtonPosition.End"
+                      EditTrigger="TableEditTrigger.RowClick">
+                <HeaderContent>
+                    <MudTh>Navn</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Name">@ProjectContext.Name</MudTd>
+                    <MudTd>
+                        <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="@(() => ShowProjectDetails(ProjectContext.Name))">@(ProjectContext.ShowDetails ? "\u25b2" : "\u25bc") Timekoder</MudButton>
+                    </MudTd>
+                </RowTemplate>
+                <RowEditingTemplate>
+                    <MudTd DataLabel="Name">
+                        <MudTextField @bind-Value="@ProjectContext.Name" Required/>
+                    </MudTd>
+                </RowEditingTemplate>
+                <ChildRowContent>
+                    @if (ProjectContext.ShowDetails)
+                    {
+                        <MudTr>
+                            <td colspan="2">
+                                <Tasks ProjectContext="@ProjectContext"></Tasks>
+                            </td>
+                        </MudTr>
+                    }
+                </ChildRowContent>
+            </MudTable>
+        </div>
+        <div>
+            @* <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => AddEmptyEmploymentRate(context.Id))">Ny stillingsprosent</MudButton> *@
+        </div>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Inject] private HttpClient HttpClient { get; set; }
+
+    private string _projectSearchString = "";
+    private ProjectModel? _selectedProject;
+    private ProjectModel? _projectBeforeEdit;
+
+    [Parameter] public CustomerModel CustomerContext { get; set; }
+
+    private bool FilterProject(ProjectModel project)
+    {
+        return string.IsNullOrWhiteSpace(_projectSearchString) || project.Name.Contains(_projectSearchString, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async Task ProjectChangeCommitted()
+    {
+        if (_selectedProject is { Id: 0 })
+        {
+            await HttpClient.PostAsJsonAsync<ProjectModel[]>(ApiRoutes.CustomersBase, [_selectedProject]);
+        }
+        else
+        {
+            await HttpClient.PutAsJsonAsync<ProjectModel[]>(ApiRoutes.CustomersBase, [_selectedProject]);
+        }
+
+        StateHasChanged();
+    }
+
+    private void BackupProject(object project)
+    {
+        _projectBeforeEdit = new ProjectModel
+        {
+            Name = ((ProjectModel)project).Name,
+        };
+    }
+
+    private void ResetProjectToOriginalValues(object? project)
+    {
+        if (_selectedProject == null || project == null)
+        {
+            return;
+        }
+
+        if (_selectedProject.Id == 0)
+        {
+            UndoNewProject();
+        }
+
+        ((ProjectModel)project).Name = _projectBeforeEdit!.Name;
+    }
+
+    private void UndoNewProject()
+    {
+        CustomerContext!.Projects!.Remove(_selectedProject!);
+        StateHasChanged();
+    }
+
+    private void ShowProjectDetails(string name)
+    {
+        var project = CustomerContext.Projects!.First(p => p.Name == name);
+        project.ShowDetails = !project.ShowDetails;
+    }
+}
