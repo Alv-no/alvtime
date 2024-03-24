@@ -20,18 +20,7 @@ public class UserService
         _timeRegistrationStorage = timeRegistrationStorage;
     }
 
-    public async Task<IEnumerable<UserDto>> CreateUsers(IEnumerable<UserDto> users)
-    {
-        var response = new List<UserDto>();
-        foreach (var user in users)
-        {
-            response.Add(await CreateUser(user));
-        }
-
-        return response;
-    }
-
-    private async Task<UserDto> CreateUser(UserDto user)
+    public async Task<UserDto> CreateUser(UserDto user)
     {
         await CheckForDuplicateUserDetails(user);
         if (user.EndDate.HasValue && user.StartDate >= user.EndDate)
@@ -44,25 +33,7 @@ public class UserService
         return await GetUser(user);
     }
 
-    public async Task<IEnumerable<UserDto>> UpdateUsers(IEnumerable<UserDto> users)
-    {
-        var allUsers = (await _userRepository.GetUsers(new UserQuerySearch())).ToList();
-
-        var response = new List<UserDto>();
-        foreach (var user in users)
-        {
-            if (allUsers.Any(u => u.Id != user.Id && (u.EmployeeId == user.EmployeeId || u.Email == user.Email || u.Name == user.Name)))
-            {
-                throw new DuplicateNameException("En bruker har allerede blitt tildelt det ansattnummeret");
-            }
-
-            response.Add(await UpdateUser(user));
-        }
-
-        return response;
-    }
-
-    private async Task<UserDto> UpdateUser(UserDto user)
+    public async Task<UserDto> UpdateUser(UserDto user)
     {
         var allUsers = await _userRepository.GetUsers(new UserQuerySearch());
         if (allUsers.Any(u => u.Id != user.Id && (u.EmployeeId == user.EmployeeId || u.Email == user.Email || u.Name == user.Name)))
@@ -157,19 +128,8 @@ public class UserService
 
         return rates.Any() ? rates.First().Rate : 1;
     }
-    
-    public async Task<IEnumerable<EmploymentRateResponseDto>> CreateEmploymentRatesForUser(IEnumerable<EmploymentRateDto> requests)
-    {
-        var response = new List<EmploymentRateResponseDto>();
-        foreach (var request in requests)
-        {
-            response.Add(await CreateEmploymentRateForUser(request));
-        }
 
-        return response;
-    }
-
-    private async Task<EmploymentRateResponseDto> CreateEmploymentRateForUser(EmploymentRateDto request)
+    public async Task<EmploymentRateResponseDto> CreateEmploymentRateForUser(EmploymentRateDto request)
     {
         var existingEmploymentRates = await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = request.UserId });
         await ValidateRateUpdate(request.FromDateInclusive, request.ToDateInclusive, request.UserId, existingEmploymentRates);
@@ -177,19 +137,7 @@ public class UserService
         return await _userRepository.CreateEmploymentRateForUser(request);
     }
 
-    public async Task<IEnumerable<EmploymentRateResponseDto>> UpdateEmploymentRatesForUser(IEnumerable<EmploymentRateChangeRequestDto> requests)
-    {
-        var response = new List<EmploymentRateResponseDto>();
-
-        foreach (var request in requests)
-        {
-            response.Add(await UpdateEmploymentRateForUser(request));
-        }
-
-        return response;
-    }
-
-    private async Task<EmploymentRateResponseDto> UpdateEmploymentRateForUser(EmploymentRateChangeRequestDto request)
+    public async Task<EmploymentRateResponseDto> UpdateEmploymentRateForUser(EmploymentRateDto request)
     {
         var existingEmploymentRates = (await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = request.UserId })).Where(rate => rate.Id != request.RateId);
         await ValidateRateUpdate(request.FromDateInclusive, request.ToDateInclusive, request.UserId, existingEmploymentRates, request.RateId);

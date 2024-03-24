@@ -2,6 +2,7 @@
 @using Alvtime.Adminpanel.Client.Models
 @using Alvtime.Adminpanel.Client.Utils
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Alvtime.Adminpanel.Client.Mappers
 
 <PageTitle>Ansatte</PageTitle>
 
@@ -156,7 +157,7 @@
     {
         try
         {
-            AllEmployees = await HttpClient.GetFromJsonAsync<HashSet<EmployeeModel>>(ApiRoutes.UsersBase);
+            AllEmployees = await HttpClient.GetFromJsonAsync<HashSet<EmployeeModel>>(ApiRoutes.EmployeeBase);
         }
         catch (AccessTokenNotAvailableException exception)
         {
@@ -207,11 +208,11 @@
     {
         if (_selectedEmployee is { Id: 0 })
         {
-            await HttpClient.PostAsJsonAsync<EmployeeModel[]>(ApiRoutes.UsersBase, [_selectedEmployee]);
+            await HttpClient.PostAsJsonAsync(ApiRoutes.EmployeeBase, _selectedEmployee.MapToEmployeeUpsertRequest());
         }
         else
         {
-            await HttpClient.PutAsJsonAsync<EmployeeModel[]>(ApiRoutes.UsersBase, [_selectedEmployee]);
+            await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateEmployee(_selectedEmployee!.Id), _selectedEmployee.MapToEmployeeUpsertRequest());
         }
 
         StateHasChanged();
@@ -251,7 +252,7 @@
     {
         if (_selectedEmploymentRate is { Id: 0 })
         {
-            var response = await HttpClient.PostAsJsonAsync<EmployeeEmploymentRateModel[]>(ApiRoutes.EmploymentRateForUser(userId), [_selectedEmploymentRate]);
+            var response = await HttpClient.PostAsJsonAsync(ApiRoutes.CreateEmploymentRateForUser(userId), _selectedEmploymentRate.MapToEmploymentRateUpsertRequest());
             if (!response.IsSuccessStatusCode)
             {
                 UndoNewEmploymentRate();
@@ -259,7 +260,7 @@
         }
         else
         {
-            await HttpClient.PutAsJsonAsync<EmployeeEmploymentRateModel[]>(ApiRoutes.EmploymentRateForUser(userId), [_selectedEmploymentRate]);
+            await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateEmploymentRateForUser(userId, _selectedEmploymentRate!.Id), _selectedEmploymentRate.MapToEmploymentRateUpsertRequest());
         }
 
         StateHasChanged();

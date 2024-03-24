@@ -31,16 +31,16 @@ public class CustomerController : Controller
     }
 
     [HttpPost("Customers")]
-    public async Task<ActionResult<IEnumerable<CustomerResponse>>> CreateNewCustomers([FromBody] IEnumerable<CustomerCreateRequest> customersToBeCreated)
+    public async Task<ActionResult<CustomerResponse>> CreateNewCustomer([FromBody] CustomerUpsertRequest customerToBeCreated)
     {
-        var createdCustomers = await _customerService.CreateCustomers(customersToBeCreated.Select(c => c.MapToCustomerDto()));
-        return Ok(createdCustomers.Select(c => c.MapToCustomerResponse()));
+        var createdCustomer = await _customerService.CreateCustomer(customerToBeCreated.MapToCustomerDto(null));
+        return Ok(createdCustomer.MapToCustomerResponse());
     }
 
-    [HttpPut("Customers")]
-    public async Task<ActionResult<IEnumerable<CustomerResponse>>> UpdateExistingCustomers([FromBody] IEnumerable<CustomerUpdateRequest> customersToBeUpdated)
+    [HttpPut("Customers/{customerId:int}")]
+    public async Task<ActionResult<CustomerResponse>> UpdateExistingCustomer([FromBody] CustomerUpsertRequest customerToBeUpdated, int customerId)
     {
-        var updatedCustomers = await _customerService.UpdateCustomers(customersToBeUpdated.Select(c => c.MapToCustomerDto()));
-        return Ok(updatedCustomers.Select(c => c.MapToCustomerResponse()));
+        var updatedCustomer = await _customerService.UpdateCustomer(customerToBeUpdated.MapToCustomerDto(customerId));
+        return Ok(updatedCustomer.MapToCustomerResponse());
     }
 }

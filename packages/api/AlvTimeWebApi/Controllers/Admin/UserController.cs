@@ -34,17 +34,17 @@ public class UserController : ControllerBase
     }
     
     [HttpPost("Users")]
-    public async Task<ActionResult<IEnumerable<UserAdminResponse>>> CreateNewUsers([FromBody] List<UserCreateRequest> usersToBeCreated)
+    public async Task<ActionResult<UserAdminResponse>> CreateNewUsers([FromBody] UserUpsertRequest userToBeCreated)
     {
-        var createdUsers = await _userService.CreateUsers(usersToBeCreated.Select(u => u.MapToUserDto()));
-        return Ok(createdUsers.Select(u => u.MapToUserResponse()));
+        var createdUser = await _userService.CreateUser(userToBeCreated.MapToUserDto());
+        return Ok(createdUser.MapToUserResponse());
     }
 
-    [HttpPut("Users")]
-    public async Task<ActionResult<IEnumerable<UserAdminResponse>>> UpdateUsers([FromBody] List<UserUpdateRequest> usersToBeUpdated)
+    [HttpPut("Users/{userId:int}")]
+    public async Task<ActionResult<UserAdminResponse>> UpdateUsers([FromBody] UserUpsertRequest userToBeUpdated, int userId)
     {
-        var updatedUsers = await _userService.UpdateUsers(usersToBeUpdated.Select(u => u.MapToUserDto()));
-        return Ok(updatedUsers.Select(u => u.MapToUserResponse()));
+        var updatedUser = await _userService.UpdateUser(userToBeUpdated.MapToUserDto(userId));
+        return Ok(updatedUser.MapToUserResponse());
     }
     
     [Obsolete("Will be deleted")]
@@ -56,16 +56,16 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("users/{userId:int}/employmentrates")]
-    public async Task<ActionResult<IEnumerable<EmploymentRateResponse>>> CreateEmploymentRateForUser(List<EmploymentRateCreateRequest> requests, int userId)
+    public async Task<ActionResult<EmploymentRateResponse>> CreateEmploymentRateForUser(EmploymentRateUpsertRequest request, int userId)
     {
-        var createdRates = await _userService.CreateEmploymentRatesForUser(requests.Select(r => r.MapToEmploymentRateDto(userId)));
-        return Ok(createdRates.Select(rate => rate.MapToEmploymentRateResponse()));
+        var createdRate = await _userService.CreateEmploymentRateForUser(request.MapToEmploymentRateDto(userId, null));
+        return Ok(createdRate.MapToEmploymentRateResponse());
     }
 
-    [HttpPut("users/{userId:int}/employmentrates")]
-    public async Task<ActionResult<IEnumerable<EmploymentRateResponse>>> UpdateEmploymentRate(List<EmploymentRateUpdateRequest> requests, int userId)
+    [HttpPut("users/{userId:int}/employmentrates/{employmentRateId:int}")]
+    public async Task<ActionResult<EmploymentRateResponse>> UpdateEmploymentRate(EmploymentRateUpsertRequest request, int userId, int employmentRateId)
     {
-        var updatedRates = await _userService.UpdateEmploymentRatesForUser(requests.Select(r => r.MapToEmploymentRateChangeRequestDto(userId)));
-        return Ok(updatedRates.Select(rate => rate.MapToEmploymentRateResponse()));
+        var updatedRate = await _userService.UpdateEmploymentRateForUser(request.MapToEmploymentRateDto(userId, employmentRateId));
+        return Ok(updatedRate.MapToEmploymentRateResponse());
     }
 }

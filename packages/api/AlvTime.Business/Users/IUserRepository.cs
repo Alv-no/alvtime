@@ -15,7 +15,7 @@ namespace AlvTime.Business.Users
         Task<User> GetUserFromToken(Token token);
         Task<EmploymentRateResponseDto> CreateEmploymentRateForUser(EmploymentRateDto input);
         Task<IEnumerable<EmploymentRateResponseDto>> GetEmploymentRates(EmploymentRateQueryFilter criteria);
-        Task<EmploymentRateResponseDto> UpdateEmploymentRateForUser(EmploymentRateChangeRequestDto request);
+        Task<EmploymentRateResponseDto> UpdateEmploymentRateForUser(EmploymentRateDto request);
     }
 
     public class UserQuerySearch

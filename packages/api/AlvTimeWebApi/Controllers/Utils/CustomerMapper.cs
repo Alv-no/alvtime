@@ -43,10 +43,11 @@ public static class CustomerMapper
         };
     }
 
-    public static CustomerDto MapToCustomerDto(this CustomerCreateRequest customer)
+    public static CustomerDto MapToCustomerDto(this CustomerUpsertRequest customer, int? id)
     {
         return new CustomerDto
         {
+            Id = id,
             Name = customer.Name,
             InvoiceAddress = customer.InvoiceAddress,
             ContactPerson = customer.ContactPerson,
@@ -59,20 +60,6 @@ public static class CustomerMapper
     public static CustomerResponse MapToCustomerResponse(this CustomerDto customer)
     {
         return new CustomerResponse
-        {
-            Id = customer.Id,
-            Name = customer.Name,
-            InvoiceAddress = customer.InvoiceAddress,
-            ContactPerson = customer.ContactPerson,
-            ContactEmail = customer.ContactEmail,
-            ContactPhone = customer.ContactPhone,
-            OrgNr = customer.OrgNr
-        };
-    }
-
-    public static CustomerDto MapToCustomerDto(this CustomerUpdateRequest customer)
-    {
-        return new CustomerDto
         {
             Id = customer.Id,
             Name = customer.Name,
