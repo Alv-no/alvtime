@@ -10,8 +10,8 @@ namespace AlvTime.Business.Tasks
         Task CreateFavoriteTask(int taskId, int userId);
         Task RemoveFavoriteTask(int taskId, int userId);
         Task<bool> IsFavorite(int taskId, int userId);
-        Task CreateTask(CreateTaskDto task);
-        Task UpdateTask(UpdateTaskDto taskToBeUpdated);
+        Task CreateTask(TaskDto task, int projectId);
+        Task UpdateTask(TaskDto taskToBeUpdated);
     }
 
     public class TaskQuerySearch

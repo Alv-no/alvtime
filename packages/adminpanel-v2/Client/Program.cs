@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Alvtime.Adminpanel.Client;
 using Alvtime.Adminpanel.Client.Authorization;
+using Alvtime.Adminpanel.Client.ErrorHandling;
 using MudBlazor.Services;
+using Toolbelt.Blazor.Extensions.DependencyInjection;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -10,16 +12,23 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddTransient<CustomAuthorizationMessageHandler>();
 
-builder.Services.AddHttpClient("Alvtime.API", client => client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!))
+builder.Services.AddHttpClient("Alvtime.API", (sp, client) =>
+    {
+        client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!);
+        client.EnableIntercept(sp);
+    })
     .AddHttpMessageHandler<CustomAuthorizationMessageHandler>();
 
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("Alvtime.API"));
+builder.Services.AddScoped<HttpInterceptorService>();
 
 builder.Services.AddMsalAuthentication(options =>
 {
     builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
     options.ProviderOptions.DefaultAccessTokenScopes.Add(builder.Configuration["ApiSettings:Scope"]!);
 });
+
+builder.Services.AddHttpClientInterceptor();
 
 builder.Services.AddMudServices();
 

@@ -1,9 +1,10 @@
-﻿using System;
-using AlvTime.Business.HourRates;
+﻿using AlvTime.Business.HourRates;
 using AlvTimeWebApi.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using AlvTimeWebApi.Controllers.Utils;
+using AlvTimeWebApi.Requests;
+using AlvTimeWebApi.Responses.Admin;
 
 namespace AlvTimeWebApi.Controllers.Admin;
 
@@ -12,25 +13,24 @@ namespace AlvTimeWebApi.Controllers.Admin;
 [AuthorizeAdmin]
 public class HourRateController : Controller
 {
-    private readonly IHourRateStorage _hourRateStorage;
     private readonly HourRateService _hourRateService;
 
-    public HourRateController(IHourRateStorage hourRateStorage, HourRateService hourRateService)
+    public HourRateController(HourRateService hourRateService)
     {
-        _hourRateStorage = hourRateStorage;
         _hourRateService = hourRateService;
     }
 
     [HttpPost("HourRates")]
-    public async Task<ActionResult<IEnumerable<HourRateResponseDto>>> CreateHourRate([FromBody] IEnumerable<CreateHourRateDto> hourRatesToBeCreated)
+    public async Task<ActionResult<HourRateResponse>> CreateHourRate([FromBody] HourRateUpsertRequest hourRateToBeCreated, [FromQuery] int taskId)
     {
-        List<HourRateResponseDto> response = new List<HourRateResponseDto>();
+        var createdHourRate = await _hourRateService.CreateHourRate(hourRateToBeCreated.MapToHourRateDto(), taskId);
+        return Ok(createdHourRate.MapToHourRateResponse());
+    }
 
-        foreach (var hourRate in hourRatesToBeCreated)
-        {
-            response.Add(await _hourRateService.CreateHourRate(hourRate));
-        }
-
-        return Ok(response);
+    [HttpPut("HourRates/{hourRateId:int}")]
+    public async Task<ActionResult<HourRateResponse>> UpdateHourRate([FromBody] HourRateUpsertRequest hourRateToBeUpdated, int hourRateId)
+    {
+        var updatedRate = await _hourRateService.UpdateHourRate(hourRateToBeUpdated.MapToHourRateDto(hourRateId));
+        return Ok(updatedRate.MapToHourRateResponse());
     }
 }

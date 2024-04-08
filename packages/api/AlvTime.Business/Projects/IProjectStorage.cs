@@ -1,20 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace AlvTime.Business.Projects
+namespace AlvTime.Business.Projects;
+
+public interface IProjectStorage
 {
-    public interface IProjectStorage
-    {
-        Task<IEnumerable<ProjectResponseDto>> GetProjects(ProjectQuerySearch criterias);
-        Task UpdateProject(CreateProjectDto request);
-        Task CreateProject(CreateProjectDto project);
+    Task<IEnumerable<ProjectDto>> GetProjects(ProjectQuerySearch criteria);
+    Task UpdateProject(ProjectDto request);
+    Task CreateProject(string projectName, int customerId);
 
-    }
+}
 
-    public class ProjectQuerySearch
-    {
-        public int? Id { get; set; }
-        public string Name { get; set; }
-        public int? Customer { get; set; }
-    }
+public class ProjectQuerySearch
+{
+    public int? Id { get; set; }
+    public string Name { get; set; }
+    public int? Customer { get; set; }
 }

@@ -1,10 +1,8 @@
-﻿using System;
-using AlvTime.Business.Tasks;
+﻿using AlvTime.Business.Tasks;
 using AlvTimeWebApi.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using AlvTimeWebApi.Controllers.Utils;
 using AlvTimeWebApi.Requests;
 using AlvTimeWebApi.Responses;
 
@@ -23,43 +21,16 @@ public class TaskController : ControllerBase
     }
 
     [HttpPost("Tasks")]
-    public async Task<ActionResult<IEnumerable<TaskResponse>>> CreateNewTask(
-        [FromBody] IEnumerable<TaskCreateRequest> tasksToBeCreated)
+    public async Task<ActionResult<TaskResponse>> CreateNewTask([FromBody] TaskUpsertRequest taskToBeCreated, [FromQuery] int projectId)
     {
-        var createdTasks = await _taskService.CreateTasks(tasksToBeCreated.Select(task => new CreateTaskDto(
-            task.Name,
-            task.Description,
-            task.Project,
-            task.Locked,
-            task.CompensationRate)));
-
-        return Ok(createdTasks.Select(task => new TaskResponse(
-            task.Id,
-            task.Name,
-            task.Description,
-            task.Favorite,
-            task.Locked,
-            task.CompensationRate,
-            task.Project)));
+        var createdTask = await _taskService.CreateTask(taskToBeCreated.MapToTaskDto(), projectId);
+        return Ok(createdTask.MapToTaskResponseSimple());
     }
 
-    [HttpPut("Tasks")]
-    public async Task<ActionResult<IEnumerable<TaskResponse>>> UpdateTask(
-        [FromBody] IEnumerable<TaskUpdateRequest> tasksToBeUpdated)
+    [HttpPut("Tasks/{taskId:int}")]
+    public async Task<ActionResult<TaskResponse>> UpdateTask([FromBody] TaskUpsertRequest taskToBeUpdated, int taskId)
     {
-        var updatedTasks = await _taskService.UpdateTasks(tasksToBeUpdated.Select(task => new UpdateTaskDto(
-            task.Id,
-            task.Locked,
-            task.Name,
-            task.CompensationRate)));
-
-        return Ok(updatedTasks.Select(task => new TaskResponse(
-            task.Id,
-            task.Name,
-            task.Description,
-            task.Favorite,
-            task.Locked,
-            task.CompensationRate,
-            task.Project)));
+        var updatedTask = await _taskService.UpdateTask(taskToBeUpdated.MapToTaskDto(taskId));
+        return Ok(updatedTask.MapToTaskResponseSimple());
     }
 }

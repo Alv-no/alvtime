@@ -20,12 +20,18 @@ public class UserService
         _timeRegistrationStorage = timeRegistrationStorage;
     }
 
-    public async Task<UserDto> CreateUser(UserDto user)
+    public async Task<Result<UserDto>> CreateUser(UserDto user)
     {
-        await CheckForDuplicateUserDetails(user);
+        var errors = new List<Error>();
+        await CheckForDuplicateUserDetails(user, errors);
         if (user.EndDate.HasValue && user.StartDate >= user.EndDate)
         {
-            throw new ValidationException($"Sluttdato må være etter startdato for {user.Name}");
+            errors.Add(new Error(ErrorCodes.RequestInvalidProperty, "Sluttdato må være etter startdato"));
+        }
+
+        if (errors.Any())
+        {
+            return errors;
         }
 
         await _userRepository.AddUser(user);
@@ -33,12 +39,15 @@ public class UserService
         return await GetUser(user);
     }
 
-    public async Task<UserDto> UpdateUser(UserDto user)
+    public async Task<Result<UserDto>> UpdateUser(UserDto user)
     {
         var allUsers = await _userRepository.GetUsers(new UserQuerySearch());
         if (allUsers.Any(u => u.Id != user.Id && (u.EmployeeId == user.EmployeeId || u.Email == user.Email || u.Name == user.Name)))
         {
-            throw new DuplicateNameException("En bruker har allerede blitt tildelt det ansattnummeret");
+            return new List<Error>
+            {
+                new(ErrorCodes.EntityAlreadyExists, "En bruker har allerede blitt tildelt det ansattnummeret, eposten eller navnet")
+            };
         }
 
         await _userRepository.UpdateUser(user);
@@ -46,7 +55,7 @@ public class UserService
         return await GetUserById(user.Id);
     }
 
-    private async Task CheckForDuplicateUserDetails(UserDto userToBeCreated)
+    private async Task CheckForDuplicateUserDetails(UserDto userToBeCreated, List<Error> errors)
     {
         var userWithEmail = (await _userRepository.GetUsers(new UserQuerySearch
         {
@@ -54,7 +63,7 @@ public class UserService
         })).FirstOrDefault();
         if (userWithEmail != null)
         {
-            throw new DuplicateNameException("Bruker med gitt epost finnes allerede");
+            errors.Add(new Error(ErrorCodes.EntityAlreadyExists, "Bruker med gitt epost finnes allerede"));
         }
 
         var userWithName = (await _userRepository.GetUsers(new UserQuerySearch
@@ -63,7 +72,7 @@ public class UserService
         })).FirstOrDefault();
         if (userWithName != null)
         {
-            throw new DuplicateNameException("Bruker med gitt navn finnes allerede");
+            errors.Add(new Error(ErrorCodes.EntityAlreadyExists, "Bruker med gitt navn finnes allerede"));
         }
 
         var userWithEmployeeId = (await _userRepository.GetUsers(new UserQuerySearch
@@ -72,7 +81,7 @@ public class UserService
         })).FirstOrDefault();
         if (userWithEmployeeId != null)
         {
-            throw new DuplicateNameException("Bruker med gitt ansattnummer finnes allerede");
+            errors.Add(new Error(ErrorCodes.EntityAlreadyExists, "Bruker med gitt ansattnummer finnes allerede"));
         }
     }
 
@@ -129,30 +138,40 @@ public class UserService
         return rates.Any() ? rates.First().Rate : 1;
     }
 
-    public async Task<EmploymentRateResponseDto> CreateEmploymentRateForUser(EmploymentRateDto request)
+    public async Task<Result<EmploymentRateResponseDto>> CreateEmploymentRateForUser(EmploymentRateDto request)
     {
         var existingEmploymentRates = await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = request.UserId });
-        await ValidateRateUpdate(request.FromDateInclusive, request.ToDateInclusive, request.UserId, existingEmploymentRates);
+        var errors = new List<Error>();
+        await ValidateRateUpdate(request.FromDateInclusive, request.ToDateInclusive, request.UserId, existingEmploymentRates, errors);
+        if (errors.Any())
+        {
+            return errors;
+        }
 
         return await _userRepository.CreateEmploymentRateForUser(request);
     }
 
-    public async Task<EmploymentRateResponseDto> UpdateEmploymentRateForUser(EmploymentRateDto request)
+    public async Task<Result<EmploymentRateResponseDto>> UpdateEmploymentRateForUser(EmploymentRateDto request)
     {
         var existingEmploymentRates = (await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = request.UserId })).Where(rate => rate.Id != request.RateId);
-        await ValidateRateUpdate(request.FromDateInclusive, request.ToDateInclusive, request.UserId, existingEmploymentRates, request.RateId);
-
+        var errors = new List<Error>();
+        await ValidateRateUpdate(request.FromDateInclusive, request.ToDateInclusive, request.UserId, existingEmploymentRates, errors, request.RateId);
+        if (errors.Any())
+        {
+            return errors;
+        }
+        
         return await _userRepository.UpdateEmploymentRateForUser(request);
     }
 
-    private async Task ValidateRateUpdate(DateTime fromDateInclusive, DateTime toDateInclusive, int userId, IEnumerable<EmploymentRateResponseDto> existingEmploymentRates, int? rateToUpdateId = null)
+    private async Task ValidateRateUpdate(DateTime fromDateInclusive, DateTime toDateInclusive, int userId, IEnumerable<EmploymentRateResponseDto> existingEmploymentRates, List<Error> errors, int? rateToUpdateId = null)
     {
         var datesForExistingRates =
             existingEmploymentRates.SelectMany(e => DateUtils.EachDay(e.FromDateInclusive, e.ToDateInclusive));
         var datesForNewRate = DateUtils.EachDay(fromDateInclusive, toDateInclusive);
         if (datesForExistingRates.Intersect(datesForNewRate).Any())
         {
-            throw new ValidationException("Brukeren har allerede en stillingsprosent på valgt dato.");
+            errors.Add(new Error(ErrorCodes.EntityAlreadyExists, "Brukeren har allerede en stillingsprosent på valgt dato."));
         }
 
         var userTimeEntriesInDateRange = (await _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
@@ -164,7 +183,7 @@ public class UserService
 
         if (userTimeEntriesInDateRange.Any())
         {
-            throw new ValidationException("Endringen vil påvirke eksisterende timer.");
+            errors.Add(new Error(ErrorCodes.InvalidAction, "Endringen vil påvirke eksisterende timer."));
         }
 
         if (rateToUpdateId != null)
@@ -180,7 +199,7 @@ public class UserService
             
             if (userEntriesInDateRange.Any())
             {
-                throw new ValidationException("Endringen vil påvirke eksisterende timer.");
+                errors.Add(new Error(ErrorCodes.InvalidAction, "Endringen vil påvirke eksisterende timer."));
             }
         }
     }

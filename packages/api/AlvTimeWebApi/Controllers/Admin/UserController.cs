@@ -9,6 +9,7 @@ using AlvTimeWebApi.Controllers.Utils;
 using AlvTimeWebApi.Requests;
 using AlvTimeWebApi.Responses;
 using AlvTimeWebApi.Responses.Admin;
+using AlvTimeWebApi.ErrorHandling;
 
 namespace AlvTimeWebApi.Controllers.Admin;
 
@@ -37,14 +38,18 @@ public class UserController : ControllerBase
     public async Task<ActionResult<UserAdminResponse>> CreateNewUsers([FromBody] UserUpsertRequest userToBeCreated)
     {
         var createdUser = await _userService.CreateUser(userToBeCreated.MapToUserDto());
-        return Ok(createdUser.MapToUserResponse());
+        return createdUser.Match<ActionResult>(
+            user => Ok(user.MapToUserResponse()),
+            errors => BadRequest(errors.ToValidationProblemDetails("Opprettelse av bruker feilet")));
     }
 
     [HttpPut("Users/{userId:int}")]
     public async Task<ActionResult<UserAdminResponse>> UpdateUsers([FromBody] UserUpsertRequest userToBeUpdated, int userId)
     {
         var updatedUser = await _userService.UpdateUser(userToBeUpdated.MapToUserDto(userId));
-        return Ok(updatedUser.MapToUserResponse());
+        return updatedUser.Match<ActionResult>(
+            user => Ok(user.MapToUserResponse()),
+            errors => BadRequest(errors.ToValidationProblemDetails("Oppdatering av bruker feilet")));
     }
     
     [Obsolete("Will be deleted")]

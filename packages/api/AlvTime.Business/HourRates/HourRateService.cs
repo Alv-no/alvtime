@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,23 +13,23 @@ public class HourRateService
         _hourRateStorage = hourRateStorage;
     }
 
-    public async Task<HourRateResponseDto> CreateHourRate(CreateHourRateDto hourRate)
+    public async Task<HourRateDto> CreateHourRate(HourRateDto hourRate, int taskId)
     {
-        var hourRateExists = (await GetHourRate(hourRate)).Any();
-        if (!hourRateExists)
-            await _hourRateStorage.CreateHourRate(hourRate);
-        else
-            await _hourRateStorage.UpdateHourRate(hourRate);
-
-        return (await GetHourRate(hourRate)).Single();
+        var createdRateId = await _hourRateStorage.CreateHourRate(hourRate, taskId);
+        return await GetHourRateById(createdRateId);
     }
 
-    private async Task<IEnumerable<HourRateResponseDto>> GetHourRate(CreateHourRateDto hourRate)
+    public async Task<HourRateDto> UpdateHourRate(HourRateDto hourRate)
     {
-        return await _hourRateStorage.GetHourRates(new HourRateQuerySearch
+        await _hourRateStorage.UpdateHourRate(hourRate);
+        return await GetHourRateById(hourRate.Id);
+    }
+
+    private async Task<HourRateDto> GetHourRateById(int hourRateId)
+    {
+        return (await _hourRateStorage.GetHourRates(new HourRateQuerySearch
         {
-            FromDate = hourRate.FromDate,
-            TaskId = hourRate.TaskId
-        });
+            Id = hourRateId
+        })).First();
     }
 }

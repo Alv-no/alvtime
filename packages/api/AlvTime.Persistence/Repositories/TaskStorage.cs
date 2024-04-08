@@ -53,14 +53,15 @@ namespace AlvTime.Persistence.Repositories
             return tasks;
         }
 
-        private static decimal EnsureCompensationRate(ICollection<CompensationRate> compensationRate)
+        private static decimal EnsureCompensationRate(IEnumerable<CompensationRate> compensationRate)
         {
-            return compensationRate.OrderByDescending(cr => cr.FromDate).FirstOrDefault()?.Value ?? 0.0M;
+            return compensationRate.MaxBy(cr => cr.FromDate)?.Value ?? 0.0M;
         }
 
         public async Task<IEnumerable<TaskResponseDto>> GetUsersTasks(TaskQuerySearch criterias, int userId)
         {
-            var usersFavoriteTaskIds = await _context.TaskFavorites.Where(x => x.UserId == userId).Select(x => x.TaskId).ToListAsync();
+            var usersFavoriteTaskIds = await _context.TaskFavorites.Where(x => x.UserId == userId).Select(x => x.TaskId)
+                .ToListAsync();
 
             var tasks = await GetTasks(criterias);
 
@@ -72,7 +73,7 @@ namespace AlvTime.Persistence.Repositories
             return tasks;
         }
 
-        public async System.Threading.Tasks.Task CreateTask(CreateTaskDto task)
+        public async System.Threading.Tasks.Task CreateTask(TaskDto task, int projectId)
         {
             var newTask = new Task
             {
@@ -80,7 +81,7 @@ namespace AlvTime.Persistence.Repositories
                 Favorite = false,
                 Locked = task.Locked,
                 Name = task.Name,
-                Project = task.Project,
+                Project = projectId,
                 CompensationRate = new List<CompensationRate>
                 {
                     new()
@@ -93,26 +94,21 @@ namespace AlvTime.Persistence.Repositories
             _context.Task.Add(newTask);
             await _context.SaveChangesAsync();
         }
-        
-        public async System.Threading.Tasks.Task UpdateTask(UpdateTaskDto task)
+
+        public async System.Threading.Tasks.Task UpdateTask(TaskDto task)
         {
             var existingTask = await _context.Task
                 .FirstOrDefaultAsync(x => x.Id == task.Id);
 
-            if (task.Locked != null)
-            {
-                existingTask.Locked = (bool)task.Locked;
-            }
-            if (task.Name != null)
-            {
-                existingTask.Name = task.Name;
-            }
-            if (task.CompensationRate != null)
-            {
-                var compensationRates = (await _context.CompensationRate.ToListAsync()).OrderByDescending(cr => cr.FromDate);
-                var compRateToBeUpdated = compensationRates.First(cr => cr.TaskId == task.Id);
-                compRateToBeUpdated.Value = task.CompensationRate.Value;
-            }
+            existingTask.Locked = task.Locked;
+            existingTask.Name = task.Name;
+            existingTask.Description = task.Description ?? existingTask.Description;
+            existingTask.Imposed = task.Imposed;
+
+            var compensationRates =
+                (await _context.CompensationRate.ToListAsync()).OrderByDescending(cr => cr.FromDate);
+            var compRateToBeUpdated = compensationRates.First(cr => cr.TaskId == task.Id);
+            compRateToBeUpdated.Value = task.CompensationRate;
 
             await _context.SaveChangesAsync();
         }

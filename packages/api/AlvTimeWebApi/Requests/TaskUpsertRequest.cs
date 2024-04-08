@@ -1,11 +1,14 @@
-﻿namespace AlvTime.Business.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class TaskDto
+namespace AlvTimeWebApi.Requests;
+
+public class TaskUpsertRequest
 {
-    public int Id { get; set; }
+    [Required]
     public string Name { get; set; }
     public string Description { get; set; }
     public bool Locked { get; set; }
+    [Required]
     public decimal CompensationRate { get; set; }
     public bool Imposed { get; set; }
 }

@@ -1,4 +1,5 @@
-﻿using AlvTime.Business.Tasks;
+﻿using System;
+using AlvTime.Business.Tasks;
 using System.Linq;
 using Task = AlvTime.Persistence.DatabaseModels.Task;
 
@@ -14,7 +15,7 @@ namespace AlvTime.Persistence.Repositories
             }
             if (criterias.Name != null)
             {
-                query = query.Where(task => task.Name == criterias.Name);
+                query = query.Where(task => task.Name.Equals(criterias.Name, StringComparison.InvariantCultureIgnoreCase));
             }
             if (criterias.Project != null)
             {

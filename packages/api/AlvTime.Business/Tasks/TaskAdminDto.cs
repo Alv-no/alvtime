@@ -12,5 +12,5 @@ public class TaskAdminDto
     public bool Locked { get; set; }
     public bool Imposed { get; set; }
     public decimal CompensationRate { get; set; }
-    public IEnumerable<HourRateAdminDto> HourRates { get; set; }
+    public IEnumerable<HourRateDto> HourRates { get; set; }
 }

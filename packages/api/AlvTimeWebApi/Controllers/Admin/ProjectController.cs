@@ -1,49 +1,42 @@
-﻿using System;
-using AlvTime.Business.Projects;
-using AlvTimeWebApi.Authentication;
+﻿using AlvTimeWebApi.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using AlvTime.Business.Projects;
+using AlvTimeWebApi.Controllers.Utils;
+using AlvTimeWebApi.ErrorHandling;
+using AlvTimeWebApi.Requests;
+using AlvTimeWebApi.Responses;
+using AlvTimeWebApi.Responses.Admin;
 
 namespace AlvTimeWebApi.Controllers.Admin;
 
 [Route("api/admin")]
 [ApiController]
 [AuthorizeAdmin]
-public class ProjectController : Controller
+public class ProjectController : ControllerBase
 {
-    private readonly IProjectStorage _projectStorage;
     private readonly ProjectService _projectService;
 
-    public ProjectController(IProjectStorage projectStorage, ProjectService projectService)
+    public ProjectController(ProjectService projectService)
     {
-        _projectStorage = projectStorage;
         _projectService = projectService;
     }
 
     [HttpPost("Projects")]
-    public async Task<ActionResult<IEnumerable<ProjectResponseDto>>> CreateNewProject([FromBody] IEnumerable<CreateProjectDto> projectsToBeCreated)
+    public async Task<ActionResult<ProjectResponse>> CreateNewProject([FromBody] ProjectUpsertRequest projectToBeCreated, [FromQuery] int customerId)
     {
-        List<ProjectResponseDto> response = new List<ProjectResponseDto>();
-
-        foreach (var project in projectsToBeCreated)
-        {
-            response.Add(await _projectService.CreateProject(project));
-        }
-
-        return Ok(response);
+        var result = await _projectService.CreateProject(projectToBeCreated.Name, customerId);
+        return result.Match<ActionResult<ProjectResponse>>(
+            project => Ok(project.MapToProjectResponse()),
+            errors => BadRequest(errors.ToValidationProblemDetails("Opprettelse av prosjekt feilet")));
     }
 
-    [HttpPut("Projects")]
-    public async Task<ActionResult<IEnumerable<ProjectResponseDto>>> UpdateProject([FromBody] IEnumerable<CreateProjectDto> projectsToBeCreated)
+    [HttpPut("Projects/{projectId:int}")]
+    public async Task<ActionResult<ProjectResponse>> UpdateProject([FromBody] ProjectUpsertRequest projectToBeCreated, int projectId)
     {
-        List<ProjectResponseDto> response = new List<ProjectResponseDto>();
-
-        foreach (var project in projectsToBeCreated)
-        {
-            response.Add(await _projectService.UpdateProject(project));
-        }
-
-        return Ok(response);
+        var updatedProject = await _projectService.UpdateProject(projectToBeCreated.MapToProjectDto(projectId));
+        return Ok(updatedProject.MapToProjectResponse());
     }
 }

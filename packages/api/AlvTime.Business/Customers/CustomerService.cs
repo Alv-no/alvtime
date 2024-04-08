@@ -19,22 +19,27 @@ public class CustomerService
         return customers;
     }
     
-    //TODO: Return error if customer exists
-    public async Task<CustomerDto> CreateCustomer(CustomerDto customer)
+    public async Task<Result<CustomerDto>> CreateCustomer(CustomerDto customer)
     {
         var customerAlreadyExists = (await GetCustomer(customer.Name, customer.Id)).Any();
-        if (!customerAlreadyExists)
+        if (customerAlreadyExists)
         {
-            await _customerStorage.CreateCustomer(customer);
+            return new List<Error> { new(ErrorCodes.EntityAlreadyExists, "En kunde med det navnet finnes allerede") };
         }
-
+        
+        await _customerStorage.CreateCustomer(customer);
         return (await GetCustomer(customer.Name, customer.Id)).Single();
     }
     
-    public async Task<CustomerDto> UpdateCustomer(CustomerDto customer)
+    public async Task<Result<CustomerDto>> UpdateCustomer(CustomerDto customer)
     {
+        var customerAlreadyExists = (await GetCustomer(customer.Name, null)).Any();
+        if (customerAlreadyExists)
+        {
+            return new List<Error> { new(ErrorCodes.EntityAlreadyExists, "En kunde med det navnet finnes allerede") };
+        }
+        
         await _customerStorage.UpdateCustomer(customer);
-
         return (await GetCustomer(customer.Name, customer.Id)).Single();
     }
 
