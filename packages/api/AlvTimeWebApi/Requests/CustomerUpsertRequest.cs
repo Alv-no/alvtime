@@ -1,7 +1,10 @@
-﻿namespace AlvTimeWebApi.Requests;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace AlvTimeWebApi.Requests;
 
 public class CustomerUpsertRequest
 {
+    [Required]
     public string Name { get; set; }
     public string InvoiceAddress { get; set; }
     public string ContactPerson { get; set; }

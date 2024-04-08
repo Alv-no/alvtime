@@ -2,50 +2,49 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AlvTime.Business.Projects
+namespace AlvTime.Business.Projects;
+
+public class ProjectService
 {
-    public class ProjectService
+    private readonly IProjectStorage _projectStorage;
+
+    public ProjectService(IProjectStorage projectStorage)
     {
-        private readonly IProjectStorage _projectStorage;
+        _projectStorage = projectStorage;
+    }
 
-        public ProjectService(IProjectStorage projectStorage)
+    public async Task<Result<ProjectDto>> CreateProject(string projectName, int customerId)
+    {
+        var projectAlreadyExists = (await GetProject(projectName, customerId)).Any();
+        if (projectAlreadyExists)
         {
-            _projectStorage = projectStorage;
+            return new List<Error> { new(ErrorCodes.EntityAlreadyExists, "Et prosjekt med det navnet finnes allerede på den kunden.") };
         }
+        
+        await _projectStorage.CreateProject(projectName, customerId);
+        return (await GetProject(projectName, customerId)).SingleOrDefault();
+    }
 
-        public async Task<ProjectResponseDto> CreateProject(CreateProjectDto project)
+    public async Task<ProjectDto> UpdateProject(ProjectDto projectToUpdate)
+    {
+        await _projectStorage.UpdateProject(projectToUpdate);
+        return (await GetProjectById(projectToUpdate.Id)).SingleOrDefault();
+    }
+
+    private async Task<IEnumerable<ProjectDto>> GetProject(string projectName, int customerId)
+    {
+        return (await _projectStorage.GetProjects(new ProjectQuerySearch
         {
-            var projectAlreadyExists = (await GetProject(project)).Any();
-            if (!projectAlreadyExists)
-            {
-                await _projectStorage.CreateProject(project);
-            }
+            Customer = customerId,
+            Name = projectName
+        })).ToList();
+    }
 
-            return (await GetProject(project)).SingleOrDefault();
-        }
-
-        public async Task<ProjectResponseDto> UpdateProject(CreateProjectDto project)
+    private async Task<IEnumerable<ProjectDto>> GetProjectById(int id)
+    {
+        return (await _projectStorage.GetProjects(new ProjectQuerySearch
         {
-            await _projectStorage.UpdateProject(project);
-
-            return (await GetProjectById(project)).SingleOrDefault();
-        }
-
-        private async Task<IEnumerable<ProjectResponseDto>> GetProject(CreateProjectDto project)
-        {
-            return (await _projectStorage.GetProjects(new ProjectQuerySearch
-            {
-                Customer = project.Customer,
-                Name = project.Name
-            })).ToList();
-        }
-
-        private async Task<IEnumerable<ProjectResponseDto>> GetProjectById(CreateProjectDto project)
-        {
-            return (await _projectStorage.GetProjects(new ProjectQuerySearch
-            {
-                Id = project.Id
-            })).ToList();
-        }
+            Id = id
+        })).ToList();
     }
 }

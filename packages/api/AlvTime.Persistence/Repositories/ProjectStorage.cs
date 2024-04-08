@@ -7,66 +7,52 @@ using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Task = System.Threading.Tasks.Task;
 
-namespace AlvTime.Persistence.Repositories
+namespace AlvTime.Persistence.Repositories;
+
+public class ProjectStorage : IProjectStorage
 {
-    public class ProjectStorage : IProjectStorage
+    private readonly AlvTime_dbContext _context;
+
+    public ProjectStorage(AlvTime_dbContext context)
     {
-        private readonly AlvTime_dbContext _context;
+        _context = context;
+    }
 
-        public ProjectStorage(AlvTime_dbContext context)
-        {
-            _context = context;
-        }
-
-        public async Task<IEnumerable<ProjectResponseDto>> GetProjects(ProjectQuerySearch criterias)
-        {
-            var projects = await _context.Project.AsQueryable()
-                .Filter(criterias)
-                .Select(x => new ProjectResponseDto
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Customer = new CustomerDto
-                    {
-                        Id = x.CustomerNavigation.Id,
-                        Name = x.CustomerNavigation.Name,
-                        ContactEmail = x.CustomerNavigation.ContactEmail,
-                        ContactPerson = x.CustomerNavigation.ContactPerson,
-                        ContactPhone = x.CustomerNavigation.ContactPhone,
-                        InvoiceAddress = x.CustomerNavigation.InvoiceAddress
-                    }
-                }).ToListAsync();
-
-            return projects;
-        }
-
-        public async Task CreateProject(CreateProjectDto newProject)
-        {
-            var project = new Project
+    public async Task<IEnumerable<ProjectDto>> GetProjects(ProjectQuerySearch criteria)
+    {
+        var projects = await _context.Project.AsQueryable()
+            .Filter(criteria)
+            .Select(x => new ProjectDto
             {
-                Customer = (int)newProject.Customer,
-                Name = newProject.Name
-            };
+                Id = x.Id,
+                Name = x.Name,
+            }).ToListAsync();
 
-            _context.Project.Add(project);
-            await _context.SaveChangesAsync();
-        }
+        return projects;
+    }
 
-        public async Task UpdateProject(CreateProjectDto request)
+    public async Task CreateProject(string projectName, int customerId)
+    {
+        var project = new Project
         {
-            var existingProject = await _context.Project
-                .FirstOrDefaultAsync(x => x.Id == request.Id);
+            Customer = customerId,
+            Name = projectName
+        };
 
-            if (request.Customer != null)
-            {
-                existingProject.Customer = (int)request.Customer;
-            }
-            if (request.Name != null)
-            {
-                existingProject.Name = request.Name;
-            }
+        _context.Project.Add(project);
+        await _context.SaveChangesAsync();
+    }
 
-            await _context.SaveChangesAsync();
+    public async Task UpdateProject(ProjectDto request)
+    {
+        var existingProject = await _context.Project
+            .FirstOrDefaultAsync(x => x.Id == request.Id);
+
+        if (request.Name != null)
+        {
+            existingProject.Name = request.Name;
         }
+
+        await _context.SaveChangesAsync();
     }
 }

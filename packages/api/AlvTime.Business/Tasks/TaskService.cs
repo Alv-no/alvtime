@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.Users;
@@ -23,16 +24,12 @@ namespace AlvTime.Business.Tasks
 
             return tasks;
         }
-        
-        public async Task<IEnumerable<TaskResponseDto>> GetAllTasks(TaskQuerySearch criteria)
-        {
-            return await _taskStorage.GetTasks(criteria);
-        }
 
-        public async Task<IEnumerable<TaskResponseDto>> UpdateFavoriteTasks(IEnumerable<(int id, bool favorite)> tasksToUpdate)
+        public async Task<IEnumerable<TaskResponseDto>> UpdateFavoriteTasks(
+            IEnumerable<(int id, bool favorite)> tasksToUpdate)
         {
             var currentUser = await _userContext.GetCurrentUser();
-            
+
             List<TaskResponseDto> response = new List<TaskResponseDto>();
             foreach (var task in tasksToUpdate)
             {
@@ -41,7 +38,7 @@ namespace AlvTime.Business.Tasks
 
             return response;
         }
-        
+
         private async Task<TaskResponseDto> UpdateFavoriteTask(int taskId, bool isTaskFavorited, int userId)
         {
             var userHasFavorite = await _taskStorage.IsFavorite(taskId, userId);
@@ -57,49 +54,73 @@ namespace AlvTime.Business.Tasks
 
             return await GetTaskForUser(taskId, userId);
         }
-        
-        public async Task<IEnumerable<TaskResponseDto>> CreateTasks(IEnumerable<CreateTaskDto> tasksToBeCreated)
+
+        public async Task<TaskDto> CreateTask(TaskDto taskToBeCreated, int projectId)
         {
-            var response = new List<TaskResponseDto>();
-            
-            foreach (var task in tasksToBeCreated)
             {
-                var taskAlreadyExists = (await GetTask(task)).Any();
-                if (!taskAlreadyExists)
+                var taskAlreadyExists = (await GetTask(taskToBeCreated.Name, projectId)).Any();
+                if (taskAlreadyExists)
                 {
-                    await _taskStorage.CreateTask(task);
+                    throw new ValidationException("En timekode med det navnet finnes allerede på prosjektet");
                 }
-                response.Add((await GetTask(task)).Single());
             }
 
-            return response;
+            await _taskStorage.CreateTask(taskToBeCreated, projectId);
+            return (await GetTask(taskToBeCreated.Name, projectId)).First();
         }
 
-        public async Task<IEnumerable<TaskResponseDto>> UpdateTasks(IEnumerable<UpdateTaskDto> tasksToBeUpdated)
+        public async Task<TaskDto> UpdateTask(TaskDto taskToBeUpdated)
         {
-            var response = new List<TaskResponseDto>();
-            foreach (var task in tasksToBeUpdated)
-            {
-                await _taskStorage.UpdateTask(task);
-                var responseDto = (await _taskStorage.GetTasks(new TaskQuerySearch
-                {
-                    Id = task.Id
-                })).Single();
-                response.Add(responseDto);
-            }
+            await _taskStorage.UpdateTask(taskToBeUpdated);
+            var task = await GetTaskById(taskToBeUpdated.Id);
 
-            return response;
-        }
-
-        private async Task<IEnumerable<TaskResponseDto>> GetTask(CreateTaskDto task)
-        {
-            return await _taskStorage.GetTasks(new TaskQuerySearch
+            return new TaskDto
             {
+                Id = task.Id,
                 Name = task.Name,
-                Project = task.Project
+                Description = task.Description,
+                Locked = task.Locked,
+                CompensationRate = task.CompensationRate,
+                Imposed = task.Imposed
+            };
+        }
+
+        private async Task<IEnumerable<TaskDto>> GetTask(string taskName, int projectId)
+        {
+            var task = await _taskStorage.GetTasks(new TaskQuerySearch
+            {
+                Name = taskName,
+                Project = projectId
+            });
+
+            return task.Select(t => new TaskDto
+            {
+                Name = t.Name,
+                Description = t.Description,
+                Locked = t.Locked,
+                CompensationRate = t.CompensationRate,
+                Imposed = t.Imposed
             });
         }
-        
+
+        private async Task<TaskDto> GetTaskById(int taskId)
+        {
+            var task = (await _taskStorage.GetTasks(new TaskQuerySearch
+            {
+                Id = taskId
+            })).First();
+
+            return new TaskDto
+            {
+                Id = task.Id,
+                Name = task.Name,
+                Description = task.Description,
+                Locked = task.Locked,
+                CompensationRate = task.CompensationRate,
+                Imposed = task.Imposed
+            };
+        }
+
         private async Task<TaskResponseDto> GetTaskForUser(int taskId, int userId)
         {
             var taskResponseDto = await _taskStorage.GetUsersTasks(new TaskQuerySearch

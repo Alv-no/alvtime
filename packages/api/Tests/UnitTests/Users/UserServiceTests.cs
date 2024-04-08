@@ -49,8 +49,9 @@ public class UserServiceTests
         var userService = CreateUserService();
         await userService.CreateUser(new UserDto
             { Email = "user 1", Name = "user 1", EmployeeId = 1, StartDate = new DateTime(1900, 01, 01) });
-        var user2 = (await userService.CreateUser(new UserDto
-            { Email = "user 2", Name = "user 2", EmployeeId = 2, StartDate = new DateTime(1900, 01, 01) }));
+        var result = await userService.CreateUser(new UserDto
+            { Email = "user 2", Name = "user 2", EmployeeId = 2, StartDate = new DateTime(1900, 01, 01) });
+        var user2 = result.Match(user => user, _ => throw new Exception());
         await Assert.ThrowsAsync<DuplicateNameException>(async () => await
             userService.UpdateUser(new UserDto { Id = user2.Id, EmployeeId = 1 }));
     }
@@ -64,11 +65,12 @@ public class UserServiceTests
             {
                 Email = "user 1", Name = "user 1", EmployeeId = 1, StartDate = new DateTime(1900, 01, 01)
             });
-        var user = (await userService.CreateUser(
+        var result = (await userService.CreateUser(
             new UserDto
             {
                 Email = "user 2", Name = "user 2", EmployeeId = 2, StartDate = new DateTime(1900, 01, 01)
             }));
+        var user = result.Match(user => user, _ => throw new Exception());
         await Assert.ThrowsAsync<DuplicateNameException>(async () => await
             userService.UpdateUser(new UserDto { Id = user.Id, Email = "user 1" }));
     }
@@ -129,7 +131,7 @@ public class UserServiceTests
     {
         var userService = new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context));
 
-        var employmentRate = await userService.CreateEmploymentRateForUser(
+        var result = await userService.CreateEmploymentRateForUser(
             new EmploymentRateDto
             {
                 FromDateInclusive = new DateTime(2022, 03, 03),
@@ -137,6 +139,7 @@ public class UserServiceTests
                 UserId = 1,
                 Rate = 0.2M
             });
+        var employmentRate = result.Match(rate => rate, _ => throw new Exception());
 
         _context.Hours.Add(new Hours
         {
@@ -167,7 +170,7 @@ public class UserServiceTests
     {
         var userService = new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context));
 
-        var employmentRate = await userService.CreateEmploymentRateForUser(
+        var result = await userService.CreateEmploymentRateForUser(
             new EmploymentRateDto
             {
                 FromDateInclusive = new DateTime(2022, 03, 03),
@@ -175,6 +178,7 @@ public class UserServiceTests
                 UserId = 1,
                 Rate = 0.2M
             });
+        var employmentRate = result.Match(rate => rate, _ => throw new Exception());
 
         _context.Hours.Add(new Hours
         {
@@ -205,7 +209,7 @@ public class UserServiceTests
     {
         var userService = new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context));
 
-        var employmentRate = await userService.CreateEmploymentRateForUser(
+        var result = await userService.CreateEmploymentRateForUser(
             new EmploymentRateDto
             {
                 FromDateInclusive = new DateTime(2022, 03, 03),
@@ -213,6 +217,7 @@ public class UserServiceTests
                 UserId = 1,
                 Rate = 0.2M
             });
+        var employmentRate = result.Match(rate => rate, _ => throw new Exception());
 
         await userService.UpdateEmploymentRateForUser(
             new EmploymentRateDto

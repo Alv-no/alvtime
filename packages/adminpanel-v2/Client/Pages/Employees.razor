@@ -3,6 +3,7 @@
 @using Alvtime.Adminpanel.Client.Utils
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using Alvtime.Adminpanel.Client.Mappers
+@using Alvtime.Adminpanel.Client.ErrorHandling
 
 <PageTitle>Ansatte</PageTitle>
 
@@ -144,6 +145,8 @@
 
 @code {
     [Inject] private HttpClient HttpClient { get; set; }
+    [Inject] private IDialogService DialogService { get; set; }
+    [Inject] public HttpInterceptorService Interceptor { get; set; }
 
     private string _searchString = "";
     private EmployeeModel? _selectedEmployee;
@@ -155,6 +158,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Interceptor.RegisterEvent();
+        
         try
         {
             AllEmployees = await HttpClient.GetFromJsonAsync<HashSet<EmployeeModel>>(ApiRoutes.EmployeeBase);
@@ -260,6 +265,18 @@
         }
         else
         {
+            if (_selectedEmploymentRate!.RatePercentage != _employmentRateBeforeEdit!.RatePercentage)
+            {
+                var result = await DialogService.ShowMessageBox(
+                    "OBS", 
+                    "Du endrer nå på en stillingsprosent som kan ha påvirkning på eksisterende timer. Vil du fortsette?", 
+                    yesText:"Ja", cancelText:"Avbryt");
+                if (result == null || !result.Value)
+                {
+                    ResetEmploymentRateToOriginalValues(_selectedEmployee);
+                    return;
+                }
+            }
             await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateEmploymentRateForUser(userId, _selectedEmploymentRate!.Id), _selectedEmploymentRate.MapToEmploymentRateUpsertRequest());
         }
 
@@ -281,6 +298,7 @@
         ((EmployeeEmploymentRateModel)employmentRate).RatePercentage = _employmentRateBeforeEdit!.RatePercentage;
         ((EmployeeEmploymentRateModel)employmentRate).FromDateInclusive = _employmentRateBeforeEdit.FromDateInclusive;
         ((EmployeeEmploymentRateModel)employmentRate).ToDateInclusive = _employmentRateBeforeEdit.ToDateInclusive;
+        StateHasChanged();
     }
 
     private void UndoNewEmploymentRate()
@@ -290,4 +308,5 @@
         StateHasChanged();
     }
 
+    public void Dispose() => Interceptor.DisposeEvent();
 }

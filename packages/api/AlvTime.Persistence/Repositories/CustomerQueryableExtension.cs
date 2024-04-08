@@ -1,4 +1,5 @@
-﻿using AlvTime.Business.Customers;
+﻿using System;
+using AlvTime.Business.Customers;
 using System.Linq;
 using AlvTime.Persistence.DatabaseModels;
 
@@ -10,7 +11,7 @@ namespace AlvTime.Persistence.Repositories
         {
             if (criterias.Name != null)
             {
-                query = query.Where(customer => customer.Name == criterias.Name);
+                query = query.Where(customer => customer.Name.Equals(criterias.Name, StringComparison.InvariantCultureIgnoreCase));
             }
             if (criterias.Id != null)
             {

@@ -1,50 +1,51 @@
 ﻿@using Alvtime.Adminpanel.Client.Models
 @using Alvtime.Adminpanel.Client.Utils
+@using Alvtime.Adminpanel.Client.Mappers
 
 <MudCard>
     <MudCardHeader>
         <CardHeaderContent>
-            <MudText Typo="Typo.body1">Timerater for <strong>@TaskContext.Name</strong></MudText>
+            <div style="margin-bottom: 10px">
+                <MudText Typo="Typo.body1">Timerater for <strong>@TaskContext.Name</strong></MudText>
+            </div>
+            <div>
+                <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => AddEmptyHourRate())">Ny timerate</MudButton>
+            </div>
         </CardHeaderContent>
     </MudCardHeader>
     <MudCardContent Class="pl-6">
-        <div style="margin-bottom: 10px;">
-            <MudTable Items="@TaskContext.HourRates"
-                      Context="HourRateContext"
-                      Breakpoint="Breakpoint.Sm"
-                      Elevation="2"
-                      @bind-SelectedItem="_selectedHourRate"
-                      CanCancelEdit="true"
-                      CommitEditTooltip="Lagre endring"
-                      OnCommitEditClick="@(() => HourRateChangeCommitted())"
-                      RowEditPreview="BackupHourRate"
-                      RowEditCancel="ResetHourRateToOriginalValues"
-                      CancelEditTooltip="Avbryt"
-                      IsEditRowSwitchingBlocked="false"
-                      ApplyButtonPosition="TableApplyButtonPosition.End"
-                      EditButtonPosition="TableEditButtonPosition.End"
-                      EditTrigger="TableEditTrigger.RowClick">
-                <HeaderContent>
-                    <MudTh>Fra dato (inkl.)</MudTh>
-                    <MudTh>Rate</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="FromDate">@HourRateContext.FromDate?.ToString("dd/MM/yyyy")</MudTd>
-                    <MudTd DataLabel="Rate">@HourRateContext.Rate</MudTd>
-                </RowTemplate>
-                <RowEditingTemplate>
-                    <MudTd DataLabel="FromDate">
-                        <MudDatePicker @bind-Date="@HourRateContext.FromDate" Required/>
-                    </MudTd>
-                    <MudTd DataLabel="Rate">
-                        <MudNumericField @bind-Value="@HourRateContext.Rate"/>
-                    </MudTd>
-                </RowEditingTemplate>
-            </MudTable>
-        </div>
-        <div>
-            @* <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => AddEmptyEmploymentRate(context.Id))">Ny stillingsprosent</MudButton> *@
-        </div>
+        <MudTable Items="@TaskContext.HourRates"
+                  Context="HourRateContext"
+                  Breakpoint="Breakpoint.Sm"
+                  Elevation="2"
+                  @bind-SelectedItem="_selectedHourRate"
+                  CanCancelEdit="true"
+                  CommitEditTooltip="Lagre endring"
+                  OnCommitEditClick="@(() => HourRateChangeCommitted())"
+                  RowEditPreview="BackupHourRate"
+                  RowEditCancel="ResetHourRateToOriginalValues"
+                  CancelEditTooltip="Avbryt"
+                  IsEditRowSwitchingBlocked="false"
+                  ApplyButtonPosition="TableApplyButtonPosition.End"
+                  EditButtonPosition="TableEditButtonPosition.End"
+                  EditTrigger="TableEditTrigger.RowClick">
+            <HeaderContent>
+                <MudTh>Fra dato (inkl.)</MudTh>
+                <MudTh>Rate</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="FromDate">@HourRateContext.FromDate?.ToString("dd/MM/yyyy")</MudTd>
+                <MudTd DataLabel="Rate">@HourRateContext.Rate</MudTd>
+            </RowTemplate>
+            <RowEditingTemplate>
+                <MudTd DataLabel="FromDate">
+                    <MudDatePicker @bind-Date="@HourRateContext.FromDate" Required/>
+                </MudTd>
+                <MudTd DataLabel="Rate">
+                    <MudNumericField @bind-Value="@HourRateContext.Rate"/>
+                </MudTd>
+            </RowEditingTemplate>
+        </MudTable>
     </MudCardContent>
 </MudCard>
 
@@ -60,11 +61,11 @@
     {
         if (_selectedHourRate is { Id: 0 })
         {
-            await HttpClient.PostAsJsonAsync<HourRateModel[]>(ApiRoutes.CustomersBase, [_selectedHourRate]);
+            await HttpClient.PostAsJsonAsync(ApiRoutes.CreateHourRate(TaskContext.Id), _selectedHourRate.MapToHourRateUpsertRequest());
         }
         else
         {
-            await HttpClient.PutAsJsonAsync<HourRateModel[]>(ApiRoutes.CustomersBase, [_selectedHourRate]);
+            await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateHourRate(_selectedHourRate!.Id), _selectedHourRate.MapToHourRateUpsertRequest());
         }
 
         StateHasChanged();
@@ -94,11 +95,16 @@
         ((HourRateModel)hourRate).FromDate = _hourRateBeforeEdit!.FromDate;
         ((HourRateModel)hourRate).Rate = _hourRateBeforeEdit!.Rate;
     }
+    
+    private void AddEmptyHourRate()
+    {
+        TaskContext.HourRates!.Add(new HourRateModel());
+        StateHasChanged();
+    }
 
     private void UndoNewHourRate()
     {
         AllHourRates!.Remove(_selectedHourRate!);
         StateHasChanged();
     }
-
 }

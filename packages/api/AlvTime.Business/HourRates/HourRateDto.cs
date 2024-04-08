@@ -2,9 +2,9 @@
 
 namespace AlvTime.Business.HourRates;
 
-public class CreateHourRateDto
+public class HourRateDto
 {
+    public int Id { get; set; }
     public DateTime FromDate { get; set; }
     public decimal Rate { get; set; }
-    public int TaskId { get; set; }
 }

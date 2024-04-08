@@ -136,6 +136,7 @@
     private void AddEmptyCustomer()
     {
         AllCustomers!.Add(new CustomerModel());
+        StateHasChanged();
     }
 
     private async Task CustomerChangeCommitted()
@@ -146,7 +147,7 @@
         }
         else
         {
-            await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateCustomer(_selectedCustomer.Id), _selectedCustomer!.MapToCustomerUpsertRequest());
+            await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateCustomer(_selectedCustomer!.Id), _selectedCustomer!.MapToCustomerUpsertRequest());
         }
 
         StateHasChanged();

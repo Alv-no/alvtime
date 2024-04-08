@@ -24,7 +24,7 @@ public class ProjectModel
 public class TaskModel
 {
     public int Id { get; set; }
-    public string? Name { get; set; }
+    public string Name { get; set; }
     public string? Description { get; set; }
     public bool Locked { get; set; }
     public bool Imposed { get; set; }
