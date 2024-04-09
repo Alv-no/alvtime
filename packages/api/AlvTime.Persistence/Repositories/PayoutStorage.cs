@@ -47,7 +47,7 @@ public class PayoutStorage : IPayoutStorage
     private bool IsPayoutActive(PaidOvertime po)
     {
         var cutOffDate = FindClosestPreviousCutoffDate();
-        return po.Date > cutOffDate;
+        return po.Date >= cutOffDate;
     }
 
     private DateTime FindClosestPreviousCutoffDate()

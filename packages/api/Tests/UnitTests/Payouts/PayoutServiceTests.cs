@@ -283,9 +283,9 @@ public class PayoutServiceTests
                 out _); //Monday
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
-         
+
         var testProvider = new TestDateAlvTimeProvider();
-        _dateAlvTime._provider = testProvider;
+        _dateAlvTime.Provider = testProvider;
         testProvider.OverridedValue = new DateTime(currentYear, currentMonth, 07);
 
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService, _dateAlvTime);
@@ -384,6 +384,7 @@ public class PayoutServiceTests
             {
                 completeTimeEntry.Value = 5;
             }
+
             await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 { new() { Date = completeTimeEntry.Date, Value = completeTimeEntry.Value, TaskId = completeTimeEntry.TaskId } });
         }
@@ -394,13 +395,13 @@ public class PayoutServiceTests
         var registeredPayouts = await payoutService.GetRegisteredPayouts();
         Assert.Single(registeredPayouts.Entries);
     }
-    
+
     [Fact]
     public async System.Threading.Tasks.Task RegisterPayout_UserStartedLessThan30DaysAgoAndHasIncompleteDaysBeforeThat_PayoutRegistered()
     {
         _context.User.First(u => u.Id == 1).StartDate = DateTime.Now.AddDays(-10);
         await _context.SaveChangesAsync();
-        
+
         for (var i = 0; i < 10; i++)
         {
             var date = DateTime.Now.AddDays(-i);
@@ -419,19 +420,71 @@ public class PayoutServiceTests
         Assert.Equal(1, payout.HoursBeforeCompensation);
     }
 
+    [Fact]
+    public async System.Threading.Tasks.Task RegisterPayout_PayoutMadeOnThe9ThAndCurrentDateIsThe9Th_PayoutIsActive()
+    {
+        var mockProvider = new Mock<IDateAlvTimeProvider>();
+        var specificDate = new DateTime(2024, 4, 9);
+        mockProvider.Setup(p => p.Now).Returns(specificDate);
+
+        var dateAlvTime = new DateAlvTime { Provider = mockProvider.Object };
+
+        var timeEntry =
+            CreateTimeEntryWithCompensationRate(dateAlvTime.Now, 12M, 1.5M, out _);
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId } });
+
+        var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService, dateAlvTime);
+        await payoutService.RegisterPayout(new GenericPayoutHourEntry
+        {
+            Date = dateAlvTime.Now,
+            Hours = 1M
+        });
+
+        var payout = (await payoutService.GetRegisteredPayouts()).Entries.First();
+
+        Assert.True(payout.Active);
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task RegisterPayout_PayoutMadeOnThe8ThAndCurrentDateIsThe9Th_PayoutIsInactive()
+    {
+        var mockProvider = new Mock<IDateAlvTimeProvider>();
+        var specificDate = new DateTime(2024, 4, 9);
+        mockProvider.Setup(p => p.Now).Returns(specificDate);
+
+        var dateAlvTime = new DateAlvTime { Provider = mockProvider.Object };
+
+        var timeEntry =
+            CreateTimeEntryWithCompensationRate(new DateTime(2024, 4, 8), 12M, 1.5M, out _);
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId } });
+
+        var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService, dateAlvTime);
+        await payoutService.RegisterPayout(new GenericPayoutHourEntry
+        {
+            Date = new DateTime(2024, 4, 8),
+            Hours = 1M
+        });
+
+        var payout = (await payoutService.GetRegisteredPayouts()).Entries.First();
+
+        Assert.False(payout.Active);
+    }
+
     private TimeRegistrationService CreateTimeRegistrationService(DateAlvTime dateAlvTime)
     {
         return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
             new TimeRegistrationStorage(_context), new DbContextScope(_context), new PayoutStorage(_context, dateAlvTime), new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
     }
 
-    private PayoutService CreatePayoutServiceWithoutIncompleteDaysValidation(TimeRegistrationService timeRegistrationService, DateAlvTime dateAlvTime=null)
+    private PayoutService CreatePayoutServiceWithoutIncompleteDaysValidation(TimeRegistrationService timeRegistrationService, DateAlvTime dateAlvTime = null)
     {
-        return new PayoutService(new PayoutStorage(_context, dateAlvTime?? new DateAlvTime()), _userContextMock.Object,
+        return new PayoutService(new PayoutStorage(_context, dateAlvTime ?? new DateAlvTime()), _userContextMock.Object,
             timeRegistrationService, _payoutValidationServiceMock.Object);
     }
 
-    private PayoutService CreatePayoutServiceWithIncompleteDaysValidation(TimeRegistrationService timeRegistrationService)
+    private PayoutService CreatePayoutServiceWithIncompleteDaysValidation(TimeRegistrationService timeRegistrationService, DateAlvTime dateAlvTime = null)
     {
         return new PayoutService(new PayoutStorage(_context, new DateAlvTime()), _userContextMock.Object,
             timeRegistrationService, new PayoutValidationService(new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)), timeRegistrationService, new PayoutStorage(_context, new DateAlvTime())));
@@ -449,7 +502,7 @@ public class PayoutServiceTests
         var task = new Task { Id = taskId, Project = 1, };
         _context.Task.Add(task);
         _context.CompensationRate.Add(new CompensationRate
-        { TaskId = taskId, Value = compensationRate, FromDate = new DateTime(2021, 01, 01) });
+            { TaskId = taskId, Value = compensationRate, FromDate = new DateTime(2021, 01, 01) });
         _context.SaveChanges();
 
         return new Hours
