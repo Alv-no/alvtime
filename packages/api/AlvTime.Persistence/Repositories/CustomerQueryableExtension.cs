@@ -11,7 +11,7 @@ namespace AlvTime.Persistence.Repositories
         {
             if (criterias.Name != null)
             {
-                query = query.Where(customer => customer.Name.Equals(criterias.Name, StringComparison.InvariantCultureIgnoreCase));
+                query = query.Where(customer => customer.Name.ToLower().Equals(criterias.Name.ToLower()));
             }
             if (criterias.Id != null)
             {

@@ -39,19 +39,22 @@ public class UserRepository : IUserRepository
 
     public async Task<IEnumerable<UserDto>> GetUsers(UserQuerySearch criteria)
     {
-        return await _context.User.AsQueryable()
+        var u = _context.User.Where(u => u.Email == criteria.Email).ToList();
+        var x = await _context.User.AsQueryable()
             .Filter(criteria)
-            .Select(u => new UserDto
-            {
-                Email = u.Email,
-                Id = u.Id,
-                Name = u.Name,
-                StartDate = u.StartDate,
-                EndDate = u.EndDate,
-                EmployeeId = u.EmployeeId
-            }).ToListAsync();
+            .ToListAsync();
+        var e = x.Select(u => new UserDto
+        {
+            Email = u.Email,
+            Id = u.Id,
+            Name = u.Name,
+            StartDate = u.StartDate,
+            EndDate = u.EndDate,
+            EmployeeId = u.EmployeeId
+        }).ToList();
+        return e;
     }
-    
+
     public async Task<IEnumerable<UserDto>> GetUsersWithEmploymentRates(UserQuerySearch criteria)
     {
         return await _context.User.AsQueryable()
@@ -82,18 +85,22 @@ public class UserRepository : IUserRepository
         {
             existingUser.Name = userToBeUpdated.Name;
         }
+
         if (userToBeUpdated.Email != null)
         {
             existingUser.Email = userToBeUpdated.Email;
         }
+
         if (userToBeUpdated.StartDate != null)
         {
             existingUser.StartDate = (DateTime)userToBeUpdated.StartDate;
         }
+
         if (userToBeUpdated.EndDate != null)
         {
             existingUser.EndDate = (DateTime)userToBeUpdated.EndDate;
         }
+
         if (userToBeUpdated.EmployeeId != null)
         {
             existingUser.EmployeeId = (int)userToBeUpdated.EmployeeId;

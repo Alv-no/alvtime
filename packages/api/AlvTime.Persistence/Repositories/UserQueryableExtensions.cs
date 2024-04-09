@@ -11,7 +11,7 @@ namespace AlvTime.Persistence.Repositories
         {
             if (criterias.Email != null)
             {
-                query = query.Where(user => user.Email.Equals(criterias.Email, StringComparison.InvariantCultureIgnoreCase));
+                query = query.Where(user => user.Email.ToLower().Equals(criterias.Email.ToLower()));
             }
             if (criterias.Id != null)
             {
@@ -19,7 +19,7 @@ namespace AlvTime.Persistence.Repositories
             }
             if (criterias.Name != null)
             {
-                query = query.Where(user => user.Name.Equals(criterias.Name, StringComparison.InvariantCultureIgnoreCase));
+                query = query.Where(user => user.Name.ToLower().Equals(criterias.Name.ToLower()));
             }
             if (criterias.StartDate != null)
             {
