@@ -213,7 +213,14 @@
     {
         if (_selectedEmployee is { Id: 0 })
         {
-            await HttpClient.PostAsJsonAsync(ApiRoutes.EmployeeBase, _selectedEmployee.MapToEmployeeUpsertRequest());
+            try
+            {
+                await HttpClient.PostAsJsonAsync(ApiRoutes.EmployeeBase, _selectedEmployee.MapToEmployeeUpsertRequest());
+            }
+            catch (HttpResponseException e)
+            {
+                UndoNewEmployee();
+            }
         }
         else
         {
@@ -232,8 +239,7 @@
 
         if (_selectedEmployee.Id == 0)
         {
-            AllEmployees!.Remove(_selectedEmployee);
-            StateHasChanged();
+            UndoNewEmployee();
         }
 
         ((EmployeeModel)employee).Name = _employeeBeforeEdit!.Name;
@@ -241,6 +247,12 @@
         ((EmployeeModel)employee).StartDate = _employeeBeforeEdit.StartDate;
         ((EmployeeModel)employee).EndDate = _employeeBeforeEdit.EndDate;
         ((EmployeeModel)employee).EmployeeId = _employeeBeforeEdit.EmployeeId;
+    }
+
+    private void UndoNewEmployee()
+    {
+        AllEmployees!.Remove(_selectedEmployee!);
+        StateHasChanged();
     }
 
     private void BackupEmploymentRate(object employmentRate)
@@ -317,4 +329,5 @@
         employee.EmploymentRates!.Remove(_selectedEmploymentRate!);
         StateHasChanged();
     }
+
 }
