@@ -51,26 +51,22 @@ public class UserController : ControllerBase
             user => Ok(user.MapToUserResponse()),
             errors => BadRequest(errors.ToValidationProblemDetails("Oppdatering av bruker feilet")));
     }
-    
-    [Obsolete("Will be deleted")]
-    [HttpGet("users/{userId:int}/employmentrates")]
-    public async Task<ActionResult<IEnumerable<EmploymentRateResponse>>> FetchEmploymentRatesForUser(int userId)
-    {
-        var rates = (await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = userId })).Select(er => er.MapToEmploymentRateResponse()).ToList();
-        return Ok(rates.OrderByDescending(rate => rate.FromDateInclusive));
-    }
 
     [HttpPost("users/{userId:int}/employmentrates")]
     public async Task<ActionResult<EmploymentRateResponse>> CreateEmploymentRateForUser(EmploymentRateUpsertRequest request, int userId)
     {
         var createdRate = await _userService.CreateEmploymentRateForUser(request.MapToEmploymentRateDto(userId, null));
-        return Ok(createdRate.MapToEmploymentRateResponse());
+        return createdRate.Match<ActionResult>(
+            rate => Ok(rate.MapToEmploymentRateResponse()),
+            errors => BadRequest(errors.ToValidationProblemDetails("Opprettelse av ansettelsesrate feilet")));
     }
 
     [HttpPut("users/{userId:int}/employmentrates/{employmentRateId:int}")]
     public async Task<ActionResult<EmploymentRateResponse>> UpdateEmploymentRate(EmploymentRateUpsertRequest request, int userId, int employmentRateId)
     {
         var updatedRate = await _userService.UpdateEmploymentRateForUser(request.MapToEmploymentRateDto(userId, employmentRateId));
-        return Ok(updatedRate.MapToEmploymentRateResponse());
+        return updatedRate.Match<ActionResult>(
+            rate => Ok(rate.MapToEmploymentRateResponse()),
+            errors => BadRequest(errors.ToValidationProblemDetails("Oppdatering av ansettelsesrate feilet")));
     }
 }
