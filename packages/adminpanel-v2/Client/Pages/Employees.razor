@@ -159,7 +159,7 @@
     protected override async Task OnInitializedAsync()
     {
         Interceptor.RegisterEvent();
-        
+
         try
         {
             AllEmployees = await HttpClient.GetFromJsonAsync<HashSet<EmployeeModel>>(ApiRoutes.EmployeeBase);
@@ -268,15 +268,17 @@
             if (_selectedEmploymentRate!.RatePercentage != _employmentRateBeforeEdit!.RatePercentage)
             {
                 var result = await DialogService.ShowMessageBox(
-                    "OBS", 
-                    "Du endrer nå på en stillingsprosent som kan ha påvirkning på eksisterende timer. Vil du fortsette?", 
-                    yesText:"Ja", cancelText:"Avbryt");
+                    "OBS",
+                    "Du endrer nå på en stillingsprosent som kan ha påvirkning på eksisterende timer. Vil du fortsette?",
+                    yesText: "Ja", cancelText: "Avbryt");
                 if (result == null || !result.Value)
                 {
                     ResetEmploymentRateToOriginalValues(_selectedEmployee);
+                    StateHasChanged();
                     return;
                 }
             }
+
             await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateEmploymentRateForUser(userId, _selectedEmploymentRate!.Id), _selectedEmploymentRate.MapToEmploymentRateUpsertRequest());
         }
 
@@ -285,12 +287,17 @@
 
     private void ResetEmploymentRateToOriginalValues(object? employmentRate)
     {
-        if (_selectedEmploymentRate == null || employmentRate == null)
+        if (employmentRate == null)
         {
-            return;
+            if (_selectedEmploymentRate == null)
+            {
+                return;
+            }
+
+            employmentRate = _selectedEmploymentRate;
         }
 
-        if (_selectedEmploymentRate.Id == 0)
+        if (_selectedEmploymentRate!.Id == 0)
         {
             UndoNewEmploymentRate();
         }
@@ -298,7 +305,6 @@
         ((EmployeeEmploymentRateModel)employmentRate).RatePercentage = _employmentRateBeforeEdit!.RatePercentage;
         ((EmployeeEmploymentRateModel)employmentRate).FromDateInclusive = _employmentRateBeforeEdit.FromDateInclusive;
         ((EmployeeEmploymentRateModel)employmentRate).ToDateInclusive = _employmentRateBeforeEdit.ToDateInclusive;
-        StateHasChanged();
     }
 
     private void UndoNewEmploymentRate()
@@ -307,6 +313,4 @@
         employee.EmploymentRates!.Remove(_selectedEmploymentRate!);
         StateHasChanged();
     }
-
-    public void Dispose() => Interceptor.DisposeEvent();
 }

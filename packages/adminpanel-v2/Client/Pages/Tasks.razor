@@ -1,6 +1,7 @@
 ﻿@using Alvtime.Adminpanel.Client.Models
 @using Alvtime.Adminpanel.Client.Utils
 @using Alvtime.Adminpanel.Client.Mappers
+@using System.Globalization
 <MudCard>
     <MudCardHeader>
         <CardHeaderContent>
@@ -44,7 +45,7 @@
                 <MudTd DataLabel="Description">@TaskContext.Description</MudTd>
                 <MudTd DataLabel="Locked">@(TaskContext.Locked ? "Ja" : "Nei")</MudTd>
                 <MudTd DataLabel="Imposed">@(TaskContext.Imposed ? "Ja" : "Nei")</MudTd>
-                <MudTd DataLabel="CompensationRate">@TaskContext.CompensationRate</MudTd>
+                <MudTd DataLabel="CompensationRate">@TaskContext.CompensationRate.ToString("0.0", CultureInfo.InvariantCulture)</MudTd>
                 <MudTd>
                     <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="@(() => ShowTaskDetails(TaskContext.Name))">@(TaskContext.ShowDetails ? "\u25b2" : "\u25bc") Timerater</MudButton>
                 </MudTd>
