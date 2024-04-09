@@ -257,8 +257,12 @@
     {
         if (_selectedEmploymentRate is { Id: 0 })
         {
-            var response = await HttpClient.PostAsJsonAsync(ApiRoutes.CreateEmploymentRateForUser(userId), _selectedEmploymentRate.MapToEmploymentRateUpsertRequest());
-            if (!response.IsSuccessStatusCode)
+            try
+            {
+                var response = await HttpClient.PostAsJsonAsync(ApiRoutes.CreateEmploymentRateForUser(userId), _selectedEmploymentRate.MapToEmploymentRateUpsertRequest());
+                response.EnsureSuccessStatusCode();
+            }
+            catch (HttpResponseException e)
             {
                 UndoNewEmploymentRate();
             }
