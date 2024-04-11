@@ -211,20 +211,20 @@
 
     private async Task EmployeeChangeCommitted()
     {
-        if (_selectedEmployee is { Id: 0 })
+        try
         {
-            try
+            if (_selectedEmployee is { Id: 0 })
             {
                 await HttpClient.PostAsJsonAsync(ApiRoutes.EmployeeBase, _selectedEmployee.MapToEmployeeUpsertRequest());
             }
-            catch (HttpResponseException e)
+            else
             {
-                UndoNewEmployee();
+                await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateEmployee(_selectedEmployee!.Id), _selectedEmployee.MapToEmployeeUpsertRequest());
             }
         }
-        else
+        catch (HttpResponseException)
         {
-            await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateEmployee(_selectedEmployee!.Id), _selectedEmployee.MapToEmployeeUpsertRequest());
+            ResetEmployeeToOriginalValues(_selectedEmployee);
         }
 
         StateHasChanged();
@@ -232,12 +232,17 @@
 
     private void ResetEmployeeToOriginalValues(object? employee)
     {
-        if (_selectedEmployee == null || employee == null)
+        if (employee == null)
         {
-            return;
+            if (_selectedEmployee == null)
+            {
+                return;
+            }
+
+            employee = _selectedEmployee;
         }
 
-        if (_selectedEmployee.Id == 0)
+        if (_selectedEmployee!.Id == 0)
         {
             UndoNewEmployee();
         }
@@ -267,36 +272,36 @@
 
     private async Task EmploymentRateChangeCommitted(int userId)
     {
-        if (_selectedEmploymentRate is { Id: 0 })
+        try
         {
-            try
+            if (_selectedEmploymentRate is { Id: 0 })
             {
-                var response = await HttpClient.PostAsJsonAsync(ApiRoutes.CreateEmploymentRateForUser(userId), _selectedEmploymentRate.MapToEmploymentRateUpsertRequest());
-                response.EnsureSuccessStatusCode();
+                await HttpClient.PostAsJsonAsync(ApiRoutes.CreateEmploymentRateForUser(userId), _selectedEmploymentRate.MapToEmploymentRateUpsertRequest());
             }
-            catch (HttpResponseException e)
+            else
             {
-                UndoNewEmploymentRate();
-            }
-        }
-        else
-        {
-            if (_selectedEmploymentRate!.RatePercentage != _employmentRateBeforeEdit!.RatePercentage)
-            {
-                var result = await DialogService.ShowMessageBox(
-                    "OBS",
-                    "Du endrer nå på en stillingsprosent som kan ha påvirkning på eksisterende timer. Vil du fortsette?",
-                    yesText: "Ja", cancelText: "Avbryt");
-                if (result == null || !result.Value)
+                if (_selectedEmploymentRate!.RatePercentage != _employmentRateBeforeEdit!.RatePercentage)
                 {
-                    ResetEmploymentRateToOriginalValues(_selectedEmployee);
-                    StateHasChanged();
-                    return;
+                    var result = await DialogService.ShowMessageBox(
+                        "OBS",
+                        "Du endrer nå på en stillingsprosent som kan ha påvirkning på eksisterende timer. Vil du fortsette?",
+                        yesText: "Ja", cancelText: "Avbryt");
+                    if (result == null || !result.Value)
+                    {
+                        ResetEmploymentRateToOriginalValues(_selectedEmployee);
+                        StateHasChanged();
+                        return;
+                    }
                 }
-            }
 
-            await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateEmploymentRateForUser(userId, _selectedEmploymentRate!.Id), _selectedEmploymentRate.MapToEmploymentRateUpsertRequest());
+                await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateEmploymentRateForUser(userId, _selectedEmploymentRate!.Id), _selectedEmploymentRate.MapToEmploymentRateUpsertRequest());
+            }
         }
+        catch (HttpResponseException e)
+        {
+            ResetEmploymentRateToOriginalValues(_selectedEmploymentRate);
+        }
+
 
         StateHasChanged();
     }
