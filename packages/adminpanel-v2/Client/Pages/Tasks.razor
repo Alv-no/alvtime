@@ -2,6 +2,7 @@
 @using Alvtime.Adminpanel.Client.Utils
 @using Alvtime.Adminpanel.Client.Mappers
 @using System.Globalization
+@using Alvtime.Adminpanel.Client.ErrorHandling
 <MudCard>
     <MudCardHeader>
         <CardHeaderContent>
@@ -97,14 +98,22 @@
 
     private async Task TaskChangeCommitted()
     {
-        if (_selectedTask is { Id: 0 })
+        try
         {
-            await HttpClient.PostAsJsonAsync(ApiRoutes.CreateTask(ProjectContext.Id), _selectedTask.MapToTaskUpsertRequest());
+            if (_selectedTask is { Id: 0 })
+            {
+                await HttpClient.PostAsJsonAsync(ApiRoutes.CreateTask(ProjectContext.Id), _selectedTask.MapToTaskUpsertRequest());
+            }
+            else
+            {
+                await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateTask(_selectedTask!.Id), _selectedTask.MapToTaskUpsertRequest());
+            }
         }
-        else
+        catch (HttpResponseException)
         {
-            await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateTask(_selectedTask!.Id), _selectedTask.MapToTaskUpsertRequest());
+            ResetTaskToOriginalValues(_selectedTask);
         }
+
 
         StateHasChanged();
     }
@@ -123,12 +132,17 @@
 
     private void ResetTaskToOriginalValues(object? task)
     {
-        if (_selectedTask == null || task == null)
+        if (task == null)
         {
-            return;
+            if (_selectedTask == null)
+            {
+                return;
+            }
+
+            task = _selectedTask;
         }
 
-        if (_selectedTask.Id == 0)
+        if (_selectedTask!.Id == 0)
         {
             UndoNewTask();
         }

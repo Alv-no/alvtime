@@ -1,4 +1,5 @@
 ﻿@page "/kunder"
+@using Alvtime.Adminpanel.Client.ErrorHandling
 @using Alvtime.Adminpanel.Client.Models
 @using Alvtime.Adminpanel.Client.Requests
 @using Alvtime.Adminpanel.Client.Utils
@@ -141,13 +142,20 @@
 
     private async Task CustomerChangeCommitted()
     {
-        if (_selectedCustomer is { Id: 0 })
+        try
         {
-            await HttpClient.PostAsJsonAsync(ApiRoutes.CustomersBase, _selectedCustomer.MapToCustomerUpsertRequest());
+            if (_selectedCustomer is { Id: 0 })
+            {
+                await HttpClient.PostAsJsonAsync(ApiRoutes.CustomersBase, _selectedCustomer.MapToCustomerUpsertRequest());
+            }
+            else
+            {
+                await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateCustomer(_selectedCustomer!.Id), _selectedCustomer!.MapToCustomerUpsertRequest());
+            }
         }
-        else
+        catch (HttpResponseException)
         {
-            await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateCustomer(_selectedCustomer!.Id), _selectedCustomer!.MapToCustomerUpsertRequest());
+            ResetCustomerToOriginalValues(_selectedCustomer);
         }
 
         StateHasChanged();
@@ -168,15 +176,20 @@
 
     private void ResetCustomerToOriginalValues(object? customer)
     {
-        if (_selectedCustomer == null || customer == null)
+        if (customer == null)
         {
+            if (_selectedCustomer == null)
+            {
             return;
+                
+            }
+
+            customer = _selectedCustomer;
         }
 
-        if (_selectedCustomer.Id == 0)
+        if (_selectedCustomer!.Id == 0)
         {
-            AllCustomers!.Remove(_selectedCustomer);
-            StateHasChanged();
+            UndoNewCustomer();
         }
 
         ((CustomerModel)customer).Name = _customerBeforeEdit!.Name;
@@ -185,6 +198,12 @@
         ((CustomerModel)customer).ContactPhone = _customerBeforeEdit.ContactPhone;
         ((CustomerModel)customer).InvoiceAddress = _customerBeforeEdit.InvoiceAddress;
         ((CustomerModel)customer).OrgNr = _customerBeforeEdit.OrgNr;
+    }
+
+    private void UndoNewCustomer()
+    {
+        AllCustomers!.Remove(_selectedCustomer!);
+        StateHasChanged();
     }
 
     private void ShowCustomerDetails(string name)

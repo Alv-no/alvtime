@@ -1,4 +1,5 @@
-﻿@using Alvtime.Adminpanel.Client.Models
+﻿@using Alvtime.Adminpanel.Client.ErrorHandling
+@using Alvtime.Adminpanel.Client.Models
 @using Alvtime.Adminpanel.Client.Utils
 @using Alvtime.Adminpanel.Client.Mappers
 
@@ -59,13 +60,20 @@
 
     private async Task HourRateChangeCommitted()
     {
-        if (_selectedHourRate is { Id: 0 })
+        try
         {
-            await HttpClient.PostAsJsonAsync(ApiRoutes.CreateHourRate(TaskContext.Id), _selectedHourRate.MapToHourRateUpsertRequest());
+            if (_selectedHourRate is { Id: 0 })
+            {
+                await HttpClient.PostAsJsonAsync(ApiRoutes.CreateHourRate(TaskContext.Id), _selectedHourRate.MapToHourRateUpsertRequest());
+            }
+            else
+            {
+                await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateHourRate(_selectedHourRate!.Id), _selectedHourRate.MapToHourRateUpsertRequest());
+            }
         }
-        else
+        catch (HttpResponseException)
         {
-            await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateHourRate(_selectedHourRate!.Id), _selectedHourRate.MapToHourRateUpsertRequest());
+            ResetHourRateToOriginalValues(_selectedHourRate);
         }
 
         StateHasChanged();
@@ -82,12 +90,17 @@
 
     private void ResetHourRateToOriginalValues(object? hourRate)
     {
-        if (_selectedHourRate == null || hourRate == null)
+        if (hourRate == null)
         {
-            return;
+            if (_selectedHourRate == null)
+            {
+                return;
+            }
+
+            hourRate = _selectedHourRate;
         }
 
-        if (_selectedHourRate.Id == 0)
+        if (_selectedHourRate!.Id == 0)
         {
             UndoNewHourRate();
         }
@@ -95,7 +108,7 @@
         ((HourRateModel)hourRate).FromDate = _hourRateBeforeEdit!.FromDate;
         ((HourRateModel)hourRate).Rate = _hourRateBeforeEdit!.Rate;
     }
-    
+
     private void AddEmptyHourRate()
     {
         TaskContext.HourRates!.Add(new HourRateModel());
@@ -107,4 +120,5 @@
         AllHourRates!.Remove(_selectedHourRate!);
         StateHasChanged();
     }
+
 }
