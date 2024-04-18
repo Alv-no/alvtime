@@ -19,10 +19,12 @@ services:
   
   adminpanel-v2:
     build:
-      context: ./packages/adminpanel-v2
+      context: ./packages/adminpanel-v2/Client
+    depends_on:
+      - api
     environment:
-      - ASPNETCORE_URLS=http://*:5005
       - ASPNETCORE_ENVIRONMENT=Development
+      - ApiSettings__BaseUrl=http://localhost:8081
     ports:
       - "8080:80"
 
