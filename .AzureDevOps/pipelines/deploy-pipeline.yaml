@@ -33,8 +33,9 @@ stages:
               inlineScript: |
                 # Authenticate Acure container registry
                 echo "servicePrincipalId: "$servicePrincipalId
-                az login 
-                az acr login -n alvkubernetesclustertestacr
+                docker login alvkubernetesclustertestacr.azurecr.io \
+                  --username $(azure-service-principal-password) \
+                  --password $(azure-service-principal-username)
 
                 # Run scripts to build for test environment
                 source scripts/setup.sh test --no-input
