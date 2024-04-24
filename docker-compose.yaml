@@ -1,32 +1,15 @@
 version: "3.7"
 
 services:
-  adminpanel:
-    user: vscode
-    tty: true
-    ports:
-      - "3000:3000"
-    depends_on:
-      - api
-    build:
-      context: ./packages/adminpanel
-      target: dev
-    volumes:
-      - ./packages/adminpanel:/src
-      - /src/node_modules
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-  
   adminpanel-v2:
     build:
-      context: ./packages/adminpanel-v2/Client
+      context: ./packages/Alvtime.Adminpanel/Server
     depends_on:
       - api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ApiSettings__BaseUrl=http://localhost:8081
     ports:
-      - "8080:80"
+      - "3000:8080"
 
   frontend:
     user: vscode

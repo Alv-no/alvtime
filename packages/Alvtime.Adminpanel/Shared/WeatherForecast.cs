@@ -1,4 +1,4 @@
-namespace AuthTest.Shared;
+namespace Alvtime.Adminpanel.Shared;
 
 public class WeatherForecast
 {
