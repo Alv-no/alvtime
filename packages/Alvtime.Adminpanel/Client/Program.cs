@@ -22,6 +22,7 @@ builder.Services.AddHttpClient("Alvtime.API", (sp, client) =>
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("Alvtime.API"));
 builder.Services.AddScoped<HttpInterceptorService>();
 
+
 builder.Services.AddMsalAuthentication(options =>
 {
     builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
@@ -29,7 +30,6 @@ builder.Services.AddMsalAuthentication(options =>
 });
 
 builder.Services.AddHttpClientInterceptor();
-
 builder.Services.AddMudServices();
 
 await builder.Build().RunAsync();
