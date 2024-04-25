@@ -5,9 +5,10 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["Alvtime.Adminpanel.Server.csproj", "."]
-RUN dotnet restore "Alvtime.Adminpanel.Server.csproj"
+COPY ["Server/Alvtime.Adminpanel.Server.csproj", "Server/"]
+RUN dotnet restore "Server/Alvtime.Adminpanel.Server.csproj"
 COPY . .
+WORKDIR "/src/Server"
 RUN dotnet build "Alvtime.Adminpanel.Server.csproj" -c Release -o /app/build
 
 FROM build AS publish

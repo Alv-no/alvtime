@@ -6,8 +6,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alvtime.Adminpanel.Server",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alvtime.Adminpanel.Client", "Client\Alvtime.Adminpanel.Client.csproj", "{9E840CCC-0A62-4830-96C2-393263F33F33}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alvtime.Adminpanel.Shared", "Shared\Alvtime.Adminpanel.Shared.csproj", "{FC90C7AC-7E0F-4BDB-AC27-BF3BEFD278F0}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,18 +40,6 @@ Global
 		{AAD5A035-E44D-4B3A-83E2-A6B75F240140}.Release|x64.Build.0 = Release|Any CPU
 		{AAD5A035-E44D-4B3A-83E2-A6B75F240140}.Release|x86.ActiveCfg = Release|Any CPU
 		{AAD5A035-E44D-4B3A-83E2-A6B75F240140}.Release|x86.Build.0 = Release|Any CPU
-		{FC90C7AC-7E0F-4BDB-AC27-BF3BEFD278F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FC90C7AC-7E0F-4BDB-AC27-BF3BEFD278F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FC90C7AC-7E0F-4BDB-AC27-BF3BEFD278F0}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{FC90C7AC-7E0F-4BDB-AC27-BF3BEFD278F0}.Debug|x64.Build.0 = Debug|Any CPU
-		{FC90C7AC-7E0F-4BDB-AC27-BF3BEFD278F0}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{FC90C7AC-7E0F-4BDB-AC27-BF3BEFD278F0}.Debug|x86.Build.0 = Debug|Any CPU
-		{FC90C7AC-7E0F-4BDB-AC27-BF3BEFD278F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FC90C7AC-7E0F-4BDB-AC27-BF3BEFD278F0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FC90C7AC-7E0F-4BDB-AC27-BF3BEFD278F0}.Release|x64.ActiveCfg = Release|Any CPU
-		{FC90C7AC-7E0F-4BDB-AC27-BF3BEFD278F0}.Release|x64.Build.0 = Release|Any CPU
-		{FC90C7AC-7E0F-4BDB-AC27-BF3BEFD278F0}.Release|x86.ActiveCfg = Release|Any CPU
-		{FC90C7AC-7E0F-4BDB-AC27-BF3BEFD278F0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,9 +1,10 @@
-version: "3.7"
+version: "3.8"
 
 services:
   adminpanel-v2:
     build:
-      context: ./packages/Alvtime.Adminpanel/Server
+      context: ./packages/Alvtime.Adminpanel
+      dockerfile: Server/Dockerfile
     depends_on:
       - api
     environment:
