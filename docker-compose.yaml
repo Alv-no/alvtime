@@ -1,9 +1,9 @@
 version: "3.8"
 
 services:
-  adminpanel-v2:
+  adminpanel:
     build:
-      context: ./packages/Alvtime.Adminpanel
+      context: ./packages/adminpanel
       dockerfile: Server/Dockerfile
     depends_on:
       - api
