@@ -53,7 +53,7 @@ public class PayoutStorage : IPayoutStorage
     private DateTime FindClosestPreviousCutoffDate()
     {
         var cutoffDate = dateAlvTime.Now;
-        while (cutoffDate.Day != 9)
+        while (cutoffDate.Day != 7)
         {
             cutoffDate = cutoffDate.AddDays(-1);
         }
