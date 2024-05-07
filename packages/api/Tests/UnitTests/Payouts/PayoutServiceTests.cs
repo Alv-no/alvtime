@@ -277,7 +277,6 @@ public class PayoutServiceTests
         var currentMonth = DateTime.Now.Month;
         var currentYear = DateTime.Now.Year;
 
-
         var timeEntry1 =
             CreateTimeEntryWithCompensationRate(new DateTime(currentYear, currentMonth, 02), 17.5M, 1.0M,
                 out _); //Monday
@@ -286,7 +285,7 @@ public class PayoutServiceTests
 
         var testProvider = new TestDateAlvTimeProvider();
         _dateAlvTime.Provider = testProvider;
-        testProvider.OverridedValue = new DateTime(currentYear, currentMonth, 07);
+        testProvider.OverridedValue = new DateTime(currentYear, currentMonth, 05);
 
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService, _dateAlvTime);
 
@@ -447,23 +446,23 @@ public class PayoutServiceTests
     }
 
     [Fact]
-    public async System.Threading.Tasks.Task RegisterPayout_PayoutMadeOnThe8ThAndCurrentDateIsThe9Th_PayoutIsInactive()
+    public async System.Threading.Tasks.Task RegisterPayout_PayoutMadeOnThe8ThAndCurrentDateIsThe7Th_PayoutIsInactive()
     {
         var mockProvider = new Mock<IDateAlvTimeProvider>();
-        var specificDate = new DateTime(2024, 4, 9);
+        var specificDate = new DateTime(2024, 4, 7);
         mockProvider.Setup(p => p.Now).Returns(specificDate);
 
         var dateAlvTime = new DateAlvTime { Provider = mockProvider.Object };
 
         var timeEntry =
-            CreateTimeEntryWithCompensationRate(new DateTime(2024, 4, 8), 12M, 1.5M, out _);
+            CreateTimeEntryWithCompensationRate(new DateTime(2024, 4, 6), 12M, 1.5M, out _);
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId } });
 
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService, dateAlvTime);
         await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
-            Date = new DateTime(2024, 4, 8),
+            Date = new DateTime(2024, 4, 6),
             Hours = 1M
         });
 
