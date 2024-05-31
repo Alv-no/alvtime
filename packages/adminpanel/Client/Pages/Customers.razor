@@ -102,6 +102,7 @@
 
 @code {
     [Inject] private HttpClient HttpClient { get; set; }
+    [Inject] public HttpInterceptorService Interceptor { get; set; }
 
     private string _customerSearchString = "";
     private CustomerModel? _selectedCustomer;
@@ -112,6 +113,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Interceptor.RegisterEvent();
+        
         try
         {
             var customerResponse = await HttpClient.GetAsync(ApiRoutes.CustomersBase);
