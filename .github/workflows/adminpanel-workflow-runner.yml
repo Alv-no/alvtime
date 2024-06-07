@@ -1,0 +1,23 @@
+name: Adminpanel workflow-runner
+
+on:
+    workflow_dispatch:
+    push:
+        branches:
+          - master
+        paths:
+         - "packages/adminpanel/**"
+         
+jobs:
+    build-and-deploy-test:
+        uses: ./.github/workflows/adminpanel-build-and-deploy.yml
+        with: 
+            targetEnv: Test  
+        secrets: inherit
+    
+    build-and-deploy-prod:
+        needs: build-and-deploy-test
+        uses: ./.github/workflows/adminpanel-build-and-deploy.yml
+        with:
+            targetEnv: Prod  
+        secrets: inherit
