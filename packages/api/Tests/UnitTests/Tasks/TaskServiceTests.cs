@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using AlvTime.Business.Tasks;
 using AlvTime.Persistence.Repositories;
 using System.Linq;
@@ -138,7 +140,7 @@ namespace Tests.UnitTests.Tasks
         }
 
         [Fact]
-        public async Task TaskCreator_CreateNewTask_NewTaskIsCreated()
+        public async Task TaskService_CreateNewTask_NewTaskIsCreated()
         {
             var context = new AlvTimeDbContextBuilder()
                 .WithTasks()
@@ -159,7 +161,7 @@ namespace Tests.UnitTests.Tasks
         }
 
         [Fact]
-        public async Task TaskCreator_CreateNewTaskAlreadyExists_NoNewTaskIsCreated()
+        public async Task TaskService_CreateNewTaskAlreadyExists_NoNewTaskIsCreated()
         {
             var context = new AlvTimeDbContextBuilder()
                 .WithTasks()
@@ -171,16 +173,15 @@ namespace Tests.UnitTests.Tasks
 
             var previousNumberOfTasks = context.Task.Count();
 
-            await taskService.CreateTask(new TaskDto
+            await Assert.ThrowsAsync<ValidationException>(async () => await taskService.CreateTask(new TaskDto
             {
                 Name = "ExampleTask", Description = "", Locked = false
-            }, 1);
-
+            }, 1));
             Assert.Equal(previousNumberOfTasks, context.Task.Count());
         }
 
         [Fact]
-        public async Task TaskCreator_UpdateBothLockedAndName_LockedAndNameIsUpdated()
+        public async Task TaskService_UpdateBothLockedAndName_LockedAndNameIsUpdated()
         {
             var context = new AlvTimeDbContextBuilder()
                 .WithTasks()
