@@ -67,17 +67,24 @@ public class HourRateStorageTests
         var context = new AlvTimeDbContextBuilder().WithCustomers().WithProjects().WithTasks().CreateDbContext();
 
         var storage = new HourRateStorage(context);
-        var creator = new HourRateService(storage);
+        var hourRateService = new HourRateService(storage);
 
-        await creator.CreateHourRate(new HourRateDto
+        var hr = await hourRateService.CreateHourRate(new HourRateDto
         {
             FromDate = new DateTime(2019, 01, 01),
             Rate = 800,
-        }, 2);
+        }, 1);
+
+        await hourRateService.UpdateHourRate(new HourRateDto
+        {
+            Id = hr.Id,
+            FromDate = new DateTime(2020, 01, 01),
+            Rate = 900
+        });
 
         var hourRate = context.HourRate
-            .FirstOrDefault(hr => hr.FromDate == new DateTime(2019, 01, 01) && hr.TaskId == 1);
+            .FirstOrDefault(hr => hr.TaskId == 1);
 
-        Assert.Equal(800, hourRate.Rate);
+        Assert.Equal(900, hourRate.Rate);
     }
 }

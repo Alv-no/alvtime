@@ -27,9 +27,12 @@ public class UserServiceTests
         var userService = CreateUserService();
         await userService.CreateUser(new UserDto
             { Email = "user 1", Name = "user 1", EmployeeId = 1, StartDate = new DateTime(1900, 01, 01) });
-        await Assert.ThrowsAsync<DuplicateNameException>(async () => await
+        var result = await
             userService.CreateUser(new UserDto
-                { Email = "user 2", Name = "user 2", EmployeeId = 1, StartDate = new DateTime(1900, 01, 01) }));
+                { Email = "user 2", Name = "user 2", EmployeeId = 1, StartDate = new DateTime(1900, 01, 01) });
+        
+        Assert.False(result.IsSuccess);
+        Assert.Equal("Bruker med gitt ansattnummer finnes allerede.", result.Errors.First().Description);
     }
 
     [Fact]
@@ -38,9 +41,12 @@ public class UserServiceTests
         var userService = CreateUserService();
         await userService.CreateUser(new UserDto
             { Email = "user 1", Name = "user 1", EmployeeId = 1, StartDate = new DateTime(1900, 01, 01) });
-        await Assert.ThrowsAsync<DuplicateNameException>(async () => await
+       var result = await
             userService.CreateUser(new UserDto
-                { Email = "user 1", Name = "user 2", EmployeeId = 2, StartDate = new DateTime(1900, 01, 01) }));
+                { Email = "user 1", Name = "user 2", EmployeeId = 2, StartDate = new DateTime(1900, 01, 01) });
+       
+       Assert.False(result.IsSuccess);
+       Assert.Equal("Bruker med gitt epost finnes allerede.", result.Errors.First().Description);
     }
 
     [Fact]
@@ -52,8 +58,11 @@ public class UserServiceTests
         var result = await userService.CreateUser(new UserDto
             { Email = "user 2", Name = "user 2", EmployeeId = 2, StartDate = new DateTime(1900, 01, 01) });
         var user2 = result.Match(user => user, _ => throw new Exception());
-        await Assert.ThrowsAsync<DuplicateNameException>(async () => await
-            userService.UpdateUser(new UserDto { Id = user2.Id, EmployeeId = 1 }));
+        var result2 = await
+            userService.UpdateUser(new UserDto { Id = user2.Id, EmployeeId = 1 });
+        
+        Assert.False(result2.IsSuccess);
+        Assert.Equal("En bruker har allerede blitt tildelt det ansattnummeret, eposten eller navnet.", result2.Errors.First().Description);
     }
 
     [Fact]
@@ -71,8 +80,11 @@ public class UserServiceTests
                 Email = "user 2", Name = "user 2", EmployeeId = 2, StartDate = new DateTime(1900, 01, 01)
             }));
         var user = result.Match(user => user, _ => throw new Exception());
-        await Assert.ThrowsAsync<DuplicateNameException>(async () => await
-            userService.UpdateUser(new UserDto { Id = user.Id, Email = "user 1" }));
+        var result2 = await
+            userService.UpdateUser(new UserDto { Id = user.Id, Email = "user 1" });
+        
+        Assert.False(result2.IsSuccess);
+        Assert.Equal("En bruker har allerede blitt tildelt det ansattnummeret, eposten eller navnet.", result2.Errors.First().Description);
     }
 
     [Fact]
@@ -88,14 +100,17 @@ public class UserServiceTests
                 Rate = 0.1M
             });
 
-        await Assert.ThrowsAsync<ValidationException>(async () => await userService.CreateEmploymentRateForUser(
+        var result = await userService.CreateEmploymentRateForUser(
             new EmploymentRateDto
             {
                 FromDateInclusive = new DateTime(2022, 03, 03),
                 ToDateInclusive = new DateTime(2022, 04, 04),
                 UserId = 1,
                 Rate = 0.2M
-            }));
+            });
+        
+        Assert.False(result.IsSuccess);
+        Assert.Equal("Brukeren har allerede en stillingsprosent på valgt dato.", result.Errors.First().Description);
     }
 
     [Fact]
@@ -116,21 +131,6 @@ public class UserServiceTests
 
         var userService = new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context));
 
-        await Assert.ThrowsAsync<ValidationException>(async () => await userService.CreateEmploymentRateForUser(
-            new EmploymentRateDto
-            {
-                FromDateInclusive = new DateTime(2022, 03, 03),
-                ToDateInclusive = new DateTime(2022, 04, 04),
-                UserId = 1,
-                Rate = 0.2M
-            }));
-    }
-
-    [Fact]
-    public async Task UpdateEmploymentRate_UserHasRegisteredHoursOnDate_RateIsNotUpdated()
-    {
-        var userService = new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context));
-
         var result = await userService.CreateEmploymentRateForUser(
             new EmploymentRateDto
             {
@@ -139,7 +139,25 @@ public class UserServiceTests
                 UserId = 1,
                 Rate = 0.2M
             });
-        var employmentRate = result.Match(rate => rate, _ => throw new Exception());
+        
+        Assert.False(result.IsSuccess);
+        Assert.Equal("Endringen vil påvirke eksisterende timer.", result.Errors.First().Description);
+    }
+
+    [Fact]
+    public async Task UpdateEmploymentRate_UserHasRegisteredHoursOnDate_RateIsNotUpdated()
+    {
+        var userService = new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context));
+
+        var result1 = await userService.CreateEmploymentRateForUser(
+            new EmploymentRateDto
+            {
+                FromDateInclusive = new DateTime(2022, 03, 03),
+                ToDateInclusive = new DateTime(2022, 04, 04),
+                UserId = 1,
+                Rate = 0.2M
+            });
+        var employmentRate = result1.Match(rate => rate, _ => throw new Exception());
 
         _context.Hours.Add(new Hours
         {
@@ -154,7 +172,7 @@ public class UserServiceTests
         });
         await _context.SaveChangesAsync();
 
-        await Assert.ThrowsAsync<ValidationException>(async () => await userService.UpdateEmploymentRateForUser(
+        var result2 = await userService.UpdateEmploymentRateForUser(
             new EmploymentRateDto
             {
                 UserId = 1,
@@ -162,7 +180,10 @@ public class UserServiceTests
                 Rate = 0.3M,
                 FromDateInclusive = new DateTime(2022, 03, 03),
                 ToDateInclusive = new DateTime(2022, 04, 04)
-            }));
+            });
+        
+        Assert.False(result2.IsSuccess);
+        Assert.Equal("Endringen vil påvirke eksisterende timer.", result2.Errors.First().Description);
     }
 
     [Fact]
@@ -193,7 +214,7 @@ public class UserServiceTests
         });
         await _context.SaveChangesAsync();
 
-        await Assert.ThrowsAsync<ValidationException>(async () => await userService.UpdateEmploymentRateForUser(
+        var result2 = await userService.UpdateEmploymentRateForUser(
             new EmploymentRateDto
             {
                 UserId = 1,
@@ -201,7 +222,10 @@ public class UserServiceTests
                 Rate = 0.3M,
                 FromDateInclusive = new DateTime(2022, 04, 01),
                 ToDateInclusive = new DateTime(2022, 04, 04)
-            }));
+            });
+        
+        Assert.False(result2.IsSuccess);
+        Assert.Equal("Endringen vil påvirke eksisterende timer.", result2.Errors.First().Description);
     }
 
     [Fact]

@@ -33,7 +33,7 @@ public class CustomerService
     
     public async Task<Result<CustomerDto>> UpdateCustomer(CustomerDto customer)
     {
-        var customerAlreadyExists = (await GetCustomer(customer.Name, null)).Any();
+        var customerAlreadyExists = (await GetCustomer(customer.Name, null)).Any(c => c.Id != customer.Id);
         if (customerAlreadyExists)
         {
             return new List<Error> { new(ErrorCodes.EntityAlreadyExists, "En kunde med det navnet finnes allerede") };

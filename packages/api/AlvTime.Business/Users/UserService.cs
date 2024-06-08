@@ -46,7 +46,7 @@ public class UserService
         {
             return new List<Error>
             {
-                new(ErrorCodes.EntityAlreadyExists, "En bruker har allerede blitt tildelt det ansattnummeret, eposten eller navnet")
+                new(ErrorCodes.EntityAlreadyExists, "En bruker har allerede blitt tildelt det ansattnummeret, eposten eller navnet.")
             };
         }
 
@@ -63,7 +63,7 @@ public class UserService
         })).FirstOrDefault();
         if (userWithEmail != null)
         {
-            errors.Add(new Error(ErrorCodes.EntityAlreadyExists, "Bruker med gitt epost finnes allerede"));
+            errors.Add(new Error(ErrorCodes.EntityAlreadyExists, "Bruker med gitt epost finnes allerede."));
         }
 
         var userWithName = (await _userRepository.GetUsers(new UserQuerySearch
@@ -72,7 +72,7 @@ public class UserService
         })).FirstOrDefault();
         if (userWithName != null)
         {
-            errors.Add(new Error(ErrorCodes.EntityAlreadyExists, "Bruker med gitt navn finnes allerede"));
+            errors.Add(new Error(ErrorCodes.EntityAlreadyExists, "Bruker med gitt navn finnes allerede."));
         }
 
         var userWithEmployeeId = (await _userRepository.GetUsers(new UserQuerySearch
@@ -81,7 +81,7 @@ public class UserService
         })).FirstOrDefault();
         if (userWithEmployeeId != null)
         {
-            errors.Add(new Error(ErrorCodes.EntityAlreadyExists, "Bruker med gitt ansattnummer finnes allerede"));
+            errors.Add(new Error(ErrorCodes.EntityAlreadyExists, "Bruker med gitt ansattnummer finnes allerede."));
         }
     }
 
