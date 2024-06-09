@@ -15,9 +15,9 @@ jobs:
   build:
     runs-on: 'ubuntu-latest'
     environment: test
-
+    
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@main
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
@@ -32,8 +32,9 @@ jobs:
     - name: Build and push container image to registry
       uses: docker/build-push-action@v3
       with:
+        context: ./packages/api/
         push: true
-        tags: commoninfrastructuretest.azurecr.io/${{ vars.AzureAppService_ContainerUsername_11510f2f6bf64633a871f60eed2d4625 }}/mcr.microsoft.com/appsvc/staticsite:${{ github.sha }}
+        tags: commoninfrastructuretest.azurecr.io/alvtimewebapi:${{ github.sha }}
         file: ./packages/api/Dockerfile
 
   deploy:
@@ -44,11 +45,34 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
+    - uses: azure/login@v1
+      with:
+        creds: '${{ secrets.GITHUBACTIONDEPLOYMENTCREDENTIALS }}'
+    
     - name: Deploy to Azure Web App
       id: deploy-to-webapp
       uses: azure/webapps-deploy@v2
       with:
         app-name: 'alvtime-test'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_0f7423cf4b0c41bcbbc595791bd10baf }}
-        images: 'commoninfrastructuretest.azurecr.io/${{ vars.AzureAppService_ContainerUsername_11510f2f6bf64633a871f60eed2d4625 }}/mcr.microsoft.com/appsvc/staticsite:${{ github.sha }}'
+        images: 'commoninfrastructuretest.azurecr.io/alvtimewebapi:${{ github.sha }}'
+
+    - uses: Azure/get-keyvault-secrets@v1
+      with:
+        keyvault: "k8sconfig-test-kv"
+        secrets: 'sql-connection-string'
+      id: myGetSecretAction
+
+    - name: Set appsettings
+      uses: Azure/appservice-settings@v1
+      with:
+       app-name: 'alvtime-test'
+       slot-name: 'production' 
+       app-settings-json: '${{ vars.Api_AppSettings }}'
+    
+    - name: Set appsettings from keyvault
+      uses: Azure/appservice-settings@v1 
+      with:
+       app-name: 'alvtime-test'
+       slot-name: 'production' 
+       app-settings-json: '[{"name": "ConnectionStrings__AlvTime_db", "value": "${{ steps.myGetSecretAction.outputs.sql-connection-string }}"}]'
