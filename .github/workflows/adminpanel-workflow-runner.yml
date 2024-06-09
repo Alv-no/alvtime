@@ -1,4 +1,4 @@
-name: Adminpanel workflow-runner
+name: Adminpanel workflow-runner 
 
 on:
     workflow_dispatch:
