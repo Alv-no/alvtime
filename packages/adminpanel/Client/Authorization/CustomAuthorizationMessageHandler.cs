@@ -6,10 +6,10 @@ namespace Alvtime.Adminpanel.Client.Authorization;
 public class CustomAuthorizationMessageHandler : AuthorizationMessageHandler
 {
     public CustomAuthorizationMessageHandler(IAccessTokenProvider provider, 
-        NavigationManager navigation)
+        NavigationManager navigation, IConfiguration configuration)
         : base(provider, navigation)
     {
         ConfigureHandler(
-            authorizedUrls: new[] { "http://localhost:8081" });
+            authorizedUrls: new[] { configuration["ApiSettings:BaseUrl"] }!);
     }
 }
