@@ -15,7 +15,7 @@ namespace AlvTimeWebApi.Controllers.Admin;
 
 [Route("api/admin")]
 [ApiController]
-// [AuthorizeAdmin]
+[AuthorizeAdmin]
 public class UserController : ControllerBase
 {
     private readonly UserService _userService;
