@@ -55,18 +55,7 @@ helm upgrade frontend ./chart \
   --values "chart/env.yaml" \
   --namespace "alvtime"
 
-\cp "packages/adminpanel/k8s_environments/$ENV-env.yaml" chart/env.yaml
-\cp "packages/adminpanel/k8s_environments/$ENV-config.json" chart/config.json
-helm upgrade admin ./chart \
-  --install \
-  --set image.tag="$SHORT_HASH" \
-  --set image.repository="$CONTAINER_REGISTRY.azurecr.io/alvtime-admin" \
-  --set configFilePath="config.json" \
-  --values "chart/env.yaml" \
-  --namespace "alvtime"
-
 sleep 20
 curl "https://api.$HOSTNAME/api/ping"
 curl "https://slack-app.$HOSTNAME"
-curl "https://admin.$HOSTNAME"
 curl "https://$HOSTNAME"

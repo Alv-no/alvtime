@@ -1,9 +1,8 @@
 /packages/frontend/	@trulsaa @klyngen
-/packages/adminpanel/ @trulsaa @theknarf
-/packages/adminpanel-v2/ @yvindo @johanaostbye @stormflaate @krnil
+/packages/adminpanel/ @trulsaa @palbock
 /packages/api/ @palbock @lnordhus
 /packages/slack-app/ @trulsaa
-/packages/charts/ @trulsaa @klyngen
+/packages/charts/ @trulsaa @klyngen @palbock
 /packages/shell/ @trulsaa
 .AzureDevOps/ @trulsaa @lnordhus
-.github/ @theknarf @trulsaa
+.github/ @trulsaa @lnordhus @palbock
