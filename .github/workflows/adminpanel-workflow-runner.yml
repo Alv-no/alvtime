@@ -12,12 +12,12 @@ jobs:
     build-and-deploy-test:
         uses: ./.github/workflows/adminpanel-build-and-deploy.yml
         with: 
-            targetEnv: Test  
+            targetEnv: test
         secrets: inherit
     
     build-and-deploy-prod:
         needs: build-and-deploy-test
         uses: ./.github/workflows/adminpanel-build-and-deploy.yml
         with:
-            targetEnv: Prod  
+            targetEnv: prod  
         secrets: inherit
