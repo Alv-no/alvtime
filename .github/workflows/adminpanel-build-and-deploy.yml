@@ -48,6 +48,6 @@ jobs:
       id: deploy-to-webapp
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'alvtime-adminpanel-test'
+        app-name: 'alvtime-adminpanel-${{inputs.targetEnv}}'
         slot-name: 'production'
         images: 'commoninfrastructure${{inputs.targetEnv}}.azurecr.io/alvtimeadminpanel:${{ github.sha }}'     
