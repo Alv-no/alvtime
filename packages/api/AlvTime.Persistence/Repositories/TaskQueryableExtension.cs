@@ -15,7 +15,7 @@ namespace AlvTime.Persistence.Repositories
             }
             if (criterias.Name != null)
             {
-                query = query.Where(task => task.Name.Equals(criterias.Name, StringComparison.InvariantCultureIgnoreCase));
+                query = query.Where(task => task.Name.ToLower().Equals(criterias.Name.ToLower()));
             }
             if (criterias.Project != null)
             {
