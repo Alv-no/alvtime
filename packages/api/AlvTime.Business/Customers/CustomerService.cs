@@ -49,11 +49,6 @@ public class CustomerService
 
     private async Task ValidateCustomer(CustomerDto customer, List<Error> errors)
     {
-        if (string.IsNullOrWhiteSpace(customer.Name))
-        {
-            errors.Add(new Error(ErrorCodes.RequestMissingProperty, "Navn er påkrevd"));
-        }
-
         var customerAlreadyExists = (await GetCustomer(customer.Name, null)).Any(c => c.Id != customer.Id);
         if (customerAlreadyExists)
         {
