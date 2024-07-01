@@ -18,29 +18,52 @@ public class CustomerService
         var customers = await _customerStorage.GetCustomersDetailed();
         return customers;
     }
-    
+
     public async Task<Result<CustomerDto>> CreateCustomer(CustomerDto customer)
     {
-        var customerAlreadyExists = (await GetCustomer(customer.Name, customer.Id)).Any();
-        if (customerAlreadyExists)
+        var errors = new List<Error>();
+        await ValidateCustomer(customer, errors);
+
+        if (errors.Any())
         {
-            return new List<Error> { new(ErrorCodes.EntityAlreadyExists, "En kunde med det navnet finnes allerede") };
+            return errors;
         }
         
         await _customerStorage.CreateCustomer(customer);
         return (await GetCustomer(customer.Name, customer.Id)).Single();
     }
-    
+
     public async Task<Result<CustomerDto>> UpdateCustomer(CustomerDto customer)
     {
-        var customerAlreadyExists = (await GetCustomer(customer.Name, null)).Any(c => c.Id != customer.Id);
-        if (customerAlreadyExists)
+        var errors = new List<Error>();
+        await ValidateCustomer(customer, errors);
+        
+        if (errors.Any())
         {
-            return new List<Error> { new(ErrorCodes.EntityAlreadyExists, "En kunde med det navnet finnes allerede") };
+            return errors;
         }
         
         await _customerStorage.UpdateCustomer(customer);
         return (await GetCustomer(customer.Name, customer.Id)).Single();
+    }
+
+    private async Task ValidateCustomer(CustomerDto customer, List<Error> errors)
+    {
+        if (string.IsNullOrWhiteSpace(customer.Name))
+        {
+            errors.Add(new Error(ErrorCodes.RequestMissingProperty, "Navn er påkrevd"));
+        }
+
+        var customerAlreadyExists = (await GetCustomer(customer.Name, null)).Any(c => c.Id != customer.Id);
+        if (customerAlreadyExists)
+        {
+            errors.Add(new Error(ErrorCodes.EntityAlreadyExists, "En kunde med det navnet finnes allerede"));
+        }
+        
+        if (customer.OrgNr != null && customer.OrgNr.Length != 9)
+        {
+            errors.Add(new Error(ErrorCodes.RequestInvalidProperty, "Organisasjonsnummer må være 9 tegn langt"));
+        }
     }
 
     private async Task<IEnumerable<CustomerDto>> GetCustomer(string customerName, int? customerId)
