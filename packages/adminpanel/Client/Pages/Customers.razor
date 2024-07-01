@@ -95,10 +95,9 @@
         }
     </ChildRowContent>
     <PagerContent>
-        <MudTablePager RowsPerPageString="Kunder per side:"/>
+        <MudTablePager PageSizeOptions="new []{ AllCustomers.Count, 20, 10 }" RowsPerPageString="Kunder per side:"/>
     </PagerContent>
 </MudTable>
-
 
 @code {
     [Inject] private HttpClient HttpClient { get; set; }
@@ -108,7 +107,7 @@
     private CustomerModel? _selectedCustomer;
     private CustomerModel? _customerBeforeEdit;
     private HashSet<CustomerModel>? AllCustomers { get; set; }
-
+    
     private bool Loading => AllCustomers == null;
 
     protected override async Task OnInitializedAsync()
