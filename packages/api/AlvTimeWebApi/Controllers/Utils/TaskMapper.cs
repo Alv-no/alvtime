@@ -11,7 +11,7 @@ public static class TaskMapper
         return new TaskDto
         {
             Name = taskUpsertRequest.Name,
-            Description = taskUpsertRequest.Description,
+            Description = taskUpsertRequest.Description ?? "",
             Locked = taskUpsertRequest.Locked,
             CompensationRate = taskUpsertRequest.CompensationRate,
             Imposed = taskUpsertRequest.Imposed
@@ -24,7 +24,7 @@ public static class TaskMapper
         {
             Id = taskId,
             Name = taskUpsertRequest.Name,
-            Description = taskUpsertRequest.Description,
+            Description = taskUpsertRequest.Description ?? "",
             Locked = taskUpsertRequest.Locked,
             CompensationRate = taskUpsertRequest.CompensationRate,
             Imposed = taskUpsertRequest.Imposed
