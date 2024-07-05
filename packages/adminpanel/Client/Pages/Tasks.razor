@@ -132,6 +132,10 @@
 
     private void ResetTaskToOriginalValues(object? task)
     {
+        if (_taskBeforeEdit == null)
+        {
+            return;
+        }
         if (task == null)
         {
             if (_selectedTask == null)
@@ -152,6 +156,7 @@
         ((TaskModel)task).Locked = _taskBeforeEdit!.Locked;
         ((TaskModel)task).Imposed = _taskBeforeEdit!.Imposed;
         ((TaskModel)task).CompensationRate = _taskBeforeEdit!.CompensationRate;
+        _taskBeforeEdit = null;
     }
 
     private void AddEmptyTask()

@@ -106,6 +106,10 @@
 
     private void ResetProjectToOriginalValues(object? project)
     {
+        if (_projectBeforeEdit == null)
+        {
+            return;
+        }
         if (project == null)
         {
             if (_selectedProject == null)
@@ -122,6 +126,7 @@
         }
 
         ((ProjectModel)project).Name = _projectBeforeEdit!.Name;
+        _projectBeforeEdit = null;
     }
 
     private void AddEmptyProject()

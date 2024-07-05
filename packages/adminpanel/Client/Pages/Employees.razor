@@ -139,7 +139,7 @@
         }
     </ChildRowContent>
     <PagerContent>
-        <MudTablePager PageSizeOptions="new []{ AllEmployees.Count, 20, 10 }" RowsPerPageString="Alver per side:"/>
+        <MudTablePager PageSizeOptions="new []{ int.MaxValue, 20, 10 }" RowsPerPageString="Alver per side:"/>
     </PagerContent>
 </MudTable>
 
@@ -160,6 +160,11 @@
     {
         Interceptor.RegisterEvent();
 
+        await RefreshEmployees();
+    }
+
+    private async Task RefreshEmployees()
+    {
         try
         {
             AllEmployees = await HttpClient.GetFromJsonAsync<HashSet<EmployeeModel>>(ApiRoutes.EmployeeBase);
@@ -221,6 +226,8 @@
             {
                 await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateEmployee(_selectedEmployee!.Id), _selectedEmployee.MapToEmployeeUpsertRequest());
             }
+
+            await RefreshEmployees();
         }
         catch (HttpResponseException)
         {
@@ -232,6 +239,10 @@
 
     private void ResetEmployeeToOriginalValues(object? employee)
     {
+        if (_employeeBeforeEdit == null)
+        {
+            return;
+        }
         if (employee == null)
         {
             if (_selectedEmployee == null)
@@ -252,6 +263,7 @@
         ((EmployeeModel)employee).StartDate = _employeeBeforeEdit.StartDate;
         ((EmployeeModel)employee).EndDate = _employeeBeforeEdit.EndDate;
         ((EmployeeModel)employee).EmployeeId = _employeeBeforeEdit.EmployeeId;
+        _employeeBeforeEdit = null;
     }
 
     private void UndoNewEmployee()

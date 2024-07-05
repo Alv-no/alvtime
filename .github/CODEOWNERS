@@ -1,5 +1,5 @@
 /packages/frontend/	@trulsaa @klyngen
-/packages/adminpanel/ @trulsaa @palbock
+/packages/adminpanel/ @lnordhus @palbock
 /packages/api/ @palbock @lnordhus
 /packages/slack-app/ @trulsaa
 /packages/charts/ @trulsaa @klyngen @palbock
