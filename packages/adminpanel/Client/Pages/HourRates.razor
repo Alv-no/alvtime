@@ -91,6 +91,10 @@
 
     private void ResetHourRateToOriginalValues(object? hourRate)
     {
+        if (_hourRateBeforeEdit == null)
+        {
+            return;
+        }
         if (hourRate == null)
         {
             if (_selectedHourRate == null)
@@ -108,6 +112,7 @@
 
         ((HourRateModel)hourRate).FromDate = _hourRateBeforeEdit!.FromDate;
         ((HourRateModel)hourRate).Rate = _hourRateBeforeEdit!.Rate;
+        _hourRateBeforeEdit = null;
     }
 
     private void AddEmptyHourRate()
