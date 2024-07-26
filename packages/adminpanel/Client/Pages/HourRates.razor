@@ -65,7 +65,9 @@
         {
             if (_selectedHourRate is { Id: 0 })
             {
-                await HttpClient.PostAsJsonAsync(ApiRoutes.CreateHourRate(TaskContext.Id), _selectedHourRate.MapToHourRateUpsertRequest());
+                var response = await HttpClient.PostAsJsonAsync(ApiRoutes.CreateHourRate(TaskContext.Id), _selectedHourRate.MapToHourRateUpsertRequest());
+                var hourRate = await response.Content.ReadFromJsonAsync<HourRateModel>();
+                _selectedHourRate!.Id = hourRate!.Id;
             }
             else
             {

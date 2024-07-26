@@ -8,7 +8,7 @@ name: Run trivy-scan on api
 on:
   pull_request:
     paths:
-      - 'packages/api/**'
+      - 'packages/api-to-be-deleted/**'
 
 permissions:
   contents: read

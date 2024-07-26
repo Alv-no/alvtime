@@ -57,12 +57,10 @@ namespace AlvTime.Business.Tasks
 
         public async Task<TaskDto> CreateTask(TaskDto taskToBeCreated, int projectId)
         {
+            var taskAlreadyExists = (await GetTask(taskToBeCreated.Name, projectId)).Any();
+            if (taskAlreadyExists)
             {
-                var taskAlreadyExists = (await GetTask(taskToBeCreated.Name, projectId)).Any();
-                if (taskAlreadyExists)
-                {
-                    throw new ValidationException("En timekode med det navnet finnes allerede på prosjektet");
-                }
+                throw new ValidationException("En timekode med det navnet finnes allerede på prosjektet");
             }
 
             await _taskStorage.CreateTask(taskToBeCreated, projectId);
@@ -95,6 +93,7 @@ namespace AlvTime.Business.Tasks
 
             return task.Select(t => new TaskDto
             {
+                Id = t.Id,
                 Name = t.Name,
                 Description = t.Description,
                 Locked = t.Locked,
