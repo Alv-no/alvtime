@@ -102,7 +102,10 @@
         {
             if (_selectedTask is { Id: 0 })
             {
-                await HttpClient.PostAsJsonAsync(ApiRoutes.CreateTask(ProjectContext.Id), _selectedTask.MapToTaskUpsertRequest());
+                var response = await HttpClient.PostAsJsonAsync(ApiRoutes.CreateTask(ProjectContext.Id), _selectedTask.MapToTaskUpsertRequest());
+                var task = await response.Content.ReadFromJsonAsync<TaskModel>();
+                //Setting id to avoid creating a new task when editing, remove when rewriting
+                _selectedTask!.Id = task!.Id;
             }
             else
             {

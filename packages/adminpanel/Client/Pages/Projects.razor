@@ -81,7 +81,10 @@
         {
             if (_selectedProject is { Id: 0 })
             {
-                await HttpClient.PostAsJsonAsync(ApiRoutes.CreateProject(CustomerContext.Id), _selectedProject.MapToProjectUpsertRequest());
+                var response = await HttpClient.PostAsJsonAsync(ApiRoutes.CreateProject(CustomerContext.Id), _selectedProject.MapToProjectUpsertRequest());
+                var project = await response.Content.ReadFromJsonAsync<ProjectModel>();
+                //Setting id to avoid creating a new project when editing, remove when rewriting
+                _selectedProject!.Id = project!.Id;
             }
             else
             {

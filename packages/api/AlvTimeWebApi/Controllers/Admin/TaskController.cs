@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AlvTimeWebApi.Controllers.Utils;
 using AlvTimeWebApi.Requests;
 using AlvTimeWebApi.Responses;
+using AlvTimeWebApi.Responses.Admin;
 
 namespace AlvTimeWebApi.Controllers.Admin;
 
@@ -21,14 +22,14 @@ public class TaskController : ControllerBase
     }
 
     [HttpPost("Tasks")]
-    public async Task<ActionResult<TaskResponse>> CreateNewTask([FromBody] TaskUpsertRequest taskToBeCreated, [FromQuery] int projectId)
+    public async Task<ActionResult<TaskResponseSimple>> CreateNewTask([FromBody] TaskUpsertRequest taskToBeCreated, [FromQuery] int projectId)
     {
         var createdTask = await _taskService.CreateTask(taskToBeCreated.MapToTaskDto(), projectId);
         return Ok(createdTask.MapToTaskResponseSimple());
     }
 
     [HttpPut("Tasks/{taskId:int}")]
-    public async Task<ActionResult<TaskResponse>> UpdateTask([FromBody] TaskUpsertRequest taskToBeUpdated, int taskId)
+    public async Task<ActionResult<TaskResponseSimple>> UpdateTask([FromBody] TaskUpsertRequest taskToBeUpdated, int taskId)
     {
         var updatedTask = await _taskService.UpdateTask(taskToBeUpdated.MapToTaskDto(taskId));
         return Ok(updatedTask.MapToTaskResponseSimple());
