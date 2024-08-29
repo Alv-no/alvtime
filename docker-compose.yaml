@@ -45,6 +45,7 @@ services:
       - "80"
 
   db:
+    platform: linux/amd64
     build:
       context: ./packages/api/AlvTime.Persistence
     ports:
