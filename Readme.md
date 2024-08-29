@@ -52,7 +52,9 @@ Whenever a dependency is added to the frontend or the backend code is changed yo
 
 ##### Mac with ARM processor
 
-The MSSQL server doesn't compile on the new ARM processors for Mac. A workaruond can be found [here](https://github.com/Alv-no/alvtime/issues/368#issuecomment-892052356).
+The MSSQL server doesn't compile on the new ARM processors for Mac and you will need to use docker with either `docker compose` or as a standalone container for a local setup. Both options require you to to enable Rosetta in docker. In docker Desktop, go to Settings and enable "Use Rosetta for x86/amd64 emulation on Apple Silicon" and restart docker. You can either run a single docker container with a local setup or use docker as usual.
+
+Another option is to use an SQL server in Azure, more info [here](https://github.com/Alv-no/alvtime/issues/368#issuecomment-892052356).
 
 ### 3. Run Tests and build all the services
 
