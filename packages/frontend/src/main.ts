@@ -4,6 +4,8 @@ import "swiper/css/swiper.css";
 import "./registerServiceWorker";
 import router from "./router";
 import store from "./store";
+import clickOutsideDirective from './directives/click-outside';
+
 import "vue-material/dist/vue-material.min.css";
 import "vue-material/dist/theme/default.css";
 import {
@@ -49,7 +51,9 @@ Vue.use(MdDialog);
 Vue.use(MdDialogConfirm);
 Vue.use(MdDatepicker);
 
+
 Vue.use(VueClipboard);
+Vue.directive('click-outside', clickOutsideDirective);
 
 Vue.config.productionTip = false;
 

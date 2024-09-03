@@ -33,8 +33,7 @@ export default Vue.extend({
 
   methods: {
     update() {
-      // @ts-ignore
-      this.$emit("input", this.$refs.inputRef.value);
+      this.$emit("input", (this.$refs.inputRef as HTMLInputElement).value);
     },
   },
 });

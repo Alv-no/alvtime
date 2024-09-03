@@ -55,7 +55,9 @@ public class TimeEntriesController : Controller
                     Id = timeEntry.Id,
                     Date = timeEntry.Date.ToDateOnly(),
                     Value = timeEntry.Value,
-                    TaskId = timeEntry.TaskId
+                    TaskId = timeEntry.TaskId,
+                    Comment = timeEntry.Comment,
+                    CommentedAt = timeEntry.CommentedAt,
                 }));
 
         }
@@ -80,7 +82,9 @@ public class TimeEntriesController : Controller
                 Id = timeEntry.Id,
                 Date = timeEntry.Date.ToDateOnly(),
                 Value = timeEntry.Value,
-                TaskId = timeEntry.TaskId
+                TaskId = timeEntry.TaskId,
+                Comment = timeEntry.Comment,
+                CommentedAt = timeEntry.CommentedAt
             }));
     }
         

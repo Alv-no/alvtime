@@ -48,8 +48,18 @@ export default Vue.extend({
       const date = day.format(config.DATE_FORMAT);
       const taskId = this.task.id;
       const locked = this.task.locked;
-      const task = this.$store.state.timeEntriesMap[`${date}${taskId}`];
-      return task && { id: task.id, value: task.value, taskId, date, locked };
+      const timeEntry = this.$store.state.timeEntriesMap[`${date}${taskId}`];
+      return (
+        timeEntry && {
+          id: timeEntry.id,
+          value: timeEntry.value,
+          comment: timeEntry.comment,
+          commentedAt: timeEntry.commentedAt,
+          taskId,
+          date,
+          locked,
+        }
+      );
     },
 
     zeroEntrie(day: Moment): FrontendTimentrie {

@@ -15,6 +15,10 @@ namespace AlvTime.Persistence.DatabaseModels
         public bool Locked { get; set; }
         public DateTime? TimeRegistered { get; set; }
 
+        public string? Comment { get; set; }
+
+        public DateTime? CommentedAt { get; set; }
+
         public virtual Task Task { get; set; }
         public virtual User UserNavigation { get; set; }
     }

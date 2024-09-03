@@ -13,4 +13,6 @@ public class CreateTimeEntryDto
     public decimal Value { get; set; }
 
     public int TaskId { get; set; }
+
+    public string? Comment { get; set; }
 }

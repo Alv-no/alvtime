@@ -10,4 +10,9 @@ public class TimeEntryResponseDto
     public DateTime Date { get; set; }
     public decimal Value { get; set; }
     public int TaskId { get; set; }
+
+    public string? Comment { get; set; }
+
+    public DateTime? CommentedAt { get; set; }
+
 }
