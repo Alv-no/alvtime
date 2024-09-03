@@ -6,33 +6,51 @@
       :time-entrie="timeEntrie"
       @click="onTimeLeftInDayClick"
     />
-    <input
-      ref="inputRef"
-      v-model="value"
-      :class="{ error, nonZero, hovered }"
-      type="text"
-      novalidate
-      inputmode="decimal"
-      :disabled="!isOnline || isLocked"
-      @mouseover="hovered = !(!isOnline || isLocked)"
-      @mouseleave="hovered = false"
-      @input="onInput"
-      @touchstart="onTouchStart"
-      @blur="onBlur"
-      @focus="onFocus"
-      @click="onClick"
-    />
+    <div class="input-wrapper">
+      <input
+        ref="inputRef"
+        v-model="value"
+        :class="{ 'has-comment': hasComment, error, nonZero, hovered }"
+        type="text"
+        novalidate
+        inputmode="decimal"
+        :disabled="!isOnline || isLocked"
+        @mouseover="hovered = !(!isOnline || isLocked)"
+        @mouseleave="hovered = false"
+        @input="onInput"
+        @touchstart="onTouchStart"
+        @blur="onBlur"
+        @focus="onFocus"
+        @click="onClick"
+        v-click-outside="handleOutsideClick"
+      />
+      <span v-if="hasComment" class="comment-icon">💬</span>
+
+      <HourCommentBox
+        v-if="isCommentBoxVisible"
+        ref="commentBox"
+        :initial-comment="timeEntrie.comment"
+        :disabled="!isOnline || isLocked"
+        @close="hideCommentBox"
+        @change="onCommentChange"
+        v-click-outside="handleOutsideClick"
+      />
+    </div>
   </div>
 </template>
 
 <script>
+import Vue from "vue";
 import { isFloat } from "@/store/timeEntries";
 import config from "@/config";
+
 import TimeLeftInDayButton from "@/components/TimeLeftInDayButton";
+import HourCommentBox from "@/components/HourCommentBox";
 
 export default {
   components: {
     TimeLeftInDayButton,
+    HourCommentBox,
   },
 
   props: {
@@ -45,6 +63,7 @@ export default {
       enableBlur: true,
       localValue: "0",
       hovered: false,
+      isCommentBoxVisible: false,
     };
   },
 
@@ -88,6 +107,10 @@ export default {
     activeDate() {
       return this.$store.state.activeDate;
     },
+
+    hasComment() {
+      return !!this.timeEntrie?.comment?.trim();
+    },
   },
 
   watch: {
@@ -125,6 +148,7 @@ export default {
         if (this.enableBlur && this.showHelperButtons) {
           this.showHelperButtons = false;
         }
+
         this.enableBlur = true;
       }, 200);
     },
@@ -132,6 +156,7 @@ export default {
     onFocus() {
       this.$store.commit("UPDATE_ACTVIE_TASK", this.timeEntrie.taskId);
       this.localValue = this.value;
+      this.showCommentBox();
     },
 
     onClick() {
@@ -146,6 +171,28 @@ export default {
     onTimeLeftInDayClick() {
       this.enableBlur = false;
       this.inputRef.focus();
+    },
+
+    showCommentBox() {
+      this.isCommentBoxVisible = true;
+    },
+
+    hideCommentBox() {
+      this.isCommentBoxVisible = false;
+    },
+
+    handleOutsideClick(event) {
+      const input = this.$refs.inputRef;
+      const box = this.$refs.commentBox?.$el;
+
+      if (box && !box.contains(event.target) && !input.contains(event.target)) {
+        this.hideCommentBox();
+      }
+    },
+
+    onCommentChange(comment) {
+      const timeEntrie = { ...this.timeEntrie, comment: comment };
+      this.$store.dispatch("UPDATE_TIME_ENTRIE", timeEntrie);
     },
   },
 };
@@ -179,5 +226,20 @@ input:focus {
 
 .nonZero {
   border-color: #000;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.comment-icon {
+  position: absolute;
+  right: 1px;
+  top: 10%;
+  transform: translateY(-50%);
+}
+
+.has-comment {
+  border-color: #eabb26;
 }
 </style>

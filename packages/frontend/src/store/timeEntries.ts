@@ -18,6 +18,8 @@ export interface FrontendTimentrie {
   value: string;
   taskId: number;
   locked: boolean;
+  comment?: string;
+  commentedAt?: string;
 }
 
 export interface EntriesSummarizedPerMonthPerTask {
@@ -37,6 +39,7 @@ interface TimeEntrieMap {
 interface TimeEntrieObj {
   value: string;
   id: number;
+  comment?: string;
 }
 
 interface ServerSideTimeEntrie {
@@ -45,6 +48,8 @@ interface ServerSideTimeEntrie {
   value: number;
   taskId: number;
   locked: boolean;
+  comment?: string;
+  commentedAt?: string;
 }
 
 interface TimeEntriesDateFormated {
@@ -114,7 +119,7 @@ const actions = {
 
       commit("FLUSH_PUSH_QUEUE");
       await httpClient
-        .post<Array<Parameters<typeof createTimeEntrie>[0]>>(
+        .post<Array<any>>(
           `${config.API_HOST}/api/user/TimeEntries`,
           timeEntriesToPush
         )
@@ -138,7 +143,9 @@ const actions = {
 
     return httpClient.get(url.toString()).then(response => {
       const frontendTimeEntries = response.data
-        .filter((entrie: ServerSideTimeEntrie) => entrie.value)
+        .filter(
+          (entrie: ServerSideTimeEntrie) => entrie.value || hasComment(entrie)
+        )
         .map(createTimeEntrie);
       commit("UPDATE_TIME_ENTRIES", frontendTimeEntries);
       commit("SET_TIME_ENTRIES_LOADING", false);
@@ -158,8 +165,9 @@ function updateTimeEntrieMap(
   paramEntrie: FrontendTimentrie
 ): TimeEntrieMap {
   timeEntrieMap[`${paramEntrie.date}${paramEntrie.taskId}`] = {
-    value: paramEntrie.value,
     id: paramEntrie.id,
+    value: paramEntrie.value,
+    comment: paramEntrie.comment,
   };
   return timeEntrieMap;
 }
@@ -211,11 +219,15 @@ export function isFloat(str: string) {
 }
 
 function shouldBeStoredServerSide(paramEntrie: ServerSideTimeEntrie) {
-  return !isNonEntrieSetToZero(paramEntrie);
+  return !isNonEntrieSetToZero(paramEntrie) || hasComment(paramEntrie);
 }
 
 function isNonEntrieSetToZero(paramEntrie: ServerSideTimeEntrie) {
   return paramEntrie.value === 0 && paramEntrie.id === 0;
+}
+
+function hasComment(paramEntrie: ServerSideTimeEntrie) {
+  return !!paramEntrie.comment?.trim();
 }
 
 function updateTimeEntries(state: State, paramEntries: FrontendTimentrie[]) {

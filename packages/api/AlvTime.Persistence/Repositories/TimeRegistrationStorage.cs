@@ -83,7 +83,9 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
                 User = x.User,
                 Value = x.Value,
                 Date = x.Date,
-                TaskId = x.TaskId
+                TaskId = x.TaskId,
+                Comment = x.Comment,
+                CommentedAt = x.CommentedAt 
             })
             .ToListAsync();
 
@@ -104,7 +106,9 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
                 Id = x.Id,
                 Value = x.Value,
                 Date = x.Date,
-                TaskId = x.TaskId
+                TaskId = x.TaskId,
+                Comment = x.Comment,
+                CommentedAt = x.CommentedAt
             }).FirstOrDefaultAsync();
 
         return timeEntry;
@@ -125,7 +129,9 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
                 Year = (short)timeEntry.Date.Year,
                 DayNumber = (short)timeEntry.Date.DayOfYear,
                 Value = timeEntry.Value,
-                TimeRegistered = DateTime.UtcNow
+                TimeRegistered = DateTime.UtcNow,
+                Comment = timeEntry.Comment,
+                CommentedAt = timeEntry.Comment != null ? DateTime.UtcNow : null,
             };
             _context.Hours.Add(hour);
             await _context.SaveChangesAsync();
@@ -138,7 +144,9 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
                 Date = hour.Date,
                 TaskId = hour.TaskId,
                 Value = hour.Value,
-                UserEmail = user?.Email
+                UserEmail = user?.Email,
+                Comment = hour.Comment,
+                CommentedAt = hour.CommentedAt
             };
         }
 
@@ -164,6 +172,8 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
         {
             hour.Value = timeEntry.Value;
             hour.TimeRegistered = DateTime.UtcNow;
+            hour.Comment = timeEntry.Comment;
+            hour.CommentedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
             return new TimeEntryResponseDto
@@ -173,7 +183,9 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
                 Date = hour.Date,
                 TaskId = hour.TaskId,
                 Value = hour.Value,
-                UserEmail = hour.UserNavigation.Email
+                UserEmail = hour.UserNavigation.Email,
+                Comment = hour.Comment,
+                CommentedAt = hour.CommentedAt,
             };
         }
 
