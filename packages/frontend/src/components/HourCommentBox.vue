@@ -1,6 +1,6 @@
 <template>
   <div class="comment-container">
-    <div class="comment-box">
+    <div class="comment-box" ref="box">
       <label for="timeEntrieComment">Kommentar</label>
       <textarea
         id="timeEntrieComment"
@@ -27,6 +27,13 @@ export default Vue.extend({
       default: false,
     },
   },
+  mounted() {
+    console.log(this.isOverflowing);
+
+    if (this.isOverflowing) {
+      (this.$refs.box as HTMLDivElement).classList.add("overflow");
+    }
+  },
   data() {
     return {
       comment: this.initialComment,
@@ -35,6 +42,15 @@ export default Vue.extend({
   watch: {
     initialComment(newComment: string) {
       this.comment = newComment;
+    },
+  },
+  computed: {
+    isOverflowing(): boolean {
+      const rect = (this.$refs.box as HTMLDivElement)?.getBoundingClientRect();
+      if (rect == undefined) return false;
+
+      const windowHeight = window.innerHeight;
+      return rect.bottom > windowHeight;
     },
   },
   methods: {
@@ -79,7 +95,7 @@ export default Vue.extend({
   content: " ";
   position: absolute;
   bottom: 100%;
-  left: 0;
+  left: 50%;
   border: solid transparent;
   width: 0;
   height: 0;
@@ -88,16 +104,14 @@ export default Vue.extend({
 
 .comment-box:after {
   border-color: rgba(255, 255, 255, 0);
-  border-bottom-color: #ffffff; /* Arrow color */
+  border-bottom-color: #fff; /* Arrow color */
   border-width: 19px;
-  left: 50%;
   margin-left: -19px;
 }
 
 .comment-box:before {
   border-color: rgba(113, 158, 206, 0);
   border-width: 20px;
-  left: 50%;
   margin-left: -20px;
 }
 
@@ -117,8 +131,58 @@ export default Vue.extend({
 
 .comment-box textarea {
   width: 100%;
-  height: 50px;
+  min-width: 150px;
+  min-height: 50px;
+
   max-width: 350px;
   max-height: 200px;
+}
+
+@media only screen and (max-width: 600px) {
+  .comment-box {
+    min-width: auto;
+  }
+  .comment-box textarea {
+    width: 95%;
+    min-width: 275px;
+    min-height: 70px;
+  }
+}
+
+/* Bottom overflow styles */
+.overflow {
+  top: auto;
+  bottom: 43px;
+}
+
+.overflow:after,
+.overflow:before {
+  top: 100%;
+  left: 50%;
+  border: solid transparent;
+  content: "";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+.overflow:after {
+  border-color: rgba(255, 255, 255, 0);
+  border-top-color: #fff;
+  border-width: 19px;
+  margin-left: -19px;
+}
+.overflow:before {
+  border-color: rgba(113, 158, 206, 0);
+  border-width: 20px;
+  margin-left: -20px;
+}
+
+@media only screen and (max-width: 1200px) {
+  .overflow:after,
+  .overflow:before {
+    left: 90%;
+  }
 }
 </style>
