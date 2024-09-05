@@ -75,13 +75,7 @@ export default Vue.extend({
 
 <style>
 .swiper-container {
-  overflow-y: visible !important; /* Ensure comment box is not hidden behind the swiper */
-  min-height: 50vh !important;
-}
-
-@media only screen and (max-width: 1000px) {
-  .center {
-    overflow: visible !important;
-  }
+  /* Ensure comment box is not hidden behind the swiper */
+  min-height: 85vh;
 }
 </style>
