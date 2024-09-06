@@ -1,3 +1,4 @@
+import 'package:alv_time_app/routes.dart';
 import 'package:flutter/material.dart';
 
 class CoreNavigationBar extends StatelessWidget {
@@ -8,16 +9,17 @@ class CoreNavigationBar extends StatelessWidget {
     String? currentRoute = ModalRoute.of(context)?.settings.name;
 
     return NavigationBar(
-      selectedIndex: () {
-        switch(currentRoute) {
-          case "/":
-            return 0;
-          case "/profile":
-            return 2;
-          default:
-            return 0;
-        };
-      }(),
+        selectedIndex: () {
+          switch (currentRoute) {
+            case routeHomeScreen:
+              return 0;
+            case routeProfileScreen:
+              return 2;
+            default:
+              return 0;
+          }
+          ;
+        }(),
         backgroundColor: Colors.transparent,
         elevation: 30,
         onDestinationSelected: (index) {
