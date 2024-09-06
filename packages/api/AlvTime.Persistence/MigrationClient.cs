@@ -162,7 +162,8 @@ public static class MigrationClient
                     ProjectNavigation = context.Project.First(p => p.Name == "MatAppen"),
                     Locked = false,
                     Favorite = false,
-                    Imposed = false
+                    Imposed = false,
+                    Id = 1
                 },
                 new()
                 {
@@ -171,7 +172,8 @@ public static class MigrationClient
                     ProjectNavigation = context.Project.First(p => p.Name == "Sklier"),
                     Locked = false,
                     Favorite = false,
-                    Imposed = true
+                    Imposed = true,
+                    Id = 2
                 },
                 new()
                 {
@@ -180,7 +182,8 @@ public static class MigrationClient
                     ProjectNavigation = context.Project.First(p => p.Name == "Luksussmellen"),
                     Locked = false,
                     Favorite = false,
-                    Imposed = false
+                    Imposed = false,
+                    Id = 3
                 },
                 new()
                 {
@@ -189,7 +192,8 @@ public static class MigrationClient
                     ProjectNavigation = context.Project.First(p => p.Name == "Luksussmellen"),
                     Locked = false,
                     Favorite = false,
-                    Imposed = false
+                    Imposed = false,
+                    Id = 4
                 },
                 new()
                 {
@@ -198,7 +202,8 @@ public static class MigrationClient
                     ProjectNavigation = context.Project.First(p => p.Name == "Alv"),
                     Locked = false,
                     Favorite = false,
-                    Imposed = false
+                    Imposed = false,
+                    Id = 5
                 },
                 new()
                 {
@@ -207,7 +212,8 @@ public static class MigrationClient
                     ProjectNavigation = context.Project.First(p => p.Name == "Fravær"),
                     Locked = false,
                     Favorite = false,
-                    Imposed = false
+                    Imposed = false,
+                    Id = 6
                 }
             };
             await context.Task.AddRangeAsync(newTasks);
