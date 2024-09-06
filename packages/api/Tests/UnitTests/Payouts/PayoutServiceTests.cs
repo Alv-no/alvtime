@@ -192,7 +192,31 @@ public class PayoutServiceTests
             Date = new DateTime(2021, 12, 13),
             Hours = 7
         }));
+    } 
+
+    [Fact]
+    public async System.Threading.Tasks.Task Lock_payout()
+    {
+        var timeEntry1 =
+            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 17.5M, 1.0M, out _);
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
+
+        var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
+        await payoutService.RegisterPayout(new GenericPayoutHourEntry
+        {
+            Date = DateTime.Today.AddDays(-1),
+            Hours = 10
+        });
+
+        var registeredPayouts = await payoutService.GetRegisteredPayouts();
+        var genericPayoutEntry = registeredPayouts.Entries.First();
+        Assert.True(genericPayoutEntry.Active);
+        await payoutService.LockPayments(DateTime.Now);
+        var lockedPayout = (await payoutService.GetRegisteredPayouts()).Entries.First();
+        Assert.False(lockedPayout.Active);
     }
+
 
     [Fact]
     public async System.Threading.Tasks.Task RegisterPayout_RegisteringPayoutBeforeWorkingOvertime_NoPayout()

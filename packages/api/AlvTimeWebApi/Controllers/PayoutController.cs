@@ -63,7 +63,7 @@ namespace AlvTimeWebApi.Controllers
             return NoContent();
         }
 
-        [HttpPost("Payouts")]
+        [HttpPut("LockPayouts")]
         public async Task<ActionResult> LockPaidOvertime([FromBody] DateTime lockDate)
         {
             await _payoutService.LockPayments(lockDate);

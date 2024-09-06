@@ -21,5 +21,7 @@ public class PayoutQueryFilter
 {
     public DateTime? FromDateInclusive { get; set; }
     public DateTime? ToDateInclusive { get; set; }
+    
+    public bool? IsLocked { get; set; }
     public int? UserId { get; set; }
 }

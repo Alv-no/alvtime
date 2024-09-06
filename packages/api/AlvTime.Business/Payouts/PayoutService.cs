@@ -101,6 +101,6 @@ public class PayoutService
 
     public async Task<int> LockPayments(DateTime lockDate)
     {
-        return await _payoutStorage.SetPaymentsToLocked(new PayoutQueryFilter(), lockDate.Date);
+        return await _payoutStorage.SetPaymentsToLocked(new PayoutQueryFilter{IsLocked = false}, lockDate.Date);
     }
 }
