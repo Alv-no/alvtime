@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AlvTime.Business;
 using AlvTime.Business.Options;
 using AlvTime.Business.Payouts;
 using AlvTime.Business.TimeRegistration;
@@ -62,7 +63,7 @@ public class PayoutServiceTests
 
         _payoutValidationServiceMock = new Mock<PayoutValidationService>(new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)),
             _timeRegistrationService, new PayoutStorage(_context, _dateAlvTime));
-        _payoutValidationServiceMock.Setup(x => x.CheckForIncompleteDays(It.IsAny<GenericPayoutHourEntry>(), It.IsAny<int>())).Returns(System.Threading.Tasks.Task.FromResult(System.Threading.Tasks.Task.CompletedTask));
+        _payoutValidationServiceMock.Setup(x => x.CheckForIncompleteDays(It.IsAny<GenericPayoutHourEntry>(), It.IsAny<int>())).Returns(System.Threading.Tasks.Task.FromResult(new List<Error>()));
         _payoutValidationServiceMock.CallBase = true;
     }
 
@@ -75,14 +76,19 @@ public class PayoutServiceTests
             { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
 
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
-        var registerOvertimeResponse = await payoutService.RegisterPayout(new GenericPayoutHourEntry
+        var registerOvertimeResult = await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2022, 12, 13),
             Hours = 10
         });
 
-        var registeredPayouts = await payoutService.GetRegisteredPayouts();
+        Assert.True(registerOvertimeResult.IsSuccess);
+        var registerOvertimeResponse = registerOvertimeResult.Value; 
 
+        var payoutResult = await payoutService.GetRegisteredPayouts();
+
+        Assert.True(payoutResult.IsSuccess);
+        var registeredPayouts = payoutResult.Value; 
         Assert.Equal(10, registerOvertimeResponse.HoursBeforeCompensation);
         Assert.Equal(10, registeredPayouts.TotalHoursBeforeCompRate);
         Assert.Equal(10, registeredPayouts.TotalHoursAfterCompRate);
@@ -114,8 +120,10 @@ public class PayoutServiceTests
             Hours = 4
         });
 
-        var registeredPayouts = await payoutService.GetRegisteredPayouts();
+        var payoutResult = await payoutService.GetRegisteredPayouts();
 
+        Assert.True(payoutResult.IsSuccess);
+        var registeredPayouts = payoutResult.Value;
         Assert.Equal(3, registeredPayouts.Entries.Count());
     }
 
@@ -133,12 +141,14 @@ public class PayoutServiceTests
 
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
 
-        var registeredPayout = await payoutService.RegisterPayout(new GenericPayoutHourEntry
+        var registeredPayoutResult = await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2021, 12, 14),
             Hours = 10
         });
 
+        Assert.True(registeredPayoutResult.IsSuccess);
+        var registeredPayout = registeredPayoutResult.Value;
         Assert.Equal(5, registeredPayout.HoursAfterCompensation);
     }
 
@@ -167,12 +177,14 @@ public class PayoutServiceTests
 
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
 
-        var registeredPayout = await payoutService.RegisterPayout(new GenericPayoutHourEntry
+        var registeredPayoutResult = await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2021, 12, 16),
             Hours = 6
         });
 
+        Assert.True(registeredPayoutResult.IsSuccess);
+        var registeredPayout = registeredPayoutResult.Value;
         Assert.Equal(3.5M, registeredPayout.HoursAfterCompensation);
         Assert.Equal(6M, registeredPayout.HoursBeforeCompensation);
     }
@@ -187,11 +199,17 @@ public class PayoutServiceTests
 
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
 
-        await Assert.ThrowsAsync<ValidationException>(async () => await payoutService.RegisterPayout(new GenericPayoutHourEntry
+        var registeredPayoutResult = await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2021, 12, 13),
             Hours = 7
-        }));
+        });
+
+        Assert.False(registeredPayoutResult.IsSuccess);
+        Assert.True(registeredPayoutResult.Errors.Any());
+        var error = registeredPayoutResult.Errors.First();
+        Assert.Equal(ErrorCodes.RequestInvalidProperty, error.ErrorCode);
+        Assert.Equal("Ikke nok tilgjengelige timer.", error.Description);
     } 
 
     [Fact]
@@ -209,11 +227,14 @@ public class PayoutServiceTests
             Hours = 10
         });
 
-        var registeredPayouts = await payoutService.GetRegisteredPayouts();
+        var registeredPayoutsResult = await payoutService.GetRegisteredPayouts();
+        Assert.True(registeredPayoutsResult.IsSuccess);
+        var registeredPayouts = registeredPayoutsResult.Value;
         var genericPayoutEntry = registeredPayouts.Entries.First();
         Assert.True(genericPayoutEntry.Active);
-        await payoutService.LockPayments(DateTime.Now);
-        var lockedPayout = (await payoutService.GetRegisteredPayouts()).Entries.First();
+        var lockedPaymentResult = await payoutService.LockPayments(DateTime.Now);
+        Assert.True(lockedPaymentResult.IsSuccess);
+        var lockedPayout = (await payoutService.GetRegisteredPayouts()).Value.Entries.First();
         Assert.False(lockedPayout.Active);
     }
 
@@ -228,11 +249,17 @@ public class PayoutServiceTests
 
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
 
-        await Assert.ThrowsAsync<ValidationException>(async () => await payoutService.RegisterPayout(new GenericPayoutHourEntry
+        var registeredPayoutResult = await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2021, 12, 12),
             Hours = 1
-        }));
+        });
+
+        Assert.False(registeredPayoutResult.IsSuccess);
+        Assert.True(registeredPayoutResult.Errors.Any());
+        var error = registeredPayoutResult.Errors.First();
+        Assert.Equal(ErrorCodes.RequestInvalidProperty, error.ErrorCode);
+        Assert.Equal("Ikke nok tilgjengelige timer.", error.Description);
     }
 
     [Fact]
@@ -321,7 +348,9 @@ public class PayoutServiceTests
 
         await payoutService.CancelPayout(new DateTime(currentYear, currentMonth, 02));
 
-        var activePayouts = await payoutService.GetRegisteredPayouts();
+        var activePayoutsResult = await payoutService.GetRegisteredPayouts();
+        Assert.True(activePayoutsResult.IsSuccess);
+        var activePayouts = activePayoutsResult.Value;
         Assert.Empty(activePayouts.Entries);
     }
 
@@ -346,7 +375,12 @@ public class PayoutServiceTests
             Hours = 5
         });
 
-        await Assert.ThrowsAsync<ValidationException>(async () => await payoutService.CancelPayout(new DateTime(currentYear, previousMonth, 02)));
+        var cancelPayoutResult = await payoutService.CancelPayout(new DateTime(currentYear, previousMonth, 02));
+        Assert.False(cancelPayoutResult.IsSuccess);
+        Assert.True(cancelPayoutResult.Errors.Any());
+        var error = cancelPayoutResult.Errors.First();
+        Assert.Equal(ErrorCodes.MissingEntity, error.ErrorCode);
+        Assert.Equal("Det er ingen aktive utbetalinger.", error.Description);
     }
 
     [Fact]
@@ -367,11 +401,16 @@ public class PayoutServiceTests
             { new() { Date = futureFlex.Date, Value = futureFlex.Value, TaskId = futureFlex.TaskId } });
 
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
-        await Assert.ThrowsAsync<ValidationException>(async () => await payoutService.RegisterPayout(new GenericPayoutHourEntry
+        var registeredPayoutResult = await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(currentYear, currentMonth, currentDay),
             Hours = 1M
-        }));
+        });
+
+        Assert.False(registeredPayoutResult.IsSuccess);
+        Assert.True(registeredPayoutResult.Errors.Any());
+        var error = registeredPayoutResult.Errors.First();
+        Assert.Equal(ErrorCodes.InvalidAction, error.ErrorCode);
     }
 
     [Fact]
@@ -387,11 +426,16 @@ public class PayoutServiceTests
         }
 
         var payoutService = CreatePayoutServiceWithIncompleteDaysValidation(_timeRegistrationService);
-        await Assert.ThrowsAsync<ValidationException>(async () => await payoutService.RegisterPayout(new GenericPayoutHourEntry
+        var registeredPayoutResult = await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = DateTime.Now,
             Hours = 1M
-        }));
+        });
+
+        Assert.False(registeredPayoutResult.IsSuccess);
+        Assert.True(registeredPayoutResult.Errors.Any());
+        var error = registeredPayoutResult.Errors.First();
+        Assert.Equal(ErrorCodes.InvalidAction, error.ErrorCode);
     }
 
     [Fact]
@@ -415,8 +459,9 @@ public class PayoutServiceTests
         var payoutService = CreatePayoutServiceWithIncompleteDaysValidation(_timeRegistrationService);
         await payoutService.RegisterPayout(new GenericPayoutHourEntry { Date = startDate, Hours = 5 });
 
-        var registeredPayouts = await payoutService.GetRegisteredPayouts();
-        Assert.Single(registeredPayouts.Entries);
+        var registeredPayoutsResult = await payoutService.GetRegisteredPayouts();
+        Assert.True(registeredPayoutsResult.IsSuccess);
+        Assert.Single(registeredPayoutsResult.Value.Entries);
     }
 
     [Fact]
@@ -435,12 +480,14 @@ public class PayoutServiceTests
         }
 
         var payoutService = CreatePayoutServiceWithIncompleteDaysValidation(_timeRegistrationService);
-        var payout = await payoutService.RegisterPayout(new GenericPayoutHourEntry
+        var payoutResult = await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = DateTime.Now,
             Hours = 1M
         });
-        Assert.Equal(1, payout.HoursBeforeCompensation);
+
+        Assert.True(payoutResult.IsSuccess);
+        Assert.Equal(1, payoutResult.Value.HoursBeforeCompensation);
     }
 
     [Fact]
@@ -464,8 +511,10 @@ public class PayoutServiceTests
             Hours = 1M
         });
 
-        var payout = (await payoutService.GetRegisteredPayouts()).Entries.First();
+        var payoutResult = await payoutService.GetRegisteredPayouts();
 
+        Assert.True(payoutResult.IsSuccess);
+        var payout = payoutResult.Value.Entries[0];
         Assert.True(payout.Active);
     }
 
@@ -490,8 +539,10 @@ public class PayoutServiceTests
             Hours = 1M
         });
 
-        var payout = (await payoutService.GetRegisteredPayouts()).Entries.First();
+        var payoutResult = await payoutService.GetRegisteredPayouts();
 
+        Assert.True(payoutResult.IsSuccess);
+        var payout = payoutResult.Value.Entries[0];
         Assert.False(payout.Active);
     }
 

@@ -96,8 +96,11 @@ namespace Tests.UnitTests.Vacation
         {
             var dateToTest = new DateTime(2021, 12, 13);
             var hours = 6M;
-            await Assert.ThrowsAsync<Exception>(async () => await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-                {new() {Date = dateToTest, Value = hours, TaskId = _options.CurrentValue.PaidHolidayTask}}));
+            var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                {new() {Date = dateToTest, Value = hours, TaskId = _options.CurrentValue.PaidHolidayTask}});
+
+            Assert.False(timeEntryResult.IsSuccess);
+            Assert.True(timeEntryResult.Errors.Any());
         }
 
         [Fact]
@@ -105,8 +108,11 @@ namespace Tests.UnitTests.Vacation
         {
             var dateToTest = new DateTime(2021, 12, 13);
             var hours = 9M;
-            await Assert.ThrowsAsync<Exception>(async () => await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-                {new() {Date = dateToTest, Value = hours, TaskId = _options.CurrentValue.PaidHolidayTask}}));
+            var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                {new() {Date = dateToTest, Value = hours, TaskId = _options.CurrentValue.PaidHolidayTask}});
+
+            Assert.False(timeEntryResult.IsSuccess);
+            Assert.True(timeEntryResult.Errors.Any());
         }
 
         [Fact]

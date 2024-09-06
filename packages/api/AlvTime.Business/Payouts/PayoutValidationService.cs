@@ -24,12 +24,13 @@ public class PayoutValidationService
         _payoutStorage = payoutStorage;
     }
 
-    public async Task ValidatePayout(GenericPayoutHourEntry request, int userId)
+    public async Task<List<Error>> ValidatePayout(GenericPayoutHourEntry request, int userId)
     {
         if (request.Hours % 0.25M != 0)
         {
-            throw new ValidationException("Bestilling må gå opp i kvarter.");
+            return new List<Error> { new(ErrorCodes.RequestInvalidProperty, "Bestilling må gå opp i kvarter.") };
         }
+
         var availableHours = await _timeRegistrationService.GetAvailableOvertimeHoursAtDate(request.Date.Date);
         var availableForPayout = availableHours.AvailableHoursBeforeCompensation;
         var existingPayoutsOnDate =
@@ -37,8 +38,7 @@ public class PayoutValidationService
 
         if (existingPayoutsOnDate.Any())
         {
-            throw new ValidationException(
-                "Du har allerede bestilt en utbetaling denne dagen. Kanseller den forrige og bestill på nytt.");
+            return new List<Error> { new(ErrorCodes.InvalidAction, "Du har allerede bestilt en utbetaling denne dagen. Kanseller den forrige og bestill på nytt.") };
         }
 
         var futureFlexEntries =
@@ -46,20 +46,26 @@ public class PayoutValidationService
 
         if (futureFlexEntries.Any(e => e.Hours > 0))
         {
-            throw new ValidationException("Fjern fremtidig avspasering før du gjør en bestilling.");
+            return new List<Error> { new(ErrorCodes.InvalidAction, "Fjern fremtidig avspasering før du gjør en bestilling.") };
         }
 
         if (request.Hours > availableForPayout)
         {
-            throw new ValidationException("Ikke nok tilgjengelige timer.");
+            return new List<Error> { new(ErrorCodes.RequestInvalidProperty, "Ikke nok tilgjengelige timer.") };
         }
 
-        await CheckForIncompleteDays(request, userId);
+        var errors = await CheckForIncompleteDays(request, userId);
+        return errors;
     }
 
-    public virtual async Task CheckForIncompleteDays(GenericPayoutHourEntry request, int userId)
+    public virtual async Task<List<Error>> CheckForIncompleteDays(GenericPayoutHourEntry request, int userId)
     {
         var user = await _userService.GetUserById(userId);
+        if (user == null)
+        {
+            return new List<Error> { new(ErrorCodes.MissingEntity, $"Bruke med brukerId: '{userId}' finnes ikke") };
+        }
+        
         var daysToCheck = Math.Min((request.Date - (DateTime)user.StartDate!).Days, 30);
         
         var entriesPast30Days = (await _timeRegistrationService.GetTimeEntries(new TimeEntryQuerySearch
@@ -93,9 +99,12 @@ public class PayoutValidationService
             }
 
             var recordedDay = entriesPast30Days.First(e => e.Key.Date == date);
-            var employmentRateOnDay =
-                await _userService.GetCurrentEmploymentRateForUser(userId, date);
-            var anticipatedWorkHours = HoursInWorkDay * employmentRateOnDay;
+            var usersEmploymentRateResult = await _userService.GetCurrentEmploymentRateForUser(userId, date);
+            if (!usersEmploymentRateResult.IsSuccess)
+            {
+                return usersEmploymentRateResult.Errors;
+            }
+            var anticipatedWorkHours = HoursInWorkDay * usersEmploymentRateResult.Value;
             if (recordedDay.Sum(d => d.Value) < anticipatedWorkHours)
             {
                 incompleteDays.Add(date);
@@ -104,18 +113,18 @@ public class PayoutValidationService
 
         if (incompleteDays.Any())
         {
-            throw new ValidationException(
-                $"Du har ikke fylt opp følgende dager: {string.Join(", ", incompleteDays.Select(i => i.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)))}");
+            return new List<Error> { new(ErrorCodes.InvalidAction, $"Du har ikke fylt opp følgende dager: {string.Join(", ", incompleteDays.Select(i => i.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)))}") };
         }
+        return new List<Error>();
     }
 
-    public async Task ValidatePayoutCancellation(DateTime payoutDate, int userId)
+    public async Task<List<Error>> ValidatePayoutCancellation(DateTime payoutDate, int userId)
     {
         var allActivePayouts = await _payoutStorage.GetActivePayouts(userId);
 
         if (!allActivePayouts.Any())
         {
-            throw new ValidationException("Det er ingen aktive utbetalinger.");
+            return new List<Error> { new(ErrorCodes.MissingEntity, "Det er ingen aktive utbetalinger.") };
         }
 
         var payoutsToBeCancelled =
@@ -123,19 +132,20 @@ public class PayoutValidationService
 
         if (!payoutsToBeCancelled.Any())
         {
-            throw new ValidationException("Utbetaling finnes ikke.");
+            return new List<Error> { new(ErrorCodes.MissingEntity, "Utbetaling finnes ikke.") };
         }
 
         if (!payoutsToBeCancelled.First().Active)
         {
-            throw new ValidationException("Utbetaling er ikke aktiv.");
+            return new List<Error> { new(ErrorCodes.MissingEntity, "Utbetaling er ikke aktiv.") };
         }
 
         var mostRecentPayoutOrderDate = allActivePayouts.OrderBy(p => p.Date).Last().Date;
 
         if (payoutsToBeCancelled.First().Date < mostRecentPayoutOrderDate)
         {
-            throw new ValidationException("Valgt utbetaling må være seneste bestilte utbetaling.");
+            return new List<Error> { new(ErrorCodes.InvalidAction, "Valgt utbetaling må være seneste bestilte utbetaling.") };
         }
+        return new List<Error>();
     }
 }

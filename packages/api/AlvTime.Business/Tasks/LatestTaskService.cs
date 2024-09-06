@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.TimeRegistration;
-using AlvTime.Business.Users;
 
 namespace AlvTime.Business.Tasks
 {
@@ -33,7 +31,9 @@ namespace AlvTime.Business.Tasks
         
             foreach (var taskId in mostRecentlyUsedTaskIds)
             {
-                taskResponses.AddRange(await _taskService.GetTasksForUser(new TaskQuerySearch { Id = taskId }));
+                var tasksForUser = await _taskService.GetTasksForUser(new TaskQuerySearch { Id = taskId });
+                if (tasksForUser.IsSuccess)
+                    taskResponses.AddRange(tasksForUser.Value);
             }
 
             return taskResponses;

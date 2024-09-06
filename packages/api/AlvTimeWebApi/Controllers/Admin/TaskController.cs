@@ -6,6 +6,8 @@ using AlvTimeWebApi.Controllers.Utils;
 using AlvTimeWebApi.Requests;
 using AlvTimeWebApi.Responses;
 using AlvTimeWebApi.Responses.Admin;
+using AlvTime.Business;
+using AlvTimeWebApi.ErrorHandling;
 
 namespace AlvTimeWebApi.Controllers.Admin;
 
@@ -24,14 +26,18 @@ public class TaskController : ControllerBase
     [HttpPost("Tasks")]
     public async Task<ActionResult<TaskResponseSimple>> CreateNewTask([FromBody] TaskUpsertRequest taskToBeCreated, [FromQuery] int projectId)
     {
-        var createdTask = await _taskService.CreateTask(taskToBeCreated.MapToTaskDto(), projectId);
-        return Ok(createdTask.MapToTaskResponseSimple());
+        var result = await _taskService.CreateTask(taskToBeCreated.MapToTaskDto(), projectId);
+        return result.Match<ActionResult<TaskResponseSimple>>(
+            createdTask => Ok(createdTask.MapToTaskResponseSimple()),
+            errors => BadRequest(errors.ToValidationProblemDetails("Oppdater task feilet med følgende feil")));
     }
 
     [HttpPut("Tasks/{taskId:int}")]
     public async Task<ActionResult<TaskResponseSimple>> UpdateTask([FromBody] TaskUpsertRequest taskToBeUpdated, int taskId)
     {
-        var updatedTask = await _taskService.UpdateTask(taskToBeUpdated.MapToTaskDto(taskId));
-        return Ok(updatedTask.MapToTaskResponseSimple());
+        var result = await _taskService.UpdateTask(taskToBeUpdated.MapToTaskDto(taskId));
+        return result.Match<ActionResult<TaskResponseSimple>>(
+            UpdateTask => Ok(UpdateTask.MapToTaskResponseSimple()),
+            errors => BadRequest(errors.ToValidationProblemDetails("Oppdater task feilet med følgende feil")));
     }
 }

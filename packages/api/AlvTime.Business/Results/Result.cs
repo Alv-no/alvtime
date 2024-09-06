@@ -1,8 +1,8 @@
-﻿namespace AlvTime.Business;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+
+namespace AlvTime.Business;
 
 public readonly struct Result
 {
@@ -31,29 +31,29 @@ public readonly struct Result
     public static implicit operator Result(Error error) => new(error);
     
     public TResult Match<TResult>(
-        Func<TResult> success,
+        TResult success,
         Func<List<Error>, TResult> failure) =>
-        IsSuccess ? success() : failure(Errors);
+        IsSuccess ? success : failure(Errors);
 }
 
 public readonly struct Result<TValue>
 {
-    [MemberNotNullWhen(true, nameof(_value))]
+    [MemberNotNullWhen(true, nameof(Value))]
     public bool IsSuccess { get; }
 
-    private readonly TValue? _value;
+    public readonly TValue Value;
     public List<Error> Errors { get; } = new();
 
     public Result(TValue value)
     {
         IsSuccess = true;
-        _value = value;
+        Value = value;
     }
 
     private Result(List<Error> errors)
     {
         IsSuccess = false;
-        _value = default;
+        Value = default;
         Errors = errors;
     }
 
@@ -72,5 +72,5 @@ public readonly struct Result<TValue>
     public TResult Match<TResult>(
         Func<TValue, TResult> success,
         Func<List<Error>, TResult> failure) =>
-        IsSuccess ? success(_value) : failure(Errors);
+        IsSuccess ? success(Value) : failure(Errors);
 }

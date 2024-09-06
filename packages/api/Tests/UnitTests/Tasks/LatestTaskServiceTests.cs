@@ -97,7 +97,7 @@ namespace Tests.UnitTests.Tasks
             {
                 Date = DateTime.Today,
                 Value = 7,
-                TaskId = tasks.First().Id
+                TaskId = tasks.Value.First().Id
             };
 
             var latestTasksForUserBeforeUpdate = await _latestTaskService.GetLatestTasksForUser();
@@ -120,7 +120,7 @@ namespace Tests.UnitTests.Tasks
 
             var taskService = CreateTaskService(context);
 
-            var taskResponseDtos = (await taskService.GetTasksForUser(new TaskQuerySearch())).Where(dto => !dto.Locked).ToList();
+            var taskResponseDtos = (await taskService.GetTasksForUser(new TaskQuerySearch())).Value.Where(dto => !dto.Locked).ToList();
             foreach (var taskResponseDto in taskResponseDtos)
             {
                 var timeEntryDto = new CreateTimeEntryDto
@@ -155,7 +155,7 @@ namespace Tests.UnitTests.Tasks
             {
                 Date = DateTime.Today.AddDays(-31),
                 Value = 7,
-                TaskId = tasks.First().Id
+                TaskId = tasks.Value.First().Id
             };
 
             var latestTasksForUserBeforeUpdate = await _latestTaskService.GetLatestTasksForUser();

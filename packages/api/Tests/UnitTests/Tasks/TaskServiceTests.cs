@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
 using AlvTime.Business.Tasks;
 using AlvTime.Persistence.Repositories;
 using System.Linq;
@@ -26,9 +24,9 @@ namespace Tests.UnitTests.Tasks
 
             var taskService = CreateTaskService(context);
 
-            var tasks = await taskService.GetTasksForUser(new TaskQuerySearch());
+            var results = await taskService.GetTasksForUser(new TaskQuerySearch());
 
-            Assert.Equal(context.Task.Count(), tasks.Count());
+            Assert.Equal(context.Task.Count(), results.Value.Count());
         }
 
         [Fact]
@@ -42,12 +40,12 @@ namespace Tests.UnitTests.Tasks
 
             var taskService = CreateTaskService(context);
 
-            var tasks = await taskService.GetTasksForUser(new TaskQuerySearch
+            var results = await taskService.GetTasksForUser(new TaskQuerySearch
             {
                 Project = 1
             });
 
-            Assert.True(1 == tasks.Single().Project.Id);
+            Assert.True(1 == results.Value.Single().Project.Id);
         }
 
         [Fact]
@@ -60,17 +58,17 @@ namespace Tests.UnitTests.Tasks
                 .CreateDbContext();
 
             var taskService = CreateTaskService(context);
-            var tasks = await taskService.GetTasksForUser(new TaskQuerySearch
+            var results = await taskService.GetTasksForUser(new TaskQuerySearch
             {
                 Project = 2,
                 Locked = true
             });
 
-            Assert.True(tasks.Single().Project.Id == 2 && tasks.Single().Locked);
+            Assert.True(results.Value.Single().Project.Id == 2 && results.Value.Single().Locked);
         }
 
         [Fact]
-        public void FavoriteUpdater_UserCreatesNewFavorite_NewFavoriteIsCreated()
+        public async Task FavoriteUpdater_UserCreatesNewFavorite_NewFavoriteIsCreated()
         {
             var context = new AlvTimeDbContextBuilder()
                 .WithTasks()
@@ -84,7 +82,7 @@ namespace Tests.UnitTests.Tasks
 
             var taskService = CreateTaskService(context);
 
-            taskService.UpdateFavoriteTasks(new List<(int id, bool favorite)> { (2, true) });
+            await taskService.UpdateFavoriteTasks(new List<(int id, bool favorite)> { (2, true) });
 
             var userFavorites = context.TaskFavorites
                 .Where(tf => tf.UserId == 1)
@@ -94,7 +92,7 @@ namespace Tests.UnitTests.Tasks
         }
 
         [Fact]
-        public void
+        public async Task
             FavoriteUpdater_UserCreatesNewFavoriteWithCompensationRate_NewFavoriteIsCreatedCompensationRateIsUnchanged()
         {
             var context = new AlvTimeDbContextBuilder()
@@ -107,7 +105,7 @@ namespace Tests.UnitTests.Tasks
 
             var previousCompensationRate = context.Task.FirstOrDefault(x => x.Id == 2)?.CompensationRate;
 
-            taskService.UpdateFavoriteTasks(new List<(int id, bool favorite)> { (2, true) });
+            await taskService.UpdateFavoriteTasks(new List<(int id, bool favorite)> { (2, true) });
 
             var task = context.Task.FirstOrDefault(x => x.Id == 2);
 
@@ -115,7 +113,7 @@ namespace Tests.UnitTests.Tasks
         }
 
         [Fact]
-        public void FavoriteUpdater_UserRemovesExistingFavorite_ExistingFavoriteIsRemoved()
+        public async Task FavoriteUpdater_UserRemovesExistingFavorite_ExistingFavoriteIsRemoved()
         {
             var context = new AlvTimeDbContextBuilder()
                 .WithTasks()
@@ -130,7 +128,7 @@ namespace Tests.UnitTests.Tasks
                 .Where(tf => tf.UserId == 1)
                 .ToList().Count();
 
-            taskService.UpdateFavoriteTasks(new List<(int id, bool favorite)> { (1, false) });
+            await taskService.UpdateFavoriteTasks(new List<(int id, bool favorite)> { (1, false) });
 
             var userFavorites = context.TaskFavorites
                 .Where(tf => tf.UserId == 1)
@@ -173,10 +171,12 @@ namespace Tests.UnitTests.Tasks
 
             var previousNumberOfTasks = context.Task.Count();
 
-            await Assert.ThrowsAsync<ValidationException>(async () => await taskService.CreateTask(new TaskDto
+            var taskResult = await taskService.CreateTask(new TaskDto
             {
                 Name = "ExampleTask", Description = "", Locked = false
-            }, 1));
+            }, 1);
+            Assert.False(taskResult.IsSuccess);
+            Assert.Single(taskResult.Errors);
             Assert.Equal(previousNumberOfTasks, context.Task.Count());
         }
 
