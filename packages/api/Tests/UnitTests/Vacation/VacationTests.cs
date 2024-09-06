@@ -109,6 +109,36 @@ namespace Tests.UnitTests.Vacation
                 {new() {Date = dateToTest, Value = hours, TaskId = _options.CurrentValue.PaidHolidayTask}}));
         }
 
+        [Fact]
+        public async System.Threading.Tasks.Task RegisterVacation_CorrectHoursAmountPartTimeWorker_VacationRegistered()
+        {
+            _context.EmploymentRate.Add(new EmploymentRate
+            {
+                UserId = 1,
+                Rate = 0.5M,
+                FromDate = new DateTime(2021, 01, 01),
+                ToDate = new DateTime(2022, 01, 08)
+            });
+
+            await _context.SaveChangesAsync();
+
+            var dateToTest = new DateTime(2021, 12, 13);
+            var hours = 3.75M;
+            await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+                {new() {Date = dateToTest, Value = hours, TaskId = _options.CurrentValue.PaidHolidayTask}});
+
+            var vacationEntries = await _timeRegistrationService.GetTimeEntries(new TimeEntryQuerySearch
+            {
+                TaskId = _options.CurrentValue.PaidHolidayTask
+            });
+
+            Assert.Single(vacationEntries);
+
+            var vacationEntry = vacationEntries.First();
+
+            Assert.Equal(hours, vacationEntry.Value);
+        }
+
         private TimeRegistrationService CreateTimeRegistrationService()
         {
             return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
