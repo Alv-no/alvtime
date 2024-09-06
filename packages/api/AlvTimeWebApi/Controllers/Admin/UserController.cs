@@ -30,16 +30,18 @@ public class UserController : ControllerBase
     [HttpGet("Users")]
     public async Task<ActionResult<IEnumerable<UserAdminResponse>>> FetchUsers()
     {
-        var users = await _userService.GetUsers(new UserQuerySearch());
-        return Ok(users.Select(u => u.MapToUserResponse()));
+        var result = await _userService.GetUsers(new UserQuerySearch());
+        return result.Match<ActionResult<IEnumerable<UserAdminResponse>>>(
+            users => Ok(users.Select(u => u.MapToUserResponse())),
+            errors => BadRequest(errors.ToValidationProblemDetails("Hent brukere feilet")));
     }
     
     [HttpPost("Users")]
     public async Task<ActionResult<UserAdminResponse>> CreateNewUsers([FromBody] UserUpsertRequest userToBeCreated)
     {
-        var createdUser = await _userService.CreateUser(userToBeCreated.MapToUserDto());
-        return createdUser.Match<ActionResult>(
-            user => Ok(user.MapToUserResponse()),
+        var result = await _userService.CreateUser(userToBeCreated.MapToUserDto());
+        return result.Match<ActionResult<UserAdminResponse>>(
+            user => user.MapToUserResponse(),
             errors => BadRequest(errors.ToValidationProblemDetails("Opprettelse av bruker feilet")));
     }
 

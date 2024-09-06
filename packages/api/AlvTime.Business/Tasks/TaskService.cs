@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.Users;
@@ -17,15 +16,15 @@ namespace AlvTime.Business.Tasks
             _userContext = userContext;
         }
 
-        public async Task<IEnumerable<TaskResponseDto>> GetTasksForUser(TaskQuerySearch criteria)
+        public async Task<Result<IEnumerable<TaskResponseDto>>> GetTasksForUser(TaskQuerySearch criteria)
         {
             var currentUser = await _userContext.GetCurrentUser();
             var tasks = await _taskStorage.GetUsersTasks(criteria, currentUser.Id);
 
-            return tasks;
+            return new Result<IEnumerable<TaskResponseDto>>(tasks);
         }
 
-        public async Task<IEnumerable<TaskResponseDto>> UpdateFavoriteTasks(
+        public async Task<Result<IEnumerable<TaskResponseDto>>> UpdateFavoriteTasks(
             IEnumerable<(int id, bool favorite)> tasksToUpdate)
         {
             var currentUser = await _userContext.GetCurrentUser();
@@ -55,19 +54,19 @@ namespace AlvTime.Business.Tasks
             return await GetTaskForUser(taskId, userId);
         }
 
-        public async Task<TaskDto> CreateTask(TaskDto taskToBeCreated, int projectId)
+        public async Task<Result<TaskDto>> CreateTask(TaskDto taskToBeCreated, int projectId)
         {
             var taskAlreadyExists = (await GetTask(taskToBeCreated.Name, projectId)).Any();
             if (taskAlreadyExists)
             {
-                throw new ValidationException("En timekode med det navnet finnes allerede på prosjektet");
+                return new Error(ErrorCodes.EntityAlreadyExists, "En timekode med det navnet finnes allerede på prosjektet");
             }
 
             await _taskStorage.CreateTask(taskToBeCreated, projectId);
             return (await GetTask(taskToBeCreated.Name, projectId)).First();
         }
 
-        public async Task<TaskDto> UpdateTask(TaskDto taskToBeUpdated)
+        public async Task<Result<TaskDto>> UpdateTask(TaskDto taskToBeUpdated)
         {
             await _taskStorage.UpdateTask(taskToBeUpdated);
             var task = await GetTaskById(taskToBeUpdated.Id);

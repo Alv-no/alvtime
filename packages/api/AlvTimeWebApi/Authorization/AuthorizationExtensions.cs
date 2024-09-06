@@ -16,6 +16,6 @@ public static class AuthorizationExtensions
             options.AddPolicy(AllowPersonalAccessTokenPolicy.Name, AllowPersonalAccessTokenPolicy.Build);
             options.AddPolicy(ReportAuthorizationPolicy.Name, ReportAuthorizationPolicy.Build);
         });
-        services.AddScoped<IAuthorizationHandler, EmployeeStillActiveHandler>();
+        services.AddScoped<IAuthorizationHandler, EmployeeIsActiveHandler>();
     }
 }

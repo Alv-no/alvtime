@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:alv_time_app/features/homescreen/carousel.dart'; // Correct import for Carousel widget
-import 'package:alv_time_app/features/homescreen/widgets/gradient/gradient.dart';
 import 'package:alv_time_app/const.dart';
+import 'package:alv_time_app/core/widgets/core_navigation_bar/core_navigation_bar.dart';
+import '../../core/widgets/gradient/core_gradient.dart';
 
 class HomeScreenWidget extends StatelessWidget {
   const HomeScreenWidget({super.key});
@@ -11,25 +12,23 @@ class HomeScreenWidget extends StatelessWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text(
-          appName,
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
+          title: const Text(
+        appName,
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      )),
+      bottomNavigationBar: const CoreNavigationBar(),
       body: Stack(
         children: [
-          TimebasedGradientBackground(
-            child: Center(
+          CoreTimebasedGradientBackground(
+            child: const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
+                  Text(
                     'Faktureringsgrad',
                     style: TextStyle(color: Colors.white, fontSize: 40),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
                 ],
               ),
             ),
@@ -39,17 +38,6 @@ class HomeScreenWidget extends StatelessWidget {
                 Alignment.bottomCenter, // Align Carousel at the bottom center
             child: Carousel(), // Carousel widget
           ),
-        ],
-      ),
-      bottomNavigationBar: NavigationBar(
-        backgroundColor: Colors.transparent,
-        elevation: 30,
-        destinations: const [
-          NavigationDestination(
-              icon: Icon(Icons.home_filled), label: 'Oversikt'),
-          NavigationDestination(
-              icon: Icon(Icons.bar_chart), label: 'Statistikk'),
-          NavigationDestination(icon: Icon(Icons.person), label: 'Profil'),
         ],
       ),
     );

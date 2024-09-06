@@ -22,6 +22,20 @@ public class PayoutStorage : IPayoutStorage
         this.dateAlvTime = dateAlvTime;
     }
 
+    public async Task<int> SetPaymentsToLocked(PayoutQueryFilter criterias, DateTime lockedDate)
+    {
+        var payouts = await _context.PaidOvertime.AsQueryable()
+            .Filter(criterias)
+            .ToListAsync();
+        
+        foreach (var paidOvertime in payouts.Where(overtime => !overtime.IsLocked))
+        {
+            paidOvertime.IsLocked = paidOvertime.Date <= lockedDate;
+        }
+        
+        return await _context.SaveChangesAsync();
+    }
+
     public async Task<PayoutsDto> GetRegisteredPayouts(PayoutQueryFilter criterias)
     {
         var payouts = await _context.PaidOvertime.AsQueryable()
@@ -47,7 +61,8 @@ public class PayoutStorage : IPayoutStorage
     private bool IsPayoutActive(PaidOvertime po)
     {
         var cutOffDate = FindClosestPreviousCutoffDate();
-        return po.Date >= cutOffDate;
+        var isPayoutActive = po.Date >= cutOffDate && !po.IsLocked;
+        return isPayoutActive;
     }
 
     private DateTime FindClosestPreviousCutoffDate()

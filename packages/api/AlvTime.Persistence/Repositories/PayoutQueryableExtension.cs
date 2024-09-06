@@ -20,6 +20,10 @@ namespace AlvTime.Persistence.Repositories
             {
                 query = query.Where(entry => entry.Date.Date <= criterias.ToDateInclusive);
             }
+            if (criterias.IsLocked != null)
+            {
+                query = query.Where(entry => entry.IsLocked == criterias.IsLocked);
+            }
 
             return query;
         }

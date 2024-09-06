@@ -24,18 +24,22 @@ public class PayoutService
         _payoutValidationService = payoutValidationService;
     }
 
-    public async Task<PayoutsDto> GetRegisteredPayouts()
+    public async Task<Result<PayoutsDto>> GetRegisteredPayouts()
     {
         var currentUser = await _userContext.GetCurrentUser();
 
         return await _payoutStorage.GetRegisteredPayouts(new PayoutQueryFilter { UserId = currentUser.Id });
     }
 
-    public async Task<PayoutDto> RegisterPayout(GenericPayoutHourEntry request)
+    public async Task<Result<PayoutDto>> RegisterPayout(GenericPayoutHourEntry request)
     {
         var currentUser = await _userContext.GetCurrentUser();
 
-        await _payoutValidationService.ValidatePayout(request, currentUser.Id);
+        var validationErrors = await _payoutValidationService.ValidatePayout(request, currentUser.Id);
+        if (validationErrors.Any())
+        {
+            return validationErrors;
+        }
 
         var availableHours = await _timeRegistrationService.GetAvailableOvertimeHoursAtDate(request.Date.Date);
 
@@ -54,12 +58,17 @@ public class PayoutService
         };
     }
 
-    public async Task CancelPayout(DateTime payoutDate)
+    public async Task<Result> CancelPayout(DateTime payoutDate)
     {
         var date = payoutDate.Date;
         var currentUser = await _userContext.GetCurrentUser();
-        await _payoutValidationService.ValidatePayoutCancellation(date, currentUser.Id);
+        var validationErrors = await _payoutValidationService.ValidatePayoutCancellation(date, currentUser.Id);
+        if (validationErrors.Any())
+        {
+            return validationErrors;
+        }
         await _payoutStorage.CancelPayout(date, currentUser);
+        return default;
     }
 
     private List<PayoutToRegister> CalculatePayoutHoursBasedOnAvailableOvertime(decimal requestedHours,
@@ -97,5 +106,10 @@ public class PayoutService
         }
 
         return listOfPayouts;
+    }
+
+    public async Task<Result<int>> LockPayments(DateTime lockDate)
+    {
+        return await _payoutStorage.SetPaymentsToLocked(new PayoutQueryFilter{IsLocked = false}, lockDate.Date);
     }
 }

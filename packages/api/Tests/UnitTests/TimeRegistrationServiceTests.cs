@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AlvTime.Business;
 using AlvTime.Business.Options;
 using AlvTime.Business.Payouts;
 using AlvTime.Business.TimeRegistration;
@@ -58,7 +59,7 @@ public class TimeRegistrationServiceTests
 
         var payoutValidationServiceMock = new Mock<PayoutValidationService>(new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)),
             _timeRegistrationService, new PayoutStorage(_context, new DateAlvTime()));
-        payoutValidationServiceMock.Setup(x => x.CheckForIncompleteDays(It.IsAny<GenericPayoutHourEntry>(), It.IsAny<int>())).Returns(System.Threading.Tasks.Task.FromResult(System.Threading.Tasks.Task.CompletedTask));
+        payoutValidationServiceMock.Setup(x => x.CheckForIncompleteDays(It.IsAny<GenericPayoutHourEntry>(), It.IsAny<int>())).Returns(System.Threading.Tasks.Task.FromResult(new List<Error>()));
         payoutValidationServiceMock.CallBase = true;
         _payoutService = new PayoutService(new PayoutStorage(_context, new DateAlvTime()), _userContextMock.Object,
             _timeRegistrationService, payoutValidationServiceMock.Object);
@@ -79,8 +80,11 @@ public class TimeRegistrationServiceTests
         });
 
         var flexTimeEntry = CreateTimeEntryForExistingTask(new DateTime(2021, 12, 13), 1, 18);
-        await Assert.ThrowsAsync<Exception>(async () => await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-            { new() { Date = flexTimeEntry.Date, Value = flexTimeEntry.Value, TaskId = flexTimeEntry.TaskId } }));
+        var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = flexTimeEntry.Date, Value = flexTimeEntry.Value, TaskId = flexTimeEntry.TaskId } });
+
+        Assert.False(timeEntryResult.IsSuccess);
+        Assert.True(timeEntryResult.Errors.Any());
     }
 
     [Fact]
@@ -97,8 +101,11 @@ public class TimeRegistrationServiceTests
         });
 
         var timeEntry2 = CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 08), 19.5M, 1.5M, out _); //Monday
-        await Assert.ThrowsAsync<Exception>(async () => await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-            { new() { Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId } }));
+        var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId } });
+
+        Assert.False(timeEntryResult.IsSuccess);
+        Assert.True(timeEntryResult.Errors.Any());
     }
 
     [Fact]
@@ -107,8 +114,11 @@ public class TimeRegistrationServiceTests
         var vacationEntry =
             CreateTimeEntryForExistingTask(new DateTime(2021, 12, 24), 7.5M, 13);
 
-        await Assert.ThrowsAsync<Exception>(async () => await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-            {new() {Date = vacationEntry.Date, Value = vacationEntry.Value, TaskId = vacationEntry.TaskId}}));
+        var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            {new() {Date = vacationEntry.Date, Value = vacationEntry.Value, TaskId = vacationEntry.TaskId}});
+
+        Assert.False(timeEntryResult.IsSuccess);
+        Assert.True(timeEntryResult.Errors.Any());
     }
 
     [Fact]
@@ -132,8 +142,11 @@ public class TimeRegistrationServiceTests
 
         var timeEntry3 =
             CreateTimeEntryForExistingTask(new DateTime(2022, 01, 28), 2M, taskId2); //Friday
-        await Assert.ThrowsAsync<Exception>(async () => await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-            { new() { Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId } }));
+        var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId } });
+
+        Assert.False(timeEntryResult.IsSuccess);
+        Assert.True(timeEntryResult.Errors.Any());
     }
 
     [Fact]
@@ -150,8 +163,11 @@ public class TimeRegistrationServiceTests
 
         var timeRegistrationService = CreateTimeRegistrationService();
         var vacationEntry = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 03), 7.5M, 13); //Monday
-        await Assert.ThrowsAsync<Exception>(async () => await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-            { new() { Date = vacationEntry.Date, Value = vacationEntry.Value, TaskId = vacationEntry.TaskId } }));
+        var timeEntryResult = await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = vacationEntry.Date, Value = vacationEntry.Value, TaskId = vacationEntry.TaskId } });
+
+        Assert.False(timeEntryResult.IsSuccess);
+        Assert.True(timeEntryResult.Errors.Any());
     }
     
     [Fact]

@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Data;
+using System.Collections.Generic;
 using System.Linq;
+using AlvTime.Business;
 using AlvTime.Business.Users;
 using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;
-using FluentValidation;
 using Xunit;
 using Task = System.Threading.Tasks.Task;
 
@@ -79,9 +79,8 @@ public class UserServiceTests
             {
                 Email = "user 2", Name = "user 2", EmployeeId = 2, StartDate = new DateTime(1900, 01, 01)
             }));
-        var user = result.Match(user => user, _ => throw new Exception());
-        var result2 = await
-            userService.UpdateUser(new UserDto { Id = user.Id, Email = "user 1" });
+        var user = result.Value;
+        var result2 = await userService.UpdateUser(new UserDto { Id = user.Id, Email = "user 1" });
         
         Assert.False(result2.IsSuccess);
         Assert.Equal("En bruker har allerede blitt tildelt det ansattnummeret, eposten eller navnet.", result2.Errors.First().Description);
@@ -255,7 +254,7 @@ public class UserServiceTests
 
         var rate = await userService.GetCurrentEmploymentRateForUser(1, new DateTime(2022, 04, 02));
 
-        Assert.Equal(0.3M, rate);
+        Assert.Equal(0.3M, rate.Value);
     }
 
     private UserService CreateUserService()

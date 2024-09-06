@@ -22,7 +22,7 @@ namespace AlvTimeWebApi.Controllers
         {
             _timeRegistrationService = timeRegistrationService;
         }
-        
+
         [HttpGet("AvailableHours")]
         public async Task<AvailableOvertimeResponse> FetchAvailableHours()
         {
@@ -39,11 +39,12 @@ namespace AlvTimeWebApi.Controllers
                 }).ToList()
             };
         }
-        
+
         [HttpGet("EarnedOvertime")]
         public async Task<List<EarnedOvertimeDto>> FetchEarnedOvertime(DateTime startDate, DateTime endDate)
         {
-            return await _timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter { FromDateInclusive = startDate, ToDateInclusive = endDate});
+            return await _timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
+                { FromDateInclusive = startDate, ToDateInclusive = endDate });
         }
     }
 }

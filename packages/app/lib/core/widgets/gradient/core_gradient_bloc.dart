@@ -21,7 +21,7 @@ const _nightGradient = [
   Color(0xff2c5364)
 ];
 
-class GradientBloc {
+class CoreGradientBloc {
   final Stream<List<Color>> timeOfDayStream =
       Stream.periodic(const Duration(hours: 1)).startWith(1).map((_) {
     final hour = DateTime.now().hour;

@@ -14,11 +14,14 @@ public interface IPayoutStorage
 
     Task CancelPayout(DateTime payoutDate, User currentUser);
     Task<List<PayoutDto>> GetActivePayouts(int userId);
+    public Task<int> SetPaymentsToLocked(PayoutQueryFilter criterias, DateTime lockedDate);
 }
 
 public class PayoutQueryFilter
 {
     public DateTime? FromDateInclusive { get; set; }
     public DateTime? ToDateInclusive { get; set; }
+    
+    public bool? IsLocked { get; set; }
     public int? UserId { get; set; }
 }
