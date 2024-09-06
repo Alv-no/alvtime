@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:alv_time_app/features/homescreen/carousel.dart';
+import 'package:alv_time_app/features/homescreen/carousel.dart'; // Correct import for Carousel widget
 import 'package:alv_time_app/features/homescreen/widgets/gradient/gradient.dart';
 import 'package:alv_time_app/const.dart';
 
@@ -18,20 +18,28 @@ class HomeScreenWidget extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: TimebasedGradientBackground(
-        body: Carousel(),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Faktureringsgrad',
-                style: TextStyle(color: Colors.white, fontSize: 40),
+      body: Stack(
+        children: [
+          TimebasedGradientBackground(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Faktureringsgrad',
+                    style: TextStyle(color: Colors.white, fontSize: 40),
+                  ),
+                  const SizedBox(height: 20),
+                ],
               ),
-              const SizedBox(height: 20),
-            ],
+            ),
           ),
-        ),
+          Align(
+            alignment:
+                Alignment.bottomCenter, // Align Carousel at the bottom center
+            child: Carousel(), // Carousel widget
+          ),
+        ],
       ),
       bottomNavigationBar: NavigationBar(
         backgroundColor: Colors.transparent,
