@@ -98,19 +98,9 @@ public class PayoutService
 
         return listOfPayouts;
     }
-    
-    public async Task LockPayments(DateTime lockDate)
-    {
-        var date = lockDate.Date;
-        var currentUser = await _userContext.GetCurrentUser();
-        var registeredPayouts = _payoutStorage.GetRegisteredPayouts(new PayoutQueryFilter());
-        var payoutsDto = await registeredPayouts;
-        foreach (var genericPayoutEntry in payoutsDto.Entries)
-        {
-            genericPayoutEntry.
-        }
-        // loop through active payments
-            // set payment to locked if date is before lockdate
 
-        return
+    public async Task<int> LockPayments(DateTime lockDate)
+    {
+        return await _payoutStorage.SetPaymentsToLocked(new PayoutQueryFilter(), lockDate.Date);
+    }
 }

@@ -14,6 +14,7 @@ public interface IPayoutStorage
 
     Task CancelPayout(DateTime payoutDate, User currentUser);
     Task<List<PayoutDto>> GetActivePayouts(int userId);
+    public Task<int> SetPaymentsToLocked(PayoutQueryFilter criterias, DateTime lockedDate);
 }
 
 public class PayoutQueryFilter
