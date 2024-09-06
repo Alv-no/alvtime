@@ -226,6 +226,30 @@ namespace Tests.UnitTests
                 Locked = true
             });
 
+            _context.Task.Add(new Task
+            {
+                Id = 5,
+                Description = "",
+                Project = 2,
+                Name = "ExampleTaskFive"
+            });
+
+            _context.Task.Add(new Task
+            {
+                Id = 6,
+                Description = "",
+                Project = 2,
+                Name = "ExampleTaskSix"
+            });
+            
+            _context.Task.Add(new Task
+            {
+                Id = 7,
+                Description = "",
+                Project = 2,
+                Name = "ExampleTaskSeven"
+            });
+            
             _context.CompensationRate.Add(new CompensationRate
             {
                 TaskId = 1,
@@ -243,6 +267,27 @@ namespace Tests.UnitTests
             _context.CompensationRate.Add(new CompensationRate
             {
                 TaskId = 3,
+                Value = 0.5M,
+                FromDate = new DateTime(2019, 01 ,01)
+            });
+            
+            _context.CompensationRate.Add(new CompensationRate
+            {
+                TaskId = 5,
+                Value = 1.5M,
+                FromDate = new DateTime(2019, 01 ,01)
+            });
+
+            _context.CompensationRate.Add(new CompensationRate
+            {
+                TaskId = 6,
+                Value = 1.0M,
+                FromDate = new DateTime(2019, 01 ,01)
+            });
+            
+            _context.CompensationRate.Add(new CompensationRate
+            {
+                TaskId = 7,
                 Value = 0.5M,
                 FromDate = new DateTime(2019, 01 ,01)
             });
