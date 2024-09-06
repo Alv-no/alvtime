@@ -7,11 +7,11 @@ using Task = System.Threading.Tasks.Task;
 
 namespace AlvTimeWebApi.Authorization.Handlers;
 
-public class EmployeeStillActiveHandler : AuthorizationHandler<EmployeeStillActiveRequirement>
+public class EmployeeIsActiveHandler : AuthorizationHandler<EmployeeStillActiveRequirement>
 {
     private readonly AlvTime_dbContext _alvtimeDbContext;
 
-    public EmployeeStillActiveHandler(AlvTime_dbContext alvtimeDbContext)
+    public EmployeeIsActiveHandler(AlvTime_dbContext alvtimeDbContext)
     {
         _alvtimeDbContext = alvtimeDbContext;
     }
