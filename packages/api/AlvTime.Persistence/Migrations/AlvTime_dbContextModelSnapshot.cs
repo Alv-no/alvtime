@@ -307,6 +307,9 @@ namespace AlvTime.Persistence.Migrations
                     b.Property<decimal>("HoursBeforeCompRate")
                         .HasColumnType("decimal(6,2)");
 
+                    b.Property<bool>("IsLocked")
+                        .HasColumnType("bit");
+
                     b.Property<int>("User")
                         .HasColumnType("int");
 
