@@ -56,7 +56,7 @@ namespace Tests.UnitTests.Vacation
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task CorrectNumberOfVacationHours()
+        public async System.Threading.Tasks.Task RegisterVacation_CorrectHoursAmountFullTimeWorker_VacationRegistered()
         {
             var dateToTest = new DateTime(2021, 12, 13);
             var hours = 7.5M;
@@ -76,7 +76,7 @@ namespace Tests.UnitTests.Vacation
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task ZeroNumberOfVacationHours()
+        public async System.Threading.Tasks.Task RegisterVacation_ZeroHours_VacationRegistered()
         {
             var dateToTest = new DateTime(2021, 12, 13);
             var hours = 0;
@@ -96,7 +96,7 @@ namespace Tests.UnitTests.Vacation
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task TooFewNumberOfVacationHours()
+        public async System.Threading.Tasks.Task RegisterVacation_TooFewHours_VacationRegisteredFailed()
         {
             var dateToTest = new DateTime(2021, 12, 13);
             var hours = 6M;
@@ -105,7 +105,7 @@ namespace Tests.UnitTests.Vacation
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task TooManyNumberOfVacationHours()
+        public async System.Threading.Tasks.Task RegisterVacation_TooManyHours_VacationRegisteredFailed()
         {
             var dateToTest = new DateTime(2021, 12, 13);
             var hours = 9M;
