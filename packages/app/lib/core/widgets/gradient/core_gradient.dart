@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import 'gradient_bloc.dart';
+import 'core_gradient_bloc.dart';
 
-class TimebasedGradientBackground extends StatelessWidget {
+class CoreTimebasedGradientBackground extends StatelessWidget {
   final Widget? child;
   final Widget? body;
 
-  TimebasedGradientBackground({super.key, this.child, this.body});
-  final GradientBloc _gradientBloc = GradientBloc();
+  CoreTimebasedGradientBackground({super.key, this.child, this.body});
+  final CoreGradientBloc _gradientBloc = CoreGradientBloc();
 
   @override
   Widget build(BuildContext context) {
