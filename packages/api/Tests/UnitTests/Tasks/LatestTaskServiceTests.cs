@@ -16,7 +16,7 @@ using Microsoft.Extensions.Options;
 
 namespace Tests.UnitTests.Tasks
 {
-    public class LatestTaskStorageTests
+    public class LatestTaskServiceTests
     {
         private readonly AlvTime_dbContext _context;
         private readonly IOptionsMonitor<TimeEntryOptions> _options;
@@ -24,7 +24,7 @@ namespace Tests.UnitTests.Tasks
         private readonly TimeRegistrationService _timeRegistrationService;
         private readonly LatestTaskService _latestTaskService;
 
-        public LatestTaskStorageTests()
+        public LatestTaskServiceTests()
         {
             _context = new AlvTimeDbContextBuilder()
                 .WithTasks()
@@ -120,7 +120,7 @@ namespace Tests.UnitTests.Tasks
 
             var taskService = CreateTaskService(context);
 
-            var taskResponseDtos = (await taskService.GetTasksForUser(new TaskQuerySearch())).ToList().Where(dto => !dto.Locked).ToList();
+            var taskResponseDtos = (await taskService.GetTasksForUser(new TaskQuerySearch())).Where(dto => !dto.Locked).ToList();
             foreach (var taskResponseDto in taskResponseDtos)
             {
                 var timeEntryDto = new CreateTimeEntryDto
