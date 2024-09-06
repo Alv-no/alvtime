@@ -11,6 +11,7 @@ using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.Responses;
 using AlvTimeWebApi.Utils;
+using AlvTimeWebApi.ErrorHandling;
 
 namespace AlvTimeWebApi.Controllers;
 
@@ -41,7 +42,6 @@ public class TimeEntriesController : Controller
         try
         {
             var user = _userRetriever.RetrieveUser();
-
             return Ok((await _storage.GetTimeEntries(new TimeEntryQuerySearch
                 {
                     UserId = user.Id,
@@ -74,8 +74,9 @@ public class TimeEntriesController : Controller
     [AuthorizePersonalAccessToken]
     public async Task<ActionResult<List<TimeEntryResponseDto>>> UpsertTimeEntry([FromBody] List<CreateTimeEntryDto> requests)
     {
-        return Ok((await _timeRegistrationService.UpsertTimeEntry(requests))
-            .Select(timeEntry => new
+        var result = await _timeRegistrationService.UpsertTimeEntry(requests);
+        return result.Match<ActionResult<List<TimeEntryResponseDto>>>(
+            timeEntries => Ok(timeEntries.Select(timeEntry => new
             {
                 User = timeEntry.User,
                 UserEmail = timeEntry.UserEmail,
@@ -85,7 +86,8 @@ public class TimeEntriesController : Controller
                 TaskId = timeEntry.TaskId,
                 Comment = timeEntry.Comment,
                 CommentedAt = timeEntry.CommentedAt
-            }));
+            })),
+            errors => BadRequest(errors.ToValidationProblemDetails("Timeføring feilet med følgende feil")));
     }
         
     [HttpGet("FlexedHours")]

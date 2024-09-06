@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AlvTime.Business;
 using AlvTime.Business.Options;
 using AlvTime.Business.Payouts;
 using AlvTime.Business.TimeRegistration;
@@ -59,7 +60,7 @@ public class OvertimeTests
 
         _payoutValidationServiceMock = new Mock<PayoutValidationService>(new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)),
             _timeRegistrationService, new PayoutStorage(_context, new DateAlvTime()));
-        _payoutValidationServiceMock.Setup(x => x.CheckForIncompleteDays(It.IsAny<GenericPayoutHourEntry>(), It.IsAny<int>())).Returns(System.Threading.Tasks.Task.FromResult(System.Threading.Tasks.Task.CompletedTask));
+        _payoutValidationServiceMock.Setup(x => x.CheckForIncompleteDays(It.IsAny<GenericPayoutHourEntry>(), It.IsAny<int>())).Returns(System.Threading.Tasks.Task.FromResult(new List<Error>()));
         _payoutValidationServiceMock.CallBase = true;
     }
 
@@ -153,8 +154,11 @@ public class OvertimeTests
     {
         var dateToTest = new DateTime(2021, 12, 11); //Saturday
         var timeEntry = CreateTimeEntryForExistingTask(dateToTest, 7.5M, 14);
-        await Assert.ThrowsAsync<Exception>(async () => await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-            {new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId}}));
+        var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            {new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId}});
+
+        Assert.False(timeEntryResult.IsSuccess);
+        Assert.True(timeEntryResult.Errors.Any());
     }
 
     [Fact]
@@ -162,8 +166,11 @@ public class OvertimeTests
     {
         var dateToTest = new DateTime(2021, 12, 13); //Monday
         var timeEntry = CreateTimeEntryForExistingTask(dateToTest, 10M, 14);
-        await Assert.ThrowsAsync<Exception>(async () => await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-            {new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId}}));
+        var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            {new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId}});
+
+        Assert.False(timeEntryResult.IsSuccess);
+        Assert.True(timeEntryResult.Errors.Any());
     }
 
     [Fact]
@@ -265,12 +272,12 @@ public class OvertimeTests
         try
         {
             await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-                {new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId}});
+            {new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId}});
         }
         catch (Exception)
         {
-            var earnedOvertime = await timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
-                {FromDateInclusive = dateToTest, ToDateInclusive = dateToTest});
+        var earnedOvertime = await timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
+            {FromDateInclusive = dateToTest, ToDateInclusive = dateToTest});
 
             Assert.Empty(sqliteContext.Hours);
             Assert.Empty(earnedOvertime);
@@ -451,7 +458,7 @@ public class OvertimeTests
             {new() {Date = timeEntry3.entry.Date, Value = timeEntry3.entry.Value, TaskId = timeEntry3.taskId}});
 
         var payoutService = CreatePayoutService(_timeRegistrationService);
-        var registeredPayout = await payoutService.RegisterPayout(new GenericPayoutHourEntry
+        var registeredPayoutResult = await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2021, 12, 07), // Wednesday
             Hours = 11
@@ -461,6 +468,8 @@ public class OvertimeTests
             
         Assert.Equal(15.5M, availableHours.AvailableHoursAfterCompensation);
         Assert.Equal(13M, availableHours.AvailableHoursBeforeCompensation);
+        Assert.True(registeredPayoutResult.IsSuccess);
+        var registeredPayout = registeredPayoutResult.Value;
         Assert.Equal(6.5M, registeredPayout.HoursAfterCompensation);
     }
 
@@ -673,9 +682,12 @@ public class OvertimeTests
             {new() {Date = timeEntry1.entry.Date, Value = timeEntry1.entry.Value, TaskId = timeEntry1.taskId}});
         var flexTimeEntry =
             CreateTimeEntryForExistingTask(new DateTime(2021, 12, 14), 2M, 18);
-        await Assert.ThrowsAsync<Exception>(async () => await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-            {new() {Date = flexTimeEntry.Date, Value = flexTimeEntry.Value, TaskId = flexTimeEntry.TaskId}}));
-            
+        var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            {new() {Date = flexTimeEntry.Date, Value = flexTimeEntry.Value, TaskId = flexTimeEntry.TaskId}});
+
+        Assert.False(timeEntryResult.IsSuccess);
+        Assert.True(timeEntryResult.Errors.Any());
+
         var availableHours = await _timeRegistrationService.GetAvailableOvertimeHoursNow();
 
         Assert.Equal(1M, availableHours.AvailableHoursBeforeCompensation);
@@ -687,8 +699,11 @@ public class OvertimeTests
     { 
         var flexTimeEntry =
             CreateTimeEntryForExistingTask(new DateTime(2021, 12, 14), 1M, 18);
-        await Assert.ThrowsAsync<Exception>(async () => await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-            {new() {Date = flexTimeEntry.Date, Value = flexTimeEntry.Value, TaskId = flexTimeEntry.TaskId}}));
+        var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            {new() {Date = flexTimeEntry.Date, Value = flexTimeEntry.Value, TaskId = flexTimeEntry.TaskId}});
+
+        Assert.False(timeEntryResult.IsSuccess);
+        Assert.True(timeEntryResult.Errors.Any());
     }
 
     [Fact]
@@ -784,12 +799,15 @@ public class OvertimeTests
             { new() { Date = timeEntry4.entry.Date, Value = timeEntry4.entry.Value, TaskId = timeEntry4.taskId } });
 
         var payoutService = CreatePayoutService(_timeRegistrationService);
-        var response = await payoutService.RegisterPayout(new GenericPayoutHourEntry
+        var registeredPayoutResult = await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2022, 01, 04), //Tuesday
             Hours = 9
         });
-        Assert.Equal(5.5M, response.HoursAfterCompensation);
+
+        Assert.True(registeredPayoutResult.IsSuccess);
+        var registeredPayout = registeredPayoutResult.Value;
+        Assert.Equal(5.5M, registeredPayout.HoursAfterCompensation);
     }
         
     [Fact]
@@ -916,7 +934,7 @@ public class OvertimeTests
             { new() { Date = imposedTimeEntry.Date, Value = imposedTimeEntry.Value, TaskId = imposedTimeEntry.TaskId } });
 
         var payoutService = CreatePayoutService(_timeRegistrationService);
-        var payout = await payoutService.RegisterPayout(new GenericPayoutHourEntry
+        var registeredPayoutResult = await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2022, 01, 03), //Thursday
             Hours = 2
@@ -924,7 +942,9 @@ public class OvertimeTests
         
         var overtime = await _timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2022, 01, 04));
         Assert.Equal(0.0M, overtime.AvailableHoursBeforeCompensation);
-        Assert.Equal(4.0M, payout.HoursAfterCompensation);
+        Assert.True(registeredPayoutResult.IsSuccess);
+        var registeredPayout = registeredPayoutResult.Value;
+        Assert.Equal(4.0M, registeredPayout.HoursAfterCompensation);
     }
     
     
@@ -966,7 +986,7 @@ public class OvertimeTests
             { new() { Date = imposedTimeEntry.Date, Value = imposedTimeEntry.Value, TaskId = imposedTimeEntry.TaskId } });
         
         var payoutService = CreatePayoutService(_timeRegistrationService);
-        var payout = await payoutService.RegisterPayout(new GenericPayoutHourEntry
+        var registeredPayoutResult = await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
             Date = new DateTime(2022, 01, 03), //Thursday
             Hours = 2.5M
@@ -974,7 +994,9 @@ public class OvertimeTests
 
         var overtime = await _timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2022, 01, 04));
         Assert.Equal(0M, overtime.AvailableHoursBeforeCompensation);
-        Assert.Equal(2.75M, payout.HoursAfterCompensation);
+        Assert.True(registeredPayoutResult.IsSuccess);
+        var registeredPayout = registeredPayoutResult.Value;
+        Assert.Equal(2.75M, registeredPayout.HoursAfterCompensation);
     }
     
     [Fact]
@@ -1228,9 +1250,12 @@ public class OvertimeTests
         
         var timeEntry3 =
             CreateTimeEntryForExistingTask(new DateTime(2022, 01, 10), 8.5M, 1); //Tuesday
-        await Assert.ThrowsAsync<Exception>(async () => await _timeRegistrationService.UpsertTimeEntry(
+        var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(
             new List<CreateTimeEntryDto>
-                { new() { Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId } }));
+                { new() { Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId } });
+
+        Assert.False(timeEntryResult.IsSuccess);
+        Assert.True(timeEntryResult.Errors.Any());
     }
     
     
@@ -1286,8 +1311,11 @@ public class OvertimeTests
         
         var flexEntry2 =
             CreateTimeEntryForExistingTask(new DateTime(2022, 01, 11), 4M, 18); //Tuesday
-        await Assert.ThrowsAsync<Exception>(async () => await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-            { new() { Date = flexEntry2.Date, Value = flexEntry2.Value, TaskId = flexEntry2.TaskId } }));
+        var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = flexEntry2.Date, Value = flexEntry2.Value, TaskId = flexEntry2.TaskId } });
+
+        Assert.False(timeEntryResult.IsSuccess);
+        Assert.True(timeEntryResult.Errors.Any());
     }
 
     private TimeRegistrationService CreateTimeRegistrationService()

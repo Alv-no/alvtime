@@ -45,7 +45,7 @@ public class TimeRegistrationService
         _paidHolidayTask = timeEntryOptions.CurrentValue.PaidHolidayTask;
     }
 
-    public async Task<IEnumerable<TimeEntryResponseDto>> UpsertTimeEntry(IEnumerable<CreateTimeEntryDto> timeEntries)
+    public async Task<Result<IEnumerable<TimeEntryResponseDto>>> UpsertTimeEntry(IEnumerable<CreateTimeEntryDto> timeEntries)
     {
         var currentUser = await _userContext.GetCurrentUser();
         var userId = currentUser.Id;
@@ -62,7 +62,11 @@ public class TimeRegistrationService
                 TaskId = timeEntry.TaskId
             };
 
-            await ValidateTimeEntry(timeEntry);
+            var validationErrors = await ValidateTimeEntry(timeEntry);
+            if (validationErrors.Any())
+            {
+                return validationErrors;
+            }
 
             if (await GetTimeEntry(criterias) == null)
             {
@@ -159,7 +163,7 @@ public class TimeRegistrationService
         }
     }
 
-    private async Task ValidateTimeEntry(CreateTimeEntryDto timeEntry)
+    private async Task<List<Error>> ValidateTimeEntry(CreateTimeEntryDto timeEntry)
     {
         var currentUser = await _userContext.GetCurrentUser();
         var timeEntriesOnDate = (await _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
@@ -176,16 +180,20 @@ public class TimeRegistrationService
 
         var allRedDays = new RedDays(timeEntry.Date.Year).Dates;
 
-        var usersEmploymentRate = await _userService.GetCurrentEmploymentRateForUser(currentUser.Id, timeEntry.Date);
+        var usersEmploymentRateResult = await _userService.GetCurrentEmploymentRateForUser(currentUser.Id, timeEntry.Date);
+        if (!usersEmploymentRateResult.IsSuccess)
+        {
+            return usersEmploymentRateResult.Errors;
+        }
+
         var anticipatedWorkHours =
             IsWeekend(timeEntry.Date.Date) || allRedDays.Contains(timeEntry.Date.Date)
                 ? 0M
-                : HoursInWorkday * usersEmploymentRate;
+                : HoursInWorkday * usersEmploymentRateResult.Value;
 
         if (timeEntry.TaskId == _paidHolidayTask && timeEntry.Value > 0 && timeEntry.Value != anticipatedWorkHours)
         {
-            throw new Exception($"Du kan kun føre 0 eller {anticipatedWorkHours} timer med ferie på en dag");
-
+            return new List<Error> { new(ErrorCodes.InvalidAction, $"Du kan kun føre 0 eller {anticipatedWorkHours} timer med ferie på en dag") };
         }
 
         if (timeEntry.TaskId == _flexTask)
@@ -201,21 +209,18 @@ public class TimeRegistrationService
 
             if (timeEntry.Value > availableForFlex)
             {
-                    throw new Exception("Ikke nok tilgjengelige timer til å avspasere.");
+                return new List<Error> { new(ErrorCodes.InvalidAction, "Ikke nok tilgjengelige timer til å avspasere.") };
             }
         }
 
-        if (PayoutWouldBeAffectedByRegistration(timeEntry, latestPayoutDate, timeEntriesOnDate.Values,
-                anticipatedWorkHours))
+        if (PayoutWouldBeAffectedByRegistration(timeEntry, latestPayoutDate, timeEntriesOnDate.Values, anticipatedWorkHours))
         {
-            throw new Exception(
-                "Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Slett utbetalingen eller kontakt en admin for å få endret timene dine.");
+            return new List<Error> { new(ErrorCodes.InvalidAction, "Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Slett utbetalingen eller kontakt en admin for å få endret timene dine.") };
         }
         
-        if (await FutureFlexWouldCauseNegativeBalance(timeEntriesOnDate.Values, currentUser.Id, anticipatedWorkHours,
-                timeEntry))
+        if (await FutureFlexWouldCauseNegativeBalance(timeEntriesOnDate.Values, currentUser.Id, anticipatedWorkHours, timeEntry))
         {
-            throw new Exception("Du kan ikke gå i negativ balanse.");
+            return new List<Error> { new(ErrorCodes.InvalidAction, "Du kan ikke gå i negativ balanse.") };
         }
 
         timeEntriesOnDate[timeEntry.TaskId] = new TimeEntryResponseDto
@@ -227,42 +232,41 @@ public class TimeRegistrationService
 
         if (allRedDays.Contains((timeEntry.Date.Date)) && timeEntry.TaskId == _paidHolidayTask)
         {
-            throw new Exception("Du trenger ikke registrere fravær på en rød dag.");
+            return new List<Error> { new(ErrorCodes.InvalidAction, "Du trenger ikke registrere fravær på en rød dag.") };
         }
 
         if (timeEntriesOnDate.Values.Sum(te => te.Value) > anticipatedWorkHours &&
             timeEntriesOnDate.Values.Any(te => te.TaskId == _flexTask && te.Value > 0))
         {
-            throw new Exception($"Du kan ikke registrere mer enn {anticipatedWorkHours:0.00} timer når du avspaserer.");
+            return new List<Error> { new(ErrorCodes.InvalidAction, $"Du kan ikke registrere mer enn {anticipatedWorkHours:0.00} timer når du avspaserer.") };
         }
 
         if (PayoutWouldBeAffectedByRegistration(timeEntry, latestPayoutDate, timeEntriesOnDate.Values,
                 anticipatedWorkHours))
         {
-            throw new Exception(
-                "Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Slett utbetalingen eller kontakt en admin for å få endret timene dine.");
+            return new List<Error> { new(ErrorCodes.InvalidAction, "Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Slett utbetalingen eller kontakt en admin for å få endret timene dine.") };
         }
 
         if (timeEntry.TaskId == _flexTask)
         {
             if (latestPayoutDate != null && timeEntry.Date.Date <= latestPayoutDate)
             {
-                throw new Exception(
-                    "Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Slett utbetalingen eller kontakt en admin for å få endret timene dine.");
+                return new List<Error> { new(ErrorCodes.InvalidAction, "Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Slett utbetalingen eller kontakt en admin for å få endret timene dine.") };
             }
         }
 
         var taskGivesOvertime = await _taskUtils.TaskGivesOvertime(timeEntry.TaskId);
         if (timeEntry.Value > anticipatedWorkHours && !taskGivesOvertime)
         {
-            throw new Exception($"Du kan ikke registrere mer enn {anticipatedWorkHours:0.00} timer på den oppgaven.");
+            return new List<Error> { new(ErrorCodes.InvalidAction, $"Du kan ikke registrere mer enn {anticipatedWorkHours:0.00} timer på den oppgaven.") };
         }
 
         if (!taskGivesOvertime &&
             timeEntry.Date.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday)
         {
-            throw new Exception("Du kan ikke registrere den oppgaven på en helgedag.");
+            return new List<Error> { new(ErrorCodes.InvalidAction, "Du kan ikke registrere den oppgaven på en helgedag.") };
         }
+        return new List<Error>();
     }
 
     private async Task<bool> FutureFlexWouldCauseNegativeBalance(IEnumerable<TimeEntryResponseDto> timeEntriesOnDate,
@@ -497,23 +501,27 @@ public class TimeRegistrationService
         return compensatedPayouts;
     }
 
-    private async Task UpdateEarnedOvertime(List<TimeEntryWithCompRateDto> timeEntriesOnDay, int userId)
+    private async Task<Result> UpdateEarnedOvertime(List<TimeEntryWithCompRateDto> timeEntriesOnDay, int userId)
     {
         var timeEntryDate = timeEntriesOnDay.First().Date.Date;
         await _timeRegistrationStorage.DeleteOvertimeOnDate(timeEntryDate, userId);
-        await StoreNewOvertime(timeEntriesOnDay);
+        return await StoreNewOvertime(timeEntriesOnDay);
     }
 
-    private async Task StoreNewOvertime(List<TimeEntryWithCompRateDto> timeEntriesOnDay)
+    private async Task<Result> StoreNewOvertime(List<TimeEntryWithCompRateDto> timeEntriesOnDay)
     {
         var currentUser = await _userContext.GetCurrentUser();
 
         var timeEntryDate = timeEntriesOnDay.First().Date.Date;
         var allRedDays = new RedDays(timeEntryDate.Year).Dates;
 
-        var usersEmploymentRate = await _userService.GetCurrentEmploymentRateForUser(currentUser.Id, timeEntryDate);
+        var usersEmploymentRateResult = await _userService.GetCurrentEmploymentRateForUser(currentUser.Id, timeEntryDate);
+        if (!usersEmploymentRateResult.IsSuccess)
+        {
+            return usersEmploymentRateResult.Errors;
+        }
         var anticipatedWorkHours =
-            IsWeekend(timeEntryDate) || allRedDays.Contains(timeEntryDate) ? 0M : HoursInWorkday * usersEmploymentRate;
+            IsWeekend(timeEntryDate) || allRedDays.Contains(timeEntryDate) ? 0M : HoursInWorkday * usersEmploymentRateResult.Value;
 
         var normalWorkHoursLeft = anticipatedWorkHours;
 
@@ -560,6 +568,7 @@ public class TimeRegistrationService
         }
 
         await _timeRegistrationStorage.StoreOvertime(overtimeEntries, currentUser.Id);
+        return default;
     }
 
     private static bool IsWeekend(DateTime date)

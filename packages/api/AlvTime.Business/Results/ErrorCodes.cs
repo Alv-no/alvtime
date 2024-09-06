@@ -7,5 +7,6 @@ public enum ErrorCodes
     EntityAlreadyExists = 3,
     RequestMissingProperty = 4,
     RequestInvalidProperty = 5,
-    SQLError = 6
+    SQLError = 6,
+    AuthroizationError = 7
 }

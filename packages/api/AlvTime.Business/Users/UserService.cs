@@ -44,15 +44,11 @@ public class UserService
         var allUsers = await _userRepository.GetUsers(new UserQuerySearch());
         if (allUsers.Any(u => u.Id != user.Id && (u.EmployeeId == user.EmployeeId || u.Email == user.Email || u.Name == user.Name)))
         {
-            return new List<Error>
-            {
-                new(ErrorCodes.EntityAlreadyExists, "En bruker har allerede blitt tildelt det ansattnummeret, eposten eller navnet.")
-            };
+            return new Error(ErrorCodes.EntityAlreadyExists, "En bruker har allerede blitt tildelt det ansattnummeret, eposten eller navnet.");
         }
 
         await _userRepository.UpdateUser(user);
-
-        return await GetUserById(user.Id);
+        return user;
     }
 
     private async Task CheckForDuplicateUserDetails(UserDto userToBeCreated, List<Error> errors)
@@ -85,11 +81,9 @@ public class UserService
         }
     }
 
-    public async Task<List<UserDto>> GetUsers(UserQuerySearch criteria)
+    public async Task<Result<List<UserDto>>> GetUsers(UserQuerySearch criteria)
     {
-        var users = (await _userRepository.GetUsersWithEmploymentRates(criteria)).ToList();
-
-        return users;
+        return (await _userRepository.GetUsersWithEmploymentRates(criteria)).ToList();
     }
 
     private async Task<UserDto> GetUser(UserDto userToFetch)
@@ -110,20 +104,13 @@ public class UserService
 
     public async Task<UserDto> GetUserById(int userId)
     {
-        var user = (await _userRepository.GetUsersWithEmploymentRates(new UserQuerySearch
+        return (await _userRepository.GetUsersWithEmploymentRates(new UserQuerySearch
         {
             Id = userId
         })).FirstOrDefault();
-
-        if (user == null)
-        {
-            throw new Exception($"User with id {userId} was not found");
-        }
-
-        return user;
     }
 
-    public async Task<decimal> GetCurrentEmploymentRateForUser(int userId, DateTime timeEntryDate)
+    public async Task<Result<decimal>> GetCurrentEmploymentRateForUser(int userId, DateTime timeEntryDate)
     {
         var rates = (await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = userId }))
             .Where(er =>
@@ -132,7 +119,7 @@ public class UserService
 
         if (rates.Count > 1)
         {
-            throw new ValidationException("Bruker har mer enn 1 gyldig stillingsprosent for gitt dato");
+            return new Error(ErrorCodes.InvalidAction, "Bruker har mer enn 1 gyldig stillingsprosent for gitt dato");
         }
 
         return rates.Any() ? rates.First().Rate : 1;
