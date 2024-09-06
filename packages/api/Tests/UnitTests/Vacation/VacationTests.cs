@@ -32,12 +32,8 @@ namespace Tests.UnitTests.Vacation
 
             var entryOptions = new TimeEntryOptions
             {
-                SickDaysTask = 14,
                 PaidHolidayTask = 13,
-                UnpaidHolidayTask = 19,
-                FlexTask = 18,
-                StartOfOvertimeSystem = new DateTime(2020, 01, 01),
-                AbsenceProject = 9
+                StartOfOvertimeSystem = new DateTime(2020, 01, 01)
             };
 
             _options = Mock.Of<IOptionsMonitor<TimeEntryOptions>>(options => options.CurrentValue == entryOptions);
