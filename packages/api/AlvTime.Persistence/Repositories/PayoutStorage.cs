@@ -27,7 +27,8 @@ public class PayoutStorage : IPayoutStorage
         var payouts = await _context.PaidOvertime.AsQueryable()
             .Filter(criterias)
             .ToListAsync();
-        foreach (var paidOvertime in payouts)
+        
+        foreach (var paidOvertime in payouts.Where(overtime => !overtime.IsLocked))
         {
             paidOvertime.IsLocked = paidOvertime.Date <= lockedDate;
         }
@@ -60,7 +61,8 @@ public class PayoutStorage : IPayoutStorage
     private bool IsPayoutActive(PaidOvertime po)
     {
         var cutOffDate = FindClosestPreviousCutoffDate();
-        return po.Date >= cutOffDate && !po.IsLocked;
+        var isPayoutActive = po.Date >= cutOffDate && !po.IsLocked;
+        return isPayoutActive;
     }
 
     private DateTime FindClosestPreviousCutoffDate()
