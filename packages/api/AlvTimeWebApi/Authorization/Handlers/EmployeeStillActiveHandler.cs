@@ -37,11 +37,16 @@ public class EmployeeStillActiveHandler : AuthorizationHandler<EmployeeStillActi
         if (employee.EndDate < DateTime.Now)
         {
             authContext.Fail(new AuthorizationFailureReason(this, "Employee is no longer active"));
+            return Task.CompletedTask;
         }
-        else
+        
+        if (employee.StartDate > DateTime.Now)
         {
-            authContext.Succeed(requirement);
+            authContext.Fail(new AuthorizationFailureReason(this, "Employee is not active yet"));
+            return Task.CompletedTask;
         }
+
+        authContext.Succeed(requirement);
 
         return Task.CompletedTask;
     }
