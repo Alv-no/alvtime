@@ -9,9 +9,9 @@ class Carousel extends StatelessWidget {
     return CarouselSlider(
       carouselController: _controller,
       options: CarouselOptions(
-        height: 400.0,
+        height: 200.0,
         autoPlay: false,
-        enlargeCenterPage: true,
+        enlargeCenterPage: false,
         autoPlayInterval: const Duration(seconds: 3),
         autoPlayAnimationDuration: const Duration(milliseconds: 800),
         autoPlayCurve: Curves.fastOutSlowIn,
@@ -29,7 +29,7 @@ class Carousel extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  '$i',
+                  i,
                   style: const TextStyle(fontSize: 16.0),
                 ),
               ),
