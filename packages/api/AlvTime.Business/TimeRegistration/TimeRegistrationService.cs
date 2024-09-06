@@ -182,9 +182,9 @@ public class TimeRegistrationService
                 ? 0M
                 : HoursInWorkday * usersEmploymentRate;
 
-        if (timeEntry.TaskId == _paidHolidayTask && timeEntry.Value > anticipatedWorkHours)
+        if (timeEntry.TaskId == _paidHolidayTask && timeEntry.Value > 0 && timeEntry.Value != anticipatedWorkHours)
         {
-            throw new Exception($"Du kan ikke føre mer enn {anticipatedWorkHours} timer med ferie på en dag");
+            throw new Exception($"Du kan kun føre 0 eller {anticipatedWorkHours} timer med ferie på en dag");
 
         }
 
