@@ -1,9 +1,10 @@
+import 'package:alv_time_app/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 class TaskGroup {
   final String title;
-  final String color;
+  final Color color;
   final int index;
 
   TaskGroup({required this.title, required this.color, required this.index});
@@ -28,7 +29,7 @@ class Carousel extends StatelessWidget {
         enableInfiniteScroll: false,
         viewportFraction: .6,
       ),
-      items: <TaskGroup>[TaskGroup(title: "Fravær", color: "0xffbd00ff", index: 0), TaskGroup(title: "Kunder", color: "0xff23b100", index: 1), TaskGroup(title: "Internt", color: "0xff00c2ff", index: 2)].map((item) {
+      items: <TaskGroup>[TaskGroup(title: "Fravær", color: themeAbsenceColor, index: 0), TaskGroup(title: "Kunder", color: themeCustomerColor, index: 1), TaskGroup(title: "Internt", color: themeInternalColor, index: 2)].map((item) {
         return Builder(
           builder: (BuildContext context) {
             return Container(
