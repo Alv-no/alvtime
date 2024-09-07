@@ -7,3 +7,4 @@ node_modules
 
 # Catch-all for IDEA files
 .idea
+packages/app/.vscode/
