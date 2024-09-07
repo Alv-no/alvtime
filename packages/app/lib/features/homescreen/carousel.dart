@@ -36,7 +36,7 @@ class Carousel extends StatelessWidget {
               width: MediaQuery.of(context).size.width,
               margin: const EdgeInsets.symmetric(horizontal: 20.0),
               decoration: BoxDecoration(
-                color: Color(int.parse("0xffd9d9d9")),
+                color: cardBackgroundColor,
                 borderRadius: BorderRadius.circular(10.0),
               ),
               child: Row(
@@ -56,21 +56,21 @@ class Carousel extends StatelessWidget {
                     padding: const EdgeInsets.only(right: 10, left: 10),
                     height: double.infinity,
                     decoration: BoxDecoration(
-                      color: Color(int.parse(item.color)),
+                      color: item.color,
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                     margin: const EdgeInsets.only(left: 10.0),
-                    child: RotatedBox(quarterTurns: -1 ,child: Center(child: Text(item.title))),
+                    child: RotatedBox(quarterTurns: -1 ,child: Center(child: Text(item.title, style: const TextStyle(fontSize: 18.0, color: Colors.white)))),
                   ),
                 ] else ...[
                   Container(
                     padding: const EdgeInsets.only(right: 10, left: 10),
                     height: double.infinity,
                     decoration: BoxDecoration(
-                      color: Color(int.parse(item.color)),
+                      color: item.color,
                       borderRadius: BorderRadius.circular(10.0),
                     ),
-                    child: RotatedBox(quarterTurns: -1 ,child: Center(child: Text(item.title))),
+                    child: RotatedBox(quarterTurns: -1 ,child: Center(child: Text(item.title, style: const TextStyle(fontSize: 18.0, color: Colors.white)))),
                   ),
                   const Spacer(),
                   Center(

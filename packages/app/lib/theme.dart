@@ -7,3 +7,4 @@ const themeSurfaceColor = Color(0xFFF8F1E3);
 const themeCustomerColor = Color(0xff23b100);
 const themeInternalColor = Color(0xff00c2ff);
 const themeAbsenceColor = Color(0xffbd00ff);
+const cardBackgroundColor = Color(0xffd9d9d9);
