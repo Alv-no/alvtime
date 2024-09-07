@@ -21,6 +21,8 @@ class CoreCurvedTimeSlider extends StatefulWidget {
 class CoreCurvedTimeSliderState extends State<CoreCurvedTimeSlider> {
   late double _currentValue;
   double? _lastDivisionValue;
+  late Offset _center;
+  late double _radius;
 
   @override
   void initState() {
@@ -30,30 +32,42 @@ class CoreCurvedTimeSliderState extends State<CoreCurvedTimeSlider> {
   }
 
   void _handlePanUpdate(DragUpdateDetails details) {
-    double dragSensitivity = 0.55;
+    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final Size size = renderBox.size;
+    _center = Offset(size.width, size.height);  // Bottom-right corner is the center of the quarter circle
+    _radius = math.min(size.width, size.height);
 
-    setState(() {
-      // Adjust the slider value based on the horizontal drag (dx)
-      _currentValue += details.delta.dx * dragSensitivity;
+    final Offset touchPoint = details.localPosition;
+    final double dx = _center.dx - touchPoint.dx;
+    final double dy = _center.dy - touchPoint.dy;
 
-      // Clamp the value between 0 and 24
-      _currentValue = _currentValue.clamp(0.0, 24.0);
+    // Calculate the distance from the touch point to the center
+    final double distance = math.sqrt(dx * dx + dy * dy);
 
-      // Snap the current value to the nearest 0.5 increment
-      double snappedValue = (2 * _currentValue).round() / 2;
+    // Only update if the touch is within or close to the slider's radius
+    if (distance <= _radius * 1.2 && distance > 0) {
+      double angle = math.atan2(dx, dy);
 
-      // If the snapped value changes, trigger haptic feedback
-      if (_lastDivisionValue == null || snappedValue != _lastDivisionValue) {
-        HapticFeedback.mediumImpact(); // Haptic feedback on crossing 0.5 increment
-        _lastDivisionValue = snappedValue; // Update last snapped value
-      }
+      setState(() {
+        // Map the angle to the range 0-24
+        _currentValue = 24 - (angle / (math.pi / 2) * 24);
+        _currentValue = _currentValue.clamp(0.0, 24.0);
 
-      // Update the current value with the snapped value
-      _currentValue = snappedValue;
-    });
+        // Snap the current value to the nearest 0.5 increment
+        double snappedValue = (2 * _currentValue).round() / 2;
 
-    // Notify the parent widget of the updated value
-    widget.onChanged(_currentValue);
+        // If the snapped value changes, trigger haptic feedback
+        if (_lastDivisionValue == null || snappedValue != _lastDivisionValue) {
+          HapticFeedback.mediumImpact();
+          _lastDivisionValue = snappedValue;
+        }
+
+        // Update the current value with the snapped value
+        _currentValue = snappedValue;
+      });
+
+      widget.onChanged(_currentValue);
+    }
   }
 
   @override
