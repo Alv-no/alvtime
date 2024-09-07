@@ -2,7 +2,6 @@ import 'package:alv_time_app/const.dart';
 import 'package:alv_time_app/core/widgets/core_navigation_bar/core_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:alv_time_app/features/homescreen/carousel.dart'; // Correct import for Carousel widget
-import 'package:alv_time_app/const.dart';
 
 import '../../core/widgets/gradient/core_gradient.dart';
 
@@ -44,7 +43,7 @@ class HomeScreenWidget extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: CoreNavigationBar(),
+      bottomNavigationBar: const CoreNavigationBar(),
     );
   }
 }
