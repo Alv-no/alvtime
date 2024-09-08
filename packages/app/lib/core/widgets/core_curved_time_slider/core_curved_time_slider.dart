@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../theme.dart';
+import 'optimized_curved_slider_painter.dart';
 
 class CoreCurvedTimeSlider extends StatefulWidget {
   final double value;
@@ -18,23 +19,42 @@ class CoreCurvedTimeSlider extends StatefulWidget {
   CoreCurvedTimeSliderState createState() => CoreCurvedTimeSliderState();
 }
 
-class CoreCurvedTimeSliderState extends State<CoreCurvedTimeSlider> {
+class CoreCurvedTimeSliderState extends State<CoreCurvedTimeSlider>
+    with SingleTickerProviderStateMixin {
   late double _currentValue;
   double? _lastDivisionValue;
   late Offset _center;
   late double _radius;
+  bool _showOverlay = false;
+  late AnimationController _animationController;
+  late Animation<double> _overlayAnimation;
 
   @override
   void initState() {
     super.initState();
     _currentValue = widget.value;
     _lastDivisionValue = (_currentValue - 0.5);
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 75), // duration for overlay animation
+    );
+    _overlayAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   void _handlePanUpdate(DragUpdateDetails details) {
     final RenderBox renderBox = context.findRenderObject() as RenderBox;
     final Size size = renderBox.size;
-    _center = Offset(size.width, size.height);  // Bottom-right corner is the center of the quarter circle
+    _center = Offset(size.width,
+        size.height); // Bottom-right corner is the center of the quarter circle
     _radius = math.min(size.width, size.height);
 
     final Offset touchPoint = details.localPosition;
@@ -76,25 +96,48 @@ class CoreCurvedTimeSliderState extends State<CoreCurvedTimeSlider> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          GestureDetector(
-            onPanUpdate: _handlePanUpdate,
-            child: SliderTheme(
-              data: SliderThemeData(
-                trackShape: CustomCurvedSliderTrackShape(),
-                thumbShape: const CustomCurvedSliderThumbShape(thumbRadius: 24),
-                trackHeight: 15,
-                activeTrackColor: themePrimaryColor,
-                inactiveTrackColor: themeSecondaryColor,
-                thumbColor: themeSecondaryColor,
-              ),
-              child: Slider(
-                value: _currentValue,
-                min: 0,
-                max: 24,
-                divisions: 48,
-                label: null,
-                onChanged: null,
-              ),
+          RepaintBoundary(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return GestureDetector(
+                  onPanStart: (_) {
+                    HapticFeedback.mediumImpact();
+                    setState(() => _showOverlay = true);
+                    _animationController.forward();
+                  },
+                  onPanEnd: (_) {
+                    HapticFeedback.mediumImpact();
+                    setState(() => _showOverlay = false);
+                    _animationController.reverse();
+                  },
+                  onPanCancel: () {
+                    HapticFeedback.mediumImpact();
+                    setState(() => _showOverlay = false);
+                    _animationController.reverse();
+                  },
+                  onPanUpdate: _handlePanUpdate,
+                  child: AnimatedBuilder(
+                      animation: _overlayAnimation,
+                      builder: (context, child) {
+                        return CustomPaint(
+                          size:
+                              Size(constraints.maxWidth, constraints.maxHeight),
+                          painter: OptimizedCurvedSliderPainter(
+                              value: _currentValue,
+                              strokeWidth: 15,
+                              thumbRadius: 24,
+                              overlayRadius: 48,
+                              activeColor: themeSecondaryColor,
+                              inactiveColor: themePrimaryColor,
+                              thumbColor: themeSecondaryColor,
+                              overlayColor:
+                                  themeSecondaryColor.withOpacity(0.3),
+                              showOverlay: _showOverlay,
+                              overlayProgress: _overlayAnimation.value),
+                        );
+                      }),
+                );
+              },
             ),
           ),
           Positioned(
@@ -115,125 +158,3 @@ class CoreCurvedTimeSliderState extends State<CoreCurvedTimeSlider> {
     );
   }
 }
-
-class CustomCurvedSliderTrackShape extends SliderTrackShape {
-  @override
-  Rect getPreferredRect({
-    required RenderBox parentBox,
-    Offset offset = Offset.zero,
-    required SliderThemeData sliderTheme,
-    bool isEnabled = false,
-    bool isDiscrete = false,
-  }) {
-    final double trackHeight = sliderTheme.trackHeight!;
-    final double trackLeft = offset.dx;
-    final double trackTop =
-        offset.dy + (parentBox.size.height - trackHeight) / 2;
-    final double trackWidth = parentBox.size.width;
-    return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
-  }
-
-  @override
-  void paint(
-    PaintingContext context,
-    Offset offset, {
-    required RenderBox parentBox,
-    required SliderThemeData sliderTheme,
-    required Animation<double> enableAnimation,
-    required TextDirection textDirection,
-    required Offset thumbCenter,
-    Offset? secondaryOffset,
-    bool isDiscrete = false,
-    bool isEnabled = false,
-  }) {
-    if (sliderTheme.trackHeight == null ||
-        sliderTheme.activeTrackColor == null ||
-        sliderTheme.inactiveTrackColor == null) {
-      return;
-    }
-
-    final Canvas canvas = context.canvas;
-    final Paint activePaint = Paint()
-      ..color = sliderTheme.activeTrackColor!
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = sliderTheme.trackHeight!;
-    final Paint inactivePaint = Paint()
-      ..color = sliderTheme.inactiveTrackColor!
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = sliderTheme.trackHeight!;
-
-    final double radius =
-        math.min(parentBox.size.width, parentBox.size.height) / 2;
-    final Offset center = Offset(
-        offset.dx + parentBox.size.width, offset.dy + parentBox.size.height);
-
-    // Draw the inactive (background) arc
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      -math.pi / 2,
-      -math.pi / 2,
-      false,
-      inactivePaint,
-    );
-
-    // Calculate the angle for the thumb position
-    final double angle =
-        (1 - (thumbCenter.dx - offset.dx) / parentBox.size.width) * math.pi / 2;
-
-    // Draw the active arc
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      -math.pi / 2,
-      -angle,
-      false,
-      activePaint,
-    );
-  }
-}
-
-class CustomCurvedSliderThumbShape extends SliderComponentShape {
-  final double thumbRadius;
-
-  const CustomCurvedSliderThumbShape({required this.thumbRadius});
-
-  @override
-  Size getPreferredSize(bool isEnabled, bool isDiscrete) {
-    return Size.fromRadius(thumbRadius);
-  }
-
-  @override
-  void paint(
-    PaintingContext context,
-    Offset center, {
-    required Animation<double> activationAnimation,
-    required Animation<double> enableAnimation,
-    required bool isDiscrete,
-    required TextPainter labelPainter,
-    required RenderBox parentBox,
-    required SliderThemeData sliderTheme,
-    required TextDirection textDirection,
-    required double value,
-    required double textScaleFactor,
-    required Size sizeWithOverflow,
-  }) {
-    final Canvas canvas = context.canvas;
-
-    final double radius =
-        math.min(parentBox.size.width, parentBox.size.height) / 2;
-    final Offset sliderCenter =
-        Offset(parentBox.size.width, parentBox.size.height);
-
-    final double angle = (1 - value) * math.pi / 2;
-    final Offset thumbCenter = Offset(
-      sliderCenter.dx - radius * math.sin(angle),
-      sliderCenter.dy - radius * math.cos(angle),
-    );
-
-    final Paint thumbPaint = Paint()
-      ..color = sliderTheme.thumbColor!
-      ..style = PaintingStyle.fill;
-
-    canvas.drawCircle(thumbCenter, thumbRadius, thumbPaint);
-  }
-}
-
