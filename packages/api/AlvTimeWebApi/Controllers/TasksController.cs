@@ -19,12 +19,10 @@ namespace AlvTimeWebApi.Controllers;
 public class TasksController : Controller
 {
     private readonly TaskService _taskService;
-    private readonly LatestTaskService _latestTaskService;
 
-    public TasksController(TaskService taskService, LatestTaskService latestTaskService)
+    public TasksController(TaskService taskService)
     {
         _taskService = taskService;
-        _latestTaskService = latestTaskService;
     }
 
     [HttpGet("Tasks")]
@@ -39,7 +37,7 @@ public class TasksController : Controller
     [HttpGet("LastUsedTasks")]
     public async Task<ActionResult<IEnumerable<TaskResponse>>> FetchLastUsedTasks()
     {
-        return Ok(await _latestTaskService.GetLatestTasksForUser());
+        return Ok(await _taskService.GetLatestTasksForUser());
     }
 
     [HttpPost("Tasks")]

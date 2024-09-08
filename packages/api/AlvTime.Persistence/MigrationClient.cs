@@ -62,7 +62,7 @@ public static class MigrationClient
         if (!compensationRates.Any())
         {
             var tasks = await context.Task.ToListAsync();
-            var newCompensationRates = new[] { 1.5M, 1.5M, 1.5M, 1.5M, 0.5M, 0.5M };
+            var newCompensationRates = new[] { 1.5M, 1.5M, 1.5M, 1.5M, 0.5M, 0.5M, 0.5M };
 
             for (var i = 0; i < tasks.Count; i++)
             {
@@ -100,7 +100,7 @@ public static class MigrationClient
         var hourRates = await context.HourRate.ToListAsync();
         if (!hourRates.Any())
         {
-            var rates = new[] { 1000, 800, 700, 600, 0, 0 };
+            var rates = new[] { 1000, 800, 700, 600, 0, 0, 0 };
             var tasks = await context.Task.ToListAsync();
             for (var i = 0; i < tasks.Count; i++)
             {
@@ -163,7 +163,6 @@ public static class MigrationClient
                     Locked = false,
                     Favorite = false,
                     Imposed = false,
-                    Id = 1
                 },
                 new()
                 {
@@ -173,7 +172,6 @@ public static class MigrationClient
                     Locked = false,
                     Favorite = false,
                     Imposed = true,
-                    Id = 2
                 },
                 new()
                 {
@@ -183,7 +181,6 @@ public static class MigrationClient
                     Locked = false,
                     Favorite = false,
                     Imposed = false,
-                    Id = 3
                 },
                 new()
                 {
@@ -193,7 +190,6 @@ public static class MigrationClient
                     Locked = false,
                     Favorite = false,
                     Imposed = false,
-                    Id = 4
                 },
                 new()
                 {
@@ -203,7 +199,6 @@ public static class MigrationClient
                     Locked = false,
                     Favorite = false,
                     Imposed = false,
-                    Id = 5
                 },
                 new()
                 {
@@ -213,7 +208,15 @@ public static class MigrationClient
                     Locked = false,
                     Favorite = false,
                     Imposed = false,
-                    Id = 6
+                },
+                new()
+                {
+                    Name = "Avspasering",
+                    Description = "",
+                    ProjectNavigation = context.Project.First(p => p.Name == "Fravær"),
+                    Locked = false,
+                    Favorite = false,
+                    Imposed = false,
                 }
             };
             await context.Task.AddRangeAsync(newTasks);
