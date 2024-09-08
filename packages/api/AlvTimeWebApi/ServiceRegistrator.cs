@@ -49,7 +49,7 @@ namespace AlvTimeWebApi
             services.AddScoped<TaskUtils>();
             services.AddScoped<TimeRegistrationService>();
             services.AddScoped<IDbContextScope, DbContextScope>();
-            services.AddScoped<TaskService>();
+            services.AddScoped<AlvTime.Business.Tasks.TaskService>();
             services.AddScoped<PayoutValidationService>();
             services.AddScoped<InvoiceRateService>();
             services.AddScoped<IAbsenceStorage, AbsenceStorage>();

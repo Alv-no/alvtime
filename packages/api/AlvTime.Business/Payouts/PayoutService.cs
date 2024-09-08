@@ -68,7 +68,7 @@ public class PayoutService
             return validationErrors;
         }
         await _payoutStorage.CancelPayout(date, currentUser);
-        return default;
+        return new Result();
     }
 
     private List<PayoutToRegister> CalculatePayoutHoursBasedOnAvailableOvertime(decimal requestedHours,
