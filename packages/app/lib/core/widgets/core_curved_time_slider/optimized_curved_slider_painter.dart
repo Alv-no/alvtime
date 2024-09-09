@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 class OptimizedCurvedSliderPainter extends CustomPainter {
@@ -48,6 +49,7 @@ class OptimizedCurvedSliderPainter extends CustomPainter {
 
     // Draw active arc
     paint.color = activeColor;
+    paint.strokeWidth += 1; // The arcs are not aligned
     final double angle = (value / 24) * math.pi / 2;
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
@@ -58,7 +60,7 @@ class OptimizedCurvedSliderPainter extends CustomPainter {
     );
 
     // Draw overlay when user handles slider
-    if  (showOverlay) {
+    if (showOverlay) {
       final double overlayAngle = -math.pi + angle;
       final Offset overlayCenter = Offset(
         center.dx + radius * math.cos(overlayAngle),
@@ -68,7 +70,8 @@ class OptimizedCurvedSliderPainter extends CustomPainter {
         ..style = PaintingStyle.fill
         ..color = overlayColor;
 
-      final double animatedOverlayRadius = thumbRadius + (overlayRadius - thumbRadius) * overlayProgress;
+      final double animatedOverlayRadius =
+          thumbRadius + (overlayRadius - thumbRadius) * overlayProgress;
 
       canvas.drawCircle(overlayCenter, animatedOverlayRadius, paint);
     }
