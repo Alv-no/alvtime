@@ -1291,7 +1291,7 @@ public class OvertimeTests
         Assert.Equal(1, registeredFlexOnTuesday.First(f => f.CompensationRate == 0.5M).Hours);
     }
     
-            [Fact]
+    [Fact]
     public async System.Threading.Tasks.Task UpdateFlex_NotEnoughOvertime_CannotUpdate()
     {
         var timeEntry1 =
@@ -1313,6 +1313,46 @@ public class OvertimeTests
             CreateTimeEntryForExistingTask(new DateTime(2022, 01, 11), 4M, 18); //Tuesday
         var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = flexEntry2.Date, Value = flexEntry2.Value, TaskId = flexEntry2.TaskId } });
+
+        Assert.False(timeEntryResult.IsSuccess);
+        Assert.True(timeEntryResult.Errors.Any());
+    }
+        
+    [Fact]
+    public async System.Threading.Tasks.Task RevertOvertime_HasMoreFutureFlexThanAvailableOvertimeAfterChange_CannotUpdate()
+    {
+        var timeEntry1 =
+            CreateTimeEntryForExistingTask(new DateTime(2022, 01, 10), 8.5M, 3); //Monday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
+        
+        var timeEntry2 =
+            CreateTimeEntryForExistingTask(new DateTime(2022, 01, 11), 8.5M, 3); //Tuesday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId } });
+        
+        var timeEntry3 =
+            CreateTimeEntryForExistingTask(new DateTime(2022, 01, 13), 5.5M, 3); //Wednesday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId } });
+        
+        //2 hours in OT-bank. Spending all on flex.
+        var flexEntry1 =
+            CreateTimeEntryForExistingTask(new DateTime(2022, 01, 13), 2M, 18); //Wednesday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = flexEntry1.Date, Value = flexEntry1.Value, TaskId = flexEntry1.TaskId } });
+        
+        var timeEntry4 =
+            CreateTimeEntryForExistingTask(new DateTime(2022, 01, 14), 11.5M, 3); //Thursday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry4.Date, Value = timeEntry4.Value, TaskId = timeEntry4.TaskId } });
+        
+        //Changing old overtime to non-overtime. Should not be allowed because future flex is higher than what would be in the bank at that time.
+        //After change would be OT-bank = 1 hour, flex = 2 hours.
+        var timeEntry5 =
+            CreateTimeEntryForExistingTask(new DateTime(2022, 01, 11), 7.5M, 3); //Thursday
+        var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry5.Date, Value = timeEntry5.Value, TaskId = timeEntry5.TaskId } });
 
         Assert.False(timeEntryResult.IsSuccess);
         Assert.True(timeEntryResult.Errors.Any());

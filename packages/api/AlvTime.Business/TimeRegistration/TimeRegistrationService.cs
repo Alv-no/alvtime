@@ -297,11 +297,6 @@ public class TimeRegistrationService
             ToDateInclusive = date
         });
 
-        // if (timeEntriesOnDate.Any(te => te.TaskId == createTimeEntryDto.TaskId))
-        // {
-        //     timeEntriesOnDate.First(te => te.TaskId == createTimeEntryDto.TaskId).Value = createTimeEntryDto.Value;
-        // }
-
         if (previousOvertimeOnDate.Any())
         {
             var oldTotalOnDay = timeEntriesOnDate.Sum(t => t.Value);
@@ -310,6 +305,26 @@ public class TimeRegistrationService
             var diffOnTask = oldValue == null ? 0 : oldValue.Value - createTimeEntryDto.Value;
 
             var newTotalOnDay = oldTotalOnDay - diffOnTask;
+
+            var futureFlex = (await _timeRegistrationStorage.GetFlexEntries(new TimeEntryQuerySearch
+            {
+                FromDateInclusive = date,
+            })).ToList();
+            
+            if (newTotalOnDay < oldTotalOnDay && futureFlex.Any())
+            {
+                foreach (var flexEntry in futureFlex)
+                {
+                    var availableOtOnDay = await GetAvailableOvertimeHoursAtDate(flexEntry.Date);
+                    var diffInOvertime = newTotalOnDay < anticipatedWorkHours ? oldTotalOnDay - anticipatedWorkHours : oldTotalOnDay - newTotalOnDay;
+                    var newAvailableOvertimeAfterChange = availableOtOnDay.AvailableHoursBeforeCompensation - diffInOvertime;
+
+                    if (newAvailableOvertimeAfterChange < flexEntry.Hours)
+                    {
+                        return true;
+                    }
+                }
+            }
 
             if (newTotalOnDay > anticipatedWorkHours && newTotalOnDay - anticipatedWorkHours < previousOvertimeSumOnDay)
             {
@@ -501,14 +516,14 @@ public class TimeRegistrationService
         return compensatedPayouts;
     }
 
-    private async Task<Result> UpdateEarnedOvertime(List<TimeEntryWithCompRateDto> timeEntriesOnDay, int userId)
+    private async Task UpdateEarnedOvertime(List<TimeEntryWithCompRateDto> timeEntriesOnDay, int userId)
     {
         var timeEntryDate = timeEntriesOnDay.First().Date.Date;
         await _timeRegistrationStorage.DeleteOvertimeOnDate(timeEntryDate, userId);
-        return await StoreNewOvertime(timeEntriesOnDay);
+        await StoreNewOvertime(timeEntriesOnDay);
     }
 
-    private async Task<Result> StoreNewOvertime(List<TimeEntryWithCompRateDto> timeEntriesOnDay)
+    private async Task StoreNewOvertime(List<TimeEntryWithCompRateDto> timeEntriesOnDay)
     {
         var currentUser = await _userContext.GetCurrentUser();
 
@@ -518,7 +533,7 @@ public class TimeRegistrationService
         var usersEmploymentRateResult = await _userService.GetCurrentEmploymentRateForUser(currentUser.Id, timeEntryDate);
         if (!usersEmploymentRateResult.IsSuccess)
         {
-            return usersEmploymentRateResult.Errors;
+            return;
         }
         var anticipatedWorkHours =
             IsWeekend(timeEntryDate) || allRedDays.Contains(timeEntryDate) ? 0M : HoursInWorkday * usersEmploymentRateResult.Value;
@@ -568,7 +583,7 @@ public class TimeRegistrationService
         }
 
         await _timeRegistrationStorage.StoreOvertime(overtimeEntries, currentUser.Id);
-        return default;
+        new Result();
     }
 
     private static bool IsWeekend(DateTime date)
