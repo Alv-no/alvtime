@@ -24,52 +24,61 @@
 
 @code {
     bool _drawerOpen = true;
+    
+    /* Branding */
+    private const string AlvBrandingBlue = "#243F4D";
+    private const string AlvBrandingGreen = "#9DAC86";
+    private const string AlvBrandingLightBrown = "#E6C08D";
+    private const string AlvBrandingBeige = "#F8F1E3";
+    
+    private static readonly string[] AlvBrandFontFamilyHeading = ["Libre Baskerville", "sans-serif"];
+    private static readonly string[] AlvBrandFontFamilyDefault = ["League Spartan", "sans-serif"];
 
     readonly MudTheme _alvTheme = new ()
     {
         Palette = new PaletteLight()
         {
-                Primary = "#243F4D",
-                PrimaryContrastText = "#F8F1E3",
-                Secondary = "#9DAC86",
-                Tertiary = "#E6C08D",
-                Background = "#F8F1E3",
-                TextPrimary = "#243F4D",
-                DrawerBackground = "#F8F1E3",
-                DrawerText = "#243F4D",
-                DrawerIcon = "#243F4D",
-                AppbarBackground = "#243F4D",
-                AppbarText = "#F8F1E3"
+                Primary = AlvBrandingBlue,
+                PrimaryContrastText = AlvBrandingBeige,
+                Secondary = AlvBrandingGreen,
+                Tertiary = AlvBrandingLightBrown,
+                Background = AlvBrandingBeige,
+                TextPrimary = AlvBrandingBlue,
+                DrawerBackground = AlvBrandingBeige,
+                DrawerText = AlvBrandingBlue,
+                DrawerIcon = AlvBrandingBlue,
+                AppbarBackground = AlvBrandingBlue,
+                AppbarText = AlvBrandingBeige
         },
         Typography = new Typography()
         {
             Default = new Default()
             {
-                FontFamily = ["League Spartan", "sans-serif"]
+                FontFamily = AlvBrandFontFamilyDefault
             },
             H1 = new H1()
             {
-                FontFamily = ["Libre Baskerville", "sans-serif"]
+                FontFamily = AlvBrandFontFamilyHeading
             },
             H2 = new H2()
             {
-                FontFamily = ["Libre Baskerville", "sans-serif"]
+                FontFamily = AlvBrandFontFamilyHeading
             },
             H3 = new H3()
             {
-                FontFamily = ["Libre Baskerville", "sans-serif"]
+                FontFamily = AlvBrandFontFamilyHeading
             },
             H4 = new H4()
             {
-                FontFamily = ["Libre Baskerville", "sans-serif"]
+                FontFamily = AlvBrandFontFamilyHeading
             },
             H5 = new H5()
             {
-                FontFamily = ["Libre Baskerville", "sans-serif"]
+                FontFamily = AlvBrandFontFamilyHeading
             },
             H6 = new H6()
             {
-                FontFamily = ["Libre Baskerville", "sans-serif"] 
+                FontFamily = AlvBrandFontFamilyHeading
             },
             
             
