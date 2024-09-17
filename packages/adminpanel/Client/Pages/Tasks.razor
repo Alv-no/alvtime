@@ -46,9 +46,14 @@
                 <MudTd DataLabel="Description">@TaskContext.Description</MudTd>
                 <MudTd DataLabel="Locked">@(TaskContext.Locked ? "Ja" : "Nei")</MudTd>
                 <MudTd DataLabel="Imposed">@(TaskContext.Imposed ? "Ja" : "Nei")</MudTd>
-                <MudTd DataLabel="CompensationRate">@TaskContext.CompensationRate.ToString("0.0", CultureInfo.InvariantCulture)</MudTd>
+                <MudTd DataLabel="CompensationRate">@TaskContext.CompensationRate.ToString("0.0", new CultureInfo("no-NO"))</MudTd>
                 <MudTd>
-                    <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="@(() => ShowTaskDetails(TaskContext.Name))">@(TaskContext.ShowDetails ? "\u25b2" : "\u25bc") Timerater</MudButton>
+                    <MudButton
+                        Variant="Variant.Text"
+                        Size="Size.Small"
+                        OnClick="@(() => ShowTaskDetails(TaskContext.Name))">
+                        @(TaskContext.ShowDetails ? "\u25b2" : "\u25bc") Timerater
+                    </MudButton>
                 </MudTd>
             </RowTemplate>
             <RowEditingTemplate>
@@ -65,7 +70,14 @@
                     <MudCheckBox @bind-Value="@TaskContext.Imposed"/>
                 </MudTd>
                 <MudTd DataLabel="CompensationRate">
-                    <MudNumericField @bind-Value="@TaskContext.CompensationRate" Required/>
+                    <MudNumericField 
+                        @bind-Value="@TaskContext.CompensationRate" 
+                        Min="0"
+                        Max="42"
+                        Step=".5M"
+                        T="decimal"
+                        Converter="_decimalConverter"
+                        Required/>
                 </MudTd>
             </RowEditingTemplate>
             <ChildRowContent>
@@ -179,5 +191,21 @@
         var task = ProjectContext.Tasks!.First(t => t.Name == name);
         task.ShowDetails = !task.ShowDetails;
     }
+
+    /* TODO:
+     * Grey area workaround used on compensation rate, to allow the user to use both decimal comma and decimal dot.
+     * This hard codes the culture to nb-NO, and should be replaced with a more robust solution some time in the future,
+     * if the solution is to add multi-language support.
+     */
+    private static Converter<decimal> _decimalConverter = new()
+    {
+        SetFunc = value => $"{value}",
+        GetFunc = numberString =>
+        {
+            if (string.IsNullOrWhiteSpace(numberString)) return 0;
+            numberString = numberString.Replace(".", ",");
+            return !decimal.TryParse(numberString, NumberStyles.Any, new CultureInfo("nb-NO"), out var result) ? 0 : result;
+        }
+    };
 
 }
