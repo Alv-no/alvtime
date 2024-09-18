@@ -18,7 +18,37 @@
     <resheader name="writer">
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
-    <data name="Employees" xml:space="preserve">
+    <data name="EmployeesPage.Title" xml:space="preserve">
         <value>Ansatte</value>
+    </data>
+    <data name="EmployeesPage.Alver" xml:space="preserve">
+        <value>Alver</value>
+    </data>
+    <data name="Common.SaveChanges" xml:space="preserve">
+        <value>Lagre endringer</value>
+    </data>
+    <data name="Common.Cancel" xml:space="preserve">
+        <value>Avbryt</value>
+    </data>
+    <data name="Common.SortBy" xml:space="preserve">
+        <value>Sorter etter</value>
+    </data>
+    <data name="EmployeesPage.AddEmployee" xml:space="preserve">
+        <value>Legg til ny alv</value>
+    </data>
+    <data name="Common.Name" xml:space="preserve">
+        <value>Navn</value>
+    </data>
+    <data name="Common.Email" xml:space="preserve">
+        <value>Epost</value>
+    </data>
+    <data name="Common.StartDate" xml:space="preserve">
+        <value>Startdato</value>
+    </data>
+    <data name="Common.EndDate" xml:space="preserve">
+        <value>Sluttdato</value>
+    </data>
+    <data name="Common.EmployeeId" xml:space="preserve">
+        <value>Ansattnummer</value>
     </data>
 </root>
