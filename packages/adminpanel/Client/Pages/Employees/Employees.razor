@@ -4,8 +4,11 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using Alvtime.Adminpanel.Client.Mappers
 @using Alvtime.Adminpanel.Client.ErrorHandling
+@using Alvtime.Adminpanel.Client.Resources
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedContentStrings> Localizer
 
-<PageTitle>Ansatte</PageTitle>
+<PageTitle>@Localizer["Employees"]</PageTitle>
 
 <MudTable Items="@AllEmployees"
           Hover="true"
@@ -36,7 +39,7 @@
         <MudTh>
             <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.Name)">Navn</MudTableSortLabel>
         </MudTh>
-        <MudTh>
+        <MudTh> 
             <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.Email)">Epost</MudTableSortLabel>
         </MudTh>
         <MudTh>
