@@ -45,9 +45,69 @@ namespace Alvtime.Adminpanel.Client.Resources {
             }
         }
         
-        internal static string Employees {
+        internal static string EmployeesPage_Title {
             get {
-                return ResourceManager.GetString("Employees", resourceCulture);
+                return ResourceManager.GetString("EmployeesPage.Title", resourceCulture);
+            }
+        }
+        
+        internal static string EmployeesPage_Alver {
+            get {
+                return ResourceManager.GetString("EmployeesPage.Alver", resourceCulture);
+            }
+        }
+        
+        internal static string Common_SaveChanges {
+            get {
+                return ResourceManager.GetString("Common.SaveChanges", resourceCulture);
+            }
+        }
+        
+        internal static string Common_Cancel {
+            get {
+                return ResourceManager.GetString("Common.Cancel", resourceCulture);
+            }
+        }
+        
+        internal static string Common_SortBy {
+            get {
+                return ResourceManager.GetString("Common.SortBy", resourceCulture);
+            }
+        }
+        
+        internal static string EmployeesPage_AddEmployee {
+            get {
+                return ResourceManager.GetString("EmployeesPage.AddEmployee", resourceCulture);
+            }
+        }
+        
+        internal static string Common_Name {
+            get {
+                return ResourceManager.GetString("Common.Name", resourceCulture);
+            }
+        }
+        
+        internal static string Common_Email {
+            get {
+                return ResourceManager.GetString("Common.Email", resourceCulture);
+            }
+        }
+        
+        internal static string Common_StartDate {
+            get {
+                return ResourceManager.GetString("Common.StartDate", resourceCulture);
+            }
+        }
+        
+        internal static string Common_EndDate {
+            get {
+                return ResourceManager.GetString("Common.EndDate", resourceCulture);
+            }
+        }
+        
+        internal static string Common_EmployeeId {
+            get {
+                return ResourceManager.GetString("Common.EmployeeId", resourceCulture);
             }
         }
     }

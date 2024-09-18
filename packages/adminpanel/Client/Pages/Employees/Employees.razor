@@ -8,7 +8,7 @@
 @using Microsoft.Extensions.Localization
 @inject IStringLocalizer<SharedContentStrings> Localizer
 
-<PageTitle>@Localizer["Employees"]</PageTitle>
+<PageTitle>@Localizer["EmployeesPage.Title"]</PageTitle>
 
 <MudTable Items="@AllEmployees"
           Hover="true"
@@ -19,37 +19,37 @@
           CanCancelEdit="true"
           Filter="new Func<EmployeeModel, bool>(FilterFunc)"
           @bind-SelectedItem="_selectedEmployee"
-          SortLabel="Sort By"
-          CommitEditTooltip="Lagre endring"
+          SortLabel="@Localizer["Common.SortBy"]"
+          CommitEditTooltip="@Localizer["Common.SaveChanges"]"
           OnCommitEditClick="EmployeeChangeCommitted"
           RowEditPreview="BackupEmployee"
           RowEditCancel="ResetEmployeeToOriginalValues"
-          CancelEditTooltip="Avbryt"
+          CancelEditTooltip="@Localizer["Common.Cancel"]"
           IsEditRowSwitchingBlocked="false"
           ApplyButtonPosition="TableApplyButtonPosition.End"
           EditButtonPosition="TableEditButtonPosition.End"
           EditTrigger="TableEditTrigger.RowClick">
     <ToolBarContent>
-        <MudText Typo="Typo.h6">Alver</MudText>
+        <MudText Typo="Typo.h6">@Localizer["EmployeesPage.Alver"]</MudText>
         <MudSpacer/>
-        <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@AddEmptyEmployee">Legg til ny alv</MudButton>
+        <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@AddEmptyEmployee">@Localizer["EmployeesPage.AddEmployee"]</MudButton>
         <MudTextField @bind-Value="_searchString" Immediate="true" Placeholder="Søk" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 pl-6"></MudTextField>
     </ToolBarContent>
     <HeaderContent>
         <MudTh>
-            <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.Name)">Navn</MudTableSortLabel>
+            <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.Name)">@Localizer["Common.Name"]</MudTableSortLabel>
         </MudTh>
         <MudTh> 
-            <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.Email)">Epost</MudTableSortLabel>
+            <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.Email)">@Localizer["Common.Email"]</MudTableSortLabel>
         </MudTh>
         <MudTh>
-            <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.StartDate)">Startdato</MudTableSortLabel>
+            <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.StartDate)">@Localizer["Common.StartDate"]</MudTableSortLabel>
         </MudTh>
         <MudTh>
-            <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.EndDate)">Sluttdato</MudTableSortLabel>
+            <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.EndDate)">@Localizer["Common.EndDate"]</MudTableSortLabel>
         </MudTh>
         <MudTh>
-            <MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<EmployeeModel, object>(x => x.EmployeeId)">Ansattnummer</MudTableSortLabel>
+            <MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<EmployeeModel, object>(x => x.EmployeeId)">@Localizer["Common.EmployeeId"]</MudTableSortLabel>
         </MudTh>
         <MudTh>
         </MudTh>
