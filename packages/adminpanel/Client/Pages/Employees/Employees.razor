@@ -78,10 +78,10 @@
             <MudTextField @bind-Value="@context.Email" Required/>
         </MudTd>
         <MudTd DataLabel="StartDate">
-            <MudDatePicker @bind-Date="@context.StartDate" Required/>
+            <MudDatePicker @bind-Date="@context.StartDate" Required  DateFormat="dd/MM/yyyy"/>
         </MudTd>
         <MudTd DataLabel="EndDate">
-            <MudDatePicker @bind-Date="@context.EndDate"/>
+            <MudDatePicker @bind-Date="@context.EndDate"  DateFormat="dd/MM/yyyy"/>
         </MudTd>
         <MudTd DataLabel="EmployeeId">
             <MudNumericField @bind-Value="@context.EmployeeId" Required/>
@@ -130,10 +130,10 @@
                                             <MudNumericField @bind-Value="@EmploymentRateContext.RatePercentage" Required/>
                                         </MudTd>
                                         <MudTd DataLabel="RateFromDateInclusive">
-                                            <MudDatePicker @bind-Date="@EmploymentRateContext.FromDateInclusive" Required/>
+                                            <MudDatePicker @bind-Date="@EmploymentRateContext.FromDateInclusive" Required  DateFormat="dd/MM/yyyy"/>
                                         </MudTd>
                                         <MudTd DataLabel="RateToDateInclusive">
-                                            <MudDatePicker @bind-Date="@EmploymentRateContext.ToDateInclusive" Required/>
+                                            <MudDatePicker @bind-Date="@EmploymentRateContext.ToDateInclusive" Required  DateFormat="dd/MM/yyyy"/>
                                         </MudTd>
                                     </RowEditingTemplate>
                                 </MudTable>
