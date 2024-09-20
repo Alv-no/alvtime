@@ -67,7 +67,7 @@
     private MudTextField<string> _name;
     private MudTextField<string> _email;
     private MudTextField<int> _employeeId;
-    private DateTime? _startDate = DateTime.Today;
+    private DateTime? _startDate = DateTime.UtcNow.Date;
 
     private async Task Submit()
     {
