@@ -110,5 +110,71 @@ namespace Alvtime.Adminpanel.Client.Resources {
                 return ResourceManager.GetString("Common.EmployeeId", resourceCulture);
             }
         }
+        
+        internal static string Common_Login {
+            get {
+                return ResourceManager.GetString("Common.Login", resourceCulture);
+            }
+        }
+        
+        internal static string Common_Logout {
+            get {
+                return ResourceManager.GetString("Common.Logout", resourceCulture);
+            }
+        }
+        
+        internal static string Common_Save {
+            get {
+                return ResourceManager.GetString("Common.Save", resourceCulture);
+            }
+        }
+        
+        internal static string Validation_Name_Required {
+            get {
+                return ResourceManager.GetString("Validation.Name.Required", resourceCulture);
+            }
+        }
+        
+        internal static string Validation_Email_Required {
+            get {
+                return ResourceManager.GetString("Validation.Email.Required", resourceCulture);
+            }
+        }
+        
+        internal static string Validation_Email_NotValid {
+            get {
+                return ResourceManager.GetString("Validation.Email.NotValid", resourceCulture);
+            }
+        }
+        
+        internal static string Validation_Date_TodayOrFuture {
+            get {
+                return ResourceManager.GetString("Validation.Date.TodayOrFuture", resourceCulture);
+            }
+        }
+        
+        internal static string Validation_Date_Future {
+            get {
+                return ResourceManager.GetString("Validation.Date.Future", resourceCulture);
+            }
+        }
+        
+        internal static string Validation_Date_Required {
+            get {
+                return ResourceManager.GetString("Validation.Date.Required", resourceCulture);
+            }
+        }
+        
+        internal static string Validation_EmployeeId_Required {
+            get {
+                return ResourceManager.GetString("Validation.EmployeeId.Required", resourceCulture);
+            }
+        }
+        
+        internal static string Validation_EmployeeId_NotValid {
+            get {
+                return ResourceManager.GetString("Validation.EmployeeId.NotValid", resourceCulture);
+            }
+        }
     }
 }
