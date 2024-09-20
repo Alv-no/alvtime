@@ -22,7 +22,7 @@
 </MudLayout>
 
 @code {
-    bool _drawerOpen = false;
+    bool _drawerOpen = true;
     
     /* Branding */
     private const string AlvBrandingBlue = "#243F4D";
@@ -31,29 +31,40 @@
     private const string AlvBrandingBeige = "#F8F1E3";
     
     private static readonly string[] AlvBrandFontFamilyHeading = ["Libre Baskerville", "sans-serif"];
-    private static readonly string[] AlvBrandFontFamilyDefault = ["League Spartan", "sans-serif"];
+    private static readonly string[] AlvBrandFontFamilyDefault = ["League Spartan", "League Spartan Placeholder", "sans-serif"];
 
     readonly MudTheme _alvTheme = new ()
     {
         Palette = new PaletteLight()
         {
                 Primary = AlvBrandingBlue,
-                PrimaryContrastText = AlvBrandingBeige,
+                PrimaryContrastText = AlvBrandingLightBrown,
                 Secondary = AlvBrandingGreen,
+                SecondaryContrastText = AlvBrandingBlue,
                 Tertiary = AlvBrandingLightBrown,
+                TertiaryContrastText = AlvBrandingBlue,
                 Background = AlvBrandingBeige,
                 TextPrimary = AlvBrandingBlue,
                 DrawerBackground = AlvBrandingBeige,
                 DrawerText = AlvBrandingBlue,
                 DrawerIcon = AlvBrandingBlue,
                 AppbarBackground = AlvBrandingBlue,
-                AppbarText = AlvBrandingBeige
+                AppbarText = AlvBrandingLightBrown,
+                Surface = AlvBrandingBeige,
+                TableLines = AlvBrandingBlue,
+   
         },
         Typography = new Typography()
         {
             Default = new Default()
             {
-                FontFamily = AlvBrandFontFamilyDefault
+                FontFamily = AlvBrandFontFamilyDefault,
+            },
+            Button = new Button()
+            {
+                FontFamily = AlvBrandFontFamilyDefault,
+                FontWeight = 600,
+                FontSize = "18px"
             },
             H1 = new H1()
             {
