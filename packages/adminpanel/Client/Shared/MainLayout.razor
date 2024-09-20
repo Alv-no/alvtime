@@ -1,17 +1,20 @@
-﻿@inherits LayoutComponentBase
+﻿@using Alvtime.Adminpanel.Client.Resources
+@using Microsoft.Extensions.Localization
+@inherits LayoutComponentBase
+@inject IStringLocalizer<SharedContentStrings> Localizer
 
 <MudThemeProvider Theme="_alvTheme"/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
 
 <MudLayout>
-    <MudAppBar>
+    <MudAppBar Elevation="1">
         <MudIconButton Icon="@(_drawerOpen ? @Icons.Material.Filled.MenuOpen:@Icons.Material.Filled.Menu)" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(_ => DrawerToggle())"/>
-        <MudText Typo="Typo.h5">Alvtime adminpanel</MudText>
+        <MudText Typo="Typo.h5">@Localizer["Common.AppTitle"]</MudText>
         <MudSpacer/>
         <LoginDisplay/>
     </MudAppBar>
-    <MudDrawer @bind-Open="@_drawerOpen" ClipMode="@DrawerClipMode.Docked">
+    <MudDrawer @bind-Open="@_drawerOpen" ClipMode="@DrawerClipMode.Always" Variant="DrawerVariant.Responsive">
         <NavMenu/>
     </MudDrawer>
     <MudMainContent Class="mt-8">

@@ -84,4 +84,7 @@
     <data name="Validation.EmployeeId.NotValid" xml:space="preserve">
         <value>Ansattnummer er ikke gyldig</value>
     </data>
+    <data name="Common.AppTitle" xml:space="preserve">
+        <value>Alvtime adminpanel</value>
+    </data>
 </root>
