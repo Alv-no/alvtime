@@ -10,6 +10,15 @@
 
 <PageTitle>@Localizer["EmployeesPage.Title"]</PageTitle>
 
+<MudText Typo="Typo.h2">@Localizer["EmployeesPage.Alver"]</MudText>
+<MudButton
+    Class="my-4 "
+    Color="Color.Secondary"
+    Variant="Variant.Filled"
+    OnClick="@(() => { DialogService.ShowAsync<NewEmployeeDialog>(@Localizer["EmployeesPage.AddEmployee"], new DialogParameters { ["OnEmployeeCreate"] = OnEmployeeCreated }, new DialogOptions() { FullWidth = true, MaxWidth = MaxWidth.Small }); })">
+    <span style="position: relative; top: 0.1rem;">@Localizer["EmployeesPage.AddEmployee"]</span>
+</MudButton>
+
 <MudTable Items="@AllEmployees"
           Hover="true"
           Loading="@Loading"
@@ -30,16 +39,13 @@
           EditButtonPosition="TableEditButtonPosition.End"
           EditTrigger="TableEditTrigger.RowClick">
     <ToolBarContent>
-        <MudText Typo="Typo.h6">@Localizer["EmployeesPage.Alver"]</MudText>
-        <MudSpacer/>
-        <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@AddEmptyEmployee">@Localizer["EmployeesPage.AddEmployee"]</MudButton>
-        <MudTextField @bind-Value="_searchString" Immediate="true" Placeholder="Søk" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 pl-6"></MudTextField>
+        <MudTextField @bind-Value="_searchString" FullWidth="true" Immediate="true" Placeholder="Søk" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="pl-0 mt-0"></MudTextField>
     </ToolBarContent>
     <HeaderContent>
         <MudTh>
             <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.Name)">@Localizer["Common.Name"]</MudTableSortLabel>
         </MudTh>
-        <MudTh> 
+        <MudTh>
             <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.Email)">@Localizer["Common.Email"]</MudTableSortLabel>
         </MudTh>
         <MudTh>
@@ -142,7 +148,7 @@
         }
     </ChildRowContent>
     <PagerContent>
-        <MudTablePager PageSizeOptions="new []{ int.MaxValue, 20, 10 }" RowsPerPageString="Alver per side:"/>
+        <MudTablePager PageSizeOptions="new[] { int.MaxValue, 20, 10 }" RowsPerPageString="Alver per side:"/>
     </PagerContent>
 </MudTable>
 
@@ -246,6 +252,7 @@
         {
             return;
         }
+
         if (employee == null)
         {
             if (_selectedEmployee == null)
@@ -350,4 +357,9 @@
         StateHasChanged();
     }
 
+    private EventCallback OnEmployeeCreated => new(this, (Action)(async () =>
+    {
+        await RefreshEmployees();
+        StateHasChanged();
+    }));
 }

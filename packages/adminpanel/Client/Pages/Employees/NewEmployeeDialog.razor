@@ -1,0 +1,109 @@
+@using System.ComponentModel.DataAnnotations
+@using System.Globalization
+@using Alvtime.Adminpanel.Client.Mappers
+@using Alvtime.Adminpanel.Client.Models
+@using Alvtime.Adminpanel.Client.Resources
+@using Alvtime.Adminpanel.Client.Utils
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedContentStrings> Localizer
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form" @bind-IsValid="@_success" @bind-errors="@_errors">
+            <MudTextField
+                T="int"
+                Label="@Localizer["Common.EmployeeId"]"
+                @ref="_employeeId"
+                Required="true"
+                RequiredError="@Localizer["Validation.EmployeeId.Required"]"/>
+            <MudTextField
+                T="string"
+                Label="@Localizer["Common.Name"]"
+                @ref="_name"
+                Required="true"
+                RequiredError="@Localizer["Validation.Name.Required"]"/>
+            <MudTextField
+                T="string"
+                Label="@Localizer["Common.Email"]"
+                @ref="_email"
+                Required="true"
+                RequiredError="@Localizer["Validation.Email.Required"]"
+                Validation="@(new EmailAddressAttribute() { ErrorMessage = @Localizer["Validation.Email.NotValid"] })"/>
+            <MudDatePicker
+                Label="@Localizer["Common.StartDate"]"
+                @bind-Date="_startDate"
+                DateFormat="dd/MM/yyyy"
+                Required="true"
+                RequiredError="@Localizer["Validation.Date.Required"]"/>
+
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton
+            Color="Color.Tertiary"
+            Variant="Variant.Filled"
+            OnClick="() => Cancel()">
+            @Localizer["Common.Cancel"]
+        </MudButton>
+        <MudButton
+            Color="Color.Secondary"
+            Variant="Variant.Filled"
+            OnClick="() => Submit()">
+            @Localizer["Common.Save"]
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public EventCallback OnEmployeeCreate { get; set; }
+
+    [Inject] private HttpClient HttpClient { get; set; }
+    
+    private bool _success;
+    private string[] _errors = { };
+    private MudForm _form = new();
+    private MudTextField<string> _name;
+    private MudTextField<string> _email;
+    private MudTextField<int> _employeeId;
+    private DateTime? _startDate = DateTime.Today;
+
+    private async Task Submit()
+    {
+        _form.ResetValidation();
+        await _form.Validate();
+
+        if (_form!.IsValid)
+        {
+            // Create new employee and save
+            var newEmployee = new EmployeeModel
+            {
+                EmployeeId = _employeeId.Value,
+                Name = _name.Value,
+                Email = _email.Value,
+                StartDate = _startDate
+            };
+
+            try
+            {
+                // TODO: Saves, but the saved date is the previous date from the date in newEmployee. NEEDS fix.
+                await HttpClient.PostAsJsonAsync(ApiRoutes.EmployeeBase, newEmployee.MapToEmployeeUpsertRequest());
+                await OnEmployeeCreate.InvokeAsync();
+                
+                // Refresh on parent
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+            catch (HttpRequestException)
+            {
+            
+            }
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+}
