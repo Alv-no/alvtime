@@ -1,13 +1,18 @@
-﻿@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+﻿@using Alvtime.Adminpanel.Client.Resources
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Microsoft.Extensions.Localization
 @inject NavigationManager Navigation
+@inject IStringLocalizer<SharedContentStrings> Localizer
 
 <AuthorizeView >
     <Authorized>
         Hei, @context.User.Identity?.Name!
-        <MudButton Variant="Variant.Text" Style="color: #9DAC86;" @onclick="BeginLogOut">Logg ut</MudButton>
+        
+        <MudLink OnClick="BeginLogOut" Color="Color.Secondary" Class="ml-2">@Localizer["Common.Logout"]</MudLink>
+        <!--<MudButton Variant="Variant.Text" Color="Color.Secondary" @onclick="BeginLogOut">Logg ut</MudButton>-->
     </Authorized>
     <NotAuthorized>
-        <MudLink Href="authentication/login" Style="color: #9DAC86;">Logg inn</MudLink>
+        <MudLink Href="authentication/login" Color="Color.Secondary">@Localizer["Common.Login"]</MudLink>
     </NotAuthorized>
 </AuthorizeView>
 
