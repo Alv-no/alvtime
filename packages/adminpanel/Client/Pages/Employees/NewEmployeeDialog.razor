@@ -89,9 +89,9 @@
             {
                 // TODO: Saves, but the saved date is the previous date from the date in newEmployee. NEEDS fix.
                 await HttpClient.PostAsJsonAsync(ApiRoutes.EmployeeBase, newEmployee.MapToEmployeeUpsertRequest());
-                await OnEmployeeCreate.InvokeAsync();
-                
                 // Refresh on parent
+                await OnEmployeeCreate.InvokeAsync();
+                // Close dialog
                 MudDialog.Close(DialogResult.Ok(true));
             }
             catch (HttpRequestException)
