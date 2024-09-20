@@ -34,7 +34,7 @@
         <value>Sorter etter</value>
     </data>
     <data name="EmployeesPage.AddEmployee" xml:space="preserve">
-        <value>Legg til ny alv</value>
+        <value>Legg til ny Alv</value>
     </data>
     <data name="Common.Name" xml:space="preserve">
         <value>Navn</value>
@@ -50,5 +50,38 @@
     </data>
     <data name="Common.EmployeeId" xml:space="preserve">
         <value>Ansattnummer</value>
+    </data>
+    <data name="Common.Login" xml:space="preserve">
+        <value>Logg inn</value>
+    </data>
+    <data name="Common.Logout" xml:space="preserve">
+        <value>Logg ut</value>
+    </data>
+    <data name="Common.Save" xml:space="preserve">
+        <value>Lagre</value>
+    </data>
+    <data name="Validation.Name.Required" xml:space="preserve">
+        <value>Navn må fylles inn</value>
+    </data>
+    <data name="Validation.Email.Required" xml:space="preserve">
+        <value>Epost må fylles inn</value>
+    </data>
+    <data name="Validation.Email.NotValid" xml:space="preserve">
+        <value>Utfyllt epost er ikke gyldig</value>
+    </data>
+    <data name="Validation.Date.TodayOrFuture" xml:space="preserve">
+        <value>Datoen må være i dag eller senere</value>
+    </data>
+    <data name="Validation.Date.Future" xml:space="preserve">
+        <value>Datoen må være fremover i tid</value>
+    </data>
+    <data name="Validation.Date.Required" xml:space="preserve">
+        <value>Datoren må fylles inn</value>
+    </data>
+    <data name="Validation.EmployeeId.Required" xml:space="preserve">
+        <value>Ansattnummer må fylles inn</value>
+    </data>
+    <data name="Validation.EmployeeId.NotValid" xml:space="preserve">
+        <value>Ansattnummer er ikke gyldig</value>
     </data>
 </root>
