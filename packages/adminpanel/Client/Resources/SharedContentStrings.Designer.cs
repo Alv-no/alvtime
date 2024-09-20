@@ -176,5 +176,11 @@ namespace Alvtime.Adminpanel.Client.Resources {
                 return ResourceManager.GetString("Validation.EmployeeId.NotValid", resourceCulture);
             }
         }
+        
+        internal static string Common_AppTitle {
+            get {
+                return ResourceManager.GetString("Common.AppTitle", resourceCulture);
+            }
+        }
     }
 }
