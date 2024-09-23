@@ -108,4 +108,10 @@
     <data name="Validation.OrgNr.Required" xml:space="preserve">
         <value>Organisasjonsnummer må fylles ut</value>
     </data>
+    <data name="CustomerPage.Pagination.PerPage" xml:space="preserve">
+        <value>Kunder per side:</value>
+    </data>
+    <data name="Common.Pagination.All" xml:space="preserve">
+        <value>Alle</value>
+    </data>
 </root>

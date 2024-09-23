@@ -1,0 +1,23 @@
+@page "/kunder/{CustomerId}"
+@using Alvtime.Adminpanel.Client.ErrorHandling
+
+<h2>@CustomerId</h2>
+
+@code {
+    [Inject] public HttpInterceptorService Interceptor { get; set; }
+    [Parameter]
+    public string CustomerId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetch data for customer
+        Interceptor.RegisterEvent();
+        await RefreshCustomer(CustomerId);
+    }
+
+    private async Task RefreshCustomer(string customerId)
+    {
+        
+    }
+
+}

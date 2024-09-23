@@ -224,5 +224,17 @@ namespace Alvtime.Adminpanel.Client.Resources {
                 return ResourceManager.GetString("Validation.OrgNr.Required", resourceCulture);
             }
         }
+        
+        internal static string CustomerPage_Pagination_PerPage {
+            get {
+                return ResourceManager.GetString("CustomerPage.Pagination.PerPage", resourceCulture);
+            }
+        }
+        
+        internal static string Common_Pagination_All {
+            get {
+                return ResourceManager.GetString("Common.Pagination.All", resourceCulture);
+            }
+        }
     }
 }
