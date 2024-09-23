@@ -182,5 +182,47 @@ namespace Alvtime.Adminpanel.Client.Resources {
                 return ResourceManager.GetString("Common.AppTitle", resourceCulture);
             }
         }
+        
+        internal static string CustomersPage_Title {
+            get {
+                return ResourceManager.GetString("CustomersPage.Title", resourceCulture);
+            }
+        }
+        
+        internal static string CustomersPage_AddCustomer {
+            get {
+                return ResourceManager.GetString("CustomersPage.AddCustomer", resourceCulture);
+            }
+        }
+        
+        internal static string Common_OrgNr {
+            get {
+                return ResourceManager.GetString("Common.OrgNr", resourceCulture);
+            }
+        }
+        
+        internal static string Common_InvoiceAddress {
+            get {
+                return ResourceManager.GetString("Common.InvoiceAddress", resourceCulture);
+            }
+        }
+        
+        internal static string Common_ContactPerson {
+            get {
+                return ResourceManager.GetString("Common.ContactPerson", resourceCulture);
+            }
+        }
+        
+        internal static string Common_Telephone {
+            get {
+                return ResourceManager.GetString("Common.Telephone", resourceCulture);
+            }
+        }
+        
+        internal static string Validation_OrgNr_Required {
+            get {
+                return ResourceManager.GetString("Validation.OrgNr.Required", resourceCulture);
+            }
+        }
     }
 }

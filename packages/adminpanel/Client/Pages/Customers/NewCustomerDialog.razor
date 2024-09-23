@@ -1,0 +1,115 @@
+@using System.ComponentModel.DataAnnotations
+@using Alvtime.Adminpanel.Client.Mappers
+@using Alvtime.Adminpanel.Client.Models
+@using Alvtime.Adminpanel.Client.Resources
+@using Alvtime.Adminpanel.Client.Utils
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedContentStrings> Localizer
+
+<MudDialog>
+    <DialogContent>
+        <MudForm 
+            @ref="_form"
+            @bind-IsValid="@_success"
+            @bind-errors="@_errors">
+                <MudTextField
+                    T="string"
+                    Label="@Localizer["Common.OrgNr"]"
+                    @ref="_orgNr"
+                    Required="true"
+                    RequiredError="@Localizer["Validation.OrgNr.Required"]"
+                    Min/>
+                <MudTextField
+                    T="string"
+                    Label="@Localizer["Common.Name"]"
+                    @ref="_name"
+                    Required="true"
+                    RequiredError="@Localizer["Validation.Name.Required"]"/>
+                <MudTextField
+                    T="string"
+                    Label="@Localizer["Common.InvoiceAddress"]"
+                    @ref="_invoiceAddress"/>
+                <MudTextField
+                    T="string"
+                    Label="@Localizer["Common.ContactPerson"]"
+                    @ref="_contactPerson"/>
+                <MudTextField
+                    T="string"
+                    Label="@Localizer["Common.Email"]"
+                    @ref="_contactEmail"
+                    Validation="@(new EmailAddressAttribute() { ErrorMessage = @Localizer["Validation.Email.NotValid"] })"/>
+                <MudTextField
+                    T="string"
+                    Label="@Localizer["Common.Telephone"]"
+                    @ref="_contactPhone"/> 
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton
+            Color="Color.Tertiary"
+            Variant="Variant.Filled"
+            OnClick="() => Cancel()">
+            @Localizer["Common.Cancel"]
+        </MudButton>
+        <MudButton
+            Color="Color.Secondary"
+            Variant="Variant.Filled"
+            OnClick="() => Submit()">
+            @Localizer["Common.Save"]
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [Inject] private HttpClient HttpClient { get; set; }
+    
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+    [Parameter] public EventCallback OnCustomerCreate { get; set; }
+
+    private bool _success;
+    private string[] _errors = { };
+    private MudForm _form = new();
+    private MudTextField<string> _orgNr;
+    private MudTextField<string> _name;
+    private MudTextField<string> _invoiceAddress;
+    private MudTextField<string> _contactPerson;
+    private MudTextField<string> _contactEmail;
+    private MudTextField<string> _contactPhone;
+
+    private async Task Submit()
+    {
+
+        _form.ResetValidation();
+        await _form.Validate();
+        
+      
+        if (_form.IsValid)
+        {
+            // Create new customer and save
+            var newCustomer = new CustomerModel
+            {
+                OrgNr = _orgNr.Value,
+                Name = _name.Value,
+                InvoiceAddress = _invoiceAddress.Value,
+                ContactPerson = _contactPerson.Value,
+                ContactEmail = _contactEmail.Value,
+                ContactPhone = _contactPhone.Value,
+            };
+
+            try
+            {
+                await HttpClient.PostAsJsonAsync(ApiRoutes.CustomersBase, newCustomer.MapToCustomerUpsertRequest());
+                // Refresh in parent
+                await OnCustomerCreate.InvokeAsync();
+                // Close dialog
+                MudDialog.Close(DialogResult.Ok(true));
+            } catch (HttpRequestException){}
+             
+        }
+     
+    }
+    
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}
