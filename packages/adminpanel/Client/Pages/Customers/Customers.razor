@@ -26,19 +26,12 @@
           Striped="true"
           Dense="true"
           Elevation="4"
-          CanCancelEdit="true"
           Filter="new Func<CustomerModel, bool>(FilterCustomer)"
           @bind-SelectedItem="_selectedCustomer"
-          SortLabel="Sort By"
-          CommitEditTooltip="Lagre endring"
-          OnCommitEditClick="CustomerChangeCommitted"
-          RowEditPreview="BackupCustomer"
-          RowEditCancel="ResetCustomerToOriginalValues"
-          CancelEditTooltip="Avbryt"
-          IsEditRowSwitchingBlocked="false"
-          ApplyButtonPosition="TableApplyButtonPosition.End"
-          EditButtonPosition="TableEditButtonPosition.End"
-          EditTrigger="TableEditTrigger.RowClick">
+          SortLabel="@Localizer["Common.SortBy"]"
+          OnRowClick="NavigateOnRowClick"
+          T="CustomerModel"
+          Class="cursor-pointer">
     <ToolBarContent>
         <MudTextField @bind-Value="_customerSearchString" Immediate="true" Placeholder="Søk" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 pl-6"></MudTextField>
     </ToolBarContent>
@@ -70,41 +63,14 @@
         <MudTd DataLabel="InvoiceAddress">@context.InvoiceAddress</MudTd>
         <MudTd DataLabel="OrgNr">@context.OrgNr</MudTd>
         <MudTd>
-            <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="@(() => ShowCustomerDetails(context.Name))">@(context.ShowDetails ? "\u25b2" : "\u25bc") Prosjekter</MudButton>
+            @* <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="@(() => ShowCustomerDetails(context.Name))">@(context.ShowDetails ? "\u25b2" : "\u25bc") Prosjekter</MudButton> *@
         </MudTd>
     </RowTemplate>
-    <RowEditingTemplate>
-        <MudTd DataLabel="Name">
-            <MudTextField @bind-Value="@context.Name" Required/>
-        </MudTd>
-        <MudTd DataLabel="ContactPerson">
-            <MudTextField @bind-Value="@context.ContactPerson"/>
-        </MudTd>
-        <MudTd DataLabel="ContactEmail">
-            <MudTextField @bind-Value="@context.ContactEmail"/>
-        </MudTd>
-        <MudTd DataLabel="ContactPhone">
-            <MudTextField @bind-Value="@context.ContactPhone"/>
-        </MudTd>
-        <MudTd DataLabel="InvoiceAddress">
-            <MudTextField @bind-Value="@context.InvoiceAddress"/>
-        </MudTd>
-        <MudTd DataLabel="OrgNr">
-            <MudTextField @bind-Value="@context.OrgNr"/>
-        </MudTd>
-    </RowEditingTemplate>
-    <ChildRowContent>
-        @if (context.ShowDetails)
-        {
-            <MudTr>
-                <td colspan="2">
-                    <Projects CustomerContext="@context"></Projects>
-                </td>
-            </MudTr>
-        }
-    </ChildRowContent>
     <PagerContent>
-        <MudTablePager PageSizeOptions="new[] { int.MaxValue, 20, 10 }" RowsPerPageString="Kunder per side:"/>
+        <MudTablePager 
+            PageSizeOptions="new[] { int.MaxValue, 20, 10 }" 
+            AllItemsText="@Localizer["Common.Pagination.All"]"
+            RowsPerPageString="@Localizer["CustomerPage.Pagination.PerPage"]"/>
     </PagerContent>
 </MudTable>
 
@@ -112,6 +78,7 @@
     [Inject] private HttpClient HttpClient { get; set; }
     [Inject] public HttpInterceptorService Interceptor { get; set; }
     [Inject] private IDialogService DialogService { get; set; }
+    [Inject] NavigationManager Navigation { get; set; }
 
     private string _customerSearchString = "";
     private CustomerModel? _selectedCustomer;
@@ -247,6 +214,11 @@
     {
         var customer = AllCustomers!.First(e => e.Name == name);
         customer.ShowDetails = !customer.ShowDetails;
+    }
+
+    private void NavigateOnRowClick(TableRowClickEventArgs<CustomerModel> selectedCustomer)
+    {
+      Navigation.NavigateTo($"/kunder/{selectedCustomer.Item.Id}");
     }
 
 }
