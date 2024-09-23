@@ -87,4 +87,25 @@
     <data name="Common.AppTitle" xml:space="preserve">
         <value>Alvtime adminpanel</value>
     </data>
+    <data name="CustomersPage.Title" xml:space="preserve">
+        <value>Kunder</value>
+    </data>
+    <data name="CustomersPage.AddCustomer" xml:space="preserve">
+        <value>Legg til ny kunde</value>
+    </data>
+    <data name="Common.OrgNr" xml:space="preserve">
+        <value>Org.nummer</value>
+    </data>
+    <data name="Common.InvoiceAddress" xml:space="preserve">
+        <value>Fakturaadresse</value>
+    </data>
+    <data name="Common.ContactPerson" xml:space="preserve">
+        <value>Kontaktperson</value>
+    </data>
+    <data name="Common.Telephone" xml:space="preserve">
+        <value>Telefon</value>
+    </data>
+    <data name="Validation.OrgNr.Required" xml:space="preserve">
+        <value>Organisasjonsnummer må fylles ut</value>
+    </data>
 </root>

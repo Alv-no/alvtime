@@ -5,8 +5,20 @@
 @using Alvtime.Adminpanel.Client.Utils
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using Alvtime.Adminpanel.Client.Mappers
+@using Alvtime.Adminpanel.Client.Resources
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedContentStrings> Localizer
 
-<PageTitle>Kunder</PageTitle>
+<PageTitle>@Localizer["CustomersPage.Title"]</PageTitle>
+
+<MudText Typo="Typo.h2">@Localizer["CustomersPage.Title"]</MudText>
+<MudButton
+    Class="my-4"
+    Color="Color.Secondary"
+    Variant="Variant.Filled"
+    OnClick="@AddEmptyCustomer">
+        @Localizer["CustomersPage.AddCustomer"]
+</MudButton>
 
 <MudTable Items="@AllCustomers"
           Hover="true"
@@ -28,9 +40,6 @@
           EditButtonPosition="TableEditButtonPosition.End"
           EditTrigger="TableEditTrigger.RowClick">
     <ToolBarContent>
-        <MudText Typo="Typo.h6">Kunder</MudText>
-        <MudSpacer/>
-        <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@AddEmptyCustomer">Legg til ny kunde</MudButton>
         <MudTextField @bind-Value="_customerSearchString" Immediate="true" Placeholder="Søk" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 pl-6"></MudTextField>
     </ToolBarContent>
     <HeaderContent>
@@ -102,6 +111,7 @@
 @code {
     [Inject] private HttpClient HttpClient { get; set; }
     [Inject] public HttpInterceptorService Interceptor { get; set; }
+    [Inject] private IDialogService DialogService { get; set; }
 
     private string _customerSearchString = "";
     private CustomerModel? _selectedCustomer;
@@ -142,9 +152,23 @@
 
     private void AddEmptyCustomer()
     {
-        AllCustomers!.Add(new CustomerModel());
-        StateHasChanged();
+        DialogService.ShowAsync<NewCustomerDialog>(@Localizer["CustomersPage.AddCustomer"], new DialogParameters
+        {
+            ["OnCustomerCreate"] = OnCustomerCreated
+        },
+        new DialogOptions()
+        {
+            FullWidth = true, 
+            MaxWidth = MaxWidth.Small
+        }
+        );
     }
+
+    private EventCallback OnCustomerCreated => new(this, (Action)(async () =>
+    {
+        await RefreshCustomers();
+        StateHasChanged();
+    }));
 
     private async Task CustomerChangeCommitted()
     {
