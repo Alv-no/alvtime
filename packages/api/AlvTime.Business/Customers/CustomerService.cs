@@ -12,6 +12,11 @@ public class CustomerService
     {
         _customerStorage = customerStorage;
     }
+    
+    public async Task<Result<CustomerAdminDto>> GetCustomerDetailedById(int customerId)
+    {
+        return (await _customerStorage.GetCustomerDetailedById(customerId));
+    }
 
     public async Task<IEnumerable<CustomerAdminDto>> GetCustomersDetailed()
     {

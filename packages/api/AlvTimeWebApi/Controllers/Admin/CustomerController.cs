@@ -43,6 +43,15 @@ public class CustomerController : ControllerBase
             errors => BadRequest(errors.ToValidationProblemDetails("Opprettelse av kunde feilet")));
     }
 
+    [HttpGet("Customers/{customerId:int}")] 
+    public async Task<ActionResult<CustomerResponse>> GetCustomerById(int customerId)
+    {
+        var result = await _customerService.GetCustomerDetailedById(customerId);
+        return result.Match<ActionResult<CustomerResponse>>(
+            customer => Ok(customer.MapToCustomerResponse()),
+            errors => BadRequest(errors.ToValidationProblemDetails("Henting av kunde feilet")));
+    }
+    
     [HttpPut("Customers/{customerId:int}")]
     public async Task<ActionResult<CustomerResponse>> UpdateExistingCustomer([FromBody] CustomerUpsertRequest customerToBeUpdated, int customerId)
     {

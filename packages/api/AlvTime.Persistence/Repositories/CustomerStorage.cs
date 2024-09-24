@@ -37,6 +37,47 @@ public class CustomerStorage : ICustomerStorage
         await _context.SaveChangesAsync();
     }
 
+    public async Task<CustomerAdminDto> GetCustomerDetailedById(int customerId)
+    {
+        return await _context.Customer
+            .Where(c => c.Id == customerId)
+            .Include(c => c.Project)
+            .ThenInclude(p => p.Task)
+            .ThenInclude(t => t.HourRate)
+            .Include(c => c.Project)
+            .ThenInclude(p => p.Task)
+            .ThenInclude(t => t.CompensationRate)
+            .Select(customer => new CustomerAdminDto
+            {
+                Id = customer.Id,
+                Name = customer.Name,
+                InvoiceAddress = customer.InvoiceAddress,
+                ContactPerson = customer.ContactPerson,
+                ContactEmail = customer.ContactEmail,
+                ContactPhone = customer.ContactPhone,
+                OrgNr = customer.OrgNr,
+                Projects = customer.Project.Select(p => new ProjectAdminDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Tasks = p.Task.Select(t => new TaskAdminDto
+                    {
+                        Id = t.Id,
+                        Name = t.Name,
+                        CompensationRate = EnsureCompensationRate(t.CompensationRate),
+                        Locked = t.Locked,
+                        HourRates = t.HourRate.Select(hr => new HourRateDto
+                        {
+                            Id = hr.Id,
+                            Rate = hr.Rate,
+                            FromDate = hr.FromDate
+                        })
+                    })
+                })
+            })
+            .FirstOrDefaultAsync();
+    }
+
     public async Task<IEnumerable<CustomerDto>> GetCustomers(CustomerQuerySearch criterias)
     {
         return await _context.Customer.AsQueryable()

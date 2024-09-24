@@ -5,6 +5,7 @@ namespace AlvTime.Business.Customers
 {
     public interface ICustomerStorage
     {
+        Task<CustomerAdminDto> GetCustomerDetailedById(int customerId);
         Task<IEnumerable<CustomerDto>> GetCustomers(CustomerQuerySearch criterias);
         Task<IEnumerable<CustomerAdminDto>> GetCustomersDetailed();
         Task CreateCustomer(CustomerDto customer);
