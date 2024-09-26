@@ -17,7 +17,9 @@
     Color="Color.Secondary"
     Variant="Variant.Filled"
     OnClick="@AddEmptyCustomer">
-        @Localizer["CustomersPage.AddCustomer"]
+    <ButtonText>
+         @Localizer["CustomersPage.AddCustomer"]
+    </ButtonText>
 </MudButton>
 
 <MudTable Items="@AllCustomers"
@@ -119,7 +121,7 @@
 
     private void AddEmptyCustomer()
     {
-        DialogService.ShowAsync<NewCustomerDialog>(@Localizer["CustomersPage.AddCustomer"], new DialogParameters
+        DialogService.ShowAsync<CustomerDialog>(@Localizer["CustomersPage.AddCustomer"], new DialogParameters
         {
             ["OnCustomerCreate"] = OnCustomerCreated
         },
