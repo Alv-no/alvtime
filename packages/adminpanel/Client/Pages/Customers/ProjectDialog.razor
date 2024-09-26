@@ -1,0 +1,82 @@
+@using Alvtime.Adminpanel.Client.Mappers
+@using Alvtime.Adminpanel.Client.Models
+@using Alvtime.Adminpanel.Client.Resources
+@using Alvtime.Adminpanel.Client.Utils
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedContentStrings> Localizer
+
+<MudDialog>
+    <DialogContent>
+        <MudForm
+            @ref="_form"
+            @bind-IsValid="@_success"
+            @bind-errors="@_errors">
+            <MudTextField
+                T="string"
+                Label="@Localizer["Common.Name"]"
+                @ref="_name"
+                Required="true"
+                RequiredError="@Localizer["Validation.Name.Required"]"/>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton
+            Color="Color.Tertiary"
+            Variant="Variant.Filled"
+            OnClick="() => Cancel()">
+            @Localizer["Common.Cancel"]
+        </MudButton>
+        <MudButton
+            Color="Color.Secondary"
+            Variant="Variant.Filled"
+            OnClick="() => Submit()">
+            @Localizer["Common.Save"]
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Inject] private HttpClient HttpClient { get; set; }
+    
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+    [Parameter] public EventCallback OnProjectCreate { get; set; }
+    [Parameter] public int CustomerId { get; set; }
+
+    private bool _success;
+    private string[] _errors = { };
+    private MudForm _form = new();
+    private MudTextField<string> _name;
+    
+    private async Task Submit()
+    {
+
+        _form.ResetValidation();
+        await _form.Validate();
+        
+        if (_form.IsValid)
+        {
+            // Create new project and save
+            var newProject = new ProjectModel
+            {
+                Name = _name.Value
+            };
+
+            try
+            {
+                await HttpClient.PostAsJsonAsync(ApiRoutes.CreateProject(CustomerId), newProject.MapToProjectUpsertRequest());
+                // Refresh in parent
+                await OnProjectCreate.InvokeAsync();
+                
+                // Close dialog
+                MudDialog.Close(DialogResult.Ok(true));
+            } catch (HttpRequestException){}
+             
+        }
+     
+    }
+    
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}
