@@ -21,7 +21,7 @@
         <MudPaper Class="pa-4">
             <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.ContactInformation"]</MudText>
             <MudText>@Localizer["Common.ContactPerson"]: @_customer.ContactPerson</MudText>
-            <MudText>@Localizer["Common.Email"]: <MudLink Href="@($"mailto:{ _customer.ContactEmail }")">@_customer.ContactEmail</MudLink></MudText>
+            <MudText>@Localizer["Common.Email"]: <MudLink Href="@($"mailto:{_customer.ContactEmail}")">@_customer.ContactEmail</MudLink></MudText>
             <MudText>@Localizer["Common.Telephone"]: <MudLink Href="@($"tel:{_customer.ContactPhone}")">@_customer.ContactPhone</MudLink></MudText>
         </MudPaper>
     </div>
@@ -35,6 +35,7 @@
                     <MudIconButton
                         Icon="@Icons.Material.Filled.Add"
                         Color="Color.Secondary"
+                        OnClick="@AddNewProject"
                         aria-label="@Localizer["CustomerPage.AddProject"]">
                     </MudIconButton>
                     <MudIconButton
@@ -86,7 +87,6 @@
             </MudDataGrid>
         </MudPaper>
     </div>
-
 }
 else
 {
@@ -97,6 +97,9 @@ else
 @code {
     [Inject] private HttpClient HttpClient { get; set; }
     [Inject] public HttpInterceptorService Interceptor { get; set; }
+    [Inject] private IDialogService DialogService { get; set; }
+    [Inject] NavigationManager Navigation { get; set; }
+
     [Parameter] public string CustomerId { get; set; }
 
     private CustomerModel? _customer;
@@ -108,6 +111,32 @@ else
         Interceptor.RegisterEvent();
         await RefreshCustomer();
     }
+
+    private void AddNewProject()
+    {
+        if (string.IsNullOrEmpty(CustomerId) || !int.TryParse(CustomerId, out int parsedId))
+        {
+            return;
+        }
+
+        DialogService.ShowAsync<ProjectDialog>(Localizer["CustomerPage.AddProject"], new DialogParameters
+        {
+            ["OnProjectCreate"] = OnProjectCreated,
+            ["CustomerId"] = parsedId
+            
+        },
+        new DialogOptions()
+        {
+            FullWidth = true,
+            MaxWidth = MaxWidth.Small
+        });
+    }
+
+    private EventCallback OnProjectCreated => new(this, (Action)(async () =>
+    {
+        await RefreshCustomer();
+        StateHasChanged();
+    }));
 
     private async Task RefreshCustomer()
     {
@@ -148,4 +177,5 @@ else
             Console.WriteLine($"An error occurred: {e.Message}");
         }
     }
+
 }
