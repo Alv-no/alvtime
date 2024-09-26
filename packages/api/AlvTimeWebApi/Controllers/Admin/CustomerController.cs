@@ -27,7 +27,7 @@ public class CustomerController : ControllerBase
         _projectService = projectService;
     }
 
-    [HttpGet("Customers")]
+    [HttpGet("Customers")]    
     public async Task<ActionResult<IEnumerable<CustomerDetailedResponse>>> FetchCustomersDetailed()
     {
         var customers = await _customerService.GetCustomersDetailed();
@@ -48,7 +48,9 @@ public class CustomerController : ControllerBase
     {
         var result = await _customerService.GetCustomerDetailedById(customerId);
         return result.Match<ActionResult<CustomerResponse>>(
-            customer => Ok(customer.MapToCustomerResponse()),
+            customer => customer != null 
+                ? Ok(CustomerMapper.MapToCustomerResponse(customer))
+                : NotFound(),
             errors => BadRequest(errors.ToValidationProblemDetails("Henting av kunde feilet")));
     }
     
