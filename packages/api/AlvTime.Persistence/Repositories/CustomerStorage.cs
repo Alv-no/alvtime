@@ -37,7 +37,7 @@ public class CustomerStorage : ICustomerStorage
         await _context.SaveChangesAsync();
     }
 
-    public async Task<CustomerAdminDto> GetCustomerDetailedById(int customerId)
+    public async Task<CustomerAdminDto?> GetCustomerDetailedById(int customerId)
     {
         return await _context.Customer
             .Where(c => c.Id == customerId)
@@ -60,20 +60,23 @@ public class CustomerStorage : ICustomerStorage
                 {
                     Id = p.Id,
                     Name = p.Name,
+                    TaskCount = p.Task.Count(), // Count of tasks in each project
                     Tasks = p.Task.Select(t => new TaskAdminDto
                     {
                         Id = t.Id,
                         Name = t.Name,
                         CompensationRate = EnsureCompensationRate(t.CompensationRate),
                         Locked = t.Locked,
+                        ProjectId = p.Id, // Including Project Id in each task
+                        ProjectName = p.Name, // Including Project Name in each task
                         HourRates = t.HourRate.Select(hr => new HourRateDto
                         {
                             Id = hr.Id,
                             Rate = hr.Rate,
                             FromDate = hr.FromDate
-                        })
-                    })
-                })
+                        }).ToList()
+                    }).ToList()
+                }).ToList()
             })
             .FirstOrDefaultAsync();
     }

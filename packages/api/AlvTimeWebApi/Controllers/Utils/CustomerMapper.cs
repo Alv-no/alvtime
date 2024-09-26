@@ -24,6 +24,7 @@ public static class CustomerMapper
             {
                 Id = p.Id,
                 Name = p.Name,
+                TaskCount = p.TaskCount,
                 Tasks = p.Tasks.Select(t => new TaskAdminResponse
                 {
                     Id = t.Id,
@@ -32,6 +33,8 @@ public static class CustomerMapper
                     Locked = t.Locked,
                     Imposed = t.Imposed,
                     CompensationRate = t.CompensationRate,
+                    ProjectId = t.ProjectId,
+                    ProjectName = t.ProjectName,
                     HourRates = t.HourRates.Select(hr => new HourRateAdminResponse
                     {
                         Id = hr.Id,
