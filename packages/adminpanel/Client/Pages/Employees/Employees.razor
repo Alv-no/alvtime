@@ -12,11 +12,11 @@
 
 <MudText Typo="Typo.h2">@Localizer["EmployeesPage.Alver"]</MudText>
 <MudButton
-    Class="my-4 "
+    Class="my-4"
     Color="Color.Secondary"
     Variant="Variant.Filled"
-    OnClick="@(() => { DialogService.ShowAsync<NewEmployeeDialog>(@Localizer["EmployeesPage.AddEmployee"], new DialogParameters { ["OnEmployeeCreate"] = OnEmployeeCreated }, new DialogOptions() { FullWidth = true, MaxWidth = MaxWidth.Small }); })">
-    <span style="position: relative; top: 0.1rem;">@Localizer["EmployeesPage.AddEmployee"]</span>
+    OnClick="@(() => { DialogService.ShowAsync<EmployeeDialog>(@Localizer["EmployeesPage.AddEmployee"], new DialogParameters { ["OnEmployeeCreate"] = OnEmployeeCreated }, new DialogOptions() { FullWidth = true, MaxWidth = MaxWidth.Small }); })">
+    <ButtonText>@Localizer["EmployeesPage.AddEmployee"]</ButtonText>
 </MudButton>
 
 <MudTable Items="@AllEmployees"

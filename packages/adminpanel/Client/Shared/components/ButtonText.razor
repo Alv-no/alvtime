@@ -1,0 +1,19 @@
+@namespace Alvtime.Adminpanel.Client.Shared.Components
+@inherits ComponentBase
+<!-- This components is used to adjust text i buttons(for the moment) because the font used is offset -->
+<style>
+    .adjustment {
+        position: relative;
+        top: 0.2rem;
+    }
+    
+</style>
+<span class="adjustment @AdditionalClasses">@ChildContent</span>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? AdditionalClasses { get; set; }
+}
