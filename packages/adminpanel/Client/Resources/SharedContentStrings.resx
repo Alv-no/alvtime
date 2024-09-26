@@ -120,4 +120,40 @@
     <data name="Common.CompanyInformation" xml:space="preserve">
         <value>Selskapsinformasjon</value>
     </data>
+    <data name="CustomerPage.AddProject" xml:space="preserve">
+        <value>Legg til prosjekt</value>
+    </data>
+    <data name="Common.ActiveTasks" xml:space="preserve">
+        <value>Aktive timekoder</value>
+    </data>
+    <data name="Common.UsingProject" xml:space="preserve">
+        <value>Fører på prosjektet</value>
+    </data>
+    <data name="Common.Projects" xml:space="preserve">
+        <value>Prosjekter</value>
+    </data>
+    <data name="Common.Description" xml:space="preserve">
+        <value>Beskrivelse</value>
+    </data>
+    <data name="Common.Project" xml:space="preserve">
+        <value>Prosjekt</value>
+    </data>
+    <data name="Common.Tasks" xml:space="preserve">
+        <value>Timekoder</value>
+    </data>
+    <data name="CustomerPage.AddTask" xml:space="preserve">
+        <value>Legg til timekode</value>
+    </data>
+    <data name="Common.Imposed" xml:space="preserve">
+        <value>Pålagt</value>
+    </data>
+    <data name="Common.Locked" xml:space="preserve">
+        <value>Låst</value>
+    </data>
+    <data name="Common.Yes" xml:space="preserve">
+        <value>Ja</value>
+    </data>
+    <data name="Common.No" xml:space="preserve">
+        <value>Nei</value>
+    </data>
 </root>

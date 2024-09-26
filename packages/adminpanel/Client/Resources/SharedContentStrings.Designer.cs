@@ -248,5 +248,77 @@ namespace Alvtime.Adminpanel.Client.Resources {
                 return ResourceManager.GetString("Common.CompanyInformation", resourceCulture);
             }
         }
+        
+        internal static string CustomerPage_AddProject {
+            get {
+                return ResourceManager.GetString("CustomerPage.AddProject", resourceCulture);
+            }
+        }
+        
+        internal static string Common_ActiveTasks {
+            get {
+                return ResourceManager.GetString("Common.ActiveTasks", resourceCulture);
+            }
+        }
+        
+        internal static string Common_UsingProject {
+            get {
+                return ResourceManager.GetString("Common.UsingProject", resourceCulture);
+            }
+        }
+        
+        internal static string Common_Projects {
+            get {
+                return ResourceManager.GetString("Common.Projects", resourceCulture);
+            }
+        }
+        
+        internal static string Common_Description {
+            get {
+                return ResourceManager.GetString("Common.Description", resourceCulture);
+            }
+        }
+        
+        internal static string Common_Project {
+            get {
+                return ResourceManager.GetString("Common.Project", resourceCulture);
+            }
+        }
+        
+        internal static string Common_Tasks {
+            get {
+                return ResourceManager.GetString("Common.Tasks", resourceCulture);
+            }
+        }
+        
+        internal static string CustomerPage_AddTask {
+            get {
+                return ResourceManager.GetString("CustomerPage.AddTask", resourceCulture);
+            }
+        }
+        
+        internal static string Common_Imposed {
+            get {
+                return ResourceManager.GetString("Common.Imposed", resourceCulture);
+            }
+        }
+        
+        internal static string Common_Locked {
+            get {
+                return ResourceManager.GetString("Common.Locked", resourceCulture);
+            }
+        }
+        
+        internal static string Common_Yes {
+            get {
+                return ResourceManager.GetString("Common.Yes", resourceCulture);
+            }
+        }
+        
+        internal static string Common_No {
+            get {
+                return ResourceManager.GetString("Common.No", resourceCulture);
+            }
+        }
     }
 }

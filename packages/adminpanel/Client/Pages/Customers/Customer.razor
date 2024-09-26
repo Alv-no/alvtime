@@ -12,7 +12,7 @@
     <PageTitle>@Localizer["CustomersPage.Title"]/@_customer.Name</PageTitle>
 
     <MudText Class="mb-4" Typo="Typo.h2">@_customer.Name</MudText>
-    <div class="d-flex flex-row gap-8 pb-8">
+    <div class="d-flex flex-column flex-sm-row gap-4 pb-8">
         <MudPaper Class="pa-4">
             <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.CompanyInformation"]</MudText>
             <MudText>@Localizer["Common.OrgNr"]: @_customer.OrgNr</MudText>
@@ -25,36 +25,66 @@
             <MudText>@Localizer["Common.Telephone"]: <MudLink Href="@($"tel:{_customer.ContactPhone}")">@_customer.ContactPhone</MudLink></MudText>
         </MudPaper>
     </div>
-    <div class="d-flex flex-row gap-8">
-        <div class="flex-grow-1">
-            <MudText Class="mb-2" Typo="Typo.h6">Prosjekter</MudText>
+    <div class="d-flex flex-column flex-lg-row gap-8">
+        <MudPaper Elevation="0" Class="flex-grow-1 flex-lg-grow-0 flex-lg-basis-50">
             <MudDataGrid
                 Items="_customer.Projects">
                 <ToolBarContent>
-
+                    <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.Projects"]</MudText>
+                    <MudSpacer/>
+                    <MudIconButton
+                        Icon="@Icons.Material.Filled.Add"
+                        Color="Color.Secondary"
+                        aria-label="@Localizer["CustomerPage.AddProject"]">
+                    </MudIconButton>
+                    <MudIconButton
+                        Icon="@Icons.Material.Filled.Edit"
+                        Color="Color.Secondary"
+                        Disabled="true">
+                    </MudIconButton>
                 </ToolBarContent>
                 <Columns>
-                    <PropertyColumn Title="Id" Property="p => p.Id"/>
-                    <PropertyColumn Title="Navn" Property="p => p.Name"/>
-                    <PropertyColumn Title="I oppdraget" Property="p => p.EmployeeCount"></PropertyColumn>
-                    <PropertyColumn Title="Aktive timekoder" Property="p=> p.TaskCount"></PropertyColumn>
+                    <PropertyColumn Title="@Localizer["Common.Name"]" Property="p => p.Name"/>
+                    <PropertyColumn Title="@Localizer["Common.UsingProject"]" Property="p => p.EmployeeCount"></PropertyColumn>
+                    <PropertyColumn Title="@Localizer["Common.ActiveTasks"]" Property="p => p.TaskCount"></PropertyColumn>
                 </Columns>
             </MudDataGrid>
-        </div>
-        <div class="flex-grow-1">
-            <MudText Class="mb-2" Typo="Typo.h6">Timekoder</MudText>
+        </MudPaper>
+        <MudPaper Elevation="0" Class="flex-grow-1 flex-lg-grow-0 flex-lg-basis-50">
             <MudDataGrid
-                Items="_customer.Projects">
+                T="TaskModel"
+                Items="_aggregatedTasks">
                 <ToolBarContent>
-
+                    <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.Tasks"]</MudText>
+                    <MudSpacer/>
+                    <MudIconButton
+                        Icon="@Icons.Material.Filled.Add"
+                        Color="Color.Secondary"
+                        aria-label="@Localizer["CustomerPage.AddTask"]">
+                    </MudIconButton>
+                    <MudIconButton
+                        Icon="@Icons.Material.Filled.Edit"
+                        Color="Color.Secondary"
+                        Disabled="true">
+                    </MudIconButton>
                 </ToolBarContent>
                 <Columns>
-                    <PropertyColumn Title="Id" Property="p => p.Id"/>
-                    <PropertyColumn Title="Navn" Property="p => p.Name"/>
+                    <PropertyColumn Title="@Localizer["Common.Name"]" Property="p => p.Name"/>
+                    <PropertyColumn Title="@Localizer["Common.Description"]" Property="p => p.Description"/>
+                    <PropertyColumn Title="@Localizer["Common.Project"]" Property="p => p.ProjectName"/>
+                    <TemplateColumn Title="@Localizer["Common.Imposed"]">
+                        <CellTemplate>
+                            @(context.Item.Imposed ? @Localizer["Common.Yes"] : @Localizer["Common.No"])
+                        </CellTemplate>
+                    </TemplateColumn>
+                    <TemplateColumn Title="@Localizer["Common.Locked"]">
+                        <CellTemplate>
+                            @(context.Item.Locked ? @Localizer["Common.Yes"] : @Localizer["Common.No"])
+                        </CellTemplate>
+                    </TemplateColumn>
                 </Columns>
             </MudDataGrid>
-        </div>
-    
+        </MudPaper>
     </div>
 
 }
@@ -70,6 +100,7 @@ else
     [Parameter] public string CustomerId { get; set; }
 
     private CustomerModel? _customer;
+    private IEnumerable<TaskModel>? _aggregatedTasks;
 
     protected override async Task OnInitializedAsync()
     {
@@ -93,6 +124,11 @@ else
             if (customerResponse.IsSuccessStatusCode)
             {
                 _customer = await customerResponse.Content.ReadFromJsonAsync<CustomerModel>();
+                if (_customer?.Projects != null)
+                    _aggregatedTasks = _customer?.Projects
+                        .Where(p => p.Tasks != null)
+                        .SelectMany(p => p.Tasks)
+                        .Where(t => t != null);
             }
             else
             {
