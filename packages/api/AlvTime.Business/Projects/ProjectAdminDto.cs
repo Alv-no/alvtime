@@ -7,5 +7,6 @@ public class ProjectAdminDto
 {
     public int Id { get; set; }
     public string Name { get; set; }
+    public int TaskCount { get; set; }
     public IEnumerable<TaskAdminDto> Tasks { get; set; }
 }

@@ -19,6 +19,9 @@ public class ProjectModel
     public string? Name { get; set; }
     public IList<TaskModel>? Tasks { get; set; }
     public bool ShowDetails { get; set; }
+    public int? TaskCount { get; set; }
+    public int? EmployeeCount { get; set; }
+    
 }
 
 public class TaskModel

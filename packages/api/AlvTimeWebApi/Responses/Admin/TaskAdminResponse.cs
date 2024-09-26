@@ -11,5 +11,7 @@ public class TaskAdminResponse
     public bool Locked { get; set; }
     public bool Imposed { get; set; }
     public decimal CompensationRate { get; set; }
+    public int ProjectId { get; set; }
+    public string ProjectName { get; set; }
     public IEnumerable<HourRateAdminResponse> HourRates { get; set; }
 }
