@@ -236,5 +236,17 @@ namespace Alvtime.Adminpanel.Client.Resources {
                 return ResourceManager.GetString("Common.Pagination.All", resourceCulture);
             }
         }
+        
+        internal static string Common_ContactInformation {
+            get {
+                return ResourceManager.GetString("Common.ContactInformation", resourceCulture);
+            }
+        }
+        
+        internal static string Common_CompanyInformation {
+            get {
+                return ResourceManager.GetString("Common.CompanyInformation", resourceCulture);
+            }
+        }
     }
 }

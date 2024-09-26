@@ -1,23 +1,115 @@
 @page "/kunder/{CustomerId}"
 @using Alvtime.Adminpanel.Client.ErrorHandling
+@using Alvtime.Adminpanel.Client.Models
+@using Alvtime.Adminpanel.Client.Resources
+@using Alvtime.Adminpanel.Client.Utils
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedContentStrings> Localizer
 
-<h2>@CustomerId</h2>
+
+@if (_customer is not null)
+{
+    <PageTitle>@Localizer["CustomersPage.Title"]/@_customer.Name</PageTitle>
+
+    <MudText Class="mb-4" Typo="Typo.h2">@_customer.Name</MudText>
+    <div class="d-flex flex-row gap-8 pb-8">
+        <MudPaper Class="pa-4">
+            <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.CompanyInformation"]</MudText>
+            <MudText>@Localizer["Common.OrgNr"]: @_customer.OrgNr</MudText>
+            <MudText>@Localizer["Common.InvoiceAddress"]: @_customer.InvoiceAddress</MudText>
+        </MudPaper>
+        <MudPaper Class="pa-4">
+            <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.ContactInformation"]</MudText>
+            <MudText>@Localizer["Common.ContactPerson"]: @_customer.ContactPerson</MudText>
+            <MudText>@Localizer["Common.Email"]: <MudLink Href="@($"mailto:{ _customer.ContactEmail }")">@_customer.ContactEmail</MudLink></MudText>
+            <MudText>@Localizer["Common.Telephone"]: <MudLink Href="@($"tel:{_customer.ContactPhone}")">@_customer.ContactPhone</MudLink></MudText>
+        </MudPaper>
+    </div>
+    <div class="d-flex flex-row gap-8">
+        <div class="flex-grow-1">
+            <MudText Class="mb-2" Typo="Typo.h6">Prosjekter</MudText>
+            <MudDataGrid
+                Items="_customer.Projects">
+                <ToolBarContent>
+
+                </ToolBarContent>
+                <Columns>
+                    <PropertyColumn Title="Id" Property="p => p.Id"/>
+                    <PropertyColumn Title="Navn" Property="p => p.Name"/>
+                    <PropertyColumn Title="I oppdraget" Property="p => p.EmployeeCount"></PropertyColumn>
+                    <PropertyColumn Title="Aktive timekoder" Property="p=> p.TaskCount"></PropertyColumn>
+                </Columns>
+            </MudDataGrid>
+        </div>
+        <div class="flex-grow-1">
+            <MudText Class="mb-2" Typo="Typo.h6">Timekoder</MudText>
+            <MudDataGrid
+                Items="_customer.Projects">
+                <ToolBarContent>
+
+                </ToolBarContent>
+                <Columns>
+                    <PropertyColumn Title="Id" Property="p => p.Id"/>
+                    <PropertyColumn Title="Navn" Property="p => p.Name"/>
+                </Columns>
+            </MudDataGrid>
+        </div>
+    
+    </div>
+
+}
+else
+{
+    <PageTitle>@Localizer["CustomersPage.Title"]/</PageTitle>
+    <MudText>Her er det noe rart...</MudText>
+}
 
 @code {
+    [Inject] private HttpClient HttpClient { get; set; }
     [Inject] public HttpInterceptorService Interceptor { get; set; }
-    [Parameter]
-    public string CustomerId { get; set; }
+    [Parameter] public string CustomerId { get; set; }
+
+    private CustomerModel? _customer;
 
     protected override async Task OnInitializedAsync()
     {
         // Fetch data for customer
         Interceptor.RegisterEvent();
-        await RefreshCustomer(CustomerId);
+        await RefreshCustomer();
     }
 
-    private async Task RefreshCustomer(string customerId)
+    private async Task RefreshCustomer()
     {
-        
-    }
+        if (string.IsNullOrEmpty(CustomerId) || !int.TryParse(CustomerId, out int parsedId))
+        {
+            _customer = null;
+            return;
+        }
 
+        try
+        {
+            var customerResponse = await HttpClient.GetAsync(ApiRoutes.GetCustomerById(parsedId));
+
+            if (customerResponse.IsSuccessStatusCode)
+            {
+                _customer = await customerResponse.Content.ReadFromJsonAsync<CustomerModel>();
+            }
+            else
+            {
+                // Handle non-success status code
+                Console.WriteLine($"Error: {customerResponse.StatusCode}");
+                _customer = null;
+            }
+        }
+        catch (HttpRequestException e)
+        {
+            // Handle network errors
+            Console.WriteLine($"Network error: {e.Message}");
+        }
+        catch (Exception e)
+        {
+            // Handle other exceptions
+            Console.WriteLine($"An error occurred: {e.Message}");
+        }
+    }
 }
