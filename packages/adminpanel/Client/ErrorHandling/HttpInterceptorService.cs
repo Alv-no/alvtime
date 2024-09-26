@@ -40,6 +40,9 @@ public class HttpInterceptorService
                     }
                 }
                 break;
+            case HttpStatusCode.NotFound:
+                // Prevent default on 404
+                break;
             default:
                 _navManager.NavigateTo("/500");
                 message = "Noe gikk galt. Kontakt høyere makter.";
