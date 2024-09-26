@@ -5,6 +5,7 @@
 
 <MudThemeProvider Theme="_alvTheme"/>
 <MudDialogProvider/>
+<MudPopoverProvider />
 <MudSnackbarProvider/>
 
 <MudLayout>
@@ -38,7 +39,7 @@
 
     readonly MudTheme _alvTheme = new ()
     {
-        Palette = new PaletteLight()
+        PaletteLight = new PaletteLight()
         {
                 Primary = AlvBrandingBlue,
                 PrimaryContrastText = AlvBrandingLightBrown,
