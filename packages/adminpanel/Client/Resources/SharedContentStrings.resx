@@ -114,4 +114,10 @@
     <data name="Common.Pagination.All" xml:space="preserve">
         <value>Alle</value>
     </data>
+    <data name="Common.ContactInformation" xml:space="preserve">
+        <value>Kontaktinformasjon</value>
+    </data>
+    <data name="Common.CompanyInformation" xml:space="preserve">
+        <value>Selskapsinformasjon</value>
+    </data>
 </root>
