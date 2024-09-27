@@ -39,7 +39,9 @@ public static class CustomerMapper
                     {
                         Id = hr.Id,
                         FromDate = hr.FromDate.ToDateOnly(),
-                        Rate = hr.Rate
+                        Rate = hr.Rate,
+                        TaskId = t.Id,
+                        TaskName = t.Name
                     })
                 })
             })
