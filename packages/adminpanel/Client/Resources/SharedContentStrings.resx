@@ -127,7 +127,7 @@
         <value>Aktive timekoder</value>
     </data>
     <data name="Common.UsingProject" xml:space="preserve">
-        <value>Fører på prosjektet</value>
+        <value>Antall på prosjektet</value>
     </data>
     <data name="Common.Projects" xml:space="preserve">
         <value>Prosjekter</value>
@@ -155,5 +155,35 @@
     </data>
     <data name="Common.No" xml:space="preserve">
         <value>Nei</value>
+    </data>
+    <data name="Common.Unit.Pcs" xml:space="preserve">
+        <value>stk</value>
+    </data>
+    <data name="Common.Tasks.Pagination.PerPage" xml:space="preserve">
+        <value>Timekoder per side</value>
+    </data>
+    <data name="Common.Projects.Pagination.PerPage" xml:space="preserve">
+        <value>Prosjekter per side</value>
+    </data>
+    <data name="Common.HourRates" xml:space="preserve">
+        <value>Timerater</value>
+    </data>
+    <data name="CustomerPage.AddHourRate" xml:space="preserve">
+        <value>Legg til timerate</value>
+    </data>
+    <data name="Common.StartDate.Inclusive" xml:space="preserve">
+        <value>Fra dato (inkl.)</value>
+    </data>
+    <data name="Common.Rate" xml:space="preserve">
+        <value>Rate</value>
+    </data>
+    <data name="Common.Task" xml:space="preserve">
+        <value>Timekode</value>
+    </data>
+    <data name="Common.HourRates.Pagination.PerPage" xml:space="preserve">
+        <value>Rater per side</value>
+    </data>
+    <data name="Common.CompensationRate" xml:space="preserve">
+        <value>Overtidsfaktor</value>
     </data>
 </root>

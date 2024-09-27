@@ -320,5 +320,65 @@ namespace Alvtime.Adminpanel.Client.Resources {
                 return ResourceManager.GetString("Common.No", resourceCulture);
             }
         }
+        
+        internal static string Common_Unit_Pcs {
+            get {
+                return ResourceManager.GetString("Common.Unit.Pcs", resourceCulture);
+            }
+        }
+        
+        internal static string Common_Tasks_Pagination_PerPage {
+            get {
+                return ResourceManager.GetString("Common.Tasks.Pagination.PerPage", resourceCulture);
+            }
+        }
+        
+        internal static string Common_Projects_Pagination_PerPage {
+            get {
+                return ResourceManager.GetString("Common.Projects.Pagination.PerPage", resourceCulture);
+            }
+        }
+        
+        internal static string Common_HourRates {
+            get {
+                return ResourceManager.GetString("Common.HourRates", resourceCulture);
+            }
+        }
+        
+        internal static string CustomerPage_AddHourRate {
+            get {
+                return ResourceManager.GetString("CustomerPage.AddHourRate", resourceCulture);
+            }
+        }
+        
+        internal static string Common_StartDate_Inclusive {
+            get {
+                return ResourceManager.GetString("Common.StartDate.Inclusive", resourceCulture);
+            }
+        }
+        
+        internal static string Common_Rate {
+            get {
+                return ResourceManager.GetString("Common.Rate", resourceCulture);
+            }
+        }
+        
+        internal static string Common_Task {
+            get {
+                return ResourceManager.GetString("Common.Task", resourceCulture);
+            }
+        }
+        
+        internal static string Common_HourRates_Pagination_PerPage {
+            get {
+                return ResourceManager.GetString("Common.HourRates.Pagination.PerPage", resourceCulture);
+            }
+        }
+        
+        internal static string Common_CompensationRate {
+            get {
+                return ResourceManager.GetString("Common.CompensationRate", resourceCulture);
+            }
+        }
     }
 }
