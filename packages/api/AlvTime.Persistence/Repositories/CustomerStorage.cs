@@ -60,7 +60,7 @@ public class CustomerStorage : ICustomerStorage
                 {
                     Id = p.Id,
                     Name = p.Name,
-                    TaskCount = p.Task.Count(), 
+                    TaskCount = p.Task.Count, 
                     Tasks = p.Task.Select(t => new TaskAdminDto
                     {
                         Id = t.Id,
