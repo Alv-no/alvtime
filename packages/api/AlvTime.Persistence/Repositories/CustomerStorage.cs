@@ -60,20 +60,22 @@ public class CustomerStorage : ICustomerStorage
                 {
                     Id = p.Id,
                     Name = p.Name,
-                    TaskCount = p.Task.Count(), // Count of tasks in each project
+                    TaskCount = p.Task.Count(), 
                     Tasks = p.Task.Select(t => new TaskAdminDto
                     {
                         Id = t.Id,
                         Name = t.Name,
                         CompensationRate = EnsureCompensationRate(t.CompensationRate),
                         Locked = t.Locked,
-                        ProjectId = p.Id, // Including Project Id in each task
-                        ProjectName = p.Name, // Including Project Name in each task
+                        ProjectId = p.Id, 
+                        ProjectName = p.Name,
                         HourRates = t.HourRate.Select(hr => new HourRateDto
                         {
                             Id = hr.Id,
                             Rate = hr.Rate,
-                            FromDate = hr.FromDate
+                            FromDate = hr.FromDate,
+                            TaskId = t.Id, 
+                            TaskName = t.Name
                         }).ToList()
                     }).ToList()
                 }).ToList()
