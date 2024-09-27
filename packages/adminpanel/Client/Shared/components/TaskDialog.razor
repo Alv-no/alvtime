@@ -1,0 +1,162 @@
+@using System.Globalization
+@using Alvtime.Adminpanel.Client.ErrorHandling
+@using Alvtime.Adminpanel.Client.Mappers
+@using Alvtime.Adminpanel.Client.Models
+@using Alvtime.Adminpanel.Client.Requests
+@using Alvtime.Adminpanel.Client.Resources
+@using Alvtime.Adminpanel.Client.Utils
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedContentStrings> Localizer
+
+<MudDialog>
+    <DialogContent>
+        <MudForm
+            @ref="_form"
+            @bind-IsValid="@_success"
+            @bind-errors="@_errors">
+            <MudSelect 
+                Label="@Localizer["Common.Project"]"
+                @bind-Value="_selectedProjectId"
+                Required="true"
+                RequiredError="@Localizer["Validation.Project.Required"]"
+            >
+                @foreach (var project in Projects)
+                {
+                    <MudSelectItem T="int" Value="@project.Id">@project.Name</MudSelectItem>
+                }
+            </MudSelect>
+            <MudTextField
+                T="string"
+                Label="@Localizer["Common.Name"]"
+                @ref="_name"
+                Required="true"
+                RequiredError="@Localizer["Validation.Name.Required"]"/>
+            <MudTextField
+                T="string"
+                Label="@Localizer["Common.Description"]"
+                @ref="_description"/>
+            <MudNumericField
+                T="decimal"
+                Format="N1"
+                Min="0"
+                Max="42"
+                Step=".5M"
+                Converter="_decimalConverter"
+                Required
+                RequiredError="@Localizer["Validation.CompensationRate.Required"]"
+                Label="@Localizer["Common.CompensationRate"]"
+                @ref="_compensationRate"/>
+            <MudSwitch 
+                T="bool"
+                Label="@Localizer["Common.Locked"]"
+                Color="Color.Secondary"
+                @bind-Value="_locked"/>
+            <MudSwitch
+                T="bool"
+                Label="@Localizer["Common.Imposed"]"
+                Color="Color.Secondary"
+                @bind-Value="_imposed"/>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton
+            Color="Color.Tertiary"
+            Variant="Variant.Filled"
+            OnClick="() => Cancel()">
+            <TextAdjuster>
+                @Localizer["Common.Cancel"]
+            </TextAdjuster>
+        </MudButton>
+        <MudButton
+            Color="Color.Secondary"
+            Variant="Variant.Filled"
+            OnClick="() => Submit()">
+            <TextAdjuster>
+                @Localizer["Common.Save"]
+            </TextAdjuster>
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Inject] private HttpClient HttpClient { get; set; }
+    
+    [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
+    [Parameter] public EventCallback OnTaskSubmit { get; set; }
+    [Parameter] public IEnumerable<ProjectModel> Projects { get; set; }
+
+    private bool _success;
+    private string[] _errors = [];
+    private MudForm _form = new();
+    private int _selectedProjectId;
+    private MudTextField<string> _name;
+    private MudTextField<string> _description;
+    private MudNumericField<decimal> _compensationRate;
+    private bool _locked = false;
+    private bool _imposed = false;
+
+    protected override Task OnParametersSetAsync()
+    {
+        if (Projects.Any() && _selectedProjectId == 0)
+        {
+            _selectedProjectId = Projects.First().Id;
+        }
+        return base.OnParametersSetAsync();
+    }
+
+    private async Task Submit()
+    {
+        
+        _form.ResetValidation();
+        await _form.Validate();
+        
+        if (_form.IsValid)
+        {
+            var newTask = new TaskModel
+            {
+                Name = _name.Value,
+                Description = _description.Value,
+                Locked = _locked,
+                Imposed = _imposed,
+                CompensationRate = _compensationRate.Value,
+            };
+
+  
+            try
+            {
+                await HttpClient.PostAsJsonAsync(ApiRoutes.CreateTask(_selectedProjectId), newTask.MapToTaskUpsertRequest());
+                // Refresh in parent
+                await OnTaskSubmit.InvokeAsync();
+            
+                // Close dialog
+                MudDialog!.Close(DialogResult.Ok(true));
+            }
+            catch (HttpResponseException)
+            {
+                
+            }
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog!.Cancel();
+    }
+    
+    /* TODO:
+     * Grey area workaround used on compensation rate, to allow the user to use both decimal comma and decimal dot.
+     * This hard codes the culture to nb-NO, and should be replaced with a more robust solution some time in the future,
+     * if the solution is to add multi-language support.
+     */
+    private static Converter<decimal> _decimalConverter = new()
+    {
+        SetFunc = value => $"{value}",
+        GetFunc = numberString =>
+        {
+            if (string.IsNullOrWhiteSpace(numberString)) return 0;
+            numberString = numberString.Replace(".", ",");
+            return !decimal.TryParse(numberString, NumberStyles.Any, new CultureInfo("nb-NO"), out var result) ? 0 : result;
+        }
+    };
+
+}

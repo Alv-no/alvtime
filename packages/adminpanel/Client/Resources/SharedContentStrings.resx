@@ -186,4 +186,10 @@
     <data name="Common.CompensationRate" xml:space="preserve">
         <value>Overtidsfaktor</value>
     </data>
+    <data name="Validation.Project.Required" xml:space="preserve">
+        <value>Prosjekt må velges</value>
+    </data>
+    <data name="Validation.CompensationRate.Required" xml:space="preserve">
+        <value>Overtidsfaktor må fylles inn</value>
+    </data>
 </root>

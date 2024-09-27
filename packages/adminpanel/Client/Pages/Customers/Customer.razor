@@ -3,6 +3,7 @@
 @using Alvtime.Adminpanel.Client.ErrorHandling
 @using Alvtime.Adminpanel.Client.Models
 @using Alvtime.Adminpanel.Client.Resources
+@using Alvtime.Adminpanel.Client.Shared.components
 @using Alvtime.Adminpanel.Client.Utils
 @using Microsoft.Extensions.Localization
 @inject IStringLocalizer<SharedContentStrings> Localizer
@@ -85,6 +86,7 @@
                     <MudIconButton
                         Icon="@Icons.Material.Filled.Add"
                         Color="Color.Secondary"
+                        OnClick="@AddNewTask"
                         aria-label="@Localizer["CustomerPage.AddTask"]">
                     </MudIconButton>
                     <MudIconButton
@@ -238,7 +240,7 @@ else
 
         DialogService.ShowAsync<ProjectDialog>(Localizer["CustomerPage.AddProject"], new DialogParameters
             {
-                ["OnProjectCreate"] = OnProjectCreated,
+                ["OnProjectCreate"] = RefreshAfterDialogAction,
                 ["CustomerId"] = parsedId
             },
             new DialogOptions()
@@ -248,11 +250,27 @@ else
             });
     }
 
-    private EventCallback OnProjectCreated => new(this, (Action)(async () =>
+    private EventCallback RefreshAfterDialogAction => new(this, (Action)(async () =>
     {
         await RefreshCustomer();
         StateHasChanged();
     }));
+
+    private void AddNewTask()
+    {
+        if (_customer?.Projects == null) return;
+
+        DialogService.ShowAsync<TaskDialog>(Localizer["CustomerPage.AddTask"], new DialogParameters
+        {
+            ["OnTaskSubmit"] = RefreshAfterDialogAction,
+            ["Projects"] = _customer!.Projects
+        },
+        new DialogOptions()
+        {
+            FullWidth = true,
+            MaxWidth = MaxWidth.Small
+        });
+    }
 
     private async Task RefreshCustomer()
     {

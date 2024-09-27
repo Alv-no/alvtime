@@ -380,5 +380,17 @@ namespace Alvtime.Adminpanel.Client.Resources {
                 return ResourceManager.GetString("Common.CompensationRate", resourceCulture);
             }
         }
+        
+        internal static string Validation_Project_Required {
+            get {
+                return ResourceManager.GetString("Validation.Project.Required", resourceCulture);
+            }
+        }
+        
+        internal static string Validation_CompensationRate_Required {
+            get {
+                return ResourceManager.GetString("Validation.CompensationRate.Required", resourceCulture);
+            }
+        }
     }
 }
