@@ -15,6 +15,7 @@
             @bind-IsValid="@_success"
             @bind-errors="@_errors">
             <MudSelect 
+                Class="mb-2"
                 Label="@Localizer["Common.Project"]"
                 @bind-Value="_selectedProjectId"
                 Required="true"
@@ -26,32 +27,40 @@
                 }
             </MudSelect>
             <MudTextField
+                Class="mb-2"
+                ShrinkLabel="true"
                 T="string"
                 Label="@Localizer["Common.Name"]"
                 @ref="_name"
                 Required="true"
                 RequiredError="@Localizer["Validation.Name.Required"]"/>
             <MudTextField
+                Class="mb-2"
+                ShrinkLabel="true"
                 T="string"
                 Label="@Localizer["Common.Description"]"
                 @ref="_description"/>
-            <MudNumericField
+            <MudSelect
+                Class="mb-2"
                 T="decimal"
-                Format="N1"
-                Min="0"
-                Max="42"
-                Step=".5M"
-                Converter="_decimalConverter"
+                @bind-Value="_compensationRate"
                 Required
                 RequiredError="@Localizer["Validation.CompensationRate.Required"]"
                 Label="@Localizer["Common.CompensationRate"]"
-                @ref="_compensationRate"/>
-            <MudSwitch 
+                >
+                <MudSelectItem T="decimal" Value="0.5M">0,5</MudSelectItem>
+                <MudSelectItem T="decimal" Value="1.0M">1,0</MudSelectItem>
+                <MudSelectItem T="decimal" Value="1.5M">1,5</MudSelectItem>
+                <MudSelectItem T="decimal" Value="2.0M" Disabled="@(_imposed is not true)">2,0</MudSelectItem>
+            </MudSelect>
+            <MudSwitch
+                Class="mb-2"
                 T="bool"
                 Label="@Localizer["Common.Locked"]"
                 Color="Color.Secondary"
                 @bind-Value="_locked"/>
             <MudSwitch
+                Class="mb-2"
                 T="bool"
                 Label="@Localizer["Common.Imposed"]"
                 Color="Color.Secondary"
@@ -91,7 +100,7 @@
     private int _selectedProjectId;
     private MudTextField<string> _name;
     private MudTextField<string> _description;
-    private MudNumericField<decimal> _compensationRate;
+    private decimal _compensationRate = 0.5M;
     private bool _locked = false;
     private bool _imposed = false;
 
@@ -118,7 +127,7 @@
                 Description = _description.Value,
                 Locked = _locked,
                 Imposed = _imposed,
-                CompensationRate = _compensationRate.Value,
+                CompensationRate = _compensationRate,
             };
 
   

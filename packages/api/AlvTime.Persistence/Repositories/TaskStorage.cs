@@ -80,6 +80,7 @@ namespace AlvTime.Persistence.Repositories
                 Description = task.Description,
                 Favorite = false,
                 Locked = task.Locked,
+                Imposed = task.Imposed,
                 Name = task.Name,
                 Project = projectId,
                 CompensationRate = new List<CompensationRate>

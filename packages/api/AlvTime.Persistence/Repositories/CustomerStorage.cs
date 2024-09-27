@@ -67,6 +67,7 @@ public class CustomerStorage : ICustomerStorage
                         Name = t.Name,
                         CompensationRate = EnsureCompensationRate(t.CompensationRate),
                         Locked = t.Locked,
+                        Imposed = t.Imposed,
                         ProjectId = p.Id, 
                         ProjectName = p.Name,
                         HourRates = t.HourRate.Select(hr => new HourRateDto
@@ -127,6 +128,7 @@ public class CustomerStorage : ICustomerStorage
                         Name = t.Name,
                         CompensationRate = EnsureCompensationRate(t.CompensationRate),
                         Locked = t.Locked,
+                        Imposed = t.Imposed,
                         HourRates = t.HourRate.Select(hr => new HourRateDto
                         {
                             Id = hr.Id,
