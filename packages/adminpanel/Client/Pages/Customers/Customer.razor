@@ -1,4 +1,5 @@
 @page "/kunder/{CustomerId}"
+@using System.Globalization
 @using Alvtime.Adminpanel.Client.ErrorHandling
 @using Alvtime.Adminpanel.Client.Models
 @using Alvtime.Adminpanel.Client.Resources
@@ -12,7 +13,7 @@
     <PageTitle>@Localizer["CustomersPage.Title"]/@_customer.Name</PageTitle>
 
     <MudText Class="mb-4" Typo="Typo.h2">@_customer.Name</MudText>
-    <div class="d-flex flex-column flex-sm-row gap-4 pb-8">
+    <div class="d-flex flex-column flex-sm-row gap-4 mb-8">
         <MudPaper Class="pa-4">
             <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.CompanyInformation"]</MudText>
             <MudText>@Localizer["Common.OrgNr"]: @_customer.OrgNr</MudText>
@@ -25,10 +26,16 @@
             <MudText>@Localizer["Common.Telephone"]: <MudLink Href="@($"tel:{_customer.ContactPhone}")">@_customer.ContactPhone</MudLink></MudText>
         </MudPaper>
     </div>
-    <div class="d-flex flex-column flex-lg-row gap-8">
+    <div class="d-flex flex-column flex-lg-row gap-4 mb-8">
         <MudPaper Elevation="0" Class="flex-grow-1 flex-lg-grow-0 flex-lg-basis-50">
             <MudDataGrid
-                Items="_customer.Projects">
+                T="ProjectModel"
+                Items="_customer.Projects"
+                MultiSelection="@_multiSelection"
+                @bind-SelectedItem="_selectedProject"
+                @bind-SelectedItems="_projectSelectionList"
+                Filterable="false"
+                FooterClass="d-none">
                 <ToolBarContent>
                     <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.Projects"]</MudText>
                     <MudSpacer/>
@@ -45,16 +52,33 @@
                     </MudIconButton>
                 </ToolBarContent>
                 <Columns>
+                    <SelectColumn T="ProjectModel"/>
                     <PropertyColumn Title="@Localizer["Common.Name"]" Property="p => p.Name"/>
                     <PropertyColumn Title="@Localizer["Common.UsingProject"]" Property="p => p.EmployeeCount"></PropertyColumn>
                     <PropertyColumn Title="@Localizer["Common.ActiveTasks"]" Property="p => p.TaskCount"></PropertyColumn>
                 </Columns>
+                <PagerContent>
+                    <MudDataGridPager
+                        PageSizeOptions="new[] { int.MaxValue, 20, 10 }"
+                        AllItemsText="@Localizer["Common.Pagination.All"]"
+                        RowsPerPageString="@Localizer["Common.Projects.Pagination.PerPage"]"/>
+                </PagerContent>
             </MudDataGrid>
         </MudPaper>
+    </div>
+    <div class="d-flex flex-column flex-lg-row gap-4 mb-8">
         <MudPaper Elevation="0" Class="flex-grow-1 flex-lg-grow-0 flex-lg-basis-50">
             <MudDataGrid
                 T="TaskModel"
-                Items="_aggregatedTasks">
+                Items="_aggregatedTasks"
+                Groupable="true"
+                GroupExpanded="false"
+                GroupStyle="background-color: var(--mud-palette-tertiary);"
+                MultiSelection="@_multiSelection"
+                @bind-SelectedItem="_selectedTask"
+                @bind-SelectedItems="_taskSelectionList"
+                Filterable="false"
+                FooterClass="d-none">
                 <ToolBarContent>
                     <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.Tasks"]</MudText>
                     <MudSpacer/>
@@ -70,20 +94,103 @@
                     </MudIconButton>
                 </ToolBarContent>
                 <Columns>
-                    <PropertyColumn Title="@Localizer["Common.Name"]" Property="p => p.Name"/>
-                    <PropertyColumn Title="@Localizer["Common.Description"]" Property="p => p.Description"/>
-                    <PropertyColumn Title="@Localizer["Common.Project"]" Property="p => p.ProjectName"/>
-                    <TemplateColumn Title="@Localizer["Common.Imposed"]">
+                    <SelectColumn T="TaskModel"/>
+                    <PropertyColumn Title="@Localizer["Common.Name"]" Property="t => t.Name" Groupable="false"/>
+                    <PropertyColumn Title="@Localizer["Common.Description"]" Property="t => t.Description" Groupable="false"/>
+                    <PropertyColumn
+                        Title="@Localizer["Common.Project"]"
+                        Property="t => t.ProjectName"
+                        Hidden="true"
+                        Groupable="true"
+                        Grouping
+                        GroupBy="t => t.ProjectName">
+                        <GroupTemplate>
+                            <TextAdjuster>
+                                @context.Grouping.Key
+                                (@context.Grouping.Count() @Localizer["Common.Unit.Pcs"])
+
+                            </TextAdjuster>
+                        </GroupTemplate>
+                    </PropertyColumn>
+                    <TemplateColumn Title="@Localizer["Common.Imposed"]" Groupable="false">
                         <CellTemplate>
                             @(context.Item.Imposed ? @Localizer["Common.Yes"] : @Localizer["Common.No"])
                         </CellTemplate>
                     </TemplateColumn>
-                    <TemplateColumn Title="@Localizer["Common.Locked"]">
+                    <TemplateColumn Title="@Localizer["Common.Locked"]" Groupable="false">
                         <CellTemplate>
                             @(context.Item.Locked ? @Localizer["Common.Yes"] : @Localizer["Common.No"])
                         </CellTemplate>
                     </TemplateColumn>
+                    <PropertyColumn Title="@Localizer["Common.CompensationRate"]" Property="t => t.CompensationRate" Groupable="false"/>
                 </Columns>
+                <PagerContent>
+                    <MudDataGridPager
+                        PageSizeOptions="new[] { int.MaxValue, 20, 10 }"
+                        AllItemsText="@Localizer["Common.Pagination.All"]"
+                        RowsPerPageString="@Localizer["Common.Tasks.Pagination.PerPage"]"/>
+                </PagerContent>
+            </MudDataGrid>
+        </MudPaper>
+        <MudPaper Elevation="0" Class="flex-grow-1 flex-lg-grow-0 flex-lg-basis-50">
+            <MudDataGrid
+                T="HourRateModel"
+                Items="_aggregatedHourRates"
+                Groupable="true"
+                GroupExpanded="false"
+                GroupStyle="background-color: var(--mud-palette-tertiary);"
+                MultiSelection="@_multiSelection"
+                @bind-SelectedItem="_selectedHourRate"
+                @bind-SelectedItems="_hourRateSelectionList"
+                Filterable="false"
+                FooterClass="d-none">
+                <ToolBarContent>
+                    <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.HourRates"]</MudText>
+                    <MudSpacer/>
+                    <MudIconButton
+                        Icon="@Icons.Material.Filled.Add"
+                        Color="Color.Secondary"
+                        aria-label="@Localizer["CustomerPage.AddHourRate"]">
+                    </MudIconButton>
+                    <MudIconButton
+                        Icon="@Icons.Material.Filled.Edit"
+                        Color="Color.Secondary"
+                        Disabled="true">
+                    </MudIconButton>
+                </ToolBarContent>
+                <Columns>
+                    <SelectColumn T="HourRateModel"/>
+                    <PropertyColumn
+                        Title="@Localizer["Common.Task"]"
+                        Property="hr => hr.TaskName"
+                        Hidden="true"
+                        Groupable="true"
+                        Grouping
+                        GroupBy="hr => hr.TaskName">
+                        <GroupTemplate>
+                            <TextAdjuster>
+                                @context.Grouping.Key
+                                (@context.Grouping.Count() @Localizer["Common.Unit.Pcs"])
+
+                            </TextAdjuster>
+                        </GroupTemplate>
+                    </PropertyColumn>
+                    <PropertyColumn
+                        Title="@Localizer["Common.StartDate.Inclusive"]"
+                        Property="hr => hr.FromDate"
+                        Format="d"
+                        Groupable="false"/>
+                    <PropertyColumn
+                        Title="@Localizer["Common.Rate"]"
+                        Property="@(hr => hr.Rate.ToString("C2", CultureInfo.CreateSpecificCulture("no-NO")))"
+                        Groupable="false"/>
+                </Columns>
+                <PagerContent>
+                    <MudDataGridPager
+                        PageSizeOptions="new[] { int.MaxValue, 20, 10 }"
+                        AllItemsText="@Localizer["Common.Pagination.All"]"
+                        RowsPerPageString="@Localizer["Common.HourRates.Pagination.PerPage"]"/>
+                </PagerContent>
             </MudDataGrid>
         </MudPaper>
     </div>
@@ -104,6 +211,16 @@ else
 
     private CustomerModel? _customer;
     private IEnumerable<TaskModel>? _aggregatedTasks;
+    private IEnumerable<HourRateModel>? _aggregatedHourRates;
+
+    /* All off this need to be like this, to prevent the UI to allow multiselect. Who knows why it is like that. 🤷‍♂️ */
+    private readonly bool _multiSelection = false;
+    private HashSet<ProjectModel> _projectSelectionList = new();
+    private HashSet<TaskModel> _taskSelectionList = new();
+    private HashSet<HourRateModel> _hourRateSelectionList = new();
+    private ProjectModel _selectedProject = new();
+    private TaskModel _selectedTask = new();
+    private HourRateModel _selectedHourRate = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -120,16 +237,15 @@ else
         }
 
         DialogService.ShowAsync<ProjectDialog>(Localizer["CustomerPage.AddProject"], new DialogParameters
-        {
-            ["OnProjectCreate"] = OnProjectCreated,
-            ["CustomerId"] = parsedId
-            
-        },
-        new DialogOptions()
-        {
-            FullWidth = true,
-            MaxWidth = MaxWidth.Small
-        });
+            {
+                ["OnProjectCreate"] = OnProjectCreated,
+                ["CustomerId"] = parsedId
+            },
+            new DialogOptions()
+            {
+                FullWidth = true,
+                MaxWidth = MaxWidth.Small
+            });
     }
 
     private EventCallback OnProjectCreated => new(this, (Action)(async () =>
@@ -154,16 +270,30 @@ else
             {
                 _customer = await customerResponse.Content.ReadFromJsonAsync<CustomerModel>();
                 if (_customer?.Projects != null)
+                {
                     _aggregatedTasks = _customer?.Projects
                         .Where(p => p.Tasks != null)
                         .SelectMany(p => p.Tasks)
                         .Where(t => t != null);
+
+                    _aggregatedHourRates = _aggregatedTasks
+                        .Where(t => t.HourRates != null)
+                        .SelectMany(t => t.HourRates)
+                        .Where(hr => hr != null)
+                        .GroupBy(hr => new { hr.FromDate, hr.Rate })
+                        .Select(g => g.First())
+                        .OrderBy(hr => hr.FromDate)
+                        .ThenBy(hr => hr.Rate)
+                        .ToList();
+                }
             }
             else
             {
                 // Handle non-success status code
                 Console.WriteLine($"Error: {customerResponse.StatusCode}");
                 _customer = null;
+                _aggregatedTasks = null;
+                _aggregatedHourRates = null;
             }
         }
         catch (HttpRequestException e)
