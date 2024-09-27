@@ -24,13 +24,17 @@
             Color="Color.Tertiary"
             Variant="Variant.Filled"
             OnClick="() => Cancel()">
-            @Localizer["Common.Cancel"]
+            <TextAdjuster>
+                @Localizer["Common.Cancel"]
+            </TextAdjuster>
         </MudButton>
         <MudButton
             Color="Color.Secondary"
             Variant="Variant.Filled"
             OnClick="() => Submit()">
-            @Localizer["Common.Save"]
+            <TextAdjuster>
+                @Localizer["Common.Save"]
+            </TextAdjuster>
         </MudButton>
     </DialogActions>
 </MudDialog>

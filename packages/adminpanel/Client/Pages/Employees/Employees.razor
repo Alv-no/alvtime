@@ -16,7 +16,7 @@
     Color="Color.Secondary"
     Variant="Variant.Filled"
     OnClick="@(() => { DialogService.ShowAsync<EmployeeDialog>(@Localizer["EmployeesPage.AddEmployee"], new DialogParameters { ["OnEmployeeCreate"] = OnEmployeeCreated }, new DialogOptions() { FullWidth = true, MaxWidth = MaxWidth.Small }); })">
-    <ButtonText>@Localizer["EmployeesPage.AddEmployee"]</ButtonText>
+    <TextAdjuster>@Localizer["EmployeesPage.AddEmployee"]</TextAdjuster>
 </MudButton>
 
 <MudTable Items="@AllEmployees"
