@@ -17,9 +17,9 @@
     Color="Color.Secondary"
     Variant="Variant.Filled"
     OnClick="@AddEmptyCustomer">
-    <ButtonText>
+    <TextAdjuster>
          @Localizer["CustomersPage.AddCustomer"]
-    </ButtonText>
+    </TextAdjuster>
 </MudButton>
 
 <MudTable Items="@AllCustomers"
