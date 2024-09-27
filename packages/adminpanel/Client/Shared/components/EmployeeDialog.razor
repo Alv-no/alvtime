@@ -11,18 +11,24 @@
     <DialogContent>
         <MudForm @ref="_form" @bind-IsValid="@_success" @bind-errors="@_errors">
             <MudTextField
+                Class="mb-2"
+                ShrinkLabel="true"
                 T="int"
                 Label="@Localizer["Common.EmployeeId"]"
                 @ref="_employeeId"
                 Required="true"
                 RequiredError="@Localizer["Validation.EmployeeId.Required"]"/>
             <MudTextField
+                Class="mb-2"
+                ShrinkLabel="true"
                 T="string"
                 Label="@Localizer["Common.Name"]"
                 @ref="_name"
                 Required="true"
                 RequiredError="@Localizer["Validation.Name.Required"]"/>
             <MudTextField
+                Class="mb-2"
+                ShrinkLabel="true"
                 T="string"
                 Label="@Localizer["Common.Email"]"
                 @ref="_email"

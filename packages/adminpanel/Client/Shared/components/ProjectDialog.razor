@@ -12,6 +12,8 @@
             @bind-IsValid="@_success"
             @bind-errors="@_errors">
             <MudTextField
+                Class="mb-2"
+                ShrinkLabel="true"
                 T="string"
                 Label="@Localizer["Common.Name"]"
                 @ref="_name"

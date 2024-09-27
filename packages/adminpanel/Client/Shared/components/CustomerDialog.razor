@@ -12,33 +12,45 @@
             @ref="_form"
             @bind-IsValid="@_success"
             @bind-errors="@_errors">
-                <MudTextField
+            <MudTextField
+                    Class="mb-2"
+                    ShrinkLabel="true"
                     T="string"
                     Label="@Localizer["Common.OrgNr"]"
                     @ref="_orgNr"
                     Required="true"
                     RequiredError="@Localizer["Validation.OrgNr.Required"]"
                     Min/>
-                <MudTextField
+            <MudTextField
+                    Class="mb-2"
+                    ShrinkLabel="true"
                     T="string"
                     Label="@Localizer["Common.Name"]"
                     @ref="_name"
                     Required="true"
                     RequiredError="@Localizer["Validation.Name.Required"]"/>
-                <MudTextField
+            <MudTextField
+                    Class="mb-2"
+                    ShrinkLabel="true"
                     T="string"
                     Label="@Localizer["Common.InvoiceAddress"]"
                     @ref="_invoiceAddress"/>
-                <MudTextField
+            <MudTextField
+                    Class="mb-2"
+                    ShrinkLabel="true"
                     T="string"
                     Label="@Localizer["Common.ContactPerson"]"
                     @ref="_contactPerson"/>
-                <MudTextField
+            <MudTextField
+                    Class="mb-2"
+                    ShrinkLabel="true"
                     T="string"
                     Label="@Localizer["Common.Email"]"
                     @ref="_contactEmail"
                     Validation="@(new EmailAddressAttribute() { ErrorMessage = @Localizer["Validation.Email.NotValid"] })"/>
-                <MudTextField
+            <MudTextField
+                    Class="mb-2"
+                    ShrinkLabel="true"
                     T="string"
                     Label="@Localizer["Common.Telephone"]"
                     @ref="_contactPhone"/> 
