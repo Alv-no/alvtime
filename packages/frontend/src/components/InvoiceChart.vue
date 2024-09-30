@@ -11,12 +11,12 @@ import {
   BarElement,
   Title,
   Tooltip,
+  ChartConfiguration,
 } from "chart.js";
 
 import Vue from "vue";
 import ChartDataLabels, { Context } from "chartjs-plugin-datalabels";
-import { HorizontalLinePlugin } from "../utils/horizontal-line-chart-plugin";	
-import { ChartConfiguration } from "chart.js";
+import { HorizontalLinePlugin } from "../utils/horizontal-line-chart-plugin";
 
 Chart.register(
   BarController,
@@ -30,7 +30,7 @@ Chart.register(
 );
 
 let chart: Chart | null = null;
-const budgetedInvoiceRate = 90;
+const budgetedInvoiceRate = 92;
 
 export default Vue.extend({
   computed: {
