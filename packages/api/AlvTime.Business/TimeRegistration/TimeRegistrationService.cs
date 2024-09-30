@@ -308,6 +308,7 @@ public class TimeRegistrationService
 
             var futureFlex = (await _timeRegistrationStorage.GetFlexEntries(new TimeEntryQuerySearch
             {
+                UserId = currentUserId,
                 FromDateInclusive = date,
             })).ToList();
             
