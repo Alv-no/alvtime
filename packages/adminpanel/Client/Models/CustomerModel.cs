@@ -35,6 +35,7 @@ public class TaskModel
     public int ProjectId { get; set; }
     public string ProjectName { get; set; }
     public IList<HourRateModel>? HourRates { get; set; }
+    public int HourRateCount { get; set; }
     public bool ShowDetails { get; set; }
 }
 
@@ -44,5 +45,7 @@ public class HourRateModel
     public DateTime? FromDate { get; set; }
     public int TaskId { get; set; }
     public string TaskName { get; set; }
+    public int ProjectId { get; set; }
+    public string ProjectName { get; set; }
     public decimal Rate { get; set; }
 }

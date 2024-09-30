@@ -192,4 +192,10 @@
     <data name="Validation.CompensationRate.Required" xml:space="preserve">
         <value>Overtidsfaktor må fylles inn</value>
     </data>
+    <data name="Validation.Task.Required" xml:space="preserve">
+        <value>Timekode må velges</value>
+    </data>
+    <data name="Validation.HourRate.Required" xml:space="preserve">
+        <value>Timerate må fylle inn</value>
+    </data>
 </root>

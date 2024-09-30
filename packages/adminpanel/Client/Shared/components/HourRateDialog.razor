@@ -1,0 +1,163 @@
+@using System.Globalization
+@using Alvtime.Adminpanel.Client.Mappers
+@using Alvtime.Adminpanel.Client.Models
+@using Alvtime.Adminpanel.Client.Resources
+@using Alvtime.Adminpanel.Client.Utils
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedContentStrings> Localizer
+
+<MudDialog>
+    <DialogContent>
+        <MudForm
+            @ref="_form"
+            @bind-IsValid="@_success"
+            @bind-errors="@_errors">
+            <MudSelect
+                Class="mb-2"
+                Label="@Localizer["Common.Project"]"
+                @bind-Value="_selectedProjectId"
+                @bind-Value:after="OnProjectChanged"
+                Required="true"
+                RequiredError="@Localizer["Validation.Project.Required"]"
+            >
+                @foreach (var project in Projects)
+                {
+                    <MudSelectItem T="int" Value="@project.Id">@project.Name</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect
+                Class="mb-2"
+                Label="@Localizer["Common.Task"]"
+                @bind-Value="_selectedTaskId"
+                Required="true"
+                RequiredError="@Localizer["Validation.Task.Required"]"
+            >
+                @if (_selectedProject?.Tasks != null)
+                {
+                    if (_selectedProject?.Tasks != null)
+                    {
+                        foreach (var task in _selectedProject.Tasks!)
+                        {
+                            <MudSelectItem T="int" Value="@task.Id">@task.Name</MudSelectItem>
+                        }
+                    }
+                }
+            </MudSelect>
+            <MudDatePicker
+                Label="@Localizer["Common.StartDate.Inclusive"]"
+                @bind-Date="_fromDate"
+                DateFormat="dd/MM/yyyy"
+                Required="true"
+                RequiredError="@Localizer["Validation.Date.Required"]"/>
+            <MudTextField
+                T="decimal"
+                Label="@Localizer["Common.Rate"]"
+                Format="N2"
+                Min="0"
+                Converter="_decimalConverter"
+                Required
+                RequiredError="@Localizer["Validation.HourRate.Required"]"
+                @ref="_rate"/>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton
+            Color="Color.Tertiary"
+            Variant="Variant.Filled"
+            OnClick="() => Cancel()">
+            <TextAdjuster>
+                @Localizer["Common.Cancel"]
+            </TextAdjuster>
+        </MudButton>
+        <MudButton
+            Color="Color.Secondary"
+            Variant="Variant.Filled"
+            OnClick="() => Submit()">
+            <TextAdjuster>
+                @Localizer["Common.Save"]
+            </TextAdjuster>
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [Inject] private HttpClient HttpClient { get; set; }
+    
+    [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
+    [Parameter] public EventCallback OnHourRateSubmit { get; set; }
+    [Parameter] public IEnumerable<ProjectModel> Projects { get; set; }
+    
+    private bool _success;
+    private string[] _errors = [];
+    private MudForm _form = new();
+    private DateTime? _fromDate = DateTime.UtcNow.Date;
+    private MudTextField<decimal> _rate;
+    
+    private int _selectedProjectId;
+    private ProjectModel _selectedProject = new ProjectModel();
+    private int _selectedTaskId;
+
+    protected override Task OnParametersSetAsync()
+    {
+        if (Projects.Any() && _selectedProjectId == 0)
+        {
+            _selectedProjectId = Projects.First().Id;
+            OnProjectChanged();
+        }
+        return base.OnParametersSetAsync();
+    }
+
+    private void OnProjectChanged()
+    {
+        _selectedProject = Projects.FirstOrDefault(p => p.Id == _selectedProjectId);
+        if (_selectedProject.Tasks != null) _selectedTaskId = _selectedProject.Tasks.FirstOrDefault().Id;
+        StateHasChanged();
+    }
+    
+    private async Task Submit()
+    {
+        _form.ResetValidation();
+        await _form.Validate();
+
+        if (_fromDate != null)
+        {
+            var newHourRate = new HourRateModel
+            {
+                FromDate = _fromDate.Value,
+                Rate = _rate.Value
+            };
+        
+            try
+            {
+                await HttpClient.PostAsJsonAsync(ApiRoutes.CreateHourRate(_selectedTaskId), newHourRate.MapToHourRateUpsertRequest());
+                // Refresh in parent
+                await OnHourRateSubmit.InvokeAsync();
+                MudDialog!.Close();
+            }
+            catch (HttpRequestException)
+            {
+            
+            }
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog!.Cancel();
+    }
+    
+    /* TODO:
+     * Grey area workaround used on compensation rate, to allow the user to use both decimal comma and decimal dot.
+     * This hard codes the culture to nb-NO, and should be replaced with a more robust solution some time in the future,
+     * if the solution is to add multi-language support.
+     */
+    private static Converter<decimal> _decimalConverter = new()
+    {
+        SetFunc = value => $"{value}",
+        GetFunc = numberString =>
+        {
+            if (string.IsNullOrWhiteSpace(numberString)) return 0;
+            numberString = numberString.Replace(".", ",");
+            return !decimal.TryParse(numberString, NumberStyles.Any, new CultureInfo("nb-NO"), out var result) ? 0 : result;
+        }
+    };
+}

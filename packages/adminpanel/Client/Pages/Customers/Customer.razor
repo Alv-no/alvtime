@@ -27,175 +27,181 @@
             <MudText>@Localizer["Common.Telephone"]: <MudLink Href="@($"tel:{_customer.ContactPhone}")">@_customer.ContactPhone</MudLink></MudText>
         </MudPaper>
     </div>
-    <div class="d-flex flex-column flex-lg-row gap-4 mb-8">
-        <MudPaper Elevation="0" Class="flex-grow-1 flex-lg-grow-0 flex-lg-basis-50">
-            <MudDataGrid
-                T="ProjectModel"
-                Items="_customer.Projects"
-                MultiSelection="@_multiSelection"
-                @bind-SelectedItem="_selectedProject"
-                @bind-SelectedItems="_projectSelectionList"
-                Filterable="false"
-                FooterClass="d-none">
-                <ToolBarContent>
-                    <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.Projects"]</MudText>
-                    <MudSpacer/>
-                    <MudIconButton
-                        Icon="@Icons.Material.Filled.Add"
-                        Color="Color.Secondary"
-                        OnClick="@AddNewProject"
-                        aria-label="@Localizer["CustomerPage.AddProject"]">
-                    </MudIconButton>
-                    <MudIconButton
-                        Icon="@Icons.Material.Filled.Edit"
-                        Color="Color.Secondary"
-                        Disabled="true">
-                    </MudIconButton>
-                </ToolBarContent>
-                <Columns>
-                    <SelectColumn T="ProjectModel"/>
-                    <PropertyColumn Title="@Localizer["Common.Name"]" Property="p => p.Name"/>
-                    <PropertyColumn Title="@Localizer["Common.UsingProject"]" Property="p => p.EmployeeCount"></PropertyColumn>
-                    <PropertyColumn Title="@Localizer["Common.ActiveTasks"]" Property="p => p.TaskCount"></PropertyColumn>
-                </Columns>
-                <PagerContent>
-                    <MudDataGridPager
-                        PageSizeOptions="new[] { int.MaxValue, 20, 10 }"
-                        AllItemsText="@Localizer["Common.Pagination.All"]"
-                        RowsPerPageString="@Localizer["Common.Projects.Pagination.PerPage"]"/>
-                </PagerContent>
-            </MudDataGrid>
-        </MudPaper>
-    </div>
-    <div class="d-flex flex-column flex-lg-row gap-4 mb-8">
-        <MudPaper Elevation="0" Class="flex-grow-1 flex-lg-grow-0 flex-lg-basis-50">
-            <MudDataGrid
-                T="TaskModel"
-                Items="_aggregatedTasks"
-                Groupable="true"
-                GroupExpanded="false"
-                GroupStyle="background-color: var(--mud-palette-tertiary);"
-                MultiSelection="@_multiSelection"
-                @bind-SelectedItem="_selectedTask"
-                @bind-SelectedItems="_taskSelectionList"
-                Filterable="false"
-                FooterClass="d-none">
-                <ToolBarContent>
-                    <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.Tasks"]</MudText>
-                    <MudSpacer/>
-                    <MudIconButton
-                        Icon="@Icons.Material.Filled.Add"
-                        Color="Color.Secondary"
-                        OnClick="@AddNewTask"
-                        aria-label="@Localizer["CustomerPage.AddTask"]">
-                    </MudIconButton>
-                    <MudIconButton
-                        Icon="@Icons.Material.Filled.Edit"
-                        Color="Color.Secondary"
-                        Disabled="true">
-                    </MudIconButton>
-                </ToolBarContent>
-                <Columns>
-                    <SelectColumn T="TaskModel"/>
-                    <PropertyColumn Title="@Localizer["Common.Name"]" Property="t => t.Name" Groupable="false"/>
-                    <PropertyColumn Title="@Localizer["Common.Description"]" Property="t => t.Description" Groupable="false"/>
-                    <PropertyColumn
-                        Title="@Localizer["Common.Project"]"
-                        Property="t => t.ProjectName"
-                        Hidden="true"
-                        Groupable="true"
-                        Grouping
-                        GroupBy="t => t.ProjectName">
-                        <GroupTemplate>
-                            <TextAdjuster>
-                                @context.Grouping.Key
-                                (@context.Grouping.Count() @Localizer["Common.Unit.Pcs"])
 
-                            </TextAdjuster>
-                        </GroupTemplate>
-                    </PropertyColumn>
-                    <TemplateColumn Title="@Localizer["Common.Imposed"]" Groupable="false">
-                        <CellTemplate>
-                            @(context.Item.Imposed ? @Localizer["Common.Yes"] : @Localizer["Common.No"])
-                        </CellTemplate>
-                    </TemplateColumn>
-                    <TemplateColumn Title="@Localizer["Common.Locked"]" Groupable="false">
-                        <CellTemplate>
-                            @(context.Item.Locked ? @Localizer["Common.Yes"] : @Localizer["Common.No"])
-                        </CellTemplate>
-                    </TemplateColumn>
-                    <PropertyColumn Title="@Localizer["Common.CompensationRate"]" Property="t => t.CompensationRate" Groupable="false"/>
-                </Columns>
-                <PagerContent>
-                    <MudDataGridPager
-                        PageSizeOptions="new[] { int.MaxValue, 20, 10 }"
-                        AllItemsText="@Localizer["Common.Pagination.All"]"
-                        RowsPerPageString="@Localizer["Common.Tasks.Pagination.PerPage"]"/>
-                </PagerContent>
-            </MudDataGrid>
-        </MudPaper>
-        <MudPaper Elevation="0" Class="flex-grow-1 flex-lg-grow-0 flex-lg-basis-50">
-            <MudDataGrid
-                T="HourRateModel"
-                Items="_aggregatedHourRates"
-                Groupable="true"
-                GroupExpanded="false"
-                GroupStyle="background-color: var(--mud-palette-tertiary);"
-                MultiSelection="@_multiSelection"
-                @bind-SelectedItem="_selectedHourRate"
-                @bind-SelectedItems="_hourRateSelectionList"
-                Filterable="false"
-                FooterClass="d-none">
-                <ToolBarContent>
-                    <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.HourRates"]</MudText>
-                    <MudSpacer/>
-                    <MudIconButton
-                        Icon="@Icons.Material.Filled.Add"
-                        Color="Color.Secondary"
-                        aria-label="@Localizer["CustomerPage.AddHourRate"]">
-                    </MudIconButton>
-                    <MudIconButton
-                        Icon="@Icons.Material.Filled.Edit"
-                        Color="Color.Secondary"
-                        Disabled="true">
-                    </MudIconButton>
-                </ToolBarContent>
-                <Columns>
-                    <SelectColumn T="HourRateModel"/>
-                    <PropertyColumn
-                        Title="@Localizer["Common.Task"]"
-                        Property="hr => hr.TaskName"
-                        Hidden="true"
-                        Groupable="true"
-                        Grouping
-                        GroupBy="hr => hr.TaskName">
-                        <GroupTemplate>
-                            <TextAdjuster>
-                                @context.Grouping.Key
-                                (@context.Grouping.Count() @Localizer["Common.Unit.Pcs"])
+    <MudPaper Elevation="0" Class="mb-4">
+        <MudDataGrid
+            T="ProjectModel"
+            Items="_customer.Projects"
+            MultiSelection="@_multiSelection"
+            @bind-SelectedItem="_selectedProject"
+            @bind-SelectedItems="_projectSelectionList"
+            Filterable="false"
+            FooterClass="d-none">
+            <ToolBarContent>
+                <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.Projects"]</MudText>
+                <MudSpacer/>
+                <MudIconButton
+                    Icon="@Icons.Material.Filled.Add"
+                    Color="Color.Secondary"
+                    OnClick="@AddNewProject"
+                    aria-label="@Localizer["CustomerPage.AddProject"]">
+                </MudIconButton>
+                <MudIconButton
+                    Icon="@Icons.Material.Filled.Edit"
+                    Color="Color.Secondary"
+                    Disabled="true">
+                </MudIconButton>
+            </ToolBarContent>
+            <Columns>
+                <SelectColumn T="ProjectModel"/>
+                <PropertyColumn Title="@Localizer["Common.Name"]" Property="p => p.Name"/>
+                <PropertyColumn Title="@Localizer["Common.UsingProject"]" Property="p => p.EmployeeCount"></PropertyColumn>
+                <PropertyColumn Title="@Localizer["Common.ActiveTasks"]" Property="p => p.TaskCount"></PropertyColumn>
+            </Columns>
+            <PagerContent>
+                <MudDataGridPager
+                    PageSizeOptions="new[] { int.MaxValue, 20, 10 }"
+                    AllItemsText="@Localizer["Common.Pagination.All"]"
+                    RowsPerPageString="@Localizer["Common.Projects.Pagination.PerPage"]"/>
+            </PagerContent>
+        </MudDataGrid>
+    </MudPaper>
 
-                            </TextAdjuster>
-                        </GroupTemplate>
-                    </PropertyColumn>
-                    <PropertyColumn
-                        Title="@Localizer["Common.StartDate.Inclusive"]"
-                        Property="hr => hr.FromDate"
-                        Format="d"
-                        Groupable="false"/>
-                    <PropertyColumn
-                        Title="@Localizer["Common.Rate"]"
-                        Property="@(hr => hr.Rate.ToString("C2", CultureInfo.CreateSpecificCulture("no-NO")))"
-                        Groupable="false"/>
-                </Columns>
-                <PagerContent>
-                    <MudDataGridPager
-                        PageSizeOptions="new[] { int.MaxValue, 20, 10 }"
-                        AllItemsText="@Localizer["Common.Pagination.All"]"
-                        RowsPerPageString="@Localizer["Common.HourRates.Pagination.PerPage"]"/>
-                </PagerContent>
-            </MudDataGrid>
-        </MudPaper>
-    </div>
+    <MudPaper Elevation="0" Class="mb-4">
+        <MudDataGrid
+            T="TaskModel"
+            Items="_aggregatedTasks"
+            Groupable="true"
+            GroupExpanded="false"
+            GroupStyle="background-color: var(--mud-palette-tertiary);"
+            MultiSelection="@_multiSelection"
+            @bind-SelectedItem="_selectedTask"
+            @bind-SelectedItems="_taskSelectionList"
+            Filterable="false"
+            FooterClass="d-none">
+            <ToolBarContent>
+                <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.Tasks"]</MudText>
+                <MudSpacer/>
+                <MudIconButton
+                    Icon="@Icons.Material.Filled.Add"
+                    Color="Color.Secondary"
+                    OnClick="@AddNewTask"
+                    aria-label="@Localizer["CustomerPage.AddTask"]">
+                </MudIconButton>
+                <MudIconButton
+                    Icon="@Icons.Material.Filled.Edit"
+                    Color="Color.Secondary"
+                    Disabled="true">
+                </MudIconButton>
+            </ToolBarContent>
+            <Columns>
+                <SelectColumn T="TaskModel"/>
+                <PropertyColumn Title="@Localizer["Common.Name"]" Property="t => t.Name" Groupable="false"/>
+                <PropertyColumn Title="@Localizer["Common.Description"]" Property="t => t.Description" Groupable="false"/>
+                <PropertyColumn
+                    Title="@Localizer["Common.Project"]"
+                    Property="t => t.ProjectName"
+                    Hidden="true"
+                    Groupable="true"
+                    Grouping
+                    GroupBy="t => t.ProjectName">
+                    <GroupTemplate>
+                        <TextAdjuster>
+                            @Localizer["Common.Project"]:
+                            @context.Grouping.Key
+                            (@context.Grouping.Count() @Localizer["Common.Unit.Pcs"])
+                        </TextAdjuster>
+                    </GroupTemplate>
+                </PropertyColumn>
+                <TemplateColumn Title="@Localizer["Common.Imposed"]" Groupable="false">
+                    <CellTemplate>
+                        @(context.Item.Imposed ? @Localizer["Common.Yes"] : @Localizer["Common.No"])
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="@Localizer["Common.Locked"]" Groupable="false">
+                    <CellTemplate>
+                        @(context.Item.Locked ? @Localizer["Common.Yes"] : @Localizer["Common.No"])
+                    </CellTemplate>
+                </TemplateColumn>
+                <PropertyColumn Title="@Localizer["Common.CompensationRate"]" Property="t => t.CompensationRate" Groupable="false"/>
+                <PropertyColumn
+                    Title="@Localizer["Common.HourRates"]" Property="t => t.HourRateCount"></PropertyColumn>
+            </Columns>
+            <PagerContent>
+                <MudDataGridPager
+                    PageSizeOptions="new[] { int.MaxValue, 20, 10 }"
+                    AllItemsText="@Localizer["Common.Pagination.All"]"
+                    RowsPerPageString="@Localizer["Common.Tasks.Pagination.PerPage"]"/>
+            </PagerContent>
+        </MudDataGrid>
+    </MudPaper>
+    <MudPaper Elevation="0" Class="mb-4">
+        <MudDataGrid
+            T="HourRateModel"
+            Items="_aggregatedHourRates"
+            Groupable="true"
+            GroupExpanded="false"
+            GroupStyle="background-color: var(--mud-palette-tertiary);"
+            MultiSelection="@_multiSelection"
+            @bind-SelectedItem="_selectedHourRate"
+            @bind-SelectedItems="_hourRateSelectionList"
+            Filterable="false"
+            FooterClass="d-none">
+            <ToolBarContent>
+                <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.HourRates"]</MudText>
+                <MudSpacer/>
+                <MudIconButton
+                    Icon="@Icons.Material.Filled.Add"
+                    Color="Color.Secondary"
+                    OnClick="@AddNewHourRate"
+                    aria-label="@Localizer["CustomerPage.AddHourRate"]">
+                </MudIconButton>
+                <MudIconButton
+                    Icon="@Icons.Material.Filled.Edit"
+                    Color="Color.Secondary"
+                    Disabled="true">
+                </MudIconButton>
+            </ToolBarContent>
+            <Columns>
+                <SelectColumn T="HourRateModel"/>
+                <PropertyColumn
+                    Title="@Localizer["Common.Task"]"
+                    Property="hr => hr.TaskName"
+                    Hidden="true"
+                    Groupable="true"
+                    Grouping
+                    GroupBy="hr => hr.TaskName">
+                    <GroupTemplate>
+                        <TextAdjuster>
+                            @Localizer["Common.Task"]:
+                            @context.Grouping.Key
+                            (@context.Grouping.Count() @Localizer["Common.Unit.Pcs"])
+
+                        </TextAdjuster>
+                    </GroupTemplate>
+                </PropertyColumn>
+                <PropertyColumn
+                    Title="@Localizer["Common.Project"]"
+                    Property="hr => hr.ProjectName"/>
+                <PropertyColumn
+                    Title="@Localizer["Common.StartDate.Inclusive"]"
+                    Property="hr => hr.FromDate"
+                    Format="d"
+                    Groupable="false"/>
+                <PropertyColumn
+                    Title="@Localizer["Common.Rate"]"
+                    Property="@(hr => hr.Rate.ToString("C2", CultureInfo.CreateSpecificCulture("no-NO")))"
+                    Groupable="false"/>
+            </Columns>
+            <PagerContent>
+                <MudDataGridPager
+                    PageSizeOptions="new[] { int.MaxValue, 20, 10 }"
+                    AllItemsText="@Localizer["Common.Pagination.All"]"
+                    RowsPerPageString="@Localizer["Common.HourRates.Pagination.PerPage"]"/>
+            </PagerContent>
+        </MudDataGrid>
+    </MudPaper>
+
 }
 else
 {
@@ -249,13 +255,7 @@ else
                 MaxWidth = MaxWidth.Small
             });
     }
-
-    private EventCallback RefreshAfterDialogAction => new(this, (Action)(async () =>
-    {
-        await RefreshCustomer();
-        StateHasChanged();
-    }));
-
+    
     private void AddNewTask()
     {
         if (_customer?.Projects == null) return;
@@ -271,6 +271,28 @@ else
             MaxWidth = MaxWidth.Small
         });
     }
+
+    private void AddNewHourRate()
+    {
+        if (_customer?.Projects == null) return;
+
+        DialogService.ShowAsync<HourRateDialog>(Localizer["CustomerPage.AddHourRate"], new DialogParameters
+        {
+            ["OnHourRateSubmit"] = RefreshAfterDialogAction,
+            ["Projects"] = _customer!.Projects
+        },
+        new DialogOptions()
+        {
+            FullWidth = true,
+            MaxWidth = MaxWidth.Small
+        });
+    }
+    
+    private EventCallback RefreshAfterDialogAction => new(this, (Action)(async () =>
+    {
+        await RefreshCustomer();
+        StateHasChanged();
+    }));
 
     private async Task RefreshCustomer()
     {
@@ -291,14 +313,35 @@ else
                 {
                     _aggregatedTasks = _customer?.Projects
                         .Where(p => p.Tasks != null)
-                        .SelectMany(p => p.Tasks)
+                        .SelectMany(p => p.Tasks.Select((t=> new TaskModel
+                        {
+                            Id = t.Id,
+                            Name = t.Name,
+                            Description = t.Description,
+                            CompensationRate = t.CompensationRate,
+                            Imposed = t.Imposed,
+                            Locked = t.Locked,
+                            ProjectId = t.ProjectId,
+                            ProjectName = t.ProjectName,
+                            HourRates = t.HourRates,
+                            HourRateCount = t.HourRates.Count
+                        })))
                         .Where(t => t != null);
 
                     _aggregatedHourRates = _aggregatedTasks
                         .Where(t => t.HourRates != null)
-                        .SelectMany(t => t.HourRates)
+                        .SelectMany(t => t.HourRates.Select(hr => new HourRateModel
+                        {
+                            Id = hr.Id,
+                            FromDate = hr.FromDate,
+                            Rate = hr.Rate,
+                            ProjectId = t.ProjectId,
+                            ProjectName = t.ProjectName,
+                            TaskId = hr.TaskId,
+                            TaskName = hr.TaskName
+                        }))
                         .Where(hr => hr != null)
-                        .GroupBy(hr => new { hr.FromDate, hr.Rate })
+                        .GroupBy(hr => new { hr.FromDate, hr.Rate, hr.ProjectId, hr.TaskId })
                         .Select(g => g.First())
                         .OrderBy(hr => hr.FromDate)
                         .ThenBy(hr => hr.Rate)
@@ -325,5 +368,4 @@ else
             Console.WriteLine($"An error occurred: {e.Message}");
         }
     }
-
 }
