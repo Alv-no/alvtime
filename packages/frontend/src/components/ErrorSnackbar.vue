@@ -5,7 +5,8 @@
     :md-active.sync="show"
     md-persistent
   >
-    <span id="error_text_element" class="issues">{{ issueText }}</span>
+    <span id="error_text_element" class="issues">{{ issueTitle }}</span>
+    <span class="issues"> {{ issueText }} </span>
     <SlackButton
       tooltip="Kopier feilteksten og åpne Slack"
       @click="onSlackClick"
@@ -55,14 +56,27 @@ export default Vue.extend({
     issues() {
       return this.$store.getters.getErrorMessages;
     },
-    issueText() {
+    issueTitle() {
       const issues = this.$store.getters.getErrorMessages as ErrorResponse[];
       const lastIssue = issues[issues.length - 1];
+      console.log("lastIssue", lastIssue);
       const issueCount = issues.length;
       if (lastIssue) {
         return issueCount > 1
           ? `${lastIssue.name} +${issueCount - 1} more error(s)`
           : lastIssue.name;
+      }
+      return "";
+    },
+    issueText() {
+      const issues = this.$store.getters.getErrorMessages as ErrorResponse[];
+      const lastIssue = issues[issues.length - 1];
+      console.log("lastIssue", lastIssue);
+      const issueCount = issues.length;
+      if (lastIssue) {
+        return issueCount > 1
+          ? `${lastIssue.message} +${issueCount - 1} more error(s)`
+          : lastIssue.message;
       }
       return "";
     },

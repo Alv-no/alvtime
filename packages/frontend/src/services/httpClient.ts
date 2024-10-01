@@ -66,8 +66,10 @@ axios.interceptors.response.use(
     errorResponse.name =
       error.response.data.title ||
       `API returned a ${error.response.status}-response`;
+    const errorMessages = Object.values(error.response.data.errors);
+    const formattedErrorMessages = errorMessages.join('. ');
     errorResponse.message =
-      error.response.data.detail || error.response.data.message || "";
+      formattedErrorMessages || error.response.data.message || "";
 
     if (
       error.response.status === 404 &&
