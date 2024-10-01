@@ -5,16 +5,26 @@
     :md-active.sync="show"
     md-persistent
   >
-    <span id="error_text_element" class="issues">{{ issueTitle }}</span>
-    <span class="issues"> {{ issueText }} </span>
-    <SlackButton
-      tooltip="Kopier feilteksten og åpne Slack"
-      @click="onSlackClick"
-    />
-    <md-button class="icon_button" @click="close">
-      <md-icon class="icon">close</md-icon>
-      <Tooltip text="Lukk" />
-    </md-button>
+    <div class="snackbar_content">
+      <div class="message_container">
+        <span id="error_text_element" class="issues">{{ issueTitle }}</span>
+        <span class="issues"> {{ issueText }} </span>
+      </div>
+
+      <div class="close_button_container">
+        <md-button class="icon_button close_button" @click="close">
+          <md-icon class="icon">close</md-icon>
+          <Tooltip text="Lukk" />
+        </md-button>
+      </div>
+      <div class="slack_button_container">
+        <SlackButton
+          class="slack_button"
+          tooltip="Kopier feilteksten og åpne Slack"
+          @click="onSlackClick"
+        />
+      </div>
+    </div>
   </md-snackbar>
 </template>
 
@@ -115,6 +125,36 @@ export default Vue.extend({
   color: #fff;
 }
 
+/* quick fix to enable better formatting of the error messages. we just let it go. */
+.md-snackbar {
+  padding: 0;
+  max-height: 80vh;
+}
+
+.snackbar_content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 0.5rem;
+  box-sizing: border-box;
+}
+
+.message_container {
+  margin-right: 2rem;
+}
+
+.close_button_container {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+}
+
+.slack_button_container {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+}
+
 .icon_button {
   min-width: 1.5rem !important;
 }
@@ -122,7 +162,6 @@ export default Vue.extend({
 .issues {
   display: block; /* or inline-block */
   overflow: hidden;
-  max-height: 4.4em;
   line-height: 1.5em;
 }
 
