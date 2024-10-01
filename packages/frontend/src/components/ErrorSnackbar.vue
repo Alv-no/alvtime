@@ -69,7 +69,6 @@ export default Vue.extend({
     issueTitle() {
       const issues = this.$store.getters.getErrorMessages as ErrorResponse[];
       const lastIssue = issues[issues.length - 1];
-      console.log("lastIssue", lastIssue);
       const issueCount = issues.length;
       if (lastIssue) {
         return issueCount > 1
@@ -81,7 +80,6 @@ export default Vue.extend({
     issueText() {
       const issues = this.$store.getters.getErrorMessages as ErrorResponse[];
       const lastIssue = issues[issues.length - 1];
-      console.log("lastIssue", lastIssue);
       const issueCount = issues.length;
       if (lastIssue) {
         return issueCount > 1
