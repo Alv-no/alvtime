@@ -220,7 +220,7 @@ public class TimeRegistrationService
         
         if (await FutureFlexWouldCauseNegativeBalance(timeEntriesOnDate.Values, currentUser.Id, anticipatedWorkHours, timeEntry))
         {
-            return new List<Error> { new(ErrorCodes.InvalidAction, "Du kan ikke gå i negativ balanse.") };
+            return new List<Error> { new(ErrorCodes.InvalidAction, "Fremtidig avspasering vil resultere i negativ balanse.") };
         }
 
         timeEntriesOnDate[timeEntry.TaskId] = new TimeEntryResponseDto
