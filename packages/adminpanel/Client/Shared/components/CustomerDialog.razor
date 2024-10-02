@@ -8,52 +8,52 @@
 
 <MudDialog>
     <DialogContent>
-        <MudForm 
+        <MudForm
             @ref="_form"
             @bind-IsValid="@_success"
             @bind-errors="@_errors">
             <MudTextField
-                    Class="mb-2"
-                    ShrinkLabel="true"
-                    T="string"
-                    Label="@Localizer["Common.OrgNr"]"
-                    @ref="_orgNr"
-                    Required="true"
-                    RequiredError="@Localizer["Validation.OrgNr.Required"]"
-                    Min/>
+                Class="mb-2"
+                ShrinkLabel="true"
+                T="string"
+                Label="@Localizer["Common.OrgNr"]"
+                @bind-Value="_orgNr"
+                Required="true"
+                RequiredError="@Localizer["Validation.OrgNr.Required"]"
+                Min/>
             <MudTextField
-                    Class="mb-2"
-                    ShrinkLabel="true"
-                    T="string"
-                    Label="@Localizer["Common.Name"]"
-                    @ref="_name"
-                    Required="true"
-                    RequiredError="@Localizer["Validation.Name.Required"]"/>
+                Class="mb-2"
+                ShrinkLabel="true"
+                T="string"
+                Label="@Localizer["Common.Name"]"
+                @bind-Value="_name"
+                Required="true"
+                RequiredError="@Localizer["Validation.Name.Required"]"/>
             <MudTextField
-                    Class="mb-2"
-                    ShrinkLabel="true"
-                    T="string"
-                    Label="@Localizer["Common.InvoiceAddress"]"
-                    @ref="_invoiceAddress"/>
+                Class="mb-2"
+                ShrinkLabel="true"
+                T="string"
+                Label="@Localizer["Common.InvoiceAddress"]"
+                @bind-Value="_invoiceAddress"/>
             <MudTextField
-                    Class="mb-2"
-                    ShrinkLabel="true"
-                    T="string"
-                    Label="@Localizer["Common.ContactPerson"]"
-                    @ref="_contactPerson"/>
+                Class="mb-2"
+                ShrinkLabel="true"
+                T="string"
+                Label="@Localizer["Common.ContactPerson"]"
+                @bind-Value="_contactPerson"/>
             <MudTextField
-                    Class="mb-2"
-                    ShrinkLabel="true"
-                    T="string"
-                    Label="@Localizer["Common.Email"]"
-                    @ref="_contactEmail"
-                    Validation="@(new EmailAddressAttribute() { ErrorMessage = @Localizer["Validation.Email.NotValid"] })"/>
+                Class="mb-2"
+                ShrinkLabel="true"
+                T="string"
+                Label="@Localizer["Common.Email"]"
+                @bind-Value="_contactEmail"
+                Validation="@(new EmailAddressAttribute() { ErrorMessage = @Localizer["Validation.Email.NotValid"] })"/>
             <MudTextField
-                    Class="mb-2"
-                    ShrinkLabel="true"
-                    T="string"
-                    Label="@Localizer["Common.Telephone"]"
-                    @ref="_contactPhone"/> 
+                Class="mb-2"
+                ShrinkLabel="true"
+                T="string"
+                Label="@Localizer["Common.Telephone"]"
+                @bind-Value="_contactPhone"/>
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -61,67 +61,101 @@
             Color="Color.Tertiary"
             Variant="Variant.Filled"
             OnClick="() => Cancel()">
-            @Localizer["Common.Cancel"]
+            <TextAdjuster>
+                @Localizer["Common.Cancel"]
+            </TextAdjuster>
         </MudButton>
         <MudButton
             Color="Color.Secondary"
             Variant="Variant.Filled"
             OnClick="() => Submit()">
-            @Localizer["Common.Save"]
+            <TextAdjuster>
+                @Localizer["Common.Save"]
+            </TextAdjuster>
         </MudButton>
     </DialogActions>
 </MudDialog>
+
 @code {
     [Inject] private HttpClient HttpClient { get; set; }
-    
+
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
-    [Parameter] public EventCallback OnCustomerCreate { get; set; }
+    [Parameter] public EventCallback OnCustomerSubmit { get; set; }
+    [Parameter] public int? CustomerId { get; set; }
+    [Parameter] public CustomerModel? CurrentCustomerData { get; set; }
 
     private bool _success;
     private string[] _errors = { };
     private MudForm _form = new();
-    private MudTextField<string> _orgNr;
-    private MudTextField<string> _name;
-    private MudTextField<string> _invoiceAddress;
-    private MudTextField<string> _contactPerson;
-    private MudTextField<string> _contactEmail;
-    private MudTextField<string> _contactPhone;
+    private string? _orgNr = "";
+    private string? _name = "";
+    private string? _invoiceAddress = "";
+    private string? _contactPerson = "";
+    private string? _contactEmail = "";
+    private string? _contactPhone = "";
+
+    protected override Task OnParametersSetAsync()
+    {
+        if (CurrentCustomerData is not null)
+        {
+            _orgNr = CurrentCustomerData.OrgNr;
+            _name = CurrentCustomerData.Name;
+            _invoiceAddress = CurrentCustomerData.InvoiceAddress;
+            _contactPerson = CurrentCustomerData.ContactPerson;
+            _contactEmail = CurrentCustomerData.ContactEmail;
+            _contactPhone = CurrentCustomerData.ContactPhone;
+        }
+
+        return base.OnParametersSetAsync();
+    }
 
     private async Task Submit()
     {
-
         _form.ResetValidation();
         await _form.Validate();
-        
-      
+
+
         if (_form.IsValid)
         {
-            // Create new customer and save
-            var newCustomer = new CustomerModel
+            // Create new customer object and save
+
+            var newCustomerObject = new CustomerModel
             {
-                OrgNr = _orgNr.Value,
-                Name = _name.Value,
-                InvoiceAddress = _invoiceAddress.Value,
-                ContactPerson = _contactPerson.Value,
-                ContactEmail = _contactEmail.Value,
-                ContactPhone = _contactPhone.Value,
+                OrgNr = _orgNr,
+                Name = _name,
+                InvoiceAddress = _invoiceAddress,
+                ContactPerson = _contactPerson,
+                ContactEmail = _contactEmail,
+                ContactPhone = _contactPhone,
             };
 
             try
             {
-                await HttpClient.PostAsJsonAsync(ApiRoutes.CustomersBase, newCustomer.MapToCustomerUpsertRequest());
+                if (CurrentCustomerData is null && CustomerId is null)
+                {
+                    // this a new customer
+                    await HttpClient.PostAsJsonAsync(ApiRoutes.CustomersBase, newCustomerObject.MapToCustomerUpsertRequest());
+                }
+                else
+                {
+                    // save the edited customer
+                    await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateCustomer((int)CustomerId!), newCustomerObject!.MapToCustomerUpsertRequest());
+                }
+
                 // Refresh in parent
-                await OnCustomerCreate.InvokeAsync();
+                await OnCustomerSubmit.InvokeAsync();
                 // Close dialog
                 MudDialog.Close(DialogResult.Ok(true));
-            } catch (HttpRequestException){}
-             
+            }
+            catch (HttpRequestException)
+            {
+            }
         }
-     
     }
-    
+
     private void Cancel()
     {
         MudDialog.Cancel();
     }
+
 }

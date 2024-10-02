@@ -404,5 +404,11 @@ namespace Alvtime.Adminpanel.Client.Resources {
                 return ResourceManager.GetString("Validation.HourRate.Required", resourceCulture);
             }
         }
+        
+        internal static string CustomerPage_EditCustomer {
+            get {
+                return ResourceManager.GetString("CustomerPage.EditCustomer", resourceCulture);
+            }
+        }
     }
 }
