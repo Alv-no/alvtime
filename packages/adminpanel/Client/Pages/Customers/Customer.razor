@@ -13,7 +13,14 @@
 {
     <PageTitle>@Localizer["CustomersPage.Title"]/@_customer.Name</PageTitle>
 
-    <MudText Class="mb-4" Typo="Typo.h2">@_customer.Name</MudText>
+    <MudPaper Class="mb-4 d-flex flex-row align-center" Elevation="0">
+        <MudText Class="me-2" Typo="Typo.h2">@_customer.Name</MudText>
+        <MudIconButton
+            Icon="@Icons.Material.Filled.Edit"
+            Color="Color.Secondary"
+            OnClick="@EditCustomer">
+        </MudIconButton>
+    </MudPaper>
     <div class="d-flex flex-column flex-sm-row gap-4 mb-8">
         <MudPaper Class="pa-4">
             <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.CompanyInformation"]</MudText>
@@ -125,7 +132,8 @@
                 </TemplateColumn>
                 <PropertyColumn Title="@Localizer["Common.CompensationRate"]" Property="t => t.CompensationRate" Groupable="false"/>
                 <PropertyColumn
-                    Title="@Localizer["Common.HourRates"]" Property="t => t.HourRateCount"></PropertyColumn>
+                    Title="@Localizer["Common.HourRates"]" Property="t => t.HourRateCount">
+                </PropertyColumn>
             </Columns>
             <PagerContent>
                 <MudDataGridPager
@@ -201,7 +209,6 @@
             </PagerContent>
         </MudDataGrid>
     </MudPaper>
-
 }
 else
 {
@@ -255,21 +262,21 @@ else
                 MaxWidth = MaxWidth.Small
             });
     }
-    
+
     private void AddNewTask()
     {
         if (_customer?.Projects == null) return;
 
         DialogService.ShowAsync<TaskDialog>(Localizer["CustomerPage.AddTask"], new DialogParameters
-        {
-            ["OnTaskSubmit"] = RefreshAfterDialogAction,
-            ["Projects"] = _customer!.Projects
-        },
-        new DialogOptions()
-        {
-            FullWidth = true,
-            MaxWidth = MaxWidth.Small
-        });
+            {
+                ["OnTaskSubmit"] = RefreshAfterDialogAction,
+                ["Projects"] = _customer!.Projects
+            },
+            new DialogOptions()
+            {
+                FullWidth = true,
+                MaxWidth = MaxWidth.Small
+            });
     }
 
     private void AddNewHourRate()
@@ -277,17 +284,37 @@ else
         if (_customer?.Projects == null) return;
 
         DialogService.ShowAsync<HourRateDialog>(Localizer["CustomerPage.AddHourRate"], new DialogParameters
-        {
-            ["OnHourRateSubmit"] = RefreshAfterDialogAction,
-            ["Projects"] = _customer!.Projects
-        },
-        new DialogOptions()
-        {
-            FullWidth = true,
-            MaxWidth = MaxWidth.Small
-        });
+            {
+                ["OnHourRateSubmit"] = RefreshAfterDialogAction,
+                ["Projects"] = _customer!.Projects
+            },
+            new DialogOptions()
+            {
+                FullWidth = true,
+                MaxWidth = MaxWidth.Small
+            });
     }
     
+    private void EditCustomer()
+    {
+        if (string.IsNullOrEmpty(CustomerId) || !int.TryParse(CustomerId, out int parsedId))
+        {
+            return;
+        }
+        
+        DialogService.ShowAsync<CustomerDialog>(Localizer["CustomerPage.EditCustomer"], new DialogParameters
+            {
+                ["OnCustomerSubmit"] = RefreshAfterDialogAction,
+                ["CustomerId"] = parsedId,
+                ["CurrentCustomerData"] = _customer
+            },
+            new DialogOptions()
+            {
+                FullWidth = true,
+                MaxWidth = MaxWidth.Small
+            });
+    }
+
     private EventCallback RefreshAfterDialogAction => new(this, (Action)(async () =>
     {
         await RefreshCustomer();
@@ -313,7 +340,7 @@ else
                 {
                     _aggregatedTasks = _customer?.Projects
                         .Where(p => p.Tasks != null)
-                        .SelectMany(p => p.Tasks.Select((t=> new TaskModel
+                        .SelectMany(p => p.Tasks.Select((t => new TaskModel
                         {
                             Id = t.Id,
                             Name = t.Name,
@@ -368,4 +395,8 @@ else
             Console.WriteLine($"An error occurred: {e.Message}");
         }
     }
+
+  
+
 }
+
