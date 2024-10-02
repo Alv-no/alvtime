@@ -124,7 +124,7 @@
     {
         DialogService.ShowAsync<CustomerDialog>(@Localizer["CustomersPage.AddCustomer"], new DialogParameters
         {
-            ["OnCustomerCreate"] = OnCustomerCreated
+            ["OnCustomerSubmit"] = RefreshAfterDialogAction
         },
         new DialogOptions()
         {
@@ -134,7 +134,7 @@
         );
     }
 
-    private EventCallback OnCustomerCreated => new(this, (Action)(async () =>
+    private EventCallback RefreshAfterDialogAction => new(this, (Action)(async () =>
     {
         await RefreshCustomers();
         StateHasChanged();
