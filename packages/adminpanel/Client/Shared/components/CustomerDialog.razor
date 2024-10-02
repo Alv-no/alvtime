@@ -18,9 +18,7 @@
                 T="string"
                 Label="@Localizer["Common.OrgNr"]"
                 @bind-Value="_orgNr"
-                Required="true"
-                RequiredError="@Localizer["Validation.OrgNr.Required"]"
-                Min/>
+                />
             <MudTextField
                 Class="mb-2"
                 ShrinkLabel="true"
@@ -47,7 +45,8 @@
                 T="string"
                 Label="@Localizer["Common.Email"]"
                 @bind-Value="_contactEmail"
-                Validation="@(new EmailAddressAttribute() { ErrorMessage = @Localizer["Validation.Email.NotValid"] })"/>
+                Validation="@(new Func<string, string>(ValidateEmail))"
+                />
             <MudTextField
                 Class="mb-2"
                 ShrinkLabel="true"
@@ -156,6 +155,17 @@
     private void Cancel()
     {
         MudDialog.Cancel();
+    }
+
+    private string ValidateEmail(string? emailValue)
+    {
+        // if the email field is empty, return without validation
+        if (string.IsNullOrEmpty(emailValue))
+            return "";
+
+        // use EmailAddressAttribute to validate the email if the field is not empty
+        var emailAttribute = new EmailAddressAttribute();
+        return !emailAttribute.IsValid(emailValue) ? @Localizer["Validation.Email.NotValid"] : ""; 
     }
 
 }
