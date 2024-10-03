@@ -116,12 +116,10 @@ services:
   ngrok:
     ports:
       - "0.0.0.0:4040:4040"
-    image: wernight/ngrok
+    image: ngrok/ngrok
     environment:
-      - NGROK_REGION=eu
-      - NGROK_PORT=slack-app:1337
-      - NGROK_AUTH
-      - NGROK_HOSTNAME
+      NGROK_AUTHTOKEN: ${NGROK_AUTH}
+    command: http --url ${NGROK_HOSTNAME} slack-app:1337
 
   mongo:
     image: mongo
