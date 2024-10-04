@@ -12,11 +12,11 @@ using Task = System.Threading.Tasks.Task;
 
 namespace AlvTime.Persistence.Repositories;
 
-public class CustomerStorage : ICustomerStorage
+public class CustomerService : ICustomerStorage
 {
     private readonly AlvTime_dbContext _context;
 
-    public CustomerStorage(AlvTime_dbContext context)
+    public CustomerService(AlvTime_dbContext context)
     {
         _context = context;
     }

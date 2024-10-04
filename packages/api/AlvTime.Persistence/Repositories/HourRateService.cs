@@ -8,11 +8,11 @@ using Task = System.Threading.Tasks.Task;
 
 namespace AlvTime.Persistence.Repositories;
 
-public class HourRateStorage : IHourRateStorage
+public class HourRateService : IHourRateStorage
 {
     private readonly AlvTime_dbContext _context;
 
-    public HourRateStorage(AlvTime_dbContext context)
+    public HourRateService(AlvTime_dbContext context)
     {
         _context = context;
     }

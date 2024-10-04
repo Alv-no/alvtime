@@ -9,7 +9,6 @@ using AlvTime.Business.Users;
 using AlvTime.Business.Utils;
 using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;
-using FluentValidation;
 using Microsoft.Extensions.Options;
 using Moq;
 using Tests.UnitTests.Utils;
@@ -59,7 +58,6 @@ public class PayoutServiceTests
 
         _dateAlvTime = new DateAlvTime();
         _timeRegistrationService = CreateTimeRegistrationService(_dateAlvTime);
-
 
         _payoutValidationServiceMock = new Mock<PayoutValidationService>(new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)),
             _timeRegistrationService, new PayoutStorage(_context, _dateAlvTime));

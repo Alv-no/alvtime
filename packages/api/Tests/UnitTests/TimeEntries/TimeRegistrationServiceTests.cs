@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
-namespace Tests.UnitTests;
+namespace Tests.UnitTests.TimeEntries;
 
 public class TimeRegistrationServiceTests
 {

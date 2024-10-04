@@ -13,7 +13,7 @@ namespace Tests.UnitTests.Users;
 public class UserServiceTests
 {
     private readonly AlvTime_dbContext _context;
-
+    
     public UserServiceTests()
     {
         _context = new AlvTimeDbContextBuilder()
@@ -21,6 +21,63 @@ public class UserServiceTests
             .CreateDbContext();
     }
 
+    [Fact]
+    public void GetUsers_NoCriteria_AllUsers()
+    {
+        var userService = CreateUserService();
+
+        var users = userService.GetUsers(new UserQuerySearch()).Result.Value;
+
+        Assert.Equal(_context.User.Count(), users.Count);
+    }
+    
+    [Fact]
+    public void GetUsers_EmailIsGiven_AllUsersWithSpecifiedEmail()
+    {
+        var userService = CreateUserService();
+
+        var user = userService.GetUsers(new UserQuerySearch
+        {
+            Email = "someone@alv.no",
+        }).Result.Value;
+
+        Assert.Equal("someone@alv.no", user.Single().Email);
+    }
+    
+    [Fact]
+    public void GetUsers_NameIsGiven_AllUsersWithSpecifiedName()
+    {
+        var userService = CreateUserService();
+
+        var user = userService.GetUsers(new UserQuerySearch
+        {
+            Name = "Someone",
+        }).Result.Value;
+
+        Assert.Equal("Someone", user.Single().Name);
+    }
+    
+    [Fact]
+    public async Task CreateUser_NewUser_NewUserIsCreated()
+    {
+        var userService = CreateUserService();
+
+        await userService.CreateUser(new UserDto
+        {
+            Email = "newUser@alv.no",
+            Name = "New User",
+            StartDate = DateTime.UtcNow,
+            EmployeeId = 1
+        });
+
+        var createdUser = userService.GetUsers(new UserQuerySearch
+        {
+            Name = "New User"
+        }).Result.Value;
+
+        Assert.Single(createdUser);
+    }
+    
     [Fact]
     public async Task CreateUser_UserEmployeeIdAlreadyExists_ExceptionThrown()
     {
@@ -47,6 +104,27 @@ public class UserServiceTests
        
        Assert.False(result.IsSuccess);
        Assert.Equal("Bruker med gitt epost finnes allerede.", result.Errors.First().Description);
+    }
+    
+    [Fact]
+    public async Task UserCreator_UpdateExistingUser_UserIsUpdated()
+    {
+        var userService = CreateUserService();
+
+        await userService.UpdateUser(new UserDto
+        {
+            Id = 1,
+            Email = "someoneElse@alv.no",
+            Name = "SomeoneElse",
+            StartDate = DateTime.UtcNow,
+            EndDate = DateTime.UtcNow.Date
+        });
+
+        var user = await userService.GetUserById(1);
+
+        Assert.Equal("someoneElse@alv.no", user.Email);
+        Assert.Equal("SomeoneElse", user.Name);
+        Assert.Equal(DateTime.UtcNow.Date, user.EndDate);
     }
 
     [Fact]
@@ -84,6 +162,23 @@ public class UserServiceTests
         
         Assert.False(result2.IsSuccess);
         Assert.Equal("En bruker har allerede blitt tildelt det ansattnummeret, eposten eller navnet.", result2.Errors.First().Description);
+    }
+    
+    [Fact]
+    public async Task CreateEmploymentRate_EmploymentRateOk_RateAdded()
+    {
+        var userService = CreateUserService();
+
+        await userService.CreateEmploymentRateForUser(new EmploymentRateDto
+        {
+            UserId = 1,
+            FromDateInclusive = new DateTime(2022, 01, 01),
+            ToDateInclusive = new DateTime(2022, 01, 31),
+            Rate = 0.5M
+        });
+
+        var rate = (await userService.GetCurrentEmploymentRateForUser(1, new DateTime(2022, 01, 15))).Value;
+        Assert.Equal(0.5M, rate);
     }
 
     [Fact]

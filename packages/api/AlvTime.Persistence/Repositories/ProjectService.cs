@@ -9,11 +9,11 @@ using Task = System.Threading.Tasks.Task;
 
 namespace AlvTime.Persistence.Repositories;
 
-public class ProjectStorage : IProjectStorage
+public class ProjectService : IProjectStorage
 {
     private readonly AlvTime_dbContext _context;
 
-    public ProjectStorage(AlvTime_dbContext context)
+    public ProjectService(AlvTime_dbContext context)
     {
         _context = context;
     }

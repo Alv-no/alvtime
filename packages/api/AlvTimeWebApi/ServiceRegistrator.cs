@@ -17,6 +17,9 @@ using AlvTime.Persistence.Repositories;
 using AlvTimeWebApi.Controllers.Utils;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using CustomerService = AlvTime.Persistence.Repositories.CustomerService;
+using HourRateService = AlvTime.Persistence.Repositories.HourRateService;
+using ProjectService = AlvTime.Persistence.Repositories.ProjectService;
 
 namespace AlvTimeWebApi
 {
@@ -30,12 +33,12 @@ namespace AlvTimeWebApi
             services.AddScoped<UserService>();
             services.AddScoped<ITaskStorage, TaskStorage>();
             services.AddScoped<ITimeRegistrationStorage, TimeRegistrationStorage>();
-            services.AddScoped<IHourRateStorage, HourRateStorage>();
-            services.AddScoped<HourRateService>();
-            services.AddScoped<IProjectStorage, ProjectStorage>();
-            services.AddScoped<ProjectService>();
-            services.AddScoped<ICustomerStorage, CustomerStorage>();
-            services.AddScoped<CustomerService>();
+            services.AddScoped<IHourRateStorage, HourRateService>();
+            services.AddScoped<AlvTime.Business.HourRates.HourRateService>();
+            services.AddScoped<IProjectStorage, ProjectService>();
+            services.AddScoped<AlvTime.Business.Projects.ProjectService>();
+            services.AddScoped<ICustomerStorage, CustomerService>();
+            services.AddScoped<AlvTime.Business.Customers.CustomerService>();
             services.AddScoped<IEconomyStorage, EconomyStorage>();
             services.AddScoped<IAccessTokenStorage, AccessTokenStorage>();
             services.AddScoped<IAssociatedTaskStorage, AssociatedTaskStorage>();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -24,8 +25,13 @@ public class HourRateService
         await _hourRateStorage.UpdateHourRate(hourRate);
         return await GetHourRateById(hourRate.Id);
     }
+    
+    public async Task<IEnumerable<HourRateDto>> GetHourRates(HourRateQuerySearch criterias)
+    {
+        return await _hourRateStorage.GetHourRates(criterias);
+    }
 
-    private async Task<HourRateDto> GetHourRateById(int hourRateId)
+    public async Task<HourRateDto> GetHourRateById(int hourRateId)
     {
         return (await _hourRateStorage.GetHourRates(new HourRateQuerySearch
         {
