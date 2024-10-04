@@ -16,7 +16,7 @@
                 ShrinkLabel="true"
                 T="string"
                 Label="@Localizer["Common.Name"]"
-                @ref="_name"
+                @bind-Value="_name"
                 Required="true"
                 RequiredError="@Localizer["Validation.Name.Required"]"/>
         </MudForm>
@@ -45,13 +45,26 @@
     [Inject] private HttpClient HttpClient { get; set; }
     
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
-    [Parameter] public EventCallback OnProjectCreate { get; set; }
-    [Parameter] public int CustomerId { get; set; }
+    [Parameter] public EventCallback OnProjectSubmit { get; set; }
+    [Parameter] public string? CustomerId { get; set; }
+    [Parameter] public ProjectModel? SelectedProject { get; set; }
 
     private bool _success;
     private string[] _errors = { };
     private MudForm _form = new();
-    private MudTextField<string> _name;
+    private string? _name = "";
+    private int? _projectId;
+    
+    protected override Task OnParametersSetAsync()
+    {
+        if (SelectedProject is not null)
+        {
+            _projectId = SelectedProject.Id;
+            _name = SelectedProject.Name;
+        }
+
+        return base.OnParametersSetAsync();
+    }
     
     private async Task Submit()
     {
@@ -64,14 +77,22 @@
             // Create new project and save
             var newProject = new ProjectModel
             {
-                Name = _name.Value
+                Name = _name
             };
 
             try
             {
-                await HttpClient.PostAsJsonAsync(ApiRoutes.CreateProject(CustomerId), newProject.MapToProjectUpsertRequest());
+                if (!string.IsNullOrEmpty(CustomerId) && int.TryParse(CustomerId, out var parsedId))
+                {
+                    await HttpClient.PostAsJsonAsync(ApiRoutes.CreateProject(parsedId), newProject.MapToProjectUpsertRequest());
+                }
+                else if (_projectId is not null)
+                {
+                    await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateProject((int)_projectId), newProject.MapToProjectUpsertRequest());
+                } 
+
                 // Refresh in parent
-                await OnProjectCreate.InvokeAsync();
+                await OnProjectSubmit.InvokeAsync();
                 
                 // Close dialog
                 MudDialog.Close(DialogResult.Ok(true));

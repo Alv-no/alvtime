@@ -56,7 +56,9 @@
                 <MudIconButton
                     Icon="@Icons.Material.Filled.Edit"
                     Color="Color.Secondary"
-                    Disabled="true">
+                    OnClick="@EditProject"
+                    Disabled="@(_selectedProject == null)"
+                    aria-label="@Localizer["CustomerPage.EditProject"]">
                 </MudIconButton>
             </ToolBarContent>
             <Columns>
@@ -233,7 +235,7 @@ else
     private HashSet<ProjectModel> _projectSelectionList = new();
     private HashSet<TaskModel> _taskSelectionList = new();
     private HashSet<HourRateModel> _hourRateSelectionList = new();
-    private ProjectModel _selectedProject = new();
+    private ProjectModel? _selectedProject;
     private TaskModel _selectedTask = new();
     private HourRateModel _selectedHourRate = new();
 
@@ -246,15 +248,15 @@ else
 
     private void AddNewProject()
     {
-        if (string.IsNullOrEmpty(CustomerId) || !int.TryParse(CustomerId, out int parsedId))
+        if (string.IsNullOrEmpty(CustomerId))
         {
             return;
         }
 
         DialogService.ShowAsync<ProjectDialog>(Localizer["CustomerPage.AddProject"], new DialogParameters
             {
-                ["OnProjectCreate"] = RefreshAfterDialogAction,
-                ["CustomerId"] = parsedId
+                ["OnProjectSubmit"] = RefreshAfterDialogAction,
+                ["CustomerId"] = CustomerId
             },
             new DialogOptions()
             {
@@ -307,6 +309,20 @@ else
                 ["OnCustomerSubmit"] = RefreshAfterDialogAction,
                 ["CustomerId"] = parsedId,
                 ["CurrentCustomerData"] = _customer
+            },
+            new DialogOptions()
+            {
+                FullWidth = true,
+                MaxWidth = MaxWidth.Small
+            });
+    }
+
+    private void EditProject()
+    {
+        DialogService.ShowAsync<ProjectDialog>(Localizer["CustomerPage.EditProject"], new DialogParameters
+            {
+                ["OnProjectSubmit"] = RefreshAfterDialogAction,
+                ["SelectedProject"] = _selectedProject
             },
             new DialogOptions()
             {

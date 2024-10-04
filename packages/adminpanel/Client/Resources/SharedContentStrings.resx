@@ -201,4 +201,7 @@
     <data name="CustomerPage.EditCustomer" xml:space="preserve">
         <value>Endre kunde</value>
     </data>
+    <data name="CustomerPage.EditProject" xml:space="preserve">
+        <value>Endre prosjekt</value>
+    </data>
 </root>
