@@ -9,72 +9,68 @@ using Task = System.Threading.Tasks.Task;
 using User = AlvTime.Business.Users.User;
 using AlvTime.Business.Users;
 
-namespace Tests.UnitTests.AccessToken
+namespace Tests.UnitTests.AccessToken;
+
+public class AccessTokenServiceTests
 {
-    public class AccessTokenServiceTests
+    private readonly AlvTime_dbContext _context;
+    
+    public AccessTokenServiceTests()
     {
-        [Fact]
-        public async Task GetActiveAccessTokens_UserSpecified_ActiveTokensForUser()
+        _context = new AlvTimeDbContextBuilder()
+            .WithPersonalAccessTokens()
+            .WithUsers()
+            .CreateDbContext();
+    }
+    
+    [Fact]
+    public async Task GetActiveAccessTokens_UserSpecified_ActiveTokensForUser()
+    {
+        var service = CreateAccessTokenService(_context);
+
+        var tokens = await service.GetActiveTokens();
+
+        Assert.Equal(_context.AccessTokens.Where(x => x.UserId == 1).ToList().Count, tokens.Count());
+    }
+
+    [Fact]
+    public async Task CreateLifetimeToken_FriendlyNameSpecified_TokenWithFriendlyNameCreated()
+    {
+        var service = CreateAccessTokenService(_context);
+
+        await service.CreateLifeTimeToken("new token");
+
+        var tokens = (await service.GetActiveTokens()).ToList();
+
+        Assert.Equal(2, tokens.Count);
+        Assert.Equal("new token", tokens.Last().FriendlyName);
+    }
+
+    [Fact]
+    public async Task DeleteToken_TokenIdSpecified_TokenWithIdDeleted()
+    {
+        var service = CreateAccessTokenService(_context);
+
+        await service.DeleteActiveTokens(new List<int>{1});
+
+        var tokens = await service.GetActiveTokens();
+
+        Assert.Empty(tokens);
+    }
+    
+    private static AccessTokenService CreateAccessTokenService(AlvTime_dbContext dbContext)
+    {
+        var mockUserContext = new Mock<IUserContext>();
+
+        var user = new User
         {
-            var dbContext = new AlvTimeDbContextBuilder()
-                .WithUsers()
-                .CreateDbContext();
+            Id = 1,
+            Email = "someone@alv.no",
+            Name = "Someone"
+        };
 
-            var service = CreateAccessTokenService(dbContext);
-
-            var tokens = await service.GetActiveTokens();
-
-            Assert.Equal(dbContext.AccessTokens.Where(x => x.UserId == 1).ToList().Count, tokens.Count());
-        }
-
-        [Fact]
-        public async Task CreateLifetimeToken_FriendlyNameSpecified_TokenWithFriendlyNameCreated()
-        {
-            var dbContext = new AlvTimeDbContextBuilder()
-                .WithPersonalAccessTokens()
-                .WithUsers()
-                .CreateDbContext();
-
-            var service = CreateAccessTokenService(dbContext);
-
-            await service.CreateLifeTimeToken("new token");
-
-            var tokens = await service.GetActiveTokens();
-
-            Assert.Equal(dbContext.AccessTokens.Where(x => x.UserId == 1).ToList().Count(), tokens.Count());
-        }
-
-        [Fact]
-        public async Task DeleteToken_TokenIdSpecified_TokenWithIdDeleted()
-        {
-            var dbContext = new AlvTimeDbContextBuilder()
-                .WithPersonalAccessTokens()
-                .WithUsers()
-                .CreateDbContext();
-
-            var service = CreateAccessTokenService(dbContext);
-
-            await service.DeleteActiveTokens(new List<int>{1});
-
-            var tokens = await service.GetActiveTokens();
-
-            Assert.Empty(tokens);
-        }
-
-        private static AccessTokenService CreateAccessTokenService(AlvTime_dbContext dbContext)
-        {
-            var mockUserContext = new Mock<IUserContext>();
-
-            var user = new User
-            {
-                Id = 1,
-                Email = "someone@alv.no",
-                Name = "Someone"
-            };
-
-            mockUserContext.Setup(context => context.GetCurrentUser()).Returns(System.Threading.Tasks.Task.FromResult(user));
+        mockUserContext.Setup(context => context.GetCurrentUser()).Returns(Task.FromResult(user));
             
-            return new AccessTokenService(new AccessTokenStorage(dbContext), mockUserContext.Object);
-        }
+        return new AccessTokenService(new AccessTokenStorage(dbContext), mockUserContext.Object);
     }
 }

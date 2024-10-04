@@ -1258,8 +1258,7 @@ public class OvertimeTests
         Assert.True(timeEntryResult.Errors.Any());
     }
     
-    
-        [Fact]
+    [Fact]
     public async System.Threading.Tasks.Task UpdateOvertime_HasFutureFlex_FutureFlexGetsCorrectCompRate()
     {
         var timeEntry1 =

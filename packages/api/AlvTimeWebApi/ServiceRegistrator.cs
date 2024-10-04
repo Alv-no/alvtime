@@ -31,11 +31,11 @@ namespace AlvTimeWebApi
             services.AddScoped<ITaskStorage, TaskStorage>();
             services.AddScoped<ITimeRegistrationStorage, TimeRegistrationStorage>();
             services.AddScoped<IHourRateStorage, HourRateStorage>();
-            services.AddScoped<HourRateService>();
+            services.AddScoped<AlvTime.Business.HourRates.HourRateService>();
             services.AddScoped<IProjectStorage, ProjectStorage>();
-            services.AddScoped<ProjectService>();
+            services.AddScoped<AlvTime.Business.Projects.ProjectService>();
             services.AddScoped<ICustomerStorage, CustomerStorage>();
-            services.AddScoped<CustomerService>();
+            services.AddScoped<AlvTime.Business.Customers.CustomerService>();
             services.AddScoped<IEconomyStorage, EconomyStorage>();
             services.AddScoped<IAccessTokenStorage, AccessTokenStorage>();
             services.AddScoped<IAssociatedTaskStorage, AssociatedTaskStorage>();

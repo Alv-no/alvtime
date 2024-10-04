@@ -4,7 +4,6 @@ namespace Tests.UnitTests.Utils;
 
 public static class TestDateUtils
 {
-
     public static DateTime GetFutureNonWeekendDay()
     {
         var currentYear = DateTime.Now.AddYears(1).Year;

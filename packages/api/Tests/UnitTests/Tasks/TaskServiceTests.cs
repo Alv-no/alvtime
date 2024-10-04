@@ -61,7 +61,7 @@ public class TaskServiceTests
     }
 
     [Fact]
-    public async Task GetTasks_NoCriterias_AllTasks()
+    public async Task GetTasks_NoCriteria_AllTasks()
     {
         var taskService = CreateTaskService(_context);
 
