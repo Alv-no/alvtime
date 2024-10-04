@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "export NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service build",
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "start": "export NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve",
+    "start": "cross-env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve",
     "test": "vue-cli-service test:unit"
   },
   "dependencies": {
@@ -49,6 +49,7 @@
     "@vue/eslint-config-prettier": "^5.1.0",
     "@vue/eslint-config-typescript": "^5.1.0",
     "@vue/test-utils": "^1.0.0-beta.29",
+    "cross-env": "^7.0.3",
     "eslint": "^6.8.0",
     "eslint-plugin-prettier": "^3.4.1",
     "eslint-plugin-vue": "^6.2.2",
