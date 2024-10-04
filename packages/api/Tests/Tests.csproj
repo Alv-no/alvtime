@@ -17,10 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="IntegrationTests\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\AlvTime.Business\AlvTime.Business.csproj" />
     <ProjectReference Include="..\AlvTime.Persistence\AlvTime.Persistence.csproj" />
     <ProjectReference Include="..\AlvTimeWebApi\AlvTimeWebApi.csproj" />

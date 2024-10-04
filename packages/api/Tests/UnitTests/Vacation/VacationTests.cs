@@ -11,149 +11,148 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace Tests.UnitTests.Vacation
+namespace Tests.UnitTests.Vacation;
+
+public class VacationTests
 {
-    public class VacationTests
+    private readonly AlvTime_dbContext _context;
+    private readonly IOptionsMonitor<TimeEntryOptions> _options;
+    private readonly Mock<IUserContext> _userContextMock;
+    private readonly TimeRegistrationService _timeRegistrationService;
+
+    public VacationTests()
     {
-        private readonly AlvTime_dbContext _context;
-        private readonly IOptionsMonitor<TimeEntryOptions> _options;
-        private readonly Mock<IUserContext> _userContextMock;
-        private readonly TimeRegistrationService _timeRegistrationService;
+        _context = new AlvTimeDbContextBuilder()
+            .WithTasks()
+            .WithLeaveTasks()
+            .WithProjects()
+            .WithUsers()
+            .WithCustomers()
+            .CreateDbContext();
 
-        public VacationTests()
+        var entryOptions = new TimeEntryOptions
         {
-            _context = new AlvTimeDbContextBuilder()
-                .WithTasks()
-                .WithLeaveTasks()
-                .WithProjects()
-                .WithUsers()
-                .WithCustomers()
-                .CreateDbContext();
+            PaidHolidayTask = 13,
+            StartOfOvertimeSystem = new DateTime(2020, 01, 01)
+        };
 
-            var entryOptions = new TimeEntryOptions
-            {
-                PaidHolidayTask = 13,
-                StartOfOvertimeSystem = new DateTime(2020, 01, 01)
-            };
+        _options = Mock.Of<IOptionsMonitor<TimeEntryOptions>>(options => options.CurrentValue == entryOptions);
+        _userContextMock = new Mock<IUserContext>();
 
-            _options = Mock.Of<IOptionsMonitor<TimeEntryOptions>>(options => options.CurrentValue == entryOptions);
-            _userContextMock = new Mock<IUserContext>();
-
-            var user = new AlvTime.Business.Users.User
-            {
-                Id = 1,
-                Email = "someone@alv.no",
-                Name = "Someone"
-            };
-
-            _userContextMock.Setup(context => context.GetCurrentUser()).Returns(System.Threading.Tasks.Task.FromResult(user));
-
-            _timeRegistrationService = CreateTimeRegistrationService();
-        }
-
-        [Fact]
-        public async System.Threading.Tasks.Task RegisterVacation_CorrectHoursAmountFullTimeWorker_VacationRegistered()
+        var user = new AlvTime.Business.Users.User
         {
-            var dateToTest = new DateTime(2021, 12, 13);
-            var hours = 7.5M;
-            await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-                {new() {Date = dateToTest, Value = hours, TaskId = _options.CurrentValue.PaidHolidayTask}});
+            Id = 1,
+            Email = "someone@alv.no",
+            Name = "Someone"
+        };
 
-            var vacationEntries = await _timeRegistrationService.GetTimeEntries(new TimeEntryQuerySearch
-            {
-                TaskId = _options.CurrentValue.PaidHolidayTask
-            });
+        _userContextMock.Setup(context => context.GetCurrentUser()).Returns(System.Threading.Tasks.Task.FromResult(user));
 
-            Assert.Single(vacationEntries);
+        _timeRegistrationService = CreateTimeRegistrationService();
+    }
 
-            var vacationEntry = vacationEntries.First();
+    [Fact]
+    public async System.Threading.Tasks.Task RegisterVacation_CorrectHoursAmountFullTimeWorker_VacationRegistered()
+    {
+        var dateToTest = new DateTime(2021, 12, 13);
+        var hours = 7.5M;
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            {new() {Date = dateToTest, Value = hours, TaskId = _options.CurrentValue.PaidHolidayTask}});
 
-            Assert.Equal(hours, vacationEntry.Value);
-        }
-
-        [Fact]
-        public async System.Threading.Tasks.Task RegisterVacation_ZeroHours_VacationRegistered()
+        var vacationEntries = await _timeRegistrationService.GetTimeEntries(new TimeEntryQuerySearch
         {
-            var dateToTest = new DateTime(2021, 12, 13);
-            var hours = 0;
-            await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-                {new() {Date = dateToTest, Value = hours, TaskId = _options.CurrentValue.PaidHolidayTask}});
+            TaskId = _options.CurrentValue.PaidHolidayTask
+        });
 
-            var vacationEntries = await _timeRegistrationService.GetTimeEntries(new TimeEntryQuerySearch
-            {
-                TaskId = _options.CurrentValue.PaidHolidayTask
-            });
+        Assert.Single(vacationEntries);
 
-            Assert.Single(vacationEntries);
+        var vacationEntry = vacationEntries.First();
 
-            var vacationEntry = vacationEntries.First();
+        Assert.Equal(hours, vacationEntry.Value);
+    }
 
-            Assert.Equal(hours, vacationEntry.Value);
-        }
+    [Fact]
+    public async System.Threading.Tasks.Task RegisterVacation_ZeroHours_VacationRegistered()
+    {
+        var dateToTest = new DateTime(2021, 12, 13);
+        var hours = 0;
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            {new() {Date = dateToTest, Value = hours, TaskId = _options.CurrentValue.PaidHolidayTask}});
 
-        [Fact]
-        public async System.Threading.Tasks.Task RegisterVacation_TooFewHours_VacationRegisteredFailed()
+        var vacationEntries = await _timeRegistrationService.GetTimeEntries(new TimeEntryQuerySearch
         {
-            var dateToTest = new DateTime(2021, 12, 13);
-            var hours = 6M;
-            var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-                {new() {Date = dateToTest, Value = hours, TaskId = _options.CurrentValue.PaidHolidayTask}});
+            TaskId = _options.CurrentValue.PaidHolidayTask
+        });
 
-            Assert.False(timeEntryResult.IsSuccess);
-            Assert.True(timeEntryResult.Errors.Any());
-        }
+        Assert.Single(vacationEntries);
 
-        [Fact]
-        public async System.Threading.Tasks.Task RegisterVacation_TooManyHours_VacationRegisteredFailed()
+        var vacationEntry = vacationEntries.First();
+
+        Assert.Equal(hours, vacationEntry.Value);
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task RegisterVacation_TooFewHours_VacationRegisteredFailed()
+    {
+        var dateToTest = new DateTime(2021, 12, 13);
+        var hours = 6M;
+        var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            {new() {Date = dateToTest, Value = hours, TaskId = _options.CurrentValue.PaidHolidayTask}});
+
+        Assert.False(timeEntryResult.IsSuccess);
+        Assert.True(timeEntryResult.Errors.Any());
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task RegisterVacation_TooManyHours_VacationRegisteredFailed()
+    {
+        var dateToTest = new DateTime(2021, 12, 13);
+        var hours = 9M;
+        var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            {new() {Date = dateToTest, Value = hours, TaskId = _options.CurrentValue.PaidHolidayTask}});
+
+        Assert.False(timeEntryResult.IsSuccess);
+        Assert.True(timeEntryResult.Errors.Any());
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task RegisterVacation_CorrectHoursAmountPartTimeWorker_VacationRegistered()
+    {
+        _context.EmploymentRate.Add(new EmploymentRate
         {
-            var dateToTest = new DateTime(2021, 12, 13);
-            var hours = 9M;
-            var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-                {new() {Date = dateToTest, Value = hours, TaskId = _options.CurrentValue.PaidHolidayTask}});
+            UserId = 1,
+            Rate = 0.5M,
+            FromDate = new DateTime(2021, 01, 01),
+            ToDate = new DateTime(2022, 01, 08)
+        });
 
-            Assert.False(timeEntryResult.IsSuccess);
-            Assert.True(timeEntryResult.Errors.Any());
-        }
+        await _context.SaveChangesAsync();
 
-        [Fact]
-        public async System.Threading.Tasks.Task RegisterVacation_CorrectHoursAmountPartTimeWorker_VacationRegistered()
+        var dateToTest = new DateTime(2021, 12, 13);
+        var hours = 3.75M;
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            {new() {Date = dateToTest, Value = hours, TaskId = _options.CurrentValue.PaidHolidayTask}});
+
+        var vacationEntries = await _timeRegistrationService.GetTimeEntries(new TimeEntryQuerySearch
         {
-            _context.EmploymentRate.Add(new EmploymentRate
-            {
-                UserId = 1,
-                Rate = 0.5M,
-                FromDate = new DateTime(2021, 01, 01),
-                ToDate = new DateTime(2022, 01, 08)
-            });
+            TaskId = _options.CurrentValue.PaidHolidayTask
+        });
 
-            await _context.SaveChangesAsync();
+        Assert.Single(vacationEntries);
 
-            var dateToTest = new DateTime(2021, 12, 13);
-            var hours = 3.75M;
-            await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
-                {new() {Date = dateToTest, Value = hours, TaskId = _options.CurrentValue.PaidHolidayTask}});
+        var vacationEntry = vacationEntries.First();
 
-            var vacationEntries = await _timeRegistrationService.GetTimeEntries(new TimeEntryQuerySearch
-            {
-                TaskId = _options.CurrentValue.PaidHolidayTask
-            });
+        Assert.Equal(hours, vacationEntry.Value);
+    }
 
-            Assert.Single(vacationEntries);
+    private TimeRegistrationService CreateTimeRegistrationService()
+    {
+        return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
+            new TimeRegistrationStorage(_context), new DbContextScope(_context), new PayoutStorage(_context, new DateAlvTime()), new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
+    }
 
-            var vacationEntry = vacationEntries.First();
-
-            Assert.Equal(hours, vacationEntry.Value);
-        }
-
-        private TimeRegistrationService CreateTimeRegistrationService()
-        {
-            return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
-                new TimeRegistrationStorage(_context), new DbContextScope(_context), new PayoutStorage(_context, new DateAlvTime()), new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
-        }
-
-        private TaskUtils CreateTaskUtils()
-        {
-            return new TaskUtils(new TaskStorage(_context), _options);
-        }
+    private TaskUtils CreateTaskUtils()
+    {
+        return new TaskUtils(new TaskStorage(_context), _options);
     }
 }
