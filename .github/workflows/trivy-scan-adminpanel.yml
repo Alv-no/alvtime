@@ -8,7 +8,7 @@ name: Run trivy-scan on adminpanel
 on:
   pull_request:
     paths:
-      - 'packages/adminpanel/**'
+      - 'packages/adminpanel-old/**'
 
 permissions:
   contents: read
