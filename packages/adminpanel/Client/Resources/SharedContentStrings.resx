@@ -204,4 +204,7 @@
     <data name="CustomerPage.EditProject" xml:space="preserve">
         <value>Endre prosjekt</value>
     </data>
+    <data name="CustomerPage.EditTask" xml:space="preserve">
+        <value>Endre timekode</value>
+    </data>
 </root>
