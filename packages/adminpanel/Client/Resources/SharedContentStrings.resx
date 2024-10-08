@@ -207,4 +207,7 @@
     <data name="CustomerPage.EditTask" xml:space="preserve">
         <value>Endre timekode</value>
     </data>
+    <data name="CustomerPage.EditHourRate" xml:space="preserve">
+        <value>Endre timerate</value>
+    </data>
 </root>

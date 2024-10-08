@@ -19,7 +19,7 @@
                 @bind-Value:after="OnProjectChanged"
                 Required="true"
                 RequiredError="@Localizer["Validation.Project.Required"]"
-            >
+                Disabled="@_editMode">
                 @foreach (var project in Projects)
                 {
                     <MudSelectItem T="int" Value="@project.Id">@project.Name</MudSelectItem>
@@ -31,7 +31,7 @@
                 @bind-Value="_selectedTaskId"
                 Required="true"
                 RequiredError="@Localizer["Validation.Task.Required"]"
-            >
+                Disabled="@_editMode">
                 @if (_selectedProject?.Tasks != null)
                 {
                     if (_selectedProject?.Tasks != null)
@@ -57,7 +57,7 @@
                 Converter="_decimalConverter"
                 Required
                 RequiredError="@Localizer["Validation.HourRate.Required"]"
-                @ref="_rate"/>
+                @bind-Value="_rate"/>
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -79,30 +79,46 @@
         </MudButton>
     </DialogActions>
 </MudDialog>
+
 @code {
     [Inject] private HttpClient HttpClient { get; set; }
-    
+
     [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
     [Parameter] public EventCallback OnHourRateSubmit { get; set; }
     [Parameter] public IEnumerable<ProjectModel> Projects { get; set; }
-    
+    [Parameter] public HourRateModel? SelectedHourRate { get; set; }
+
     private bool _success;
     private string[] _errors = [];
     private MudForm _form = new();
     private DateTime? _fromDate = DateTime.UtcNow.Date;
-    private MudTextField<decimal> _rate;
-    
+    private decimal _rate = Decimal.Zero;
+
     private int _selectedProjectId;
     private ProjectModel _selectedProject = new ProjectModel();
     private int _selectedTaskId;
+    private bool _editMode = false;
 
     protected override Task OnParametersSetAsync()
     {
-        if (Projects.Any() && _selectedProjectId == 0)
+        if (SelectedHourRate is not null)
         {
-            _selectedProjectId = Projects.First().Id;
+            _selectedProjectId = SelectedHourRate.ProjectId;
+            _selectedTaskId = SelectedHourRate.TaskId;
+            _fromDate = SelectedHourRate.FromDate;
+            _rate = SelectedHourRate.Rate;
+            _editMode = true;
+            
             OnProjectChanged();
         }
+        else if (Projects.Any() && _selectedProjectId == 0)
+        {
+            _selectedProjectId = Projects.First().Id;
+            _editMode = false;
+            
+            OnProjectChanged();
+        }
+
         return base.OnParametersSetAsync();
     }
 
@@ -112,7 +128,7 @@
         if (_selectedProject.Tasks != null) _selectedTaskId = _selectedProject.Tasks.FirstOrDefault().Id;
         StateHasChanged();
     }
-    
+
     private async Task Submit()
     {
         _form.ResetValidation();
@@ -123,19 +139,27 @@
             var newHourRate = new HourRateModel
             {
                 FromDate = _fromDate.Value,
-                Rate = _rate.Value
+                Rate = _rate
             };
-        
+
             try
             {
-                await HttpClient.PostAsJsonAsync(ApiRoutes.CreateHourRate(_selectedTaskId), newHourRate.MapToHourRateUpsertRequest());
+                switch (_editMode)
+                {
+                    case false:
+                        await HttpClient.PostAsJsonAsync(ApiRoutes.CreateHourRate(_selectedTaskId), newHourRate.MapToHourRateUpsertRequest());
+                        break;
+                    case true:
+                        if (SelectedHourRate != null) await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateHourRate(SelectedHourRate.Id), newHourRate.MapToHourRateUpsertRequest());
+                        break;
+                }
+                
                 // Refresh in parent
                 await OnHourRateSubmit.InvokeAsync();
                 MudDialog!.Close();
             }
             catch (HttpRequestException)
             {
-            
             }
         }
     }
@@ -144,7 +168,7 @@
     {
         MudDialog!.Cancel();
     }
-    
+
     /* TODO:
      * Grey area workaround used on compensation rate, to allow the user to use both decimal comma and decimal dot.
      * This hard codes the culture to nb-NO, and should be replaced with a more robust solution some time in the future,
@@ -160,4 +184,5 @@
             return !decimal.TryParse(numberString, NumberStyles.Any, new CultureInfo("nb-NO"), out var result) ? 0 : result;
         }
     };
+
 }
