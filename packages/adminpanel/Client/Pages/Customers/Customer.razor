@@ -177,7 +177,9 @@
                 <MudIconButton
                     Icon="@Icons.Material.Filled.Edit"
                     Color="Color.Secondary"
-                    Disabled="true">
+                    Disabled="@(_selectedHourRate == null)"
+                    OnClick="@EditHourRate"
+                    aria-label="@Localizer["CustomerPage.EditHourRate"]">
                 </MudIconButton>
             </ToolBarContent>
             <Columns>
@@ -348,14 +350,28 @@ else
         {
             ["OnTaskSubmit"] = RefreshAfterDialogAction,
             ["Projects"] = _customer!.Projects,
-            ["SelectedTask"] = _selectedTask
+            ["SelectedHourRate"] = _selectedHourRate
         },
         new DialogOptions()
         {
             FullWidth = true,
             MaxWidth = MaxWidth.Small
         });
+    }
 
+    private void EditHourRate()
+    {
+        DialogService.Show<HourRateDialog>(Localizer["CustomerPage.EditHourRate"], new DialogParameters
+            {
+                ["OnHourRateSubmit"] = RefreshAfterDialogAction,
+                ["Projects"] = _customer!.Projects,
+                ["SelectedHourRate"] = _selectedHourRate
+            },
+            new DialogOptions()
+            {
+                FullWidth = true,
+                MaxWidth = MaxWidth.Small
+            }); 
     }
 
     private EventCallback RefreshAfterDialogAction => new(this, (Action)(async () =>

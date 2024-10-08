@@ -422,5 +422,11 @@ namespace Alvtime.Adminpanel.Client.Resources {
                 return ResourceManager.GetString("CustomerPage.EditTask", resourceCulture);
             }
         }
+        
+        internal static string CustomerPage_EditHourRate {
+            get {
+                return ResourceManager.GetString("CustomerPage.EditHourRate", resourceCulture);
+            }
+        }
     }
 }
