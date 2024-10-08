@@ -65,6 +65,7 @@ public class CustomerStorage : ICustomerStorage
                     {
                         Id = t.Id,
                         Name = t.Name,
+                        Description = t.Description,
                         CompensationRate = EnsureCompensationRate(t.CompensationRate),
                         Locked = t.Locked,
                         Imposed = t.Imposed,
