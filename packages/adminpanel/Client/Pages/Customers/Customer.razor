@@ -34,7 +34,7 @@
             <MudText>@Localizer["Common.Telephone"]: <MudLink Href="@($"tel:{_customer.ContactPhone}")">@_customer.ContactPhone</MudLink></MudText>
         </MudPaper>
     </div>
-
+    
     <MudPaper Elevation="0" Class="mb-4">
         <MudDataGrid
             T="ProjectModel"
@@ -62,7 +62,10 @@
                 </MudIconButton>
             </ToolBarContent>
             <Columns>
-                <SelectColumn T="ProjectModel"/>
+                <SelectColumn 
+                    T="ProjectModel"
+                    ShowInHeader="false"
+                    />
                 <PropertyColumn Title="@Localizer["Common.Name"]" Property="p => p.Name"/>
                 <PropertyColumn Title="@Localizer["Common.UsingProject"]" Property="p => p.EmployeeCount"></PropertyColumn>
                 <PropertyColumn Title="@Localizer["Common.ActiveTasks"]" Property="p => p.TaskCount"></PropertyColumn>
@@ -75,7 +78,7 @@
             </PagerContent>
         </MudDataGrid>
     </MudPaper>
-
+    
     <MudPaper Elevation="0" Class="mb-4">
         <MudDataGrid
             T="TaskModel"
@@ -100,13 +103,16 @@
                 <MudIconButton
                     Icon="@Icons.Material.Filled.Edit"
                     Color="Color.Secondary"
-                    Disabled="true">
+                    Disabled="@(_selectedTask == null)"
+                    OnClick="@EditTask"
+                    aria-label="@Localizer["CustomerPage.EditTask"]">
                 </MudIconButton>
             </ToolBarContent>
             <Columns>
-                <SelectColumn T="TaskModel"/>
-                <PropertyColumn Title="@Localizer["Common.Name"]" Property="t => t.Name" Groupable="false"/>
-                <PropertyColumn Title="@Localizer["Common.Description"]" Property="t => t.Description" Groupable="false"/>
+                <SelectColumn
+                    T="TaskModel"
+                    ShowInHeader="false"
+                    />
                 <PropertyColumn
                     Title="@Localizer["Common.Project"]"
                     Property="t => t.ProjectName"
@@ -122,6 +128,8 @@
                         </TextAdjuster>
                     </GroupTemplate>
                 </PropertyColumn>
+                <PropertyColumn Title="@Localizer["Common.Name"]" Property="t => t.Name" Groupable="false"/>
+                <PropertyColumn Title="@Localizer["Common.Description"]" Property="t => t.Description" Groupable="false"/>
                 <TemplateColumn Title="@Localizer["Common.Imposed"]" Groupable="false">
                     <CellTemplate>
                         @(context.Item.Imposed ? @Localizer["Common.Yes"] : @Localizer["Common.No"])
@@ -173,7 +181,10 @@
                 </MudIconButton>
             </ToolBarContent>
             <Columns>
-                <SelectColumn T="HourRateModel"/>
+                <SelectColumn 
+                    T="HourRateModel"
+                    ShowInHeader="false"
+                    />
                 <PropertyColumn
                     Title="@Localizer["Common.Task"]"
                     Property="hr => hr.TaskName"
@@ -232,12 +243,12 @@ else
 
     /* All off this need to be like this, to prevent the UI to allow multiselect. Who knows why it is like that. 🤷‍♂️ */
     private readonly bool _multiSelection = false;
-    private HashSet<ProjectModel> _projectSelectionList = new();
-    private HashSet<TaskModel> _taskSelectionList = new();
-    private HashSet<HourRateModel> _hourRateSelectionList = new();
+    private HashSet<ProjectModel> _projectSelectionList = [];
+    private HashSet<TaskModel> _taskSelectionList = [];
+    private HashSet<HourRateModel> _hourRateSelectionList = [];
     private ProjectModel? _selectedProject;
-    private TaskModel _selectedTask = new();
-    private HourRateModel _selectedHourRate = new();
+    private TaskModel? _selectedTask;
+    private HourRateModel? _selectedHourRate;
 
     protected override async Task OnInitializedAsync()
     {
@@ -331,6 +342,22 @@ else
             });
     }
 
+    private void EditTask()
+    {
+        DialogService.Show<TaskDialog>(Localizer["CustomerPage.EditTask"], new DialogParameters
+        {
+            ["OnTaskSubmit"] = RefreshAfterDialogAction,
+            ["Projects"] = _customer!.Projects,
+            ["SelectedTask"] = _selectedTask
+        },
+        new DialogOptions()
+        {
+            FullWidth = true,
+            MaxWidth = MaxWidth.Small
+        });
+
+    }
+
     private EventCallback RefreshAfterDialogAction => new(this, (Action)(async () =>
     {
         await RefreshCustomer();
@@ -411,8 +438,6 @@ else
             Console.WriteLine($"An error occurred: {e.Message}");
         }
     }
-
-  
 
 }
 
