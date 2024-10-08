@@ -112,6 +112,9 @@
             _selectedProjectId = SelectedTask.ProjectId;
             _name = SelectedTask.Name;
             _description = SelectedTask.Description ?? "";
+            _compensationRate = SelectedTask.CompensationRate;
+            _locked = SelectedTask.Locked;
+            _imposed = SelectedTask.Imposed;
             _editMode = true;
         }
         else if (Projects.Any() && _selectedProjectId == 0)
