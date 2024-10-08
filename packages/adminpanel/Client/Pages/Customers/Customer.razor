@@ -433,6 +433,17 @@ else
                         .ThenBy(hr => hr.Rate)
                         .ToList();
                 }
+                
+                /*  TODO:
+                    Evaluate current reset of all selections. 
+                    It might be that we want to re-evaluate this whole method */
+                _projectSelectionList.Clear();
+                _taskSelectionList.Clear();
+                _hourRateSelectionList.Clear();
+                _selectedProject = null;
+                _selectedTask = null;
+                _selectedHourRate = null;
+         
             }
             else
             {
