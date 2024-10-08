@@ -22,7 +22,12 @@
                 Disabled="@_editMode">
                 @foreach (var project in Projects)
                 {
-                    <MudSelectItem T="int" Value="@project.Id">@project.Name</MudSelectItem>
+                    <MudSelectItem
+                        T="int"
+                        Disabled="@(project.Tasks?.Count == 0)"
+                        Value="@project.Id">
+                            @project.Name (@project.Tasks?.Count @Localizer["Common.Tasks"].ToString().ToLower())
+                    </MudSelectItem>
                 }
             </MudSelect>
             <MudSelect
@@ -108,14 +113,14 @@
             _fromDate = SelectedHourRate.FromDate;
             _rate = SelectedHourRate.Rate;
             _editMode = true;
-            
+
             OnProjectChanged();
         }
         else if (Projects.Any() && _selectedProjectId == 0)
         {
             _selectedProjectId = Projects.First().Id;
             _editMode = false;
-            
+
             OnProjectChanged();
         }
 
@@ -153,7 +158,7 @@
                         if (SelectedHourRate != null) await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateHourRate(SelectedHourRate.Id), newHourRate.MapToHourRateUpsertRequest());
                         break;
                 }
-                
+
                 // Refresh in parent
                 await OnHourRateSubmit.InvokeAsync();
                 MudDialog!.Close();
