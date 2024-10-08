@@ -416,5 +416,11 @@ namespace Alvtime.Adminpanel.Client.Resources {
                 return ResourceManager.GetString("CustomerPage.EditProject", resourceCulture);
             }
         }
+        
+        internal static string CustomerPage_EditTask {
+            get {
+                return ResourceManager.GetString("CustomerPage.EditTask", resourceCulture);
+            }
+        }
     }
 }
