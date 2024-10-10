@@ -45,6 +45,13 @@ public class UserController : ControllerBase
             errors => BadRequest(errors.ToValidationProblemDetails("Opprettelse av bruker feilet")));
     }
 
+    [HttpGet("Users/{userId:int}")]
+    public async Task<ActionResult<UserAdminResponse>> GetUserById(int userId)
+    {
+        var result = await _userService.GetUserById(userId);
+        return result is not null ? Ok(result.MapToUserResponse()) : NotFound();
+    }
+
     [HttpPut("Users/{userId:int}")]
     public async Task<ActionResult<UserAdminResponse>> UpdateUsers([FromBody] UserUpsertRequest userToBeUpdated, int userId)
     {
