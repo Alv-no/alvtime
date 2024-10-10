@@ -27,7 +27,7 @@ public class CustomerController : ControllerBase
     }
 
     [HttpGet("Customers")]    
-    public async Task<ActionResult<IEnumerable<CustomerDetailedResponse>>> FetchCustomersAdmin()
+    public async Task<ActionResult<IEnumerable<CustomerAdminResponse>>> FetchCustomersAdmin()
     {
         var customers = await _customerService.GetCustomersAdmin();
         return Ok(customers.Select(c => c.MapToCustomerAdminResponse()));

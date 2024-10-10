@@ -9,9 +9,9 @@ namespace AlvTimeWebApi.Controllers.Utils;
 
 public static class CustomerMapper
 {
-    public static CustomerDetailedResponse MapToCustomerResponse(this CustomerAdminDto customer)
+    public static CustomerAdminResponse MapToCustomerResponse(this CustomerAdminDto customer)
     {
-        return new CustomerDetailedResponse
+        return new CustomerAdminResponse
         {
             Id = customer.Id,
             Name = customer.Name,
@@ -48,9 +48,9 @@ public static class CustomerMapper
         };
     }
     
-    public static CustomerDetailedResponse MapToCustomerAdminResponse(this CustomerAdminDto customer)
+    public static CustomerAdminResponse MapToCustomerAdminResponse(this CustomerAdminDto customer)
     {
-        return new CustomerDetailedResponse
+        return new CustomerAdminResponse
         {
             Id = customer.Id,
             Name = customer.Name,
