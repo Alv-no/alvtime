@@ -109,89 +109,10 @@
         await RefreshCustomers();
         StateHasChanged();
     }));
-
-    private async Task CustomerChangeCommitted()
+    
+    private void NavigateToCustomer(int customerId)
     {
-        try
-        {
-            if (_selectedCustomer is { Id: 0 })
-            {
-                await HttpClient.PostAsJsonAsync(ApiRoutes.CustomersBase, _selectedCustomer.MapToCustomerUpsertRequest());
-            }
-            else
-            {
-                await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateCustomer(_selectedCustomer!.Id), _selectedCustomer!.MapToCustomerUpsertRequest());
-            }
-
-            await RefreshCustomers();
-        }
-        catch (HttpResponseException)
-        {
-            ResetCustomerToOriginalValues(_selectedCustomer);
-        }
-
-        StateHasChanged();
-    }
-
-    private void BackupCustomer(object customer)
-    {
-        _customerBeforeEdit = new CustomerModel
-        {
-            Name = ((CustomerModel)customer).Name,
-            ContactEmail = ((CustomerModel)customer).ContactEmail,
-            ContactPerson = ((CustomerModel)customer).ContactPerson,
-            ContactPhone = ((CustomerModel)customer).ContactPhone,
-            InvoiceAddress = ((CustomerModel)customer).InvoiceAddress,
-            OrgNr = ((CustomerModel)customer).OrgNr,
-        };
-    }
-
-    private void ResetCustomerToOriginalValues(object? customer)
-    {
-        if (_customerBeforeEdit == null)
-        {
-            return;
-        }
-
-        if (customer == null)
-        {
-            if (_selectedCustomer == null)
-            {
-                return;
-            }
-
-            customer = _selectedCustomer;
-        }
-
-        if (_selectedCustomer!.Id == 0)
-        {
-            UndoNewCustomer();
-        }
-
-        ((CustomerModel)customer).Name = _customerBeforeEdit!.Name;
-        ((CustomerModel)customer).ContactEmail = _customerBeforeEdit.ContactEmail;
-        ((CustomerModel)customer).ContactPerson = _customerBeforeEdit.ContactPerson;
-        ((CustomerModel)customer).ContactPhone = _customerBeforeEdit.ContactPhone;
-        ((CustomerModel)customer).InvoiceAddress = _customerBeforeEdit.InvoiceAddress;
-        ((CustomerModel)customer).OrgNr = _customerBeforeEdit.OrgNr;
-        _customerBeforeEdit = null;
-    }
-
-    private void UndoNewCustomer()
-    {
-        AllCustomers!.Remove(_selectedCustomer!);
-        StateHasChanged();
-    }
-
-    private void ShowCustomerDetails(string name)
-    {
-        var customer = AllCustomers!.First(e => e.Name == name);
-        customer.ShowDetails = !customer.ShowDetails;
-    }
-
-    private void NavigateOnRowClick(CustomerModel selectedCustomer)
-    {
-        Navigation.NavigateTo($"/kunder/{selectedCustomer.Id}");
+        Navigation.NavigateTo($"/kunder/{customerId}");
     }
 
 }
