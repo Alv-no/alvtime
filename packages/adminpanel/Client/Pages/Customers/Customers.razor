@@ -86,13 +86,6 @@
         }
     }
 
-    private bool FilterCustomer(CustomerModel customer)
-    {
-        if (string.IsNullOrWhiteSpace(_customerSearchString))
-            return true;
-        return customer.Name.Contains(_customerSearchString, StringComparison.OrdinalIgnoreCase) || customer.ContactEmail.Contains(_customerSearchString, StringComparison.OrdinalIgnoreCase) || customer.ContactPerson.Contains(_customerSearchString, StringComparison.OrdinalIgnoreCase);
-    }
-
     private void AddEmptyCustomer()
     {
         DialogService.ShowAsync<CustomerDialog>(@Localizer["CustomersPage.AddCustomer"], new DialogParameters
