@@ -3,6 +3,7 @@
 public static class ApiRoutes
 {
     public static string EmployeeBase => "api/admin/Users";
+    public static string GetEmployeeById(int id) => $"{EmployeeBase}/{id}";
     public static string UpdateEmployee(int id) => $"{EmployeeBase}/{id}";
     public static string CreateEmploymentRateForUser(int id) => $"{EmployeeBase}/{id}/employmentrates";
     public static string UpdateEmploymentRateForUser(int id, int employmentRateId) => $"{EmployeeBase}/{id}/employmentrates/{employmentRateId}";
