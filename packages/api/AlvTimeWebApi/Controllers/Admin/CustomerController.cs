@@ -8,7 +8,6 @@ using AlvTime.Business.Projects;
 using AlvTimeWebApi.Controllers.Utils;
 using AlvTimeWebApi.ErrorHandling;
 using AlvTimeWebApi.Requests;
-using AlvTimeWebApi.Responses;
 using AlvTimeWebApi.Responses.Admin;
 
 namespace AlvTimeWebApi.Controllers.Admin;
@@ -28,10 +27,10 @@ public class CustomerController : ControllerBase
     }
 
     [HttpGet("Customers")]    
-    public async Task<ActionResult<IEnumerable<CustomerDetailedResponse>>> FetchCustomersDetailed()
+    public async Task<ActionResult<IEnumerable<CustomerDetailedResponse>>> FetchCustomersAdmin()
     {
-        var customers = await _customerService.GetCustomersDetailed();
-        return Ok(customers.Select(c => c.MapToCustomerResponse()));
+        var customers = await _customerService.GetCustomersAdmin();
+        return Ok(customers.Select(c => c.MapToCustomerAdminResponse()));
     }
 
     [HttpPost("Customers")]

@@ -12,5 +12,6 @@ public class CustomerAdminDto
     public string ContactEmail { get; set; }
     public string ContactPhone { get; set; }
     public string OrgNr { get; set; }
+    public int ProjectCount { get; set; }
     public IEnumerable<ProjectAdminDto> Projects { get; set; }
 }

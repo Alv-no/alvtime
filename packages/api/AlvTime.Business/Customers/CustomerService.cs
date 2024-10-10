@@ -18,9 +18,9 @@ public class CustomerService
         return (await _customerStorage.GetCustomerDetailedById(customerId));
     }
 
-    public async Task<IEnumerable<CustomerAdminDto>> GetCustomersDetailed()
+    public async Task<IEnumerable<CustomerAdminDto>> GetCustomersAdmin()
     {
-        var customers = await _customerStorage.GetCustomersDetailed();
+        var customers = await _customerStorage.GetCustomersAdmin();
         return customers;
     }
 
