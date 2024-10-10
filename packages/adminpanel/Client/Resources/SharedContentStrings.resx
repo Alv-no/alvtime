@@ -91,7 +91,7 @@
         <value>Kunder</value>
     </data>
     <data name="CustomersPage.AddCustomer" xml:space="preserve">
-        <value>Legg til ny kunde</value>
+        <value>Ny kunde</value>
     </data>
     <data name="Common.OrgNr" xml:space="preserve">
         <value>Org.nummer</value>
@@ -209,5 +209,8 @@
     </data>
     <data name="CustomerPage.EditHourRate" xml:space="preserve">
         <value>Endre timerate</value>
+    </data>
+    <data name="Common.NavigateTo" xml:space="preserve">
+        <value>Gå til</value>
     </data>
 </root>

@@ -1,0 +1,109 @@
+@namespace Alvtime.Adminpanel.Client.Shared.Components
+@using Alvtime.Adminpanel.Client.Resources
+@using Microsoft.Extensions.Localization
+@inherits ComponentBase
+@inject IStringLocalizer<SharedContentStrings> Localizer
+
+<MudCard
+    Elevation="2"
+    Style="width: 200px;">
+    <MudAvatar
+        Class="align-self-center ma-4"
+        Color="Color.Secondary"
+        Style="width: 80px; height: 80px; ">
+        @if (AvatarImageUrl is not null)
+        {
+            // Add image stuff
+        }
+        else if (AvatarIconUrl is not null)
+        {
+            <MudIcon
+                Icon="@AvatarIconUrl"
+                Style="font-size: 4rem;"/>
+        }
+        else if (CustomerName is null)
+        {
+            <MudIcon
+                Icon="@Icons.Material.Filled.NoAccounts"
+                Style="font-size: 4rem;"/>
+        }
+        else
+        {
+            <TextAdjuster>
+                <MudText Typo="Typo.button" Style="font-size: 2rem;">@Initials</MudText>
+            </TextAdjuster>
+        }
+
+    </MudAvatar>
+    <MudCardContent
+        Class="mb-4"
+        Style="text-wrap: wrap; text-align: center;">
+        <MudText Typo="Typo.body1" Style="font-size: 1.5rem;">@CustomerName</MudText>
+        @if (ProjectCount is not null)
+        {
+            var projectLabel = ProjectCount == 1 ? "Common.Project" : "Common.Projects";
+            var localizedLabel = Localizer[projectLabel];
+            
+            if (!string.IsNullOrEmpty(localizedLabel))
+            {
+                <MudText Typo="Typo.body1">@ProjectCount @localizedLabel.ToString().ToLower()</MudText>
+            }
+        }
+
+    </MudCardContent>
+
+    <MudCardActions
+        Class="align-self-center">
+        <MudButton
+            Color="Color.Secondary"
+            OnClick="@OnActionPress">
+            <TextAdjuster>
+                @ActionLabel
+            </TextAdjuster>
+        </MudButton>
+    </MudCardActions>
+</MudCard>
+
+@code {
+    [Parameter] public RenderFragment? CustomerCardAvatarImage { get; set; }
+    [Parameter] public EventCallback OnActionPress { get; set; }
+    [Parameter] public string ActionLabel { get; set; } = "";
+    [Parameter] public string? AvatarImageUrl { get; set; }
+    [Parameter] public string? AvatarIconUrl { get; set; }
+    [Parameter] public string? CustomerName { get; set; }
+    [Parameter] public int? ProjectCount { get; set; }
+
+    private string Initials => GetInitialsFromName(CustomerName);
+
+    // known company suffixes and other words, for exclusion in initial generator
+    private static readonly HashSet<string> CompanySuffixes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "AS", "ASA", "ANS", "DA", "BA", "ENK", "SE", "FKF", "IKS", "KF", "KS", "NUF", "SA", "SF", "OG", "&"
+    };
+
+    // generates initials for use with the avatar, in the case on no image or icon is provided
+    private string GetInitialsFromName(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return string.Empty;
+
+        // split the name into words and filter out company suffixes
+        var words = name.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Where(w => !CompanySuffixes.Contains(w.ToUpper()))
+            .ToArray();
+
+        if (words.Length == 0)
+            return string.Empty;
+
+        if (words.Length > 1)
+        {
+            // if there are multiple words (excluding suffixes), return the first letter of the first two words
+            return $"{words[0][0]}{words[1][0]}".ToUpper();
+        }
+        else
+        {
+            // if there is only one word left, return the first two letters
+            return words[0].Length > 1 ? words[0][..2].ToUpper() : words[0].ToUpper();
+        }
+    }
+
+}
