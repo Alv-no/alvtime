@@ -43,7 +43,7 @@
                 ActionLabel="@Localizer["Common.NavigateTo"]"
                 OnActionPress="@(() => Navigation.NavigateTo($"/kunder/{customer.Id}"))"
                 CustomerName="@customer.Name"
-                ProjectCount="@customer.Projects?.Count"
+                ProjectCount="@customer.ProjectCount"
                 ContactPerson="@customer.ContactPerson">
             </CustomerCard>
         }
