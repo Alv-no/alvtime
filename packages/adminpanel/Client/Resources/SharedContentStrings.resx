@@ -21,7 +21,7 @@
     <data name="EmployeesPage.Title" xml:space="preserve">
         <value>Ansatte</value>
     </data>
-    <data name="EmployeesPage.Alver" xml:space="preserve">
+    <data name="EmployeesPage.Employees" xml:space="preserve">
         <value>Alver</value>
     </data>
     <data name="Common.SaveChanges" xml:space="preserve">
@@ -212,5 +212,23 @@
     </data>
     <data name="Common.NavigateTo" xml:space="preserve">
         <value>Gå til</value>
+    </data>
+    <data name="EmployeesPage.Pagination.PerPage" xml:space="preserve">
+        <value>Alver per side</value>
+    </data>
+    <data name="Common.Information" xml:space="preserve">
+        <value>Informasjon</value>
+    </data>
+    <data name="EmployeePage.Details" xml:space="preserve">
+        <value>Ansattdetaljer</value>
+    </data>
+    <data name="Common.EmploymentRates" xml:space="preserve">
+        <value>Stillingsprosenter</value>
+    </data>
+    <data name="Common.EmploymentRate" xml:space="preserve">
+        <value>Stillingsprosent</value>
+    </data>
+    <data name="Common.EndDate.Inclusive" xml:space="preserve">
+        <value>Sluttdato (inkl.)</value>
     </data>
 </root>
