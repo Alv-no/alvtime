@@ -11,7 +11,7 @@
 
 <PageTitle>@Localizer["EmployeesPage.Title"]</PageTitle>
 
-<MudText Typo="Typo.h2">@Localizer["EmployeesPage.Alver"]</MudText>
+<MudText Typo="Typo.h2">@Localizer["EmployeesPage.Employees"]</MudText>
 <MudButton
     Class="my-4"
     Color="Color.Secondary"
@@ -26,19 +26,12 @@
           Striped="true"
           Dense="true"
           Elevation="4"
-          CanCancelEdit="true"
           Filter="new Func<EmployeeModel, bool>(FilterFunc)"
           @bind-SelectedItem="_selectedEmployee"
           SortLabel="@Localizer["Common.SortBy"]"
-          CommitEditTooltip="@Localizer["Common.SaveChanges"]"
-          OnCommitEditClick="EmployeeChangeCommitted"
-          RowEditPreview="BackupEmployee"
-          RowEditCancel="ResetEmployeeToOriginalValues"
-          CancelEditTooltip="@Localizer["Common.Cancel"]"
-          IsEditRowSwitchingBlocked="false"
-          ApplyButtonPosition="TableApplyButtonPosition.End"
-          EditButtonPosition="TableEditButtonPosition.End"
-          EditTrigger="TableEditTrigger.RowClick">
+          OnRowClick="NavigateToEmployee"
+          T="EmployeeModel"
+          Class="cursor-pointer">
     <ToolBarContent>
         <MudTextField @bind-Value="_searchString" FullWidth="true" Immediate="true" Placeholder="Søk" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="pl-0 mt-0"></MudTextField>
     </ToolBarContent>
@@ -58,8 +51,6 @@
         <MudTh>
             <MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<EmployeeModel, object>(x => x.EmployeeId)">@Localizer["Common.EmployeeId"]</MudTableSortLabel>
         </MudTh>
-        <MudTh>
-        </MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Name">@context.Name</MudTd>
@@ -67,89 +58,9 @@
         <MudTd DataLabel="StartDate">@context.StartDate?.ToString("dd/MM/yyyy")</MudTd>
         <MudTd DataLabel="EndDate">@context.EndDate?.ToString("dd/MM/yyyy")</MudTd>
         <MudTd DataLabel="EmployeeId">@context.EmployeeId</MudTd>
-        <MudTd>
-            <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="@(() => ShowDetails(context.Name))">@(context.ShowDetails ? "\u25b2" : "\u25bc") Stillingsprosent</MudButton>
-        </MudTd>
     </RowTemplate>
-    <RowEditingTemplate>
-        <MudTd DataLabel="Name">
-            <MudTextField @bind-Value="@context.Name" Required/>
-        </MudTd>
-        <MudTd DataLabel="Email">
-            <MudTextField @bind-Value="@context.Email" Required/>
-        </MudTd>
-        <MudTd DataLabel="StartDate">
-            <MudDatePicker @bind-Date="@context.StartDate" Required  DateFormat="dd/MM/yyyy"/>
-        </MudTd>
-        <MudTd DataLabel="EndDate">
-            <MudDatePicker @bind-Date="@context.EndDate"  DateFormat="dd/MM/yyyy"/>
-        </MudTd>
-        <MudTd DataLabel="EmployeeId">
-            <MudNumericField @bind-Value="@context.EmployeeId" Required/>
-        </MudTd>
-    </RowEditingTemplate>
-    <ChildRowContent>
-        @if (context.ShowDetails)
-        {
-            <MudTr>
-                <td colspan="2">
-                    <MudCard>
-                        <MudCardHeader>
-                            <CardHeaderContent>
-                                <MudText Typo="Typo.body1">Stillingsprosenter for <strong>@context.Name</strong></MudText>
-                            </CardHeaderContent>
-                        </MudCardHeader>
-                        <MudCardContent Class="pl-6">
-                            <div style="margin-bottom: 10px;">
-                                <MudTable Items="@context.EmploymentRates"
-                                          Context="EmploymentRateContext"
-                                          Breakpoint="Breakpoint.Sm"
-                                          Elevation="2"
-                                          @bind-SelectedItem="_selectedEmploymentRate"
-                                          CanCancelEdit="true"
-                                          CommitEditTooltip="Lagre endring"
-                                          OnCommitEditClick="@(() => EmploymentRateChangeCommitted(context.Id))"
-                                          RowEditPreview="BackupEmploymentRate"
-                                          RowEditCancel="ResetEmploymentRateToOriginalValues"
-                                          CancelEditTooltip="Avbryt"
-                                          IsEditRowSwitchingBlocked="false"
-                                          ApplyButtonPosition="TableApplyButtonPosition.End"
-                                          EditButtonPosition="TableEditButtonPosition.End"
-                                          EditTrigger="TableEditTrigger.RowClick">
-                                    <HeaderContent>
-                                        <MudTh>Stillingsprosent</MudTh>
-                                        <MudTh>Fra dato (inkl.)</MudTh>
-                                        <MudTh>Til dato (inkl.)</MudTh>
-                                    </HeaderContent>
-                                    <RowTemplate>
-                                        <MudTd DataLabel="RatePercentage" Placeholder="50">@EmploymentRateContext.RatePercentage.ToString("####")</MudTd>
-                                        <MudTd DataLabel="RateFromDateInclusive">@EmploymentRateContext.FromDateInclusive?.ToString("dd/MM/yyyy")</MudTd>
-                                        <MudTd DataLabel="RateToDateInclusive">@EmploymentRateContext.ToDateInclusive?.ToString("dd/MM/yyyy")</MudTd>
-                                    </RowTemplate>
-                                    <RowEditingTemplate>
-                                        <MudTd DataLabel="RatePercentage">
-                                            <MudNumericField @bind-Value="@EmploymentRateContext.RatePercentage" Required/>
-                                        </MudTd>
-                                        <MudTd DataLabel="RateFromDateInclusive">
-                                            <MudDatePicker @bind-Date="@EmploymentRateContext.FromDateInclusive" Required  DateFormat="dd/MM/yyyy"/>
-                                        </MudTd>
-                                        <MudTd DataLabel="RateToDateInclusive">
-                                            <MudDatePicker @bind-Date="@EmploymentRateContext.ToDateInclusive" Required  DateFormat="dd/MM/yyyy"/>
-                                        </MudTd>
-                                    </RowEditingTemplate>
-                                </MudTable>
-                            </div>
-                            <div>
-                                <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => AddEmptyEmploymentRate(context.Id))">Ny stillingsprosent</MudButton>
-                            </div>
-                        </MudCardContent>
-                    </MudCard>
-                </td>
-            </MudTr>
-        }
-    </ChildRowContent>
     <PagerContent>
-        <MudTablePager PageSizeOptions="new[] { int.MaxValue, 20, 10 }" RowsPerPageString="Alver per side:"/>
+        <MudTablePager PageSizeOptions="new[] { int.MaxValue, 20, 10 }" RowsPerPageString="@Localizer["EmployeesPage.Pagination.PerPage"]"/>
     </PagerContent>
 </MudTable>
 
@@ -157,6 +68,7 @@
     [Inject] private HttpClient HttpClient { get; set; }
     [Inject] private IDialogService DialogService { get; set; }
     [Inject] public HttpInterceptorService Interceptor { get; set; }
+    [Inject] NavigationManager Navigation { get; set; }
 
     private string _searchString = "";
     private EmployeeModel? _selectedEmployee;
@@ -363,4 +275,10 @@
         await RefreshEmployees();
         StateHasChanged();
     }));
+
+    private void NavigateToEmployee(TableRowClickEventArgs<EmployeeModel> selectedEmployee)
+    {
+        Navigation.NavigateTo($"/ansatte/{selectedEmployee.Item.Id}");
+    }
+
 }
