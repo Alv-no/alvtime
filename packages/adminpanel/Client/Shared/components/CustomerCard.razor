@@ -43,11 +43,22 @@
         {
             var projectLabel = ProjectCount == 1 ? "Common.Project" : "Common.Projects";
             var localizedLabel = Localizer[projectLabel];
-            
+
             if (!string.IsNullOrEmpty(localizedLabel))
             {
-                <MudText Typo="Typo.body1">@ProjectCount @localizedLabel.ToString().ToLower()</MudText>
+                <MudText
+                    Typo="Typo.body1"
+                    Class="mb-4"
+                    >
+                        @ProjectCount @localizedLabel.ToString().ToLower()
+                </MudText>
             }
+        }
+
+        @if (!string.IsNullOrWhiteSpace(ContactPerson))
+        {
+            <MudText Typo="Typo.caption">@Localizer["Common.ContactPerson"]</MudText>
+            <MudText Typo="Typo.body1">@ContactPerson</MudText>
         }
 
     </MudCardContent>
@@ -71,6 +82,7 @@
     [Parameter] public string? AvatarImageUrl { get; set; }
     [Parameter] public string? AvatarIconUrl { get; set; }
     [Parameter] public string? CustomerName { get; set; }
+    [Parameter] public string? ContactPerson { get; set; }
     [Parameter] public int? ProjectCount { get; set; }
 
     private string Initials => GetInitialsFromName(CustomerName);

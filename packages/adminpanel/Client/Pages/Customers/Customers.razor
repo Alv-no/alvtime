@@ -23,25 +23,28 @@
     </TextAdjuster>
 </MudButton>
 <MudTextField
-    @bind-Value="_customerSearchString"
+    Value="@_customerSearchString"
     Immediate="true"
+    ValueChanged="@(new Func<string, Task>(OnFilterChanged))"
     Placeholder="Søk"
     Adornment="Adornment.Start"
     AdornmentIcon="@Icons.Material.Filled.Search"
-    IconSize="Size.Medium" Class="my-4">
+    IconSize="Size.Medium" 
+    Class="my-4">
 </MudTextField>
 <MudPaper
     Elevation="0"
     Class="d-flex flex-wrap justify-start gap-8">
-    @if (AllCustomers is not null)
+    @if (FilteredCustomers is not null)
     {
-        @foreach (var customer in AllCustomers)
+        @foreach (var customer in FilteredCustomers)
         {
             <CustomerCard
                 ActionLabel="@Localizer["Common.NavigateTo"]"
                 OnActionPress="@(() => Navigation.NavigateTo($"/kunder/{customer.Id}"))"
                 CustomerName="@customer.Name"
-                ProjectCount="@customer.Projects?.Count">
+                ProjectCount="@customer.Projects?.Count"
+                ContactPerson="@customer.ContactPerson">
             </CustomerCard>
         }
     }
@@ -54,9 +57,8 @@
     [Inject] NavigationManager Navigation { get; set; }
 
     private string _customerSearchString = "";
-    private CustomerModel? _selectedCustomer;
-    private CustomerModel? _customerBeforeEdit;
     private HashSet<CustomerModel>? AllCustomers { get; set; }
+    private HashSet<CustomerModel>? FilteredCustomers { get; set; }
 
     private bool Loading => AllCustomers == null;
 
@@ -75,6 +77,7 @@
             if (customerResponse.IsSuccessStatusCode)
             {
                 AllCustomers = (await customerResponse.Content.ReadFromJsonAsync<HashSet<CustomerModel>>())?.OrderBy(c => c.Id).ToHashSet();
+                FilteredCustomers = [..AllCustomers ?? []];
             }
         }
         catch (AccessTokenNotAvailableException exception)
@@ -113,6 +116,28 @@
     private void NavigateToCustomer(int customerId)
     {
         Navigation.NavigateTo($"/kunder/{customerId}");
+    }
+
+    private Task OnFilterChanged(string value)
+    {
+        _customerSearchString = value;
+        FilterCustomers();
+        return Task.CompletedTask;
+    }
+
+    private void FilterCustomers()
+    {
+        if (AllCustomers == null) return;
+
+        FilteredCustomers = AllCustomers
+            .Where(customer =>
+                string.IsNullOrWhiteSpace(_customerSearchString) ||
+                customer.Name.Contains(_customerSearchString, StringComparison.OrdinalIgnoreCase) ||
+                customer.ContactEmail.Contains(_customerSearchString, StringComparison.OrdinalIgnoreCase) ||
+                customer.ContactPerson.Contains(_customerSearchString, StringComparison.OrdinalIgnoreCase))
+            .ToHashSet();
+
+        StateHasChanged();
     }
 
 }
