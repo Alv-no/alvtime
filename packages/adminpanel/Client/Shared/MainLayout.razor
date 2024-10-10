@@ -15,10 +15,10 @@
         <MudSpacer/>
         <LoginDisplay/>
     </MudAppBar>
-    <MudDrawer @bind-Open="@_drawerOpen" ClipMode="@DrawerClipMode.Always" Variant="DrawerVariant.Responsive">
+    <MudDrawer @bind-Open="@_drawerOpen" ClipMode="@DrawerClipMode.Always" Variant="DrawerVariant.Responsive" Class="mt-2">
         <NavMenu/>
     </MudDrawer>
-    <MudMainContent Class="mt-8">
+    <MudMainContent Class="mt-2">
         <MudContainer MaxWidth="MaxWidth.ExtraLarge">
             @Body
         </MudContainer>
