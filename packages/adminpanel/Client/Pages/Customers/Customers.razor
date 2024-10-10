@@ -22,60 +22,30 @@
          @Localizer["CustomersPage.AddCustomer"]
     </TextAdjuster>
 </MudButton>
-
-<MudTable Items="@AllCustomers"
-          Hover="true"
-          Loading="@Loading"
-          Striped="true"
-          Dense="true"
-          Elevation="4"
-          Filter="new Func<CustomerModel, bool>(FilterCustomer)"
-          @bind-SelectedItem="_selectedCustomer"
-          SortLabel="@Localizer["Common.SortBy"]"
-          OnRowClick="NavigateOnRowClick"
-          T="CustomerModel"
-          Class="cursor-pointer">
-    <ToolBarContent>
-        <MudTextField @bind-Value="_customerSearchString" Immediate="true" Placeholder="Søk" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 pl-6"></MudTextField>
-    </ToolBarContent>
-    <HeaderContent>
-        <MudTh>
-            <MudTableSortLabel SortBy="new Func<CustomerModel, object>(x => x.Name)">Navn</MudTableSortLabel>
-        </MudTh>
-        <MudTh>
-            <MudTableSortLabel SortBy="new Func<CustomerModel, object>(x => x.ContactPerson)">Kontaktperson</MudTableSortLabel>
-        </MudTh>
-        <MudTh>
-            <MudTableSortLabel SortBy="new Func<CustomerModel, object>(x => x.ContactEmail)">Epost</MudTableSortLabel>
-        </MudTh>
-        <MudTh>
-            <MudTableSortLabel SortBy="new Func<CustomerModel, object>(x => x.ContactPhone)">Telefon</MudTableSortLabel>
-        </MudTh>
-        <MudTh>
-            <MudTableSortLabel SortBy="new Func<CustomerModel, object>(x => x.InvoiceAddress)">Fakturaaddresse</MudTableSortLabel>
-        </MudTh>
-        <MudTh>
-            <MudTableSortLabel SortBy="new Func<CustomerModel, object>(x => x.OrgNr)">OrgNr</MudTableSortLabel>
-        </MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="Name">@context.Name</MudTd>
-        <MudTd DataLabel="ContactPerson">@context.ContactPerson</MudTd>
-        <MudTd DataLabel="ContactEmail">@context.ContactEmail</MudTd>
-        <MudTd DataLabel="ContactPhone">@context.ContactPhone</MudTd>
-        <MudTd DataLabel="InvoiceAddress">@context.InvoiceAddress</MudTd>
-        <MudTd DataLabel="OrgNr">@context.OrgNr</MudTd>
-        <MudTd>
-            @* <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="@(() => ShowCustomerDetails(context.Name))">@(context.ShowDetails ? "\u25b2" : "\u25bc") Prosjekter</MudButton> *@
-        </MudTd>
-    </RowTemplate>
-    <PagerContent>
-        <MudTablePager 
-            PageSizeOptions="new[] { int.MaxValue, 20, 10 }" 
-            AllItemsText="@Localizer["Common.Pagination.All"]"
-            RowsPerPageString="@Localizer["CustomerPage.Pagination.PerPage"]"/>
-    </PagerContent>
-</MudTable>
+<MudTextField
+    @bind-Value="_customerSearchString"
+    Immediate="true"
+    Placeholder="Søk"
+    Adornment="Adornment.Start"
+    AdornmentIcon="@Icons.Material.Filled.Search"
+    IconSize="Size.Medium" Class="my-4">
+</MudTextField>
+<MudPaper
+    Elevation="0"
+    Class="d-flex flex-wrap justify-start gap-8">
+    @if (AllCustomers is not null)
+    {
+        @foreach (var customer in AllCustomers)
+        {
+            <CustomerCard
+                ActionLabel="@Localizer["Common.NavigateTo"]"
+                OnActionPress="@(() => Navigation.NavigateTo($"/kunder/{customer.Id}"))"
+                CustomerName="@customer.Name"
+                ProjectCount="@customer.Projects?.Count">
+            </CustomerCard>
+        }
+    }
+</MudPaper>
 
 @code {
     [Inject] private HttpClient HttpClient { get; set; }
@@ -123,14 +93,14 @@
     private void AddEmptyCustomer()
     {
         DialogService.ShowAsync<CustomerDialog>(@Localizer["CustomersPage.AddCustomer"], new DialogParameters
-        {
-            ["OnCustomerSubmit"] = RefreshAfterDialogAction
-        },
-        new DialogOptions()
-        {
-            FullWidth = true, 
-            MaxWidth = MaxWidth.Small
-        }
+            {
+                ["OnCustomerSubmit"] = RefreshAfterDialogAction
+            },
+            new DialogOptions()
+            {
+                FullWidth = true,
+                MaxWidth = MaxWidth.Small
+            }
         );
     }
 
@@ -219,9 +189,9 @@
         customer.ShowDetails = !customer.ShowDetails;
     }
 
-    private void NavigateOnRowClick(TableRowClickEventArgs<CustomerModel> selectedCustomer)
+    private void NavigateOnRowClick(CustomerModel selectedCustomer)
     {
-      Navigation.NavigateTo($"/kunder/{selectedCustomer.Item.Id}");
+        Navigation.NavigateTo($"/kunder/{selectedCustomer.Id}");
     }
 
 }
