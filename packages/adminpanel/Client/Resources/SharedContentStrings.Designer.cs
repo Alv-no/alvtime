@@ -428,5 +428,11 @@ namespace Alvtime.Adminpanel.Client.Resources {
                 return ResourceManager.GetString("CustomerPage.EditHourRate", resourceCulture);
             }
         }
+        
+        internal static string Common_NavigateTo {
+            get {
+                return ResourceManager.GetString("Common.NavigateTo", resourceCulture);
+            }
+        }
     }
 }
