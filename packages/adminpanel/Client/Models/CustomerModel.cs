@@ -9,6 +9,7 @@ public class CustomerModel : IEquatable<CustomerModel>
     public string? ContactEmail { get; set; }
     public string? ContactPhone { get; set; }
     public string? OrgNr { get; set; }
+    public int? ProjectCount { get; set; }
     public IList<ProjectModel>? Projects { get; set; }
     public bool ShowDetails { get; set; }
     
