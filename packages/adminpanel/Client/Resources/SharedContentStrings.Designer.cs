@@ -51,9 +51,9 @@ namespace Alvtime.Adminpanel.Client.Resources {
             }
         }
         
-        internal static string EmployeesPage_Alver {
+        internal static string EmployeesPage_Employees {
             get {
-                return ResourceManager.GetString("EmployeesPage.Alver", resourceCulture);
+                return ResourceManager.GetString("EmployeesPage.Employees", resourceCulture);
             }
         }
         
@@ -432,6 +432,42 @@ namespace Alvtime.Adminpanel.Client.Resources {
         internal static string Common_NavigateTo {
             get {
                 return ResourceManager.GetString("Common.NavigateTo", resourceCulture);
+            }
+        }
+        
+        internal static string EmployeesPage_Pagination_PerPage {
+            get {
+                return ResourceManager.GetString("EmployeesPage.Pagination.PerPage", resourceCulture);
+            }
+        }
+        
+        internal static string Common_Information {
+            get {
+                return ResourceManager.GetString("Common.Information", resourceCulture);
+            }
+        }
+        
+        internal static string EmployeePage_Details {
+            get {
+                return ResourceManager.GetString("EmployeePage.Details", resourceCulture);
+            }
+        }
+        
+        internal static string Common_EmploymentRates {
+            get {
+                return ResourceManager.GetString("Common.EmploymentRates", resourceCulture);
+            }
+        }
+        
+        internal static string Common_EmploymentRate {
+            get {
+                return ResourceManager.GetString("Common.EmploymentRate", resourceCulture);
+            }
+        }
+        
+        internal static string Common_EndDate_Inclusive {
+            get {
+                return ResourceManager.GetString("Common.EndDate.Inclusive", resourceCulture);
             }
         }
     }

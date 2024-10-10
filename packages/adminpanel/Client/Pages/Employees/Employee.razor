@@ -1,0 +1,198 @@
+@page "/ansatte/{EmployeeId}"
+@using Alvtime.Adminpanel.Client.ErrorHandling
+@using Alvtime.Adminpanel.Client.Models
+@using Alvtime.Adminpanel.Client.Resources
+@using Alvtime.Adminpanel.Client.Utils
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedContentStrings> Localizer
+
+@if (_employee is not null)
+{
+    <MudIconButton 
+        Icon="@Icons.Material.Filled.ArrowBack" 
+        Color="Color.Secondary" 
+        aria-label="back"
+        OnClick="@(()=> Navigation.NavigateTo("/ansatte"))"/>
+    <PageTitle>@_employee.Name ?? @Localizer["EmployeePage.Details"]</PageTitle>
+    
+    <MudPaper Class="mb-4 d-flex flex-row align-center" Elevation="0">
+        <MudText Class="me-2" Typo="Typo.h2">@_employee.Name</MudText>
+        <MudIconButton
+            Icon="@Icons.Material.Filled.Edit"
+            Color="Color.Secondary"
+            OnClick="@EditEmployee">
+        </MudIconButton>
+    </MudPaper>  
+    
+    <div class="d-flex flex-column flex-sm-row gap-16 mb-8">
+        <MudPaper Class="pa-4" Elevation="0">
+            @if (_employee is null)
+            {
+                // insert avatar image
+                <MudAvatar Color="Color.Secondary" Style="width: 250px; height: 250px;">
+                   
+                </MudAvatar>
+            }
+            else
+            {
+                // insert placeholder avatar
+                <MudAvatar Elevation="2" Color="Color.Secondary" Style="width: 250px; height: 250px;">
+                    <MudText Typo="Typo.button" Style="font-size: 2rem;">@GetInitialsFromName(_employee.Name)</MudText>
+                </MudAvatar>
+            }
+        </MudPaper>
+    </div>
+    <MudPaper Elevation="0" Class="pa-4">
+        <MudText
+        >
+            @Localizer["Common.StartDate"]: @(_employee.StartDate.HasValue ? _employee.StartDate.Value.ToString("dd.MM.yyyy") : "")
+        </MudText>
+        <MudText>
+            @Localizer["Common.Email"]: @_employee.Email
+        </MudText>
+    </MudPaper>
+    
+    <MudPaper Elevation="0" Class="mb-4">
+        <MudDataGrid
+            T="EmployeeEmploymentRateModel"
+            Items="_employee.EmploymentRates"
+            MultiSelection="@_multiSelection"
+            @bind-selectedItem="_selectedEmploymentRate"
+            @bind-SelectedItems="_employmentRateSelectionList"
+            Filterable="false"
+            FooterClass="d-none">
+            <ToolBarContent>
+                <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.EmploymentRate"]</MudText>
+                <MudSpacer/>
+                <MudIconButton
+                    Icon="@Icons.Material.Filled.Add"
+                    Color="Color.Secondary"
+                    OnClick="@AddNewEmploymentRate"
+                    aria-label="@Localizer["CustomerPage.AddProject"]">
+                </MudIconButton>
+                <MudIconButton
+                    Icon="@Icons.Material.Filled.Edit"
+                    Color="Color.Secondary"
+                    OnClick="@EditEmploymentRate"
+                    Disabled="@(_selectedEmploymentRate == null)"
+                    aria-label="@Localizer["CustomerPage.EditProject"]">
+                </MudIconButton>
+            </ToolBarContent>
+            <Columns>
+                <SelectColumn
+                    T="EmployeeEmploymentRateModel"
+                    ShowInHeader="false"
+                />
+                <PropertyColumn 
+                    Title="@Localizer["Common.StartDate.Inclusive"]" 
+                    Property="r => r.FromDateInclusive"
+                    Format="d"
+                    />
+                <PropertyColumn 
+                    Title="@Localizer["Common.EndDate.Inclusive"]" 
+                    Property="r=> r.ToDateInclusive"
+                    Format="d"
+                    />
+                <PropertyColumn 
+                    Title="@Localizer["Common.EmploymentRate"]" 
+                    Property="r=>r.RatePercentage"
+                    />
+            </Columns>
+        </MudDataGrid>
+    </MudPaper>
+}
+else
+{
+    
+}
+
+@code {
+    [Inject] private HttpClient HttpClient { get; set; }
+    [Inject] public HttpInterceptorService Interceptor { get; set; }
+    [Inject] private IDialogService DialogService { get; set; }
+    [Inject] NavigationManager Navigation { get; set; }
+    
+    [Parameter] public string EmployeeId { get; set; }
+
+    private EmployeeModel? _employee;
+    
+    /* All off this need to be like this, to prevent the UI to allow multiselect. Who knows why it is like that. 🤷‍♂️ */   
+    private readonly bool _multiSelection = false;
+    private HashSet<EmployeeEmploymentRateModel> _employmentRateSelectionList = [];
+    private EmployeeEmploymentRateModel? _selectedEmploymentRate;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetch data for customer
+        Interceptor.RegisterEvent();
+        await RefreshEmployee();
+    }
+
+    private async Task RefreshEmployee()
+    {
+        if (string.IsNullOrEmpty(EmployeeId) || !int.TryParse(EmployeeId, out int parsedId))
+        {
+            _employee = null;
+            return;
+        }
+
+        try
+        {
+            var employeeResponse = await HttpClient.GetAsync(ApiRoutes.GetEmployeeById(parsedId));
+
+            if (employeeResponse.IsSuccessStatusCode)
+            {
+                _employee = await employeeResponse.Content.ReadFromJsonAsync<EmployeeModel>();
+            }
+            else
+            {
+                
+            }
+        }
+        catch (HttpRequestException e)
+        {
+            // Handle network errors
+            Console.WriteLine($"Network error: {e.Message}");
+        }
+    }
+
+    private void EditEmployee(MouseEventArgs obj)
+    {
+        throw new NotImplementedException();
+    }
+    
+    private string GetInitialsFromName(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return string.Empty;
+        }
+
+        // split the name into words and generate initials
+        var words = name.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .ToArray();
+
+        if (words.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        if (words.Length > 1)
+        {
+            return $"{words[0][0]}{words[1][0]}".ToUpper();
+        }
+        
+        return words[0].Length > 1 ? words[0][..2].ToUpper() : words[0].ToUpper();
+    }
+
+    private void EditEmploymentRate(MouseEventArgs obj)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void AddNewEmploymentRate(MouseEventArgs obj)
+    {
+        throw new NotImplementedException();
+    }
+
+}
