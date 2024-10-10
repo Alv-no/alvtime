@@ -101,15 +101,9 @@ public class CustomerStorage : ICustomerStorage
             }).ToListAsync();
     }
 
-    public async Task<IEnumerable<CustomerAdminDto>> GetCustomersDetailed()
+    public async Task<IEnumerable<CustomerAdminDto>> GetCustomersAdmin()
     {
         return await _context.Customer
-            .Include(c => c.Project)
-            .ThenInclude(p => p.Task)
-            .ThenInclude(t => t.HourRate)
-            .Include(c => c.Project)
-            .ThenInclude(p => p.Task)
-            .ThenInclude(t => t.CompensationRate)
             .Select(customer => new CustomerAdminDto
             {
                 Id = customer.Id,
@@ -119,25 +113,7 @@ public class CustomerStorage : ICustomerStorage
                 ContactEmail = customer.ContactEmail,
                 ContactPhone = customer.ContactPhone,
                 OrgNr = customer.OrgNr,
-                Projects = customer.Project.Select(p => new ProjectAdminDto
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Tasks = p.Task.Select(t => new TaskAdminDto
-                    {
-                        Id = t.Id,
-                        Name = t.Name,
-                        CompensationRate = EnsureCompensationRate(t.CompensationRate),
-                        Locked = t.Locked,
-                        Imposed = t.Imposed,
-                        HourRates = t.HourRate.Select(hr => new HourRateDto
-                        {
-                            Id = hr.Id,
-                            Rate = hr.Rate,
-                            FromDate = hr.FromDate
-                        })
-                    })
-                })
+                ProjectCount = customer.Project.Count
             }).ToListAsync();
     }
 

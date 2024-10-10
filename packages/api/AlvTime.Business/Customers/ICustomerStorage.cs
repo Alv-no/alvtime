@@ -7,7 +7,7 @@ namespace AlvTime.Business.Customers
     {
         Task<CustomerAdminDto> GetCustomerDetailedById(int customerId);
         Task<IEnumerable<CustomerDto>> GetCustomers(CustomerQuerySearch criterias);
-        Task<IEnumerable<CustomerAdminDto>> GetCustomersDetailed();
+        Task<IEnumerable<CustomerAdminDto>> GetCustomersAdmin();
         Task CreateCustomer(CustomerDto customer);
         Task UpdateCustomer(CustomerDto customer);
     }
