@@ -38,7 +38,7 @@
             {
                 // insert placeholder avatar
                 <MudAvatar Elevation="2" Color="Color.Secondary" Style="width: 250px; height: 250px;">
-                    <MudText Typo="Typo.button" Style="font-size: 2rem;">@GetInitialsFromName(_employee.Name)</MudText>
+                    <MudText Typo="Typo.button" Style="font-size: 2rem;">@TextUtilities.GetInitialsFromName(_employee.Name, null)</MudText>
                 </MudAvatar>
             }
         </MudPaper>
@@ -185,30 +185,6 @@ else
         await RefreshEmployee();
         StateHasChanged();
     }));
-    
-    private string GetInitialsFromName(string? name)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            return string.Empty;
-        }
-
-        // split the name into words and generate initials
-        var words = name.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-            .ToArray();
-
-        if (words.Length == 0)
-        {
-            return string.Empty;
-        }
-
-        if (words.Length > 1)
-        {
-            return $"{words[0][0]}{words[1][0]}".ToUpper();
-        }
-        
-        return words[0].Length > 1 ? words[0][..2].ToUpper() : words[0].ToUpper();
-    }
     
     private void AddNewEmploymentRate(MouseEventArgs obj)
     {
