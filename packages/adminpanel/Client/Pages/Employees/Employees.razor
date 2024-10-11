@@ -19,50 +19,34 @@
     OnClick="@AddEmptyEmployee">
     <TextAdjuster>@Localizer["EmployeesPage.AddEmployee"]</TextAdjuster>
 </MudButton>
+<MudTextField
+    Value="@_employeeSearchString"
+    FullWidth="true"
+    Immediate="true"
+    ValueChanged="@(new Func<string, Task>(OnFilterChanged))"
+    Placeholder="Søk"
+    Adornment="Adornment.Start"
+    AdornmentIcon="@Icons.Material.Filled.Search"
+    IconSize="Size.Medium"
+    Class="my-4"/>
+    
 
-<MudTable Items="@AllEmployees"
-          Hover="true"
-          Loading="@Loading"
-          Striped="true"
-          Dense="true"
-          Elevation="4"
-          Filter="new Func<EmployeeModel, bool>(FilterFunc)"
-          @bind-SelectedItem="_selectedEmployee"
-          SortLabel="@Localizer["Common.SortBy"]"
-          OnRowClick="NavigateToEmployee"
-          T="EmployeeModel"
-          Class="cursor-pointer">
-    <ToolBarContent>
-        <MudTextField @bind-Value="_searchString" FullWidth="true" Immediate="true" Placeholder="Søk" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="pl-0 mt-0"></MudTextField>
-    </ToolBarContent>
-    <HeaderContent>
-        <MudTh>
-            <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.Name)">@Localizer["Common.Name"]</MudTableSortLabel>
-        </MudTh>
-        <MudTh>
-            <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.Email)">@Localizer["Common.Email"]</MudTableSortLabel>
-        </MudTh>
-        <MudTh>
-            <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.StartDate)">@Localizer["Common.StartDate"]</MudTableSortLabel>
-        </MudTh>
-        <MudTh>
-            <MudTableSortLabel SortBy="new Func<EmployeeModel, object>(x => x.EndDate)">@Localizer["Common.EndDate"]</MudTableSortLabel>
-        </MudTh>
-        <MudTh>
-            <MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<EmployeeModel, object>(x => x.EmployeeId)">@Localizer["Common.EmployeeId"]</MudTableSortLabel>
-        </MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="Name">@context.Name</MudTd>
-        <MudTd DataLabel="Email">@context.Email</MudTd>
-        <MudTd DataLabel="StartDate">@context.StartDate?.ToString("dd/MM/yyyy")</MudTd>
-        <MudTd DataLabel="EndDate">@context.EndDate?.ToString("dd/MM/yyyy")</MudTd>
-        <MudTd DataLabel="EmployeeId">@context.EmployeeId</MudTd>
-    </RowTemplate>
-    <PagerContent>
-        <MudTablePager PageSizeOptions="new[] { int.MaxValue, 20, 10 }" RowsPerPageString="@Localizer["EmployeesPage.Pagination.PerPage"]"/>
-    </PagerContent>
-</MudTable>
+
+<MudPaper
+    Elevation="0"
+    Class="d-flex flex-wrap justify-start gap-8">
+    @if (FilteredEmployees is not null)
+    {
+        @foreach (var employee in FilteredEmployees)
+        {
+            <EmployeeCard
+                ActionLabel="@Localizer["Common.NavigateTo"]"
+                OnActionPress="@(() => Navigation.NavigateTo($"/ansatte/{employee.Id}"))"
+                Name="@employee.Name"
+                />
+        }
+    }
+</MudPaper>
 
 @code {
     [Inject] private HttpClient HttpClient { get; set; }
@@ -70,13 +54,14 @@
     [Inject] public HttpInterceptorService Interceptor { get; set; }
     [Inject] NavigationManager Navigation { get; set; }
 
-    private string _searchString = "";
+    private string _employeeSearchString = "";
     private EmployeeModel? _selectedEmployee;
     private EmployeeModel? _employeeBeforeEdit;
     private EmployeeEmploymentRateModel? _selectedEmploymentRate;
     private EmployeeEmploymentRateModel? _employmentRateBeforeEdit;
     private bool Loading => AllEmployees == null;
     private HashSet<EmployeeModel>? AllEmployees { get; set; }
+    private HashSet<EmployeeModel>? FilteredEmployees { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -89,7 +74,9 @@
     {
         try
         {
-            AllEmployees = await HttpClient.GetFromJsonAsync<HashSet<EmployeeModel>>(ApiRoutes.EmployeeBase);
+            var employeeResponse = await HttpClient.GetAsync(ApiRoutes.EmployeeBase);
+            AllEmployees = (await employeeResponse.Content.ReadFromJsonAsync<HashSet<EmployeeModel>>())?.OrderBy(emp => emp.Name).ToHashSet();
+            FilteredEmployees = [..AllEmployees ?? []];
         }
         catch (AccessTokenNotAvailableException exception)
         {
@@ -118,13 +105,34 @@
 
     private bool FilterFunc(EmployeeModel employee)
     {
-        if (string.IsNullOrWhiteSpace(_searchString))
+        if (string.IsNullOrWhiteSpace(_employeeSearchString))
             return true;
-        return employee.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase) || employee.Email.Contains(_searchString, StringComparison.OrdinalIgnoreCase);
+        return employee.Name.Contains(_employeeSearchString, StringComparison.OrdinalIgnoreCase) || employee.Email.Contains(_employeeSearchString, StringComparison.OrdinalIgnoreCase);
     }
 
     private void NavigateToEmployee(TableRowClickEventArgs<EmployeeModel> selectedEmployee)
     {
         Navigation.NavigateTo($"/ansatte/{selectedEmployee.Item.Id}");
+    }
+
+    private Task OnFilterChanged(string value)
+    {
+        _employeeSearchString = value;
+        FilterEmployees();
+        return Task.CompletedTask;
+    }
+
+    private void FilterEmployees()
+    {
+        if (AllEmployees == null) return;
+
+        FilteredEmployees = AllEmployees
+            .Where(employee =>
+                string.IsNullOrWhiteSpace(_employeeSearchString) ||
+                employee.Name.Contains(_employeeSearchString, StringComparison.OrdinalIgnoreCase) ||
+                employee.Email.Contains(_employeeSearchString, StringComparison.OrdinalIgnoreCase))
+            .ToHashSet();
+
+        StateHasChanged();
     }
 }
