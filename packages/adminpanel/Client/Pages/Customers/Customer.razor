@@ -11,6 +11,12 @@
 
 @if (_customer is not null)
 {
+    <MudIconButton 
+        Icon="@Icons.Material.Filled.ArrowBack" 
+        Color="Color.Secondary" 
+        aria-label="back"
+        OnClick="@(()=> Navigation.NavigateTo("/kunder"))"/>
+    
     <PageTitle>@Localizer["CustomersPage.Title"]/@_customer.Name</PageTitle>
 
     <MudPaper Class="mb-4 d-flex flex-row align-center" Elevation="0">
