@@ -1,5 +1,4 @@
 @using System.ComponentModel.DataAnnotations
-@using System.Globalization
 @using Alvtime.Adminpanel.Client.Mappers
 @using Alvtime.Adminpanel.Client.Models
 @using Alvtime.Adminpanel.Client.Resources
@@ -13,9 +12,9 @@
             <MudTextField
                 Class="mb-2"
                 ShrinkLabel="true"
-                T="int"
+                T="int?"
                 Label="@Localizer["Common.EmployeeId"]"
-                @ref="_employeeId"
+                @bind-Value="_employeeId"
                 Required="true"
                 RequiredError="@Localizer["Validation.EmployeeId.Required"]"/>
             <MudTextField
@@ -23,7 +22,7 @@
                 ShrinkLabel="true"
                 T="string"
                 Label="@Localizer["Common.Name"]"
-                @ref="_name"
+                @bind-Value="_name"
                 Required="true"
                 RequiredError="@Localizer["Validation.Name.Required"]"/>
             <MudTextField
@@ -31,7 +30,7 @@
                 ShrinkLabel="true"
                 T="string"
                 Label="@Localizer["Common.Email"]"
-                @ref="_email"
+                @bind-Value="_email"
                 Required="true"
                 RequiredError="@Localizer["Validation.Email.Required"]"
                 Validation="@(new EmailAddressAttribute() { ErrorMessage = @Localizer["Validation.Email.NotValid"] })"/>
@@ -63,18 +62,34 @@
 @code {
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
 
-    [Parameter] public EventCallback OnEmployeeCreate { get; set; }
+    [Parameter] public EventCallback OnEmployeeSubmit { get; set; }
+    [Parameter] public int? EmployeeId { get; set; }
+    [Parameter] public EmployeeModel? CurrentEmployeeData { get; set; }
+    
 
     [Inject] private HttpClient HttpClient { get; set; }
     
     private bool _success;
     private string[] _errors = { };
     private MudForm _form = new();
-    private MudTextField<string> _name;
-    private MudTextField<string> _email;
-    private MudTextField<int> _employeeId;
+    private string? _name;
+    private string? _email;
+    private int? _employeeId;
     private DateTime? _startDate = DateTime.UtcNow.Date;
 
+
+    protected override Task OnParametersSetAsync()
+    {
+        if (CurrentEmployeeData is not null)
+        {
+            _name = CurrentEmployeeData.Name;
+            _email = CurrentEmployeeData.Email;
+            _employeeId = CurrentEmployeeData.EmployeeId;
+            _startDate = CurrentEmployeeData.StartDate;
+        }
+
+        return base.OnParametersSetAsync();
+    }
     private async Task Submit()
     {
         _form.ResetValidation();
@@ -85,18 +100,27 @@
             // Create new employee and save
             var newEmployee = new EmployeeModel
             {
-                EmployeeId = _employeeId.Value,
-                Name = _name.Value,
-                Email = _email.Value,
+                EmployeeId = _employeeId ?? 0,
+                Name = _name ?? string.Empty,
+                Email = _email ?? string.Empty,
                 StartDate = _startDate
             };
 
             try
             {
-                // TODO: Saves, but the saved date is the previous date from the date in newEmployee. NEEDS fix.
-                await HttpClient.PostAsJsonAsync(ApiRoutes.EmployeeBase, newEmployee.MapToEmployeeUpsertRequest());
+                if (CurrentEmployeeData is null && EmployeeId is null)
+                {
+                    // save new employee
+                    await HttpClient.PostAsJsonAsync(ApiRoutes.EmployeeBase, newEmployee.MapToEmployeeUpsertRequest());
+                }
+                else
+                {
+                    // save edited employee
+                    await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateEmployee((int)EmployeeId!), newEmployee.MapToEmployeeUpsertRequest());
+                }
+           
                 // Refresh on parent
-                await OnEmployeeCreate.InvokeAsync();
+                await OnEmployeeSubmit.InvokeAsync();
                 // Close dialog
                 MudDialog.Close(DialogResult.Ok(true));
             }
