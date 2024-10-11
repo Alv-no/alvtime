@@ -34,7 +34,7 @@
         <value>Sorter etter</value>
     </data>
     <data name="EmployeesPage.AddEmployee" xml:space="preserve">
-        <value>Legg til ny Alv</value>
+        <value>Ny Alv</value>
     </data>
     <data name="Common.Name" xml:space="preserve">
         <value>Navn</value>
@@ -239,5 +239,8 @@
     </data>
     <data name="EmployeePage.EditEmploymentRate" xml:space="preserve">
         <value>Endre stillingsprosent</value>
+    </data>
+    <data name="Common.Add" xml:space="preserve">
+        <value>Legg til</value>
     </data>
 </root>

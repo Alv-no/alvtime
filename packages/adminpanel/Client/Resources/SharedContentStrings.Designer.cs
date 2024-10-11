@@ -488,5 +488,11 @@ namespace Alvtime.Adminpanel.Client.Resources {
                 return ResourceManager.GetString("EmployeePage.EditEmploymentRate", resourceCulture);
             }
         }
+        
+        internal static string Common_Add {
+            get {
+                return ResourceManager.GetString("Common.Add", resourceCulture);
+            }
+        }
     }
 }
