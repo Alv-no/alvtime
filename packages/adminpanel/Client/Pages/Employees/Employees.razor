@@ -16,7 +16,7 @@
     Class="my-4"
     Color="Color.Secondary"
     Variant="Variant.Filled"
-    OnClick="@(() => { DialogService.ShowAsync<EmployeeDialog>(@Localizer["EmployeesPage.AddEmployee"], new DialogParameters { ["OnEmployeeCreate"] = OnEmployeeCreated }, new DialogOptions() { FullWidth = true, MaxWidth = MaxWidth.Small }); })">
+    OnClick="@AddEmptyEmployee">
     <TextAdjuster>@Localizer["EmployeesPage.AddEmployee"]</TextAdjuster>
 </MudButton>
 
@@ -99,23 +99,22 @@
 
     private void AddEmptyEmployee()
     {
-        AllEmployees!.Add(new EmployeeModel
-        {
-            EmploymentRates = new List<EmployeeEmploymentRateModel>()
-        });
+        DialogService.ShowAsync<EmployeeDialog>(@Localizer["EmployeesPage.AddEmployee"], new DialogParameters
+            {
+                ["OnEmployeeSubmit"] = RefreshAfterDialogAction
+            },
+            new DialogOptions()
+            {
+                FullWidth = true, 
+                MaxWidth = MaxWidth.Small
+            });
     }
-
-    private void AddEmptyEmploymentRate(int userId)
+    
+    private EventCallback RefreshAfterDialogAction => new(this, (Action)(async () =>
     {
-        var employee = AllEmployees!.First(e => e.Id == userId);
-        employee.EmploymentRates!.Add(new EmployeeEmploymentRateModel());
-    }
-
-    private void ShowDetails(string name)
-    {
-        var employee = AllEmployees!.First(e => e.Name == name);
-        employee.ShowDetails = !employee.ShowDetails;
-    }
+        await RefreshEmployees();
+        StateHasChanged();
+    }));
 
     private bool FilterFunc(EmployeeModel employee)
     {
@@ -124,161 +123,8 @@
         return employee.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase) || employee.Email.Contains(_searchString, StringComparison.OrdinalIgnoreCase);
     }
 
-    private void BackupEmployee(object employee)
-    {
-        _employeeBeforeEdit = new EmployeeModel
-        {
-            Name = ((EmployeeModel)employee).Name,
-            Email = ((EmployeeModel)employee).Email,
-            StartDate = ((EmployeeModel)employee).StartDate,
-            EndDate = ((EmployeeModel)employee).EndDate,
-            EmployeeId = ((EmployeeModel)employee).EmployeeId
-        };
-    }
-
-    private async Task EmployeeChangeCommitted()
-    {
-        try
-        {
-            if (_selectedEmployee is { Id: 0 })
-            {
-                await HttpClient.PostAsJsonAsync(ApiRoutes.EmployeeBase, _selectedEmployee.MapToEmployeeUpsertRequest());
-            }
-            else
-            {
-                await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateEmployee(_selectedEmployee!.Id), _selectedEmployee.MapToEmployeeUpsertRequest());
-            }
-
-            await RefreshEmployees();
-        }
-        catch (HttpResponseException)
-        {
-            ResetEmployeeToOriginalValues(_selectedEmployee);
-        }
-
-        StateHasChanged();
-    }
-
-    private void ResetEmployeeToOriginalValues(object? employee)
-    {
-        if (_employeeBeforeEdit == null)
-        {
-            return;
-        }
-
-        if (employee == null)
-        {
-            if (_selectedEmployee == null)
-            {
-                return;
-            }
-
-            employee = _selectedEmployee;
-        }
-
-        if (_selectedEmployee!.Id == 0)
-        {
-            UndoNewEmployee();
-        }
-
-        ((EmployeeModel)employee).Name = _employeeBeforeEdit!.Name;
-        ((EmployeeModel)employee).Email = _employeeBeforeEdit.Email;
-        ((EmployeeModel)employee).StartDate = _employeeBeforeEdit.StartDate;
-        ((EmployeeModel)employee).EndDate = _employeeBeforeEdit.EndDate;
-        ((EmployeeModel)employee).EmployeeId = _employeeBeforeEdit.EmployeeId;
-        _employeeBeforeEdit = null;
-    }
-
-    private void UndoNewEmployee()
-    {
-        AllEmployees!.Remove(_selectedEmployee!);
-        StateHasChanged();
-    }
-
-    private void BackupEmploymentRate(object employmentRate)
-    {
-        _employmentRateBeforeEdit = new EmployeeEmploymentRateModel
-        {
-            RatePercentage = ((EmployeeEmploymentRateModel)employmentRate).RatePercentage,
-            FromDateInclusive = ((EmployeeEmploymentRateModel)employmentRate).FromDateInclusive,
-            ToDateInclusive = ((EmployeeEmploymentRateModel)employmentRate).ToDateInclusive,
-        };
-    }
-
-    private async Task EmploymentRateChangeCommitted(int userId)
-    {
-        try
-        {
-            if (_selectedEmploymentRate is { Id: 0 })
-            {
-                await HttpClient.PostAsJsonAsync(ApiRoutes.CreateEmploymentRateForUser(userId), _selectedEmploymentRate.MapToEmploymentRateUpsertRequest());
-            }
-            else
-            {
-                if (_selectedEmploymentRate!.RatePercentage != _employmentRateBeforeEdit!.RatePercentage)
-                {
-                    var result = await DialogService.ShowMessageBox(
-                        "OBS",
-                        "Du endrer nå på en stillingsprosent som kan ha påvirkning på eksisterende timer. Vil du fortsette?",
-                        yesText: "Ja", cancelText: "Avbryt");
-                    if (result == null || !result.Value)
-                    {
-                        ResetEmploymentRateToOriginalValues(_selectedEmployee);
-                        StateHasChanged();
-                        return;
-                    }
-                }
-
-                await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateEmploymentRateForUser(userId, _selectedEmploymentRate!.Id), _selectedEmploymentRate.MapToEmploymentRateUpsertRequest());
-            }
-        }
-        catch (HttpResponseException e)
-        {
-            ResetEmploymentRateToOriginalValues(_selectedEmploymentRate);
-        }
-
-
-        StateHasChanged();
-    }
-
-    private void ResetEmploymentRateToOriginalValues(object? employmentRate)
-    {
-        if (employmentRate == null)
-        {
-            if (_selectedEmploymentRate == null)
-            {
-                return;
-            }
-
-            employmentRate = _selectedEmploymentRate;
-        }
-
-        if (_selectedEmploymentRate!.Id == 0)
-        {
-            UndoNewEmploymentRate();
-        }
-
-        ((EmployeeEmploymentRateModel)employmentRate).RatePercentage = _employmentRateBeforeEdit!.RatePercentage;
-        ((EmployeeEmploymentRateModel)employmentRate).FromDateInclusive = _employmentRateBeforeEdit.FromDateInclusive;
-        ((EmployeeEmploymentRateModel)employmentRate).ToDateInclusive = _employmentRateBeforeEdit.ToDateInclusive;
-    }
-
-    private void UndoNewEmploymentRate()
-    {
-        var employee = AllEmployees!.First(e => e.EmploymentRates != null && e.EmploymentRates.Any(er => er.Id == 0));
-        employee.EmploymentRates!.Remove(_selectedEmploymentRate!);
-        StateHasChanged();
-    }
-
-    private EventCallback OnEmployeeCreated => new(this, (Action)(async () =>
-    {
-        await RefreshEmployees();
-        StateHasChanged();
-    }));
-
     private void NavigateToEmployee(TableRowClickEventArgs<EmployeeModel> selectedEmployee)
     {
         Navigation.NavigateTo($"/ansatte/{selectedEmployee.Item.Id}");
     }
-
 }

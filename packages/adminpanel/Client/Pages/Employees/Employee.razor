@@ -2,6 +2,7 @@
 @using Alvtime.Adminpanel.Client.ErrorHandling
 @using Alvtime.Adminpanel.Client.Models
 @using Alvtime.Adminpanel.Client.Resources
+@using Alvtime.Adminpanel.Client.Shared.components
 @using Alvtime.Adminpanel.Client.Utils
 @using Microsoft.Extensions.Localization
 @inject IStringLocalizer<SharedContentStrings> Localizer
@@ -156,10 +157,31 @@ else
         }
     }
 
-    private void EditEmployee(MouseEventArgs obj)
+    private void EditEmployee()
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrEmpty(EmployeeId) || !int.TryParse(EmployeeId, out int parsedId))
+        {
+            return;
+        }
+        
+        DialogService.ShowAsync<EmployeeDialog>(@Localizer["EmployeePage.EditEmployee"], new DialogParameters
+            {
+                ["OnEmployeeSubmit"] = RefreshAfterDialogAction,
+                ["EmployeeId"] = parsedId,
+                ["CurrentEmployeeData"] = _employee
+            },
+            new DialogOptions()
+            {
+                FullWidth = true, 
+                MaxWidth = MaxWidth.Small
+            });
     }
+    
+    private EventCallback RefreshAfterDialogAction => new(this, (Action)(async () =>
+    {
+        await RefreshEmployee();
+        StateHasChanged();
+    }));
     
     private string GetInitialsFromName(string? name)
     {
@@ -184,15 +206,45 @@ else
         
         return words[0].Length > 1 ? words[0][..2].ToUpper() : words[0].ToUpper();
     }
+    
+    private void AddNewEmploymentRate(MouseEventArgs obj)
+    {
+        if (string.IsNullOrEmpty(EmployeeId) || !int.TryParse(EmployeeId, out int parsedId))
+        {
+            return;
+        }
+        
+        DialogService.ShowAsync<EmploymentRateDialog>(@Localizer["EmployeePage.AddEmploymentRate"], new DialogParameters
+            {
+                ["OnEmploymentRateSubmit"] = RefreshAfterDialogAction,
+                ["EmployeeId"] = parsedId
+                
+            },
+            new DialogOptions()
+            {
+                FullWidth = true, 
+                MaxWidth = MaxWidth.Small
+            });
+    }
 
     private void EditEmploymentRate(MouseEventArgs obj)
     {
-        throw new NotImplementedException();
-    }
-
-    private void AddNewEmploymentRate(MouseEventArgs obj)
-    {
-        throw new NotImplementedException();
+        if (string.IsNullOrEmpty(EmployeeId) || !int.TryParse(EmployeeId, out int parsedId))
+        {
+            return;
+        }
+        
+        DialogService.ShowAsync<EmploymentRateDialog>(@Localizer["EmployeePage.EditEmploymentRate"], new DialogParameters
+            {
+                ["OnEmploymentRateSubmit"] = RefreshAfterDialogAction,
+                ["EmployeeId"] = parsedId,
+                ["CurrentEmploymentRateData"] = _selectedEmploymentRate
+            },
+            new DialogOptions()
+            {
+                FullWidth = true, 
+                MaxWidth = MaxWidth.Small
+            });
     }
 
 }
