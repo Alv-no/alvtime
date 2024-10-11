@@ -470,5 +470,23 @@ namespace Alvtime.Adminpanel.Client.Resources {
                 return ResourceManager.GetString("Common.EndDate.Inclusive", resourceCulture);
             }
         }
+        
+        internal static string EmployeePage_EditEmployee {
+            get {
+                return ResourceManager.GetString("EmployeePage.EditEmployee", resourceCulture);
+            }
+        }
+        
+        internal static string EmployeePage_AddEmploymentRate {
+            get {
+                return ResourceManager.GetString("EmployeePage.AddEmploymentRate", resourceCulture);
+            }
+        }
+        
+        internal static string EmployeePage_EditEmploymentRate {
+            get {
+                return ResourceManager.GetString("EmployeePage.EditEmploymentRate", resourceCulture);
+            }
+        }
     }
 }

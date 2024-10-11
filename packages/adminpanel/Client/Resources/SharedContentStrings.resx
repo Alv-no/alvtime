@@ -231,4 +231,13 @@
     <data name="Common.EndDate.Inclusive" xml:space="preserve">
         <value>Sluttdato (inkl.)</value>
     </data>
+    <data name="EmployeePage.EditEmployee" xml:space="preserve">
+        <value>Endre ansatt</value>
+    </data>
+    <data name="EmployeePage.AddEmploymentRate" xml:space="preserve">
+        <value>Legg til stillingsprosent</value>
+    </data>
+    <data name="EmployeePage.EditEmploymentRate" xml:space="preserve">
+        <value>Endre stillingsprosent</value>
+    </data>
 </root>
