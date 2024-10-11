@@ -1,0 +1,152 @@
+@using System.Globalization
+@using Alvtime.Adminpanel.Client.Mappers
+@using Alvtime.Adminpanel.Client.Models
+@using Alvtime.Adminpanel.Client.Resources
+@using Alvtime.Adminpanel.Client.Utils
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedContentStrings> Localizer
+
+<MudDialog>
+    <DialogContent>
+        <MudForm
+            @ref="_form"
+            @bind-IsValid="@_success"
+            @bind-errors="@_errors">
+            <MudDatePicker
+                Label="@Localizer["Common.StartDate.Inclusive"]"
+                @bind-Date="_fromDateInclusive"
+                DateFormat="dd/MM/yyyy"
+                Required="true"
+                RequiredError="@Localizer["Validation.Date.Required"]"/>
+            <MudDatePicker
+                Label="@Localizer["Common.EndDate.Inclusive"]"
+                @bind-Date="_toDateInclusive"
+                DateFormat="dd/MM/yyyy"
+                Required="true"
+                RequiredError="@Localizer["Validation.Date.Required"]"/>
+            <MudTextField
+                T="decimal"
+                Label="@Localizer["Common.Rate"]"
+                Format="N2"
+                Min="0"
+                MaxLength="100"
+                Converter="_decimalConverter"
+                Required
+                RequiredError="@Localizer["Validation.HourRate.Required"]"
+                @bind-Value="_employmentRate"/>
+
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton
+            Color="Color.Tertiary"
+            Variant="Variant.Filled"
+            OnClick="() => Cancel()">
+            <TextAdjuster>
+                @Localizer["Common.Cancel"]
+            </TextAdjuster>
+        </MudButton>
+        <MudButton
+            Color="Color.Secondary"
+            Variant="Variant.Filled"
+            OnClick="() => Submit()">
+            <TextAdjuster>
+                @Localizer["Common.Save"]
+            </TextAdjuster>
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [Inject] private HttpClient HttpClient { get; set; }
+
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; } 
+    [Parameter] public EventCallback OnEmploymentRateSubmit { get; set; }
+    [Parameter] public int? EmployeeId { get; set; }
+    [Parameter] public EmployeeEmploymentRateModel? CurrentEmploymentRateData { get; set; }
+
+    private bool _success;
+    private string[] _errors = { };
+    private MudForm _form = new();
+    private decimal _employmentRate = decimal.Zero;
+    private DateTime? _fromDateInclusive;
+    private DateTime? _toDateInclusive;
+
+    private bool _editMode = false;
+    private int? _selectedEmploymentRateId;
+    private EmployeeEmploymentRateModel _selectedEmploymentRate = new EmployeeEmploymentRateModel();
+    
+
+    protected override Task OnParametersSetAsync()
+    {
+        if (CurrentEmploymentRateData is not null)
+        {
+            _selectedEmploymentRateId = CurrentEmploymentRateData.Id;
+            _employmentRate = CurrentEmploymentRateData.RatePercentage;
+            _fromDateInclusive = CurrentEmploymentRateData.FromDateInclusive;
+            _toDateInclusive = CurrentEmploymentRateData.ToDateInclusive;
+
+            _editMode = true;
+        }
+
+        return base.OnParametersSetAsync();
+    }
+    
+    private async Task Submit()
+    {
+        _form.ResetValidation();
+        await _form.Validate();
+
+        if (_fromDateInclusive != null)
+        {
+            var newEmploymentRate = new EmployeeEmploymentRateModel
+            {
+                FromDateInclusive = _fromDateInclusive,
+                ToDateInclusive = _toDateInclusive,
+                RatePercentage = _employmentRate
+            };
+
+            try
+            {
+                switch (_editMode)
+                {
+                    case false:
+                        await HttpClient.PostAsJsonAsync(ApiRoutes.CreateEmploymentRateForUser((int)EmployeeId!), newEmploymentRate.MapToEmploymentRateUpsertRequest());
+                        break;
+                    case true:
+                        if (EmployeeId != null && _selectedEmploymentRateId != null) await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateEmploymentRateForUser((int)EmployeeId,(int)_selectedEmploymentRateId), newEmploymentRate.MapToEmploymentRateUpsertRequest());
+                        break;
+                }
+
+                // Refresh in parent
+                await OnEmploymentRateSubmit.InvokeAsync();
+                MudDialog!.Close();
+            }
+            catch (HttpRequestException)
+            {
+            }
+        }
+    }
+    
+    private void Cancel()
+    {
+        MudDialog!.Cancel();
+    }
+    
+    /* TODO:
+     * Grey area workaround used on compensation rate, to allow the user to use both decimal comma and decimal dot.
+     * This hard codes the culture to nb-NO, and should be replaced with a more robust solution some time in the future,
+     * if the solution is to add multi-language support.
+     */
+    private static Converter<decimal> _decimalConverter = new()
+    {
+        SetFunc = value => $"{value}",
+        GetFunc = numberString =>
+        {
+            if (string.IsNullOrWhiteSpace(numberString)) return 0;
+            numberString = numberString.Replace(".", ",");
+            return !decimal.TryParse(numberString, NumberStyles.Any, new CultureInfo("nb-NO"), out var result) ? 0 : result;
+        }
+    };
+}
