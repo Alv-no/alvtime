@@ -494,5 +494,11 @@ namespace Alvtime.Adminpanel.Client.Resources {
                 return ResourceManager.GetString("Common.Add", resourceCulture);
             }
         }
+        
+        internal static string Common_Search {
+            get {
+                return ResourceManager.GetString("Common.Search", resourceCulture);
+            }
+        }
     }
 }
