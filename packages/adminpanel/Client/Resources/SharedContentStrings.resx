@@ -243,4 +243,7 @@
     <data name="Common.Add" xml:space="preserve">
         <value>Legg til</value>
     </data>
+    <data name="Common.Search" xml:space="preserve">
+        <value>Søk</value>
+    </data>
 </root>

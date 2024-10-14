@@ -48,10 +48,18 @@
             MultiSelection="@_multiSelection"
             @bind-SelectedItem="_selectedProject"
             @bind-SelectedItems="_projectSelectionList"
-            Filterable="false"
+            Filterable="true"
+            QuickFilter="@QuickFilterProjects"
             FooterClass="d-none">
             <ToolBarContent>
                 <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.Projects"]</MudText>
+                <MudSpacer/>
+                <MudTextField 
+                    @bind-Value="_projectSearchString" 
+                    Immediate="true" Placeholder="@Localizer["Common.Search"]" 
+                    Adornment="Adornment.Start" 
+                    AdornmentIcon="@Icons.Material.Filled.Search" 
+                    IconSize="Size.Medium" Class="mt-0 pl-6"/>
                 <MudSpacer/>
                 <MudIconButton
                     Icon="@Icons.Material.Filled.Add"
@@ -95,10 +103,18 @@
             MultiSelection="@_multiSelection"
             @bind-SelectedItem="_selectedTask"
             @bind-SelectedItems="_taskSelectionList"
-            Filterable="false"
+            Filterable="true"
+            QuickFilter="@QuickFilterTasks"
             FooterClass="d-none">
             <ToolBarContent>
                 <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.Tasks"]</MudText>
+                <MudSpacer/>
+                <MudTextField
+                    @bind-Value="_taskSearchString"
+                    Immediate="true" Placeholder="@Localizer["Common.Search"]"
+                    Adornment="Adornment.Start"
+                    AdornmentIcon="@Icons.Material.Filled.Search"
+                    IconSize="Size.Medium" Class="mt-0 pl-6"/>
                 <MudSpacer/>
                 <MudIconButton
                     Icon="@Icons.Material.Filled.Add"
@@ -169,10 +185,18 @@
             MultiSelection="@_multiSelection"
             @bind-SelectedItem="_selectedHourRate"
             @bind-SelectedItems="_hourRateSelectionList"
-            Filterable="false"
+            Filterable="true"
+            QuickFilter="@QuickFilterHourRates"
             FooterClass="d-none">
             <ToolBarContent>
                 <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.HourRates"]</MudText>
+                <MudSpacer/>
+                <MudTextField
+                    @bind-Value="_hourRateSearchString"
+                    Immediate="true" Placeholder="@Localizer["Common.Search"]"
+                    Adornment="Adornment.Start"
+                    AdornmentIcon="@Icons.Material.Filled.Search"
+                    IconSize="Size.Medium" Class="mt-0 pl-6"/>
                 <MudSpacer/>
                 <MudIconButton
                     Icon="@Icons.Material.Filled.Add"
@@ -244,10 +268,13 @@ else
     [Inject] NavigationManager Navigation { get; set; }
 
     [Parameter] public string CustomerId { get; set; }
-
+    
     private CustomerModel? _customer;
     private IEnumerable<TaskModel>? _aggregatedTasks;
     private IEnumerable<HourRateModel>? _aggregatedHourRates;
+    private string _projectSearchString = "";
+    private string _taskSearchString = "";
+    private string _hourRateSearchString = "";
 
     /* All off this need to be like this, to prevent the UI to allow multiselect. Who knows why it is like that. 🤷‍♂️ */
     private readonly bool _multiSelection = false;
@@ -264,6 +291,45 @@ else
         Interceptor.RegisterEvent();
         await RefreshCustomer();
     }
+    
+    private Func<ProjectModel, bool> QuickFilterProjects => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_projectSearchString))
+            return true;
+
+        if (x.Name.Contains(_projectSearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        
+        return false;
+    };
+    
+    private Func<TaskModel, bool> QuickFilterTasks => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_taskSearchString))
+            return true;
+
+        if (x.Name.Contains(_taskSearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        
+        if (x.ProjectName.Contains(_taskSearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        
+        return false;
+    };
+    
+    private Func<HourRateModel, bool> QuickFilterHourRates => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_hourRateSearchString))
+            return true;
+
+        if (x.ProjectName.Contains(_hourRateSearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        
+        if (x.TaskName.Contains(_hourRateSearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        
+        return false;
+    };
 
     private void AddNewProject()
     {
