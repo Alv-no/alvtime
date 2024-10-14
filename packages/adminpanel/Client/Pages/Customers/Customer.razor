@@ -292,40 +292,40 @@ else
         await RefreshCustomer();
     }
     
-    private Func<ProjectModel, bool> QuickFilterProjects => x =>
+    private Func<ProjectModel, bool> QuickFilterProjects => project =>
     {
         if (string.IsNullOrWhiteSpace(_projectSearchString))
             return true;
 
-        if (x.Name.Contains(_projectSearchString, StringComparison.OrdinalIgnoreCase))
+        if (project.Name.Contains(_projectSearchString, StringComparison.OrdinalIgnoreCase))
             return true;
         
         return false;
     };
     
-    private Func<TaskModel, bool> QuickFilterTasks => x =>
+    private Func<TaskModel, bool> QuickFilterTasks => task =>
     {
         if (string.IsNullOrWhiteSpace(_taskSearchString))
             return true;
 
-        if (x.Name.Contains(_taskSearchString, StringComparison.OrdinalIgnoreCase))
+        if (task.Name.Contains(_taskSearchString, StringComparison.OrdinalIgnoreCase))
             return true;
         
-        if (x.ProjectName.Contains(_taskSearchString, StringComparison.OrdinalIgnoreCase))
+        if (task.ProjectName.Contains(_taskSearchString, StringComparison.OrdinalIgnoreCase))
             return true;
         
         return false;
     };
     
-    private Func<HourRateModel, bool> QuickFilterHourRates => x =>
+    private Func<HourRateModel, bool> QuickFilterHourRates => hourRate =>
     {
         if (string.IsNullOrWhiteSpace(_hourRateSearchString))
             return true;
 
-        if (x.ProjectName.Contains(_hourRateSearchString, StringComparison.OrdinalIgnoreCase))
+        if (hourRate.ProjectName.Contains(_hourRateSearchString, StringComparison.OrdinalIgnoreCase))
             return true;
         
-        if (x.TaskName.Contains(_hourRateSearchString, StringComparison.OrdinalIgnoreCase))
+        if (hourRate.TaskName.Contains(_hourRateSearchString, StringComparison.OrdinalIgnoreCase))
             return true;
         
         return false;
