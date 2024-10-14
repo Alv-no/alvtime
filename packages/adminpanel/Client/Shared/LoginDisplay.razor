@@ -7,9 +7,7 @@
 <AuthorizeView >
     <Authorized>
         Hei, @context.User.Identity?.Name!
-        
         <MudLink OnClick="BeginLogOut" Color="Color.Secondary" Class="ml-2">@Localizer["Common.Logout"]</MudLink>
-        <!--<MudButton Variant="Variant.Text" Color="Color.Secondary" @onclick="BeginLogOut">Logg ut</MudButton>-->
     </Authorized>
     <NotAuthorized>
         <MudLink Href="authentication/login" Color="Color.Secondary">@Localizer["Common.Login"]</MudLink>
