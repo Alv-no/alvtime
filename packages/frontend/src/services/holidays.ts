@@ -50,8 +50,10 @@ function createNorwegianHolidaysForYear(yearNumber: number) {
     },
     { date: easter.clone().add(49, "days"), description: "Første pinsedag" },
     { date: easter.clone().add(50, "days"), description: "Andre pinsedag" },
+    { date: moment(yearString + "-12-24"), description: "Juleaften" },
     { date: moment(yearString + "-12-25"), description: "Første juledag" },
     { date: moment(yearString + "-12-26"), description: "Andre juledag" },
+    { date: moment(yearString + "-12-31"), description: "Nyttårsaften" },
   ];
 
   return norwegianHolidays;

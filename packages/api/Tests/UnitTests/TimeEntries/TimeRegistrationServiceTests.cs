@@ -109,7 +109,7 @@ public class TimeRegistrationServiceTests
     }
 
     [Fact]
-    public async System.Threading.Tasks.Task UpsertTimeEntry_RecordedVacationOnChristmas_CannotRegisterVactionOnRedDay()
+    public async System.Threading.Tasks.Task UpsertTimeEntry_RecordedVacationOnChristmas_CannotRegisterVacationOnRedDay()
     {
         var vacationEntry =
             CreateTimeEntryForExistingTask(new DateTime(2021, 12, 24), 7.5M, 13);
@@ -119,6 +119,7 @@ public class TimeRegistrationServiceTests
 
         Assert.False(timeEntryResult.IsSuccess);
         Assert.True(timeEntryResult.Errors.Any());
+        Assert.True(timeEntryResult.Errors.First().Description.Equals("Du trenger ikke føre ferie på helg eller røde dager"));
     }
 
     [Fact]

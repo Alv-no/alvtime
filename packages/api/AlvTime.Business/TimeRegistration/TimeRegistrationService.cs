@@ -113,7 +113,7 @@ public class TimeRegistrationService
                     CompensationRate = eo.Key,
                     Hours = eo.Sum(entry => entry.Hours)
                 }).OrderByDescending(e => e.CompensationRate);
-            
+
             var imposedOverTime = availableOvertime.Entries.Where(ot => ot.Date <= date && ot.CompensationRate >= 2.0M)
                 .GroupBy(eo => eo.CompensationRate)
                 .Select(eo => new
@@ -121,7 +121,7 @@ public class TimeRegistrationService
                     CompensationRate = eo.Key,
                     Hours = eo.Sum(entry => entry.Hours)
                 }).OrderByDescending(e => e.CompensationRate);
-            
+
             var overtimeGroupedByCompRate = nonImposedOverTime.Concat(imposedOverTime).ToList(); //Imposed overtime should be subtracted last
 
             foreach (var overtimeGroup in overtimeGroupedByCompRate)
@@ -186,15 +186,24 @@ public class TimeRegistrationService
             return usersEmploymentRateResult.Errors;
         }
 
-        var anticipatedWorkHours =
-            IsWeekend(timeEntry.Date.Date) || allRedDays.Contains(timeEntry.Date.Date)
-                ? 0M
-                : HoursInWorkday * usersEmploymentRateResult.Value;
+        var anticipatedWorkHours = HoursInWorkday * usersEmploymentRateResult.Value;
 
         if (timeEntry.TaskId == _paidHolidayTask && timeEntry.Value > 0 && timeEntry.Value != anticipatedWorkHours)
         {
-            return new List<Error> { new(ErrorCodes.InvalidAction, $"Du kan kun føre 0 eller {anticipatedWorkHours} timer med ferie på en dag") };
+            return new List<Error>
+            {
+                new(ErrorCodes.InvalidAction, $"Du kan kun føre 0 eller {anticipatedWorkHours} timer med ferie på en dag")
+            };
         }
+
+        if (IsWeekend(timeEntry.Date.Date) || allRedDays.Contains(timeEntry.Date.Date))
+        {
+            if (timeEntry.TaskId == _paidHolidayTask && timeEntry.Value > 0)
+            {
+                return new List<Error> { new(ErrorCodes.InvalidAction, "Du trenger ikke føre ferie på helg eller røde dager") };
+            }
+        }
+
 
         if (timeEntry.TaskId == _flexTask)
         {
@@ -215,9 +224,12 @@ public class TimeRegistrationService
 
         if (PayoutWouldBeAffectedByRegistration(timeEntry, latestPayoutDate, timeEntriesOnDate.Values, anticipatedWorkHours))
         {
-            return new List<Error> { new(ErrorCodes.InvalidAction, "Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Slett utbetalingen eller kontakt en admin for å få endret timene dine.") };
+            return new List<Error>
+            {
+                new(ErrorCodes.InvalidAction, "Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Slett utbetalingen eller kontakt en admin for å få endret timene dine.")
+            };
         }
-        
+
         if (await FutureFlexWouldCauseNegativeBalance(timeEntriesOnDate.Values, currentUser.Id, anticipatedWorkHours, timeEntry))
         {
             return new List<Error> { new(ErrorCodes.InvalidAction, "Fremtidig avspasering vil resultere i negativ balanse.") };
@@ -238,27 +250,39 @@ public class TimeRegistrationService
         if (timeEntriesOnDate.Values.Sum(te => te.Value) > anticipatedWorkHours &&
             timeEntriesOnDate.Values.Any(te => te.TaskId == _flexTask && te.Value > 0))
         {
-            return new List<Error> { new(ErrorCodes.InvalidAction, $"Du kan ikke registrere mer enn {anticipatedWorkHours:0.00} timer når du avspaserer.") };
+            return new List<Error>
+            {
+                new(ErrorCodes.InvalidAction, $"Du kan ikke registrere mer enn {anticipatedWorkHours:0.00} timer når du avspaserer.")
+            };
         }
 
         if (PayoutWouldBeAffectedByRegistration(timeEntry, latestPayoutDate, timeEntriesOnDate.Values,
                 anticipatedWorkHours))
         {
-            return new List<Error> { new(ErrorCodes.InvalidAction, "Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Slett utbetalingen eller kontakt en admin for å få endret timene dine.") };
+            return new List<Error>
+            {
+                new(ErrorCodes.InvalidAction, "Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Slett utbetalingen eller kontakt en admin for å få endret timene dine.")
+            };
         }
 
         if (timeEntry.TaskId == _flexTask)
         {
             if (latestPayoutDate != null && timeEntry.Date.Date <= latestPayoutDate)
             {
-                return new List<Error> { new(ErrorCodes.InvalidAction, "Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Slett utbetalingen eller kontakt en admin for å få endret timene dine.") };
+                return new List<Error>
+                {
+                    new(ErrorCodes.InvalidAction, "Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Slett utbetalingen eller kontakt en admin for å få endret timene dine.")
+                };
             }
         }
 
         var taskGivesOvertime = await _taskUtils.TaskGivesOvertime(timeEntry.TaskId);
         if (timeEntry.Value > anticipatedWorkHours && !taskGivesOvertime)
         {
-            return new List<Error> { new(ErrorCodes.InvalidAction, $"Du kan ikke registrere mer enn {anticipatedWorkHours:0.00} timer på den oppgaven.") };
+            return new List<Error>
+            {
+                new(ErrorCodes.InvalidAction, $"Du kan ikke registrere mer enn {anticipatedWorkHours:0.00} timer på den oppgaven.")
+            };
         }
 
         if (!taskGivesOvertime &&
@@ -266,10 +290,12 @@ public class TimeRegistrationService
         {
             return new List<Error> { new(ErrorCodes.InvalidAction, "Du kan ikke registrere den oppgaven på en helgedag.") };
         }
+
         return new List<Error>();
     }
 
-    private async Task<bool> FutureFlexWouldCauseNegativeBalance(IEnumerable<TimeEntryResponseDto> timeEntriesOnDate,
+    private async Task<bool> FutureFlexWouldCauseNegativeBalance(
+        IEnumerable<TimeEntryResponseDto> timeEntriesOnDate,
         int currentUserId, decimal anticipatedWorkHours, CreateTimeEntryDto createTimeEntryDto)
     {
         var date = createTimeEntryDto.Date.Date;
@@ -311,14 +337,17 @@ public class TimeRegistrationService
                 UserId = currentUserId,
                 FromDateInclusive = date,
             })).ToList();
-            
+
             if (newTotalOnDay < oldTotalOnDay && futureFlex.Any())
             {
                 foreach (var flexEntry in futureFlex)
                 {
                     var availableOtOnDay = await GetAvailableOvertimeHoursAtDate(flexEntry.Date);
-                    var diffInOvertime = newTotalOnDay < anticipatedWorkHours ? oldTotalOnDay - anticipatedWorkHours : oldTotalOnDay - newTotalOnDay;
-                    var newAvailableOvertimeAfterChange = availableOtOnDay.AvailableHoursBeforeCompensation - diffInOvertime;
+                    var diffInOvertime = newTotalOnDay < anticipatedWorkHours
+                        ? oldTotalOnDay - anticipatedWorkHours
+                        : oldTotalOnDay - newTotalOnDay;
+                    var newAvailableOvertimeAfterChange =
+                        availableOtOnDay.AvailableHoursBeforeCompensation - diffInOvertime;
 
                     if (newAvailableOvertimeAfterChange < flexEntry.Hours)
                     {
@@ -455,8 +484,7 @@ public class TimeRegistrationService
         };
     }
 
-    private async Task<List<TimeEntry>> CompensateForFlexedHours(List<TimeEntry> timeEntries, DateTime toDateInclusive,
-        User currentUser = null)
+    private async Task<List<TimeEntry>> CompensateForFlexedHours(List<TimeEntry> timeEntries, DateTime toDateInclusive, User currentUser = null)
     {
         if (currentUser is null)
         {
@@ -482,7 +510,8 @@ public class TimeRegistrationService
         return compensatedFlexHours;
     }
 
-    private async Task<List<TimeEntry>> CompensateForPayouts(List<TimeEntry> overtimeEntries, DateTime toDateInclusive,
+    private async Task<List<TimeEntry>> CompensateForPayouts(List<TimeEntry> overtimeEntries,
+        DateTime toDateInclusive,
         User currentUser = null)
     {
         if (currentUser is null)
@@ -536,8 +565,11 @@ public class TimeRegistrationService
         {
             return;
         }
+
         var anticipatedWorkHours =
-            IsWeekend(timeEntryDate) || allRedDays.Contains(timeEntryDate) ? 0M : HoursInWorkday * usersEmploymentRateResult.Value;
+            IsWeekend(timeEntryDate) || allRedDays.Contains(timeEntryDate)
+                ? 0M
+                : HoursInWorkday * usersEmploymentRateResult.Value;
 
         var normalWorkHoursLeft = anticipatedWorkHours;
 
