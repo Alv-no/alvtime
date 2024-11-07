@@ -65,6 +65,19 @@ public class TimeRegistrationService
             var validationErrors = await ValidateTimeEntry(timeEntry);
             if (validationErrors.Any())
             {
+                if (string.IsNullOrWhiteSpace(timeEntry.Comment)) return validationErrors;
+                
+                //Update comment even if validation fails
+                var hour = await GetTimeEntry(criterias);
+                if (hour == null && timeEntry.Value == 0)
+                {
+                    await _timeRegistrationStorage.CreateTimeEntry(timeEntry, userId);
+                }
+                if (hour != null)
+                {
+                    await _timeRegistrationStorage.UpdateComment(timeEntry.Comment, hour!.Id);
+                }
+
                 return validationErrors;
             }
 
@@ -165,29 +178,35 @@ public class TimeRegistrationService
 
     private async Task<List<Error>> ValidateTimeEntry(CreateTimeEntryDto timeEntry)
     {
+        var timeEntryDate = timeEntry.Date.Date;
         var currentUser = await _userContext.GetCurrentUser();
         var timeEntriesOnDate = (await _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
         {
-            FromDateInclusive = timeEntry.Date.Date,
-            ToDateInclusive = timeEntry.Date.Date,
+            FromDateInclusive = timeEntryDate,
+            ToDateInclusive = timeEntryDate,
             UserId = currentUser.Id
         })).ToDictionary(entry => entry.TaskId, entry => entry);
 
-        var latestPayoutDate = (await _payoutStorage
-                .GetRegisteredPayouts(new PayoutQueryFilter { UserId = currentUser.Id })).Entries.MaxBy(po => po.Date)
-            ?.Date
-            .Date;
+        var latestPayoutDate = (await _payoutStorage.GetRegisteredPayouts(new PayoutQueryFilter { UserId = currentUser.Id })).Entries.MaxBy(po => po.Date)?.Date.Date;
 
-        var allRedDays = new RedDays(timeEntry.Date.Year).Dates;
+        var allRedDays = new RedDays(timeEntryDate.Year).Dates;
 
-        var usersEmploymentRateResult = await _userService.GetCurrentEmploymentRateForUser(currentUser.Id, timeEntry.Date);
+        var usersEmploymentRateResult = await _userService.GetCurrentEmploymentRateForUser(currentUser.Id, timeEntryDate);
         if (!usersEmploymentRateResult.IsSuccess)
         {
             return usersEmploymentRateResult.Errors;
         }
 
-        var anticipatedWorkHours = HoursInWorkday * usersEmploymentRateResult.Value;
+        var anticipatedWorkHours =
+            IsWeekend(timeEntryDate) || allRedDays.Contains(timeEntryDate)
+                ? 0M
+                : HoursInWorkday * usersEmploymentRateResult.Value;
 
+        if ((IsWeekend(timeEntryDate) || allRedDays.Contains(timeEntryDate)) && (timeEntry.TaskId == _paidHolidayTask || timeEntry.TaskId == _flexTask) && timeEntry.Value > 0)
+        {
+            return new List<Error> { new(ErrorCodes.InvalidAction, "Du trenger ikke registrere fravær på en rød dag.") };
+        }
+        
         if (timeEntry.TaskId == _paidHolidayTask && timeEntry.Value > 0 && timeEntry.Value != anticipatedWorkHours)
         {
             return new List<Error>
@@ -196,18 +215,9 @@ public class TimeRegistrationService
             };
         }
 
-        if (IsWeekend(timeEntry.Date.Date) || allRedDays.Contains(timeEntry.Date.Date))
-        {
-            if (timeEntry.TaskId == _paidHolidayTask && timeEntry.Value > 0)
-            {
-                return new List<Error> { new(ErrorCodes.InvalidAction, "Du trenger ikke føre ferie på helg eller røde dager") };
-            }
-        }
-
-
         if (timeEntry.TaskId == _flexTask)
         {
-            var availableHours = await GetAvailableOvertimeHoursAtDate(timeEntry.Date.Date);
+            var availableHours = await GetAvailableOvertimeHoursAtDate(timeEntryDate);
             var availableForFlex = availableHours.AvailableHoursBeforeCompensation;
 
             if (timeEntriesOnDate.Values.Any(te => te.TaskId == _flexTask))
@@ -237,15 +247,10 @@ public class TimeRegistrationService
 
         timeEntriesOnDate[timeEntry.TaskId] = new TimeEntryResponseDto
         {
-            Date = timeEntry.Date,
+            Date = timeEntryDate,
             Value = timeEntry.Value,
             TaskId = timeEntry.TaskId
         };
-
-        if (allRedDays.Contains((timeEntry.Date.Date)) && timeEntry.TaskId == _paidHolidayTask)
-        {
-            return new List<Error> { new(ErrorCodes.InvalidAction, "Du trenger ikke registrere fravær på en rød dag.") };
-        }
 
         if (timeEntriesOnDate.Values.Sum(te => te.Value) > anticipatedWorkHours &&
             timeEntriesOnDate.Values.Any(te => te.TaskId == _flexTask && te.Value > 0))
@@ -253,15 +258,6 @@ public class TimeRegistrationService
             return new List<Error>
             {
                 new(ErrorCodes.InvalidAction, $"Du kan ikke registrere mer enn {anticipatedWorkHours:0.00} timer når du avspaserer.")
-            };
-        }
-
-        if (PayoutWouldBeAffectedByRegistration(timeEntry, latestPayoutDate, timeEntriesOnDate.Values,
-                anticipatedWorkHours))
-        {
-            return new List<Error>
-            {
-                new(ErrorCodes.InvalidAction, "Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Slett utbetalingen eller kontakt en admin for å få endret timene dine.")
             };
         }
 

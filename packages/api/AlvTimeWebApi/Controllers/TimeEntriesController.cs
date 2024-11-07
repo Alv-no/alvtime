@@ -87,7 +87,7 @@ public class TimeEntriesController : Controller
                 Comment = timeEntry.Comment,
                 CommentedAt = timeEntry.CommentedAt
             })),
-            errors => BadRequest(errors.ToValidationProblemDetails("Timeføring feilet med følgende feil")));
+            errors => BadRequest(errors.ToValidationProblemDetails("Timeføring feilet. Eventuelle kommentarer har blitt oppdatert.")));
     }
         
     [HttpGet("FlexedHours")]

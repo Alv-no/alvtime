@@ -121,7 +121,7 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
 
         if (!task.Locked)
         {
-            Hours hour = new Hours
+            var hour = new Hours
             {
                 Date = timeEntry.Date.Date,
                 TaskId = timeEntry.TaskId,
@@ -129,12 +129,11 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
                 Year = (short)timeEntry.Date.Year,
                 DayNumber = (short)timeEntry.Date.DayOfYear,
                 Value = timeEntry.Value,
-                TimeRegistered = DateTime.UtcNow,
-                Comment = timeEntry.Comment,
-                CommentedAt = timeEntry.Comment != null ? DateTime.UtcNow : null,
+                TimeRegistered = DateTime.UtcNow
             };
             _context.Hours.Add(hour);
             await _context.SaveChangesAsync();
+            await UpdateComment(timeEntry.Comment, hour.Id);
 
             var user = await _context.User.FirstOrDefaultAsync(u => u.Id == hour.User);
             return new TimeEntryResponseDto
@@ -172,9 +171,8 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
         {
             hour.Value = timeEntry.Value;
             hour.TimeRegistered = DateTime.UtcNow;
-            hour.Comment = timeEntry.Comment;
-            hour.CommentedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
+            await UpdateComment(timeEntry.Comment, hour.Id);
 
             return new TimeEntryResponseDto
             {
@@ -190,6 +188,14 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
         }
 
         throw new Exception("Kan ikke oppdatere registrering. Oppgaven eller timen er låst.");
+    }
+
+    public async Task UpdateComment(string? comment, int hourId)
+    {
+        var hour = await _context.Hours.FirstOrDefaultAsync(x => x.Id == hourId);
+        hour.Comment = comment;
+        hour.CommentedAt = comment != null ? DateTime.UtcNow : null;
+        await _context.SaveChangesAsync();
     }
 
     public async Task<List<EarnedOvertimeDto>> GetEarnedOvertime(OvertimeQueryFilter criteria)
