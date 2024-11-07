@@ -119,7 +119,7 @@ public class TimeRegistrationServiceTests
 
         Assert.False(timeEntryResult.IsSuccess);
         Assert.True(timeEntryResult.Errors.Any());
-        Assert.True(timeEntryResult.Errors.First().Description.Equals("Du trenger ikke føre ferie på helg eller røde dager"));
+        Assert.True(timeEntryResult.Errors.First().Description.Equals("Du trenger ikke registrere fravær på en rød dag."));
     }
 
     [Fact]
@@ -208,6 +208,70 @@ public class TimeRegistrationServiceTests
         Assert.Equal(1, overTime.AvailableHoursBeforeCompensation);
         Assert.Equal(2, overTime.AvailableHoursAfterCompensation);
     }
+        
+    [Fact]
+    public async System.Threading.Tasks.Task RegisterComment_TimeEntryIsLockedBecauseOfPayout_CommentStillUpdated()
+    {
+        var timeRegistrationService = CreateTimeRegistrationService();
+        var timeEntry1 = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 03), 9.5M, 1); //Monday
+        await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId, Comment = "Kommentar"} });
+
+        await _payoutService.RegisterPayout(new GenericPayoutHourEntry
+        {
+            Date = new DateTime(2022, 01, 07), //Friday
+            Hours = 1
+        });
+        
+        var timeEntryResult = await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() { Date = timeEntry1.Date, Value = 7.5M, TaskId = timeEntry1.TaskId, Comment = "Oppdatert kommentar"} });
+        var timeEntry = _context.Hours.First(entry => entry.Date == timeEntry1.Date);
+
+        Assert.True(timeEntryResult.Errors.Any());
+        var error = timeEntryResult.Errors.First();
+        Assert.Equal("Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Slett utbetalingen eller kontakt en admin for å få endret timene dine.", error.Description);
+        Assert.Equal("Oppdatert kommentar", timeEntry.Comment);
+    }
+    
+    [Fact]
+    public async System.Threading.Tasks.Task RegisterCommentWithZeroHours_TimeEntryDoesNotExistAndPayoutExists_CommentStillCreated()
+    {
+        var timeRegistrationService = CreateTimeRegistrationService();
+        var timeEntry1 = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 03), 9.5M, 1); //Monday
+        await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId, Comment = "Kommentar"} });
+
+        await _payoutService.RegisterPayout(new GenericPayoutHourEntry
+        {
+            Date = new DateTime(2022, 01, 07), //Friday
+            Hours = 1
+        });
+        
+        var timeEntry2 = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 04), 0, 1); //Tuesday
+        var timeEntryResult = await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() { Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId, Comment = "Kommentar 2"} });
+        var timeEntry = _context.Hours.First(entry => entry.Date == timeEntry2.Date);
+
+        Assert.False(timeEntryResult.Errors.Any());
+        Assert.Equal("Kommentar 2", timeEntry.Comment);
+    }
+    
+    [Fact]
+    public async System.Threading.Tasks.Task RegisterCommentWithNormalHours_TimeEntryDoesNotExistAndPayoutExists_CommentStillCreated()
+    {
+        var timeRegistrationService = CreateTimeRegistrationService();
+        var timeEntry1 = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 03), 9.5M, 1); //Monday
+        await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId, Comment = "Kommentar"} });
+
+        await _payoutService.RegisterPayout(new GenericPayoutHourEntry
+        {
+            Date = new DateTime(2022, 01, 07), //Friday
+            Hours = 1
+        });
+        
+        var timeEntry2 = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 04), 7.5M, 1); //Tuesday
+        var timeEntryResult = await timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>{ new() { Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId, Comment = "Kommentar 2"} });
+        var timeEntry = _context.Hours.First(entry => entry.Date == timeEntry2.Date);
+
+        Assert.False(timeEntryResult.Errors.Any());
+        Assert.Equal("Kommentar 2", timeEntry.Comment);
+    }
 
     private TimeRegistrationService CreateTimeRegistrationService()
     {
@@ -239,7 +303,6 @@ public class TimeRegistrationServiceTests
             TaskId = taskId
         };
     }
-
 
     private static Hours CreateTimeEntryForExistingTask(DateTime date, decimal value, int taskId)
     {

@@ -221,7 +221,7 @@ public class PayoutServiceTests
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
         await payoutService.RegisterPayout(new GenericPayoutHourEntry
         {
-            Date = DateTime.Today.AddDays(-1),
+            Date = DateTime.Today,
             Hours = 10
         });
 

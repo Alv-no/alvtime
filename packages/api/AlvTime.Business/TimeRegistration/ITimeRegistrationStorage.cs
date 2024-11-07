@@ -20,6 +20,7 @@ namespace AlvTime.Business.TimeRegistration
         Task<IEnumerable<TimeEntry>> GetFlexEntries(TimeEntryQuerySearch criteria);
         Task RegisterFlex(TimeEntry timeEntry, int userId);
         Task DeleteFlexOnDate(DateTime dateTime, int userId);
+        Task UpdateComment(string? comment, int hourId);
     }
 
     public class TimeEntryQuerySearch

@@ -1356,6 +1356,54 @@ public class OvertimeTests
         Assert.False(timeEntryResult.IsSuccess);
         Assert.True(timeEntryResult.Errors.Any());
     }
+    
+    [Fact]
+    public async System.Threading.Tasks.Task RevertOvertimeOnWeekend_HasFuturePayout_CannotUpdate()
+    {
+        var timeEntry1 =
+            CreateTimeEntryForExistingTask(new DateTime(2022, 01, 09), 12.5M, 3); //Sunday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
+        
+        var payoutService = CreatePayoutService(_timeRegistrationService);
+        await payoutService.RegisterPayout(new GenericPayoutHourEntry
+        {
+            Date = new DateTime(2022, 01, 10), //Monday
+            Hours = 2
+        });
+
+        var timeEntry2 =
+            CreateTimeEntryForExistingTask(new DateTime(2022, 01, 09), 11.5M, 3); //Sunday
+        var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId } });
+        
+        Assert.True(timeEntryResult.Errors.Any());
+        Assert.Equal("Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Slett utbetalingen eller kontakt en admin for å få endret timene dine.", timeEntryResult.Errors.First().Description);
+    }
+    
+    [Fact]
+    public async System.Threading.Tasks.Task RevertOvertimeOnRedDay_HasFuturePayout_CannotUpdate()
+    {
+        var timeEntry1 =
+            CreateTimeEntryForExistingTask(new DateTime(2021, 12, 24), 12.5M, 3); //Friday and Christmas
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
+        
+        var payoutService = CreatePayoutService(_timeRegistrationService);
+        await payoutService.RegisterPayout(new GenericPayoutHourEntry
+        {
+            Date = new DateTime(2022, 01, 10), //Monday
+            Hours = 2
+        });
+
+        var timeEntry2 =
+            CreateTimeEntryForExistingTask(new DateTime(2021, 12, 24), 11.5M, 3); //Friday and Christmas
+        var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId } });
+        
+        Assert.True(timeEntryResult.Errors.Any());
+        Assert.Equal("Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Slett utbetalingen eller kontakt en admin for å få endret timene dine.", timeEntryResult.Errors.First().Description);
+    }
 
     private TimeRegistrationService CreateTimeRegistrationService()
     {
