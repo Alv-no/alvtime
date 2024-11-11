@@ -32,12 +32,12 @@ jobs:
           tags: commoninfrastructure${{inputs.targetEnv}}.azurecr.io/alvtimeapi:${{ github.sha }}
           file: ./packages/api/Dockerfile
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    environment: 
-      name: ${{inputs.targetEnv}}
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   environment: 
+  #     name: ${{inputs.targetEnv}}
+  #     url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     # steps:
     # - uses: azure/login@v1
