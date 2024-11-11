@@ -6,7 +6,7 @@ on:
         branches:
           - pipelinetest
         paths:
-         - "packages/api/**"
+         - "*"
          
 jobs:
     build-and-deploy-test:
