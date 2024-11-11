@@ -1,0 +1,16 @@
+name: API workflow-runner 
+
+on:
+    workflow_dispatch:
+    push:
+        branches:
+          - pipelinetest
+        paths:
+         - "packages/api/**"
+         
+jobs:
+    build-and-deploy-test:
+        uses: ./.github/workflows/api-build-and-deploy.yml
+        with: 
+            targetEnv: test
+        secrets: inherit
