@@ -18,15 +18,6 @@ az aks get-credentials \
 
 kubelogin convert-kubeconfig -l azurecli
 
-\cp "packages/api/k8s_environments/$ENV-env.yaml" chart/env.yaml
-helm upgrade api ./chart \
-  --install \
-  --values "chart/env.yaml" \
-  --set image.repository="$CONTAINER_REGISTRY.azurecr.io/alvtime-web-api" \
-  --set image.tag="$SHORT_HASH" \
-  --set secrets.ConnectionStrings__AlvTime_db="${SQL_CONNECTION_STRING/,/\\,}" \
-  --namespace "alvtime"
-
 \cp "packages/slack-app/k8s_environments/$ENV-env.yaml" chart/env.yaml
 helm upgrade slack-api ./chart \
   --install \
