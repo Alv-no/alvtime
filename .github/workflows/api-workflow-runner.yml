@@ -4,9 +4,9 @@ on:
     workflow_dispatch:
     push:
         branches:
-          - pipelinetest
+          - master
         paths:
-         - "*"
+         - "packages/api/**"
          
 jobs:
     build-and-deploy-test:

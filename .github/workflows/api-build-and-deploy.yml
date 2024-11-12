@@ -49,5 +49,4 @@ jobs:
       uses: azure/webapps-deploy@v2
       with:
         app-name: 'alvtime-api-${{inputs.targetEnv}}'
-        slot-name: 'production'
         images: 'commonregistry${{inputs.targetEnv}}.azurecr.io/alvtimeapi:${{ github.sha }}'  
