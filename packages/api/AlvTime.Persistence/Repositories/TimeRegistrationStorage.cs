@@ -72,9 +72,10 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
 
         return timeEntriesWithCompensationRate;
     }
-
+    
     public async Task<IEnumerable<TimeEntryResponseDto>> GetTimeEntries(TimeEntryQuerySearch criteria)
     {
+        var userEmail = (await _context.User.FirstOrDefaultAsync(x => x.Id == criteria.UserId))?.Email;
         var hours = await _context.Hours.AsQueryable()
             .Filter(criteria)
             .Select(x => new TimeEntryResponseDto
@@ -85,9 +86,17 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
                 Date = x.Date,
                 TaskId = x.TaskId,
                 Comment = x.Comment,
-                CommentedAt = x.CommentedAt 
+                CommentedAt = x.CommentedAt,
+                UserEmail = userEmail
             })
             .ToListAsync();
+
+        return hours;
+    }
+
+    public async Task<IEnumerable<TimeEntryResponseDto>> GetTimeEntriesReport(TimeEntryQuerySearch criteria)
+    {
+        var hours = (await GetTimeEntries(criteria)).ToList();
 
         foreach (var entry in hours)
         {

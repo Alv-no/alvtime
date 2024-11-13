@@ -8,6 +8,7 @@ namespace AlvTime.Business.TimeRegistration
     public interface ITimeRegistrationStorage
     {
         Task<IEnumerable<TimeEntryResponseDto>> GetTimeEntries(TimeEntryQuerySearch criteria);
+        Task<IEnumerable<TimeEntryResponseDto>> GetTimeEntriesReport(TimeEntryQuerySearch criteria);
         Task<IEnumerable<TimeEntryEmployeeResponseDto>> GetTimeEntriesForEmployees(MultipleTimeEntriesQuerySearch criteria);
         Task<IEnumerable<TimeEntryWithCompRateDto>> GetTimeEntriesWithCompensationRate(TimeEntryQuerySearch criteria);
         Task<TimeEntryResponseDto> GetTimeEntry(TimeEntryQuerySearch criteria);

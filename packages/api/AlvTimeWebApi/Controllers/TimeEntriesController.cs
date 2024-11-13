@@ -118,7 +118,7 @@ public class TimeEntriesController : Controller
 
         if (user.Id == _reportUser)
         {
-            var report = (await _storage.GetTimeEntries(new TimeEntryQuerySearch
+            var report = (await _storage.GetTimeEntriesReport(new TimeEntryQuerySearch
                 {
                     FromDateInclusive = fromDateInclusive,
                     ToDateInclusive = toDateInclusive
