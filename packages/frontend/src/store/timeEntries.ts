@@ -64,7 +64,7 @@ const state = {
   timeEntries: null,
   pushQueue: [],
   timeEntriesMap: {},
-  timeEntriesLoading: false,
+  timeEntriesLoading: true,
 };
 
 const getters = {
