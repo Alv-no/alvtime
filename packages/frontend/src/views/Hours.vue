@@ -1,12 +1,14 @@
 <template>
   <div>
     <Progress :visible="delayed" />
-    <mq-layout mq="sm">
-      <DaySwiper />
-    </mq-layout>
-    <mq-layout mq="md+">
-      <WeekSwiper />
-    </mq-layout>
+    <template v-if="!$store.state.loadingTasks">
+      <mq-layout mq="sm">
+        <DaySwiper />
+      </mq-layout>
+      <mq-layout mq="md+">
+        <WeekSwiper />
+      </mq-layout>
+    </template>
   </div>
 </template>
 

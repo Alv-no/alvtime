@@ -5,6 +5,7 @@ import httpClient from "../services/httpClient";
 
 export interface TaskState {
   tasks: Task[];
+  loadingTasks: boolean;
 }
 export interface Task {
   id: number;
@@ -26,6 +27,7 @@ export interface Task {
 
 const state = {
   tasks: [],
+  loadingTasks: true,
 };
 
 const getters = {
@@ -41,6 +43,9 @@ const getters = {
 };
 
 const mutations = {
+  SET_LOADING_TASKS(state: State, paramLoadingTasks: boolean) {
+    state.loadingTasks = paramLoadingTasks;
+  },
   SET_TASKS(state: State, paramTasks: Task[]) {
     state.tasks = paramTasks;
   },
@@ -57,11 +62,13 @@ const mutations = {
 };
 
 const actions = {
-  FETCH_TASKS: ({ commit }: ActionContext<State, State>) => {
+  FETCH_TASKS: ({ state, commit }: ActionContext<State, State>) => {
+    commit("SET_LOADING_TASKS", true);
     return httpClient
       .get(`${config.API_HOST}/api/user/tasks`)
       .then(response => {
         commit("SET_TASKS", response.data);
+        commit("SET_LOADING_TASKS", false);
       });
   },
 
