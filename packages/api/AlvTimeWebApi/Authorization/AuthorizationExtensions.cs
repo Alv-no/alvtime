@@ -1,5 +1,4 @@
-﻿using AlvTimeWebApi.Authorization.Policies;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using AlvTimeWebApi.Authorization.Handlers;
 using Microsoft.AspNetCore.Authorization;
 
@@ -11,10 +10,9 @@ public static class AuthorizationExtensions
     {
         services.AddAuthorization(options =>
         {
-            options.AddPolicy(AdminAuthorizationPolicy.Name, AdminAuthorizationPolicy.Build);
-            options.AddPolicy(OrakeletAuthorizationPolicy.Name, OrakeletAuthorizationPolicy.Build);
-            options.AddPolicy(AllowPersonalAccessTokenPolicy.Name, AllowPersonalAccessTokenPolicy.Build);
-            options.AddPolicy(ReportAuthorizationPolicy.Name, ReportAuthorizationPolicy.Build);
+            options.DefaultPolicy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build();            
         });
         services.AddScoped<IAuthorizationHandler, EmployeeIsActiveHandler>();
     }

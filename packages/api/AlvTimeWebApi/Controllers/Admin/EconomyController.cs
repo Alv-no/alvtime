@@ -3,12 +3,13 @@ using AlvTimeWebApi.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AlvTimeWebApi.Controllers.Admin
 {
     [Route("api/admin")]
     [ApiController]
-    [AuthorizeAdmin]
+    [Authorize(Roles = "Admin")]
     public class EconomyController : Controller
     {
         private readonly IEconomyStorage _economyStorage;

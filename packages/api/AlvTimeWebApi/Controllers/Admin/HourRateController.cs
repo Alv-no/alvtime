@@ -5,12 +5,13 @@ using System.Threading.Tasks;
 using AlvTimeWebApi.Controllers.Utils;
 using AlvTimeWebApi.Requests;
 using AlvTimeWebApi.Responses.Admin;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AlvTimeWebApi.Controllers.Admin;
 
 [Route("api/admin")]
 [ApiController]
-[AuthorizeAdmin]
+[Authorize(Roles = "Admin")]
 public class HourRateController : Controller
 {
     private readonly HourRateService _hourRateService;

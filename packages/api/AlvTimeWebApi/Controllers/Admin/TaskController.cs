@@ -8,12 +8,13 @@ using AlvTimeWebApi.Responses;
 using AlvTimeWebApi.Responses.Admin;
 using AlvTime.Business;
 using AlvTimeWebApi.ErrorHandling;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AlvTimeWebApi.Controllers.Admin;
 
 [Route("api/admin")]
 [ApiController]
-[AuthorizeAdmin]
+[Authorize(Roles = "Admin")]
 public class TaskController : ControllerBase
 {
     private readonly TaskService _taskService;

@@ -6,16 +6,15 @@ using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AlvTimeWebApi.Authorization;
-using AlvTimeWebApi.Responses;
 using AlvTimeWebApi.Responses.Admin;
 using AlvTimeWebApi.Utils;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AlvTimeWebApi.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    [AuthorizePersonalAccessToken]
+    [Authorize]
     public class ProfileController : Controller
     {
         private RetrieveUsers _userRetriever;

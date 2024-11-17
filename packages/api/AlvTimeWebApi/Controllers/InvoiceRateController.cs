@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using AlvTime.Business.InvoiceRate;
-using AlvTimeWebApi.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using static AlvTime.Business.InvoiceRate.InvoiceStatisticsDto;
 
@@ -9,7 +9,7 @@ namespace AlvTimeWebApi.Controllers;
 
 [Route("api/user")]
 [ApiController]
-[AuthorizePersonalAccessToken]
+[Authorize]
 public class InvoiceRateController : ControllerBase
 {
 

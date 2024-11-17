@@ -1,21 +1,18 @@
-﻿using System;
-using AlvTime.Business.Tasks;
+﻿using AlvTime.Business.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AlvTime.Business.TimeRegistration;
-using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.Requests;
 using AlvTimeWebApi.Responses;
-using AlvTime.Business;
 using AlvTimeWebApi.ErrorHandling;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AlvTimeWebApi.Controllers;
 
 [Route("api/user")]
 [ApiController]
-[AuthorizePersonalAccessToken]
+[Authorize]
 public class TasksController : Controller
 {
     private readonly TaskService _taskService;
