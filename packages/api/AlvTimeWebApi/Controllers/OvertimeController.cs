@@ -4,16 +4,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.Overtime;
 using AlvTime.Business.TimeRegistration;
-using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.Responses;
 using AlvTimeWebApi.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AlvTimeWebApi.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    [AuthorizePersonalAccessToken]
+    [Authorize]
     public class OvertimeController : ControllerBase
     {
         private readonly TimeRegistrationService _timeRegistrationService;

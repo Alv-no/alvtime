@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.AccessTokens;
-using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.Requests;
 using AlvTimeWebApi.Responses;
 using AlvTimeWebApi.Utils;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AlvTimeWebApi.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    [AuthorizePersonalAccessToken]
+    [Authorize]
     public class AccessTokenController : Controller
     {
         private readonly AccessTokenService _tokenService;

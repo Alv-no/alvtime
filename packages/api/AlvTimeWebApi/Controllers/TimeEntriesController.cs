@@ -8,15 +8,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.TimeRegistration;
 using AlvTimeWebApi.Authentication;
-using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.Responses;
 using AlvTimeWebApi.Utils;
 using AlvTimeWebApi.ErrorHandling;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AlvTimeWebApi.Controllers;
 
 [Route("api/user")]
 [ApiController]
+[Authorize]
 public class TimeEntriesController : Controller
 {
     private readonly ITimeRegistrationStorage _storage;
@@ -36,7 +37,6 @@ public class TimeEntriesController : Controller
     }
 
     [HttpGet("TimeEntries")]
-    [AuthorizePersonalAccessToken]
     public async Task<ActionResult<IEnumerable<TimeEntryResponseDto>>> FetchTimeEntries(DateTime fromDateInclusive, DateTime toDateInclusive)
     {
         try
@@ -71,7 +71,6 @@ public class TimeEntriesController : Controller
     }
 
     [HttpPost("TimeEntries")]
-    [AuthorizePersonalAccessToken]
     public async Task<ActionResult<List<TimeEntryResponseDto>>> UpsertTimeEntry([FromBody] List<CreateTimeEntryDto> requests)
     {
         var result = await _timeRegistrationService.UpsertTimeEntry(requests);
@@ -91,7 +90,6 @@ public class TimeEntriesController : Controller
     }
         
     [HttpGet("FlexedHours")]
-    [AuthorizePersonalAccessToken]
     public async Task<ActionResult<TimeEntriesResponse>> FetchFlexedHours()
     {
         var flexedEntries = await _timeRegistrationService.GetTimeEntries(new TimeEntryQuerySearch
@@ -111,7 +109,6 @@ public class TimeEntriesController : Controller
     }
 
     [HttpGet("TimeEntriesReport")]
-    [AuthorizePersonalAccessToken]
     public async Task<ActionResult<IEnumerable<TimeEntryResponseDto>>> FetchTimeEntriesReport(DateTime fromDateInclusive, DateTime toDateInclusive)
     {
         var user = _userRetriever.RetrieveUser();
@@ -141,7 +138,7 @@ public class TimeEntriesController : Controller
     }
 
     [HttpPut("retrigger")]
-    [AuthorizeAdmin]
+    [Authorize(Roles = "Admin")]
     public async Task RetriggerTimeEntriesOnDay([FromQuery] DateTime date, [FromQuery] int userId)
     {
         await _timeRegistrationService.RetriggerDate(date, userId);

@@ -10,12 +10,13 @@ using AlvTimeWebApi.Requests;
 using AlvTimeWebApi.Responses;
 using AlvTimeWebApi.Responses.Admin;
 using AlvTimeWebApi.ErrorHandling;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AlvTimeWebApi.Controllers.Admin;
 
 [Route("api/admin")]
 [ApiController]
-[AuthorizeAdmin]
+[Authorize(Roles = "Admin")]
 public class UserController : ControllerBase
 {
     private readonly UserService _userService;

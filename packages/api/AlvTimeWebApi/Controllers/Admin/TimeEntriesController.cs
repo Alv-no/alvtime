@@ -6,12 +6,13 @@ using System;
 using AlvTimeWebApi.Authentication;
 using System.Linq;
 using AlvTimeWebApi.Utils;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AlvTimeWebApi.Controllers.Admin;
 
 [Route("api/admin")]
 [ApiController]
-[AuthorizeOrakelet]
+[Authorize(Roles = "Admin")]
 public class TimeEntriesController : ControllerBase
 {
     private readonly ITimeRegistrationStorage _storage;

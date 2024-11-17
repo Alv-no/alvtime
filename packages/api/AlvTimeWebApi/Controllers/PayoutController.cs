@@ -1,22 +1,20 @@
 ﻿
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AlvTime.Business;
 using AlvTime.Business.Payouts;
-using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.ErrorHandling;
 using AlvTimeWebApi.Requests;
 using AlvTimeWebApi.Responses;
 using AlvTimeWebApi.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AlvTimeWebApi.Controllers
 {
     [Route("api/user")]
     [ApiController]
-    [AuthorizePersonalAccessToken]
+    [Authorize]
     public class PayoutController : ControllerBase
     {
         private readonly PayoutService _payoutService;

@@ -8,12 +8,13 @@ using AlvTimeWebApi.Utils;
 using AlvTime.Business.TimeRegistration;
 using System;
 using AlvTimeWebApi.Controllers.Utils;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AlvTimeWebApi.Controllers.Admin;
 
 [Route("api/admin")]
 [ApiController]
-[AuthorizeAdmin]
+[Authorize(Roles = "Admin")]
 public class AnalyticsController : ControllerBase
 {
     private readonly IUserRepository _userRepository;
