@@ -40,7 +40,10 @@
                 DateFormat="dd/MM/yyyy"
                 Required="true"
                 RequiredError="@Localizer["Validation.Date.Required"]"/>
-
+            <MudDatePicker
+                Label="@Localizer["Common.EndDate"]"
+                @bind-Date="_endDate"
+                DateFormat="dd/MM/yyyy"/>
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -76,7 +79,7 @@
     private string? _email;
     private int? _employeeId;
     private DateTime? _startDate = DateTime.UtcNow.Date;
-
+    private DateTime? _endDate;
 
     protected override Task OnParametersSetAsync()
     {
@@ -86,6 +89,7 @@
             _email = CurrentEmployeeData.Email;
             _employeeId = CurrentEmployeeData.EmployeeId;
             _startDate = CurrentEmployeeData.StartDate;
+            _endDate = CurrentEmployeeData.EndDate;
         }
 
         return base.OnParametersSetAsync();
@@ -103,7 +107,8 @@
                 EmployeeId = _employeeId ?? 0,
                 Name = _name ?? string.Empty,
                 Email = _email ?? string.Empty,
-                StartDate = _startDate
+                StartDate = _startDate,
+                EndDate = _endDate
             };
 
             try
@@ -135,5 +140,4 @@
     {
         MudDialog.Cancel();
     }
-
 }

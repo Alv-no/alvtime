@@ -48,6 +48,10 @@
         >
             @Localizer["Common.StartDate"]: @(_employee.StartDate.HasValue ? _employee.StartDate.Value.ToString("dd.MM.yyyy") : "")
         </MudText>
+        <MudText
+        >
+            @Localizer["Common.EndDate"]: @(_employee.EndDate.HasValue ? _employee.EndDate.Value.ToString("dd.MM.yyyy") : "")
+        </MudText>
         <MudText>
             @Localizer["Common.Email"]: @_employee.Email
         </MudText>
