@@ -1,13 +1,36 @@
 ﻿@page "/"
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Alvtime admin</PageTitle>
 
 <h1>Velkommen til Alvtime adminpanel!</h1>
 
-<AuthorizeView>
+@code{
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var currentUser = authState.User;
+
+        if (currentUser.Identity?.IsAuthenticated == true)
+        {
+            var roles = currentUser.Claims
+                .Where(c => c.Type == ClaimTypes.Role || c.Type == "roles") // Include custom role claim types if needed
+                .Select(c => c.Value)
+                .ToList();
+        }
+    } }
+
+<AuthorizeView Roles="Admin">
     <Authorized>
         Velg hva du vil administrere i panelet til venstre.
     </Authorized>
+    <NotAuthorized>
+        Du har ikke tilgang til å bruke dette panelet.
+    </NotAuthorized>
+</AuthorizeView>
+
+<AuthorizeView>
     <NotAuthorized>
         Vennligst logg inn oppe til høyre.
     </NotAuthorized>
