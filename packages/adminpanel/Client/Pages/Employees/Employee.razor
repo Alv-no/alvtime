@@ -9,105 +9,110 @@
 
 @if (_employee is not null)
 {
-    <MudIconButton 
-        Icon="@Icons.Material.Filled.ArrowBack" 
-        Color="Color.Secondary" 
-        aria-label="back"
-        OnClick="@(()=> Navigation.NavigateTo("/ansatte"))"/>
-    <PageTitle>@_employee.Name ?? @Localizer["EmployeePage.Details"]</PageTitle>
-    
-    <MudPaper Class="mb-4 d-flex flex-row align-center" Elevation="0">
-        <MudText Class="me-2" Typo="Typo.h2">@_employee.Name</MudText>
-        <MudIconButton
-            Icon="@Icons.Material.Filled.Edit"
-            Color="Color.Secondary"
-            OnClick="@EditEmployee">
-        </MudIconButton>
-    </MudPaper>  
-    
-    <div class="d-flex flex-column flex-sm-row gap-16 mb-8">
-        <MudPaper Class="pa-4" Elevation="0">
-            @if (_employee is null)
-            {
-                // insert avatar image
-                <MudAvatar Color="Color.Secondary" Style="width: 250px; height: 250px;">
-                   
-                </MudAvatar>
-            }
-            else
-            {
-                // insert placeholder avatar
-                <MudAvatar Elevation="2" Color="Color.Secondary" Style="width: 250px; height: 250px;">
-                    <MudText Typo="Typo.button" Style="font-size: 2rem;">@TextUtilities.GetInitialsFromName(_employee.Name, null)</MudText>
-                </MudAvatar>
-            }
-        </MudPaper>
-    </div>
-    <MudPaper Elevation="0" Class="pa-4">
-        <MudText
-        >
-            @Localizer["Common.StartDate"]: @(_employee.StartDate.HasValue ? _employee.StartDate.Value.ToString("dd.MM.yyyy") : "")
-        </MudText>
-        <MudText
-        >
-            @Localizer["Common.EndDate"]: @(_employee.EndDate.HasValue ? _employee.EndDate.Value.ToString("dd.MM.yyyy") : "")
-        </MudText>
-        <MudText>
-            @Localizer["Common.Email"]: @_employee.Email
-        </MudText>
-        <MudText>
-            @Localizer["Common.EmployeeId"]: @_employee.EmployeeId
-        </MudText>
-    </MudPaper>
-    
-    <MudPaper Elevation="0" Class="mb-4">
-        <MudDataGrid
-            T="EmployeeEmploymentRateModel"
-            Items="_employee.EmploymentRates"
-            MultiSelection="@_multiSelection"
-            @bind-selectedItem="_selectedEmploymentRate"
-            @bind-SelectedItems="_employmentRateSelectionList"
-            Filterable="false"
-            FooterClass="d-none">
-            <ToolBarContent>
-                <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.EmploymentRate"]</MudText>
-                <MudSpacer/>
-                <MudIconButton
-                    Icon="@Icons.Material.Filled.Add"
-                    Color="Color.Secondary"
-                    OnClick="@AddNewEmploymentRate"
-                    aria-label="@Localizer["CustomerPage.AddProject"]">
-                </MudIconButton>
+    <AuthorizeView Roles="Admin">
+        <Authorized>
+            <MudIconButton
+                Icon="@Icons.Material.Filled.ArrowBack"
+                Color="Color.Secondary"
+                aria-label="back"
+                OnClick="@(()=> Navigation.NavigateTo("/ansatte"))"/>
+            <PageTitle>@_employee.Name ?? @Localizer["EmployeePage.Details"]</PageTitle>
+
+            <MudPaper Class="mb-4 d-flex flex-row align-center" Elevation="0">
+                <MudText Class="me-2" Typo="Typo.h2">@_employee.Name</MudText>
                 <MudIconButton
                     Icon="@Icons.Material.Filled.Edit"
                     Color="Color.Secondary"
-                    OnClick="@EditEmploymentRate"
-                    Disabled="@(_selectedEmploymentRate == null)"
-                    aria-label="@Localizer["CustomerPage.EditProject"]">
+                    OnClick="@EditEmployee">
                 </MudIconButton>
-            </ToolBarContent>
-            <Columns>
-                <SelectColumn
+            </MudPaper>
+
+            <div class="d-flex flex-column flex-sm-row gap-16 mb-8">
+                <MudPaper Class="pa-4" Elevation="0">
+                    @if (_employee is null)
+                    {
+                    // insert avatar image
+                    <MudAvatar Color="Color.Secondary" Style="width: 250px; height: 250px;">
+
+                    </MudAvatar>
+                    }
+                    else
+                    {
+                    // insert placeholder avatar
+                    <MudAvatar Elevation="2" Color="Color.Secondary" Style="width: 250px; height: 250px;">
+                        <MudText Typo="Typo.button" Style="font-size: 2rem;">@TextUtilities.GetInitialsFromName(_employee.Name, null)</MudText>
+                    </MudAvatar>
+                    }
+                </MudPaper>
+            </div>
+            <MudPaper Elevation="0" Class="pa-4">
+                <MudText
+                >
+                    @Localizer["Common.StartDate"]: @(_employee.StartDate.HasValue ? _employee.StartDate.Value.ToString("dd.MM.yyyy") : "")
+                </MudText>
+                <MudText
+                >
+                    @Localizer["Common.EndDate"]: @(_employee.EndDate.HasValue ? _employee.EndDate.Value.ToString("dd.MM.yyyy") : "")
+                </MudText>
+                <MudText>
+                    @Localizer["Common.Email"]: @_employee.Email
+                </MudText>
+                <MudText>
+                    @Localizer["Common.EmployeeId"]: @_employee.EmployeeId
+                </MudText>
+            </MudPaper>
+
+            <MudPaper Elevation="0" Class="mb-4">
+                <MudDataGrid
                     T="EmployeeEmploymentRateModel"
-                    ShowInHeader="false"
-                />
-                <PropertyColumn 
-                    Title="@Localizer["Common.StartDate.Inclusive"]" 
-                    Property="r => r.FromDateInclusive"
-                    Format="d"
-                    />
-                <PropertyColumn 
-                    Title="@Localizer["Common.EndDate.Inclusive"]" 
-                    Property="r=> r.ToDateInclusive"
-                    Format="d"
-                    />
-                <PropertyColumn 
-                    Title="@Localizer["Common.EmploymentRate"]" 
-                    Property="r=>r.RatePercentage"
-                    />
-            </Columns>
-        </MudDataGrid>
-    </MudPaper>
+                    Items="_employee.EmploymentRates"
+                    MultiSelection="@_multiSelection"
+                    @bind-selectedItem="_selectedEmploymentRate"
+                    @bind-SelectedItems="_employmentRateSelectionList"
+                    Filterable="false"
+                    FooterClass="d-none">
+                    <ToolBarContent>
+                        <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.EmploymentRate"]</MudText>
+                        <MudSpacer/>
+                        <MudIconButton
+                            Icon="@Icons.Material.Filled.Add"
+                            Color="Color.Secondary"
+                            OnClick="@AddNewEmploymentRate"
+                            aria-label="@Localizer["CustomerPage.AddProject"]">
+                        </MudIconButton>
+                        <MudIconButton
+                            Icon="@Icons.Material.Filled.Edit"
+                            Color="Color.Secondary"
+                            OnClick="@EditEmploymentRate"
+                            Disabled="@(_selectedEmploymentRate == null)"
+                            aria-label="@Localizer["CustomerPage.EditProject"]">
+                        </MudIconButton>
+                    </ToolBarContent>
+                    <Columns>
+                        <SelectColumn
+                            T="EmployeeEmploymentRateModel"
+                            ShowInHeader="false"
+                        />
+                        <PropertyColumn
+                            Title="@Localizer["Common.StartDate.Inclusive"]"
+                            Property="r => r.FromDateInclusive"
+                            Format="d"
+                        />
+                        <PropertyColumn
+                            Title="@Localizer["Common.EndDate.Inclusive"]"
+                            Property="r=> r.ToDateInclusive"
+                            Format="d"
+                        />
+                        <PropertyColumn
+                            Title="@Localizer["Common.EmploymentRate"]"
+                            Property="r=>r.RatePercentage"
+                        />
+                    </Columns>
+                </MudDataGrid>
+            </MudPaper>
+        </Authorized>
+        <NotAuthorized>Du har ikke tilgang til å se dette innholdet.</NotAuthorized>
+    </AuthorizeView>
 }
 else
 {

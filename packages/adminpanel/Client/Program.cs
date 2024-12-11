@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Alvtime.Adminpanel.Client;
 using Alvtime.Adminpanel.Client.Authorization;
 using Alvtime.Adminpanel.Client.ErrorHandling;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using MudBlazor.Services;
 using Toolbelt.Blazor.Extensions.DependencyInjection;
 
@@ -31,11 +32,13 @@ builder.Services.AddMsalAuthentication(options =>
     options.ProviderOptions.DefaultAccessTokenScopes.Add(builder.Configuration["ApiSettings:Scope"]!);
     options.ProviderOptions.LoginMode = "redirect";
     options.ProviderOptions.Cache.CacheLocation = "localStorage";
-
     options.UserOptions.RoleClaim = "roles";
 });
 
 builder.Services.AddHttpClientInterceptor();
 builder.Services.AddMudServices();
+
+builder.Services.AddScoped(typeof(AccountClaimsPrincipalFactory<RemoteUserAccount>),
+    typeof(CustomAccountFactory));
 
 await builder.Build().RunAsync();
