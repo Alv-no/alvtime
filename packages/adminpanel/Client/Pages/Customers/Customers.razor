@@ -12,33 +12,35 @@
 
 <PageTitle>@Localizer["CustomersPage.Title"]</PageTitle>
 
-<MudText Typo="Typo.h2">@Localizer["CustomersPage.Title"]</MudText>
-<MudButton
-    Class="my-4"
-    Color="Color.Secondary"
-    Variant="Variant.Filled"
-    OnClick="@AddEmptyCustomer">
-    <TextAdjuster>
-         @Localizer["CustomersPage.AddCustomer"]
-    </TextAdjuster>
-</MudButton>
-<MudTextField
-    Value="@_customerSearchString"
-    Immediate="true"
-    ValueChanged="@(new Func<string, Task>(OnFilterChanged))"
-    Placeholder="@Localizer["Common.Search"]"
-    Adornment="Adornment.Start"
-    AdornmentIcon="@Icons.Material.Filled.Search"
-    IconSize="Size.Medium" 
-    Class="my-4">
-</MudTextField>
-<MudPaper
-    Elevation="0"
-    Class="d-flex flex-wrap justify-start gap-8">
-    @if (FilteredCustomers is not null)
-    {
-        @foreach (var customer in FilteredCustomers)
-        {
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <MudText Typo="Typo.h2">@Localizer["CustomersPage.Title"]</MudText>
+        <MudButton
+            Class="my-4"
+            Color="Color.Secondary"
+            Variant="Variant.Filled"
+            OnClick="@AddEmptyCustomer">
+            <TextAdjuster>
+                @Localizer["CustomersPage.AddCustomer"]
+            </TextAdjuster>
+        </MudButton>
+        <MudTextField
+            Value="@_customerSearchString"
+            Immediate="true"
+            ValueChanged="@(new Func<string, Task>(OnFilterChanged))"
+            Placeholder="@Localizer["Common.Search"]"
+            Adornment="Adornment.Start"
+            AdornmentIcon="@Icons.Material.Filled.Search"
+            IconSize="Size.Medium"
+            Class="my-4">
+        </MudTextField>
+        <MudPaper
+            Elevation="0"
+            Class="d-flex flex-wrap justify-start gap-8">
+            @if (FilteredCustomers is not null)
+            {
+            @foreach (var customer in FilteredCustomers)
+            {
             <CustomerCard
                 ActionLabel="@Localizer["Common.NavigateTo"]"
                 OnActionPress="@(() => Navigation.NavigateTo($"/kunder/{customer.Id}"))"
@@ -46,9 +48,15 @@
                 ProjectCount="@customer.ProjectCount"
                 ContactPerson="@customer.ContactPerson">
             </CustomerCard>
-        }
-    }
-</MudPaper>
+            }
+            }
+        </MudPaper>
+    </Authorized>
+    
+    <NotAuthorized>
+        Du har ikke tilgang til å se dette innholdet.
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     [Inject] private HttpClient HttpClient { get; set; }

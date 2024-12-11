@@ -11,42 +11,48 @@
 
 <PageTitle>@Localizer["EmployeesPage.Title"]</PageTitle>
 
-<MudText Typo="Typo.h2">@Localizer["EmployeesPage.Employees"]</MudText>
-<MudButton
-    Class="my-4"
-    Color="Color.Secondary"
-    Variant="Variant.Filled"
-    OnClick="@AddEmptyEmployee">
-    <TextAdjuster>@Localizer["EmployeesPage.AddEmployee"]</TextAdjuster>
-</MudButton>
-<MudTextField
-    Value="@_employeeSearchString"
-    FullWidth="true"
-    Immediate="true"
-    ValueChanged="@(new Func<string, Task>(OnFilterChanged))"
-    Placeholder="@Localizer["Common.Search"]"
-    Adornment="Adornment.Start"
-    AdornmentIcon="@Icons.Material.Filled.Search"
-    IconSize="Size.Medium"
-    Class="my-4"/>
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <MudText Typo="Typo.h2">@Localizer["EmployeesPage.Employees"]</MudText>
+        <MudButton
+            Class="my-4"
+            Color="Color.Secondary"
+            Variant="Variant.Filled"
+            OnClick="@AddEmptyEmployee">
+            <TextAdjuster>@Localizer["EmployeesPage.AddEmployee"]</TextAdjuster>
+        </MudButton>
+        <MudTextField
+            Value="@_employeeSearchString"
+            FullWidth="true"
+            Immediate="true"
+            ValueChanged="@(new Func<string, Task>(OnFilterChanged))"
+            Placeholder="@Localizer["Common.Search"]"
+            Adornment="Adornment.Start"
+            AdornmentIcon="@Icons.Material.Filled.Search"
+            IconSize="Size.Medium"
+            Class="my-4"/>
+
+
+
+        <MudPaper
+            Elevation="0"
+            Class="d-flex flex-wrap justify-start gap-8">
+            @if (FilteredEmployees is not null)
+            {
+                @foreach (var employee in FilteredEmployees)
+                {
+                    <EmployeeCard
+                        ActionLabel="@Localizer["Common.NavigateTo"]"
+                        OnActionPress="@(() => Navigation.NavigateTo($"/ansatte/{employee.Id}"))"
+                        Name="@employee.Name"/>
+                }
+            }
+        </MudPaper>
+    </Authorized>
     
+    <NotAuthorized>Du har ikke tilgang til å se dette innholdet.</NotAuthorized>
 
-
-<MudPaper
-    Elevation="0"
-    Class="d-flex flex-wrap justify-start gap-8">
-    @if (FilteredEmployees is not null)
-    {
-        @foreach (var employee in FilteredEmployees)
-        {
-            <EmployeeCard
-                ActionLabel="@Localizer["Common.NavigateTo"]"
-                OnActionPress="@(() => Navigation.NavigateTo($"/ansatte/{employee.Id}"))"
-                Name="@employee.Name"
-                />
-        }
-    }
-</MudPaper>
+</AuthorizeView>
 
 @code {
     [Inject] private HttpClient HttpClient { get; set; }
