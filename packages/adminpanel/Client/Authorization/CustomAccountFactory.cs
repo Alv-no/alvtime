@@ -15,17 +15,22 @@ public class CustomAccountFactory(IAccessTokenProviderAccessor accessor) : Accou
         var userAccount = await base.CreateUserAsync(account, options);
         var userIdentity = userAccount.Identity as ClaimsIdentity;
 
-        if (userIdentity?.IsAuthenticated is true)
+        if (userIdentity?.IsAuthenticated is not true) return userAccount;
+        
+        if (account.AdditionalProperties.TryGetValue(userIdentity.RoleClaimType, out var rolesObj) && rolesObj is JsonElement roles && roles.ValueKind == JsonValueKind.Array)
         {
-            var roles = account.AdditionalProperties[userIdentity.RoleClaimType] as JsonElement?;
-
-            if (roles?.ValueKind == JsonValueKind.Array)
+            var roleClaim = userIdentity.Claims.FirstOrDefault(c => c.Type == userIdentity.RoleClaimType);
+            if (roleClaim != null)
             {
-                userIdentity.TryRemoveClaim(userIdentity.Claims.FirstOrDefault(c => c.Type == userIdentity.RoleClaimType));
+                userIdentity.TryRemoveClaim(roleClaim);
+            }
 
-                foreach (var element in roles.Value.EnumerateArray())
+            foreach (var element in roles.EnumerateArray())
+            {
+                var role = element.GetString();
+                if (!string.IsNullOrEmpty(role))
                 {
-                    userIdentity.AddClaim(new Claim(userIdentity.RoleClaimType, element.GetString()));
+                    userIdentity.AddClaim(new Claim(userIdentity.RoleClaimType, role));
                 }
             }
         }
