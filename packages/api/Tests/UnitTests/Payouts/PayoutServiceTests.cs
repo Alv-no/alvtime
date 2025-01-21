@@ -11,6 +11,7 @@ using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;
 using Microsoft.Extensions.Options;
 using Moq;
+using Tests.UnitTests.TestUtils;
 using Tests.UnitTests.Utils;
 using Xunit;
 
@@ -334,7 +335,7 @@ public class PayoutServiceTests
 
         var testProvider = new TestDateAlvTimeProvider();
         _dateAlvTime.Provider = testProvider;
-        testProvider.OverridedValue = new DateTime(currentYear, currentMonth, 05);
+        testProvider.OverriddenValue = new DateTime(currentYear, currentMonth, 05);
 
         var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService, _dateAlvTime);
 
