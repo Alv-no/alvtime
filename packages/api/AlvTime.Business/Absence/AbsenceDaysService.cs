@@ -16,7 +16,7 @@ public class AbsenceDaysService : IAbsenceDaysService
     private readonly IUserContext _userContext;
     private readonly IAbsenceStorage _absenceStorage;
     private const int DefaultVacationDaysAmount = 25;
-    private const decimal DaysInYear = 365.2425M;
+    private decimal _daysInYear = 365.2425M;
 
     // Current law says that you can take three 
     // calendar days in a row 4 times within a 12 month period
@@ -167,12 +167,17 @@ public class AbsenceDaysService : IAbsenceDaysService
 
         foreach (var year in yearsWorked)
         {
+            if (DateTime.IsLeapYear(year))
+            {
+                _daysInYear = 366.2425M;
+            }
+            
             var daysEmployedLastYear = currentUserStartDate.Year == year ? 0 :
-                currentUserStartDate.Year == year - 1 ? DaysInYear - userStartDay : DaysInYear;
+                currentUserStartDate.Year == year - 1 ? _daysInYear - userStartDay : _daysInYear;
 
             var earnedDaysFromPreviousYear = overridenVacation.Any(v => v.Year == year - 1)
                 ? overridenVacation.Single(v => v.Year == year - 1).DaysEarned
-                : (int)Math.Round(daysEmployedLastYear * (DefaultVacationDaysAmount / DaysInYear));
+                : (int)Math.Round(daysEmployedLastYear * (DefaultVacationDaysAmount / _daysInYear));
 
             var spentVacationThisYear =
                 spentVacationByYear.Where(v => v.Key == year).SelectMany(v => v).Sum(v => v.Value) / 7.5M;

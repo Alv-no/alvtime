@@ -1,11 +1,11 @@
-﻿using AlvTime.Business.Utils;
-using System;
+﻿using System;
+using AlvTime.Business.Utils;
 
-namespace Tests.UnitTests.Utils;
+namespace Tests.UnitTests.TestUtils;
 
 public class TestDateAlvTimeProvider : IDateAlvTimeProvider
 {
-    public DateTime OverridedValue = DateTime.Now;
+    public DateTime OverriddenValue = DateTime.Now;
 
-    public DateTime Now { get { return OverridedValue; } }
+    public DateTime Now => OverriddenValue;
 }

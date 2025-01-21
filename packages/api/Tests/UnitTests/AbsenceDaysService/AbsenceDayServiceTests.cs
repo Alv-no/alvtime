@@ -226,16 +226,42 @@ public class AbsenceDayStorageTests
     }
 
     [Fact]
-    public async Task GetVacationDays_StartedJulyLastYear_Has12Days()
+    public async Task GetVacationDays_StartedJulyLastYear_Has13Days()
     {
-        CreateUserWithStartDate(new DateTime(DateTime.Now.AddYears(-1).Year, 07, 01));
+        CreateUserWithStartDate(new DateTime(2023, 07, 01));
 
         var timeRegistrationStorage = CreateTimeRegistrationStorage();
         var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
 
-        var holidayOverview = await absenceService.GetAllTimeVacationOverview(DateTime.Now.Year);
+        var holidayOverview = await absenceService.GetAllTimeVacationOverview(2024);
 
         Assert.Equal(13, holidayOverview.AvailableVacationDays);
+    }
+    
+    [Fact]
+    public async Task GetVacationDays_StartedJulyLastYear_LastYearWasLeapYear_Has13Days()
+    {
+        CreateUserWithStartDate(new DateTime(2024, 07, 01));
+
+        var timeRegistrationStorage = CreateTimeRegistrationStorage();
+        var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
+
+        var holidayOverview = await absenceService.GetAllTimeVacationOverview(2025);
+
+        Assert.Equal(13, holidayOverview.AvailableVacationDays);
+    }
+    
+    [Fact]
+    public async Task GetVacationDays_StartedFebruaryLastYear_LastYearWasLeapYear_Has23Days()
+    {
+        CreateUserWithStartDate(new DateTime(2024, 02, 01));
+
+        var timeRegistrationStorage = CreateTimeRegistrationStorage();
+        var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
+
+        var holidayOverview = await absenceService.GetAllTimeVacationOverview(2025);
+
+        Assert.Equal(23, holidayOverview.AvailableVacationDays);
     }
 
     [Fact]
