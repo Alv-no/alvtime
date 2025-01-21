@@ -9,6 +9,7 @@ public interface IHourRateStorage
     Task<IEnumerable<HourRateDto>> GetHourRates(HourRateQuerySearch criterias);
     Task<int> CreateHourRate(HourRateDto hourRate, int taskId);
     Task UpdateHourRate(HourRateDto hourRate);
+    Task DeleteHourRate(int hourRateId);
 }
 
 public class HourRateQuerySearch
