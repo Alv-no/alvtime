@@ -54,4 +54,13 @@ public class HourRateStorage : IHourRateStorage
             })
             .ToListAsync();
     }
+    
+    public async Task DeleteHourRate(int hourRateId)
+    {
+        var rate = await _context.HourRate
+            .FirstOrDefaultAsync(hr => hr.Id == hourRateId);
+
+        _context.HourRate.Remove(rate);
+        await _context.SaveChangesAsync();
+    }
 }

@@ -35,8 +35,7 @@
                 Label="@Localizer["Common.Task"]"
                 @bind-Value="_selectedTaskId"
                 Required="true"
-                RequiredError="@Localizer["Validation.Task.Required"]"
-                Disabled="@_editMode">
+                RequiredError="@Localizer["Validation.Task.Required"]">
                 @if (_selectedProject?.Tasks != null)
                 {
                     if (_selectedProject?.Tasks != null)

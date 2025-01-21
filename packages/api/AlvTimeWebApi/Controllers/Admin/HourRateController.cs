@@ -34,4 +34,11 @@ public class HourRateController : Controller
         var updatedRate = await _hourRateService.UpdateHourRate(hourRateToBeUpdated.MapToHourRateDto(hourRateId));
         return Ok(updatedRate.MapToHourRateResponse());
     }
+    
+    [HttpDelete("HourRates/{hourRateId:int}")]
+    public async Task<ActionResult> DeleteHourRate(int hourRateId)
+    {
+        await _hourRateService.DeleteHourRate(hourRateId);
+        return Ok();
+    }
 }

@@ -17,7 +17,7 @@
                 Icon="@Icons.Material.Filled.ArrowBack"
                 Color="Color.Secondary"
                 aria-label="back"
-                OnClick="@(()=> Navigation.NavigateTo("/kunder"))"/>
+                OnClick="@(() => Navigation.NavigateTo("/kunder"))"/>
 
             <PageTitle>@Localizer["CustomersPage.Title"]/@_customer.Name</PageTitle>
 
@@ -38,8 +38,10 @@
                 <MudPaper Class="pa-4">
                     <MudText Class="mb-2" Typo="Typo.h6">@Localizer["Common.ContactInformation"]</MudText>
                     <MudText>@Localizer["Common.ContactPerson"]: @_customer.ContactPerson</MudText>
-                    <MudText>@Localizer["Common.Email"]: <MudLink Href="@($"mailto:{_customer.ContactEmail}")">@_customer.ContactEmail</MudLink></MudText>
-                    <MudText>@Localizer["Common.Telephone"]: <MudLink Href="@($"tel:{_customer.ContactPhone}")">@_customer.ContactPhone</MudLink></MudText>
+                    <MudText>@Localizer["Common.Email"]: <MudLink Href="@($"mailto:{_customer.ContactEmail}")">@_customer.ContactEmail</MudLink>
+                    </MudText>
+                    <MudText>@Localizer["Common.Telephone"]: <MudLink Href="@($"tel:{_customer.ContactPhone}")">@_customer.ContactPhone</MudLink>
+                    </MudText>
                 </MudPaper>
             </div>
 
@@ -213,6 +215,22 @@
                             OnClick="@EditHourRate"
                             aria-label="@Localizer["CustomerPage.EditHourRate"]">
                         </MudIconButton>
+                        <MudIconButton
+                            Icon="@Icons.Material.Filled.Delete"
+                            Color="Color.Secondary"
+                            Disabled="@(_selectedHourRate == null)"
+                            OnClick="@ConfirmDeleteHourRate"
+                            aria-label="@Localizer["CustomerPage.DeleteHourRate"]">
+                        </MudIconButton>
+                        <MudMessageBox @ref="_confirmDeleteHourRateMessageBox" Title="Slette?" CancelText="Avbryt">
+                            <MessageContent>
+                                Er du sikker på at du vil slette timeraten?
+                            </MessageContent>
+                            <YesButton>
+                                <MudButton Variant="Variant.Filled" Color="Color.Error"
+                                           StartIcon="@Icons.Material.Filled.DeleteForever" OnClick="@DeleteHourRate">Ja, slett</MudButton>
+                            </YesButton>
+                        </MudMessageBox>
                     </ToolBarContent>
                     <Columns>
                         <SelectColumn
@@ -273,7 +291,7 @@ else
     [Inject] NavigationManager Navigation { get; set; }
 
     [Parameter] public string CustomerId { get; set; }
-    
+
     private CustomerModel? _customer;
     private IEnumerable<TaskModel>? _aggregatedTasks;
     private IEnumerable<HourRateModel>? _aggregatedHourRates;
@@ -290,13 +308,15 @@ else
     private TaskModel? _selectedTask;
     private HourRateModel? _selectedHourRate;
 
+    private MudMessageBox _confirmDeleteHourRateMessageBox;
+
     protected override async Task OnInitializedAsync()
     {
         // Fetch data for customer
         Interceptor.RegisterEvent();
         await RefreshCustomer();
     }
-    
+
     private Func<ProjectModel, bool> QuickFilterProjects => project =>
     {
         if (string.IsNullOrWhiteSpace(_projectSearchString))
@@ -304,10 +324,10 @@ else
 
         if (project.Name.Contains(_projectSearchString, StringComparison.OrdinalIgnoreCase))
             return true;
-        
+
         return false;
     };
-    
+
     private Func<TaskModel, bool> QuickFilterTasks => task =>
     {
         if (string.IsNullOrWhiteSpace(_taskSearchString))
@@ -315,13 +335,13 @@ else
 
         if (task.Name.Contains(_taskSearchString, StringComparison.OrdinalIgnoreCase))
             return true;
-        
+
         if (task.ProjectName.Contains(_taskSearchString, StringComparison.OrdinalIgnoreCase))
             return true;
-        
+
         return false;
     };
-    
+
     private Func<HourRateModel, bool> QuickFilterHourRates => hourRate =>
     {
         if (string.IsNullOrWhiteSpace(_hourRateSearchString))
@@ -329,10 +349,10 @@ else
 
         if (hourRate.ProjectName.Contains(_hourRateSearchString, StringComparison.OrdinalIgnoreCase))
             return true;
-        
+
         if (hourRate.TaskName.Contains(_hourRateSearchString, StringComparison.OrdinalIgnoreCase))
             return true;
-        
+
         return false;
     };
 
@@ -386,14 +406,14 @@ else
                 MaxWidth = MaxWidth.Small
             });
     }
-    
+
     private void EditCustomer()
     {
         if (string.IsNullOrEmpty(CustomerId) || !int.TryParse(CustomerId, out int parsedId))
         {
             return;
         }
-        
+
         DialogService.ShowAsync<CustomerDialog>(Localizer["CustomerPage.EditCustomer"], new DialogParameters
             {
                 ["OnCustomerSubmit"] = RefreshAfterDialogAction,
@@ -414,7 +434,7 @@ else
                 ["OnProjectSubmit"] = RefreshAfterDialogAction,
                 ["SelectedProject"] = _selectedProject
             },
-            new DialogOptions()
+            new DialogOptions
             {
                 FullWidth = true,
                 MaxWidth = MaxWidth.Small
@@ -424,16 +444,16 @@ else
     private void EditTask()
     {
         DialogService.Show<TaskDialog>(Localizer["CustomerPage.EditTask"], new DialogParameters
-        {
-            ["OnTaskSubmit"] = RefreshAfterDialogAction,
-            ["Projects"] = _customer!.Projects,
-            ["SelectedTask"] = _selectedTask
-        },
-        new DialogOptions()
-        {
-            FullWidth = true,
-            MaxWidth = MaxWidth.Small
-        });
+            {
+                ["OnTaskSubmit"] = RefreshAfterDialogAction,
+                ["Projects"] = _customer!.Projects,
+                ["SelectedTask"] = _selectedTask
+            },
+            new DialogOptions
+            {
+                FullWidth = true,
+                MaxWidth = MaxWidth.Small
+            });
     }
 
     private void EditHourRate()
@@ -444,11 +464,24 @@ else
                 ["Projects"] = _customer!.Projects,
                 ["SelectedHourRate"] = _selectedHourRate
             },
-            new DialogOptions()
+            new DialogOptions
             {
                 FullWidth = true,
                 MaxWidth = MaxWidth.Small
-            }); 
+            });
+    }
+
+    private async Task ConfirmDeleteHourRate()
+    {
+        await _confirmDeleteHourRateMessageBox.ShowAsync();
+        StateHasChanged();
+    }
+
+    private async Task DeleteHourRate()
+    {
+        await HttpClient.DeleteAsync(ApiRoutes.DeleteHourRate(_selectedHourRate!.Id));
+        await RefreshCustomer();
+        StateHasChanged();
     }
 
     private EventCallback RefreshAfterDialogAction => new(this, (Action)(async () =>
@@ -510,7 +543,7 @@ else
                         .ThenBy(hr => hr.Rate)
                         .ToList();
                 }
-                
+
                 /*  TODO:
                     Evaluate current reset of all selections. 
                     It might be that we want to re-evaluate this whole method */
@@ -520,7 +553,6 @@ else
                 _selectedProject = null;
                 _selectedTask = null;
                 _selectedHourRate = null;
-         
             }
             else
             {

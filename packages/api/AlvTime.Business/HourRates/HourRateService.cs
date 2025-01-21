@@ -26,6 +26,11 @@ public class HourRateService
         return await GetHourRateById(hourRate.Id);
     }
     
+    public async Task DeleteHourRate(int hourRateId)
+    {
+        await _hourRateStorage.DeleteHourRate(hourRateId);
+    }
+    
     public async Task<IEnumerable<HourRateDto>> GetHourRates(HourRateQuerySearch criterias)
     {
         return await _hourRateStorage.GetHourRates(criterias);
