@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29519.87
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlvTimeWebApi", "AlvTimeWebApi\AlvTimeWebApi.csproj", "{25E9238C-A74E-4D95-8CD5-8BA9AFB15E7B}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlvTime.Business", "AlvTime.Business\AlvTime.Business.csproj", "{5D9751D8-6B22-4B58-AD7E-6D81A2C4EB19}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AlvTime.Persistence", "AlvTime.Persistence\AlvTime.Persistence.csproj", "{4BFBA768-A03D-4DFF-947A-7B7351367232}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkattefunnRydder", "SkattefunnRydder\SkattefunnRydder.csproj", "{EFB1C84D-ECCC-4997-8DBD-09836B6C83F7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,10 @@ Global
 		{4BFBA768-A03D-4DFF-947A-7B7351367232}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4BFBA768-A03D-4DFF-947A-7B7351367232}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4BFBA768-A03D-4DFF-947A-7B7351367232}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFB1C84D-ECCC-4997-8DBD-09836B6C83F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFB1C84D-ECCC-4997-8DBD-09836B6C83F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFB1C84D-ECCC-4997-8DBD-09836B6C83F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFB1C84D-ECCC-4997-8DBD-09836B6C83F7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
