@@ -1,0 +1,39 @@
+name: Frontend Build And Deploy
+
+on:
+  workflow_call:
+    inputs:
+      targetEnv:
+          required: true
+          type: string
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    environment: ${{inputs.targetEnv}}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Use test config
+        run: cp public/config.${{inputs.targetEnv}}.json public/config.json  # Copy test config before build
+
+      - name: Build Vue app
+        run: npm run build --mode ${{inputs.targetEnv}}
+
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.STATICWEBAPP_DEPLOYMENT_TOKEN }}
+          repo_token: ${{ secrets.GITHUBACTIONDEPLOYMENTCREDENTIALS }}
+          action: "upload"
+          app_location: "/"  # Adjust if your Vue app is in a subdirectory
+          output_location: "dist"  # Vue build output folder
