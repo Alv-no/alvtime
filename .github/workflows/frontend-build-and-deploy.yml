@@ -15,6 +15,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set OpenSSL legacy mode
+        run: export NODE_OPTIONS=--openssl-legacy-provider
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
