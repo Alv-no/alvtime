@@ -24,6 +24,11 @@ jobs:
           node-version: 16
           cache: 'npm'
 
+      - name: Force Node.js 16
+        run: |
+          echo "export PATH=$(nvm which 16):$PATH" >> $GITHUB_ENV
+          echo "NODE_VERSION=$(node -v)" >> $GITHUB_ENV
+
       - name: Verify Node.js version
         run: node -v
 
