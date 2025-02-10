@@ -58,7 +58,6 @@ export default Vue.extend({
       }
       const fuse = new Fuse<Task>(this.$store.state.tasks, {
         keys: ["name", "project.name", "project.customer.name"],
-        fieldNormWeight: 0,
       });
       const result = fuse.search(this.searchphrase);
       return result.map((x: { item: Task }) => x.item);
