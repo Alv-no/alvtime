@@ -11,6 +11,7 @@ jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
     environment: ${{inputs.targetEnv}}
+    working-directory: packages/frontend
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,7 +29,7 @@ jobs:
         run: npm install
 
       - name: Use test config
-        run: cp packages/frontend/public/config.${{inputs.targetEnv}}.json packages/frontend/public/config.json  # Copy test config before build
+        run: cp public/config.${{inputs.targetEnv}}.json public/config.json  # Copy test config before build
 
       - name: Build Vue app
         run: npm run build
