@@ -28,7 +28,7 @@ jobs:
         run: npm install
 
       - name: Use test config
-        run: cp public/config.${{inputs.targetEnv}}.json public/config.json  # Copy test config before build
+        run: cp packages/frontend/public/config.${{inputs.targetEnv}}.json packages/frontend/public/config.json  # Copy test config before build
 
       - name: Build Vue app
         run: npm run build --mode ${{inputs.targetEnv}}
