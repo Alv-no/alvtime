@@ -18,10 +18,14 @@ jobs:
       - name: Set OpenSSL legacy mode
         run: export NODE_OPTIONS=--openssl-legacy-provider
 
-      - name: Set up Node.js
+      - name: Set up Node.js 16
         uses: actions/setup-node@v4
         with:
           node-version: 16
+          cache: 'npm'
+
+      - name: Verify Node.js version
+        run: node -v
 
       - name: Install dependencies
         run: npm install
