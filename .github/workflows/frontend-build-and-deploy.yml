@@ -31,7 +31,7 @@ jobs:
         run: cp packages/frontend/public/config.${{inputs.targetEnv}}.json packages/frontend/public/config.json  # Copy test config before build
 
       - name: Build Vue app
-        run: npm run build --mode ${{inputs.targetEnv}}
+        run: npm run build
 
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
