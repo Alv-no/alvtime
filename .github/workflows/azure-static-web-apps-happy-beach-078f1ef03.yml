@@ -5,9 +5,14 @@ on:
     branches:
       - staticwebappFront
   pull_request:
-    types: [opened, synchronize, reopened, closed]
+    types: 
+      - opened
+      - synchronize
+      - reopened
+      - closed
     branches:
       - staticwebappFront
+
          
 jobs:
     build-and-deploy-test:
