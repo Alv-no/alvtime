@@ -1,12 +1,13 @@
 name: Frontend workflow-runner 
 
 on:
-    workflow_dispatch:
-    push:
-        branches:
-          - staticWebAppFront
-        paths:
-         - "packages/frontend/**"
+  push:
+    branches:
+      - staticwebappFront
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - staticwebappFront
          
 jobs:
     build-and-deploy-test:
