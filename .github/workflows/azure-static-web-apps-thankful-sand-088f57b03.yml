@@ -24,6 +24,8 @@ jobs:
           lfs: false
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client
+      - name: Set config
+        run: cp /packages/frontend/config.test.json /packages/frontend/config.json
       - name: Get Id Token
         uses: actions/github-script@v6
         id: idtoken
@@ -44,7 +46,6 @@ jobs:
           api_location: "" # Api source code path - optional
           output_location: "dist" # Built app content directory - optional
           github_id_token: ${{ steps.idtoken.outputs.result }}
-          app_build_command: "npm run build --mode prod"
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
