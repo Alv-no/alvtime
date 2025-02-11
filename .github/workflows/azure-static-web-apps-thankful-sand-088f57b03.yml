@@ -25,7 +25,8 @@ jobs:
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client
       - name: Set config
-        run: cp /packages/frontend/public/config.test.json /packages/frontend/public/config.json
+        working-directory: packages/frontend
+        run: cp public/config.test.json public/config.json
       - name: Get Id Token
         uses: actions/github-script@v6
         id: idtoken
