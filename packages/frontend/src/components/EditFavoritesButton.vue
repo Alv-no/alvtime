@@ -5,7 +5,7 @@
       :toggle="$store.state.selectFavorites"
       icon-id="star"
       icon-id2="star_border"
-      tooltip="Velg favorittaktiviteter"
+      tooltip="Velg favorittaktiviteter her"
       text="Favoritter"
       @click="editFavorites"
     />
