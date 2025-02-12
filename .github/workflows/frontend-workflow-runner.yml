@@ -14,7 +14,6 @@ jobs:
         uses: ./.github/workflows/azure-static-web-apps-calm-grass-097777103.yml
         with: 
             targetEnv: test
-        secrets: inherit
     
     # build-and-deploy-prod:
     #     needs: build-and-deploy-test
