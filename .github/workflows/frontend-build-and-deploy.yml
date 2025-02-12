@@ -8,39 +8,55 @@ on:
           type: string
 
 jobs:
-  build_and_deploy:
+  build_and_deploy_job:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
-    environment: ${{inputs.targetEnv}}
+    name: Build and Deploy Job
+    permissions:
+       id-token: write
+       contents: read
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js 16
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v3
         with:
-          node-version: 16
-          cache: 'npm'
-
-      - name: Verify Node.js version
-        run: node -v
-
-      - name: Install dependencies
+          submodules: true
+          lfs: false
+      - name: Install OIDC Client from Core Package
+        run: npm install @actions/core@1.6.0 @actions/http-client
+      - name: Set config
         working-directory: packages/frontend
-        run: npm install
-
-      - name: Use test config
-        working-directory: packages/frontend
-        run: cp public/config.${{inputs.targetEnv}}.json public/config.json  # Copy test config before build
-
-      - name: Build Vue app
-        working-directory: packages/frontend
-        run: npm run build
-
-      - name: Deploy to Azure Static Web Apps
+        run: cp public/config.${{inputs.targetEnv}}.json public/config.json
+      - name: Get Id Token
+        uses: actions/github-script@v6
+        id: idtoken
+        with:
+           script: |
+               const coredemo = require('@actions/core')
+               return await coredemo.getIDToken()
+           result-encoding: string
+      - name: print secret
+        run: |
+          echo ${{secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_MANGO_OCEAN_0FD64BB03}} | sed 's/./& /g'
+      - name: Build And Deploy
+        id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_HAPPY_BEACH_078F1EF03 }}
-          repo_token: ${{ secrets.GITHUBACTIONDEPLOYMENTCREDENTIALS }}
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_MANGO_OCEAN_0FD64BB03 }}
           action: "upload"
-          app_location: "/packages/frontend"  # Adjust if your Vue app is in a subdirectory
-          output_location: "dist"  # Vue build output folder
+          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+          app_location: "/packages/frontend" # App source code path
+          api_location: "" # Api source code path - optional
+          output_location: "dist" # Built app content directory - optional
+          github_id_token: ${{ steps.idtoken.outputs.result }}
+          ###### End of Repository/Build Configurations ######
+
+  close_pull_request_job:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request Job
+    steps:
+      - name: Close Pull Request
+        id: closepullrequest
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          action: "close"

@@ -1,0 +1,24 @@
+name: Frontend workflow-runner
+
+on:
+  push:
+    branches:
+      - staticwebappFront
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - staticwebappFront
+
+jobs:
+    build-and-deploy-test:
+        uses: ./.github/workflows/frontend-build-and-deploy.yml
+        with: 
+            targetEnv: test
+        secrets: inherit
+    
+    # build-and-deploy-prod:
+    #     needs: build-and-deploy-test
+    #     uses: ./.github/workflows/adminpanel-build-and-deploy.yml
+    #     with:
+    #         targetEnv: prod
+    #     secrets: inherit
