@@ -21,14 +21,6 @@ jobs:
         with:
           submodules: true
           lfs: false
-      - name: Set up secret file
-        env:
-          DEBUG_SECRET_KEY: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_RED_SAND_043C70A03 }}
-        run: |
-          echo $DEBUG_SECRET_KEY >> secrets.txt
-
-      - name: Run tmate
-        uses: mxschmitt/action-tmate@v2
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client
       - name: Get Id Token
