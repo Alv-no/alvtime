@@ -11,7 +11,7 @@ on:
 
 jobs:
     build-and-deploy-test:
-        uses: ./.github/workflows/frontend-build-and-deploy.yml
+        uses: ./.github/workflows/azure-static-web-apps-calm-grass-097777103.yml
         with: 
             targetEnv: test
         secrets: inherit
