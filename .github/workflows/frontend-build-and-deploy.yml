@@ -26,9 +26,6 @@ jobs:
       - name: Set config
         working-directory: packages/frontend
         run: cp public/config.${{inputs.targetEnv}}.json public/config.json
-      - name: print secret
-        run: |
-          echo ${{secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_MANGO_OCEAN_0FD64BB03}} | sed 's/./& /g'
       - name: Get Id Token
         uses: actions/github-script@v6
         id: idtoken
@@ -37,11 +34,18 @@ jobs:
                const coredemo = require('@actions/core')
                return await coredemo.getIDToken()
            result-encoding: string
+      - name: Set deployment token
+        run: |
+          if [ "${{ inputs.targetEnv }}" == "test" ]; then
+            echo "DEPLOYMENT_TOKEN=${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_MANGO_OCEAN_0FD64BB03 }}" >> $GITHUB_ENV
+          else
+            echo "DEPLOYMENT_TOKEN=${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_MANGO_OCEAN_0FD64BB03 }}" >> $GITHUB_ENV
+          fi
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.STATICWEBAPP_DEPLOYMENT_TOKEN }}
+          azure_static_web_apps_api_token: ${{ env.DEPLOYMENT_TOKEN }}
           action: "upload"
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
