@@ -16,7 +16,7 @@ export default Vue.extend({
     text(): string {
       if (!this.$store.getters.isValidUser) return "Alvtime";
       if (this.$store.state.currentRoute.name === "tasks")
-        return "Velg aktiviteter";
+        return "Velg aktiviteter her";
       if (this.$store.state.currentRoute.name === "tokens")
         return "Personlige access token";
       if (this.$store.state.currentRoute.name === "accumulated-hours")
