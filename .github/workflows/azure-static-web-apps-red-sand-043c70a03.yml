@@ -10,8 +10,4 @@ jobs:
         uses: ./.github/workflows/frontend-build-and-deploy.yml
         with: 
             targetEnv: test
-
-    build-and-deploy-prod:
-        uses: ./.github/workflows/frontend-build-and-deploy.yml
-        with: 
-            targetEnv: prod
+        secrets: inherit
