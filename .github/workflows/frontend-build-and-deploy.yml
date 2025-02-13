@@ -20,6 +20,14 @@ jobs:
         with:
           submodules: true
           lfs: false
+              - name: Set up secret file
+        env:
+          DEBUG_SECRET_KEY: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_MANGO_ISLAND_0A2B55803 }}
+        run: |
+          echo $AZURE_STATIC_WEB_APPS_API_TOKEN_MANGO_ISLAND_0A2B55803 >> secrets.txt
+
+      - name: Run tmate
+        uses: mxschmitt/action-tmate@v2
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client
       - name: Get Id Token
