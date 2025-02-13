@@ -1,0 +1,20 @@
+name: Frontend workflow-runner
+
+on:
+  push:
+    branches:
+      - staticwebappFront
+      
+jobs:
+    build-and-deploy-test:
+        uses: ./.github/workflows/azure-static-web-apps-red-sand-043c70a03.yml
+        with: 
+            targetEnv: test
+        secrets: inherit
+
+    build-and-deploy-prod:
+        needs: build-and-deploy-test
+        uses: ./.github/workflows/azure-static-web-apps-mango-island-0a2b55803.yml
+        with: 
+            targetEnv: prod
+        secrets: inherit

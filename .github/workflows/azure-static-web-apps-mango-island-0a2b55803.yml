@@ -1,19 +1,17 @@
-name: Azure Static Web Apps CI/CD
+name: Frontend Build and Deploy Prod
 
 on:
-  push:
-    branches:
-      - staticwebappFront2
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    branches:
-      - staticwebappFront2
+  workflow_call:
+    inputs:
+      targetEnv:
+          required: true
+          type: string
 
 jobs:
   build_and_deploy_job:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
-    name: Build and Deploy Job
+    name: Build and Deploy Prod Job
+    environment: ${{inputs.targetEnv}}
     permissions:
        id-token: write
        contents: read
@@ -22,16 +20,6 @@ jobs:
         with:
           submodules: true
           lfs: false
-      - name: Set up secret file
-        env:
-          DEBUG_SECRET_KEY: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_MANGO_ISLAND_0A2B55803 }}
-        run: |
-          echo $DEBUG_SECRET_KEY >> secrets.txt
-
-      - name: Run tmate
-        uses: mxschmitt/action-tmate@v2
-      - name: Install OIDC Client from Core Package
-        run: npm install @actions/core@1.6.0 @actions/http-client
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client
       - name: Get Id Token
@@ -42,11 +30,14 @@ jobs:
                const coredemo = require('@actions/core')
                return await coredemo.getIDToken()
            result-encoding: string
+      - name: Set config
+        working-directory: packages/frontend
+        run: cp public/config.${{inputs.targetEnv}}.json public/config.json
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_MANGO_ISLAND_0A2B55803 }}
+          azure_static_web_apps_api_token: ${{ secrets.STATICWEBAPP_DEPLOYMENT_TOKEN }}
           action: "upload"
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
@@ -55,14 +46,3 @@ jobs:
           output_location: "dist" # Built app content directory - optional
           github_id_token: ${{ steps.idtoken.outputs.result }}
           ###### End of Repository/Build Configurations ######
-
-  close_pull_request_job:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
-    runs-on: ubuntu-latest
-    name: Close Pull Request Job
-    steps:
-      - name: Close Pull Request
-        id: closepullrequest
-        uses: Azure/static-web-apps-deploy@v1
-        with:
-          action: "close"

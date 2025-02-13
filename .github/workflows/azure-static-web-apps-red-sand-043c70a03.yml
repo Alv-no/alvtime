@@ -1,29 +1,48 @@
-name: Frontend workflow-runner
+name: Frontend Build and Deploy Test
 
 on:
-  push:
-    branches:
-      - staticwebappFront
-      
-jobs:
-    build-and-deploy-test:
-      runs-on: ubuntu-latest
-      steps: 
-        - name: Symlink Correct Workflow File
-          run: ln -s .github/workflows/azure-static-web-apps-red-sand-043c70a03.yml .github/workflows/azure-static-web-apps-red-sand-043c70a03.yml
-        - name: Run Workflow
-          uses: ./.github/workflows/frontend-build-and-deploy.yml
-          with: 
-              targetEnv: test
-          secrets: inherit
+  workflow_call:
+    inputs:
+      targetEnv:
+          required: true
+          type: string
 
-    build-and-deploy-prod:
-      steps: 
-        - name: Symlink Correct Workflow File
-          run: ln -s .github/workflows/azure-static-web-apps-red-sand-043c70a03.yml .github/workflows/azure-static-web-apps-mango-island-0a2b55803.yml
-        - name: Run Workflow
-          needs: build-and-deploy-test
-          uses: ./.github/workflows/frontend-build-and-deploy.yml
-          with: 
-              targetEnv: prod
-          secrets: inherit
+jobs:
+  build_and_deploy_job:
+    runs-on: ubuntu-latest
+    name: Build and Deploy Test Job
+    environment: ${{inputs.targetEnv}}
+    permissions:
+       id-token: write
+       contents: read
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+          lfs: false
+      - name: Install OIDC Client from Core Package
+        run: npm install @actions/core@1.6.0 @actions/http-client
+      - name: Get Id Token
+        uses: actions/github-script@v6
+        id: idtoken
+        with:
+           script: |
+               const coredemo = require('@actions/core')
+               return await coredemo.getIDToken()
+           result-encoding: string
+      - name: Set config
+        working-directory: packages/frontend
+        run: cp public/config.${{inputs.targetEnv}}.json public/config.json
+      - name: Build And Deploy
+        id: builddeploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.STATICWEBAPP_DEPLOYMENT_TOKEN }}
+          action: "upload"
+          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+          app_location: "/packages/frontend" # App source code path
+          api_location: "" # Api source code path - optional
+          output_location: "dist" # Built app content directory - optional
+          github_id_token: ${{ steps.idtoken.outputs.result }}
+          ###### End of Repository/Build Configurations ######
