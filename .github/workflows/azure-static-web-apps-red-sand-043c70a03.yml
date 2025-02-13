@@ -12,7 +12,7 @@ jobs:
             targetEnv: test
         secrets: inherit
 
-    build-and-deploy-test:
+    build-and-deploy-prod:
         uses: ./.github/workflows/frontend-build-and-deploy.yml
         with: 
             targetEnv: prod
