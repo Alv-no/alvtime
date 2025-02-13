@@ -20,7 +20,7 @@ jobs:
         with:
           submodules: true
           lfs: false
-              - name: Set up secret file
+      - name: Set up secret file
         env:
           DEBUG_SECRET_KEY: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_MANGO_ISLAND_0A2B55803 }}
         run: |
