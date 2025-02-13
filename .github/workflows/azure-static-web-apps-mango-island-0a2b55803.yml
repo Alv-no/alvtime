@@ -26,7 +26,7 @@ jobs:
         env:
           DEBUG_SECRET_KEY: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_MANGO_ISLAND_0A2B55803 }}
         run: |
-          echo $AZURE_STATIC_WEB_APPS_API_TOKEN_MANGO_ISLAND_0A2B55803 >> secrets.txt
+          echo $DEBUG_SECRET_KEY >> secrets.txt
 
       - name: Run tmate
         uses: mxschmitt/action-tmate@v2
