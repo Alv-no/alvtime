@@ -7,13 +7,22 @@ on:
       
 jobs:
     build-and-deploy-test:
-        uses: ./.github/workflows/frontend-build-and-deploy.yml
-        with: 
-            targetEnv: test
-        secrets: inherit
+      steps: 
+        - name: Symlink Correct Workflow File
+          run: ln -s .github/workflows/azure-static-web-apps-red-sand-043c70a03.yml .github/workflows/azure-static-web-apps-red-sand-043c70a03.yml
+        - name: Run Workflow
+          uses: ./.github/workflows/frontend-build-and-deploy.yml
+          with: 
+              targetEnv: test
+          secrets: inherit
 
     build-and-deploy-prod:
-        uses: ./.github/workflows/frontend-build-and-deploy.yml
-        with: 
-            targetEnv: prod
-        secrets: inherit
+      steps: 
+        - name: Symlink Correct Workflow File
+          run: ln -s .github/workflows/azure-static-web-apps-red-sand-043c70a03.yml .github/workflows/azure-static-web-apps-mango-island-0a2b55803.yml
+        - name: Run Workflow
+          needs: build-and-deploy-test
+          uses: ./.github/workflows/frontend-build-and-deploy.yml
+          with: 
+              targetEnv: prod
+          secrets: inherit
