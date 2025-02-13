@@ -7,6 +7,7 @@ on:
       
 jobs:
     build-and-deploy-test:
+      runs-on: ubuntu-latest
       steps: 
         - name: Symlink Correct Workflow File
           run: ln -s .github/workflows/azure-static-web-apps-red-sand-043c70a03.yml .github/workflows/azure-static-web-apps-red-sand-043c70a03.yml
