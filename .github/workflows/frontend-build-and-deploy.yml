@@ -6,6 +6,9 @@ on:
       targetEnv:
           required: true
           type: string
+      deploymentToken:
+          required: true
+          type: string
 
 jobs:
   build_and_deploy_job:
@@ -37,7 +40,7 @@ jobs:
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.STATICWEBAPP_DEPLOYMENT_TOKEN }}
+          azure_static_web_apps_api_token: ${{ inputs.deploymentToken }}
           action: "upload"
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
