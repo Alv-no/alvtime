@@ -1,17 +1,15 @@
 name: Frontend Build and Deploy Test
 
 on:
-  workflow_call:
-    inputs:
-      targetEnv:
-          required: true
-          type: string
+  push:
+    branches:
+      - staticwebappFront
 
 jobs:
   build_and_deploy_job:
     runs-on: ubuntu-latest
     name: Build and Deploy Test Job
-    environment: ${{inputs.targetEnv}}
+    environment: test
     permissions:
        id-token: write
        contents: read
@@ -32,7 +30,7 @@ jobs:
            result-encoding: string
       - name: Set config
         working-directory: packages/frontend
-        run: cp public/config.${{inputs.targetEnv}}.json public/config.json
+        run: cp public/config.test.json public/config.json
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
