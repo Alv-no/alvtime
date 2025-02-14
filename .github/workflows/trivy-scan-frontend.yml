@@ -8,7 +8,7 @@ name: Run trivy-scan on frontend
 on:
   pull_request:
     paths:
-      - 'packages/frontend/**'
+      - 'packages/frontend-to-be-deleted/**'
 
 permissions:
   contents: read
