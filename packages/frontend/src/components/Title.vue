@@ -18,7 +18,7 @@ export default Vue.extend({
       if (this.$store.state.currentRoute.name === "tasks")
         return "Velg aktiviteter";
       if (this.$store.state.currentRoute.name === "tokens")
-        return "Personlige access token";
+        return "Personlige access tokens";
       if (this.$store.state.currentRoute.name === "accumulated-hours")
         return "Overtid og ferie";
       if (this.$store.state.currentRoute.name === "dashboard")
