@@ -26,17 +26,16 @@ export const mapTimeStampToLabel = (
 
 /**
  * Finds the week of year that the given timestamp is in.
- * Source: https://www.geeksforgeeks.org/calculate-current-week-number-in-javascript/
  * @param {string} timestamp
  * @returns {number} - week number
  */
 const getWeekNumber = (timestamp: string) => {
   const currentDate = new Date(timestamp);
-  const startDate = new Date(currentDate.getFullYear(), 0, 1);
-  const days = Math.floor(
-    (currentDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)
-  );
-  const weekNumber = Math.ceil(days / 7);
+  //Set time to midday to avoid timezone issues
+  currentDate.setUTCHours(currentDate.getUTCHours() + 12);
+  currentDate.setUTCDate(currentDate.getUTCDate() + 4 - (currentDate.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(currentDate.getUTCFullYear(), 0, 1));
+  const weekNumber = Math.ceil(((currentDate.getTime() - yearStart.getTime()) / (7 * 24 * 60 * 60 * 1000)));
   return weekNumber;
 };
 
