@@ -3,7 +3,7 @@ name: Frontend Build and Deploy Test
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build_and_deploy_job:
