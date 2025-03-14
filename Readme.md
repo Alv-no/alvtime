@@ -15,7 +15,7 @@
 
 ## Architecture
 
-![Alvtime architecture](images/architecture.jpg)
+![Alvtime architecture](images/alvtime-arkitektur.png)
 
 ## Development / Contribution
 
@@ -23,7 +23,7 @@ The following is adapted from [Release Flow - Azure DevOps | Microsoft Docs](htt
 
 ### 1. Branch
 
-The first step when a developer wants to fix a bug or implement a feature is to create a new branch off of our main integration branch, main. Thanks to Git's lightweight branching model, we create these short-lived "topic" branches any and every time we want to write some code. Developers are encouraged to commit early and to avoid long-running feature branches by using feature flags.
+The first step when a developer wants to fix a bug or implement a feature is to create a new branch off of our main integration branch, main. Thanks to Git's lightweight branching model, we create these short-lived "topic" branches any and every time we want to write some code. Developers are encouraged to commit early and to avoid long-running feature branches by using feature flags. We use the following naming convention for branching: new features or improvements are named `us/{issue-id}/{issue-description}`. Bugs are named `fix/{issue-id}/{issue-description}`.
 
 ### 2. Start the development environment
 
@@ -35,8 +35,8 @@ Dependencies:
 
 - [Node.js 14](https://nodejs.org/en/)
 - [.NET Core 7.0](https://dotnet.microsoft.com/download/dotnet/7.0)
-- [MsSQL](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
-- [MongoDB](https://www.mongodb.com/try/download/enterprise)
+- [MSSQL](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
+- [MongoDB](https://www.mongodb.com/try/download/enterprise) (only for Slack app)
 
 Follow the instructions in the Readme file in each of the packages and start the services you need. The architecture drawing above is a good starting point to decide what services you need to start up to be able to accomplish your task.
 
@@ -70,8 +70,8 @@ We use Github Pull Requests to control how developers branches are merged into m
 
 ### 7. Merge
 
-Once all the build policies are satisfied and reviewers have signed off, then the pull request is completed. This means that the topic branch is merged into the main integration branch, main.
+Once all the build policies are satisfied and reviewers have signed off, then the pull request is completed. This means that the topic branch is merged into the main integration branch, main. 
 
-# Deployment from local machine
+### 8. Deploy
 
-Run `az login` to login to your azure account and then run `./run deploy test` or `./run deploy prod` from the root of the project.
+A merge to the main branch will trigger an automatic deploy to the test environment, `test-alvtime.no`. For deploy to production, a manual approval is required by an admin user.
