@@ -21,7 +21,7 @@
     "lodash": "^4.17.15",
     "moment": "^2.29.2",
     "register-service-worker": "^1.6.2",
-    "store2": "^2.13.1",
+    "store2": "^2.14.4",
     "swiper": "^5.4.5",
     "uuid": "^3.4.0",
     "vue": "2.6.14",
