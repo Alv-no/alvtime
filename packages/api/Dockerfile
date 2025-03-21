@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS base
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS base
 WORKDIR /app
 
 COPY ["AlvTimeWebApi/AlvTimeWebApi.csproj", "AlvTimeWebApi/"]
@@ -9,7 +9,7 @@ RUN dotnet publish -c Debug -o out AlvTimeWebApi/AlvTimeWebApi.csproj
 RUN dotnet dev-certs https
 ENTRYPOINT ["dotnet",  "watch", "--project", "AlvTimeWebApi/AlvTimeWebApi.csproj", "run", "--urls", "http://0.0.0.0:80;https://0.0.0.0:443"]
 
-FROM mcr.microsoft.com/dotnet/aspnet:7.0
+FROM mcr.microsoft.com/dotnet/aspnet:9.0
 
 WORKDIR /app
 COPY --from=base /app/out .

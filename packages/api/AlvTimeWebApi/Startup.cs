@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Scalar.AspNetCore;
 
 namespace AlvTimeWebApi;
 
@@ -41,7 +42,7 @@ public class Startup
         services.AddAlvtimeAuthentication(Configuration);
         services.Configure<TimeEntryOptions>(Configuration.GetSection("TimeEntryOptions"));
         services.AddAlvtimeAuthorization();
-        services.AddSwaggerExtensions(Configuration);
+        services.AddOpenApi(o => o.AddDocumentTransformer<OpenApiSecuritySchemeTransformer>());
         services.AddRazorPages();
         services.AddAlvtimeCorsPolicys(Configuration);
     }
@@ -53,17 +54,7 @@ public class Startup
             app.UseHsts(); // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
         }
 
-        app.UseStaticFiles();
         app.UseErrorHandling(env);
-
-        app.UseSwagger();
-        app.UseSwaggerUI(c =>
-        {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "Alvtime API v1");
-            c.OAuthClientId(Configuration["AzureAd:ClientId"]);
-            c.OAuthUsePkce();
-            c.OAuthScopeSeparator(" ");
-        });
 
         app.UseRouting();
 
@@ -86,6 +77,21 @@ public class Startup
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
             endpoints.MapRazorPages();
+            endpoints.MapStaticAssets();
+            endpoints.MapOpenApi();
+            endpoints.MapScalarApiReference(options =>
+            {
+                options
+                    .WithOAuth2Authentication(oAuth2Options =>
+                    {
+                        oAuth2Options.ClientId = Configuration["AzureAd:ClientId"];
+                        oAuth2Options.Scopes = [Configuration["AzureAd:Domain"]];
+                    })
+                    .WithTheme(ScalarTheme.Kepler)
+                    .WithTitle("AlvTime API")
+                    .WithFavicon("/assets/favicon.ico")
+                    .WithDarkModeToggle(true);
+            });
         });
     }
 }
