@@ -35,6 +35,7 @@ services:
       - AzureAd__Domain=api://c9126a83-01c3-43c0-8bb3-298d352d2d7f
       - AzureAd__ClientId=c9126a83-01c3-43c0-8bb3-298d352d2d7f
       - ASPNETCORE_ENVIRONMENT=Development
+      - DOTNET_URLS=http://0.0.0.0:80;https://0.0.0.0:443
     ports:
       - "8081:80"
       - "8082:443"
