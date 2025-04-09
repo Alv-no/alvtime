@@ -29,7 +29,7 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
       "environmentVariables": {
-        "DOTNET_URLS": "https://+:443;http://+:80"
+        "DOTNET_URLS": "https://+:443;http://+:8080"
       },
       "httpPort": 62511,
       "useSSL": true,
