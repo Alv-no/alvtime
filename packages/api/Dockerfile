@@ -13,5 +13,5 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0
 
 WORKDIR /app
 COPY --from=base /app/out .
-EXPOSE 8080
+EXPOSE 80
 ENTRYPOINT ["dotnet", "AlvTimeWebApi.dll"]
