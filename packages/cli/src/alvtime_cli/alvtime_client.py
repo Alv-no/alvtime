@@ -54,7 +54,7 @@ class AlvtimeClient:
         return response.json()
 
     def list_tasks(self):
-        pat = config.get("pat", "")
+        pat = config.get(config.Keys.personal_access_token, "")
         headers = {"Authorization": f"Bearer {pat}"}
         response = requests.get(f"{self.base_url}/api/user/Tasks",
                                 headers=headers)
@@ -62,7 +62,7 @@ class AlvtimeClient:
         return response.json()
 
     def list_customers(self, include_locked):
-        pat = config.get("pat", "")
+        pat = config.get(config.Keys.personal_access_token, "")
         headers = {"Authorization": f"Bearer {pat}"}
         response = requests.get(f"{self.base_url}/api/user/Tasks",
                                 headers=headers)

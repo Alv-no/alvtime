@@ -1,8 +1,19 @@
+from enum import StrEnum
 from pathlib import Path
 import yaml
 
 
 config_filename = Path.home() / ".alvtime.conf"
+
+
+class Keys(StrEnum):
+    personal_access_token = 'personalAccessToken'
+    database_path = 'databasePath'
+
+
+defaults = {
+    Keys.database_path: Path.home() / ".alvtime.db"
+}
 
 
 def _load():
@@ -23,10 +34,14 @@ def _save(config):
 
 def get(key, default=None):
     config = _load()
-    if default is None:
-        return config[key]
-    else:
+    key = str(key)
+    if default is not None:
         return config.get(key, default)
+
+    if key in defaults:
+        return config.get(key, defaults[key])
+    else:
+        return config[key]
 
 
 def set(key: str, value):
