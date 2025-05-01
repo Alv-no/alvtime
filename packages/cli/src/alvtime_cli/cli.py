@@ -6,13 +6,14 @@ from .commands.alias import group as alias_group
 from .local_service import LocalService
 from .alvtime_client import AlvtimeClient
 from .repo import Repo
+from . import config
 
 
 @click.group()
 @click.pass_context
 def main(ctx: click.Context):
     alvtime_client = AlvtimeClient()
-    repo = Repo()
+    repo = Repo(config.get(config.Keys.database_path))
     service = LocalService(
         repo=repo,
         alvtime_client=alvtime_client)
