@@ -23,5 +23,5 @@ def list_(include_locked: bool, search: str = None):
                     f"{style(task.id, "task")}: "
                     f"{style(customer.name, "customer")} "
                     f"{style(project.name, "project")} "
-                    f"{style(task.name, "task")} "
-                    f"({style(str(task.rate*100), "rate")}%)")
+                    f"{style(task.name, "task")} " +
+                    style(f"({str(task.rate*100)}%)", "rate"))
