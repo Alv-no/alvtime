@@ -9,7 +9,7 @@
             "type": "debugpy",
             "request": "launch",
             "module": "alvtime_cli.cli",
-            "args": ["foo"]
+            "args": ["tasks", "list"]
         }
     ]
 }
