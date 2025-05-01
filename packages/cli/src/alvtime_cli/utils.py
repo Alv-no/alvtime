@@ -26,3 +26,18 @@ def handle_exceptions(func=None):
             sys.exit(1)
 
     return wrapper
+
+
+# Reference: https://click.palletsprojects.com/en/stable/api/#click.style
+COLOR_MAP = {
+     "customer": {"fg": "yellow"},
+     "project":  {"fg": "green"},
+     "task":     {"fg": "bright_blue"},
+     "rate":     {"fg": "white", "dim": True},
+}
+FALLBACK_COLORS = {}
+
+
+def style(message: str, main_class: str, extra: dict = {}) -> str:
+    colors = COLOR_MAP.get(main_class, FALLBACK_COLORS)
+    return click.style(message, **{**colors, **extra})

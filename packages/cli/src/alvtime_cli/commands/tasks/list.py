@@ -1,5 +1,5 @@
 import click
-from ...utils import handle_exceptions
+from ...utils import handle_exceptions, style
 from ...alvtime_client import AlvtimeClient
 
 
@@ -19,16 +19,9 @@ def list_(include_locked: bool, search: str = None):
                     if not search.lower() in search_string:
                         continue
 
-                if task.locked:
-                    fg_proj = "white"
-                    fg_cust = "white"
-                    fg_task = "white"
-                else:
-                    fg_proj = "green"
-                    fg_cust = "yellow"
-                    fg_task = "bright_blue"
-
-                click.secho(f"{customer.name} ", fg=fg_cust, nl=False)
-                click.secho(f"{project.name} ", fg=fg_proj, nl=False)
-                click.secho(f"{task.name} ({task.id}) ", fg=fg_task, nl=False)
-                click.echo(f"({task.rate})")
+                click.echo(
+                    f"{style(task.id, "task")}: "
+                    f"{style(customer.name, "customer")} "
+                    f"{style(project.name, "project")} "
+                    f"{style(task.name, "task")} "
+                    f"({style(str(task.rate*100), "rate")}%)")
