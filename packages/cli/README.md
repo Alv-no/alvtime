@@ -1,6 +1,7 @@
 alvtime pat show
 alvtime pat set
 
+alvtime alias list
 alvtime alias add <name> <task_id>
 alvtime alias remove <name>
 

@@ -1,4 +1,5 @@
 import click
+from .list import list_
 from .add import add
 from .remove import remove
 
@@ -8,5 +9,6 @@ def group():
     pass
 
 
+group.add_command(list_)
 group.add_command(add)
 group.add_command(remove)
