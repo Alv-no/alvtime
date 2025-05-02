@@ -1,7 +1,6 @@
 import click
 from typing import cast
 from ...utils import handle_exceptions, style
-from ...alvtime_client import AlvtimeClient
 from ...local_service import LocalService
 
 

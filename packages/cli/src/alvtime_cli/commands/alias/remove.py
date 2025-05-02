@@ -8,9 +8,10 @@ def _remove_alias(name: str):
 
     if name not in aliases.values():
         raise click.ClickException(f"No alias found with name '{name}'")
-    
-    aliases = { k:v for k,v in aliases.items() if v != name }
+
+    aliases = {k: v for k, v in aliases.items() if v != name}
     config.set(config.Keys.task_aliases, aliases)
+
 
 @click.command()
 @click.argument("name", type=str)
