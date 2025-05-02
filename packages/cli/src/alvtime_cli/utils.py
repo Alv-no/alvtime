@@ -53,12 +53,15 @@ class AliasParamType(click.ParamType):
     name = "alias"
 
     def convert(self, value, param, ctx) -> model.TaskAlias:
+        if isinstance(value, model.TaskAlias):
+            return value
+
         service = cast(LocalService, ctx.obj)
 
         aliases = service.get_aliases()
         alias = next((a for a in aliases if a.name == value), None)
         if not alias:
-            raise ValueError(f"Alias '{value}' not found")
+            self.fail(f"{value!r} is not a known alias", param, ctx)
 
         return alias
 
