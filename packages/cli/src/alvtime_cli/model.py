@@ -21,8 +21,8 @@ class Task(BaseModel):
 
 
 class TaskAlias(BaseModel):
-    id: str
     task_id: int
+    name: str
 
 
 class TimeEntry(BaseModel):

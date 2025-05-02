@@ -10,6 +10,7 @@ class Keys(StrEnum):
     personal_access_token = "personalAccessToken"
     database_path = "databasePath"
     alvtime_base_url = "alvtimeBaseUrl"
+    task_aliases = "taskAliases"
 
 
 defaults = {

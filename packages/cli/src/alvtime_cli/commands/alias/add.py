@@ -1,4 +1,12 @@
 import click
+from alvtime_cli.model import TaskAlias
+from ... import config
+
+
+def _add_task_alias(alias: TaskAlias):
+    aliases = config.get(config.Keys.task_aliases, {})
+    aliases[str(alias.task_id)] = alias.name
+    config.set(config.Keys.task_aliases, aliases)
 
 
 @click.command()
@@ -26,4 +34,4 @@ def add(name: str, task_id: int):
     $ alvtime alias add alvops 109
 
     """
-    pass
+    _add_task_alias(TaskAlias(task_id=task_id, name=name))
