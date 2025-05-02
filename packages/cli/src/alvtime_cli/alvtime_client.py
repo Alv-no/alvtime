@@ -1,4 +1,3 @@
-from pydantic import BaseModel
 import requests
 from . import config
 from . import model
