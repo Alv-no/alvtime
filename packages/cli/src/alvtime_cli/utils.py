@@ -1,7 +1,11 @@
+from click.shell_completion import CompletionItem
 from functools import partial, wraps
 from requests import HTTPError, ConnectionError
+from typing import cast
 import click
 import sys
+
+from .local_service import LocalService
 
 
 def handle_exceptions(func=None):
@@ -42,3 +46,18 @@ FALLBACK_COLORS = {}
 def style(message: str, main_class: str, extra: dict = {}) -> str:
     colors = COLOR_MAP.get(main_class, FALLBACK_COLORS)
     return click.style(message, **{**colors, **extra})
+
+
+class AliasParamType(click.ParamType):
+    name = "alias"
+
+    def convert(self, value, param, ctx):
+        return str(value)
+
+    def shell_complete(self, ctx, param, incomplete):
+        service = cast(LocalService, ctx.obj)
+        alias_names = ["fix line 59 in utils.py"]  # service.get_alias_names()
+        return [CompletionItem(name) for name in alias_names if name.startswith(incomplete)]
+
+
+AliasParam = AliasParamType()
