@@ -22,7 +22,7 @@ class Repo:
                     duration    TEXT,
                     task_id     INTEGER NOT NULL,
                     comment     TEXT,
-                    dirty       INTEGER NOT NULL)""")
+                    is_changed  INTEGER NOT NULL)""")
 
     def _time_entry_from_dbo(self, dbo) -> model.TimeEntry:
         raise NotImplementedError()
