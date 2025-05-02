@@ -13,22 +13,23 @@ from ...local_service import LocalService
 def list_(ctx: click.Context, include_locked: bool, search: str = None):
     service = cast(LocalService, ctx.obj)
 
-    #TODO: replace the below with a call through the service
+    tasks = service.get_all_tasks()
 
-    alvtime_client = AlvtimeClient()
+    tasks.sort(key=lambda t: (t.customer_name, t.project_name, t.name, t.id))
 
-    customers = alvtime_client.list_customers(include_locked)
-    for customer in customers:
-        for project in customer.projects:
-            for task in project.tasks:
-                if search:
-                    search_string = f"{customer.name} {project.name} {task.name} {task.id}".lower()
-                    if not search.lower() in search_string:
-                        continue
+    for task in tasks:
+        if search:
+            search_string = (
+                f"{task.customer_name} "
+                f"{task.project_name} "
+                f"{task.name} "
+                f"{task.id}").lower()
+            if not search.lower() in search_string:
+                continue
 
-                click.echo(
-                    f"{style(task.id, "task")}: "
-                    f"{style(customer.name, "customer")} "
-                    f"{style(project.name, "project")} "
-                    f"{style(task.name, "task")} " +
-                    style(f"({str(task.rate*100)}%)", "rate"))
+        click.echo(
+            f"{style(task.id, "task"):>15}: "
+            f"{style(task.customer_name, "customer")} "
+            f"{style(task.project_name, "project")} "
+            f"{style(task.name, "task")} " +
+            style(f"({str(task.rate*100)}%)", "rate"))

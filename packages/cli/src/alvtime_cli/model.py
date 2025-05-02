@@ -17,7 +17,9 @@ class Task(BaseModel):
     id: int
     name: str
     locked: bool
-    project_id: int
+    rate: float
+    project_name: str
+    customer_name: str
 
 
 class TaskAlias(BaseModel):
