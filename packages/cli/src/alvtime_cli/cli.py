@@ -1,5 +1,5 @@
 import click
-from .commands import ping, completion
+from .commands import ping, completion, start, stop, restart, status
 from .commands.pat import group as pat_group
 from .commands.tasks import group as tasks_group
 from .commands.alias import group as alias_group
@@ -22,6 +22,10 @@ def main(ctx: click.Context):
 
 main.add_command(completion.completion)
 main.add_command(ping.ping)
+main.add_command(start.start)
+main.add_command(stop.stop)
+main.add_command(restart.restart)
+main.add_command(status.status)
 main.add_command(alias_group.group)
 main.add_command(pat_group.group)
 main.add_command(tasks_group.group)
