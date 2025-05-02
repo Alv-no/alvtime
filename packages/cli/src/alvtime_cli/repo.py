@@ -19,9 +19,10 @@ class Repo:
                     id          INTEGER PRIMARY KEY AUTOINCREMENT,
                     alvtime_id  INTEGER,
                     from_time   TEXT,
-                    to_time     TEXT,
+                    duration    TEXT,
                     task_id     INTEGER NOT NULL,
-                    comment     TEXT)""")
+                    comment     TEXT,
+                    dirty       INTEGER NOT NULL)""")
 
     def _time_entry_from_dbo(self, dbo) -> model.TimeEntry:
         raise NotImplementedError()
