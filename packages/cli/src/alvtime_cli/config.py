@@ -7,12 +7,14 @@ config_filename = Path.home() / ".alvtime.conf"
 
 
 class Keys(StrEnum):
-    personal_access_token = 'personalAccessToken'
-    database_path = 'databasePath'
+    personal_access_token = "personalAccessToken"
+    database_path = "databasePath"
+    alvtime_base_url = "alvtimeBaseUrl"
 
 
 defaults = {
-    Keys.database_path: Path.home() / ".alvtime.db"
+    Keys.database_path: Path.home() / ".alvtime.db",
+    Keys.alvtime_base_url: "https://api.alvtime.no"
 }
 
 

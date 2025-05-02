@@ -46,7 +46,7 @@ def _customer_from_dto(dto) -> Customer:
 
 
 class AlvtimeClient:
-    def __init__(self, base_url: str = "https://api.alvtime.no"):
+    def __init__(self, base_url: str = config.get(config.Keys.alvtime_base_url)):
         self.base_url = base_url
 
     def ping(self):
