@@ -15,7 +15,8 @@ class Keys(StrEnum):
 
 defaults = {
     Keys.database_path: Path.home() / ".alvtime.db",
-    Keys.alvtime_base_url: "https://api.alvtime.no"
+    Keys.alvtime_base_url: "https://api.alvtime.no",
+    Keys.task_aliases: {}
 }
 
 

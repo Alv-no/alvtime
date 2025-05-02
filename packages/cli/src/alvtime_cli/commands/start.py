@@ -1,10 +1,19 @@
-import click
 from datetime import datetime
+from typing import cast
+import click
 
+from alvtime_cli.utils import AliasParam
+from alvtime_cli.local_service import LocalService
+from alvtime_cli import model
 
 @click.command(help="Starts an activity")
 @click.option("--at", type=datetime)
-@click.argument("alias")
+@click.argument("alias", type=AliasParam)
 @click.argument("comment", required=False)
-def start(alias: str, at: datetime = None, comment: str = None):
-    raise NotImplementedError()
+@click.pass_context
+def start(ctx, alias: model.TaskAlias, at: datetime = None, comment: str = None):
+    service = cast(LocalService, ctx.obj)
+    service.start(
+        task_id=alias.task_id,
+        at=at,
+        comment=comment)

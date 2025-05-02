@@ -5,7 +5,8 @@ from typing import cast
 import click
 import sys
 
-from .local_service import LocalService
+from alvtime_cli import config, model
+from alvtime_cli.local_service import LocalService
 
 
 def handle_exceptions(func=None):
@@ -51,12 +52,18 @@ def style(message: str, main_class: str, extra: dict = {}) -> str:
 class AliasParamType(click.ParamType):
     name = "alias"
 
-    def convert(self, value, param, ctx):
-        return str(value)
+    def convert(self, value, param, ctx) -> model.TaskAlias:
+        service = cast(LocalService, ctx.obj)
+
+        aliases = service.get_aliases()
+        alias = next((a for a in aliases if a.name == value), None)
+        if not alias:
+            raise ValueError(f"Alias '{value}' not found")
+
+        return alias
 
     def shell_complete(self, ctx, param, incomplete):
-        service = cast(LocalService, ctx.obj)
-        alias_names = ["fix line 59 in utils.py"]  # service.get_alias_names()
+        alias_names = config.get(config.Keys.task_aliases).values()
         return [CompletionItem(name) for name in alias_names if name.startswith(incomplete)]
 
 
