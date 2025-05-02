@@ -34,6 +34,7 @@ COLOR_MAP = {
      "project":  {"fg": "green"},
      "task":     {"fg": "bright_blue"},
      "rate":     {"fg": "white", "dim": True},
+     "name":     {"fg": "magenta"}
 }
 FALLBACK_COLORS = {}
 
