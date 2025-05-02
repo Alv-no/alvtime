@@ -48,5 +48,5 @@ def get(key, default=None):
 
 def set(key: str, value):
     config = _load()
-    config[key] = value
+    config[str(key)] = value
     _save(config)
