@@ -33,7 +33,8 @@ public class VacationTests
         var entryOptions = new TimeEntryOptions
         {
             PaidHolidayTask = 13,
-            StartOfOvertimeSystem = new DateTime(2020, 01, 01)
+            StartOfOvertimeSystem = new DateTime(2020, 01, 01),
+            AbsenceProject = 9
         };
 
         _options = Mock.Of<IOptionsMonitor<TimeEntryOptions>>(options => options.CurrentValue == entryOptions);
@@ -92,27 +93,27 @@ public class VacationTests
     }
 
     [Fact]
-    public async System.Threading.Tasks.Task RegisterVacation_TooFewHours_VacationRegisteredFailed()
+    public async System.Threading.Tasks.Task RegisterVacation_NotFullWorkday_VacationRegisteredOk()
     {
         var dateToTest = new DateTime(2021, 12, 13);
-        var hours = 6M;
+        const decimal hours = 6M;
         var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             {new() {Date = dateToTest, Value = hours, TaskId = _options.CurrentValue.PaidHolidayTask}});
 
-        Assert.False(timeEntryResult.IsSuccess);
-        Assert.True(timeEntryResult.Errors.Any());
+        Assert.True(timeEntryResult.IsSuccess);
+        Assert.False(timeEntryResult.Errors.Count != 0);
     }
 
     [Fact]
     public async System.Threading.Tasks.Task RegisterVacation_TooManyHours_VacationRegisteredFailed()
     {
         var dateToTest = new DateTime(2021, 12, 13);
-        var hours = 9M;
+        const decimal hours = 9M;
         var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             {new() {Date = dateToTest, Value = hours, TaskId = _options.CurrentValue.PaidHolidayTask}});
 
         Assert.False(timeEntryResult.IsSuccess);
-        Assert.True(timeEntryResult.Errors.Any());
+        Assert.True(timeEntryResult.Errors.Count != 0);
     }
 
     [Fact]
