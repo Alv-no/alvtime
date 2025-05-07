@@ -204,17 +204,9 @@ public class TimeRegistrationService
 
         if ((IsWeekend(timeEntryDate) || allRedDays.Contains(timeEntryDate)) && (timeEntry.TaskId == _paidHolidayTask || timeEntry.TaskId == _flexTask) && timeEntry.Value > 0)
         {
-            return new List<Error> { new(ErrorCodes.InvalidAction, "Du trenger ikke registrere fravær på en rød dag.") };
+            return [new Error(ErrorCodes.InvalidAction, "Du trenger ikke registrere fravær på en rød dag.")];
         }
         
-        if (timeEntry.TaskId == _paidHolidayTask && timeEntry.Value > 0 && timeEntry.Value != anticipatedWorkHours)
-        {
-            return new List<Error>
-            {
-                new(ErrorCodes.InvalidAction, $"Du kan kun føre 0 eller {anticipatedWorkHours} timer med ferie på en dag")
-            };
-        }
-
         if (timeEntry.TaskId == _flexTask)
         {
             var availableHours = await GetAvailableOvertimeHoursAtDate(timeEntryDate);
