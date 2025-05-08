@@ -6,6 +6,7 @@ from alvtime_cli.utils import AliasParam
 from alvtime_cli.local_service import LocalService
 from alvtime_cli import model
 
+
 @click.command(help="Starts an activity")
 @click.option("--at", type=datetime)
 @click.argument("alias", type=AliasParam)

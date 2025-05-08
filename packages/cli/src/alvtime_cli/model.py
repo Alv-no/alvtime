@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class Customer(BaseModel):
@@ -30,6 +30,6 @@ class TaskAlias(BaseModel):
 class TimeEntry(BaseModel):
     id: int | None = None
     task_id: int
-    start: datetime
-    stop: datetime
+    start: datetime | None = None
+    duration: timedelta | None = None
     comment: str | None = None
