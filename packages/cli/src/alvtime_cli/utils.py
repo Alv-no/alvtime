@@ -2,6 +2,7 @@ from click.shell_completion import CompletionItem
 from functools import partial, wraps
 from requests import HTTPError, ConnectionError
 from typing import cast
+from arrow import arrow
 import click
 import sys
 
@@ -39,7 +40,9 @@ COLOR_MAP = {
      "project":  {"fg": "green"},
      "task":     {"fg": "bright_blue"},
      "rate":     {"fg": "white", "dim": True},
-     "name":     {"fg": "magenta"}
+     "name":     {"fg": "magenta"},
+     "time":     {"fg": "green"},
+     "comment":  {"fg": "white", "dim": True},
 }
 FALLBACK_COLORS = {}
 
@@ -47,6 +50,16 @@ FALLBACK_COLORS = {}
 def style(message: str, main_class: str, extra: dict = {}) -> str:
     colors = COLOR_MAP.get(main_class, FALLBACK_COLORS)
     return click.style(message, **{**colors, **extra})
+
+
+def style_time_entry(time_entry: model.TimeEntry) -> str:
+    start_humanized = arrow.Arrow.fromdatetime(time_entry.start).humanize()
+    return ''.join((
+        "Project ",
+        style(time_entry.task_id, "task"),
+        " started ",
+        style(f"{start_humanized} ", "time"),
+        style(f"({time_entry.start.strftime("%Y-%m-%d %H:%M")})", "comment")))
 
 
 class AliasParamType(click.ParamType):

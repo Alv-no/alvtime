@@ -31,7 +31,7 @@ class LocalService:
         # Create the new entry
         entry = model.TimeEntry(
             task_id=task_id,
-            start=at or datetime.now(),
+            start=at or datetime.now().astimezone(),
             comment=comment)
 
         # Store it
@@ -40,7 +40,7 @@ class LocalService:
     def restart(self, at, comment):
         raise NotImplementedError()
 
-    def status(self) -> model.TimeEntry | None:
+    def current_entry(self) -> model.TimeEntry | None:
         """
         Returns the current 'open' time entry if any
         """
