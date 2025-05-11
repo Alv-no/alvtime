@@ -22,7 +22,7 @@ class LocalService:
             model.TaskAlias(task_id=task_id, name=name)
             for task_id, name in config.get(config.Keys.task_aliases).items()]
 
-    def start(self, task_id: int, at: datetime, comment: str):
+    def start(self, task_id: int, at: datetime, comment: str) -> model.TimeEntry:
         # Check if we're already started
         entries = self.repo.find_open_entries()
         if entries:
@@ -36,6 +36,8 @@ class LocalService:
 
         # Store it
         self.repo.insert_time_entry(entry)
+
+        return entry
 
     def restart(self, at, comment):
         raise NotImplementedError()
