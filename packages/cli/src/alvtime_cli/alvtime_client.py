@@ -14,8 +14,8 @@ def _task_from_dto(dto) -> model.Task:
 
 
 class AlvtimeClient:
-    def __init__(self, base_url: str = config.get(config.Keys.alvtime_base_url)):
-        self.base_url = base_url
+    def __init__(self, base_url: str | None = None):
+        self.base_url = base_url or config.get(config.Keys.alvtime_base_url)
 
     def ping(self):
         response = requests.get(f"{self.base_url}/api/ping")

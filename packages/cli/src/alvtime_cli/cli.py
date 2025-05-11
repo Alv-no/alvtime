@@ -10,8 +10,11 @@ from . import config
 
 
 @click.group()
+@click.option("-c", "--config", "config_filename", type=str, envvar="ALVTIME_CONFIG")
 @click.pass_context
-def main(ctx: click.Context):
+def main(ctx: click.Context, config_filename):
+    if config_filename:
+        config.config_filename = config_filename
     alvtime_client = AlvtimeClient()
     repo = Repo(config.get(config.Keys.database_path))
     service = LocalService(
