@@ -9,6 +9,10 @@ class TaskAlreadyStartedError(Exception):
     pass
 
 
+class TaskNotRunningError(Exception):
+    pass
+
+
 class LocalService:
     def __init__(self, repo: Repo, alvtime_client: AlvtimeClient):
         self.repo = repo
@@ -24,8 +28,7 @@ class LocalService:
 
     def start(self, task_id: int, at: datetime, comment: str) -> model.TimeEntry:
         # Check if we're already started
-        entries = self.repo.find_open_entries()
-        if entries:
+        if self.current_entry():
             raise TaskAlreadyStartedError()
 
         # Create the new entry
@@ -34,6 +37,9 @@ class LocalService:
             start=at or datetime.now().astimezone(),
             comment=comment)
 
+        # Make sure the start time is rounded (down) to nearest second
+        entry.start = entry.start.replace(microsecond=0)
+
         # Store it
         self.repo.insert_time_entry(entry)
 
@@ -41,6 +47,30 @@ class LocalService:
 
     def restart(self, at, comment):
         raise NotImplementedError()
+
+    def stop(self, at, comment):
+        # Find current entry
+        current_entry = self.current_entry()
+
+        # Bail out if we didn't find anything
+        if not current_entry:
+            raise TaskAlreadyStartedError()
+
+        # Verify stop time
+        if not at:
+            at = datetime.now().astimezone()
+        if at < current_entry.start:
+            raise ValueError("Stop time cannot be before start time")
+
+        # Make sure the stop time is rounded (down) to nearest second
+        at = at.replace(microsecond=0)
+
+        # Close the entry
+        delta = at - current_entry.start
+        current_entry.duration = delta.total_seconds()
+
+        # And save it
+        return current_entry
 
     def current_entry(self) -> model.TimeEntry | None:
         """

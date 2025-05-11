@@ -1,8 +1,9 @@
+from datetime import datetime, timedelta
 from click.shell_completion import CompletionItem
 from functools import partial, wraps
 from requests import HTTPError, ConnectionError
 from typing import cast
-from arrow import arrow
+import arrow
 import click
 import sys
 
@@ -54,12 +55,29 @@ def style(message: str, main_class: str, extra: dict = {}) -> str:
 
 def style_time_entry(time_entry: model.TimeEntry) -> str:
     start_humanized = arrow.Arrow.fromdatetime(time_entry.start).humanize()
-    return ''.join((
+    ret = [
         "Project ",
         style(time_entry.task_id, "task"),
         " started ",
-        style(f"{start_humanized} ", "time"),
-        style(f"({time_entry.start.strftime("%Y-%m-%d %H:%M")})", "comment")))
+        style(f"{start_humanized} ", "time")]
+
+    if time_entry.duration:
+        duration = timedelta(seconds=time_entry.duration)
+        stop_time = time_entry.start + duration
+        stop_humanized = arrow.Arrow.fromdatetime(stop_time).humanize()
+        total_minutes, _ = divmod(duration.total_seconds(), 60)
+        hour, minute = divmod(total_minutes, 60)
+
+        ret.extend([
+            "and stopped ",
+            style(f"{stop_humanized} ", "time"),
+            style(f"({int(hour):02}:{int(minute):02} elapsed)", "comment")
+        ])
+    else:
+        ret.extend([
+            style(f"({time_entry.start.strftime("%Y-%m-%d %H:%M")})", "comment")
+        ])
+    return ''.join(ret)
 
 
 class AliasParamType(click.ParamType):
@@ -84,3 +102,35 @@ class AliasParamType(click.ParamType):
 
 
 AliasParam = AliasParamType()
+
+
+class DateTimeParamType(click.ParamType):
+    name = "datetime"
+
+    def convert(self, value, param, ctx) -> datetime:
+        if isinstance(value, datetime):
+            return value
+
+        formats = ["YYYY-MM-DD HH:mm:ss", "YYYY-MM-DD HH:mm", "HH:mm:ss", "HH:mm"]
+
+        ret = arrow.now("local").replace(second=0, microsecond=0)
+        for format in formats:
+            try:
+                parsed = arrow.get(value, format)
+                ret = ret.replace(hour=parsed.hour,
+                                  minute=parsed.minute,
+                                  second=parsed.second)
+                if "YYYY" in format:
+                    ret = ret.replace(year=parsed.year)
+                if "MM" in format:
+                    ret = ret.replace(month=parsed.month)
+                if "DD" in format:
+                    ret = ret.replace(day=parsed.day)
+                return ret.datetime
+            except arrow.parser.ParserMatchError:
+                pass
+
+        self.fail("Unable to parse datetime")
+
+
+DateTimeParam = DateTimeParamType()

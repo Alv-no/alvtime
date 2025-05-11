@@ -2,14 +2,14 @@ from datetime import datetime
 from typing import cast
 import click
 
-from alvtime_cli.utils import AliasParam
+from alvtime_cli.utils import AliasParam, DateTimeParam
 from alvtime_cli.local_service import LocalService, TaskAlreadyStartedError
 from alvtime_cli import model
 from alvtime_cli.utils import style_time_entry
 
 
 @click.command(help="Starts an activity")
-@click.option("--at", type=datetime)
+@click.option("--at", type=DateTimeParam)
 @click.argument("alias", type=AliasParam)
 @click.argument("comment", required=False)
 @click.pass_context
