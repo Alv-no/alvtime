@@ -41,11 +41,6 @@ export const msalConfig = {
 
 export const msalInstance = new PublicClientApplication(msalConfig);
 
-// Initialize the MSAL instance
-export async function initializeMsal() {
-  await msalInstance.initialize();
-}
-
 // Add here scopes for id token to be used at MS Identity Platform endpoints.
 export const loginRequest = {
   scopes: ['User.Read'],
