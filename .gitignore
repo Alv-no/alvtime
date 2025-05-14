@@ -9,3 +9,4 @@ node_modules
 .idea
 packages/app/.vscode/
 *.env
+packages/frontend-v3/.vscode/
