@@ -1,18 +1,32 @@
-import { createMemoryHistory, createRouter } from "vue-router";
+import { createWebHistory, createRouter, type RouteRecordRaw } from "vue-router";
+import { registerGuard } from "./Guard";
 
-import HomeView from "@/views/HomeView.vue";
-
-const routes = [
+const routes: Array<RouteRecordRaw> = [
 	{
 		path: "/",
 		name: "home",
-		component: HomeView,
+		component: () => import("@/views/HomeView.vue"),
+	},
+	{
+		path: "/secret",
+		name: "secret",
+		component: () => import("@/views/SecretView.vue"),
+		meta: {
+			requiresAuth: true,
+		}
+	},
+	{
+		path: "/failed",
+		name: "failed",
+		component: () => import("@/views/HomeView.vue"),
 	}
 ];
 
 const router = createRouter({
-	history: createMemoryHistory(),
+	history: createWebHistory(),
 	routes,
 });
+
+registerGuard(router);
 
 export { router };
