@@ -1,0 +1,14 @@
+$background-color: rgb(248, 241, 227);
+$primary-color: rgb(36, 63, 77);
+$primary-font: "League Spartan", sans-serif;
+
+html, body {
+	margin: 0;
+	padding: 0;
+	font-family: $primary-font;
+  	font-optical-sizing: auto;
+  	font-weight: 400;
+  	font-style: normal;
+	background-color: $background-color;
+	color: $primary-color;
+}
