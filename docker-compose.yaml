@@ -16,12 +16,12 @@ services:
     depends_on:
       - api
     build:
-      context: ./packages/frontend
+      context: ./packages/frontend-v3
       target: dev
     ports:
-      - "8080:8080"
+      - "8080:5173"
     volumes:
-      - ./packages/frontend:/src
+      - ./packages/frontend-v3:/src
       - /src/node_modules
 
   api:
