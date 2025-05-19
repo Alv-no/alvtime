@@ -5,12 +5,15 @@ const routes: Array<RouteRecordRaw> = [
 	{
 		path: "/",
 		name: "home",
-		component: () => import("@/views/HomeView.vue"),
+		component: () => import("../views/HomeView.vue"),
+		meta: {
+			requiresAuth: true,
+		}
 	},
 	{
 		path: "/secret",
 		name: "secret",
-		component: () => import("@/views/SecretView.vue"),
+		component: () => import("../views/SecretView.vue"),
 		meta: {
 			requiresAuth: true,
 		}
@@ -18,7 +21,7 @@ const routes: Array<RouteRecordRaw> = [
 	{
 		path: "/failed",
 		name: "failed",
-		component: () => import("@/views/HomeView.vue"),
+		component: () => import("../views/HomeView.vue"),
 	}
 ];
 
