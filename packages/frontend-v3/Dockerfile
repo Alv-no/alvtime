@@ -1,4 +1,4 @@
-FROM node:20.18 as dev
+FROM node:22.15 AS dev
 
 # Avoid warnings by switching to noninteractive
 ENV DEBIAN_FRONTEND=noninteractive
@@ -46,10 +46,10 @@ RUN npm ci
 COPY --chown=$USERNAME:$USERNAME . .
 CMD ["npm", "run", "dev"]
 
-FROM dev as build
+FROM dev AS build
 RUN npm run build
 
-FROM nginx:stable-alpine as production
+FROM nginx:stable-alpine AS production
 COPY --from=build /src/dist /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
