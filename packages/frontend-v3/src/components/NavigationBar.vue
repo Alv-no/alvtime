@@ -4,6 +4,7 @@
 			<div>
 				<img class="logo" src="@/assets/alv.svg" />
 			</div>
+			<p>{{ user?.name }}</p>
 			<LogOutButton />
 		</div>
 	</div>
@@ -11,6 +12,9 @@
 
 <script setup lang="ts">
 import LogOutButton from "@/components/LogOutButton.vue";
+import { useUserStore } from "@/stores/useUserStore";
+
+const { user } = useUserStore();
 </script>
 
 <style scoped lang="scss">
