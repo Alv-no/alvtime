@@ -1,12 +1,4 @@
-import axios from "axios";
-import config from "@/config";
-
-const api = axios.create({
-	baseURL: config.API_HOST,
-	headers: {
-		"Content-Type": "application/json",
-	}
-});
+import { api } from "@/services/apiClient";
 
 export default {
 	getAbsenceOverview: async () => await api.get("/api/user/AbsenceOverview"),
