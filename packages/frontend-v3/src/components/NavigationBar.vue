@@ -1,7 +1,9 @@
 <template>
 	<div class="navigation-bar">
 		<div class="navigation-container">
-			<p>Alvtime</p>
+			<div>
+				<img class="logo" src="@/assets/alv.svg" />
+			</div>
 			<LogOutButton />
 		</div>
 	</div>
@@ -36,6 +38,10 @@ import LogOutButton from "@/components/LogOutButton.vue";
 				text-decoration: underline;
 			}
 		}
+	}
+
+	.logo {
+		height: 32px;
 	}
 }
 </style>
