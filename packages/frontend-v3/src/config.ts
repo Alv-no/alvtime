@@ -13,14 +13,14 @@ interface Config {
 
 let config = ({} as unknown) as Config;
 
-var request = new XMLHttpRequest();
+const request = new XMLHttpRequest();
 request.open("GET", "./config.json", false);
 request.send(null);
 
 if (request.status === 200 && request.responseText.length) {
-  config = JSON.parse(request.responseText);
+	config = JSON.parse(request.responseText);
 } else {
-  throw "Unable to fetch config";
+	throw "Unable to fetch config";
 }
 
 export default config;
