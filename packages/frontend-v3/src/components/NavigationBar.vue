@@ -2,7 +2,10 @@
 	<div class="navigation-bar">
 		<div class="navigation-container">
 			<div>
-				<img class="logo" src="@/assets/alv.svg" />
+				<img
+					class="logo"
+					src="@/assets/alv.svg"
+				/>
 			</div>
 			<p>{{ user?.name }}</p>
 			<LogOutButton />
