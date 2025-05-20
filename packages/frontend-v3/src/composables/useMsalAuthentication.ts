@@ -1,5 +1,5 @@
-import { AuthenticationResult, AuthError, InteractionStatus, InteractionType, PopupRequest, RedirectRequest, SilentRequest } from "@azure/msal-browser";
-import { Ref, ref, watch } from "vue";
+import { type AuthenticationResult, AuthError, InteractionStatus, InteractionType, PopupRequest, RedirectRequest, SilentRequest } from "@azure/msal-browser";
+import { type Ref, ref, watch } from "vue";
 import { useMsal } from "./useMsal";
 
 export type MsalAuthenticationResult = {
@@ -41,6 +41,9 @@ export function useMsalAuthentication(interactionType: InteractionType, request:
 				result.value = response;
 				error.value = null;
 			} catch(e) {
+				error.value = e as AuthError;
+				result.value = null;
+
 				if (inProgress.value !== InteractionStatus.None) {
 					return;
 				}
