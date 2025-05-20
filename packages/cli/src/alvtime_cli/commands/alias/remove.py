@@ -3,6 +3,7 @@ import click.shell_completion
 
 from alvtime_cli import config
 from alvtime_cli.utils import AliasParam
+from alvtime_cli import model
 
 
 def _remove_alias(name: str):
@@ -16,8 +17,8 @@ def _remove_alias(name: str):
 
 
 @click.command()
-@click.argument("name", type=AliasParam)
-def remove(name: str):
+@click.argument("alias", type=AliasParam)
+def remove(alias: model.TaskAlias):
     """
     Removes a task alias
 
@@ -25,4 +26,4 @@ def remove(name: str):
 
     $ alvtime alias remove alvops
     """
-    _remove_alias(name)
+    _remove_alias(alias.name)
