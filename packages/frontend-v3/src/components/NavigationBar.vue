@@ -2,12 +2,13 @@
 	<div class="navigation-bar">
 		<div class="navigation-container">
 			<p>Alvtime</p>
+			<LogOutButton />
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-
+import LogOutButton from "@/components/LogOutButton.vue";
 </script>
 
 <style scoped lang="scss">
@@ -23,7 +24,7 @@
 		width: 1200px;
 		padding: 0 20px;
 		display: flex;
-		justify-content: flex-start;
+		justify-content: space-between;
 		align-items: center;
 
 		a {
