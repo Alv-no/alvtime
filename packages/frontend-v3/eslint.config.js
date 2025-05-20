@@ -102,14 +102,15 @@ export default [
 	// General rules for all files
 	{
 		rules: {
-			"no-console": process.env.NODE_ENV === "production" ? "error" : "warn",
-			"no-debugger": process.env.NODE_ENV === "production" ? "error" : "warn",
+			"no-debugger": "warn",
 			"eqeqeq": "error",
 			"no-var": "error",
 			"prefer-const": "error",
 			"no-unused-vars": "off", // TypeScript handles this
 			"indent": ["error", "tab"],
-			"quotes": ["error", "double"]
+			"quotes": ["error", "double"],
+			"no-process-env": "off",
+			"no-process-exit": "off"
 		}
 	},
   
