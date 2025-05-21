@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from click.shell_completion import CompletionItem
 from functools import partial, wraps
 from requests import HTTPError, ConnectionError
@@ -62,10 +62,9 @@ def style_time_entry(time_entry: model.TimeEntry) -> str:
         style(f"{start_humanized} ", "time")]
 
     if time_entry.duration:
-        duration = timedelta(seconds=time_entry.duration)
-        stop_time = time_entry.start + duration
+        stop_time = time_entry.start + time_entry.duration
         stop_humanized = arrow.Arrow.fromdatetime(stop_time).humanize()
-        total_minutes, _ = divmod(duration.total_seconds(), 60)
+        total_minutes, _ = divmod(time_entry.duration.total_seconds(), 60)
         hour, minute = divmod(total_minutes, 60)
 
         ret.extend([

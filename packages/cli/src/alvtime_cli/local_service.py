@@ -54,7 +54,7 @@ class LocalService:
 
         # Bail out if we didn't find anything
         if not current_entry:
-            raise TaskAlreadyStartedError()
+            raise TaskNotRunningError()
 
         # Verify stop time
         if not at:
@@ -66,8 +66,9 @@ class LocalService:
         at = at.replace(microsecond=0)
 
         # Close the entry
-        delta = at - current_entry.start
-        current_entry.duration = delta.total_seconds()
+        current_entry.duration = at - current_entry.start
+
+        self.repo.update_time_entry(current_entry)
 
         # And save it
         return current_entry

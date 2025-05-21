@@ -29,7 +29,9 @@ class TaskAlias(BaseModel):
 
 class TimeEntry(BaseModel):
     id: int | None = None
+    alvtime_id: int | None = None
     task_id: int
     start: datetime | None = None
     duration: timedelta | None = None
     comment: str | None = None
+    is_changed: bool = False
