@@ -10,7 +10,12 @@ from . import config
 
 
 @click.group()
-@click.option("-c", "--config", "config_filename", type=str, envvar="ALVTIME_CONFIG")
+@click.option("-c", "--config", "config_filename",
+              metavar="FILENAME",
+              type=str,
+              envvar="ALVTIME_CONFIG",
+              help="Specify which configuration file to use. Defaults to ~/.alvtime.conf. "
+                   "Can also be set using the ALVTIME_CONFIG environment variable.")
 @click.pass_context
 def main(ctx: click.Context, config_filename):
     if config_filename:
