@@ -11,11 +11,13 @@
 	"dependencies": {
 		"@azure/msal-browser": "^4.12.0",
 		"axios": "^1.9.0",
+		"feather-icons": "^4.29.2",
 		"pinia": "^3.0.2",
 		"vue": "^3.5.13",
 		"vue-router": "^4.5.1"
 	},
 	"devDependencies": {
+		"@types/feather-icons": "^4.29.4",
 		"@vitejs/plugin-vue": "^5.2.3",
 		"@vue/tsconfig": "^0.7.0",
 		"eslint": "^9.27.0",
