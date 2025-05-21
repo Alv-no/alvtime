@@ -5,6 +5,8 @@ html, body {
   	font-optical-sizing: auto;
   	font-weight: 400;
   	font-style: normal;
-	background-color: $background-color;
 	color: $primary-color;
+	height: 100vh;
+	background-color: $background-color;
+	box-sizing: border-box;
 }
