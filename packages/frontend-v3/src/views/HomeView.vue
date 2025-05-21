@@ -1,5 +1,5 @@
 <template>
-	<h1>Home</h1>
+	<StatusBar />
 </template>
 
 <script setup lang="ts">
