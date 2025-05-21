@@ -1,6 +1,6 @@
 <template>
 	<button @click="logOut">
-		Log Out
+		Logg ut
 	</button>
 </template>
 
@@ -20,9 +20,9 @@ button {
 	background-color: transparent;
 	color: $background-color;
 	border: none;
-	padding: 10px 20px;
+	padding: 10px 10px;
 	cursor: pointer;
-	font-size: 16px;
+	font-size: 14px;
 
 	&:hover {
 		background-color: $background-color;
