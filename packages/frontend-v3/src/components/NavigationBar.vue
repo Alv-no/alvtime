@@ -45,6 +45,10 @@ const { user } = useUserStore();
 				text-decoration: underline;
 			}
 		}
+
+		p {
+			text-align: center;
+		}
 	}
 
 	.logo {
