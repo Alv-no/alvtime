@@ -25,7 +25,7 @@ const { user } = useUserStore();
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	height: 60px;
+	height: 80px;
 	background-color: rgb(36, 63, 77);
 	color: rgb(248, 241, 227);
 

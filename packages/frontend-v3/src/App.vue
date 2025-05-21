@@ -1,7 +1,6 @@
 <template>
 	<NavigationBar />
 	<div class="wrapper">
-		<div class="blue-bar" />
 		<div class="content-container">
 			<RouterView :key="$route.path" />
 		</div>
@@ -14,29 +13,16 @@ import NavigationBar from "./components/NavigationBar.vue";
 
 <style lang="scss" scoped>
 .wrapper {
-	position: relative;
-
-	.blue-bar {
-		background-color: $primary-color;
-		z-index: 4;
-		position: absolute;
-		height: 400px;
-		width: 100%;
-		top: 0;
-		left: 0;
-	}
-
 	.content-container {
 		position: relative;
 		max-width: 1200px;
 		margin: 0 auto;
 		padding: 16px;
-		z-index: 6;
 		background-color: $background-color;
 		height: 100%;
 		border-radius: 25px;
 		min-height: 70vh;
+		//box-shadow: 0 5px 20px rgba(0, 0, 0, .5);
 	}
 }
-
 </style>
