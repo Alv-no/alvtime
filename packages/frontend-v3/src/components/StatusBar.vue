@@ -7,11 +7,19 @@
 					:size="18"
 				/> 22,5/37,5
 			</div>
-			<div class="content-box">
-				<FeatherIcon
-					name="database"
-					:size="18"
-				/> 4
+			<div class="content-box flex">
+				<div>
+					<FeatherIcon
+						name="database"
+						:size="18"
+					/> 4
+				</div>
+				<div>
+					<FeatherIcon
+						name="sun"
+						:size="18"
+					/> 20
+				</div>
 			</div>
 		</div>
 	</div>
@@ -40,9 +48,16 @@ import FeatherIcon from "@/components/utils/FeatherIcon.vue";
 		}
 
 		.content-box {
+			min-width: 90px;
 			border-radius: 10px;
-			padding: 12px;
+			padding: 12px 16px;
 			background-color: rgb(206 214 194);
+
+			&.flex {
+				display: flex;
+				justify-content: space-between;
+				gap: 16px;
+			}
 		}
 	}
 </style>
