@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import LogOutButton from "@/components/LogOutButton.vue";
-import { useUserStore } from "@/stores/useUserStore";
+import { useUserStore } from "@/stores/userStore";
 
 const { user } = useUserStore();
 </script>
