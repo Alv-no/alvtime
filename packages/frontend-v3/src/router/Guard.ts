@@ -1,7 +1,7 @@
 import type { RouteLocationNormalized, Router } from "vue-router";
 import { msalInstance, loginRequest } from "../authConfig";
 import { type PublicClientApplication, type RedirectRequest } from "@azure/msal-browser";
-import { useUserStore } from "../stores/useUserStore";
+import { useUserStore } from "../stores/userStore";
 
 export function registerGuard(router: Router) {
 	router.beforeEach(async (to: RouteLocationNormalized) => {
