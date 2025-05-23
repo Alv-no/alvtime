@@ -41,7 +41,7 @@ public class EmployeeStillActiveHandlerTests
         var user = new ClaimsPrincipal(
             new ClaimsIdentity(
                 new Claim[] {
-                    new("preferred_username", "someone@alv.no"),
+                    new("oid", "someone@alv.no"),
                 },
                 "Basic")
         );
@@ -81,7 +81,7 @@ public class EmployeeStillActiveHandlerTests
         var user = new ClaimsPrincipal(
             new ClaimsIdentity(
                 new Claim[] {
-                    new("preferred_username", "someone@alv.no"),
+                    new("oid", "someone@alv.no"),
                 },
                 "Basic")
         );

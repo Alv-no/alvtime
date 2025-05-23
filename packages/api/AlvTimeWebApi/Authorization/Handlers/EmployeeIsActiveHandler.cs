@@ -18,7 +18,7 @@ public class EmployeeIsActiveHandler : AuthorizationHandler<EmployeeStillActiveR
     
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext authContext, EmployeeStillActiveRequirement requirement)
     {
-        var userEmail = authContext.User.Claims.FirstOrDefault(c => c.Type == "preferred_username")?.Value;
+        var userEmail = authContext.User.Claims.FirstOrDefault(c => c.Type == "oid")?.Value;
         
         if (userEmail is null)
         {
@@ -27,12 +27,13 @@ public class EmployeeIsActiveHandler : AuthorizationHandler<EmployeeStillActiveR
         }
 
         var employee = _alvtimeDbContext.User.FirstOrDefault(u => u.Email.ToLower().Equals(userEmail.ToLower()));
+		var employeeThingy = _alvtimeDbContext.User.FirstOrDefault(u => u.EmployeeId == 3);
 
         if (employee is null)
-        {
-            authContext.Fail(new AuthorizationFailureReason(this, "Employee not found"));
-            return Task.CompletedTask;
-        }
+		{
+			authContext.Fail(new AuthorizationFailureReason(this, $"Employee not found {userEmail} Uggahbuggah {employeeThingy.Email}"));
+			return Task.CompletedTask;
+		}
 
         if (employee.EndDate < DateTime.Now)
         {

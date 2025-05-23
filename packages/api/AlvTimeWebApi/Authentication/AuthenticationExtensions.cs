@@ -16,13 +16,14 @@ namespace AlvTimeWebApi.Authentication
             services
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
-                {
-                    options.Authority = $"{authentication.Instance}{authentication.TenantId}";
-                    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-                    {
-                        ValidAudience = $"{authentication.ClientId}",
-                        ValidIssuer = $"{authentication.Instance}{authentication.TenantId}/v2.0"
-                    };
+				{
+					options.Authority = $"{authentication.Instance}{authentication.TenantId}";
+					options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+					{
+						ValidAudience = $"{authentication.ClientId}",
+						ValidIssuer = $"{authentication.Instance}{authentication.TenantId}/v2.0"
+					};
+					options.MapInboundClaims = false;
                 })
                 .AddScheme<PersonalAccessTokenOptions, PersonalAccessTokenHandler>("PersonalAccessTokenScheme", null);
         }

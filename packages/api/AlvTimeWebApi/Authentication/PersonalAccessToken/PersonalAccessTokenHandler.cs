@@ -57,7 +57,7 @@ namespace AlvTimeWebApi.Authentication.PersonalAccessToken
         private static IEnumerable<Claim> CreateClaims(User user)
             => new[]
             {
-                new Claim("preferred_username", user.Email),
+                new Claim("oid", user.Email),
                 new Claim("name", user.Name)
             };
     }

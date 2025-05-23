@@ -20,7 +20,7 @@ namespace AlvTimeWebApi.Controllers.Utils
 
         public User RetrieveUser()
         {
-            var email = _httpContextAccessor.HttpContext?.User.FindFirstValue("preferred_username");
+            var email = _httpContextAccessor.HttpContext?.User.FindFirstValue("oid");
             var alvUser = _database.User.FirstOrDefault(user => user.Email.ToLower().Equals(email.ToLower()));
 
             if (alvUser?.EndDate != null && alvUser.EndDate <= DateTime.Now)

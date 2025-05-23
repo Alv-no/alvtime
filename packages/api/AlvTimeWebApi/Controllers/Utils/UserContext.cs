@@ -20,7 +20,7 @@ namespace AlvTimeWebApi.Controllers.Utils
 
         private string Name => _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
 
-        private string Email => _httpContextAccessor.HttpContext.User.FindFirstValue("preferred_username");
+        private string Email => _httpContextAccessor.HttpContext.User.FindFirstValue("oid");
 
         public async Task<User> GetCurrentUser()
         {

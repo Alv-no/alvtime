@@ -32,8 +32,8 @@ services:
         condition: service_healthy
     environment:
       - ConnectionStrings__AlvTime_db=Data Source=tcp:db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32;Trust Server Certificate=True;
-      - AzureAd__Domain=api://c9126a83-01c3-43c0-8bb3-298d352d2d7f
-      - AzureAd__ClientId=c9126a83-01c3-43c0-8bb3-298d352d2d7f
+      - AzureAd__Domain=api://148ac485-a123-479c-8ed3-bfaa56619e04
+      - AzureAd__ClientId=148ac485-a123-479c-8ed3-bfaa56619e04
       - ASPNETCORE_ENVIRONMENT=Development
       - DOTNET_URLS=http://0.0.0.0:8080;https://0.0.0.0:443
     ports:
