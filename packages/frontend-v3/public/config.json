@@ -5,7 +5,7 @@
   "AUTHORITY": "https://login.microsoftonline.com/",
   "TENANT_ID": "76749190-4427-4b08-a3e4-161767dd1b73",
   "CLIENT_ID": "148ac485-a123-479c-8ed3-bfaa56619e04",
-  "ACCESS_SCOPE": "api://148ac485-a123-479c-8ed3-bfaa56619e04/access_as_user",
+  "ACCESS_SCOPE": "148ac485-a123-479c-8ed3-bfaa56619e04/access_as_user profile openid",
   "SLACK_TEAM_ID": "TJ70QLJRL",
   "SLACK_CHANNEL_ID": "CNEHG527J",
   "BASE_URL_ADMINPANEL": "http://localhost:3000",
