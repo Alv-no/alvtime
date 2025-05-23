@@ -89,7 +89,7 @@ public class MigrationService : IMigrationService
         var accessTokens = await context.AccessTokens.ToListAsync();
         if (!accessTokens.Any())
         {
-            var significantUser = context.User.First(u => u.Email == "ahre-ketil.lillehagen@alvno.onmicrosoft.com");
+            var significantUser = context.User.First(u => u.Email == "e6dd42da-3cfc-4c39-aee5-6868aad184fe");
             await context.AccessTokens.AddAsync(new AccessTokens
             {
                 UserId = significantUser.Id,
@@ -257,8 +257,8 @@ public class MigrationService : IMigrationService
                 },
                 new()
                 {
-                    Name = "Ahre Ketil Lillehagen",
-                    Email = "ahre-ketil.lillehagen@alvno.onmicrosoft.com",
+                    Name = "Boye Valentin Nerli Svensson",
+                    Email = "boye@alv.no",
                     StartDate = new DateTime(2020, 11, 01),
                     EndDate = null,
                     EmployeeId = 3,
