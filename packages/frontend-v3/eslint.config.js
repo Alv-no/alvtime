@@ -109,6 +109,7 @@ export default [
 			"no-unused-vars": "off", // TypeScript handles this
 			"indent": ["error", "tab"],
 			"quotes": ["error", "double"],
+			"semi": ["error", "always"],
 			"no-process-env": "off",
 			"no-process-exit": "off"
 		}
