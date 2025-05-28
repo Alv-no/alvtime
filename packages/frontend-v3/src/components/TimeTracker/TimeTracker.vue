@@ -2,15 +2,19 @@
 	<div class="time-tracker-container">
 		<div class="time-tracker-header">
 			<div class="week-number-container">
+				<!-- TODO: Fiks ukenummer -->
 				UKE 21
 			</div>
 		</div>
-		<CustomerExpandable />
+		<ProjectExpandable v-for="project in taskStore.tasks" :project="project" :key="project.id" />
 	</div>
 </template>
 
 <script setup lang="ts">
-import CustomerExpandable from "./CustomerExpandable.vue";
+import ProjectExpandable from "./ProjectExpandable.vue";
+import { useTaskStore } from "@/stores/taskStore";
+
+const taskStore = useTaskStore();
 </script>
 
 <style scoped lang="scss">
