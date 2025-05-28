@@ -25,8 +25,7 @@ const isBetween = (date: Date, startDate: Date, endDate: Date): boolean => {
 };
 
 const todayIsBetween = (startDate: Date, endDate: Date): boolean => {
-	const today = new Date();
-	return isBetween(today, startDate, endDate);
+	return isBetween(new Date(), startDate, endDate);
 };
 
 const isSameDay = (date1: Date, date2: Date): boolean => {
