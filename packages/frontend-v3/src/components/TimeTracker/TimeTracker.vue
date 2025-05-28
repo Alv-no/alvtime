@@ -6,7 +6,9 @@
 				UKE 21
 			</div>
 		</div>
-		<ProjectExpandable v-for="project in taskStore.tasks" :project="project" :key="project.id" />
+		<div class="project-list-wrapper">
+			<ProjectExpandable v-for="project in taskStore.tasks" :project="project" :key="project.id" />
+		</div>
 	</div>
 </template>
 
@@ -30,5 +32,12 @@ const taskStore = useTaskStore();
 	padding: 12px 12px 9px;
 	font-weight: 600;
 	font-size: 14px;
+}
+
+.project-list-wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	margin-top: 16px;
 }
 </style>
