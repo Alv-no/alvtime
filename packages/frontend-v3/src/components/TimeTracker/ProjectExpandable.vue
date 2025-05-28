@@ -21,15 +21,14 @@
 		</div>
 		<div class="project-container-expandable" :class="{ 'visible': isExpanded }">
 			<div class="project-container-content">
-				<div v-for="task in project.tasks" :key="task.id">
-					{{ task.name }}
-				</div>
+				<TaskStrip v-for="task in project.tasks" :task="task" :key="task.id" />
 			</div>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
+import TaskStrip from "./TaskStrip.vue";
 import FeatherIcon from "../utils/FeatherIcon.vue";
 import { defineProps, ref } from "vue";
 
@@ -38,6 +37,7 @@ interface Customer {
 }
 
 interface Project {
+	tasks: any;
 	name: string;
 	customer: Customer;
 }
