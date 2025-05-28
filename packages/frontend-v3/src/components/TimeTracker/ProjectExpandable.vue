@@ -1,15 +1,15 @@
 <template>
-	<div class="customer-container">
-		<div class="customer-info-wrapper">
-			<p class="customer-name">
-				Alv
+	<div class="project-container">
+		<div class="project-info-wrapper">
+			<p class="project-name">
+				{{ project.name }}
 			</p>
-			<p class="customer-project">
-				Interntid
+			<p class="project-project">
+				{{ project.customer.name}}
 			</p>
 		</div>
-		<div class="customer-status-wrapper">
-			<div class="customer-stats">
+		<div class="project-status-wrapper">
+			<div class="project-stats">
 				Denne uken: 22,5t | Denne måneden: 145,5t
 			</div>
 			<FeatherIcon
@@ -22,10 +22,24 @@
 
 <script setup lang="ts">
 import FeatherIcon from "../utils/FeatherIcon.vue";
+import { defineProps } from "vue";
+
+interface Customer {
+	name: string;
+}
+
+interface Project {
+	name: string;
+	customer: Customer;
+}
+
+const { project } = defineProps<{
+	project: Project;
+}>();
 </script>
 
 <style scoped lang="scss">
-.customer-container {
+.project-container {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -35,7 +49,7 @@ import FeatherIcon from "../utils/FeatherIcon.vue";
 	border-radius: 10px;
 	min-height: 70px;
 
-	.customer-info-wrapper {
+	.project-info-wrapper {
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
@@ -45,25 +59,25 @@ import FeatherIcon from "../utils/FeatherIcon.vue";
 	}
 	
 
-	.customer-name {
+	.project-name {
 		font-size: 1.5rem;
 		font-weight: 600;
 		margin: 0;
 	}
 
-	.customer-project {
+	.project-project {
 		font-size: 1.2rem;
 		font-weight: 400;
 		margin: 0;
 	}
 
-	.customer-status-wrapper {
+	.project-status-wrapper {
 		display: flex;
 		justify-content: flex-end;
 		align-items: center;
 		gap: 16px;
 
-		.customer-stats {
+		.project-stats {
 			background-color: rgb(206, 214, 194);
 			border-radius: 10px;
 			padding: 12px 12px 9px;
