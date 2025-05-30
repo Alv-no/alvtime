@@ -2,22 +2,22 @@
 	<div class="status-bar-container">
 		<div class="column-box">
 			<div class="content-box">
-				<FeatherIcon
-					name="calendar"
-					:size="18"
+				<HugeiconsIcon
+					:icon="Calendar03Icon"
+					class="icon"
 				/> 22,5/37,5
 			</div>
 			<div class="content-box flex">
 				<div>
-					<FeatherIcon
-						name="database"
-						:size="18"
+					<HugeiconsIcon
+						:icon="MoneyBag02Icon"
+						class="icon"
 					/> 4
 				</div>
 				<div>
-					<FeatherIcon
-						name="sun"
-						:size="18"
+					<HugeiconsIcon
+						:icon="BeachIcon"
+						class="icon"
 					/> 20
 				</div>
 			</div>
@@ -26,7 +26,8 @@
 </template>
 
 <script setup lang="ts">
-import FeatherIcon from "@/components/utils/FeatherIcon.vue";
+import { HugeiconsIcon } from "@hugeicons/vue";
+import { MoneyBag02Icon, BeachIcon, Calendar03Icon } from "@hugeicons/core-free-icons";
 </script>
 
 <style scoped lang="scss">
@@ -50,7 +51,7 @@ import FeatherIcon from "@/components/utils/FeatherIcon.vue";
 		.content-box {
 			min-width: 90px;
 			border-radius: 10px;
-			padding: 12px 16px;
+			padding: 4px 16px 12px;
 			background-color: rgb(206 214 194);
 
 			&.flex {
@@ -59,5 +60,10 @@ import FeatherIcon from "@/components/utils/FeatherIcon.vue";
 				gap: 16px;
 			}
 		}
+	}
+
+	.icon {
+		position: relative;
+		top: 5px;
 	}
 </style>
