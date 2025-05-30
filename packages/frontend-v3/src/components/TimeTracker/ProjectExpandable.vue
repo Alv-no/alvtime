@@ -31,16 +31,7 @@
 import TaskStrip from "./TaskStrip.vue";
 import FeatherIcon from "../utils/FeatherIcon.vue";
 import { defineProps, ref } from "vue";
-
-interface Customer {
-	name: string;
-}
-
-interface Project {
-	tasks: any;
-	name: string;
-	customer: Customer;
-}
+import { type Project } from "@/types/ProjectTypes";
 
 const isExpanded = ref(false);
 
