@@ -8,5 +8,5 @@ public enum ErrorCodes
     RequestMissingProperty = 4,
     RequestInvalidProperty = 5,
     SQLError = 6,
-    AuthroizationError = 7
+    AuthorizationError = 7
 }

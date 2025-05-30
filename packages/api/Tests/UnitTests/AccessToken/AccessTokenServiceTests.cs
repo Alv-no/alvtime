@@ -66,7 +66,8 @@ public class AccessTokenServiceTests
         {
             Id = 1,
             Email = "someone@alv.no",
-            Name = "Someone"
+            Name = "Someone",
+            Oid = "12345678-1234-1234-1234-123456789012"
         };
 
         mockUserContext.Setup(context => context.GetCurrentUser()).Returns(Task.FromResult(user));

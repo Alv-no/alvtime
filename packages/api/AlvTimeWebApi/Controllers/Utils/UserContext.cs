@@ -5,33 +5,34 @@ using System.Threading.Tasks;
 using AlvTime.Business.Users;
 using Microsoft.AspNetCore.Http;
 
-namespace AlvTimeWebApi.Controllers.Utils
+namespace AlvTimeWebApi.Controllers.Utils;
+
+public class UserContext : IUserContext
 {
-    public class UserContext : IUserContext
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IUserRepository _userRepository;
+
+    public UserContext(IHttpContextAccessor httpContextAccessor, IUserRepository userRepository)
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IUserRepository _userRepository;
+        _httpContextAccessor = httpContextAccessor;
+        _userRepository = userRepository;
+    }
 
-        public UserContext(IHttpContextAccessor httpContextAccessor, IUserRepository userRepository)
+    private string Name => _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
+
+    private string Email => _httpContextAccessor.HttpContext.User.FindFirstValue("preferred_username");
+
+    public string Oid => _httpContextAccessor.HttpContext.User.FindFirstValue("oid");
+
+    public async Task<User> GetCurrentUser()
+    {
+        if (string.IsNullOrEmpty(Email))
         {
-            _httpContextAccessor = httpContextAccessor;
-            _userRepository = userRepository;
+            throw new ValidationException("Bruker eksisterer ikke");
         }
-
-        private string Name => _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
-
-        private string Email => _httpContextAccessor.HttpContext.User.FindFirstValue("preferred_username");
-
-        public async Task<User> GetCurrentUser()
-        {
-            if (string.IsNullOrEmpty(Email))
-            {
-                throw new ValidationException("Bruker eksisterer ikke");
-            }
             
-            var dbUser = (await _userRepository.GetUsers(new UserQuerySearch { Email = Email })).First();
+        var dbUser = (await _userRepository.GetUsers(new UserQuerySearch { Email = Email })).First();
 
-            return UserMapper.MapUserDtoToBusinessUser(dbUser);
-        }
+        return UserMapper.MapUserDtoToBusinessUser(dbUser);
     }
 }

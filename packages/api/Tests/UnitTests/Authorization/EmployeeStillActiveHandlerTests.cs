@@ -30,13 +30,14 @@ public class EmployeeStillActiveHandlerTests
         await userStorage.UpdateUser(new UserDto
         {
             Id = 1,
-            EndDate = DateTime.Now.AddMonths(-1)
+            EndDate = DateTime.Now.AddMonths(-1),
+            Oid = "12345678-1234-1234-1234-123456789012"
         });
 
         var accessToken = await dbContext.AccessTokens.FindAsync(1);
 
         var httpContext = new DefaultHttpContext();
-        httpContext.Request.Headers.Add(HeaderNames.Authorization, $"Bearer {accessToken?.Value}");
+        httpContext.Request.Headers.Append(HeaderNames.Authorization, $"Bearer {accessToken?.Value}");
 
         var user = new ClaimsPrincipal(
             new ClaimsIdentity(
@@ -70,19 +71,21 @@ public class EmployeeStillActiveHandlerTests
         await userStorage.UpdateUser(new UserDto
         {
             Id = 1,
-            StartDate = DateTime.Now.AddMonths(1)
+            StartDate = DateTime.Now.AddMonths(1),
+            Oid = "12345678-1234-1234-1234-123456789012"
         });
 
         var accessToken = await dbContext.AccessTokens.FindAsync(1);
 
         var httpContext = new DefaultHttpContext();
-        httpContext.Request.Headers.Add(HeaderNames.Authorization, $"Bearer {accessToken?.Value}");
+        httpContext.Request.Headers.Append(HeaderNames.Authorization, $"Bearer {accessToken?.Value}");
 
         var user = new ClaimsPrincipal(
             new ClaimsIdentity(
-                new Claim[] {
-                    new("preferred_username", "someone@alv.no"),
-                },
+                [
+                    new Claim("preferred_username", "someone@alv.no"),
+                    new Claim("oid", "12345678-1234-1234-1234-123456789012")
+                ],
                 "Basic")
         );
 

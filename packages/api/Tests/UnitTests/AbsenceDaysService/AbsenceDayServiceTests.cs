@@ -41,7 +41,8 @@ public class AbsenceDayStorageTests
         {
             Id = 1,
             Email = "someone@alv.no",
-            Name = "Someone"
+            Name = "Someone",
+            Oid = "12345678-1234-1234-1234-123456789012"
         };
 
         _userContextMock.Setup(context => context.GetCurrentUser()).Returns(Task.FromResult(user));
@@ -186,7 +187,8 @@ public class AbsenceDayStorageTests
             Id = 2,
             Email = "someone_else@alv.no",
             Name = "Someone Else",
-            StartDate = date
+            StartDate = date,
+            Oid = "23456789-2345-2345-2345-234567890123"
         };
         _userContextMock.Setup(context => context.GetCurrentUser()).Returns(Task.FromResult(user2));
     }

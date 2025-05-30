@@ -44,7 +44,8 @@ public class VacationTests
         {
             Id = 1,
             Email = "someone@alv.no",
-            Name = "Someone"
+            Name = "Someone",
+            Oid = "12345678-1234-1234-1234-123456789012"
         };
 
         _userContextMock.Setup(context => context.GetCurrentUser()).Returns(System.Threading.Tasks.Task.FromResult(user));

@@ -238,6 +238,7 @@ public static class MigrationClient
                     StartDate = new DateTime(2019, 08, 01),
                     EndDate = null,
                     EmployeeId = 1,
+                    Oid = "12345678-1234-1234-1234-123456789012"
                 },
                 new()
                 {
@@ -246,6 +247,7 @@ public static class MigrationClient
                     StartDate = new DateTime(2019, 09, 01),
                     EndDate = null,
                     EmployeeId = 2,
+                    Oid = "23456789-2345-2345-2345-234567890123"
                 },
                 new()
                 {
@@ -254,6 +256,7 @@ public static class MigrationClient
                     StartDate = new DateTime(2020, 11, 01),
                     EndDate = null,
                     EmployeeId = 3,
+                    Oid = "34567890-3456-3456-3456-345678901234",
                     EmploymentRate = new List<EmploymentRate>
                     {
                         new()

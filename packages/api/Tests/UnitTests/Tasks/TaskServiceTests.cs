@@ -51,7 +51,8 @@ public class TaskServiceTests
         {
             Id = 1,
             Email = "someone@alv.no",
-            Name = "Someone"
+            Name = "Someone",
+            Oid = "12345678-1234-1234-1234-123456789012"
         };
 
         _timeRegistrationService = CreateTimeRegistrationService();

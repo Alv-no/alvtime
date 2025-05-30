@@ -38,7 +38,8 @@ public class InvoiceRateServiceTest
         {
             Id = 1,
             Email = "someone@alv.no",
-            Name = "Someone"
+            Name = "Someone",
+            Oid = "12345678-1234-1234-1234-123456789012"
         };
         _userContextMock.Setup(context => context.GetCurrentUser()).Returns(System.Threading.Tasks.Task.FromResult(user));
     }
@@ -48,7 +49,7 @@ public class InvoiceRateServiceTest
     {
         var hours = new List<Hours>
         {
-            new Hours
+            new()
             {
                 User = 1,
                 Date = new DateTime(2022, 01, 03),
@@ -59,7 +60,7 @@ public class InvoiceRateServiceTest
                 Value = 1.5m,
                 Year = (short)new DateTime(2022, 01, 03).Year
             },
-            new Hours
+            new()
             {
                 User = 1,
                 Date = new DateTime(2022, 01, 03),

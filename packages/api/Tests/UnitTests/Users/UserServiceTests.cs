@@ -67,7 +67,8 @@ public class UserServiceTests
             Email = "newUser@alv.no",
             Name = "New User",
             StartDate = DateTime.UtcNow,
-            EmployeeId = 1
+            EmployeeId = 1,
+            Oid = "12345678-1234-1234-1234-123456789012"
         });
 
         var createdUser = (await userService.GetUsers(new UserQuerySearch
@@ -83,10 +84,10 @@ public class UserServiceTests
     {
         var userService = CreateUserService();
         await userService.CreateUser(new UserDto
-            { Email = "user 1", Name = "user 1", EmployeeId = 1, StartDate = new DateTime(1900, 01, 01) });
+            { Email = "user 1", Name = "user 1", EmployeeId = 1, StartDate = new DateTime(1900, 01, 01), Oid = "12345678-1234-1234-1234-123456789012" });
         var result = await
             userService.CreateUser(new UserDto
-                { Email = "user 2", Name = "user 2", EmployeeId = 1, StartDate = new DateTime(1900, 01, 01) });
+                { Email = "user 2", Name = "user 2", EmployeeId = 1, StartDate = new DateTime(1900, 01, 01), Oid = "23456789-2345-2345-2345-234567890123" });
         
         Assert.False(result.IsSuccess);
         Assert.Equal("Bruker med gitt ansattnummer finnes allerede.", result.Errors.First().Description);
@@ -97,10 +98,10 @@ public class UserServiceTests
     {
         var userService = CreateUserService();
         await userService.CreateUser(new UserDto
-            { Email = "user 1", Name = "user 1", EmployeeId = 1, StartDate = new DateTime(1900, 01, 01) });
+            { Email = "user 1", Name = "user 1", EmployeeId = 1, StartDate = new DateTime(1900, 01, 01), Oid = "12345678-1234-1234-1234-123456789012" });
        var result = await
             userService.CreateUser(new UserDto
-                { Email = "user 1", Name = "user 2", EmployeeId = 2, StartDate = new DateTime(1900, 01, 01) });
+                { Email = "user 1", Name = "user 2", EmployeeId = 2, StartDate = new DateTime(1900, 01, 01), Oid = "23456789-2345-2345-2345-234567890123" });
        
        Assert.False(result.IsSuccess);
        Assert.Equal("Bruker med gitt epost finnes allerede.", result.Errors.First().Description);
@@ -117,7 +118,8 @@ public class UserServiceTests
             Email = "someoneElse@alv.no",
             Name = "SomeoneElse",
             StartDate = DateTime.UtcNow,
-            EndDate = DateTime.UtcNow.Date
+            EndDate = DateTime.UtcNow.Date,
+            Oid = "12345678-1234-1234-1234-123456789012"
         });
 
         var user = await userService.GetUserById(1);
@@ -132,12 +134,12 @@ public class UserServiceTests
     {
         var userService = CreateUserService();
         await userService.CreateUser(new UserDto
-            { Email = "user 1", Name = "user 1", EmployeeId = 1, StartDate = new DateTime(1900, 01, 01) });
+            { Email = "user 1", Name = "user 1", EmployeeId = 1, StartDate = new DateTime(1900, 01, 01), Oid = "12345678-1234-1234-1234-123456789012" });
         var result = await userService.CreateUser(new UserDto
-            { Email = "user 2", Name = "user 2", EmployeeId = 2, StartDate = new DateTime(1900, 01, 01) });
+            { Email = "user 2", Name = "user 2", EmployeeId = 2, StartDate = new DateTime(1900, 01, 01), Oid = "23456789-2345-2345-2345-234567890123" });
         var user2 = result.Match(user => user, _ => throw new Exception());
         var result2 = await
-            userService.UpdateUser(new UserDto { Id = user2.Id, EmployeeId = 1 });
+            userService.UpdateUser(new UserDto { Id = user2.Id, EmployeeId = 1, Oid = "23456789-2345-2345-2345-234567890123" });
         
         Assert.False(result2.IsSuccess);
         Assert.Equal("En bruker har allerede blitt tildelt det ansattnummeret, eposten eller navnet.", result2.Errors.First().Description);
@@ -150,15 +152,15 @@ public class UserServiceTests
         await userService.CreateUser(
             new UserDto
             {
-                Email = "user 1", Name = "user 1", EmployeeId = 1, StartDate = new DateTime(1900, 01, 01)
+                Email = "user 1", Name = "user 1", EmployeeId = 1, StartDate = new DateTime(1900, 01, 01), Oid = "12345678-1234-1234-1234-123456789012"
             });
         var result = (await userService.CreateUser(
             new UserDto
             {
-                Email = "user 2", Name = "user 2", EmployeeId = 2, StartDate = new DateTime(1900, 01, 01)
+                Email = "user 2", Name = "user 2", EmployeeId = 2, StartDate = new DateTime(1900, 01, 01), Oid = "23456789-2345-2345-2345-234567890123"
             }));
         var user = result.Value;
-        var result2 = await userService.UpdateUser(new UserDto { Id = user.Id, Email = "user 1" });
+        var result2 = await userService.UpdateUser(new UserDto { Id = user.Id, Email = "user 1", Oid = "23456789-2345-2345-2345-234567890123" });
         
         Assert.False(result2.IsSuccess);
         Assert.Equal("En bruker har allerede blitt tildelt det ansattnummeret, eposten eller navnet.", result2.Errors.First().Description);
