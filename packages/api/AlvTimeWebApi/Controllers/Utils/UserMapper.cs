@@ -12,7 +12,7 @@ public static class UserMapper
 {
     public static User MapUserDtoToBusinessUser(UserDto dbUser)
     {
-        return new User { Id = dbUser.Id, Email = dbUser.Email, Name = dbUser.Name, StartDate = dbUser.StartDate!.Value };
+        return new User { Id = dbUser.Id, Email = dbUser.Email, Name = dbUser.Name, StartDate = dbUser.StartDate!.Value, Oid = dbUser.Oid };
     }
     
     public static UserAdminResponse MapToUserResponse(this UserDto user)
@@ -35,7 +35,7 @@ public static class UserMapper
         };
     }
 
-    public static UserDto MapToUserDto(this UserUpsertRequest user)
+    public static UserDto MapToUserDto(this UserUpsertRequest user, string userObjectId)
     {
         return new UserDto
         {
@@ -43,11 +43,12 @@ public static class UserMapper
             Email = user.Email,
             StartDate = user.StartDate,
             EndDate = user.EndDate,
-            EmployeeId = user.EmployeeId
+            EmployeeId = user.EmployeeId,
+            Oid = userObjectId
         };
     }
 
-    public static UserDto MapToUserDto(this UserUpsertRequest user, int userId)
+    public static UserDto MapToUserDto(this UserUpsertRequest user, int userId, string userObjectId)
     {
         return new UserDto
         {
@@ -56,7 +57,8 @@ public static class UserMapper
             Email = user.Email,
             StartDate = user.StartDate,
             EndDate = user.EndDate,
-            EmployeeId = user.EmployeeId
+            EmployeeId = user.EmployeeId,
+            Oid = userObjectId
         };
     }
     

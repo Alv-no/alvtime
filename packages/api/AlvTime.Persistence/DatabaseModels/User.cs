@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace AlvTime.Persistence.DatabaseModels
 {
@@ -24,6 +25,8 @@ namespace AlvTime.Persistence.DatabaseModels
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public int EmployeeId { get; set; }
+        [Required]
+        public string Oid { get; set; }
 
         public virtual ICollection<AccessTokens> AccessTokens { get; set; }
         public virtual ICollection<AssociatedTasks> AssociatedTasks { get; set; }

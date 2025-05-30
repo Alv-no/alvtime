@@ -30,7 +30,8 @@ public class UserRepository : IUserRepository
             Email = user.Email,
             StartDate = user.StartDate!.Value.Date,
             EndDate = user.EndDate,
-            EmployeeId = user.EmployeeId ?? 0
+            EmployeeId = user.EmployeeId ?? 0,
+            Oid = user.Oid
         };
 
         _context.User.Add(newUser);
@@ -50,7 +51,8 @@ public class UserRepository : IUserRepository
             Name = u.Name,
             StartDate = u.StartDate,
             EndDate = u.EndDate,
-            EmployeeId = u.EmployeeId
+            EmployeeId = u.EmployeeId,
+            Oid = u.Oid,
         }).ToList();
         return e;
     }
@@ -67,6 +69,7 @@ public class UserRepository : IUserRepository
                 StartDate = u.StartDate,
                 EndDate = u.EndDate,
                 EmployeeId = u.EmployeeId,
+                Oid = u.Oid,
                 EmploymentRates = u.EmploymentRate.Select(er => new UserEmploymentRateDto
                 {
                     Id = er.Id,
@@ -79,7 +82,7 @@ public class UserRepository : IUserRepository
 
     public async Task UpdateUser(UserDto userToBeUpdated)
     {
-        var existingUser = await _context.User.FirstOrDefaultAsync(u => u.Id == userToBeUpdated.Id);
+        var existingUser = await _context.User.FirstOrDefaultAsync(u => u.Oid == userToBeUpdated.Oid);
 
         if (userToBeUpdated.Name != null)
         {
@@ -122,7 +125,8 @@ public class UserRepository : IUserRepository
                 Id = databaseUser.Id,
                 Email = databaseUser.Email,
                 Name = databaseUser.Name,
-                EndDate = databaseUser.EndDate
+                EndDate = databaseUser.EndDate,
+                Oid = databaseUser.Oid,
             };
         }
 

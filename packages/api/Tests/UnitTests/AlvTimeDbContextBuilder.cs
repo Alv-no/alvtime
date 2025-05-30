@@ -374,7 +374,8 @@ namespace Tests.UnitTests
                 Email = "someone@alv.no",
                 Name = "Someone",
                 StartDate = new DateTime(2020, 01, 02),
-                EmployeeId = 999
+                EmployeeId = 999,
+                Oid = "12345678-1234-1234-1234-123456789012"
             });
 
             _context.User.Add(new User
@@ -383,7 +384,8 @@ namespace Tests.UnitTests
                 Email = "someone2@alv.no",
                 Name = "Someone2",
                 StartDate = DateTime.Now,
-                EmployeeId = 888
+                EmployeeId = 888,
+                Oid = "23456789-2345-2345-2345-234567890123"
             });
 
             _context.SaveChanges();

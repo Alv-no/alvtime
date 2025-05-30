@@ -11,6 +11,7 @@ public class UserDto
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public int? EmployeeId { get; set; }
+    public required string Oid { get; set; }
     public IEnumerable<UserEmploymentRateDto>? EmploymentRates { get; set; }
 }
 
