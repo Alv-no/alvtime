@@ -77,7 +77,7 @@ public class UserController(UserService userService, GraphService graphService) 
     [HttpPut("Users/setOid")]
     public async Task<ActionResult> SetUserOid()
     {
-        var userObjectId = await graphService.SetUserOid();
+        await graphService.SetUserOid();
         return Ok();
     }
 }

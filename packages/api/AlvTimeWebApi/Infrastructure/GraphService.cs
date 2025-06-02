@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
+using AlvTime.Business;
 using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Graph;
@@ -11,26 +13,26 @@ public class GraphService(GraphServiceClient graphServiceClient, AlvTime_dbConte
 {
     public async Task<string> GetObjectIdByEmail(string email)
     {
-        var users = await graphServiceClient.Users
-            .GetAsync(requestConfiguration => 
+        try
+        {
+            var users = await graphServiceClient.Users
+                .GetAsync(requestConfiguration =>
+                {
+                    requestConfiguration.QueryParameters.Select = ["id"];
+                    requestConfiguration.QueryParameters.Filter = $"mail eq '{email}' or userPrincipalName eq '{email}'";
+                });
+
+            if (users?.Value?.FirstOrDefault()?.Id == null)
             {
-                requestConfiguration.QueryParameters.Select = ["id"];
-                requestConfiguration.QueryParameters.Filter = $"mail eq '{email}' or userPrincipalName eq '{email}'";
-            });
+                throw new NullReferenceException($"User with email {email} not found in Entra ID");
+            }
 
-            Console.WriteLine("hei");
-            // var user = users.FirstOrDefault();
-            // if (user == null)
-            // {
-            //     return new Error(ErrorCodes.MissingEntity, $"User with email {email} not found in Entra ID");
-            // }
-
-            return "hehe";
-        // catch (ServiceException ex)
-        // {
-        //     return new Error(ErrorCodes.AuthorizationError, $"Failed to fetch object ID: {ex.Message}");
-        // }
-
+            return users.Value.First().Id;
+        }
+        catch (ServiceException ex)
+        {
+            throw new ServiceException($"Failed to fetch object ID: {ex.Message}");
+        }
     }
 
     public async Task SetUserOid()
