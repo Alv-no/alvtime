@@ -42,7 +42,11 @@ public class UserService
     public async Task<Result<UserDto>> UpdateUser(UserDto user)
     {
         var allUsers = await _userRepository.GetUsers(new UserQuerySearch());
-        if (allUsers.Any(u => u.Id != user.Id && (u.EmployeeId == user.EmployeeId || u.Email == user.Email || u.Name == user.Name)))
+        
+        if (allUsers.Any(u => u.Id != user.Id && 
+                              (u.EmployeeId == user.EmployeeId || 
+                               (u.Email == user.Email && (u.EndDate == null || u.EndDate > DateTime.Now)) ||
+                               u.Name == user.Name)))
         {
             return new Error(ErrorCodes.EntityAlreadyExists, "En bruker har allerede blitt tildelt det ansattnummeret, eposten eller navnet.");
         }
@@ -57,9 +61,9 @@ public class UserService
         {
             Email = userToBeCreated.Email,
         })).FirstOrDefault();
-        if (userWithEmail != null)
+        if (userWithEmail != null && (userWithEmail.EndDate == null || userWithEmail.EndDate > DateTime.UtcNow))
         {
-            errors.Add(new Error(ErrorCodes.EntityAlreadyExists, "Bruker med gitt epost finnes allerede."));
+            errors.Add(new Error(ErrorCodes.EntityAlreadyExists, "Aktiv bruker med gitt epost finnes allerede."));
         }
 
         var userWithName = (await _userRepository.GetUsers(new UserQuerySearch

@@ -11,6 +11,7 @@ namespace AlvTimeWebApi.Authentication.OAuth
         public string IssuerId { get; set; }
 
         public string ClientId { get; set; }
+        public string GraphClientSecret { get; set; }
     }
 }
 

@@ -40,7 +40,6 @@ public class UserRepository : IUserRepository
 
     public async Task<IEnumerable<UserDto>> GetUsers(UserQuerySearch criteria)
     {
-        var u = _context.User.Where(u => u.Email == criteria.Email).ToList();
         var x = await _context.User.AsQueryable()
             .Filter(criteria)
             .ToListAsync();
