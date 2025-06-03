@@ -19,10 +19,10 @@ public static class AzureExtensions
 
         var tenantId = authentication.TenantId;
         var clientId = authentication.ClientId;
-        var clientSecret = "";
+        var clientSecret = authentication.GraphClientSecret;
+        Console.WriteLine("ClientSecret: " + clientSecret);
 
         var options = new ClientSecretCredential(tenantId, clientId, clientSecret);
-
         var graphClient = new GraphServiceClient(options, scopes);
         services.AddSingleton(graphClient);
     }

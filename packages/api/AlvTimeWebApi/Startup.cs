@@ -42,7 +42,7 @@ public class Startup
         services.AddMvc();
         services.AddAlvtimeAuthentication(Configuration);
         services.AddMicrosoftGraphClient(Configuration);
-        services.AddSingleton<GraphService>();
+        services.AddScoped<GraphService>();
         services.Configure<TimeEntryOptions>(Configuration.GetSection("TimeEntryOptions"));
         services.AddAlvtimeAuthorization();
         services.AddOpenApi(o => o.AddDocumentTransformer<OpenApiSecuritySchemeTransformer>());
