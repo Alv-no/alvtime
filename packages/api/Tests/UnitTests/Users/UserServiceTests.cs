@@ -94,7 +94,7 @@ public class UserServiceTests
     }
 
     [Fact]
-    public async Task CreateUser_UserEmailAlreadyExists_ExceptionThrown()
+    public async Task CreateUser_ActiveUserEmailAlreadyExists_ExceptionThrown()
     {
         var userService = CreateUserService();
         await userService.CreateUser(new UserDto
@@ -104,7 +104,20 @@ public class UserServiceTests
                 { Email = "user 1", Name = "user 2", EmployeeId = 2, StartDate = new DateTime(1900, 01, 01), Oid = "23456789-2345-2345-2345-234567890123" });
        
        Assert.False(result.IsSuccess);
-       Assert.Equal("Bruker med gitt epost finnes allerede.", result.Errors.First().Description);
+       Assert.Equal("Aktiv bruker med gitt epost finnes allerede.", result.Errors.First().Description);
+    }
+    
+    [Fact]
+    public async Task CreateUser_InactiveUserEmailAlreadyExists_UserCreated()
+    {
+        var userService = CreateUserService();
+        await userService.CreateUser(new UserDto
+            { Email = "user 1", Name = "user 1", EmployeeId = 1, StartDate = new DateTime(1900, 01, 01), EndDate = new DateTime(2020, 01, 01), Oid = "12345678-1234-1234-1234-123456789012" });
+        var result = await
+            userService.CreateUser(new UserDto
+                { Email = "user 1", Name = "user 2", EmployeeId = 2, StartDate = new DateTime(1900, 01, 01), Oid = "23456789-2345-2345-2345-234567890123" });
+       
+        Assert.True(result.IsSuccess);
     }
     
     [Fact]
