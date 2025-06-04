@@ -24,7 +24,7 @@ public class GraphService(GraphServiceClient graphServiceClient, AlvTime_dbConte
 
             if (users?.Value?.FirstOrDefault()?.Id == null)
             {
-                throw new NullReferenceException($"User with email {email} not found in Entra ID");
+                return "";
             }
 
             return users.Value.First().Id;
