@@ -8,7 +8,6 @@ using AlvTimeWebApi.ErrorHandling;
 using AlvTimeWebApi.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,8 +18,12 @@ namespace AlvTimeWebApi;
 
 public class Startup
 {
+    private readonly IHostEnvironment _environment;
+    
     public Startup(IHostEnvironment env)
     {
+        _environment = env;
+        
         var builder = new ConfigurationBuilder()
             .SetBasePath(env.ContentRootPath)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -41,7 +44,7 @@ public class Startup
             contextLifetime: ServiceLifetime.Scoped, optionsLifetime: ServiceLifetime.Scoped);
         services.AddMvc();
         services.AddAlvtimeAuthentication(Configuration);
-        services.AddMicrosoftGraphClient(Configuration);
+        services.AddMicrosoftGraphClient(Configuration, _environment);
         services.AddScoped<GraphService>();
         services.Configure<TimeEntryOptions>(Configuration.GetSection("TimeEntryOptions"));
         services.AddAlvtimeAuthorization();
