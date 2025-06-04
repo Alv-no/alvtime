@@ -34,7 +34,7 @@ services:
       - ConnectionStrings__AlvTime_db=Data Source=tcp:db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32;Trust Server Certificate=True;
       - AzureAd__Domain=api://c9126a83-01c3-43c0-8bb3-298d352d2d7f
       - AzureAd__ClientId=c9126a83-01c3-43c0-8bb3-298d352d2d7f
-      - AzureAd__GraphClientSecret=@Microsoft.KeyVault(SecretUri=https://alvtime-kv-test.vault.azure.net/secrets/GraphClientSecret/95ce7e8330874943baa7317cd67321cf)
+      - AzureAd__GraphClientSecret=${AZUREAD_GRAPH_CLIENT_SECRET}
       - ASPNETCORE_ENVIRONMENT=Development
       - DOTNET_URLS=http://0.0.0.0:8080
     ports:

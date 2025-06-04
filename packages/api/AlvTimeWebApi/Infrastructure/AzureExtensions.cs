@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using AlvTimeWebApi.Authentication.OAuth;
+﻿using AlvTimeWebApi.Authentication.OAuth;
 using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +18,6 @@ public static class AzureExtensions
         var tenantId = authentication.TenantId;
         var clientId = authentication.ClientId;
         var clientSecret = authentication.GraphClientSecret;
-        Console.WriteLine("ClientSecret: " + clientSecret);
 
         var options = new ClientSecretCredential(tenantId, clientId, clientSecret);
         var graphClient = new GraphServiceClient(options, scopes);

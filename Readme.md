@@ -49,6 +49,13 @@ A docker compose development environment has been defined for this project in `d
 
 Whenever a dependency is added to the frontend or the backend code is changed you have to rebuild the container to see the changes. This is done by shutting down the environment `./run down` and running `docker-compose build <service name>`. For example running `docker-compose build frontend` will download all the dependencies inside the container and make them available to the development server. Make sure to run `docker-compose build api` to rebuild the api backend service and include changes.
 
+Note: The API service requires a secret to access the Microsoft Graph API. This secret can be placed in a separate `.env`-file at the root directory. The secret will be read by `docker-compose` and will not be included in version control.
+
+```
+#.env
+AZUREAD_GRAPH_CLIENT_SECRET=<secret>
+```
+
 ##### Mac with ARM processor
 
 The MSSQL server doesn't compile on the new ARM processors for Mac and you will need to use docker with either `docker compose` or as a standalone container for a local setup. Both options require you to to enable Rosetta in docker. In docker Desktop, go to Settings and enable "Use Rosetta for x86/amd64 emulation on Apple Silicon" and restart docker. You can either run a single docker container with a local setup or use docker as usual.
