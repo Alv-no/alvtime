@@ -24,7 +24,7 @@ public class GraphService(GraphServiceClient graphServiceClient, AlvTime_dbConte
 
             if (users?.Value?.FirstOrDefault()?.Id == null)
             {
-                return "";
+                throw new NullReferenceException($"No user found with email: {email}");
             }
 
             return users.Value.First().Id;
@@ -32,26 +32,6 @@ public class GraphService(GraphServiceClient graphServiceClient, AlvTime_dbConte
         catch (ServiceException ex)
         {
             throw new ServiceException($"Failed to fetch object ID: {ex.Message}");
-        }
-    }
-
-    public async Task SetUserOid()
-    {
-        var users = await context.User.ToListAsync();
-
-        foreach (var user in users)
-        {
-            var objectId = await GetObjectIdByEmail(user.Email);
-            if (objectId != null)
-            {
-                user.Oid = objectId;
-            }
-            else
-            {
-                Console.WriteLine($"User with email {user.Email} not found in Entra ID");
-            }
-
-            await context.SaveChangesAsync();
         }
     }
 }

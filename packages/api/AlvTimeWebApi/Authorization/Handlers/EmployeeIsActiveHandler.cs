@@ -18,15 +18,15 @@ public class EmployeeIsActiveHandler : AuthorizationHandler<EmployeeStillActiveR
     
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext authContext, EmployeeStillActiveRequirement requirement)
     {
-        var userEmail = authContext.User.Claims.FirstOrDefault(c => c.Type == "preferred_username")?.Value;
+        var oid = authContext.User.Claims.FirstOrDefault(c => c.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value;
         
-        if (userEmail is null)
+        if (oid is null)
         {
-            authContext.Fail(new AuthorizationFailureReason(this, "User email not set in token"));
+            authContext.Fail(new AuthorizationFailureReason(this, "User oid not set in token"));
             return Task.CompletedTask;
         }
 
-        var employee = _alvtimeDbContext.User.FirstOrDefault(u => u.Email.ToLower().Equals(userEmail.ToLower()));
+        var employee = _alvtimeDbContext.User.FirstOrDefault(u => u.Oid.Equals(oid));
 
         if (employee is null)
         {

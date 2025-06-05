@@ -17,21 +17,21 @@ namespace AlvTimeWebApi.Controllers
     [Authorize]
     public class ProfileController : Controller
     {
-        private RetrieveUsers _userRetriever;
+        private IUserContext _userContext;
         private readonly IUserRepository _userRepository;
         private readonly int _reportUser;
 
-        public ProfileController(RetrieveUsers userRetriever, IUserRepository userRepository, IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
+        public ProfileController(IUserContext userContext, IUserRepository userRepository, IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
         {
-            _userRetriever = userRetriever;
+            _userContext = userContext;
             _userRepository = userRepository;
             _reportUser = timeEntryOptions.CurrentValue.ReportUser;
         }
 
         [HttpGet("Profile")]
-        public ActionResult<UserAdminResponse> GetUserProfile()
+        public async Task<ActionResult<UserAdminResponse>> GetUserProfile()
         {
-            var user = _userRetriever.RetrieveUser();
+            var user = await _userContext.GetCurrentUser();
 
             if (user == null)
             {
@@ -51,7 +51,7 @@ namespace AlvTimeWebApi.Controllers
         [HttpGet("UsersReport")]
         public async Task<ActionResult<IEnumerable<UserAdminResponse>>> FetchUsersReport()
         {
-            var user = _userRetriever.RetrieveUser();
+            var user = await _userContext.GetCurrentUser();
 
             if (user.Id == _reportUser)
             {

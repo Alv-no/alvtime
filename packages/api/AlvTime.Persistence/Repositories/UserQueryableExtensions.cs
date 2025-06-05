@@ -34,6 +34,11 @@ namespace AlvTime.Persistence.Repositories
                 query = query.Where(user => user.EmployeeId == criterias.EmployeeId);
             }
 
+            if (criterias.Oid != null)
+            {
+                query = query.Where(user => user.Oid == criterias.Oid);
+            }
+
             return query;
         }
     }

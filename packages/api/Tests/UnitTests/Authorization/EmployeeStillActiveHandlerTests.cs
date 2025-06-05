@@ -43,6 +43,7 @@ public class EmployeeStillActiveHandlerTests
             new ClaimsIdentity(
                 new Claim[] {
                     new("preferred_username", "someone@alv.no"),
+                    new("http://schemas.microsoft.com/identity/claims/objectidentifier", "12345678-1234-1234-1234-123456789012")
                 },
                 "Basic")
         );
@@ -84,7 +85,7 @@ public class EmployeeStillActiveHandlerTests
             new ClaimsIdentity(
                 [
                     new Claim("preferred_username", "someone@alv.no"),
-                    new Claim("oid", "12345678-1234-1234-1234-123456789012")
+                    new Claim("http://schemas.microsoft.com/identity/claims/objectidentifier", "12345678-1234-1234-1234-123456789012")
                 ],
                 "Basic")
         );
