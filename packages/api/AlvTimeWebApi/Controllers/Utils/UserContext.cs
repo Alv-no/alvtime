@@ -22,16 +22,16 @@ public class UserContext : IUserContext
 
     private string Email => _httpContextAccessor.HttpContext.User.FindFirstValue("preferred_username");
 
-    public string Oid => _httpContextAccessor.HttpContext.User.FindFirstValue("oid");
+    public string Oid => _httpContextAccessor.HttpContext.User.FindFirstValue("http://schemas.microsoft.com/identity/claims/objectidentifier");
 
     public async Task<User> GetCurrentUser()
     {
-        if (string.IsNullOrEmpty(Email))
+        if (string.IsNullOrEmpty(Oid))
         {
             throw new ValidationException("Bruker eksisterer ikke");
         }
             
-        var dbUser = (await _userRepository.GetUsers(new UserQuerySearch { Email = Email })).First();
+        var dbUser = (await _userRepository.GetUsers(new UserQuerySearch { Oid = Oid })).First();
 
         return UserMapper.MapUserDtoToBusinessUser(dbUser);
     }

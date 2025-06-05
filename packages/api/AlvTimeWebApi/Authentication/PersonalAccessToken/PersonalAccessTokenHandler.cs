@@ -51,6 +51,7 @@ public class PersonalAccessTokenHandler(
         =>
         [
             new("preferred_username", user.Email),
-            new("name", user.Name)
+            new("name", user.Name),
+            new("http://schemas.microsoft.com/identity/claims/objectidentifier", user.Oid),
         ];
 }

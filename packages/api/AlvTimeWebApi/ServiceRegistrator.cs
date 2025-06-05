@@ -26,16 +26,15 @@ namespace AlvTimeWebApi
         {
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddHttpContextAccessor();
-            services.AddScoped<RetrieveUsers>();
             services.AddScoped<UserService>();
             services.AddScoped<ITaskStorage, TaskStorage>();
             services.AddScoped<ITimeRegistrationStorage, TimeRegistrationStorage>();
             services.AddScoped<IHourRateStorage, HourRateStorage>();
-            services.AddScoped<AlvTime.Business.HourRates.HourRateService>();
+            services.AddScoped<HourRateService>();
             services.AddScoped<IProjectStorage, ProjectStorage>();
-            services.AddScoped<AlvTime.Business.Projects.ProjectService>();
+            services.AddScoped<ProjectService>();
             services.AddScoped<ICustomerStorage, CustomerStorage>();
-            services.AddScoped<AlvTime.Business.Customers.CustomerService>();
+            services.AddScoped<CustomerService>();
             services.AddScoped<IEconomyStorage, EconomyStorage>();
             services.AddScoped<IAccessTokenStorage, AccessTokenStorage>();
             services.AddScoped<IAssociatedTaskStorage, AssociatedTaskStorage>();
@@ -49,7 +48,7 @@ namespace AlvTimeWebApi
             services.AddScoped<TaskUtils>();
             services.AddScoped<TimeRegistrationService>();
             services.AddScoped<IDbContextScope, DbContextScope>();
-            services.AddScoped<AlvTime.Business.Tasks.TaskService>();
+            services.AddScoped<TaskService>();
             services.AddScoped<PayoutValidationService>();
             services.AddScoped<InvoiceRateService>();
             services.AddScoped<IAbsenceStorage, AbsenceStorage>();

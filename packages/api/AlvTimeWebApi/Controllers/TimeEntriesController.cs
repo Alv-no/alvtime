@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.TimeRegistration;
+using AlvTime.Business.Users;
 using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Responses;
 using AlvTimeWebApi.Utils;
@@ -22,14 +23,14 @@ public class TimeEntriesController : Controller
 {
     private readonly ITimeRegistrationStorage _storage;
     private readonly TimeRegistrationService _timeRegistrationService;
-    private RetrieveUsers _userRetriever;
+    private IUserContext _userContext;
     private readonly IOptionsMonitor<TimeEntryOptions> _timeEntryOptions;
 
     private readonly int _reportUser;
 
-    public TimeEntriesController(RetrieveUsers userRetriever, ITimeRegistrationStorage storage, TimeRegistrationService timeRegistrationService, IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
+    public TimeEntriesController(IUserContext userContext, ITimeRegistrationStorage storage, TimeRegistrationService timeRegistrationService, IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
     {
-        _userRetriever = userRetriever;
+        _userContext = userContext;
         _storage = storage;
         _timeRegistrationService = timeRegistrationService;
         _timeEntryOptions = timeEntryOptions;
@@ -41,7 +42,7 @@ public class TimeEntriesController : Controller
     {
         try
         {
-            var user = _userRetriever.RetrieveUser();
+            var user = _userContext.GetCurrentUser();
             return Ok((await _storage.GetTimeEntries(new TimeEntryQuerySearch
                 {
                     UserId = user.Id,
@@ -111,7 +112,7 @@ public class TimeEntriesController : Controller
     [HttpGet("TimeEntriesReport")]
     public async Task<ActionResult<IEnumerable<TimeEntryResponseDto>>> FetchTimeEntriesReport(DateTime fromDateInclusive, DateTime toDateInclusive)
     {
-        var user = _userRetriever.RetrieveUser();
+        var user = _userContext.GetCurrentUser();
 
         if (user.Id == _reportUser)
         {

@@ -40,10 +40,10 @@ public class UserRepository : IUserRepository
 
     public async Task<IEnumerable<UserDto>> GetUsers(UserQuerySearch criteria)
     {
-        var x = await _context.User.AsQueryable()
+        var users = await _context.User.AsQueryable()
             .Filter(criteria)
             .ToListAsync();
-        var e = x.Select(u => new UserDto
+        var userResponse = users.Select(u => new UserDto
         {
             Email = u.Email,
             Id = u.Id,
@@ -53,7 +53,7 @@ public class UserRepository : IUserRepository
             EmployeeId = u.EmployeeId,
             Oid = u.Oid,
         }).ToList();
-        return e;
+        return userResponse;
     }
 
     public async Task<IEnumerable<UserDto>> GetUsersWithEmploymentRates(UserQuerySearch criteria)

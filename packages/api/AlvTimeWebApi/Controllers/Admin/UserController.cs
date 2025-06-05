@@ -73,11 +73,4 @@ public class UserController(UserService userService, GraphService graphService) 
             rate => Ok(rate.MapToEmploymentRateResponse()),
             errors => BadRequest(errors.ToValidationProblemDetails("Oppdatering av ansettelsesrate feilet")));
     }
-    
-    [HttpPut("Users/setOid")]
-    public async Task<ActionResult> SetUserOid()
-    {
-        await graphService.SetUserOid();
-        return Ok();
-    }
 }

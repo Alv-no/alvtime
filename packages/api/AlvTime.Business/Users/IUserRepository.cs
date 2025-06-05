@@ -27,6 +27,7 @@ namespace AlvTime.Business.Users
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public int? EmployeeId { get; set; }
+        public string Oid { get; set; }
     }
 
     public class EmploymentRateQueryFilter
