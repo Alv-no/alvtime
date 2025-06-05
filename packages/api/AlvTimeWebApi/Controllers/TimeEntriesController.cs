@@ -42,7 +42,7 @@ public class TimeEntriesController : Controller
     {
         try
         {
-            var user = _userContext.GetCurrentUser();
+            var user = await _userContext.GetCurrentUser();
             return Ok((await _storage.GetTimeEntries(new TimeEntryQuerySearch
                 {
                     UserId = user.Id,

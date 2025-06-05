@@ -2,14 +2,13 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business;
-using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Graph;
 using Task = System.Threading.Tasks.Task;
 
 namespace AlvTimeWebApi.Infrastructure;
 
-public class GraphService(GraphServiceClient graphServiceClient, AlvTime_dbContext context)
+public class GraphService(GraphServiceClient graphServiceClient)
 {
     public async Task<string> GetObjectIdByEmail(string email)
     {
