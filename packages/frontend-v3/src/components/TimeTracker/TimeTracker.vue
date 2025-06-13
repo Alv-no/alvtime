@@ -1,22 +1,41 @@
 <template>
 	<div class="time-tracker-container">
-		<div class="time-tracker-header">
-			<div class="week-number-container">
-				<!-- TODO: Fiks ukenummer -->
-				UKE 21
-			</div>
-		</div>
-		<div class="project-list-wrapper">
-			<ProjectExpandable v-for="project in taskStore.tasks" :project="project" :key="project.id" />
-		</div>
+		<swiper-container id="week-swiper-container" ref="mySwiper" class="swiper-container">
+			<swiper-slide
+				class="swiper-wrapper"
+				v-for="(week, index) in dateStore.weeks"
+				:key="index"
+			>
+				<div
+					class="swiper-slide"
+				>
+					<div class="time-tracker-header">
+						<div class="week-number-container">
+							{{ `UKE ${getWeekNumber(week[0])}` }}
+						</div>
+					</div>
+					<div class="project-list-wrapper">
+						<ProjectExpandable
+							v-for="project in taskStore.tasks"
+							:key="project.id"
+							:project="project"
+							:week="week"
+						/>
+					</div>
+				</div>
+			</swiper-slide>
+		</swiper-container>
 	</div>
 </template>
 
 <script setup lang="ts">
 import ProjectExpandable from "./ProjectExpandable.vue";
 import { useTaskStore } from "@/stores/taskStore";
+import { useDateStore } from "@/stores/dateStore";
+import { getWeekNumber} from "@/utils/weekHelper";
 
 const taskStore = useTaskStore();
+const dateStore = useDateStore();
 </script>
 
 <style scoped lang="scss">
@@ -39,5 +58,10 @@ const taskStore = useTaskStore();
 	flex-direction: column;
 	gap: 16px;
 	margin-top: 16px;
+}
+
+.swiper-container {
+	width: 100%;
+	height: 100%;
 }
 </style>
