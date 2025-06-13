@@ -1,6 +1,7 @@
 <template>
 	<div>
 		<input
+			:id="`${timeEntry.taskId}-${timeEntry.date}`"
 			v-model="timeValue"
 			type="text"
 			class="form-control"
