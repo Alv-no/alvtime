@@ -31,5 +31,6 @@ const compensationRateInPercentage = computed(() => {
 	justify-content: space-between;
 	align-items: center;
 	border-radius: 5px;
+	font-size: 1.2rem;
 }
 </style>
