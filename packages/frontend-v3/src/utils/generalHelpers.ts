@@ -1,9 +1,10 @@
 // This function debounces a function call, ensuring that it is not called too frequently.
-const debounce = (func: (...args: any[]) => void, delay: number) => {
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+const debounce = (fn: Function, ms = 300) => {
 	let timeoutId: ReturnType<typeof setTimeout>;
-	return (...args: any[]) => {
+	return function (this: any, ...args: any[]) {
 		clearTimeout(timeoutId);
-		timeoutId = setTimeout(() => func(...args), delay);
+		timeoutId = setTimeout(() => fn.apply(this, args), ms);
 	};
 };
 
