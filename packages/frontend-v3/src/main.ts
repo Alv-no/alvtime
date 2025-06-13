@@ -7,6 +7,10 @@ import { msalPlugin } from "./plugins/msalPlugin";
 import { msalInstance } from "./authConfig";
 import { type AuthenticationResult, EventType } from "@azure/msal-browser";
 import { CustomNavigationClient } from "./router/NavigationClient";
+// import function to register Swiper custom elements
+import { register } from "swiper/element/bundle";
+// register Swiper custom elements
+register();
 
 // The next 2 lines are optional. This is how you configure MSAL to take advantage of the router's navigate functions when MSAL redirects between pages in your app
 const navigationClient = new CustomNavigationClient(router);
