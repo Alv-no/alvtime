@@ -9,7 +9,6 @@ export const useTaskStore = defineStore("task", () => {
 		try {
 			const response = await taskService.getTasks();
 			if (response.status === 200) {
-				console.log("Tasks fetched successfully:", response.data);
 				tasks.value = mutateTasks(response.data);
 			} else {
 				console.error("Failed to fetch tasks:", response.statusText);
