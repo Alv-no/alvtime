@@ -1,12 +1,14 @@
 <template>
-	<div class="project-container" @click="toggleExpand">
-		<div class="project-container-header">
+	<div
+		class="project-container"
+	>
+		<div @click="toggleExpand" class="project-container-header">
 			<div class="project-info-wrapper">
 				<p class="project-name">
 					{{ project.name }}
 				</p>
 				<p class="project-project">
-					{{ project.customer.name}}
+					{{ project.customer.name }}
 				</p>
 			</div>
 			<div class="project-status-wrapper">
@@ -19,9 +21,17 @@
 				/>
 			</div>
 		</div>
-		<div class="project-container-expandable" :class="{ 'visible': isExpanded }">
+		<div
+			class="project-container-expandable"
+			:class="{ 'visible': isExpanded }"
+		>
 			<div class="project-container-content">
-				<TaskStrip v-for="task in project.tasks" :task="task" :key="task.id" />
+				<TaskStrip
+					v-for="task in project.tasks"
+					:key="task.id"
+					:task="task"
+					:week="week"
+				/>
 			</div>
 		</div>
 	</div>
@@ -39,8 +49,9 @@ const toggleExpand = () => {
 	isExpanded.value = !isExpanded.value;
 };
 
-const { project } = defineProps<{
+const { project, week } = defineProps<{
 	project: Project;
+	week: Date[];
 }>();
 </script>
 
@@ -49,6 +60,7 @@ const { project } = defineProps<{
 	border: 1px solid rgb(206, 214, 194, 0.5);
 	border-radius: 10px;
 }
+
 .project-container-header {
 	display: flex;
 	justify-content: space-between;
@@ -91,6 +103,7 @@ const { project } = defineProps<{
 		}
 	}
 }
+
 .project-container-expandable {
 	display: grid;
 	grid-template-rows: 0fr;
@@ -101,6 +114,7 @@ const { project } = defineProps<{
 		margin-bottom: 16px;
 	}
 }
+
 .project-container-content {
 	display: flex;
 	flex-direction: column;
