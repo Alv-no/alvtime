@@ -81,7 +81,8 @@ export default [
 			"vue/no-v-html": "warn",
 			"vue/require-default-prop": "error",
 			"vue/attributes-order": "warn",
-			"vue/html-indent": ["error", "tab"]
+			"vue/html-indent": ["error", "tab"],
+			"vue/attribute-hyphenation": ["error", "never"],
 		}
 	},
   
@@ -123,4 +124,4 @@ export default [
 			}
 		}
 	}
-]
+];
