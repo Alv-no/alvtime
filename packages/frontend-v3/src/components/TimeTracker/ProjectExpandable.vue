@@ -118,7 +118,7 @@ const { project, week } = defineProps<{
 .project-container-content {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: 12px;
 	overflow: hidden;
 	padding: 0 16px;
 }
