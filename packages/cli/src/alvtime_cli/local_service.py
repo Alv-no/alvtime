@@ -142,7 +142,12 @@ class LocalService:
             return None
         if len(open_entries) > 1:
             raise RuntimeError("More than one time entry is currently open. You know who to call!")
-        return open_entries[0]
+        entry = open_entries[0]
+
+        # Hydrate task
+        entry.task = self.repo.find_task(entry.task_id)
+
+        return entry
 
     def get_entries(self, from_: date, to: date) -> list[model.TimeEntry]:
         # Put all tasks  in a dict
