@@ -1,19 +1,43 @@
 <template>
 	<div class="time-tracker-container">
-		<swiper-container id="week-swiper-container" ref="mySwiper" class="swiper-container">
+		<div class="time-tracker-header">
+			<div class="week-number-container">
+				{{ getWeekNumberString(currentWeek[0]) }}
+			</div>
+			<div class="button-wrapper">
+				<button
+					id="prev-button"
+					class="prev-button"
+					@click="prevSlide"
+				>
+					Tilbake
+				</button>
+				<button>
+					I dag
+				</button>
+				<button
+					id="next-button"
+					class="next-button"
+					@click="nextSlide"
+				>
+					Fremover
+				</button>
+			</div>
+		</div>
+		<swiper-container
+			id="week-swiper-container"
+			ref="mySwiper"
+			initialSlide="52"
+			class="swiper-container"
+		>
 			<swiper-slide
-				class="swiper-wrapper"
 				v-for="(week, index) in dateStore.weeks"
 				:key="index"
+				class="swiper-wrapper"
 			>
 				<div
 					class="swiper-slide"
 				>
-					<div class="time-tracker-header">
-						<div class="week-number-container">
-							{{ `UKE ${getWeekNumber(week[0])}` }}
-						</div>
-					</div>
 					<div class="project-list-wrapper">
 						<ProjectExpandable
 							v-for="project in taskStore.tasks"
@@ -29,13 +53,58 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref, computed } from "vue";
 import ProjectExpandable from "./ProjectExpandable.vue";
 import { useTaskStore } from "@/stores/taskStore";
 import { useDateStore } from "@/stores/dateStore";
 import { getWeekNumber} from "@/utils/weekHelper";
+import type Swiper from "swiper";
 
+const swiper = ref<Swiper | null>(null);
 const taskStore = useTaskStore();
 const dateStore = useDateStore();
+
+const getWeekNumberString = (date: Date) => {
+	if(date.getFullYear() !== new Date().getFullYear()) {
+		return `Uke ${getWeekNumber(date)} (${date.getFullYear()})`;
+	} else {
+		return `Uke ${getWeekNumber(date)}`;
+	}
+};
+
+const currentSlideIndex = computed(() => {
+	if (swiper.value) {
+		return swiper.value.activeIndex;
+	}
+	return 0;
+});
+
+const currentWeek = computed(() => {
+	if (dateStore.weeks.length > 0) {
+		return dateStore.weeks[currentSlideIndex.value];
+	}
+	return [];
+});
+
+const nextSlide = () => {
+	console.log("Next slide clicked");
+	if (swiper.value) {
+		swiper.value?.slideNext();
+	}
+};
+
+const prevSlide = () => {
+	if (swiper.value) {
+		swiper.value?.slidePrev();
+	}
+};
+
+onMounted(() => {
+	const swiperContainer = document.getElementById("week-swiper-container");
+	if (swiperContainer && "swiper" in swiperContainer) {
+		swiper.value = (swiperContainer as any).swiper as Swiper;
+	}
+});
 </script>
 
 <style scoped lang="scss">
@@ -51,6 +120,7 @@ const dateStore = useDateStore();
 	padding: 12px 12px 9px;
 	font-weight: 600;
 	font-size: 14px;
+	text-wrap: nowrap;
 }
 
 .project-list-wrapper {
@@ -63,5 +133,11 @@ const dateStore = useDateStore();
 .swiper-container {
 	width: 100%;
 	height: 100%;
+}
+
+.button-wrapper {
+	display: flex;
+	justify-content: flex-end;
+	width: 100%;
 }
 </style>
