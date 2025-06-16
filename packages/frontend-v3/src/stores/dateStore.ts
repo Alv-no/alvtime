@@ -19,7 +19,7 @@ export const useDateStore = defineStore("date", () => {
 		activeDate.value = date || new Date();
 		await createWeeksInStore(activeDate.value);
 		if (weeksDateRange.value) {
-			timeEntriesStore.getTimeEntries(weeksDateRange.value);
+			await timeEntriesStore.getTimeEntries(weeksDateRange.value);
 		}
 	};
 
