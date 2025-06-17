@@ -27,7 +27,7 @@ const updateTimeEntry = (timeEntry: TimeEntry) => {
 };
 
 const timeValue = computed({
-	get: () => timeEntry.value.toLocaleString('nb-NO'),
+	get: () => timeEntry.value.toLocaleString("nb-NO"),
 	set: (newValue: string) => {
 		console.log("Setting new time value:", newValue);
 		const newNumber = parseFloat(newValue.replace(",", "."));
@@ -43,7 +43,7 @@ input {
 	background-color: rgb(250, 245, 235);
 	transition: border-color 0.3s ease;
 	padding: 8px;
-	width: 32px;
+	width: 48px;
 	text-align: center;
 	font-size: 1rem;
 }
