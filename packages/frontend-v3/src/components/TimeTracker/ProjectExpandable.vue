@@ -2,7 +2,10 @@
 	<div
 		class="project-container"
 	>
-		<div @click="toggleExpand" class="project-container-header">
+		<div
+			class="project-container-header"
+			@click="toggleExpand"
+		>
 			<div class="project-info-wrapper">
 				<p class="project-name">
 					{{ project.name }}
@@ -26,6 +29,9 @@
 			:class="{ 'visible': isExpanded }"
 		>
 			<div class="project-container-content">
+				<DayPillStrip
+					:week="week"
+				/>
 				<TaskStrip
 					v-for="task in project.tasks"
 					:key="task.id"
@@ -42,6 +48,7 @@ import TaskStrip from "./TaskStrip.vue";
 import FeatherIcon from "../utils/FeatherIcon.vue";
 import { defineProps, ref } from "vue";
 import { type Project } from "@/types/ProjectTypes";
+import DayPillStrip from "./DayPillStrip.vue";
 
 const isExpanded = ref(false);
 
