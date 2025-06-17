@@ -10,9 +10,9 @@
 					class="prev-button"
 					@click="prevSlide"
 				>
-					Tilbake
+					<FeatherIcon name="chevron-left" /> Tilbake
 				</button>
-				<button>
+				<button @click="goToCurrentWeek">
 					I dag
 				</button>
 				<button
@@ -20,14 +20,14 @@
 					class="next-button"
 					@click="nextSlide"
 				>
-					Fremover
+					Fremover <FeatherIcon name="chevron-right" />
 				</button>
 			</div>
 		</div>
 		<swiper-container
 			id="week-swiper-container"
 			ref="mySwiper"
-			initialSlide="52"
+			:initialSlide="getInitialWeekSlide()"
 			class="swiper-container"
 		>
 			<swiper-slide
@@ -57,7 +57,8 @@ import { onMounted, ref, computed } from "vue";
 import ProjectExpandable from "./ProjectExpandable.vue";
 import { useTaskStore } from "@/stores/taskStore";
 import { useDateStore } from "@/stores/dateStore";
-import { getWeekNumber} from "@/utils/weekHelper";
+import { getWeekNumber, getInitialWeekSlide} from "@/utils/weekHelper";
+import FeatherIcon from "@/components/utils/FeatherIcon.vue";
 import type Swiper from "swiper";
 
 const swiper = ref<Swiper | null>(null);
@@ -87,7 +88,6 @@ const currentWeek = computed(() => {
 });
 
 const nextSlide = () => {
-	console.log("Next slide clicked");
 	if (swiper.value) {
 		swiper.value?.slideNext();
 	}
@@ -99,10 +99,16 @@ const prevSlide = () => {
 	}
 };
 
+const goToCurrentWeek = () => {
+	if (swiper.value) {
+		swiper.value.slideTo(getInitialWeekSlide());
+	}
+};
+
 onMounted(() => {
 	const swiperContainer = document.getElementById("week-swiper-container");
 	if (swiperContainer && "swiper" in swiperContainer) {
-		swiper.value = (swiperContainer as any).swiper as Swiper;
+		swiper.value = swiperContainer.swiper as Swiper;
 	}
 });
 </script>
@@ -139,5 +145,29 @@ onMounted(() => {
 	display: flex;
 	justify-content: flex-end;
 	width: 100%;
+	gap: 8px;
+
+	button {
+		border: none;
+		cursor: pointer;
+		background-color: $secondary-color;
+		color: $primary-color;
+		border-radius: 25px;
+		padding: 9px 16px 12px 16px;
+		font-size: 14px;
+		font-weight: 600;
+
+		&:hover {
+			background-color: $secondary-color-light;
+		}
+
+		&.next-button {
+			padding: 9px 12px 12px 16px;
+		}
+
+		&.prev-button {
+			padding: 9px 16px 12px 12px;
+		}
+	}
 }
 </style>

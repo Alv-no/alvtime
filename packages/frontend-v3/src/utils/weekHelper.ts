@@ -88,9 +88,13 @@ const createArrayOf = <T>(length: number, mapFunc: (index: number) => T): T[] =>
 	return [...Array(length)].map((_n, i) => mapFunc(i));
 };
 
+const getInitialWeekSlide = () => {
+	return RADIUS_OF_WEEKS;
+}
 export {
 	getFirstDayOfWeek,
 	getWeekNumber,
 	createWeek,
 	createWeeks,
+	getInitialWeekSlide
 };
