@@ -27,7 +27,7 @@ button {
 	font-weight: 600;
 
 	&:hover {
-		background-color: $accent-color;
+		background-color: $secondary-color-light;
 		color: $primary-color;
 	}
 }
