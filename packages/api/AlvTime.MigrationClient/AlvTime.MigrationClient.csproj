@@ -25,4 +25,11 @@
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.6" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="appsettings.Development.json" />
+      <Content Include="appsettings.Development.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
 </Project>
