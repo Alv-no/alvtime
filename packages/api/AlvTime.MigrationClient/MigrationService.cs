@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AlvTime.Persistence.DatabaseModels;
+﻿using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Task = System.Threading.Tasks.Task;
 
-namespace AlvTime.Persistence;
+namespace AlvTime.MigrationClient;
 
-public static class MigrationClient
+public interface IMigrationService
 {
-    public static async Task RunMigrations(string connectionString, bool shouldSeed)
+    Task RunMigrations(string connectionString, bool shouldSeed);
+}
+
+public class MigrationService : IMigrationService
+{
+    public async Task RunMigrations(string connectionString, bool shouldSeed)
     {
         var optionsBuilder = new DbContextOptionsBuilder<AlvTime_dbContext>()
             .UseSqlServer(connectionString);
