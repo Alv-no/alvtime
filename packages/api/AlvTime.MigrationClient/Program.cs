@@ -14,13 +14,9 @@ var host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
-using (var scope = host.Services.CreateScope())
-{
-    var serviceProvider = scope.ServiceProvider;
-    var migrationService = serviceProvider.GetRequiredService<IMigrationService>();
-    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-    var connectionString = configuration.GetConnectionString("AlvTime_db");
-    await migrationService.RunMigrations(connectionString, shouldSeed: true);
-}
-
-Console.WriteLine("MigrationClient started.");
+using var scope = host.Services.CreateScope();
+var serviceProvider = scope.ServiceProvider;
+var migrationService = serviceProvider.GetRequiredService<IMigrationService>();
+var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+var connectionString = configuration.GetConnectionString("AlvTime_db");
+await migrationService.RunMigrations(connectionString, shouldSeed: true);

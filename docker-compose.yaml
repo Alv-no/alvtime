@@ -28,8 +28,8 @@ services:
     build:
       context: ./packages/api
     depends_on:
-      db:
-        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
     environment:
       - ConnectionStrings__AlvTime_db=Data Source=tcp:db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32;Trust Server Certificate=True;
       - AzureAd__Domain=api://c9126a83-01c3-43c0-8bb3-298d352d2d7f
@@ -41,6 +41,17 @@ services:
       - "8081:8080"
     expose:
       - "8080"
+
+  migrations:
+    build:
+      context: ./packages/api 
+      dockerfile: AlvTime.MigrationClient/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__AlvTime_db=Data Source=tcp:db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32;Trust Server Certificate=True;
 
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
