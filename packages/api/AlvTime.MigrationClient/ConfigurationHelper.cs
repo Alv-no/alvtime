@@ -35,6 +35,7 @@ public static class ConfigurationHelper
         configurationBuilder.AddEnvironmentVariables();
 
         var configuration = configurationBuilder.Build();
+        var connectionString = configuration.GetConnectionString("AlvTime_db");
 
         var keyVaultUrl = configuration["AzureKeyVault:Uri"];
 
