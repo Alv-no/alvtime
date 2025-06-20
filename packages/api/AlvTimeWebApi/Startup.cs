@@ -1,5 +1,6 @@
 using System.Reflection;
 using AlvTime.Business.Options;
+using AlvTime.Common.Configuration;
 using AlvTime.Persistence.DatabaseModels;
 using AlvTimeWebApi.Authentication;
 using AlvTimeWebApi.Authorization;
@@ -23,13 +24,9 @@ public class Startup
     public Startup(IHostEnvironment env)
     {
         _environment = env;
-        
+
         var builder = new ConfigurationBuilder()
-            .SetBasePath(env.ContentRootPath)
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-            .AddEnvironmentVariables()
-            .AddUserSecrets(Assembly.GetExecutingAssembly(), true);
+            .CommonConfigure<Startup>();
 
         Configuration = builder.Build();
     }
@@ -40,7 +37,7 @@ public class Startup
     {
         services.AddAlvtimeServices(Configuration);
         services.AddDbContext<AlvTime_dbContext>(
-            options => options.UseSqlServer(Configuration.GetConnectionString("AlvTime_db")),
+            options => options.UseSqlServer(Configuration.GetConnectionString("AlvTime")),
             contextLifetime: ServiceLifetime.Scoped, optionsLifetime: ServiceLifetime.Scoped);
         services.AddMvc();
         services.AddAlvtimeAuthentication(Configuration);
