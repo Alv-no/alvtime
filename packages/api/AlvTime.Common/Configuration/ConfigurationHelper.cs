@@ -1,19 +1,28 @@
-﻿using System.Reflection;
-using Azure.Identity;
+﻿using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 
-namespace AlvTime.MigrationClient;
+namespace AlvTime.Common.Configuration;
 
 public static class ConfigurationHelper
 {
-    private static string? GetEnvironment() => Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-    
-    public static void CommonConfigure<T>(this IConfigurationBuilder configurationBuilder) where T : class
+    private static string? GetEnvironment()
     {
-        CommonConfigure(configurationBuilder, typeof(T));
+        var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+        if (string.IsNullOrEmpty(environment))
+        {
+            environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
+        }
+
+        return environment;
+    }
+
+    public static IConfigurationBuilder CommonConfigure<T>(this IConfigurationBuilder configurationBuilder) where T : class
+    {
+        return CommonConfigure(configurationBuilder, typeof(T));
     }
     
-    private static void CommonConfigure(IConfigurationBuilder configurationBuilder, Type? userSecretsType)
+    private static IConfigurationBuilder CommonConfigure(IConfigurationBuilder configurationBuilder, Type? userSecretsType)
     {
         var basePath = Directory.GetCurrentDirectory();
         var environmentName = GetEnvironment();
@@ -35,7 +44,6 @@ public static class ConfigurationHelper
         configurationBuilder.AddEnvironmentVariables();
 
         var configuration = configurationBuilder.Build();
-        var connectionString = configuration.GetConnectionString("AlvTime_db");
 
         var keyVaultUrl = configuration["AzureKeyVault:Uri"];
 
@@ -43,9 +51,11 @@ public static class ConfigurationHelper
         {
             configurationBuilder.AddAzureKeyVault(new Uri(keyVaultUrl), GetAzureCredential(), new DottableKeyVaultSecretManager());
         }
+
+        return configurationBuilder;
     }
-    
-    public static DefaultAzureCredential GetAzureCredential()
+
+    private static DefaultAzureCredential GetAzureCredential()
     {
         return new DefaultAzureCredential( new DefaultAzureCredentialOptions { ExcludeSharedTokenCacheCredential = true } );
     }

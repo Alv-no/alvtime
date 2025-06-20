@@ -46,7 +46,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
     <PackageReference Include="Microsoft.Graph" Version="5.79.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.9.5" />
@@ -56,6 +55,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AlvTime.Business\AlvTime.Business.csproj" />
+    <ProjectReference Include="..\AlvTime.Common\AlvTime.Common.csproj" />
     <ProjectReference Include="..\AlvTime.Persistence\AlvTime.Persistence.csproj" />
   </ItemGroup>
 

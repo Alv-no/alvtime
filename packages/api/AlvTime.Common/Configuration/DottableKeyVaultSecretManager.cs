@@ -2,7 +2,7 @@
 using Azure.Security.KeyVault.Secrets;
 using Microsoft.Extensions.Configuration;
 
-namespace AlvTime.MigrationClient;
+namespace AlvTime.Common.Configuration;
 
 public class DottableKeyVaultSecretManager : KeyVaultSecretManager
 {

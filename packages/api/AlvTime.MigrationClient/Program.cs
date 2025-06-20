@@ -1,4 +1,5 @@
-﻿using AlvTime.MigrationClient;
+﻿using AlvTime.Common.Configuration;
+using AlvTime.MigrationClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -18,5 +19,6 @@ using var scope = host.Services.CreateScope();
 var serviceProvider = scope.ServiceProvider;
 var migrationService = serviceProvider.GetRequiredService<IMigrationService>();
 var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-var connectionString = configuration.GetConnectionString("AlvTime_db");
-await migrationService.RunMigrations(connectionString, shouldSeed: true);
+var connectionString = configuration.GetConnectionString("AlvTime");
+var env = serviceProvider.GetRequiredService<IHostEnvironment>();
+await migrationService.RunMigrations(connectionString ?? throw new InvalidOperationException(), shouldSeed: env.IsDevelopment());

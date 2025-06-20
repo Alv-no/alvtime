@@ -31,7 +31,7 @@ services:
       migrations:
         condition: service_completed_successfully
     environment:
-      - ConnectionStrings__AlvTime_db=Data Source=tcp:db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32;Trust Server Certificate=True;
+      - ConnectionStrings__AlvTime=Data Source=tcp:db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32;Trust Server Certificate=True;
       - AzureAd__Domain=api://c9126a83-01c3-43c0-8bb3-298d352d2d7f
       - AzureAd__ClientId=c9126a83-01c3-43c0-8bb3-298d352d2d7f
       - AzureAd__GraphClientSecret=${AZUREAD_GRAPH_CLIENT_SECRET}
@@ -50,8 +50,8 @@ services:
       db:
         condition: service_healthy
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__AlvTime_db=Data Source=tcp:db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32;Trust Server Certificate=True;
+      - DOTNET_ENVIRONMENT=Development
+      - ConnectionStrings__AlvTime=Data Source=tcp:db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32;Trust Server Certificate=True;
 
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
