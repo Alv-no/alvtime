@@ -42,10 +42,12 @@ jobs:
     with:
       artifact-name: migrationclient-publish
       environment: Test
+      targetEnv: test
 
-  migrate-prod:
-    needs: build
-    uses: ./.github/workflows/migrationclient-migrate.yml
-    with:
-      artifact-name: migrationclient-publish
-      environment: Production
+  # migrate-prod:
+  #   needs: build
+  #   uses: ./.github/workflows/migrationclient-migrate.yml
+  #   with:
+  #     artifact-name: migrationclient-publish
+  #     environment: Production
+  #     targetEnv: prod

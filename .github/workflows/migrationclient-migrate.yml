@@ -9,9 +9,13 @@ on:
       environment:
         required: true
         type: string
+      targetEnv:
+        required: true
+        type: string
 
 jobs:
   migrate:
+    environment: ${{inputs.targetEnv}}
     runs-on: ubuntu-latest
     steps:
       - name: Download MigrationClient artifact
@@ -20,9 +24,36 @@ jobs:
           name: ${{ inputs.artifact-name }}
           path: ./publish
 
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.GITHUBACTIONDEPLOYMENTCREDENTIALS }}
+          
+      - name: Get GitHub Actions Runner IP
+        id: ip
+        run: |
+          echo "ip=$(curl -s https://api.ipify.org)" >> $GITHUB_OUTPUT
+
+      - name: Add IP to Azure SQL Firewall
+        run: |
+          az sql server firewall-rule create \
+            --resource-group k8s-${{ inputs.targetEnv }}-subscription \
+            --server alvtime-${{ inputs.targetEnv }}-sql \
+            --name AllowGitHubActions \
+            --start-ip-address ${{ steps.ip.outputs.ip }} \
+            --end-ip-address ${{ steps.ip.outputs.ip }}
+
       - name: Run MigrationClient
         env:
           DOTNET_ENVIRONMENT: ${{ inputs.environment }}
         run: |
           cd ./publish
           dotnet AlvTime.MigrationClient.dll
+
+      - name: Remove IP from Azure SQL Firewall
+        if: always()
+        run: |
+          az sql server firewall-rule delete \
+            --resource-group k8s-${{ inputs.targetEnv }}-subscription \
+            --server alvtime-${{ inputs.targetEnv }}-sql \
+            --name AllowGitHubActions
