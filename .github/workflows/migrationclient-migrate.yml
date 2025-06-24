@@ -1,0 +1,28 @@
+name: MigrationClient Migrate
+
+on:
+  workflow_call:
+    inputs:
+      artifact-name:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download MigrationClient artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: ./publish
+
+      - name: Run MigrationClient
+        env:
+          DOTNET_ENVIRONMENT: ${{ inputs.environment }}
+        run: |
+          cd ./publish
+          dotnet AlvTime.MigrationClient.dll

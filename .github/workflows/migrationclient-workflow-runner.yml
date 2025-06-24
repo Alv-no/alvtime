@@ -1,0 +1,51 @@
+name: MigrationClient workflow runner
+
+on:
+    workflow_dispatch:
+    push:
+        branches:
+          - main
+        paths:
+         - "packages/api/**"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore AlvTime.MigrationClient/AlvTime.MigrationClient.csproj
+
+      - name: Build
+        run: dotnet build AlvTime.MigrationClient/AlvTime.MigrationClient.csproj --configuration Release --no-restore
+
+      - name: Publish
+        run: dotnet publish AlvTime.MigrationClient/AlvTime.MigrationClient.csproj --configuration Release --output ./publish
+
+      - name: Upload MigrationClient artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: migrationclient-publish
+          path: ./publish
+
+  migrate-test:
+    needs: build
+    uses: ./.github/workflows/migrationclient-migrate.yml
+    with:
+      artifact-name: migrationclient-publish
+      environment: Test
+
+  migrate-prod:
+    needs: build
+    uses: ./.github/workflows/migrationclient-migrate.yml
+    with:
+      artifact-name: migrationclient-publish
+      environment: Production
