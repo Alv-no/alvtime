@@ -4,7 +4,7 @@ from datetime import datetime, date, timedelta
 from alvtime_cli import config, model
 from alvtime_cli.repo import Repo
 from alvtime_cli.alvtime_client import AlvtimeClient
-from alvtime_cli.utils import group_by, iterate_dates
+from alvtime_cli.utils import group_by, iterate_dates, breakify_entries
 
 
 class TaskAlreadyStartedError(Exception):
@@ -149,7 +149,7 @@ class LocalService:
 
         return entry
 
-    def get_entries(self, from_: date, to: date) -> list[model.TimeEntry]:
+    def get_entries(self, from_: date, to: date, breakify=False) -> list[model.TimeEntry]:
         # Put all tasks  in a dict
         tasks = {t.id: t for t in self.get_all_tasks()}
 
@@ -162,7 +162,23 @@ class LocalService:
         for entry in entries:
             entry.task = tasks[entry.task_id]
 
+        # Breakify if needed
+        if breakify:
+            # load all relevant time breaks
+            breaks = self.repo.list_time_breaks(
+                    from_date=from_,
+                    to_date=to)
+
+            # Chop, chop!
+            entries = breakify_entries(entries, breaks)
+
         return entries
+
+    def add_break(self, from_: datetime, to: datetime, comment: str):
+        duration = timedelta(seconds=round((to - from_).total_seconds()))
+        break_ = model.TimeBreak(start=from_, duration=duration, comment=comment)
+        self.repo.insert_time_break(break_)
+        return break_
 
     def round_duration(self, duration: timedelta) -> timedelta:
         total_seconds = duration.total_seconds()
@@ -219,7 +235,7 @@ class LocalService:
         result = PushResult()
 
         # Get all local entries, grouped by date
-        local_entries = group_by(self.repo.list_time_entries(from_, to),
+        local_entries = group_by(self.get_entries(from_, to, breakify=True),
                                  lambda e: (e.start.date(), e.task_id))
 
         to_push = list()

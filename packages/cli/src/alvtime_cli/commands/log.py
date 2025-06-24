@@ -35,11 +35,16 @@ def log(ctx, from_: date, to: date, details: DetailLevel):
 
     all_entries = map(_set_duration_for_open_entry,
                       service.get_entries(from_, to))
-    entries_by_date = group_by(all_entries,
-                               lambda e: e.start.date())
+    breakified_entries = map(_set_duration_for_open_entry,
+                             service.get_entries(from_, to, breakify=True))
+    all_entries_by_date = group_by(all_entries,
+                                   lambda e: e.start.date())
+    breakified_entries_by_date = group_by(breakified_entries,
+                                          lambda e: e.start.date())
     for current_date in iterate_dates(from_, to):
-        entries = entries_by_date.get(current_date, [])
-        total = sum((e.duration for e in entries), timedelta())
+        all_entries = all_entries_by_date.get(current_date, [])
+        breakified_entries = breakified_entries_by_date.get(current_date, [])
+        total = sum((e.duration for e in breakified_entries), timedelta())
 
         click.echo(current_date, nl=False)
         if total:
@@ -50,18 +55,20 @@ def log(ctx, from_: date, to: date, details: DetailLevel):
         if details == DetailLevel.summary:
             continue
 
-        entries_by_task = group_by(entries,
-                                   lambda e: e.task_id)
+        all_entries_by_task = group_by(all_entries,
+                                       lambda e: e.task_id)
+        breakified_entries_by_task = group_by(breakified_entries,
+                                              lambda e: e.task_id)
 
-        for task_id in sorted(entries_by_task.keys()):
-            task = entries_by_task[task_id][0].task
-            task_total = sum((e.duration for e in entries_by_task[task_id]), timedelta())
+        for task_id in sorted(breakified_entries_by_task.keys()):
+            task = breakified_entries_by_task[task_id][0].task
+            task_total = sum((e.duration for e in breakified_entries_by_task[task_id]), timedelta())
             click.echo(f"  {task_total} - {style_task(task)}")
 
             if details == DetailLevel.standard:
                 continue
 
-            for entry in entries_by_task[task_id]:
+            for entry in all_entries_by_task[task_id]:
                 task = entry.task
                 task_total = entry.duration
                 if entry.duration:

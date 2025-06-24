@@ -28,7 +28,14 @@ class TaskAlias(BaseModel):
     task: Task
 
 
-class TimeEntry(BaseModel):
+class BaseEntry(BaseModel):
+    id: int | None = None
+    start: datetime
+    duration: timedelta
+    comment: str
+
+
+class TimeEntry(BaseEntry):
     id: int | None = None
     task_id: int
     start: datetime | None = None
@@ -49,3 +56,7 @@ class CheckResult(BaseModel):
     result_type: CheckResultType
     registered_duration: timedelta
     message: str = ""
+
+
+class TimeBreak(BaseEntry):
+    pass

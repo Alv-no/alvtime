@@ -126,3 +126,64 @@ def iterate_dates(start_date, end_date):
     while current <= end_date:
         yield current
         current += timedelta(days=1)
+
+
+def _breakify_entry(entry: model.TimeEntry, _break: model.TimeBreak) -> list[model.TimeEntry]:
+    """
+    Applies a break to a time entry, returning zero
+    one or two entries.
+    """
+    # Calculate start and stop times
+    entry_start = entry.start
+    entry_stop = entry.start + entry.duration
+    break_start = _break.start
+    break_stop = _break.start + _break.duration
+
+    # No overlap if break starts after entry stopped
+    if break_start >= entry_stop:
+        return [entry]
+
+    # No overlap if break stopped before entry starts
+    if break_stop <= entry_start:
+        return [entry]
+
+    # Empty result of entry is fully contained in a break
+    if break_start <= entry_start and break_stop >= entry_stop:
+        return []
+
+    # Check if break is overlapping start
+    if break_start <= entry_start:
+        return [entry.model_copy(update={
+            "start": break_stop,
+            "duration": (entry_stop - break_stop)})]
+
+    # Check if break is overlapping end
+    if break_stop >= entry_stop:
+        return [entry.model_copy(update={
+            "duration": (break_start - entry_start)})]
+
+    # If we're here, the break is in the middle
+    return [
+        entry.model_copy(update={
+            "duration": (break_start - entry_start)}),
+        entry.model_copy(update={
+            "start": break_stop,
+            "duration": (entry_stop - break_stop)})]
+
+
+def breakify_entries(entries: list[model.TimeEntry],
+                     breaks: list[model.TimeBreak]) -> list[model.TimeEntry]:
+    """
+    Applies a list of breaks to a list of time entries, returning a new
+    list of time entries outside the break intervals.
+
+    The number of entries returned can be both higher and lower than the
+    entries provided.
+    """
+    # Start with all entries (make a copy to not mess up the caller)
+    ret = list(entries)
+
+    for _break in breaks:
+        ret = [e for entry in ret for e in _breakify_entry(entry, _break)]
+
+    return ret

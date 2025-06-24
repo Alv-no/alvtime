@@ -24,6 +24,12 @@ class Repo:
                     comment     TEXT,
                     is_changed  INTEGER NOT NULL)""")
             cursor.execute("""
+                CREATE TABLE IF NOT EXISTS time_breaks (
+                    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                    from_time   TEXT,
+                    duration    INTEGER,
+                    comment     TEXT)""")
+            cursor.execute("""
                 CREATE TABLE IF NOT EXISTS tasks (
                     id            INTEGER PRIMARY KEY,
                     name          TEXT NOT NULL,
@@ -50,6 +56,22 @@ class Repo:
             "task_id": time_entry.task_id,
             "comment": time_entry.comment,
             "is_changed": time_entry.is_changed
+        }
+
+    def _time_break_from_dbo(self, dbo) -> model.TimeBreak:
+        return model.TimeBreak(
+            id=dbo["id"],
+            start=datetime.fromisoformat(dbo["from_time"]),
+            duration=timedelta(seconds=dbo["duration"]),
+            comment=dbo["comment"]
+        )
+
+    def _time_break_to_dbo(self, time_break: model.TimeBreak) -> dict:
+        return {
+            "id": time_break.id,
+            "from_time": time_break.start.isoformat(),
+            "duration": int(time_break.duration.total_seconds()),
+            "comment": time_break.comment
         }
 
     def _task_from_dbo(self, dbo) -> model.Task:
@@ -147,6 +169,19 @@ class Repo:
             self.db.commit()
         return time_entry
 
+    def delete_time_entry(self, time_entry_id: int):
+        if time_entry_id is None:
+            raise ValueError("'id' should not be be None. Trying to update non-existing item?")
+
+        with self.write_lock, closing(self.db.cursor()) as cursor:
+            sql = """
+                DELETE FROM time_entries
+                WHERE
+                    id = :id
+                """
+            cursor.executemany(sql, ({"id": time_entry_id}, ))
+            self.db.commit()
+
     def find_open_entries(self) -> list[model.TimeEntry]:
         with closing(self.db.cursor()) as cursor:
             sql = """
@@ -155,6 +190,77 @@ class Repo:
                 """
             cursor.execute(sql)
             return list(map(self._time_entry_from_dbo, cursor.fetchall()))
+
+    def list_time_breaks(self, from_date: date = None,
+                         to_date: date = None) -> list[model.TimeBreak]:
+        with closing(self.db.cursor()) as cursor:
+            sql = "SELECT * FROM time_breaks"
+            where = []
+            params = {}
+
+            if from_date:
+                where.append("from_time >= :from_date")
+                params["from_date"] = from_date.isoformat()
+            if to_date:
+                where.append("from_time < :to_date")
+                params["to_date"] = (to_date + timedelta(days=1)).isoformat()
+            if where:
+                sql = sql + " WHERE " + " AND ".join(where)
+            cursor.execute(sql, params)
+            result = cursor.fetchall()
+
+        return list(map(self._time_break_from_dbo, result))
+
+    def insert_time_break(self, time_break: model.TimeBreak) -> int:
+        if time_break.id is not None:
+            raise ValueError("'id' should be None. Trying to insert existing item?")
+
+        with self.write_lock, closing(self.db.cursor()) as cursor:
+            sql = """
+                INSERT INTO time_breaks (
+                    id,
+                    from_time,
+                    duration,
+                    comment)
+                VALUES (
+                    :id,
+                    :from_time,
+                    :duration,
+                    :comment)
+                """
+            cursor.executemany(sql, (self._time_break_to_dbo(time_break), ))
+            self.db.commit()
+            return cursor.lastrowid
+
+    def update_time_break(self, time_break: model.TimeBreak) -> model.TimeBreak:
+        if time_break.id is None:
+            raise ValueError("'id' should not be be None. Trying to update non-existing item?")
+
+        with self.write_lock, closing(self.db.cursor()) as cursor:
+            sql = """
+                UPDATE time_breaks SET
+                    from_time = :from_time,
+                    duration = :duration,
+                    comment = :comment
+                WHERE
+                    id = :id
+                """
+            cursor.executemany(sql, (self._time_break_to_dbo(time_break), ))
+            self.db.commit()
+        return time_break
+
+    def delete_time_break(self, time_break_id: int):
+        if time_break_id is None:
+            raise ValueError("'id' should not be be None. Trying to delete non-existing item?")
+
+        with self.write_lock, closing(self.db.cursor()) as cursor:
+            sql = """
+                DELETE FROM time_breaks
+                WHERE
+                    id = :id
+                """
+            cursor.executemany(sql, ({"id": time_break_id}, ))
+            self.db.commit()
 
     def list_tasks(self) -> list[model.Task]:
         with closing(self.db.cursor()) as cursor:
