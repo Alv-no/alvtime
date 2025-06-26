@@ -3,6 +3,7 @@ export type Project = {
   name: string;
   customer: Customer;
   tasks: Task[];
+  open: boolean;
 }
 
 
