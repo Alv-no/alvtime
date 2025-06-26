@@ -1,7 +1,7 @@
 <template>
 	<div class="task-week">
 		<HourInput
-			v-for="timeEntry in filteredAndSortedTimeEntries"
+			v-for="timeEntry in localTimeEntries"
 			:key="`${timeEntry.taskId}-${timeEntry.date}`"
 			:timeEntry="timeEntry"
 		/>
@@ -9,25 +9,30 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, computed } from "vue";
+import { defineProps, onMounted, defineModel } from "vue";
 import { type Task } from "@/types/ProjectTypes";
+import { type TimeEntry } from "@/types/TimeEntryTypes";
 import HourInput from "./HourInput.vue";
 import { useTimeEntriesStore } from "@/stores/timeEntriesStore";
 
+const localTimeEntries = defineModel<TimeEntry[]>();
 const timeEntriesStore = useTimeEntriesStore();
 const { timeEntries } = timeEntriesStore;
 
-const filteredAndSortedTimeEntries = computed(() => {
-	const entriesForTask = timeEntries.filter((entry) => entry.taskId === task.id);
+const filterAndSortTimeEntriesForTask = (entries: typeof timeEntries) => {
+	const entriesForTask = entries.filter(entry => entry.taskId === task.id);
+	const allTasksForWeek = addMissingTaskEntriesToWeek(entriesForTask);
+	return allTasksForWeek
+		.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+};
 
-	// Map dates to existing entries for quick lookup
-	const dateToEntry = new Map<string, typeof entriesForTask[0]>();
-	entriesForTask.forEach(entry => {
+const addMissingTaskEntriesToWeek = (entries: typeof timeEntries) => {
+	const dateToEntry = new Map<string, typeof entries[0]>();
+	entries.forEach(entry => {
 		const dateStr = entry.date;
 		dateToEntry.set(dateStr, entry);
 	});
 
-	// For each day in the week, ensure there is an entry (existing or new)
 	const result = week.map(day => {
 		const dayStr = day.toISOString().split("T")[0];
 		const existingEntry = dateToEntry.get(dayStr);
@@ -36,27 +41,33 @@ const filteredAndSortedTimeEntries = computed(() => {
 		}
 		// Create a new entry object (adjust fields as needed)
 		return {
+			id: `new-${task.id}-${dayStr}`,
 			taskId: task.id,
 			date: dayStr,
 			value: 0,
-			locked: false,			
+			locked: false,
 			// Add other required fields with default values if needed
 		};
 	});
 
-	return result.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-});
+	return result;
+};
 
 const { task, week } = defineProps<{
 	task: Task;
 	week: Date[];
 }>();
+
+onMounted(async () => {
+	localTimeEntries.value = filterAndSortTimeEntriesForTask(timeEntries);
+});
 </script>
 
 <style lang="scss" scoped>
 .task-week {
 	display: flex;
 	flex-direction: row;
+	align-items: center;
 	gap: 1rem;
 }
 </style>
