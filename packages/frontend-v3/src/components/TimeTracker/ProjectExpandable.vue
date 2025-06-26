@@ -26,9 +26,12 @@
 		</div>
 		<div
 			class="project-container-expandable"
-			:class="{ 'visible': isExpanded }"
+			:class="{ 'visible': project.open }"
 		>
-			<div class="project-container-content">
+			<div
+				class="project-container-content"
+				:class="{ 'visible': project.open }"
+			>
 				<DayPillStrip
 					:week="week"
 				/>
@@ -46,14 +49,15 @@
 <script setup lang="ts">
 import TaskStrip from "./TaskStrip.vue";
 import FeatherIcon from "../utils/FeatherIcon.vue";
-import { defineProps, ref } from "vue";
+import { defineProps } from "vue";
 import { type Project } from "@/types/ProjectTypes";
 import DayPillStrip from "./DayPillStrip.vue";
+import { useTaskStore } from "@/stores/taskStore";
 
-const isExpanded = ref(false);
+const taskStore = useTaskStore();
 
 const toggleExpand = () => {
-	isExpanded.value = !isExpanded.value;
+	taskStore.toggleProjectExpandable(project.id);
 };
 
 const { project, week } = defineProps<{
@@ -128,5 +132,9 @@ const { project, week } = defineProps<{
 	gap: 12px;
 	overflow: hidden;
 	padding: 0 16px;
+
+	&.visible {
+		padding-bottom: 4px;
+	}
 }
 </style>

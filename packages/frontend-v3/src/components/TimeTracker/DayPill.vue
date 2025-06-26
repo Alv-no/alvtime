@@ -1,13 +1,20 @@
 <template>
-	<div class="day-pill">
-		{{ dateString }}
+	<div
+		class="day-pill"
+		:class="{ 'holiday': holiday }"
+		@mouseover="isHovering = true"
+		@mouseleave="isHovering = false"
+	>
+		<span>{{ !holiday || isHovering ? dateString : holiday.description }}</span>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useDateStore } from "@/stores/dateStore";
 import { dayOfWeek } from "@/utils/dateHelper";
+
+const isHovering = ref(false);
 
 const dateStore = useDateStore();
 const { holidays } = dateStore;
@@ -31,13 +38,29 @@ const holiday = computed(() => {
 
 <style scoped lang="scss">
 .day-pill {
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	border-radius: 5px;
 	border: 1px solid #ccc;
 	background-color: rgb(250, 245, 235);
 	transition: border-color 0.3s ease;
 	padding: 8px 8px 4px 8px;
 	width: 48px;
+	height: 24px;
 	text-align: center;
+	vertical-align: baseline;
 	font-size: 1rem;
+
+	&.holiday {
+		background-color: #f8d7da;
+		border-color: #f5c6cb;
+		color: #721c24;
+		font-size: 0.8rem;
+
+		&:hover {
+			font-size: 1rem;
+		}
+	}
 }
 </style>
