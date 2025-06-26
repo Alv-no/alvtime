@@ -5,6 +5,7 @@
 			v-model="timeValue"
 			type="text"
 			class="form-control"
+			:class="{ 'has-value': timeEntry.value > 0 }"
 		/>
 	</div>
 </template>
@@ -46,5 +47,9 @@ input {
 	width: 48px;
 	text-align: center;
 	font-size: 1rem;
+
+	&.has-value {
+		border-color: $primary-color;
+	}
 }
 </style>
