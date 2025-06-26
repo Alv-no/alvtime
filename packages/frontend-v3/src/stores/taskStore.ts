@@ -20,6 +20,13 @@ export const useTaskStore = defineStore("task", () => {
 		}
 	};
 
+	const toggleProjectExpandable = (projectId: string) => {
+		const project = tasks.value?.find((p: any) => p.id === projectId);
+		if (project) {
+			project.open = !project.open;
+		}
+	};
+
 	const mutateTasks = (taskList: any[]) => {
 		const projects: any[] = [];
 
@@ -28,7 +35,7 @@ export const useTaskStore = defineStore("task", () => {
 			const taskId = task.id;
 
 			if(!projects.some((project: { id: any; }) => project?.id === projectId)) {
-				projects.push({...task.project, tasks: [] });
+				projects.push({...task.project, tasks: [], open: false });
 			}
 
 			const currentProject = projects.find(project => project.id === projectId);
@@ -42,5 +49,5 @@ export const useTaskStore = defineStore("task", () => {
 		return projects;
 	};
 
-	return { tasks, getTasks };
+	return { tasks, getTasks, toggleProjectExpandable };
 });
