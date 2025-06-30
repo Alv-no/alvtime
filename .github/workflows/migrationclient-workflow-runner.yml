@@ -46,6 +46,8 @@ jobs:
       artifact-name: migrationclient-publish
       environment: Test
       targetEnv: test
+    secrets: inherit
+
 
   # migrate-prod:
   #   needs: build
@@ -54,3 +56,4 @@ jobs:
   #     artifact-name: migrationclient-publish
   #     environment: Production
   #     targetEnv: prod
+  #   secrets: inherit
