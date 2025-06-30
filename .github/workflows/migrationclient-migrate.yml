@@ -47,7 +47,7 @@ jobs:
         env:
           DOTNET_ENVIRONMENT: ${{ inputs.environment }}
         run: |
-          cd ./publish
+          cd packages/api/AlvTime.MigrationClient/publish
           dotnet AlvTime.MigrationClient.dll
 
       - name: Remove IP from Azure SQL Firewall
