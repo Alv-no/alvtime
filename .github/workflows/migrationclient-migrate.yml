@@ -27,8 +27,8 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.GITHUBACTIONDEPLOYMENTCREDENTIALS }}
-          
+          creds: ${{ secrets.GITHUBACTIONMIGRATIONCREDENTIALS }}
+
       - name: Get GitHub Actions Runner IP
         id: ip
         run: |
@@ -37,7 +37,7 @@ jobs:
       - name: Add IP to Azure SQL Firewall
         run: |
           az sql server firewall-rule create \
-            --resource-group k8s-${{ inputs.targetEnv }}-subscription \
+            --resource-group databases-${{ inputs.targetEnv }}-rg \
             --server alvtime-${{ inputs.targetEnv }}-sql \
             --name AllowGitHubActions \
             --start-ip-address ${{ steps.ip.outputs.ip }} \
@@ -47,13 +47,13 @@ jobs:
         env:
           DOTNET_ENVIRONMENT: ${{ inputs.environment }}
         run: |
-          cd ./publish
+          cd packages/api/AlvTime.MigrationClient/publish
           dotnet AlvTime.MigrationClient.dll
 
       - name: Remove IP from Azure SQL Firewall
         if: always()
         run: |
           az sql server firewall-rule delete \
-            --resource-group k8s-${{ inputs.targetEnv }}-subscription \
+            --resource-group databases-${{ inputs.targetEnv }}-rg \
             --server alvtime-${{ inputs.targetEnv }}-sql \
             --name AllowGitHubActions
