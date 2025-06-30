@@ -29,9 +29,6 @@ jobs:
         with:
           creds: ${{ secrets.GITHUBACTIONMIGRATIONCREDENTIALS }}
 
-      - name: Set Azure subscription
-        run: az account set --subscription "${{ inputs.subscriptionId }}"
-          
       - name: Get GitHub Actions Runner IP
         id: ip
         run: |
