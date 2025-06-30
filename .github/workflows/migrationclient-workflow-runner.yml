@@ -19,16 +19,19 @@ jobs:
       - name: Install .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 9.0.x
 
-      - name: Restore dependencies
-        run: dotnet restore AlvTime.MigrationClient/AlvTime.MigrationClient.csproj
+      - name: Install dependencies
+        run: dotnet restore
+        working-directory: packages/api/AlvTime.MigrationClient
 
       - name: Build
-        run: dotnet build AlvTime.MigrationClient/AlvTime.MigrationClient.csproj --configuration Release --no-restore
+        run: dotnet build --configuration Release --no-restore
+        working-directory: packages/api/AlvTime.MigrationClient
 
       - name: Publish
-        run: dotnet publish AlvTime.MigrationClient/AlvTime.MigrationClient.csproj --configuration Release --output ./publish
+        run: dotnet publish --configuration Release --output ./publish
+        working-directory: packages/api/AlvTime.MigrationClient
 
       - name: Upload MigrationClient artifact
         uses: actions/upload-artifact@v4
