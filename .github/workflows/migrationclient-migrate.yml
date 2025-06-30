@@ -27,7 +27,10 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.GITHUBACTIONDEPLOYMENTCREDENTIALS }}
+          creds: ${{ secrets.GITHUBACTIONMIGRATIONCREDENTIALS }}
+
+      - name: Set Azure subscription
+        run: az account set --subscription "${{ inputs.subscriptionId }}"
           
       - name: Get GitHub Actions Runner IP
         id: ip
