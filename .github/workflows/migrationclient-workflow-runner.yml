@@ -37,7 +37,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: migrationclient-publish
-          path: ./publish
+          path: packages/api/AlvTime.MigrationClient/publish
 
   migrate-test:
     needs: build
