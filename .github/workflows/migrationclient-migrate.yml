@@ -43,6 +43,12 @@ jobs:
             --start-ip-address ${{ steps.ip.outputs.ip }} \
             --end-ip-address ${{ steps.ip.outputs.ip }}
 
+      - name: Install .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+
       - name: Run MigrationClient
         env:
           DOTNET_ENVIRONMENT: ${{ inputs.environment }}
