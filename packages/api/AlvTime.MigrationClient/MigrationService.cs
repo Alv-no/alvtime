@@ -1,5 +1,6 @@
 ﻿using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Task = System.Threading.Tasks.Task;
 
 namespace AlvTime.MigrationClient;
@@ -14,11 +15,14 @@ public class MigrationService : IMigrationService
     public async Task RunMigrations(string connectionString, bool shouldSeed)
     {
         var optionsBuilder = new DbContextOptionsBuilder<AlvTime_dbContext>()
-            .UseSqlServer(connectionString);
+            .UseSqlServer(connectionString)
+            .LogTo(Console.WriteLine, [DbLoggerCategory.Migrations.Name], LogLevel.Information);
+
         await using var context = new AlvTime_dbContext(optionsBuilder.Options);
-        Console.WriteLine("Running migrations...");
+        Console.WriteLine("Starting migrations...");
         try
         {
+            Console.WriteLine($"Migrating {context.Database.GetDbConnection().DataSource}");
             await context.Database.MigrateAsync();
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Migrations completed successfully");
