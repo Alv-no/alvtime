@@ -46,7 +46,7 @@ jobs:
     secrets: inherit
 
   migrate-prod:
-    needs: build
+    needs: migrate-test
     uses: ./.github/workflows/migrationclient-migrate.yml
     with:
       artifact-name: migrationclient-publish
