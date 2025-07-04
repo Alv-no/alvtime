@@ -43,7 +43,7 @@ public class UserService
     {
         var allUsers = await _userRepository.GetUsers(new UserQuerySearch());
         
-        if (allUsers.Any(u => u.Oid != user.Oid && 
+        if (allUsers.Any(u => u.Id != user.Id && 
                               (u.EmployeeId == user.EmployeeId || 
                                (u.Email == user.Email && (u.EndDate == null || u.EndDate > DateTime.Now)) ||
                                u.Name == user.Name)))

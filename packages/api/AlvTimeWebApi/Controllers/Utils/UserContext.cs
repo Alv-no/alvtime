@@ -7,22 +7,14 @@ using Microsoft.AspNetCore.Http;
 
 namespace AlvTimeWebApi.Controllers.Utils;
 
-public class UserContext : IUserContext
+public class UserContext(IHttpContextAccessor httpContextAccessor, IUserRepository userRepository)
+    : IUserContext
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IUserRepository _userRepository;
+    private string Name => httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
 
-    public UserContext(IHttpContextAccessor httpContextAccessor, IUserRepository userRepository)
-    {
-        _httpContextAccessor = httpContextAccessor;
-        _userRepository = userRepository;
-    }
+    private string Email => httpContextAccessor.HttpContext.User.FindFirstValue("preferred_username");
 
-    private string Name => _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
-
-    private string Email => _httpContextAccessor.HttpContext.User.FindFirstValue("preferred_username");
-
-    public string Oid => _httpContextAccessor.HttpContext.User.FindFirstValue("http://schemas.microsoft.com/identity/claims/objectidentifier");
+    private string Oid => httpContextAccessor.HttpContext.User.FindFirstValue("http://schemas.microsoft.com/identity/claims/objectidentifier");
 
     public async Task<User> GetCurrentUser()
     {
@@ -31,7 +23,7 @@ public class UserContext : IUserContext
             throw new ValidationException("Bruker eksisterer ikke");
         }
             
-        var dbUser = (await _userRepository.GetUsers(new UserQuerySearch { Oid = Oid })).First();
+        var dbUser = (await userRepository.GetUsers(new UserQuerySearch { Oid = Oid })).First();
 
         return UserMapper.MapUserDtoToBusinessUser(dbUser);
     }

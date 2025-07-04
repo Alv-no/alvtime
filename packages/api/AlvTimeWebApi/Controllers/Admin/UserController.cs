@@ -49,8 +49,7 @@ public class UserController(UserService userService, GraphService graphService) 
     [HttpPut("Users/{userId:int}")]
     public async Task<ActionResult<UserAdminResponse>> UpdateUser([FromBody] UserUpsertRequest userToBeUpdated, int userId)
     {
-        var userObjectId = await graphService.GetObjectIdByEmail(userToBeUpdated.Email);
-        var updatedUser = await userService.UpdateUser(userToBeUpdated.MapToUserDto(userId, userObjectId));
+        var updatedUser = await userService.UpdateUser(userToBeUpdated.MapToUserDto(userId, "NA"));
         return updatedUser.Match<ActionResult>(
             user => Ok(user.MapToUserResponse()),
             errors => BadRequest(errors.ToValidationProblemDetails("Oppdatering av bruker feilet")));
