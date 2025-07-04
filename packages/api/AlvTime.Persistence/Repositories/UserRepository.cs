@@ -81,7 +81,7 @@ public class UserRepository : IUserRepository
 
     public async Task UpdateUser(UserDto userToBeUpdated)
     {
-        var existingUser = await _context.User.FirstOrDefaultAsync(u => u.Oid == userToBeUpdated.Oid);
+        var existingUser = await _context.User.FirstOrDefaultAsync(u => u.Id == userToBeUpdated.Id);
 
         if (userToBeUpdated.Name != null)
         {
