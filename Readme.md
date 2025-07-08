@@ -1,3 +1,10 @@
+## GitHub Actions Status
+- [![adminpanel-workflow-runner](https://github.com/Alv-no/alvtime/actions/workflows/adminpanel-workflow-runner.yml/badge.svg)](https://github.com/Alv-no/alvtime/actions/workflows/adminpanel-workflow-runner.yml)
+- [![api-workflow-runner](https://github.com/Alv-no/alvtime/actions/workflows/api-workflow-runner.yml/badge.svg)](https://github.com/Alv-no/alvtime/actions/workflows/api-workflow-runner.yml)
+- [![migrationclient-workflow-runner](https://github.com/Alv-no/alvtime/actions/workflows/migrationclient-workflow-runner.yml/badge.svg)](https://github.com/Alv-no/alvtime/actions/workflows/migrationclient-workflow-runner.yml)
+- [![Frontend Test](https://github.com/Alv-no/alvtime/actions/workflows/azure-static-web-apps-red-sand-043c70a03.yml/badge.svg)](https://github.com/Alv-no/alvtime/actions/workflows/azure-static-web-apps-red-sand-043c70a03.yml)
+- [![Frontend Production](https://github.com/Alv-no/alvtime/actions/workflows/azure-static-web-apps-mango-island-0a2b55803.yml/badge.svg)](https://github.com/Alv-no/alvtime/actions/workflows/azure-static-web-apps-mango-island-0a2b55803.yml)
+
 # AlvTime
 
 > Welcome to the Alvtime monorepo. Alvtime is the internal timekeeping system for Alv AS. Below you can find a list of the services that make up the system.
