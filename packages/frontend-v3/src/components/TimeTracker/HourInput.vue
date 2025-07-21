@@ -1,20 +1,30 @@
 <template>
-	<div>
+	<div class="input-wrapper">
 		<input
 			:id="`${timeEntry.taskId}-${timeEntry.date}`"
 			v-model="timeValue"
 			type="text"
 			class="form-control"
 			:class="{ 'has-value': timeEntry.value > 0 }"
+			@focus="isInputActive = true"
+			@blur="hideTrackButton"
+		/>
+		<TrackRestOfDayButton
+			v-if="isInputActive"
+			:currentValue="timeEntry.value"
+			:date="timeEntry.date"
+			@track-rest-of-day="trackRestOfDay"
 		/>
 	</div>
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { type TimeEntry } from "@/types/TimeEntryTypes";
 import { useTimeEntriesStore } from "@/stores/timeEntriesStore";
+import TrackRestOfDayButton from "./TrackRestOfDayButton.vue";
 
+const isInputActive = ref(false);
 const timeEntriesStore = useTimeEntriesStore();
 
 const { timeEntry } = defineProps<{
@@ -27,6 +37,11 @@ const updateTimeEntry = (timeEntry: TimeEntry) => {
 	}
 };
 
+const trackRestOfDay = (currentValue: number) => {
+	timeValue.value = currentValue.toLocaleString("nb-NO");
+	updateTimeEntry(timeEntry);
+};
+
 const timeValue = computed({
 	get: () => timeEntry.value.toLocaleString("nb-NO"),
 	set: (newValue: string) => {
@@ -35,9 +50,17 @@ const timeValue = computed({
 		updateTimeEntry({ ...timeEntry, value: newNumber });
 	}
 });
+
+const hideTrackButton = () => {
+	setTimeout(() => { isInputActive.value = false; }, 200);
+};
 </script>
 
 <style lang="scss" scoped>
+.input-wrapper {
+	position: relative;
+}
+
 input {
 	border-radius: 5px;
 	border: 1px solid #ccc;
