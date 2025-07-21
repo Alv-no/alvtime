@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { type TimeEntry, type TimeEntryMap } from "@/types/TimeEntryTypes";
 import { debounce } from "@/utils/generalHelpers";
+import { TruckMonsterIcon } from "@hugeicons/core-free-icons";
 
 export const useTimeEntriesStore = defineStore("timeEntries", () => {
 	const timeEntries = ref<TimeEntry[]>([]);
@@ -125,7 +126,12 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 
 	// Helper function to check if two time entries match based on id and date
 	const isMatchingEntry = (entry: TimeEntry, paramEntry: TimeEntry): boolean => {
-		return entry.id === paramEntry.id && entry.date === paramEntry.date;
+		if((entry.id === paramEntry.id) || (entry.date === paramEntry.date && entry.taskId === paramEntry.taskId)) {
+			console.log("Matching entry found");
+			return true;
+		}
+
+		return false;
 	};
 
 	// Function to create a time entry object with the correct date format
@@ -136,5 +142,16 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 		};
 	};
 
-	return { timeEntries, timeEntryPushQueue, getTimeEntries, updateTimeEntry };
+	// Function to get the remaining time in the workday for a given date across all time entries.
+	const getRemainingTimeInWorkday = (date: string) => {
+		const entriesForDate = timeEntries.value.filter(entry => entry.date === date);
+
+		const timeTrackedForDate = entriesForDate.reduce((total, entry) => {
+			return total + (entry.value || 0);
+		}, 0);
+
+		return timeTrackedForDate > 7.5 ? 0 : 7.5 - timeTrackedForDate;
+	};
+
+	return { timeEntries, timeEntryPushQueue, getTimeEntries, updateTimeEntry, getRemainingTimeInWorkday };
 });
