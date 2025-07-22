@@ -134,5 +134,5 @@ export default Vue.extend({
 #context {
   height: 100%;
   width: 100%;
-}</style
->>
+}
+</style>

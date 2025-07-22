@@ -47,11 +47,15 @@ export interface InvoiceStatistics {
   billableHours: number[];
   nonBillableHours: number[];
   vacationHours: number[];
+  overtimeHours: {
+    invoiceableOvertimeHours: number[];
+    internalOvertimeHours: number[];
+  };
   invoiceRate: number[];
   nonBillableInvoiceRate: number[];
   labels: string[];
 }
-
+ 
 export interface SummarizedStatistics {
   title: string;
   values: { title?: string; value: number; unit?: string }[];
@@ -67,6 +71,10 @@ interface InvoiceRateModel {
 const initStatistics: InvoiceStatistics = {
   billableHours: [],
   nonBillableHours: [],
+  overtimeHours: {
+	invoiceableOvertimeHours: [],
+	internalOvertimeHours: [],
+  },
   vacationHours: [],
   invoiceRate: [],
   nonBillableInvoiceRate: [],
@@ -152,6 +160,28 @@ const getters = {
           },
         ],
       },
+	  {
+		title: "Fakturerbare overtidstimer",
+		values: [
+		  {
+			value: state.invoiceState.invoiceStatistics.overtimeHours.invoiceableOvertimeHours.reduce(
+			  (a: number, b: number) => a + b,
+			  0
+			),
+		  },
+		],
+	  },
+	  {
+		title: "Interne overtidstimer",
+		values: [
+		  {
+			value: state.invoiceState.invoiceStatistics.overtimeHours.internalOvertimeHours.reduce(
+			  (a: number, b: number) => a + b,
+			  0
+			),
+		  },
+		],
+	  },
     ];
   },
 };
@@ -194,7 +224,7 @@ const actions = {
         commit("SET_INVOICE_RATE", response.data);
       });
   },
-  FETCH_INVOICE_STATISTICS: ({
+  FETCH_INVOICE_STATISTICS: async ({
     commit,
     state,
   }: ActionContext<State, State>) => {
@@ -204,15 +234,12 @@ const actions = {
       state.invoiceState.invoiceStatisticFilters.granularity ??
       InvoicePeriods.Monthly;
 
-    return httpClient
-      .get(
-        `${
-          config.API_HOST
-        }/api/user/InvoiceStatistics?fromDate=${fromDate}&toDate=${toDate}&period=${granularity}&includeZeroPeriods=${true}`
-      )
-      .then(response => {
-        commit("SET_INVOICE_STATISTIC", response.data);
-      });
+    const response = await httpClient
+		  .get(
+			  `${config.API_HOST}/api/user/InvoiceStatistics?fromDate=${fromDate}&toDate=${toDate}&period=${granularity}&includeZeroPeriods=${true}`
+		  );
+	const overtimeHours = await fetchOvertimeHours();
+	  commit("SET_INVOICE_STATISTIC", { ...response.data, overtimeHours});
   },
   CHANGE_INVOICE_FILTERS: (
     { commit }: ActionContext<State, State>,
@@ -237,6 +264,53 @@ function createDefaultStatisticInterval(): InvoiceStatisticsFilters {
     granularity: InvoicePeriods.Monthly,
   };
 }
+
+const getInvoiceableOvertimeHours = (entries: any): number[] => {
+	const { fromDate, toDate } = state.invoiceState.invoiceStatisticFilters;
+	const isWithinRange = (entryDate: Date): boolean => {
+	  const entry = new Date(entryDate);
+	  const from = fromDate ? new Date(fromDate) : null;
+	  const to = toDate ? new Date(toDate) : null;
+	  return (
+		(!from || entry >= from) &&
+		(!to || entry <= to)
+	  );
+	};
+	const filteredOverTimeHours = entries?.filter((entry: any) => {
+		return entry.compensationRate > 1 && isWithinRange(entry.date);
+	});
+
+    return filteredOverTimeHours.map((entry: any) => entry.hours || 0);
+  };
+
+const getInternalOvertimeHours = (entries: any): number[] => {
+	const { fromDate, toDate } = state.invoiceState.invoiceStatisticFilters;
+	const isWithinRange = (entryDate: Date): boolean => {
+	  const entry = new Date(entryDate);
+	  const from = fromDate ? new Date(fromDate) : null;
+	  const to = toDate ? new Date(toDate) : null;
+	  return (
+		(!from || entry >= from) &&
+		(!to || entry <= to)
+	  );
+	};
+	const filteredOverTimeHours = entries?.filter((entry: any) => {
+		return entry.compensationRate <= 1 && isWithinRange(entry.date);
+	});
+
+    return filteredOverTimeHours.map((entry: any) => entry.hours || 0);
+  };
+
+  const fetchOvertimeHours = async () => {
+    const response = await httpClient
+		  .get(`${config.API_HOST}/api/user/AvailableHours`);
+	  const filteredOverTimeHours = response.data.entries.filter((entry: any) => entry.hours > 0);
+
+	  return {
+		  invoiceableOvertimeHours: getInvoiceableOvertimeHours(filteredOverTimeHours),
+		  internalOvertimeHours: getInternalOvertimeHours(filteredOverTimeHours),
+	  };
+  };
 
 export default {
   state,
