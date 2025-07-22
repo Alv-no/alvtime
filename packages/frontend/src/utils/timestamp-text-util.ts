@@ -5,7 +5,7 @@ export const mapTimeStampToLabel = (
   granularity: InvoicePeriods
 ): string => {
   switch (granularity) {
-    case InvoicePeriods.Annualy:
+    case InvoicePeriods.Annually:
       return timeStamp.slice(0, 4);
     case InvoicePeriods.Monthly:
       return mapTimestampToMonthYearString(timeStamp);
