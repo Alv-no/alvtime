@@ -90,7 +90,7 @@ const invoiceStatisticPresets: InvoiceStatisticsPreset[] = [
 
 const granularityOptions = [
   {
-    value: InvoicePeriods.Annualy,
+    value: InvoicePeriods.Annually,
     label: "År",
   },
   {
