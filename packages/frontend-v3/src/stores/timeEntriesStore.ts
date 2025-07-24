@@ -3,7 +3,6 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { type TimeEntry, type TimeEntryMap } from "@/types/TimeEntryTypes";
 import { debounce } from "@/utils/generalHelpers";
-import { TruckMonsterIcon } from "@hugeicons/core-free-icons";
 
 export const useTimeEntriesStore = defineStore("timeEntries", () => {
 	const timeEntries = ref<TimeEntry[]>([]);
@@ -54,7 +53,7 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 			(entry) => entry.id === timeEntry.id
 		);
 		if (existingEntryIndex !== -1) {
-			timeEntries.value[existingEntryIndex] = timeEntry;
+			timeEntries.value[existingEntryIndex].value = timeEntry.value;
 		} else {
 			timeEntries.value.push(timeEntry);
 		}
