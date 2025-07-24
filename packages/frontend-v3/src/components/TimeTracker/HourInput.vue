@@ -8,10 +8,11 @@
 			:class="{ 'has-value': timeEntry.value > 0 }"
 			@focus="isInputActive = true"
 			@blur="hideTrackButton"
+			@change="updateTimeEntry(timeValue)"
 		/>
 		<TrackRestOfDayButton
 			v-if="isInputActive"
-			:currentValue="timeEntry.value"
+			:currentValue="parseFloat(timeValue.replace(',', '.'))"
 			:date="timeEntry.date"
 			@track-rest-of-day="trackRestOfDay"
 		/>
@@ -19,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { type TimeEntry } from "@/types/TimeEntryTypes";
 import { useTimeEntriesStore } from "@/stores/timeEntriesStore";
 import TrackRestOfDayButton from "./TrackRestOfDayButton.vue";
@@ -31,29 +32,25 @@ const { timeEntry } = defineProps<{
 	timeEntry: TimeEntry;
 }>();
 
-const updateTimeEntry = (timeEntry: TimeEntry) => {
-	if (timeEntry.value) {
-		timeEntriesStore.updateTimeEntry(timeEntry);
+const timeValue = ref<string>(timeEntry.value.toLocaleString("nb-NO"));
+
+const updateTimeEntry = (timeValue: string) => {
+	if (timeValue) {
+		timeEntriesStore.updateTimeEntry({ ...timeEntry, value: parseFloat(timeValue.replace(",", ".")) });
 	}
 };
 
 const trackRestOfDay = (currentValue: number) => {
+	console.log("currentValue:", currentValue);
 	timeValue.value = currentValue.toLocaleString("nb-NO");
-	updateTimeEntry(timeEntry);
+	updateTimeEntry(currentValue.toLocaleString("nb-NO"));
 };
 
-const timeValue = computed({
-	get: () => timeEntry.value.toLocaleString("nb-NO"),
-	set: (newValue: string) => {
-		console.log("Setting new time value:", newValue);
-		const newNumber = parseFloat(newValue.replace(",", "."));
-		updateTimeEntry({ ...timeEntry, value: newNumber });
-	}
-});
 
 const hideTrackButton = () => {
 	setTimeout(() => { isInputActive.value = false; }, 200);
 };
+
 </script>
 
 <style lang="scss" scoped>

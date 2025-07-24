@@ -34,7 +34,8 @@ const addMissingTaskEntriesToWeek = (entries: typeof timeEntries) => {
 	});
 
 	const result = week.map(day => {
-		const dayStr = day.toISOString().split("T")[0];
+		const timeZonedDate = new Date(day.getTime() - day.getTimezoneOffset() * 60000);
+		const dayStr = timeZonedDate.toISOString().split("T")[0];
 		const existingEntry = dateToEntry.get(dayStr);
 		if (existingEntry) {
 			return existingEntry;

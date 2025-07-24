@@ -13,17 +13,18 @@ const getFirstDayOfWeek = (date: Date, weekStartsOn: number = 1): Date => {
 };
 
 const getWeekNumber = (date: Date) => {
+	const referenceDate = new Date(date.toString());
 	if(!date) {
 		date = new Date();
 	}
 
-	date.setHours(0, 0, 0, 0);
+	referenceDate.setHours(0, 0, 0, 0);
 	// Thursday in current week decides the year.
-	date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+	referenceDate.setDate(referenceDate.getDate() + 3 - (referenceDate.getDay() + 6) % 7);
 	// January 4 is always in week 1.
-	const week1 = new Date(date.getFullYear(), 0, 4);
+	const week1 = new Date(referenceDate.getFullYear(), 0, 4);
 	// Adjust to Thursday in week 1 and count number of weeks from date to week1.
-	return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
+	return 1 + Math.round(((referenceDate.getTime() - week1.getTime()) / 86400000
                         - 3 + (week1.getDay() + 6) % 7) / 7);
 };
 
@@ -37,7 +38,6 @@ const createWeek = (date: Date): Date[] => {
 	}
 	return week;
 };
-
 
 const createWeeks = async (activeDate: Date) => {
 	const centerDate = new Date(activeDate.toString());
@@ -90,7 +90,8 @@ const createArrayOf = <T>(length: number, mapFunc: (index: number) => T): T[] =>
 
 const getInitialWeekSlide = () => {
 	return RADIUS_OF_WEEKS;
-}
+};
+
 export {
 	getFirstDayOfWeek,
 	getWeekNumber,
