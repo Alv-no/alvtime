@@ -1,6 +1,9 @@
 <template>
 	<StatusBar />
-	<TimeTracker v-if="!loading" class="margin-top" />
+	<TimeTracker
+		v-if="!loading"
+		class="margin-top"
+	/>
 </template>
 
 <script setup lang="ts">
