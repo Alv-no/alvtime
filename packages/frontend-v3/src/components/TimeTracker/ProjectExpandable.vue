@@ -1,7 +1,5 @@
 <template>
-	<div
-		class="project-container"
-	>
+	<div class="project-container">
 		<div
 			class="project-container-header"
 			@click="toggleExpand"
@@ -14,12 +12,10 @@
 					{{ project.customer.name }}
 				</p>
 			</div>
-			<div class="project-status-wrapper">
-				<div class="project-stats">
-					Denne uken: 22,5t | Denne måneden: 145,5t
-				</div>
+			<div class="project-header-wrapper">
+				<slot name="header" />
 				<FeatherIcon
-					name="chevron-down"
+					:name="project.open ? 'chevron-up' : 'chevron-down'"
 					:size="36"
 				/>
 			</div>
@@ -32,26 +28,16 @@
 				class="project-container-content"
 				:class="{ 'visible': project.open }"
 			>
-				<DayPillStrip
-					:week="week"
-				/>
-				<TaskStrip
-					v-for="task in project.tasks"
-					:key="task.id"
-					:task="task"
-					:week="week"
-				/>
+				<slot name="content" />
 			</div>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import TaskStrip from "./TaskStrip.vue";
 import FeatherIcon from "../utils/FeatherIcon.vue";
 import { defineProps } from "vue";
 import { type Project } from "@/types/ProjectTypes";
-import DayPillStrip from "./DayPillStrip.vue";
 import { useTaskStore } from "@/stores/taskStore";
 
 const taskStore = useTaskStore();
@@ -60,9 +46,8 @@ const toggleExpand = () => {
 	taskStore.toggleProjectExpandable(project.id);
 };
 
-const { project, week } = defineProps<{
+const { project } = defineProps<{
 	project: Project;
-	week: Date[];
 }>();
 </script>
 
@@ -101,17 +86,11 @@ const { project, week } = defineProps<{
 		margin: 0;
 	}
 
-	.project-status-wrapper {
+	.project-header-wrapper {
 		display: flex;
 		justify-content: flex-end;
 		align-items: center;
 		gap: 16px;
-
-		.project-stats {
-			background-color: rgb(206, 214, 194);
-			border-radius: 10px;
-			padding: 12px 12px 9px;
-		}
 	}
 }
 

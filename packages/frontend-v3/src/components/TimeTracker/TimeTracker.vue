@@ -40,11 +40,27 @@
 				>
 					<div class="project-list-wrapper">
 						<ProjectExpandable
-							v-for="project in taskStore.tasks"
+							v-for="project in taskStore.favoriteTasks"
 							:key="project.id"
 							:project="project"
-							:week="week"
-						/>
+						>
+							<template #header>
+								<div class="project-stats">
+									Denne uken: 22,5t | Denne måneden: 145,5t
+								</div>
+							</template>
+							<template #content>
+								<DayPillStrip
+									:week="week"
+								/>
+								<TaskStrip
+									v-for="task in project.tasks"
+									:key="task.id"
+									:task="task"
+									:week="week"
+								/>
+							</template>
+						</ProjectExpandable>
 					</div>
 				</div>
 			</swiper-slide>
@@ -60,6 +76,8 @@ import { useDateStore } from "@/stores/dateStore";
 import { getWeekNumber, getInitialWeekSlide} from "@/utils/weekHelper";
 import FeatherIcon from "@/components/utils/FeatherIcon.vue";
 import type Swiper from "swiper";
+import DayPillStrip from "./DayPillStrip.vue";
+import TaskStrip from "./TaskStrip.vue";
 
 const swiper = ref<Swiper | null>(null);
 const taskStore = useTaskStore();
@@ -169,5 +187,11 @@ onMounted(() => {
 			padding: 9px 16px 12px 12px;
 		}
 	}
+}
+
+.project-stats {
+	background-color: rgb(206, 214, 194);
+	border-radius: 10px;
+	padding: 12px 12px 9px;
 }
 </style>
