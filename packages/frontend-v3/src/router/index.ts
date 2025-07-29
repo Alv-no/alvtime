@@ -11,9 +11,9 @@ const routes: Array<RouteRecordRaw> = [
 		}
 	},
 	{
-		path: "/secret",
-		name: "secret",
-		component: () => import("@/views/SecretView.vue"),
+		path: "/tasks",
+		name: "tasks",
+		component: () => import("@/views/TaskView.vue"),
 		meta: {
 			requiresAuth: true,
 		}

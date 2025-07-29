@@ -24,4 +24,5 @@ export type Task = {
 	favorite: boolean;
 	locked: boolean;
 	compensationRate: number;
+	enableComments?: boolean;
 }
