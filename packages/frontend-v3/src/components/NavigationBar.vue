@@ -1,14 +1,25 @@
 <template>
 	<div class="navigation-bar">
 		<div class="navigation-container">
-			<div>
-				<img
-					class="logo"
-					src="@/assets/alv.svg"
-				/>
+			<div class="menu-container">
+				<router-link to="/" tag="a" class="logo-link">
+					<img
+						class="logo"
+						src="@/assets/alv.svg"
+						
+					/>
+				</router-link>
+				<router-link to="/" tag="a">
+					Timeføring
+				</router-link>
+				<router-link to="/tasks" tag="a">
+					Aktiviteter
+				</router-link>
 			</div>
-			<p>{{ user?.name }}</p>
-			<LogOutButton />
+			<div class="user-container">
+				<p>{{ user?.name }}</p>
+				<LogOutButton />
+			</div>
 		</div>
 	</div>
 </template>
@@ -27,7 +38,7 @@ const { user } = useUserStore();
 	align-items: center;
 	height: 80px;
 	background-color: rgb(36, 63, 77);
-	color: rgb(248, 241, 227);
+	color: $background-color;
 
 	.navigation-container {
 		width: 1200px;
@@ -37,7 +48,6 @@ const { user } = useUserStore();
 		align-items: center;
 
 		a {
-			color: white;
 			text-decoration: none;
 			margin-right: 20px;
 
@@ -48,6 +58,36 @@ const { user } = useUserStore();
 
 		p {
 			text-align: center;
+		}
+
+		.menu-container {
+			display: flex;
+			align-items: center;
+			gap: 20px;
+
+			a {
+				color: $background-color;
+				font-size: 18px;
+				cursor: pointer;
+				&:hover {
+					text-decoration: underline;
+				}
+			}
+
+			.logo-link {
+				margin-right: 3rem;
+			}
+		}
+
+		.user-container {
+			display: flex;
+			justify-content: flex-end;
+			align-items: center;
+			gap: 24px;
+
+			p {
+				margin: 0;
+			}
 		}
 	}
 
