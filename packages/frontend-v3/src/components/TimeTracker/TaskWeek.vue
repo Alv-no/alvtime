@@ -1,32 +1,32 @@
 <template>
 	<div class="task-week">
 		<HourInput
-			v-for="timeEntry in localTimeEntries"
+			v-for="timeEntry in filteredTimeEntriesForTask"
 			:key="`${timeEntry.taskId}-${timeEntry.date}`"
 			:timeEntry="timeEntry"
+			:enableComments="task.enableComments"
 		/>
 	</div>
 </template>
 
 <script lang="ts" setup>
-import { defineProps, onMounted, defineModel } from "vue";
+import { storeToRefs } from "pinia";
+import { defineProps, computed } from "vue";
 import { type Task } from "@/types/ProjectTypes";
-import { type TimeEntry } from "@/types/TimeEntryTypes";
 import HourInput from "./HourInput.vue";
 import { useTimeEntriesStore } from "@/stores/timeEntriesStore";
 
-const localTimeEntries = defineModel<TimeEntry[]>();
 const timeEntriesStore = useTimeEntriesStore();
-const { timeEntries } = timeEntriesStore;
+const { timeEntries } = storeToRefs(timeEntriesStore);
 
-const filterAndSortTimeEntriesForTask = (entries: typeof timeEntries) => {
-	const entriesForTask = entries.filter(entry => entry.taskId === task.id);
+const filteredTimeEntriesForTask = computed(() => {
+	const entriesForTask = timeEntries.value?.filter(entry => entry.taskId === task.id);
 	const allTasksForWeek = addMissingTaskEntriesToWeek(entriesForTask);
 	return allTasksForWeek
 		.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-};
+});
 
-const addMissingTaskEntriesToWeek = (entries: typeof timeEntries) => {
+const addMissingTaskEntriesToWeek = (entries: typeof timeEntries.value) => {
 	const dateToEntry = new Map<string, typeof entries[0]>();
 	entries.forEach(entry => {
 		const dateStr = entry.date;
@@ -58,10 +58,6 @@ const { task, week } = defineProps<{
 	task: Task;
 	week: Date[];
 }>();
-
-onMounted(async () => {
-	localTimeEntries.value = filterAndSortTimeEntriesForTask(timeEntries);
-});
 </script>
 
 <style lang="scss" scoped>
