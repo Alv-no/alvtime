@@ -11,10 +11,19 @@
 			@change="updateTimeEntry(timeValue)"
 		/>
 		<TrackRestOfDayButton
-			v-if="isInputActive"
+			v-if="isInputActive || commentIsActive"
 			:currentValue="parseFloat(timeValue.replace(',', '.'))"
 			:date="timeEntry.date"
 			@track-rest-of-day="trackRestOfDay"
+		/>
+		<CommentPill v-if="comment" />
+		<TimeEntryComment 
+			v-if="(isInputActive && enableComments) || commentIsActive"
+			v-model:isActive="commentIsActive"
+			v-model:comment="comment"
+			v-model:commentedAt="timeEntry.commentedAt"
+			:timeEntry="timeEntry"
+			@comment-updated="updateComment"
 		/>
 	</div>
 </template>
@@ -24,13 +33,19 @@ import { ref } from "vue";
 import { type TimeEntry } from "@/types/TimeEntryTypes";
 import { useTimeEntriesStore } from "@/stores/timeEntriesStore";
 import TrackRestOfDayButton from "./TrackRestOfDayButton.vue";
+import TimeEntryComment from "./TimeEntryComment.vue";
+import CommentPill from "./CommentPill.vue";
 
 const isInputActive = ref(false);
+const commentIsActive = ref(false);
 const timeEntriesStore = useTimeEntriesStore();
 
-const { timeEntry } = defineProps<{
+const { timeEntry, enableComments } = defineProps<{
 	timeEntry: TimeEntry;
+	enableComments?: boolean;
 }>();
+
+const comment = ref<string>(timeEntry.comment || "");
 
 const timeValue = ref<string>(timeEntry.value.toLocaleString("nb-NO"));
 
@@ -38,6 +53,10 @@ const updateTimeEntry = (timeValue: string) => {
 	if (timeValue) {
 		timeEntriesStore.updateTimeEntry({ ...timeEntry, value: parseFloat(timeValue.replace(",", ".")) });
 	}
+};
+
+const updateComment = (comment: string) => {
+	timeEntriesStore.updateTimeEntry({ ...timeEntry, comment });
 };
 
 const trackRestOfDay = (currentValue: number) => {
