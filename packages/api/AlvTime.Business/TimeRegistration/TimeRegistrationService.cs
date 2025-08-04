@@ -451,7 +451,8 @@ public class TimeRegistrationService
         {
             Date = eo.Date,
             Hours = eo.Value,
-            CompensationRate = eo.CompensationRate
+            CompensationRate = eo.CompensationRate,
+            Type = TimeEntryType.Overtime
         }));
         var overtimeEntriesOnly = new List<TimeEntry>(overtimeEntries);
 
@@ -490,7 +491,8 @@ public class TimeRegistrationService
         {
             Date = x.Date,
             CompensationRate = x.CompensationRate,
-            Hours = -x.Hours
+            Hours = -x.Hours,
+            Type = TimeEntryType.Flex
         }).ToList();
 
         timeEntries.AddRange(compensatedFlexHours);
@@ -524,7 +526,8 @@ public class TimeRegistrationService
             {
                 Hours = -payoutEntryGroup.Sum(po => po.HoursBeforeCompRate),
                 CompensationRate = payoutEntryGroup.Key.CompRate,
-                Date = payoutEntryGroup.Key.Date
+                Date = payoutEntryGroup.Key.Date,
+                Type = TimeEntryType.Payout
             };
 
             overtimeEntries.Add(payoutEntry);
