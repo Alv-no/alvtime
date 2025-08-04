@@ -304,7 +304,7 @@ const getInternalOvertimeHours = (entries: any): number[] => {
   const fetchOvertimeHours = async () => {
     const response = await httpClient
 		  .get(`${config.API_HOST}/api/user/AvailableHours`);
-	  const filteredOverTimeHours = response.data.entries.filter((entry: any) => entry.hours > 0);
+	  const filteredOverTimeHours = response.data.entries.filter((entry: any) => entry.type !== 1);
 
 	  return {
 		  invoiceableOvertimeHours: getInvoiceableOvertimeHours(filteredOverTimeHours),
