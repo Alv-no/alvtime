@@ -16,6 +16,20 @@ services:
     depends_on:
       - api
     build:
+      context: ./packages/frontend
+      target: dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./packages/frontend:/src
+      - /src/node_modules
+
+  frontend-v3:
+    user: vscode
+    tty: true
+    depends_on:
+      - api
+    build:
       context: ./packages/frontend-v3
       target: dev
     ports:
