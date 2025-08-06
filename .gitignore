@@ -8,5 +8,5 @@ node_modules
 # Catch-all for IDEA files
 .idea
 packages/app/.vscode/
-*.env
 packages/frontend-v3/.vscode/
+.env
