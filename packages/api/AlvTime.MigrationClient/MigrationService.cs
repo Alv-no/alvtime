@@ -257,6 +257,15 @@ public class MigrationService : IMigrationService
                 },
                 new()
                 {
+                    Name = "Ahre-Ketil Lillehagen",
+                    Email = "ahre-ketil.lillehagen@alvno.onmicrosoft.com",
+                    StartDate = new DateTime(2020, 10, 01),
+                    EndDate = null,
+                    EmployeeId = 4,
+                    Oid = "45678901-4567-4567-4567-456789012345"
+                },
+                new()
+                {
                     Name = "Boye Valentin Nerli Svensson",
                     Email = "boye@alv.no",
                     StartDate = new DateTime(2020, 11, 01),
