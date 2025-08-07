@@ -34,7 +34,6 @@ import { useTimeEntriesStore } from "@/stores/timeEntriesStore";
 import { storeToRefs } from "pinia";
 import { HugeiconsIcon } from "@hugeicons/vue";
 import { MoneyBag02Icon, BeachIcon, Calendar03Icon } from "@hugeicons/core-free-icons";
-import { isBetween } from "@/utils/dateHelper";
 
 const vacationStore = useVacationStore();
 const { vacation } = storeToRefs(vacationStore);
