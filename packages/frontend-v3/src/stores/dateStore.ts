@@ -13,6 +13,7 @@ export const useDateStore = defineStore("date", () => {
 	const weeks = ref<Date[][]>([]);
 	const holidays = ref<NorwegianHolidays>();
 	const swiper = ref<Swiper | null>(null);
+	const activeWeekIndex = ref<number>(0);
 
 	// Function to set the active date
 	const setActiveDate = async (date: Date) => {
@@ -21,6 +22,10 @@ export const useDateStore = defineStore("date", () => {
 		if (weeksDateRange.value) {
 			await timeEntriesStore.getTimeEntries(weeksDateRange.value);
 		}
+	};
+
+	const setActiveWeekIndex = (index: number) => {
+		activeWeekIndex.value = index;
 	};
 
 	const createWeeksInStore = async (activeDate: Date) => {
@@ -44,11 +49,17 @@ export const useDateStore = defineStore("date", () => {
 		swiper.value = swiperInstance;
 	};
 
+	const currentWeek = computed(() => {
+		return weeks.value[activeWeekIndex.value] || [];
+	});
+
 	return {
 		activeDate,
+		currentWeek,
 		weeks,
 		holidays,
 		setActiveDate,
+		setActiveWeekIndex,
 		setSwiper,
 	};
 });

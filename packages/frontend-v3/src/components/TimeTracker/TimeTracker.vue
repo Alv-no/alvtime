@@ -96,6 +96,7 @@ const getWeekNumberString = (date: Date) => {
 
 const currentSlideIndex = computed(() => {
 	if (swiper.value) {
+		dateStore.setActiveWeekIndex(swiper.value.activeIndex);
 		return swiper.value.activeIndex;
 	}
 	return 0;
