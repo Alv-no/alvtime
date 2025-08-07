@@ -6,7 +6,7 @@
 			class="project-list-wrapper"
 		>
 			<ProjectExpandable
-				v-for="project in taskStore.tasks"
+				v-for="project in taskStore.projects"
 				:key="project.id"
 				:project="project"
 			>
