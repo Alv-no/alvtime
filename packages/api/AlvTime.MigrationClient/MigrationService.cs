@@ -262,7 +262,7 @@ public class MigrationService : IMigrationService
                     StartDate = new DateTime(2020, 10, 01),
                     EndDate = null,
                     EmployeeId = 4,
-                    Oid = "45678901-4567-4567-4567-456789012345"
+                    Oid = "f21ff8d0-2d2d-42ec-8a1f-fc5ea8c9e947"
                 },
                 new()
                 {
