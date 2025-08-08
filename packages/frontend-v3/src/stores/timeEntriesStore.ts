@@ -3,12 +3,17 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { type TimeEntry, type TimeEntryMap } from "@/types/TimeEntryTypes";
 import { debounce } from "@/utils/generalHelpers";
+import { useVacationStore } from "./vacationStore";
+import { useTimeBankStore } from "./timeBankStore";
 
 export const useTimeEntriesStore = defineStore("timeEntries", () => {
 	const timeEntries = ref<TimeEntry[]>([]);
 	const timeEntriesMap = ref<TimeEntryMap>({});
 	const timeEntryPushQueue = ref<TimeEntry[]>([]);
 	const loadingTimeEntries = ref<boolean>(false);
+
+	const vacationStore = useVacationStore();
+	const timeBankStore = useTimeBankStore();
 
 	// Function to fetch time entries for a given date range
 	const getTimeEntries = async (params: {fromDateInclusive: Date, toDateInclusive: Date}) => {
@@ -36,6 +41,8 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 			if (response.status === 200) {
 				console.log("Time entries updated successfully:", response.data);
 				updateTimeEntries(response.data.map(createTimeEntry));
+				timeBankStore.getTimeBankOverview();
+				vacationStore.getVacationOverview();
 			} else {
 				console.error("Failed to update time entries:", response.statusText);
 			}
