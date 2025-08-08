@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "packages/frontend-v3/**"
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
