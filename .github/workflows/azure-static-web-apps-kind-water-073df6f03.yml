@@ -20,11 +20,16 @@ jobs:
       - name: Set config
         working-directory: packages/frontend-v3
         run: cp public/config.prod.json public/config.json
+      - name: Debug token presence
+        run: echo "Token length: ${#STATICWEBAPP_V3_DEPLOYMENT_TOKEN}"
+        env:
+          STATICWEBAPP_V3_DEPLOYMENT_TOKEN: ${{ secrets.STATICWEBAPP_V3_DEPLOYMENT_TOKEN }}
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.STATICWEBAPP_V3_DEPLOYMENT_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
           action: "upload"
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
