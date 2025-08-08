@@ -1,4 +1,4 @@
-name: Azure Static Web Apps CI/CD
+name: Frontend V3 Build and Deploy Test
 
 on:
   push:
@@ -13,9 +13,10 @@ on:
 
 jobs:
   build_and_deploy_job:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    if: ${{github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')}}
     runs-on: ubuntu-latest
     name: Build and Deploy to Test Job
+    environment: test
     steps:
       - uses: actions/checkout@v3
         with:
@@ -28,7 +29,7 @@ jobs:
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_ZEALOUS_WAVE_0708CA403 }}
+          azure_static_web_apps_api_token: ${{ secrets.STATICWEBAPP_V3_DEPLOYMENT_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
           action: "upload"
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
@@ -39,13 +40,14 @@ jobs:
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
     runs-on: ubuntu-latest
     name: Close Pull Request Job
+    environment: test
     steps:
       - name: Close Pull Request
         id: closepullrequest
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_ZEALOUS_WAVE_0708CA403 }}
+          azure_static_web_apps_api_token: ${{ secrets.STATICWEBAPP_V3_DEPLOYMENT_TOKEN }}
           action: "close"
