@@ -21,7 +21,7 @@ jobs:
         working-directory: packages/frontend-v3
         run: cp public/config.prod.json public/config.json
       - name: Debug token presence
-        run: echo "Token length: ${#STATICWEBAPP_V3_DEPLOYMENT_TOKEN}"
+        run: echo "Token length ${#STATICWEBAPP_V3_DEPLOYMENT_TOKEN}"
         env:
           STATICWEBAPP_V3_DEPLOYMENT_TOKEN: ${{ secrets.STATICWEBAPP_V3_DEPLOYMENT_TOKEN }}
       - name: Build And Deploy
