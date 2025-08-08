@@ -40,13 +40,13 @@
 				>
 					<div class="project-list-wrapper">
 						<ProjectExpandable
-							v-for="project in taskStore.favoriteTasks"
+							v-for="project in taskStore.favoriteProjects"
 							:key="project.id"
 							:project="project"
 						>
 							<template #header>
 								<div class="project-stats">
-									Denne uken: 22,5t | Denne måneden: 145,5t
+									Denne uken: {{ allHoursInProjectThisWeek(project) }} | Denne måneden: {{ allHoursInProjectThisMonth(project) }}
 								</div>
 							</template>
 							<template #content>
@@ -73,15 +73,18 @@ import { onMounted, ref, computed } from "vue";
 import ProjectExpandable from "./ProjectExpandable.vue";
 import { useTaskStore } from "@/stores/taskStore";
 import { useDateStore } from "@/stores/dateStore";
+import { useTimeEntriesStore } from "@/stores/timeEntriesStore";
 import { getWeekNumber, getInitialWeekSlide} from "@/utils/weekHelper";
 import FeatherIcon from "@/components/utils/FeatherIcon.vue";
 import type Swiper from "swiper";
 import DayPillStrip from "./DayPillStrip.vue";
 import TaskStrip from "./TaskStrip.vue";
+import type { Project } from "@/types/ProjectTypes";
 
 const swiper = ref<Swiper | null>(null);
 const taskStore = useTaskStore();
 const dateStore = useDateStore();
+const timeEntriesStore = useTimeEntriesStore();
 
 const getWeekNumberString = (date: Date) => {
 	if(date.getFullYear() !== new Date().getFullYear()) {
@@ -93,6 +96,7 @@ const getWeekNumberString = (date: Date) => {
 
 const currentSlideIndex = computed(() => {
 	if (swiper.value) {
+		dateStore.setActiveWeekIndex(swiper.value.activeIndex);
 		return swiper.value.activeIndex;
 	}
 	return 0;
@@ -104,6 +108,39 @@ const currentWeek = computed(() => {
 	}
 	return [];
 });
+
+const allHoursInProjectThisWeek = (project: Project) => {
+	const taskIds = project.tasks.map((task) => task.id);
+	const filteredTimeEntries = timeEntriesStore.timeEntries.filter((entry) =>
+		taskIds.includes(entry.taskId)
+	);
+
+	const totalHoursProjectThisWeek = filteredTimeEntries.reduce((total, entry) => {
+		const entryDate = new Date(entry.date);
+		if (entryDate >= currentWeek.value[0] && entryDate <= currentWeek.value[6]) {
+			return total + entry.value;
+		}
+		return total;
+	}, 0);
+
+	return `${totalHoursProjectThisWeek}t`;
+};
+
+const allHoursInProjectThisMonth = (project: Project) => {
+	const taskIds = project.tasks.map((task) => task.id);
+	const filteredTimeEntries = timeEntriesStore.timeEntries.filter((entry) =>
+		taskIds.includes(entry.taskId)
+	);
+
+	const totalHoursProjectThisMonth = filteredTimeEntries.reduce((total, entry) => {
+		if (entry.date.includes(`${currentWeek.value[0].getFullYear().toString()}-${(currentWeek.value[0].getMonth() + 1).toString().padStart(2, "0")}`)) {
+			return total + entry.value;
+		}
+		return total;
+	}, 0);
+
+	return `${totalHoursProjectThisMonth}t`;
+};
 
 const nextSlide = () => {
 	if (swiper.value) {

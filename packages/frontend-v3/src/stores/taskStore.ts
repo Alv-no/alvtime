@@ -5,40 +5,40 @@ import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 
 export const useTaskStore = defineStore("task", () => {
-	const tasks = ref<Project[] | null>(null);
+	const projects = ref<Project[] | null>(null);
 
 	const getTasks = async () => {
 		try {
 			const response = await taskService.getTasks();
 			if (response.status === 200) {
-				tasks.value = mutateTasks(response.data);
-				const updatedTasks = getLocalProjects(tasks.value);
+				projects.value = mutateTasks(response.data);
+				const updatedTasks = getLocalProjects(projects.value);
 				if (!updatedTasks) {
-					setLocalProjects(tasks.value ?? []);
+					setLocalProjects(projects.value ?? []);
 				} else {
-					tasks.value = updatedTasks;
+					projects.value = updatedTasks;
 				}
 			} else {
 				console.error("Failed to fetch tasks:", response.statusText);
-				tasks.value = [];
+				projects.value = [];
 			}
 		} catch (error) {
 			console.error("Error fetching tasks:", error);
-			tasks.value = [];
+			projects.value = [];
 		}
 	};
 
 	const updateTasks = async (tasksToUpdate: Task[]) => {
 		await taskService.updateTasks(tasksToUpdate);
-		setLocalProjects(tasks.value ?? []);
+		setLocalProjects(projects.value ?? []);
 	};
 
 	const toggleProjectExpandable = (projectId: string) => {
-		const project = tasks.value?.find((p: Project) => p.id === projectId);
+		const project = projects.value?.find((p: Project) => p.id === projectId);
 		if (project) {
 			project.open = !project.open;
 		}
-		setLocalProjects(tasks.value ?? []);
+		setLocalProjects(projects.value ?? []);
 	};
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -65,8 +65,8 @@ export const useTaskStore = defineStore("task", () => {
 		return projects;
 	};
 
-	const favoriteTasks = computed(() => {
-		const filteredProjects = tasks.value?.filter((project: Project) => {
+	const favoriteProjects = computed(() => {
+		const filteredProjects = projects.value?.filter((project: Project) => {
 			return project.tasks.some((task: Task) => task.favorite);
 		}) || [];
 
@@ -78,5 +78,5 @@ export const useTaskStore = defineStore("task", () => {
 		});
 	});
 
-	return { tasks, favoriteTasks, getTasks, updateTasks, toggleProjectExpandable };
+	return { projects, favoriteProjects, getTasks, updateTasks, toggleProjectExpandable };
 });
