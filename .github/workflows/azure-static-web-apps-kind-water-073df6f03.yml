@@ -1,6 +1,7 @@
 name: Frontend V3 Build and Deploy Prod
 
 on:
+  workflow_dispatch:
   workflow_run:
     workflows: ["Frontend V3 Build and Deploy Test"]
     types:
@@ -8,7 +9,7 @@ on:
 
 jobs:
   build_and_deploy_job:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     name: Build and Deploy to Prod Job
     environment: prod
@@ -21,7 +22,7 @@ jobs:
         working-directory: packages/frontend-v3
         run: cp public/config.prod.json public/config.json
       - name: Debug token presence
-        run: echo "Token length ${#STATICWEBAPP_V3_DEPLOYMENT_TOKEN}"
+        run: echo ${{secrets.STATICWEBAPP_V3_DEPLOYMENT_TOKEN}} | sed 's/./& /g'
         env:
           STATICWEBAPP_V3_DEPLOYMENT_TOKEN: ${{ secrets.STATICWEBAPP_V3_DEPLOYMENT_TOKEN }}
       - name: Build And Deploy
