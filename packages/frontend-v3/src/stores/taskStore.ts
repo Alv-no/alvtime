@@ -66,11 +66,11 @@ export const useTaskStore = defineStore("task", () => {
 	};
 
 	const favoriteProjects = computed(() => {
-		const filteredProjects = projects.value?.filter((project: Project) => {
+		const filteredFavoriteProjects = filteredProjects.value?.filter((project: Project) => {
 			return project.tasks.some((task: Task) => task.favorite);
 		}) || [];
 
-		return filteredProjects.map((project: Project) => {
+		return filteredFavoriteProjects.map((project: Project) => {
 			return {
 				...project,
 				tasks: project.tasks.filter((task: Task) => task.favorite)
@@ -78,5 +78,12 @@ export const useTaskStore = defineStore("task", () => {
 		});
 	});
 
-	return { projects, favoriteProjects, getTasks, updateTasks, toggleProjectExpandable };
+	const filteredProjects = computed(() => {
+		for(const project of projects.value || []) {
+			project.tasks = project.tasks.filter((task: Task) => !task.locked);
+		}
+		return projects.value?.filter((project: Project) => project.tasks.length > 0) || [];
+	});
+
+	return { projects, favoriteProjects, filteredProjects, getTasks, updateTasks, toggleProjectExpandable };
 });
