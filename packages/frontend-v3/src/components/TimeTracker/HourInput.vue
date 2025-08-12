@@ -6,8 +6,8 @@
 			type="text"
 			class="form-control"
 			:class="{ 'has-value': timeEntry.value > 0 }"
-			@focus="isInputActive = true"
-			@blur="hideTrackButton"
+			@focus="onInputFocus"
+			@blur="onInputBlur"
 			@change="updateTimeEntry(timeValue)"
 		/>
 		<TrackRestOfDayButton
@@ -21,7 +21,6 @@
 			v-if="(isInputActive && enableComments) || commentIsActive"
 			v-model:isActive="commentIsActive"
 			v-model:comment="comment"
-			v-model:commentedAt="timeEntry.commentedAt"
 			:timeEntry="timeEntry"
 			@comment-updated="updateComment"
 		/>
@@ -60,7 +59,6 @@ const updateComment = (comment: string) => {
 };
 
 const trackRestOfDay = (currentValue: number) => {
-	console.log("currentValue:", currentValue);
 	timeValue.value = currentValue.toLocaleString("nb-NO");
 	updateTimeEntry(currentValue.toLocaleString("nb-NO"));
 };
@@ -68,6 +66,20 @@ const trackRestOfDay = (currentValue: number) => {
 
 const hideTrackButton = () => {
 	setTimeout(() => { isInputActive.value = false; }, 200);
+};
+
+const onInputBlur = () => {
+	hideTrackButton();
+	if(!timeValue.value) {
+		timeValue.value = "0";
+		timeEntriesStore.updateTimeEntry({ ...timeEntry, value: 0 });
+	}
+};
+
+const onInputFocus = () => {
+	isInputActive.value = true;
+	const inputElement = document.getElementById(`${timeEntry.taskId}-${timeEntry.date}`) as HTMLInputElement;
+	inputElement.select();
 };
 
 </script>
