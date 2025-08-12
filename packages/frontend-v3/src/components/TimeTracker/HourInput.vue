@@ -6,7 +6,7 @@
 			type="text"
 			class="form-control"
 			:class="{ 'has-value': timeEntry.value > 0 }"
-			@focus="isInputActive = true"
+			@focus="onInputFocus"
 			@blur="hideTrackButton"
 			@change="updateTimeEntry(timeValue)"
 		/>
@@ -67,6 +67,12 @@ const trackRestOfDay = (currentValue: number) => {
 
 const hideTrackButton = () => {
 	setTimeout(() => { isInputActive.value = false; }, 200);
+};
+
+const onInputFocus = () => {
+	isInputActive.value = true;
+	const inputElement = document.getElementById(`${timeEntry.taskId}-${timeEntry.date}`) as HTMLInputElement;
+	inputElement.select();
 };
 
 </script>
