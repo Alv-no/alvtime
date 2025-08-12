@@ -26,9 +26,6 @@ const { currentValue, date } = defineProps<{
 const emit = defineEmits(["track-rest-of-day"]);
 
 const logRestOfDay = () => {
-	// This function can be used to log the remaining time in the workday.
-	// For now, it just emits an event.
-	console.log("Logging rest of day:", timeLeftInWorkday.value);
 	emit("track-rest-of-day", timeLeftInWorkday.value + currentValue);
 };
 

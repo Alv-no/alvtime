@@ -59,7 +59,6 @@ const updateComment = (comment: string) => {
 };
 
 const trackRestOfDay = (currentValue: number) => {
-	console.log("currentValue:", currentValue);
 	timeValue.value = currentValue.toLocaleString("nb-NO");
 	updateTimeEntry(currentValue.toLocaleString("nb-NO"));
 };

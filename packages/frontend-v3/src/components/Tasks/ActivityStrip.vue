@@ -32,7 +32,6 @@ const task = defineModel<Task>({ required: true });
 const taskStore = useTaskStore();
 
 const updateTask = () => {
-	console.log("Updating task:", task.value);
 	taskStore.updateTasks([task.value]);
 };
 </script>
