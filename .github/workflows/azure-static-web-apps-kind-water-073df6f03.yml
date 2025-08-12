@@ -4,7 +4,9 @@ on:
   workflow_run:
     workflows: ["Frontend V3 Build and Deploy Test"]
     types:
-      - completed 
+      - completed
+    branches:
+      - main
 
 jobs:
   build_and_deploy_job:
