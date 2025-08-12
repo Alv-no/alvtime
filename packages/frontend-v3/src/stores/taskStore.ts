@@ -44,8 +44,9 @@ export const useTaskStore = defineStore("task", () => {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const mutateTasks = (taskList: any[]) => {
 		const projects: Project[] = [];
+		const filteredTaskList = taskList.filter(task => !task.locked);
 
-		for(const task of taskList) {
+		for(const task of filteredTaskList) {
 			const projectId = task.project.id;
 			const taskId = task.id;
 
@@ -66,7 +67,7 @@ export const useTaskStore = defineStore("task", () => {
 	};
 
 	const favoriteProjects = computed(() => {
-		const filteredFavoriteProjects = filteredProjects.value?.filter((project: Project) => {
+		const filteredFavoriteProjects = projects.value?.filter((project: Project) => {
 			return project.tasks.some((task: Task) => task.favorite);
 		}) || [];
 
@@ -78,12 +79,5 @@ export const useTaskStore = defineStore("task", () => {
 		});
 	});
 
-	const filteredProjects = computed(() => {
-		for(const project of projects.value || []) {
-			project.tasks = project.tasks.filter((task: Task) => !task.locked);
-		}
-		return projects.value?.filter((project: Project) => project.tasks.length > 0) || [];
-	});
-
-	return { projects, favoriteProjects, filteredProjects, getTasks, updateTasks, toggleProjectExpandable };
+	return { projects, favoriteProjects, getTasks, updateTasks, toggleProjectExpandable };
 });
