@@ -5,7 +5,7 @@ export type TimeEntry = {
   	taskId: string;
   	locked: boolean;
   	comment?: string;
-  	commentedAt?: string;
+  	commentedAt?: Date;
 }
 
 export type TimeEntryMap = {

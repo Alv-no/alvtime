@@ -8,7 +8,7 @@
 			@input="updateComment(comment)"
 		/>
 		<p
-			v-if="commentedAt"
+			v-if="timeEntry.commentedAt"
 			class="last-updated"
 		>
 			Sist endret:<br />{{ formattedTime }}
@@ -23,7 +23,6 @@ import { debounce } from "@/utils/generalHelpers";
 
 const isActive = defineModel<boolean>("isActive", { default: false });
 const comment = defineModel<string>("comment", { default: "" });
-const commentedAt = defineModel<string | null>("commentedAt", { default: "" });
 
 const { timeEntry } = defineProps<{
 	timeEntry: TimeEntry;
@@ -40,10 +39,10 @@ const updateComment = debounce((newComment: string) => {
 }, 300);
 
 const formattedTime = computed(() => {
-	if (commentedAt.value) {
-		const date = new Date(commentedAt.value);
-		return date.toLocaleString("nb-NO", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric" });
+	if (timeEntry.commentedAt) {
+		return timeEntry.commentedAt.toLocaleString("nb-NO", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", year: "numeric" });
 	}
+
 	return "";
 });
 </script>

@@ -13,7 +13,7 @@ type Vacation = {
 
 type Transaction = {
 	comment: string;
-	commentedAt: string;
+	commentedAt?: Date;
 	date: string;
 	id: number;
 	taskId: number;

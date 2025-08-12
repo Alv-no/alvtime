@@ -46,7 +46,6 @@ const { timeEntries } = storeToRefs(useTimeEntriesStore());
 const { currentWeek } = storeToRefs(useDateStore());
 
 const totalHoursThisWeek = computed(() => {
-	console.log("Calculating total hours for the week", currentWeek.value);
 	return timeEntries.value.reduce((total, entry) => {
 		const entryDate = new Date(entry.date);
 		if (entryDate >= currentWeek.value[0] && entryDate <= currentWeek.value[6]) {
