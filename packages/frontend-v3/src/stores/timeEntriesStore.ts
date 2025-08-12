@@ -59,6 +59,7 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 		const existingEntryIndex = timeEntries.value.findIndex(
 			(entry) => entry.id === timeEntry.id
 		);
+
 		if (existingEntryIndex !== -1) {
 			timeEntries.value[existingEntryIndex].value = timeEntry.value;
 		} else {
@@ -145,6 +146,7 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 		return {
 			...timeEntry,
 			date: timeEntry.date.split("T")[0],
+			commentedAt: timeEntry.commentedAt ? new Date(timeEntry.commentedAt) : undefined,
 		};
 	};
 

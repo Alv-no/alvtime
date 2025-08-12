@@ -21,7 +21,6 @@
 			v-if="(isInputActive && enableComments) || commentIsActive"
 			v-model:isActive="commentIsActive"
 			v-model:comment="comment"
-			v-model:commentedAt="timeEntry.commentedAt"
 			:timeEntry="timeEntry"
 			@comment-updated="updateComment"
 		/>
