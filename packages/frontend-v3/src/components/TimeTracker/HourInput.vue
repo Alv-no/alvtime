@@ -7,7 +7,7 @@
 			class="form-control"
 			:class="{ 'has-value': timeEntry.value > 0 }"
 			@focus="onInputFocus"
-			@blur="hideTrackButton"
+			@blur="onInputBlur"
 			@change="updateTimeEntry(timeValue)"
 		/>
 		<TrackRestOfDayButton
@@ -67,6 +67,14 @@ const trackRestOfDay = (currentValue: number) => {
 
 const hideTrackButton = () => {
 	setTimeout(() => { isInputActive.value = false; }, 200);
+};
+
+const onInputBlur = () => {
+	hideTrackButton();
+	if(!timeValue.value) {
+		timeValue.value = "0";
+		timeEntriesStore.updateTimeEntry({ ...timeEntry, value: 0 });
+	}
 };
 
 const onInputFocus = () => {
