@@ -3,14 +3,12 @@ name: Frontend V3 Build and Deploy Prod
 on:
   workflow_run:
     workflows: ["Frontend V3 Build and Deploy Test"]
-    types:
-      - completed
-    branches:
-      - main
+    types: [completed]
+    branches: [main]
 
 jobs:
   build_and_deploy_job:
-    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     name: Build and Deploy to Prod Job
     environment: prod
