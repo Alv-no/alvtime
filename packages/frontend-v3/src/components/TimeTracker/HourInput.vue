@@ -87,20 +87,9 @@ const onInputFocus = () => {
 <style lang="scss" scoped>
 .input-wrapper {
 	position: relative;
-}
 
-input {
-	border-radius: 5px;
-	border: 1px solid #ccc;
-	background-color: rgb(250, 245, 235);
-	transition: border-color 0.3s ease;
-	padding: 8px;
-	width: 48px;
-	text-align: center;
-	font-size: 1rem;
-
-	&.has-value {
-		border-color: $primary-color;
+	input {
+		text-align: center;
 	}
 }
 </style>

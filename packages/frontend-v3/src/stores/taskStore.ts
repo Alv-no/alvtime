@@ -3,9 +3,11 @@ import taskService from "@/services/taskService";
 import type { Project, Task } from "@/types/ProjectTypes";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
+import Fuse from "fuse.js";
 
 export const useTaskStore = defineStore("task", () => {
 	const projects = ref<Project[] | null>(null);
+	const filterQuery = ref<string>("");
 
 	const getTasks = async () => {
 		try {
@@ -79,5 +81,41 @@ export const useTaskStore = defineStore("task", () => {
 		});
 	});
 
-	return { projects, favoriteProjects, getTasks, updateTasks, toggleProjectExpandable };
+	const filteredProjects = computed(() => {
+		if (!filterQuery.value.trim() || !projects.value) {
+			return projects.value;
+		}
+		const query = filterQuery.value;
+		const fuse = new Fuse(projects.value, {
+			keys: [
+				{
+					name: "name",
+					getFn: (project: Project) => project.name
+				},
+				{
+					name: "tasks.name",
+					getFn: (project: Project) => project.tasks.map((task: Task) => task.name)
+				},
+				{
+					name: "customer.name",
+					getFn: (project: Project) => project.customer.name
+				}
+			],
+			includeScore: true,
+			threshold: 0.1,
+			ignoreLocation: true,
+		});
+		const results = fuse.search(query);
+		return results.map(result => result.item);
+	});
+
+	return {
+		projects,
+		filterQuery,
+		filteredProjects,
+		favoriteProjects,
+		getTasks,
+		updateTasks,
+		toggleProjectExpandable
+	};
 });
