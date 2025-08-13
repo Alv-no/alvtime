@@ -10,3 +10,17 @@ html, body {
 	background-color: $primary-color;
 	box-sizing: border-box;
 }
+
+input {
+	border-radius: 5px;
+	border: 1px solid #ccc;
+	background-color: rgb(250, 245, 235);
+	transition: border-color 0.3s ease;
+	padding: 8px;
+	width: 48px;
+	font-size: 1rem;
+
+	&.has-value {
+		border-color: $primary-color;
+	}
+}

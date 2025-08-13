@@ -5,8 +5,9 @@
 			v-if="!loading"
 			class="project-list-wrapper"
 		>
+			<FilterInput />
 			<ProjectExpandable
-				v-for="project in taskStore.projects"
+				v-for="project in taskStore.filteredProjects"
 				:key="project.id"
 				:project="project"
 			>
@@ -34,6 +35,7 @@ import ProjectExpandable from "@/components/TimeTracker/ProjectExpandable.vue";
 import { useTaskStore } from "@/stores/taskStore";
 import ActivityStrip from "@/components/Tasks/ActivityStrip.vue";
 import ActivityStripHeader from "@/components/Tasks/ActivityStripHeader.vue";
+import FilterInput from "@/components/Tasks/FilterInput.vue";
 
 const loading = ref(true);
 const taskStore = useTaskStore();
