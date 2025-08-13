@@ -11,9 +11,13 @@ export const useTaskStore = defineStore("task", () => {
 
 	const getTasks = async () => {
 		try {
+			console.time("Getting tasks");
 			const response = await taskService.getTasks();
+			console.timeEnd("Getting tasks");
 			if (response.status === 200) {
+				console.time("Mutating tasks");
 				projects.value = mutateTasks(response.data);
+				console.timeEnd("Mutating tasks");
 				const updatedTasks = getLocalProjects(projects.value);
 				if (!updatedTasks) {
 					setLocalProjects(projects.value ?? []);
@@ -45,40 +49,39 @@ export const useTaskStore = defineStore("task", () => {
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const mutateTasks = (taskList: any[]) => {
-		const projects: Project[] = [];
+		const projectsMap = new Map<string, Project>();
 		const filteredTaskList = taskList.filter(task => !task.locked);
 
-		for(const task of filteredTaskList) {
+		for (const task of filteredTaskList) {
 			const projectId = task.project.id;
 			const taskId = task.id;
 
-			if(!projects.some((project: { id: string; }) => project?.id === projectId)) {
-				projects.push({...task.project, tasks: [], open: false });
+			if (!projectsMap.has(projectId)) {
+				projectsMap.set(projectId, { ...task.project, tasks: [], open: false });
 			}
 
-			const currentProject = projects.find(project => project.id === projectId);
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			if(!currentProject?.tasks.some((t: any) => t.id === taskId && t.project.id === projectId)) {
+			const currentProject = projectsMap.get(projectId);
+			if (currentProject && !currentProject.tasks.some((t: Task) => t.id === taskId)) {
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				const { project, ...rest } = task;
-				currentProject?.tasks.push(rest);
+				currentProject.tasks.push(rest);
 			}
-		};
+		}
 
-		return projects;
+		return Array.from(projectsMap.values());
 	};
 
 	const favoriteProjects = computed(() => {
-		const filteredFavoriteProjects = projects.value?.filter((project: Project) => {
-			return project.tasks.some((task: Task) => task.favorite);
-		}) || [];
+		if (!projects.value) return [];
 
-		return filteredFavoriteProjects.map((project: Project) => {
-			return {
-				...project,
-				tasks: project.tasks.filter((task: Task) => task.favorite)
-			};
-		});
+		return projects.value
+			.map((project: Project) => {
+				const favoriteTasks = project.tasks.filter((task: Task) => task.favorite);
+				return favoriteTasks.length
+					? { ...project, tasks: favoriteTasks }
+					: null;
+			})
+			.filter((project): project is Project => project !== null);
 	});
 
 	const filteredProjects = computed(() => {
