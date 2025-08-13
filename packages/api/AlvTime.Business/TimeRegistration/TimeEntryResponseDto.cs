@@ -13,6 +13,6 @@ public class TimeEntryResponseDto
 
     public string? Comment { get; set; }
 
-    public DateTime? CommentedAt { get; set; }
+    public DateTimeOffset? CommentedAt { get; set; }
 
 }
