@@ -3,6 +3,7 @@ using AlvTime.Business.Projects;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AlvTime.Business.Tasks;
 using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Task = System.Threading.Tasks.Task;
@@ -26,6 +27,35 @@ public class ProjectStorage : IProjectStorage
             {
                 Id = x.Id,
                 Name = x.Name,
+            }).ToListAsync();
+
+        return projects;
+    }
+    
+    public async Task<IEnumerable<ProjectResponseDtoV2>> GetProjectsWithTasks(ProjectQuerySearch criteria, int userId)
+    {
+        var projects = await _context.Project.AsQueryable().AsNoTracking()
+            .Filter(criteria)
+            .Include(p => p.CustomerNavigation)
+            .Include(p => p.Task)
+            .ThenInclude(t => t.CompensationRate)
+            .Select(p => new ProjectResponseDtoV2
+            {
+                Name = p.Name,
+                CustomerName = p.CustomerNavigation.Name,
+                Tasks = p.Task.Select(t => new TaskResponseDtoV2
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    Description = t.Description,
+                    Favorite = _context.TaskFavorites.Any(fav => fav.UserId == userId && fav.TaskId == t.Id),
+                    Locked = t.Locked,
+                    Imposed = t.Imposed,
+                    CompensationRate = t.CompensationRate
+                        .OrderByDescending(cr => cr.FromDate)
+                        .Select(cr => cr.Value)
+                        .FirstOrDefault()
+                })
             }).ToListAsync();
 
         return projects;
