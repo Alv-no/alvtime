@@ -60,14 +60,15 @@ namespace AlvTime.Persistence.Repositories
 
         public async Task<IEnumerable<TaskResponseDto>> GetUsersTasks(TaskQuerySearch criterias, int userId)
         {
-            var usersFavoriteTaskIds = await _context.TaskFavorites.Where(x => x.UserId == userId).Select(x => x.TaskId)
-                .ToListAsync();
+            var usersFavoriteTasks = await _context.TaskFavorites.Where(x => x.UserId == userId).ToListAsync();
 
             var tasks = await GetTasks(criterias);
 
+            var favoriteIds = usersFavoriteTasks.Select(t => t.TaskId).ToList();
             foreach (var task in tasks)
             {
-                task.Favorite = usersFavoriteTaskIds.Contains(task.Id);
+                task.Favorite = favoriteIds.Contains(task.Id);
+                task.EnableComments = usersFavoriteTasks.Select(t => t.Id).Contains(task.Id) && usersFavoriteTasks.First(t => t.Id == task.Id).EnableComments;
             }
 
             return tasks;
@@ -123,6 +124,18 @@ namespace AlvTime.Persistence.Repositories
             };
             _context.TaskFavorites.Add(favorite);
             await _context.SaveChangesAsync();
+        }
+        
+        public async System.Threading.Tasks.Task ToggleCommentsOnFavoriteTask(int taskId, bool enableComments, int userId)
+        {
+            var favoriteEntry = await _context.TaskFavorites
+                .FirstOrDefaultAsync(tf => tf.UserId == userId && tf.TaskId == taskId);
+
+            if (favoriteEntry != null)
+            {
+                favoriteEntry.EnableComments = enableComments;
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async System.Threading.Tasks.Task RemoveFavoriteTask(int taskId, int userId)

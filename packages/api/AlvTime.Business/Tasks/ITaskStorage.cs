@@ -12,6 +12,7 @@ namespace AlvTime.Business.Tasks
         Task<bool> IsFavorite(int taskId, int userId);
         Task CreateTask(TaskDto task, int projectId);
         Task UpdateTask(TaskDto taskToBeUpdated);
+        Task ToggleCommentsOnFavoriteTask(int taskId, bool enableComments, int userId);
     }
 
     public class TaskQuerySearch

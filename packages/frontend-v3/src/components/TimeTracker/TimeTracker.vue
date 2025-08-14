@@ -41,7 +41,7 @@
 					<div class="project-list-wrapper">
 						<ProjectExpandable
 							v-for="project in taskStore.favoriteProjects"
-							:key="project.id"
+							:key="`${project.name}-${project.customerName}`"
 							:project="project"
 						>
 							<template #header>
