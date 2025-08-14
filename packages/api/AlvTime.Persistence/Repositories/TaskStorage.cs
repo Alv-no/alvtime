@@ -64,9 +64,10 @@ namespace AlvTime.Persistence.Repositories
 
             var tasks = await GetTasks(criterias);
 
+            var favoriteIds = usersFavoriteTasks.Select(t => t.TaskId).ToList();
             foreach (var task in tasks)
             {
-                task.Favorite = usersFavoriteTasks.Select(t => t.Id).Contains(task.Id);
+                task.Favorite = favoriteIds.Contains(task.Id);
                 task.EnableComments = usersFavoriteTasks.Select(t => t.Id).Contains(task.Id) && usersFavoriteTasks.First(t => t.Id == task.Id).EnableComments;
             }
 

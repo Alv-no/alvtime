@@ -39,7 +39,7 @@ namespace AlvTime.Business.Tasks
             }
         }
 
-        private async Task<TaskResponseDto> UpdateFavoriteTask(UpdateTaskDto task, int userId)
+        private async Task UpdateFavoriteTask(UpdateTaskDto task, int userId)
         {
             var userHasFavorite = await _taskStorage.IsFavorite(task.Id, userId);
 
@@ -52,8 +52,6 @@ namespace AlvTime.Business.Tasks
                 await _taskStorage.CreateFavoriteTask(task.Id, userId);
             }
             await _taskStorage.ToggleCommentsOnFavoriteTask(task.Id, task.EnableComments, userId);
-
-            return await GetTaskForUser(task.Id, userId);
         }
 
         public async Task<Result<TaskDto>> CreateTask(TaskDto taskToBeCreated, int projectId)

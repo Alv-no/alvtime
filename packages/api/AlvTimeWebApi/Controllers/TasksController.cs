@@ -21,7 +21,7 @@ public class TasksController(TaskService taskService) : ControllerBase
         var result = await taskService.GetTasksForUser(new TaskQuerySearch());
         return result.Match<ActionResult<IEnumerable<TaskResponse>>>(
             tasks => Ok(tasks.Select(task => new TaskResponse(task.Id, task.Name, task.Description, task.Favorite,
-                task.Locked, task.CompensationRate, task.Project))),
+                task.Locked, task.CompensationRate, task.Project)).ToList()),
             errors => BadRequest(errors.ToValidationProblemDetails("Hent tasks feilet med følgende feil")));
     }
 
@@ -38,6 +38,6 @@ public class TasksController(TaskService taskService) : ControllerBase
         await taskService.UpdateFavoriteTasks(tasksToBeUpdated.Select(t =>
             new UpdateTaskDto(Id: t.Id, Favorite: t.Favorite, EnableComments: t.EnableComments)));
 
-        return NoContent();
+        return Ok();
     }
 }
