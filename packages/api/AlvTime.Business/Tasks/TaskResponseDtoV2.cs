@@ -9,4 +9,5 @@ public class TaskResponseDtoV2
     public bool Locked { get; set; }
     public decimal CompensationRate { get; set; }
     public bool Imposed { get; set; }
+    public bool EnableComments { get; set; }
 }

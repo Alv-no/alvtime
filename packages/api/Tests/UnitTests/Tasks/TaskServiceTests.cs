@@ -106,7 +106,7 @@ public class TaskServiceTests
 
         var taskService = CreateTaskService(_context);
 
-        await taskService.UpdateFavoriteTasks(new List<(int id, bool favorite)> { (2, true) });
+        await taskService.UpdateFavoriteTasks(new List<UpdateTaskDto> { new(2, true) });
 
         var userFavorites = _context.TaskFavorites
             .Where(tf => tf.UserId == 1)
@@ -123,7 +123,7 @@ public class TaskServiceTests
 
         var previousCompensationRate = _context.Task.FirstOrDefault(x => x.Id == 2)?.CompensationRate;
 
-        await taskService.UpdateFavoriteTasks(new List<(int id, bool favorite)> { (2, true) });
+        await taskService.UpdateFavoriteTasks(new List<UpdateTaskDto> { new(2, true) });
 
         var task = _context.Task.FirstOrDefault(x => x.Id == 2);
 
@@ -139,7 +139,7 @@ public class TaskServiceTests
             .Where(tf => tf.UserId == 1)
             .ToList().Count;
 
-        await taskService.UpdateFavoriteTasks(new List<(int id, bool favorite)> { (1, false) });
+        await taskService.UpdateFavoriteTasks(new List<UpdateTaskDto> { new(1, false) });
 
         var userFavorites = _context.TaskFavorites
             .Where(tf => tf.UserId == 1)

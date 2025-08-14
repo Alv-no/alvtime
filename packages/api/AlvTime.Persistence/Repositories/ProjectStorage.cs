@@ -54,7 +54,8 @@ public class ProjectStorage : IProjectStorage
                     CompensationRate = t.CompensationRate
                         .OrderByDescending(cr => cr.FromDate)
                         .Select(cr => cr.Value)
-                        .FirstOrDefault()
+                        .FirstOrDefault(),
+                    EnableComments = _context.TaskFavorites.Any(fav => fav.UserId == userId && fav.TaskId == t.Id && fav.EnableComments),
                 })
             }).ToListAsync();
 

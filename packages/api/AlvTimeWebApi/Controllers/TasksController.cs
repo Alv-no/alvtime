@@ -20,7 +20,8 @@ public class TasksController(TaskService taskService) : ControllerBase
     {
         var result = await taskService.GetTasksForUser(new TaskQuerySearch());
         return result.Match<ActionResult<IEnumerable<TaskResponse>>>(
-            tasks => Ok(tasks.Select(task => new TaskResponse(task.Id, task.Name, task.Description, task.Favorite, task.Locked, task.CompensationRate, task.Project))),
+            tasks => Ok(tasks.Select(task => new TaskResponse(task.Id, task.Name, task.Description, task.Favorite,
+                task.Locked, task.CompensationRate, task.Project))),
             errors => BadRequest(errors.ToValidationProblemDetails("Hent tasks feilet med følgende feil")));
     }
 
@@ -31,12 +32,12 @@ public class TasksController(TaskService taskService) : ControllerBase
     }
 
     [HttpPost("user/Tasks")]
-    public async Task<ActionResult<IEnumerable<TaskResponse>>> UpdateFavoriteTasks(
+    public async Task<ActionResult> UpdateFavoriteTasks(
         [FromBody] IEnumerable<TaskFavoriteRequest> tasksToBeUpdated)
     {
-        var result = await taskService.UpdateFavoriteTasks(tasksToBeUpdated.Select(t => (t.Id, t.Favorite)));
-        return result.Match<ActionResult<IEnumerable<TaskResponse>>>(
-            tasks => Ok(tasks.Select(task => new TaskResponse(task.Id, task.Name, task.Description, task.Favorite, task.Locked, task.CompensationRate, task.Project))),
-            errors => BadRequest(errors.ToValidationProblemDetails("Hent tasks feilet med følgende feil")));
+        await taskService.UpdateFavoriteTasks(tasksToBeUpdated.Select(t =>
+            new UpdateTaskDto(Id: t.Id, Favorite: t.Favorite, EnableComments: t.EnableComments)));
+
+        return NoContent();
     }
 }
