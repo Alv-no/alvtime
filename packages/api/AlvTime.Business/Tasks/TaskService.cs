@@ -28,34 +28,30 @@ namespace AlvTime.Business.Tasks
             return new Result<IEnumerable<TaskResponseDto>>(tasks);
         }
 
-        public async Task<Result<IEnumerable<TaskResponseDto>>> UpdateFavoriteTasks(
-            IEnumerable<(int id, bool favorite)> tasksToUpdate)
+        public async Task UpdateFavoriteTasks(
+            IEnumerable<UpdateTaskDto> tasksToUpdate)
         {
             var currentUser = await _userContext.GetCurrentUser();
 
-            List<TaskResponseDto> response = new List<TaskResponseDto>();
             foreach (var task in tasksToUpdate)
             {
-                response.Add(await UpdateFavoriteTask(task.id, task.favorite, currentUser.Id));
+                await UpdateFavoriteTask(task, currentUser.Id);
             }
-
-            return response;
         }
 
-        private async Task<TaskResponseDto> UpdateFavoriteTask(int taskId, bool isTaskFavorited, int userId)
+        private async Task UpdateFavoriteTask(UpdateTaskDto task, int userId)
         {
-            var userHasFavorite = await _taskStorage.IsFavorite(taskId, userId);
+            var userHasFavorite = await _taskStorage.IsFavorite(task.Id, userId);
 
-            if (userHasFavorite && !isTaskFavorited)
+            if (userHasFavorite && !task.Favorite)
             {
-                await _taskStorage.RemoveFavoriteTask(taskId, userId);
+                await _taskStorage.RemoveFavoriteTask(task.Id, userId);
             }
-            else if (!userHasFavorite && isTaskFavorited)
+            else if (!userHasFavorite && task.Favorite)
             {
-                await _taskStorage.CreateFavoriteTask(taskId, userId);
+                await _taskStorage.CreateFavoriteTask(task.Id, userId);
             }
-
-            return await GetTaskForUser(taskId, userId);
+            await _taskStorage.ToggleCommentsOnFavoriteTask(task.Id, task.EnableComments, userId);
         }
 
         public async Task<Result<TaskDto>> CreateTask(TaskDto taskToBeCreated, int projectId)

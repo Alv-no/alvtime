@@ -9,7 +9,7 @@
 					{{ project.name }}
 				</p>
 				<p class="project-project">
-					{{ project.customer.name }}
+					{{ project.customerName }}
 				</p>
 			</div>
 			<div class="project-header-wrapper">
@@ -43,7 +43,7 @@ import { useTaskStore } from "@/stores/taskStore";
 const taskStore = useTaskStore();
 
 const toggleExpand = () => {
-	taskStore.toggleProjectExpandable(project.id);
+	taskStore.toggleProjectExpandable(`${project.name}-${project.customerName}`);
 };
 
 const { project } = defineProps<{

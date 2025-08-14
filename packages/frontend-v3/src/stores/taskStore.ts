@@ -12,12 +12,10 @@ export const useTaskStore = defineStore("task", () => {
 	const getTasks = async () => {
 		try {
 			console.time("Getting tasks");
-			const response = await taskService.getTasks();
+			const response = await taskService.getProjects();
 			console.timeEnd("Getting tasks");
 			if (response.status === 200) {
-				console.time("Mutating tasks");
-				projects.value = mutateTasks(response.data);
-				console.timeEnd("Mutating tasks");
+				projects.value = response.data as Project[];
 				const updatedTasks = getLocalProjects(projects.value);
 				if (!updatedTasks) {
 					setLocalProjects(projects.value ?? []);
@@ -36,39 +34,14 @@ export const useTaskStore = defineStore("task", () => {
 
 	const updateTasks = async (tasksToUpdate: Task[]) => {
 		await taskService.updateTasks(tasksToUpdate);
-		setLocalProjects(projects.value ?? []);
 	};
 
 	const toggleProjectExpandable = (projectId: string) => {
-		const project = projects.value?.find((p: Project) => p.id === projectId);
+		const project = projects.value?.find((p: Project) => `${p.name}-${p.customerName}` === projectId);
 		if (project) {
 			project.open = !project.open;
 		}
 		setLocalProjects(projects.value ?? []);
-	};
-
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const mutateTasks = (taskList: any[]) => {
-		const projectsMap = new Map<string, Project>();
-		const filteredTaskList = taskList.filter(task => !task.locked);
-
-		for (const task of filteredTaskList) {
-			const projectId = task.project.id;
-			const taskId = task.id;
-
-			if (!projectsMap.has(projectId)) {
-				projectsMap.set(projectId, { ...task.project, tasks: [], open: false });
-			}
-
-			const currentProject = projectsMap.get(projectId);
-			if (currentProject && !currentProject.tasks.some((t: Task) => t.id === taskId)) {
-				// eslint-disable-next-line @typescript-eslint/no-unused-vars
-				const { project, ...rest } = task;
-				currentProject.tasks.push(rest);
-			}
-		}
-
-		return Array.from(projectsMap.values());
 	};
 
 	const favoriteProjects = computed(() => {
@@ -76,7 +49,7 @@ export const useTaskStore = defineStore("task", () => {
 
 		return projects.value
 			.map((project: Project) => {
-				const favoriteTasks = project.tasks.filter((task: Task) => task.favorite);
+				const favoriteTasks = project.tasks.filter((task: Task) => task.favorite && !task.locked);
 				return favoriteTasks.length
 					? { ...project, tasks: favoriteTasks }
 					: null;
@@ -100,8 +73,8 @@ export const useTaskStore = defineStore("task", () => {
 					getFn: (project: Project) => project.tasks.map((task: Task) => task.name)
 				},
 				{
-					name: "customer.name",
-					getFn: (project: Project) => project.customer.name
+					name: "customerName",
+					getFn: (project: Project) => project.customerName
 				}
 			],
 			includeScore: true,

@@ -18,10 +18,13 @@ const loading = ref(true);
 onMounted(async () => {
 	const taskStore = useTaskStore();
 	const dateStore = useDateStore();
-	await dateStore.setActiveDate(new Date());
-	await taskStore.getTasks();
+	await Promise.all([
+		dateStore.setActiveDate(new Date()),
+		taskStore.getTasks()
+	]);
 	loading.value = false;
 });
+
 </script>
 
 <style scoped lang="scss">
