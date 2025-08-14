@@ -34,7 +34,6 @@ export const useTaskStore = defineStore("task", () => {
 
 	const updateTasks = async (tasksToUpdate: Task[]) => {
 		await taskService.updateTasks(tasksToUpdate);
-		setLocalProjects(projects.value ?? []);
 	};
 
 	const toggleProjectExpandable = (projectId: string) => {

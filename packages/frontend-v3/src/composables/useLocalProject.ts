@@ -3,10 +3,6 @@ import type { Project } from "@/types/ProjectTypes";
 const setLocalProjects = (value: Project[]): void => {
 	const localProjects = value.map(project => ({
 		id: `${project.name}-${project.customerName}`,
-		tasks: project.tasks.map(task => ({
-			id: task.id,
-			enableComments: task.enableComments,
-		})),
 		open: project.open
 	}));
 
@@ -26,15 +22,6 @@ const getLocalProjects = (projects: Project[]): Project[] | null => {
 
 				return {
 					...project,
-					tasks: project.tasks.map(task => {
-						const localTask = localProject?.tasks.find(lt => lt.id === task.id);
-
-						return {
-							...task,
-							id: task.id, // Ensure id is always present and non-undefined
-							enableComments: localTask?.enableComments ?? false
-						};
-					}),
 					open: localProject?.open ?? false
 				};
 			});
