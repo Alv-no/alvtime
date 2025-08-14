@@ -56,8 +56,8 @@ const totalHoursThisWeek = computed(() => {
 });
 
 onMounted(async () => {
-	await vacationStore.getVacationOverview();
-	await timeBankStore.getTimeBankOverview();
+	vacationStore.getVacationOverview();
+	timeBankStore.getTimeBankOverview();
 });
 </script>
 
