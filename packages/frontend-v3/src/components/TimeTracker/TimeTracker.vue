@@ -5,6 +5,13 @@
 				{{ getWeekNumberString(currentWeek[0]) }}
 			</div>
 			<div class="button-wrapper">
+				<button>
+					<HugeiconsIcon
+						:icon="SortByDown02Icon"
+						class="icon"
+						@click="sortProjects"
+					/>
+				</button>
 				<button
 					id="prev-button"
 					class="prev-button"
@@ -65,6 +72,7 @@
 				</div>
 			</swiper-slide>
 		</swiper-container>
+		<ProjectSorter v-if="taskStore.editingProjectOrder" />
 	</div>
 </template>
 
@@ -80,11 +88,17 @@ import type Swiper from "swiper";
 import DayPillStrip from "./DayPillStrip.vue";
 import TaskStrip from "./TaskStrip.vue";
 import type { Project } from "@/types/ProjectTypes";
+import ProjectSorter from "./ProjectSorter.vue";
+import { HugeiconsIcon } from "@hugeicons/vue";
+import { SortByDown02Icon } from "@hugeicons/core-free-icons";
+import { storeToRefs } from "pinia";
 
 const swiper = ref<Swiper | null>(null);
 const taskStore = useTaskStore();
 const dateStore = useDateStore();
 const timeEntriesStore = useTimeEntriesStore();
+
+const { editingProjectOrder } = storeToRefs(taskStore);
 
 const getWeekNumberString = (date: Date) => {
 	if(date.getFullYear() !== new Date().getFullYear()) {
@@ -108,6 +122,10 @@ const currentWeek = computed(() => {
 	}
 	return [];
 });
+
+const sortProjects = () => {
+	editingProjectOrder.value = true;
+};
 
 const allHoursInProjectThisWeek = (project: Project) => {
 	const taskIds = project.tasks.map((task) => task.id);

@@ -7,13 +7,12 @@ import Fuse from "fuse.js";
 
 export const useTaskStore = defineStore("task", () => {
 	const projects = ref<Project[] | null>(null);
+	const editingProjectOrder = ref<boolean>(false);
 	const filterQuery = ref<string>("");
 
 	const getTasks = async () => {
 		try {
-			console.time("Getting tasks");
 			const response = await taskService.getProjects();
-			console.timeEnd("Getting tasks");
 			if (response.status === 200) {
 				projects.value = response.data as Project[];
 				const updatedTasks = getLocalProjects(projects.value);
@@ -87,6 +86,7 @@ export const useTaskStore = defineStore("task", () => {
 
 	return {
 		projects,
+		editingProjectOrder,
 		filterQuery,
 		filteredProjects,
 		favoriteProjects,
