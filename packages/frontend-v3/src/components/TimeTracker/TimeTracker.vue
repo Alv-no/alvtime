@@ -8,7 +8,8 @@
 				<button>
 					<HugeiconsIcon
 						:icon="SortByDown02Icon"
-						class="icon"
+						class="sort-icon"
+						:size="16"
 						@click="sortProjects"
 					/>
 				</button>
@@ -47,7 +48,7 @@
 				>
 					<div class="project-list-wrapper">
 						<ProjectExpandable
-							v-for="project in taskStore.favoriteProjects"
+							v-for="project in favoriteProjects"
 							:key="`${project.name}-${project.customerName}`"
 							:project="project"
 						>
@@ -98,7 +99,7 @@ const taskStore = useTaskStore();
 const dateStore = useDateStore();
 const timeEntriesStore = useTimeEntriesStore();
 
-const { editingProjectOrder } = storeToRefs(taskStore);
+const { favoriteProjects, editingProjectOrder } = storeToRefs(taskStore);
 
 const getWeekNumberString = (date: Date) => {
 	if(date.getFullYear() !== new Date().getFullYear()) {
@@ -248,5 +249,10 @@ onMounted(() => {
 	background-color: rgb(206, 214, 194);
 	border-radius: 10px;
 	padding: 12px 12px 9px;
+}
+
+.sort-icon {
+	position: relative;
+	top: 4px;
 }
 </style>
