@@ -11,9 +11,17 @@ const routes: Array<RouteRecordRaw> = [
 		}
 	},
 	{
-		path: "/tasks",
+		path: "/aktiviteter",
 		name: "tasks",
 		component: () => import("@/views/TaskView.vue"),
+		meta: {
+			requiresAuth: true,
+		}
+	},
+	{
+		path: "/timebank",
+		name: "timebank",
+		component: () => import("@/views/TimeBankView.vue"),
 		meta: {
 			requiresAuth: true,
 		}

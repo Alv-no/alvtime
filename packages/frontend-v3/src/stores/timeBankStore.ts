@@ -16,9 +16,9 @@ type TimeBankEntry = {
 };
 
 const TransactionType = {
-	Overtime: 1,
-	Payout: 2,
-	Flex: 3,
+	Overtime: 0,
+	Payout: 1,
+	Flex: 2,
 } as const;
 type TransactionType = typeof TransactionType[keyof typeof TransactionType];
 
