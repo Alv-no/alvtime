@@ -1,9 +1,10 @@
 export type Project = {
-  id: string;
-  name: string;
-  customerName: string;
-  tasks: Task[];
-  open: boolean;
+	id: string;
+	name: string;
+	customerName: string;
+	tasks: Task[];
+	open: boolean;
+	index?: number;
 }
 
 export type Task = {

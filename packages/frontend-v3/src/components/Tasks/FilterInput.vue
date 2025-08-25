@@ -1,8 +1,15 @@
 <template>
 	<div class="search-wrapper">
-		<input v-model="filterQuery" placeholder="Søk i listen" />
+		<input
+			v-model="filterQuery"
+			placeholder="Søk i listen"
+		/>
 		<button>
-			<FeatherIcon name="x" :size="24" @click="clearQuery" />
+			<FeatherIcon
+				name="x"
+				:size="24"
+				@click="clearQuery"
+			/>
 		</button>
 	</div>
 </template>
@@ -39,7 +46,7 @@ const clearQuery = () => {
 		outline: none;
 		background-color: $secondary-color;
 		color: $primary-color;
-		padding: 4px 4px;
+		padding: 4px 6px;
 		border: none;
 
 		&:hover {
