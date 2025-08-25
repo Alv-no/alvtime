@@ -70,8 +70,6 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 			(entry) => entry.id === timeEntry.id
 		);
 
-		console.log("Existing queue index:", existingQueueIndex);
-
 		if(existingQueueIndex !== -1) {
 			// If the entry already exists in the queue, update it
 			timeEntryPushQueue.value[existingQueueIndex] = timeEntry;
@@ -80,8 +78,6 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 			// If the entry does not exist in the queue, add it
 			timeEntryPushQueue.value.push(timeEntry);
 		}
-
-		console.log("Time entry push queue:", timeEntryPushQueue.value);
 
 		pushQueue();
 	};
