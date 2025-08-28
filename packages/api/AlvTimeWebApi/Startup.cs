@@ -1,4 +1,3 @@
-using System.Reflection;
 using AlvTime.Business.Options;
 using AlvTime.Common.Configuration;
 using AlvTime.Persistence.DatabaseModels;
@@ -7,6 +6,7 @@ using AlvTimeWebApi.Authorization;
 using AlvTimeWebApi.Cors;
 using AlvTimeWebApi.ErrorHandling;
 using AlvTimeWebApi.Infrastructure;
+using AlvTimeWebApi.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -48,6 +48,7 @@ public class Startup
         services.AddOpenApi(o => o.AddDocumentTransformer<OpenApiSecuritySchemeTransformer>());
         services.AddRazorPages();
         services.AddAlvtimeCorsPolicys(Configuration);
+        services.ConfigureLogging();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
