@@ -9,5 +9,6 @@ namespace AlvTimeWebApi.Responses
         public decimal Hours { get; set; }
         public decimal CompensationRate { get; set; }
         public TimeEntryType Type { get; set; } = TimeEntryType.Overtime;
+        public bool? Active { get; set; }
     }
 }

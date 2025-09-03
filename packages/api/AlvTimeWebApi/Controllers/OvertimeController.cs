@@ -29,7 +29,8 @@ public class OvertimeController(TimeRegistrationService timeRegistrationService)
                 Date = entry.Date.ToDateOnly(),
                 Hours = entry.Hours,
                 CompensationRate = entry.CompensationRate,
-                Type = entry.Type
+                Type = entry.Type,
+                Active = entry.Active
             }).ToList()
         };
     }
