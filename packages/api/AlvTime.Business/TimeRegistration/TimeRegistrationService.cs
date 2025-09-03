@@ -522,12 +522,13 @@ public class TimeRegistrationService
 
         foreach (var payoutEntryGroup in payoutEntriesGroupedByDateAndRate)
         {
-            TimeEntry payoutEntry = new TimeEntry
+            var payoutEntry = new TimeEntry
             {
                 Hours = -payoutEntryGroup.Sum(po => po.HoursBeforeCompRate),
                 CompensationRate = payoutEntryGroup.Key.CompRate,
                 Date = payoutEntryGroup.Key.Date,
-                Type = TimeEntryType.Payout
+                Type = TimeEntryType.Payout,
+                Active = payoutEntryGroup.First().Active
             };
 
             overtimeEntries.Add(payoutEntry);
