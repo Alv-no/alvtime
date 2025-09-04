@@ -75,10 +75,20 @@ export const useTimeBankStore = defineStore("timeBank", () => {
 		}
 	};
 
+	const cancelTimeBankPayout = async (date: string) => {
+		try {
+			await timeBankService.deleteTimeBankPayout(date);
+			getTimeBankOverview();
+		} catch (error) {
+			console.error("Failed to cancel time bank payout:", error);
+		}
+	};
+
 	return {
 		timeBankOverview,
 		getTimeBankOverview,
 		timeBankHistory,
 		orderTimeBankPayout,
+		cancelTimeBankPayout,
 	};
 });
