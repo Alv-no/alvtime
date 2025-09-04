@@ -48,7 +48,7 @@ public class Startup
         services.AddOpenApi(o => o.AddDocumentTransformer<OpenApiSecuritySchemeTransformer>());
         services.AddRazorPages();
         services.AddAlvtimeCorsPolicys(Configuration);
-        services.ConfigureLogging();
+        services.ConfigureLogging(_environment);
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
