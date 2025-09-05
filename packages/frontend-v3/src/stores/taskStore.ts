@@ -15,7 +15,7 @@ export const useTaskStore = defineStore("task", () => {
 		try {
 			const response = await taskService.getProjects();
 			if (response.status === 200) {
-				projects.value = response.data as Project[];
+				projects.value = removeLockedTasksAndEmptyProjects(response.data as Project[]);
 
 				const updatedTasks = getLocalProjects(projects.value);
 				if (!updatedTasks) {
@@ -35,20 +35,30 @@ export const useTaskStore = defineStore("task", () => {
 		}
 	};
 
+	const removeLockedTasksAndEmptyProjects = (projectsList: Project[]) => {
+		return projectsList
+			.map((project) => {
+				const filteredTasks = project.tasks.filter((task) => !task.locked);
+				return { ...project, tasks: filteredTasks };
+			})
+			.filter((project) => project.tasks.length > 0);
+	};
+
 	const updateTasks = async (tasksToUpdate: Task[]) => {
 		await taskService.updateTasks(tasksToUpdate);
 	};
 
 	const toggleProjectExpandable = (projectId: string) => {
-		const project = favoriteProjects.value?.find((p: Project) => `${p.name}-${p.customerName}` === projectId);
+		const project = projects.value?.find((p: Project) => `${p.name}-${p.customerName}` === projectId);
 		if (project) {
 			project.open = !project.open;
 		}
-		setLocalProjects(favoriteProjects.value ?? []);
+		setLocalProjects(projects.value ?? []);
+		setFavoriteProjects();
 	};
 
 	const setFavoriteProjectsOrder = () => {
-		for (const [index, project] of favoriteProjects.value.entries()) {
+		for (const [index, project] of (favoriteProjects.value ?? []).entries()) {
 			project.index = index;
 		}
 
@@ -60,7 +70,7 @@ export const useTaskStore = defineStore("task", () => {
 
 		favoriteProjects.value = projects.value
 			.map((project: Project) => {
-				const favoriteTasks = project.tasks.filter((task: Task) => task.favorite && !task.locked);
+				const favoriteTasks = project.tasks.filter((task: Task) => task.favorite);
 				return favoriteTasks.length
 					? { ...project, tasks: favoriteTasks }
 					: null;

@@ -53,7 +53,7 @@ const { project } = defineProps<{
 
 <style scoped lang="scss">
 .project-container {
-	border: 1px solid rgb(206, 214, 194, 0.5);
+	border: 1px solid rgba(206, 214, 194, 0.5);
 	border-radius: 10px;
 }
 

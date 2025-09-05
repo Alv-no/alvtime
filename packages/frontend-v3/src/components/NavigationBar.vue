@@ -2,18 +2,29 @@
 	<div class="navigation-bar">
 		<div class="navigation-container">
 			<div class="menu-container">
-				<router-link to="/" tag="a" class="logo-link">
+				<router-link
+					to="/"
+					class="logo-link"
+				>
 					<img
 						class="logo"
 						src="@/assets/alv.svg"
-						
 					/>
 				</router-link>
-				<router-link to="/" tag="a">
+				<router-link
+					to="/"
+				>
 					Timeføring
 				</router-link>
-				<router-link to="/tasks" tag="a">
+				<router-link
+					to="/aktiviteter"
+				>
 					Aktiviteter
+				</router-link>
+				<router-link
+					to="/timebank"
+				>
+					Timebank
 				</router-link>
 			</div>
 			<div class="user-container">
