@@ -36,7 +36,7 @@ export const useTimeBankStore = defineStore("timeBank", () => {
 	};
 
 	const timeBankHistory = computed(() => {
-		const entries = timeBankOverview.value?.entries.filter(entry => entry.hours > 0) || [];
+		const entries = timeBankOverview.value?.entries.filter(entry => entry.hours !== 0) || [];
 		const history: { date: string; type: TransactionType; entries: TimeBankEntry[] }[] = [];
 
 		const grouped: Record<string, Record<TransactionType, TimeBankEntry[]>> = {};
