@@ -82,20 +82,24 @@ const today = computed(() => {
 		background-color: #f8d7da;
 		border-color: #f5c6cb;
 		color: #721c24;
-		font-size: 0.8rem;
 
 		&:hover {
 			font-size: 1rem;
 		}
 	}
 
-	&.is-complete {
-		outline: 1px solid $primary-color;
+	&.today {
+		outline: 3px solid $primary-color;
+		font-weight: 700;
 	}
 
-	&.today {
-		outline: 2px solid $primary-color;
-		font-weight: bold;
+	&.is-complete {
+		outline: 2px solid $secondary-color;
+
+		&.today {
+			outline: 3px solid $secondary-color;
+			font-weight: 700;
+		}
 	}
 }
 </style>

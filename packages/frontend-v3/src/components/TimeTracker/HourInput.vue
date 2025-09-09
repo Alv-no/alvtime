@@ -5,7 +5,7 @@
 			v-model="timeValue"
 			type="text"
 			class="form-control"
-			:class="{ weekend, 'is-complete': noTimeRemainingInWorkday }"
+			:class="{ weekend }"
 			@focus="onInputFocus"
 			@blur="onInputBlur"
 			@change="updateTimeEntry(timeValue)"
@@ -87,10 +87,6 @@ const onInputFocus = () => {
 	inputElement.select();
 };
 
-const noTimeRemainingInWorkday = computed(() => {
-	return timeEntriesStore.getRemainingTimeInWorkday(timeEntry.date) <= 0;
-});
-
 </script>
 
 <style lang="scss" scoped>
@@ -102,10 +98,6 @@ const noTimeRemainingInWorkday = computed(() => {
 
 		&.weekend {
 			background-color: #f0f0f0;
-		}
-
-		&.is-complete {
-			border: 1px solid $primary-color;
 		}
 	}
 }
