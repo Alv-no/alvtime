@@ -5,7 +5,7 @@
 			v-model="timeValue"
 			type="text"
 			class="form-control"
-			:class="{ 'has-value': timeEntry.value > 0 }"
+			:class="{ weekend }"
 			@focus="onInputFocus"
 			@blur="onInputBlur"
 			@change="updateTimeEntry(timeValue)"
@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { type TimeEntry } from "@/types/TimeEntryTypes";
 import { useTimeEntriesStore } from "@/stores/timeEntriesStore";
 import TrackRestOfDayButton from "./TrackRestOfDayButton.vue";
@@ -47,6 +47,11 @@ const { timeEntry, enableComments } = defineProps<{
 const comment = ref<string>(timeEntry.comment || "");
 
 const timeValue = ref<string>(timeEntry.value.toLocaleString("nb-NO"));
+
+const weekend = computed(() => {
+	const day = new Date(timeEntry.date).getDay();
+	return day === 0 || day === 6;
+});
 
 const updateTimeEntry = (timeValue: string) => {
 	if (timeValue) {
@@ -90,6 +95,10 @@ const onInputFocus = () => {
 
 	input {
 		text-align: center;
+
+		&.weekend {
+			background-color: #f0f0f0;
+		}
 	}
 }
 </style>

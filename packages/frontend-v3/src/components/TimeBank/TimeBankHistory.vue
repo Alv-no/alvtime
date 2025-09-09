@@ -2,6 +2,23 @@
 	<h2 class="title">
 		Timebankhistorikk
 	</h2>
+	<div class="time-bank-history-legend">
+		<div class="legend-item first">
+			<span>Dato</span>
+		</div>
+		<div class="legend-item">
+			<span>Type</span>
+		</div>
+		<div class="legend-item">
+			<span>Timer</span>
+		</div>
+		<div class="legend-item">
+			<span>Kompensasjonsrate</span>
+		</div>
+		<div class="legend-item">
+			<span>Faktisk verdi</span>
+		</div>
+	</div>
 	<div
 		v-if="timeBankHistory.length > 0"
 		class="history-container"
@@ -31,6 +48,24 @@ const { timeBankHistory } = storeToRefs(timeBankStore);
 <style lang="scss" scoped>
 .title {
 	margin-top: 2rem;
+}
+
+.time-bank-history-legend {
+	display: flex;
+	background-color: $background-color;
+	font-weight: 700;
+	text-align: center;
+	justify-content: space-between;
+
+	.legend-item {
+		padding: 1rem;
+		width: 100px;
+
+		&.first {
+			width: 150px;
+			text-align: left;
+		}
+	}
 }
 
 .history-container {

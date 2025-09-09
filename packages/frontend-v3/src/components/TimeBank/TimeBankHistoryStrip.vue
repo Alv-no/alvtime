@@ -23,21 +23,21 @@
 			<p>{{ transactionType }}</p>
 			<p>{{ `${totalHoursInTransaction} timer` }}</p>
 			<p>{{ compensationRate }}</p>
-		</div>
-		<div class="value-and-button">
-			<p class="last">
-				{{ actualValue }}
-			</p>
-			<button
-				v-if="isActive"
-				@click="cancelTimeBankPayout(timeBankTransaction.date)"
-			>
-				<FeatherIcon
-					class="icon"
-					name="trash"
-					:size="24"
-				/>
-			</button>
+			<div class="value-and-button">
+				<p class="last">
+					{{ actualValue }}
+				</p>
+				<button
+					v-if="isActive"
+					@click="cancelTimeBankPayout(timeBankTransaction.date)"
+				>
+					<FeatherIcon
+						class="icon"
+						name="trash"
+						:size="24"
+					/>
+				</button>
+			</div>
 		</div>
 	</div>
 	<div
@@ -56,8 +56,6 @@
 					<p />
 					<p>{{ `${transaction.hours} timer` }}</p>
 					<p>{{ `${transaction.compensationRate * 100}%` }}</p>
-				</div>
-				<div>
 					<p class="last">
 						{{ `${transaction.hours * (timeBankTransaction.type !== 2 ? transaction.compensationRate : 1)}` }}
 					</p>

@@ -4,6 +4,7 @@
 			<div class="week-number-container">
 				{{ getWeekNumberString(currentWeek[0]) }}
 			</div>
+			<div class="current-week-string"> {{ currentWeekString }} </div>
 			<div class="button-wrapper">
 				<button>
 					<HugeiconsIcon
@@ -124,6 +125,31 @@ const currentWeek = computed(() => {
 	return [];
 });
 
+const currentWeekString = computed(() => {
+	if (currentWeek.value.length === 7) {
+		const startDate = currentWeek.value[0];
+		const endDate = currentWeek.value[6];
+		const dayOptions: Intl.DateTimeFormatOptions = { day: "numeric" };
+		const monthOptions: Intl.DateTimeFormatOptions = { month: "long" };
+
+		if (startDate.getFullYear() !== endDate.getFullYear()) {
+			const startStr = startDate.toLocaleDateString("no-NO", { day: "numeric", month: "long", year: "numeric" });
+			const endStr = endDate.toLocaleDateString("no-NO", { day: "numeric", month: "long", year: "numeric" });
+			return `${startStr} til ${endStr}`;
+		} else if (startDate.getMonth() === endDate.getMonth()) {
+			const startDay = startDate.toLocaleDateString("no-NO", dayOptions);
+			const endDay = endDate.toLocaleDateString("no-NO", dayOptions);
+			const month = endDate.toLocaleDateString("no-NO", monthOptions);
+			return `${startDay} til ${endDay} ${month}`;
+		} else {
+			const startStr = startDate.toLocaleDateString("no-NO", { day: "numeric", month: "long" });
+			const endStr = endDate.toLocaleDateString("no-NO", { day: "numeric", month: "long" });
+			return `${startStr} til ${endStr}`;
+		}
+	}
+	return "";
+});
+
 const sortProjects = () => {
 	editingProjectOrder.value = true;
 };
@@ -192,6 +218,12 @@ onMounted(() => {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+
+	.current-week-string {
+		font-size: 14px;
+		font-weight: 500;
+		text-wrap: nowrap;
+	}
 }
 
 .week-number-container {
@@ -218,7 +250,6 @@ onMounted(() => {
 .button-wrapper {
 	display: flex;
 	justify-content: flex-end;
-	width: 100%;
 	gap: 8px;
 
 	button {
