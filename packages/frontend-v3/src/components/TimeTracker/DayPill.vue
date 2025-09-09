@@ -1,7 +1,7 @@
 <template>
 	<div
 		class="day-pill"
-		:class="{ holiday, weekend }"
+		:class="{ holiday, weekend, 'is-complete': noTimeRemainingInWorkday }"
 		@mouseover="isHovering = true"
 		@mouseleave="isHovering = false"
 	>
@@ -12,12 +12,15 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useDateStore } from "@/stores/dateStore";
+import { useTimeEntriesStore } from "@/stores/timeEntriesStore";
 import { dayOfWeek } from "@/utils/dateHelper";
 
 const isHovering = ref(false);
 
 const dateStore = useDateStore();
 const { holidays } = dateStore;
+
+const timeEntriesStore = useTimeEntriesStore();
 
 const { day } = defineProps<{
 	day: Date;
@@ -37,6 +40,12 @@ const holiday = computed(() => {
 
 const weekend = computed(() => {
 	return day.getDay() === 0 || day.getDay() === 6;
+});
+
+const noTimeRemainingInWorkday = computed(() => {
+	const timeZonedDate = new Date(day.getTime() - day.getTimezoneOffset() * 60000);
+	const dayStr = timeZonedDate.toISOString().split("T")[0];
+	return timeEntriesStore.getRemainingTimeInWorkday(dayStr) <= 0;
 });
 </script>
 
@@ -69,6 +78,10 @@ const weekend = computed(() => {
 		&:hover {
 			font-size: 1rem;
 		}
+	}
+
+	&.is-complete {
+		background-color: $secondary-color-light;
 	}
 }
 </style>
