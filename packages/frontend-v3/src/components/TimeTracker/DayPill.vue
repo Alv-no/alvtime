@@ -1,7 +1,7 @@
 <template>
 	<div
 		class="day-pill"
-		:class="{ 'holiday': holiday }"
+		:class="{ holiday, weekend }"
 		@mouseover="isHovering = true"
 		@mouseleave="isHovering = false"
 	>
@@ -34,6 +34,10 @@ const holiday = computed(() => {
 		return null;
 	}
 });
+
+const weekend = computed(() => {
+	return day.getDay() === 0 || day.getDay() === 6;
+});
 </script>
 
 <style scoped lang="scss">
@@ -51,6 +55,10 @@ const holiday = computed(() => {
 	text-align: center;
 	vertical-align: baseline;
 	font-size: 1rem;
+
+	&.weekend {
+		background-color: #f0f0f0;
+	}
 
 	&.holiday {
 		background-color: #f8d7da;
