@@ -22,5 +22,6 @@ const { week } = defineProps<{
 	justify-content: flex-end;
 	align-items: center;
 	gap: 1rem;
+	margin-top: .2rem;
 }
 </style>

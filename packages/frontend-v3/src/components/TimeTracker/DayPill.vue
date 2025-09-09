@@ -1,7 +1,7 @@
 <template>
 	<div
 		class="day-pill"
-		:class="{ holiday, weekend, 'is-complete': noTimeRemainingInWorkday }"
+		:class="{ holiday, weekend, 'is-complete': noTimeRemainingInWorkday, today }"
 		@mouseover="isHovering = true"
 		@mouseleave="isHovering = false"
 	>
@@ -47,6 +47,15 @@ const noTimeRemainingInWorkday = computed(() => {
 	const dayStr = timeZonedDate.toISOString().split("T")[0];
 	return timeEntriesStore.getRemainingTimeInWorkday(dayStr) <= 0;
 });
+
+const today = computed(() => {
+	const today = new Date();
+	return (
+		day.getDate() === today.getDate() &&
+		day.getMonth() === today.getMonth() &&
+		day.getFullYear() === today.getFullYear()
+	);
+});
 </script>
 
 <style scoped lang="scss">
@@ -82,6 +91,11 @@ const noTimeRemainingInWorkday = computed(() => {
 
 	&.is-complete {
 		background-color: $secondary-color-light;
+	}
+
+	&.today {
+		outline: 2px solid $primary-color;
+		font-weight: bold;
 	}
 }
 </style>
