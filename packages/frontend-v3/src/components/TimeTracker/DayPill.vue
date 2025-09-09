@@ -90,7 +90,7 @@ const today = computed(() => {
 	}
 
 	&.is-complete {
-		background-color: $secondary-color-light;
+		outline: 1px solid $primary-color;
 	}
 
 	&.today {

@@ -5,7 +5,7 @@
 			v-model="timeValue"
 			type="text"
 			class="form-control"
-			:class="{ 'has-value': timeEntry.value > 0, weekend, 'is-complete': noTimeRemainingInWorkday }"
+			:class="{ weekend, 'is-complete': noTimeRemainingInWorkday }"
 			@focus="onInputFocus"
 			@blur="onInputBlur"
 			@change="updateTimeEntry(timeValue)"
@@ -105,7 +105,7 @@ const noTimeRemainingInWorkday = computed(() => {
 		}
 
 		&.is-complete {
-			background-color: $secondary-color-light;
+			border: 1px solid $primary-color;
 		}
 	}
 }
