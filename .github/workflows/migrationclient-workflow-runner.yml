@@ -6,7 +6,7 @@ on:
         branches:
           - main
         paths:
-         - "packages/api/AlvTime.Persistence/**"
+         - "packages/api/AlvTime.Persistence/Migrations/**"
 jobs:
   build:
     runs-on: ubuntu-latest
