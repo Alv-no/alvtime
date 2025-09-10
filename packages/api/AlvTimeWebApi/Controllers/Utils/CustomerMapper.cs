@@ -20,6 +20,7 @@ public static class CustomerMapper
             ContactEmail = customer.ContactEmail,
             ContactPhone = customer.ContactPhone,
             OrgNr = customer.OrgNr,
+            ProjectCount = customer.ProjectCount,
             Projects = customer.Projects.Select(p => new ProjectAdminResponse
             {
                 Id = p.Id,
