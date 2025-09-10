@@ -2,34 +2,41 @@
 	<h2 class="title">
 		Timebankhistorikk
 	</h2>
-	<div class="time-bank-history-legend">
-		<div class="legend-item first">
-			<span>Dato</span>
+	<div v-if="timeBankHistory.length > 0">
+		<TimeBankPaginator
+			v-model:currentPage="currentPage"
+			:totalPages="timeBankHistory.length > 0 ? Math.ceil(timeBankHistory.length / 20) : 1"
+		/>
+		<div class="time-bank-history-legend">
+			<div class="legend-item first">
+				<span>Dato</span>
+			</div>
+			<div class="legend-item">
+				<span>Type</span>
+			</div>
+			<div class="legend-item">
+				<span>Timer</span>
+			</div>
+			<div class="legend-item">
+				<span>Kompensasjonsrate</span>
+			</div>
+			<div class="legend-item">
+				<span>Faktisk verdi</span>
+			</div>
 		</div>
-		<div class="legend-item">
-			<span>Type</span>
+		<div class="history-container">
+			<div
+				v-for="mainEntry in paginatedHistory"
+				:key="`${mainEntry.date}-${mainEntry.type}`"
+				class="history-entry"
+			>
+				<TimeBankHistoryStrip :timeBankTransaction="mainEntry" />
+			</div>
 		</div>
-		<div class="legend-item">
-			<span>Timer</span>
-		</div>
-		<div class="legend-item">
-			<span>Kompensasjonsrate</span>
-		</div>
-		<div class="legend-item">
-			<span>Faktisk verdi</span>
-		</div>
-	</div>
-	<div
-		v-if="timeBankHistory.length > 0"
-		class="history-container"
-	>
-		<div
-			v-for="mainEntry in timeBankHistory"
-			:key="`${mainEntry.date}-${mainEntry.type}`"
-			class="history-entry"
-		>
-			<TimeBankHistoryStrip :timeBankTransaction="mainEntry" />
-		</div>
+		<TimeBankPaginator
+			v-model:currentPage="currentPage"
+			:totalPages="timeBankHistory.length > 0 ? Math.ceil(timeBankHistory.length / 20) : 1"
+		/>
 	</div>
 	<div v-else>
 		<p>Ingen transaksjoner funnet.</p>
@@ -37,12 +44,21 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useTimeBankStore } from "@/stores/timeBankStore";
 import TimeBankHistoryStrip from "./TimeBankHistoryStrip.vue";
+import TimeBankPaginator from "./TimeBankPaginator.vue";
+
+const currentPage = ref(1);
 
 const timeBankStore = useTimeBankStore();
 const { timeBankHistory } = storeToRefs(timeBankStore);
+
+const paginatedHistory = computed(() => {
+	const start = (currentPage.value - 1) * 20;
+	return timeBankHistory.value.slice(start, start + 20);
+});
 </script>
 
 <style lang="scss" scoped>
