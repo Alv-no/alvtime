@@ -133,6 +133,10 @@ const currentWeekString = computed(() => {
 		const endDate = currentWeek.value[6];
 		const dayOptions: Intl.DateTimeFormatOptions = { day: "numeric" };
 		const monthOptions: Intl.DateTimeFormatOptions = { month: "long" };
+		const currentYear = new Date().getFullYear();
+
+		const showYearStart = startDate.getFullYear() !== currentYear;
+		const showYearEnd = endDate.getFullYear() !== currentYear;
 
 		if (startDate.getFullYear() !== endDate.getFullYear()) {
 			const startStr = startDate.toLocaleDateString("no-NO", { day: "numeric", month: "long", year: "numeric" });
@@ -142,10 +146,11 @@ const currentWeekString = computed(() => {
 			const startDay = startDate.toLocaleDateString("no-NO", dayOptions);
 			const endDay = endDate.toLocaleDateString("no-NO", dayOptions);
 			const month = endDate.toLocaleDateString("no-NO", monthOptions);
-			return `${startDay} til ${endDay} ${month}`;
+			const year = showYearEnd ? ` ${endDate.getFullYear()}` : "";
+			return `${startDay} til ${endDay} ${month}${year}`;
 		} else {
-			const startStr = startDate.toLocaleDateString("no-NO", { day: "numeric", month: "long" });
-			const endStr = endDate.toLocaleDateString("no-NO", { day: "numeric", month: "long" });
+			const startStr = startDate.toLocaleDateString("no-NO", { day: "numeric", month: "long" }) + (showYearStart ? ` ${startDate.getFullYear()}` : "");
+			const endStr = endDate.toLocaleDateString("no-NO", { day: "numeric", month: "long" }) + (showYearEnd ? ` ${endDate.getFullYear()}` : "");
 			return `${startStr} til ${endStr}`;
 		}
 	}
