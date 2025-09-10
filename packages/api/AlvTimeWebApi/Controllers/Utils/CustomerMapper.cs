@@ -47,21 +47,6 @@ public static class CustomerMapper
             })
         };
     }
-    
-    public static CustomerAdminResponse MapToCustomerAdminResponse(this CustomerAdminDto customer)
-    {
-        return new CustomerAdminResponse
-        {
-            Id = customer.Id,
-            Name = customer.Name,
-            InvoiceAddress = customer.InvoiceAddress,
-            ContactPerson = customer.ContactPerson,
-            ContactEmail = customer.ContactEmail,
-            ContactPhone = customer.ContactPhone,
-            OrgNr = customer.OrgNr,
-            ProjectCount = customer.ProjectCount
-        };
-    }
 
     public static CustomerDto MapToCustomerDto(this CustomerUpsertRequest customer, int? id)
     {

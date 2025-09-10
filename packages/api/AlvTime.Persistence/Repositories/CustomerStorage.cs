@@ -56,6 +56,7 @@ public class CustomerStorage : ICustomerStorage
                 ContactEmail = customer.ContactEmail,
                 ContactPhone = customer.ContactPhone,
                 OrgNr = customer.OrgNr,
+                ProjectCount = customer.Project.Count,
                 Projects = customer.Project.Select(p => new ProjectAdminDto
                 {
                     Id = p.Id,
@@ -103,18 +104,18 @@ public class CustomerStorage : ICustomerStorage
 
     public async Task<IEnumerable<CustomerAdminDto>> GetCustomersAdmin()
     {
-        return await _context.Customer
-            .Select(customer => new CustomerAdminDto
-            {
-                Id = customer.Id,
-                Name = customer.Name,
-                InvoiceAddress = customer.InvoiceAddress,
-                ContactPerson = customer.ContactPerson,
-                ContactEmail = customer.ContactEmail,
-                ContactPhone = customer.ContactPhone,
-                OrgNr = customer.OrgNr,
-                ProjectCount = customer.Project.Count
-            }).ToListAsync();
+        var customerIds = await _context.Customer.AsQueryable()
+            .Select(c => c.Id)
+            .ToListAsync();
+        
+        var response = new List<CustomerAdminDto>();
+
+        foreach (var customerId in customerIds)
+        {
+            response.Add(await GetCustomerDetailedById(customerId));;
+        }
+
+        return response;
     }
 
     private static decimal EnsureCompensationRate(IEnumerable<CompensationRate> compensationRate)
