@@ -4,7 +4,9 @@
 			<div class="week-number-container">
 				{{ getWeekNumberString(currentWeek[0]) }}
 			</div>
-			<div class="current-week-string"> {{ currentWeekString }} </div>
+			<div class="current-week-string">
+				{{ currentWeekString }}
+			</div>
 			<div class="button-wrapper">
 				<button>
 					<HugeiconsIcon
