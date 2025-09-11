@@ -33,7 +33,6 @@ const currentPeriod = computed(() => {
 	box-sizing: border-box;
 	background-color: $secondary-color-light;
 	height: 96px;
-	width: 128px;
 	padding: 10px;
 	border-radius: 10px;
 	display: flex;
