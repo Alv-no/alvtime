@@ -39,7 +39,7 @@ const { project } = defineProps<{
 	}
 
 	&:active {
-		background-color: darken($background-color, 5%);
+		background-color: color.scale($background-color, $lightness: 5%);
 	}
 
 	p {
