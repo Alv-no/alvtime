@@ -23,15 +23,26 @@ const TransactionType = {
 } as const;
 type TransactionType = typeof TransactionType[keyof typeof TransactionType];
 
+export type TimeBankError = {
+	status?: number;
+	title?: string;
+	type?: string;
+	errors?: any;
+};
+
 export const useTimeBankStore = defineStore("timeBank", () => {
 	const timeBankOverview = ref<TimeBankTransaction>();
+	const timeBankError = ref<TimeBankError>({});
 
 	const getTimeBankOverview = async () => {
+		timeBankError.value = {};
+
 		try {
 			const response = await timeBankService.getTimeBankOverview();
 			timeBankOverview.value = response.data;
-		} catch (error) {
-			console.error("Failed to fetch time bank overview:", error);
+		} catch (error: any) {
+			timeBankError.value = error?.response?.data as TimeBankError;
+			console.error("Failed to fetch time bank overview:", timeBankError.value.errors);
 		}
 	};
 
@@ -67,25 +78,32 @@ export const useTimeBankStore = defineStore("timeBank", () => {
 	});
 
 	const orderTimeBankPayout = async (hours: number) => {
+		timeBankError.value = {};
+
 		try {
 			await timeBankService.orderTimeBankPayout({ hours, date: new Date().toISOString().split("T")[0] });
 			getTimeBankOverview();
-		} catch (error) {
-			console.error("Failed to order time bank payout:", error);
+		} catch (error: any) {
+			timeBankError.value = error?.response?.data as TimeBankError;
+			console.error("Failed to order time bank payout:", timeBankError.value.errors);
 		}
 	};
 
 	const cancelTimeBankPayout = async (date: string) => {
+		timeBankError.value = {};
+
 		try {
 			await timeBankService.deleteTimeBankPayout(date);
 			getTimeBankOverview();
-		} catch (error) {
-			console.error("Failed to cancel time bank payout:", error);
+		} catch (error: any) {
+			timeBankError.value = error?.response?.data as TimeBankError;
+			console.error("Failed to cancel time bank payout:", timeBankError.value.errors);
 		}
 	};
 
 	return {
 		timeBankOverview,
+		timeBankError,
 		getTimeBankOverview,
 		timeBankHistory,
 		orderTimeBankPayout,
