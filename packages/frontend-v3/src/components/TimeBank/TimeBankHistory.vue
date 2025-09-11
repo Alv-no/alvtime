@@ -97,11 +97,11 @@ const paginatedHistory = computed(() => {
 	background-color: $background-color;
 
 	&:nth-child(odd) {
-		background-color: lighten($background-color, 2%);
+		background-color: color.scale($background-color, $lightness: 10%);
 	}
 
 	&:hover {
-		background: darken($background-color, 2%);
+		background-color: color.scale($background-color, $lightness: -5%);
 	}
 }
 
@@ -110,4 +110,3 @@ p {
 	text-align: center;
 }
 </style>
- 
