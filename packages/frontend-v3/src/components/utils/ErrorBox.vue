@@ -29,7 +29,7 @@ const close = () => {
 	background-color: #f8d7da;
 	border: 1px solid #f5c6cb;
 	border-radius: 15px;
-	padding: 12px 16px;
+	padding: 24px 24px;
 	margin: 16px auto;
 	max-width: 600px;
 	color: #721c24;

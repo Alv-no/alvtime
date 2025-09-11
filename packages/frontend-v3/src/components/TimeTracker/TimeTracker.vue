@@ -77,6 +77,7 @@
 			</swiper-slide>
 		</swiper-container>
 		<ProjectSorter v-if="taskStore.editingProjectOrder" />
+		<TimeTrackerError />
 	</div>
 </template>
 
@@ -96,6 +97,7 @@ import ProjectSorter from "./ProjectSorter.vue";
 import { HugeiconsIcon } from "@hugeicons/vue";
 import { SortByDown02Icon } from "@hugeicons/core-free-icons";
 import { storeToRefs } from "pinia";
+import TimeTrackerError from "./TimeTrackerError.vue";
 
 const swiper = ref<Swiper | null>(null);
 const taskStore = useTaskStore();
