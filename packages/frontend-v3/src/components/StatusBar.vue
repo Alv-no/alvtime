@@ -22,6 +22,9 @@
 				</div>
 			</div>
 		</div>
+		<div class="column-box">
+			<InvoiceRateVisualizer />
+		</div>
 	</div>
 </template>
 
@@ -34,6 +37,7 @@ import { useTimeEntriesStore } from "@/stores/timeEntriesStore";
 import { storeToRefs } from "pinia";
 import { HugeiconsIcon } from "@hugeicons/vue";
 import { MoneyBag02Icon, BeachIcon, Calendar03Icon } from "@hugeicons/core-free-icons";
+import InvoiceRateVisualizer from "./utils/InvoiceRateVisualizer.vue";
 
 const vacationStore = useVacationStore();
 const { vacation } = storeToRefs(vacationStore);
@@ -67,7 +71,7 @@ onMounted(async () => {
 		border-radius: 15px;
 		width: 100%;
 		display: flex;
-		justify-content: flex-start;
+		justify-content: space-between;
 		align-items: flex-start;
 
 		.column-box {

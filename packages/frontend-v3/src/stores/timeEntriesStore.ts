@@ -18,6 +18,7 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 	const timeEntriesMap = ref<TimeEntryMap>({});
 	const timeEntryPushQueue = ref<TimeEntry[]>([]);
 	const loadingTimeEntries = ref<boolean>(false);
+	const invoiceRate = ref<number>(0);
 	const timeEntryError = ref<TimeEntryError>();
 
 	const vacationStore = useVacationStore();
@@ -27,6 +28,7 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 	const getTimeEntries = async (params: {fromDateInclusive: Date, toDateInclusive: Date}) => {
 		loadingTimeEntries.value = true;
 		const response = await timeService.getTimeEntries(params);
+		getInvoiceRate();
 		if (response.status === 200) {
 			updateTimeEntries(response.data.map(createTimeEntry));
 		} else {
@@ -52,6 +54,7 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 				updateTimeEntries(response.data.map(createTimeEntry));
 				timeBankStore.getTimeBankOverview();
 				vacationStore.getVacationOverview();
+				getInvoiceRate();
 			} else {
 				console.error("Failed to update time entries:", response.statusText);
 			}
@@ -169,5 +172,5 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 		return timeTrackedForDate > 7.5 ? 0 : 7.5 - timeTrackedForDate;
 	};
 
-	return { timeEntries, timeEntryError, timeEntryPushQueue, getTimeEntries, updateTimeEntry, getRemainingTimeInWorkday };
+	return { timeEntries, timeEntryPushQueue, getTimeEntries, updateTimeEntry, getRemainingTimeInWorkday };
 });
