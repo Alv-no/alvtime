@@ -35,13 +35,11 @@ export default defineConfig({
 	build: {
 		rollupOptions: {
 			output: {
-				manualChunks(id) {
-					if (id.includes('node_modules')) {
-						if (id.includes('swiper')) {
-							return 'swiper'; // Separate chunk for Swiper library
-						}
-						return 'vendor'; // All other node_modules in vendor chunk
-					}
+				manualChunks: {
+					vue: ['vue', 'vue-router', 'pinia'],
+					swiper: ['swiper'],
+					utils: ['axios', 'date-easter', 'fuse.js', 'sortablejs-vue3', 'feather-icons', '@hugeicons/core-free-icons', '@hugeicons/vue'],
+					msal: ['@azure/msal-browser']
 				}
 			}
 		}	
