@@ -31,5 +31,19 @@ export default defineConfig({
 				additionalData: `@use "sass:color"; @use "@/assets/scss/global.scss"; @use "@/assets/scss/variables" as *;`
 			}
 		}
+	},
+	build: {
+		rollupOptions: {
+			output: {
+				manualChunks(id) {
+					if (id.includes('node_modules')) {
+						if (id.includes('swiper')) {
+							return 'swiper'; // Separate chunk for Swiper library
+						}
+						return 'vendor'; // All other node_modules in vendor chunk
+					}
+				}
+			}
+		}	
 	}
 });
