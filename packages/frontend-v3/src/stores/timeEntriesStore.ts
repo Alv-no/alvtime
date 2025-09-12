@@ -172,5 +172,14 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 		return timeTrackedForDate > 7.5 ? 0 : 7.5 - timeTrackedForDate;
 	};
 
-	return { timeEntries, timeEntryPushQueue, getTimeEntries, updateTimeEntry, getRemainingTimeInWorkday };
+	const getInvoiceRate = async () => {
+		const response = await timeService.getInvoiceRate();
+		if (response.status === 200) {
+			invoiceRate.value = Math.round(response.data * 1000) / 10;
+		} else {
+			console.error("Failed to fetch invoice rate:", response.statusText);
+		}
+	};
+
+	return { timeEntries, timeEntryError, invoiceRate, timeEntryPushQueue, getTimeEntries, updateTimeEntry, getRemainingTimeInWorkday };
 });
