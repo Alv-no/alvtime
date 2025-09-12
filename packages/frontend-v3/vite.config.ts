@@ -28,8 +28,20 @@ export default defineConfig({
 	css: {
 		preprocessorOptions: {
 			scss: {
-				additionalData: `@import "@/assets/scss/global.scss";`
+				additionalData: `@use "sass:color"; @use "@/assets/scss/global.scss"; @use "@/assets/scss/variables" as *;`
 			}
 		}
+	},
+	build: {
+		rollupOptions: {
+			output: {
+				manualChunks: {
+					vue: ['vue', 'vue-router', 'pinia'],
+					swiper: ['swiper'],
+					utils: ['axios', 'date-easter', 'fuse.js', 'sortablejs-vue3', 'feather-icons', '@hugeicons/core-free-icons', '@hugeicons/vue'],
+					msal: ['@azure/msal-browser']
+				}
+			}
+		}	
 	}
 });

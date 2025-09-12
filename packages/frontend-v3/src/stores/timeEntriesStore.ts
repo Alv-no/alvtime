@@ -6,12 +6,20 @@ import { debounce } from "@/utils/generalHelpers";
 import { useVacationStore } from "./vacationStore";
 import { useTimeBankStore } from "./timeBankStore";
 
+export type TimeEntryError = {
+	status?: number;
+	title?: string;
+	type?: string;
+	errors?: any;
+};
+
 export const useTimeEntriesStore = defineStore("timeEntries", () => {
 	const timeEntries = ref<TimeEntry[]>([]);
 	const timeEntriesMap = ref<TimeEntryMap>({});
 	const timeEntryPushQueue = ref<TimeEntry[]>([]);
 	const loadingTimeEntries = ref<boolean>(false);
 	const invoiceRate = ref<number>(0);
+	const timeEntryError = ref<TimeEntryError>();
 
 	const vacationStore = useVacationStore();
 	const timeBankStore = useTimeBankStore();
@@ -31,6 +39,7 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 
 	// Debounced function to push time entries to the service
 	const pushTimeEntryQueue = async () => {
+		timeEntryError.value = {};
 		if (timeEntryPushQueue.value.length === 0) {
 			return;
 		}
@@ -49,8 +58,11 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 			} else {
 				console.error("Failed to update time entries:", response.statusText);
 			}
-		} catch (error) {
+		} catch (error: any) {
+			timeEntryError.value = error?.response?.data as TimeEntryError;
 			console.error("Error updating time entries:", error);
+			// TODO: This should be called to "reset" the entries that failed to be sent.
+			getTimeEntries({ fromDateInclusive: new Date(), toDateInclusive: new Date() });
 		}
 	};
 
@@ -160,13 +172,5 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 		return timeTrackedForDate > 7.5 ? 0 : 7.5 - timeTrackedForDate;
 	};
 
-	const getInvoiceRate = async () => {
-		const response = await timeService.getInvoiceRate();
-		if (response.status === 200) {
-			invoiceRate.value = Math.round(response.data * 1000) / 10;
-		} else {
-			console.error("Failed to fetch invoice rate:", response.statusText);
-		}
-	};
-	return { timeEntries, invoiceRate, timeEntryPushQueue, getTimeEntries, updateTimeEntry, getRemainingTimeInWorkday };
+	return { timeEntries, timeEntryPushQueue, getTimeEntries, updateTimeEntry, getRemainingTimeInWorkday };
 });

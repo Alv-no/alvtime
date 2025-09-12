@@ -7,6 +7,9 @@
 		<SectionedBar :sections="overtimeSections" />
 		<TimeBankPayoutForm />
 	</template>
+	<ErrorBox v-if="timeBankError.status" :closable="true" @close="timeBankError = {}">
+		<p>{{ timeBankError.errors?.InvalidAction[0] || timeBankError.errors }}</p>
+	</ErrorBox>
 	<TimeBankHistory />
 </template>
 
@@ -17,11 +20,12 @@ import SectionedBar from "./SectionedBar.vue";
 import { useTimeBankStore } from "@/stores/timeBankStore";
 import TimeBankPayoutForm from "./TimeBankPayoutForm.vue";
 import TimeBankHistory from "./TimeBankHistory.vue";
+import ErrorBox from "../utils/ErrorBox.vue";
 
 const loading = ref<boolean>(true);
 
 const timeBankStore = useTimeBankStore();
-const { timeBankOverview } = storeToRefs(timeBankStore);
+const { timeBankOverview, timeBankError } = storeToRefs(timeBankStore);
 
 const overtimeSections = computed(() => {
 	const unspentOverTime = {
@@ -70,10 +74,5 @@ onMounted(async () => {
 h2 {
 	margin-top: 32px;
 	margin-bottom: 8px;
-}
-
-p {
-	margin: 2rem;
-	text-align: center;
 }
 </style>
