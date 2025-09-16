@@ -40,6 +40,12 @@
 				placeholder="Skriv inn årslønn"
 			/>
 		</div>
+		<button
+			class="button"
+			@click="settingsModalOpen = false"
+		>
+			Lagre og lukk
+		</button>
 	</ModalComponent>
 </template>
 
@@ -165,6 +171,22 @@ onMounted(async () => {
 		border-radius: 4px;
 		font-size: 16px;
 		width: 90%;;
+	}
+}
+
+.button {
+	background-color: $secondary-color;
+	color: $primary-color;
+	border-radius: 25px;
+	border: none;
+	padding: 13px 24px 13px 24px;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: 600;
+
+	&:hover {
+		background-color: $secondary-color-light;
+		color: $primary-color;
 	}
 }
 </style>
