@@ -1,5 +1,16 @@
 <template v-if="!loading">
-	<h2>Overtidstimer</h2>
+	<div class="header-flex-container">
+		<h2>Overtidstimer</h2>
+		<button @click="settingsModalOpen = true">
+			<FeatherIcon
+				name="settings"
+				:size="18"
+			/>
+		</button>
+		<span v-if="timeBankSalary && timeBankSalary > 0">
+			Kroneverdi timebank: {{ timeBankValue }}
+		</span>
+	</div>
 	<div v-if="noOvertime">
 		<p>Du har ingen overtidstimer i timebanken.</p>
 	</div>
@@ -7,10 +18,29 @@
 		<SectionedBar :sections="overtimeSections" />
 		<TimeBankPayoutForm />
 	</template>
-	<ErrorBox v-if="timeBankError.status" :closable="true" @close="timeBankError = {}">
+	<ErrorBox
+		v-if="timeBankError.status"
+		:closable="true"
+		@close="timeBankError = {}"
+	>
 		<p>{{ timeBankError.errors?.InvalidAction[0] || timeBankError.errors }}</p>
 	</ErrorBox>
 	<TimeBankHistory />
+	<ModalComponent
+		v-if="settingsModalOpen"
+		title="Innstillinger for timebank"
+		@close="() => { settingsModalOpen = false; }"
+	>
+		<div class="input-group">
+			<label for="salary-input">Årslønn (lagres kun lokalt og brukes til å beregne og visualisere verdi av timebank)</label>
+			<input
+				id="salary-input"
+				v-model="salary"
+				type="number"
+				placeholder="Skriv inn årslønn"
+			/>
+		</div>
+	</ModalComponent>
 </template>
 
 <script setup lang="ts">
@@ -21,11 +51,33 @@ import { useTimeBankStore } from "@/stores/timeBankStore";
 import TimeBankPayoutForm from "./TimeBankPayoutForm.vue";
 import TimeBankHistory from "./TimeBankHistory.vue";
 import ErrorBox from "../utils/ErrorBox.vue";
+import FeatherIcon from "@/components/utils/FeatherIcon.vue";
+import ModalComponent from "../utils/ModalComponent.vue";
 
 const loading = ref<boolean>(true);
+const settingsModalOpen = ref<boolean>(false);
 
 const timeBankStore = useTimeBankStore();
-const { timeBankOverview, timeBankError } = storeToRefs(timeBankStore);
+const { timeBankOverview, timeBankError, timeBankSalary } = storeToRefs(timeBankStore);
+
+const salary = computed({
+	get: () => timeBankSalary.value,
+	set: (value: number) => {
+		timeBankStore.setTimeBankSalary(value || null);
+	}
+});
+
+const hourlyRate = computed(() => {
+	if (!timeBankSalary.value) return 0;
+	return timeBankSalary.value / 1950; // Assuming 1950 working hours per year
+});
+
+const timeBankValue = computed(() => {
+	if (!timeBankOverview.value) return "0";
+	const totalHours = timeBankOverview.value.entries.reduce((acc, entry) => acc + (entry.hours * entry.compensationRate), 0);
+	const value = Math.floor(totalHours * hourlyRate.value);
+	return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + ",-";
+});
 
 const overtimeSections = computed(() => {
 	const unspentOverTime = {
@@ -71,8 +123,48 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="scss">
-h2 {
-	margin-top: 32px;
-	margin-bottom: 8px;
+.header-flex-container {
+	display: flex;
+	align-items: baseline;
+	justify-content: flex-start;
+	gap: 8px;
+
+	.header-title {
+		display: flex;
+		align-items: baseline;
+		gap: 8px;
+	}
+
+	h2 {
+		margin-top: 32px;
+		margin-bottom: 8px;
+	}
+
+	button {
+		position: relative;
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 0;
+	}
+}
+
+.input-group {
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 16px;
+
+	label {
+		font-weight: 600;
+		margin-bottom: 8px;
+	}
+
+	input {
+		padding: 8px;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		font-size: 16px;
+		width: 90%;;
+	}
 }
 </style>
