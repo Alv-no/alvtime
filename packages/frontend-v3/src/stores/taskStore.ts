@@ -1,4 +1,4 @@
-import { getLocalProjects, setLocalProjects } from "@/composables/useLocalProject";
+import { getLocalProjects, setLocalProjects } from "@/composables/useLocalStorage";
 import taskService from "@/services/taskService";
 import type { Project, Task } from "@/types/ProjectTypes";
 import { defineStore } from "pinia";

@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { timeBankService } from "@/services/timeBankService";
+import { setLocalSalary, getLocalSalary } from "@/composables/useLocalStorage";
 
 type TimeBankTransaction = {
 	availableHoursBeforeCompensation: number;
@@ -33,6 +35,7 @@ export type TimeBankError = {
 export const useTimeBankStore = defineStore("timeBank", () => {
 	const timeBankOverview = ref<TimeBankTransaction>();
 	const timeBankError = ref<TimeBankError>({});
+	const timeBankSalary = ref<number | null>(null);
 
 	const getTimeBankOverview = async () => {
 		timeBankError.value = {};
@@ -40,9 +43,24 @@ export const useTimeBankStore = defineStore("timeBank", () => {
 		try {
 			const response = await timeBankService.getTimeBankOverview();
 			timeBankOverview.value = response.data;
+			getTimeBankSalary();
 		} catch (error: any) {
 			timeBankError.value = error?.response?.data as TimeBankError;
 			console.error("Failed to fetch time bank overview:", timeBankError.value.errors);
+		}
+	};
+
+	const setTimeBankSalary = (salary: number | null) => {
+		timeBankSalary.value = salary;
+		setLocalSalary(salary);
+	};
+
+	const getTimeBankSalary = () => {
+		if (timeBankSalary.value === null) {
+			const localSalary = getLocalSalary();
+			if (localSalary !== null) {
+				timeBankSalary.value = localSalary;
+			}
 		}
 	};
 
@@ -106,6 +124,8 @@ export const useTimeBankStore = defineStore("timeBank", () => {
 		timeBankError,
 		getTimeBankOverview,
 		timeBankHistory,
+		timeBankSalary,
+		setTimeBankSalary,
 		orderTimeBankPayout,
 		cancelTimeBankPayout,
 	};
