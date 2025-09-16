@@ -101,7 +101,7 @@ const overtimeSections = computed(() => {
 			color: "yellow",
 		},
 		{
-			title: "Pålagt",
+			title: "Interntid",
 			amount: unspentOverTime.mandatory,
 			color: "blue",
 		},
