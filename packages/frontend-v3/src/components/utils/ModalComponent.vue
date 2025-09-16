@@ -1,5 +1,8 @@
 <template>
-	<div class="modal-overlay">
+	<div
+		class="modal-overlay"
+		@click="handleOverlayClick"
+	>
 		<div class="modal-content">
 			<div class="modal-content-header">
 				<h2>{{ title }}</h2>
@@ -17,8 +20,9 @@
 
 <script setup lang="ts">
 import FeatherIcon from "@/components/utils/FeatherIcon.vue";
-const { title = "" } = defineProps<{
+const { title = "", clickOutsideToClose } = defineProps<{
 	title?: string;
+	clickOutsideToClose?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -28,6 +32,13 @@ const emit = defineEmits<{
 const close = () => {
 	emit("close");
 };
+
+const handleOverlayClick = (event: MouseEvent) => {
+	if (clickOutsideToClose && event.target === event.currentTarget) {
+		close();
+	}
+};
+
 </script>
 
 <style scoped lang="scss">
