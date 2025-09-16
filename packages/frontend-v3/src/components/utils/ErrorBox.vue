@@ -1,14 +1,23 @@
 <template>
 	<div class="error-box-container">
 		<slot />
-		<button class="close-button" v-if="closable" aria-label="Close" type="button" @click="close">
-			<FeatherIcon v-if="closable" name="x" />
+		<button
+			v-if="closable"
+			class="close-button"
+			aria-label="Close"
+			type="button"
+			@click="close"
+		>
+			<FeatherIcon
+				v-if="closable"
+				name="x"
+			/>
 		</button>
 	</div>
 </template>
 
 <script setup lang="ts">
-import FeatherIcon from './FeatherIcon.vue';
+import FeatherIcon from "@/components/utils/FeatherIcon.vue";
 
 const { closable } = defineProps<{
 	closable?: boolean

@@ -11,7 +11,6 @@ const setLocalProjects = (value: Project[]): void => {
 };
 
 const getLocalProjects = (projects: Project[]): Project[] | null => {
-	// TODO: Map localStorage items to Project type
 	const key = "projects";
 	const item = localStorage.getItem(key);
 	if (item) {
@@ -35,7 +34,26 @@ const getLocalProjects = (projects: Project[]): Project[] | null => {
 	return null;
 };
 
+const setLocalSalary = (value: number | null): void => {
+	if (value === null) {
+		localStorage.removeItem("salary");
+		return;
+	}
+	
+	localStorage.setItem("salary", value.toString());
+};
+
+const getLocalSalary = (): number | null => {
+	const item = localStorage.getItem("salary");
+	if (item) {
+		return parseFloat(item);
+	}
+	return null;
+};
+
 export {
 	setLocalProjects,
 	getLocalProjects,
+	setLocalSalary,
+	getLocalSalary,
 };
