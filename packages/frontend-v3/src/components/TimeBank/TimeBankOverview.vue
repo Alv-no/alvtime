@@ -29,7 +29,7 @@
 	<ModalComponent
 		v-if="settingsModalOpen"
 		title="Innstillinger for timebank"
-		:click-outside-to-close="true"
+		:clickOutsideToClose="true"
 		@close="() => { settingsModalOpen = false; }"
 	>
 		<div class="input-group">
