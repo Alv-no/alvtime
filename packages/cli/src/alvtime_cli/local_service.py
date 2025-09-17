@@ -4,7 +4,7 @@ from datetime import datetime, date, timedelta
 from alvtime_cli import config, model
 from alvtime_cli.repo import Repo
 from alvtime_cli.alvtime_client import AlvtimeClient
-from alvtime_cli.utils import group_by
+from alvtime_cli.utils import group_by, iterate_dates
 
 
 class TaskAlreadyStartedError(Exception):
@@ -242,3 +242,72 @@ class LocalService:
         result.pushed_time_entries += len(to_push)
 
         return result
+
+    def get_expected_durations(self, from_: date, to: date) -> dict[date, float]:
+        ret = {}
+
+        # Fetch bank holidays
+        bank_holidays = self.alvtime_client.list_bank_holidays(from_.year, to.year)
+
+        # Iterate over desired date range
+        for current_date in iterate_dates(from_, to):
+            expected_hours = timedelta(hours=7, minutes=30)
+
+            # Is it weekend?
+            if current_date.isoweekday() >= 6:
+                expected_hours = timedelta()
+
+            # Or is it a bank holiday?
+            elif current_date in bank_holidays:
+                expected_hours = timedelta()
+
+            ret[current_date] = expected_hours
+
+        return ret
+
+    def get_total_registered_duration_by_date(self, from_: date, to: date, rounding=False) -> dict[date, timedelta]:
+        # Check if we're already started
+        if self.current_entry():
+            raise TaskAlreadyStartedError()
+
+        ret = {}
+
+        # Get all local entries, grouped by date
+        local_entries = group_by(self.repo.list_time_entries(from_, to),
+                                 lambda e: e.start.date())
+
+        # Iterate over desired date range
+        for current_date in iterate_dates(from_, to):
+            # Find local hours
+            entries = local_entries.get(current_date, [])
+            duration = sum((e.duration for e in entries), timedelta())
+
+            # Round if requestd
+            if rounding:
+                duration = self.round_duration(duration)
+
+            ret[current_date] = duration
+
+        return ret
+
+    def check(self, from_: date, to: date) -> list[model.CheckResult]:
+        ret = []
+        expected_hours = self.get_expected_durations(from_, to)
+        registered_hours = self.get_total_registered_duration_by_date(from_, to, rounding=True)
+
+        # Iterate over desired date range
+        for current_date in iterate_dates(from_, to):
+            status = model.CheckResult(
+                    date=current_date,
+                    result_type=model.CheckResultType.ok,
+                    registered_duration=registered_hours[current_date])
+
+            # Check if enough hours has been registered
+            if registered_hours[current_date] < expected_hours[current_date]:
+                status.result_type = model.CheckResultType.warning
+                expected = expected_hours[current_date].total_seconds() / 3600
+                status.message = f"Not enough hours (expecting {expected:.1f})"
+
+            ret.append(status)
+
+        return ret

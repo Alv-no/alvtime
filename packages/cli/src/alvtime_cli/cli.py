@@ -1,5 +1,5 @@
 import click
-from .commands import completion, log, ping, pull, restart, start, status, stop, sync
+from .commands import check, completion, log, ping, pull, restart, start, status, stop, sync
 from .commands.config import group as config_group
 from .commands.tasks import group as tasks_group
 from .commands.alias import group as alias_group
@@ -28,6 +28,7 @@ def main(ctx: click.Context, config_filename):
     ctx.obj = service
 
 
+main.add_command(check.check)
 main.add_command(completion.completion)
 main.add_command(log.log)
 main.add_command(ping.ping)

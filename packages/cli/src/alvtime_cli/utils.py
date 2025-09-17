@@ -1,4 +1,5 @@
 from collections import defaultdict
+from datetime import timedelta
 from functools import partial, wraps
 from requests import HTTPError, ConnectionError
 import arrow
@@ -40,7 +41,9 @@ COLOR_MAP = {
      "rate":     {"fg": "white", "dim": True},
      "name":     {"fg": "magenta"},
      "time":     {"fg": "green"},
+     "date":     {"fg": "white", "dim": True},
      "comment":  {"fg": "white", "dim": True},
+     "warning":  {"fg": "yellow"},
 }
 FALLBACK_COLORS = {}
 
@@ -92,9 +95,32 @@ def style_task(task: model.Task, with_id=False) -> str:
     return "".join(ret)
 
 
+def style_check_result(check_result: model.CheckResult, column_delimiter="  ") -> str:
+    ret = []
+    ret.append(style(check_result.date.isoformat(), "date"))
+    hours = check_result.registered_duration.total_seconds() / 3600
+    ret.append(column_delimiter)
+    ret.append(style(f"{hours:.1f} hours", "time"))
+    ret.append(column_delimiter)
+    if check_result.result_type == model.CheckResultType.ok:
+        ret.append(style(check_result.message, "ok"))
+    elif check_result.result_type == model.CheckResultType.warning:
+        ret.append(style(check_result.message, "warning"))
+    elif check_result.result_type == model.CheckResultType.error:
+        ret.append(style(check_result.message, "error"))
+    return ''.join(ret)
+
+
 def group_by(items, predicate):
     grouped = defaultdict(list)
     for item in items:
         key = predicate(item)
         grouped[key].append(item)
     return dict(grouped)
+
+
+def iterate_dates(start_date, end_date):
+    current = start_date
+    while current <= end_date:
+        yield current
+        current += timedelta(days=1)
