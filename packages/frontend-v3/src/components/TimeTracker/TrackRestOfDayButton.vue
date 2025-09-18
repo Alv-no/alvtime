@@ -11,8 +11,6 @@
 import { defineProps, defineEmits, onMounted, ref } from "vue";
 import { useTimeEntriesStore } from "@/stores/timeEntriesStore";
 
-// TODO: Use this to calculate the remaining time in the workday based on all tasks.
-
 const timeLeftInWorkday = ref<number>(0);
 const timeEntriesStore = useTimeEntriesStore();
 
