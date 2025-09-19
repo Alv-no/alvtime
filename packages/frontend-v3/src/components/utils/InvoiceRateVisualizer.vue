@@ -22,7 +22,7 @@ const { invoiceRate } = storeToRefs(timeEntriesStore);
 
 const currentPeriod = computed(() => {
 	const now = new Date();
-	const month = now.toLocaleString("default", { month: "short" });
+	const month = now.toLocaleString("nb-NO", { month: "short" });
 	const year = now.getFullYear() - 2000;
 	return `${month} '${year}`;
 });
