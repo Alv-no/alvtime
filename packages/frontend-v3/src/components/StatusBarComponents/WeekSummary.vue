@@ -1,7 +1,7 @@
 <template>
 	<div
 		class="week-summary"
-		@mouseover="hovering = true"
+		@mouseenter="hovering = true"
 		@mouseleave="hovering = false"
 	>
 		<div class="icon-wrapper">
@@ -11,6 +11,7 @@
 			/> {{ totalHoursThisWeek }}/37,5
 		</div>
 		<div
+			id="expander"
 			class="expander"
 			:class="{ visible: hovering }"
 		>
@@ -25,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { HugeiconsIcon } from "@hugeicons/vue";
 import { Calendar03Icon } from "@hugeicons/core-free-icons";
 
@@ -35,6 +36,21 @@ const { totalHoursThisWeek, totalHoursEachDayThisWeek } = defineProps<{
 	totalHoursThisWeek: number;
 	totalHoursEachDayThisWeek: { date: Date, hours: number }[];
 }>();
+
+const toggleExpander = () => {
+	const expander = document.getElementById("expander");
+	if (hovering.value) {
+		expander?.classList.add("visible");
+		expander?.style.setProperty("width", expander?.scrollWidth + "px");
+	} else {
+		expander?.classList.remove("visible");
+		expander?.style.setProperty("width", "0");
+	}
+};
+
+watch(hovering, () => {
+	toggleExpander();
+});
 </script>
 
 <style scoped lang="scss">
@@ -63,10 +79,6 @@ const { totalHoursThisWeek, totalHoursEachDayThisWeek } = defineProps<{
 	width: 0;
 	overflow: hidden;
 	transition: width .5s ease;
-
-	&.visible {
-		width: calc-size(auto, size);
-	}
 
 	div {
 		flex-grow: 1;

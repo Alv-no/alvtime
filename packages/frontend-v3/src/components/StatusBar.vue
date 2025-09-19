@@ -104,7 +104,6 @@ onMounted(async () => {
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			min-width: 90px;
 			border-radius: 10px;
 			padding: 12px 12px 8px;
 			background-color: rgb(206 214 194);
