@@ -8,5 +8,6 @@ public class ProjectResponseDtoV2
     public int Id { get; set; }
     public string Name { get; set; }
     public string CustomerName { get; set; }
+    public int Index { get; set; }
     public IEnumerable<TaskResponseDtoV2> Tasks { get; set; }
 }

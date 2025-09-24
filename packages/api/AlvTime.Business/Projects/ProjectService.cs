@@ -11,7 +11,8 @@ public class ProjectService(IProjectStorage projectStorage, IUserContext userCon
     {
         var currentUser = await userContext.GetCurrentUser();
         var projects = await projectStorage.GetProjectsWithTasks(criteria, currentUser.Id);
-        return new Result<IEnumerable<ProjectResponseDtoV2>>(projects);
+        var orderedProjects = projects.OrderBy(p => p.Index).ThenBy(p => p.Name);
+        return new Result<IEnumerable<ProjectResponseDtoV2>>(orderedProjects);
     }
     
     public async Task<Result<ProjectDto>> CreateProject(string projectName, int customerId)
@@ -30,6 +31,12 @@ public class ProjectService(IProjectStorage projectStorage, IUserContext userCon
     {
         await projectStorage.UpdateProject(projectToUpdate);
         return (await GetProjectById(projectToUpdate.Id)).SingleOrDefault();
+    }
+
+    public async Task UpdateProjectFavorites(IEnumerable<ProjectFavoriteDto> projectFavorites)
+    {
+        var user = await userContext.GetCurrentUser();
+        await projectStorage.UpdateProjectFavorites(projectFavorites, user.Id);
     }
 
     private async Task<IEnumerable<ProjectDto>> GetProject(string projectName, int customerId)

@@ -9,6 +9,7 @@ public interface IProjectStorage
     Task<IEnumerable<ProjectResponseDtoV2>> GetProjectsWithTasks(ProjectQuerySearch criteria, int userId);
     Task UpdateProject(ProjectDto request);
     Task CreateProject(string projectName, int customerId);
+    Task UpdateProjectFavorites(IEnumerable<ProjectFavoriteDto> projectFavorites, int userId);
 
 }
 
