@@ -41,6 +41,7 @@ public class ProjectStorage : IProjectStorage
             .ThenInclude(t => t.CompensationRate)
             .Select(p => new ProjectResponseDtoV2
             {
+                Id = p.Id,
                 Name = p.Name,
                 CustomerName = p.CustomerNavigation.Name,
                 Tasks = p.Task.Select(t => new TaskResponseDtoV2

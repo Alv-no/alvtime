@@ -34,6 +34,7 @@ namespace AlvTime.Persistence.DatabaseModels
         public virtual ICollection<EmploymentRate> EmploymentRate { get; set; }
         public virtual ICollection<Hours> Hours { get; set; }
         public virtual ICollection<PaidOvertime> PaidOvertime { get; set; }
+        public virtual ICollection<ProjectFavorites> ProjectFavorites { get; set; }
         public virtual ICollection<RegisteredFlex> RegisteredFlex { get; set; }
         public virtual ICollection<TaskFavorites> TaskFavorites { get; set; }
         public virtual ICollection<VacationDaysEarnedOverride> VacationDaysEarnedOverride { get; set; }
