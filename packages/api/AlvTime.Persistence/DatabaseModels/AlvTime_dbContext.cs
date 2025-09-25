@@ -26,6 +26,7 @@ namespace AlvTime.Persistence.DatabaseModels
         public virtual DbSet<Hours> Hours { get; set; }
         public virtual DbSet<PaidOvertime> PaidOvertime { get; set; }
         public virtual DbSet<Project> Project { get; set; }
+        public virtual DbSet<ProjectFavorites> ProjectFavorite { get; set; }
         public virtual DbSet<RegisteredFlex> RegisteredFlex { get; set; }
         public virtual DbSet<Task> Task { get; set; }
         public virtual DbSet<TaskFavorites> TaskFavorites { get; set; }
@@ -204,6 +205,23 @@ namespace AlvTime.Persistence.DatabaseModels
                     .HasForeignKey(d => d.Customer)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Project_Customer");
+            });
+            
+            modelBuilder.Entity<ProjectFavorites>(entity =>
+            {
+                entity.HasOne(d => d.Project)
+                    .WithMany(p => p.ProjectFavorites)
+                    .HasForeignKey(d => d.ProjectId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ProjectFavorites_Project");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.ProjectFavorites)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ProjectFavorites_User");
+
+                entity.HasIndex(e => new { e.UserId, e.ProjectId }).IsUnique();
             });
 
             modelBuilder.Entity<RegisteredFlex>(entity =>

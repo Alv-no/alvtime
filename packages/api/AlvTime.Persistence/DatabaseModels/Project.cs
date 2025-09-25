@@ -16,5 +16,6 @@ namespace AlvTime.Persistence.DatabaseModels
 
         public virtual Customer CustomerNavigation { get; set; }
         public virtual ICollection<Task> Task { get; set; }
+        public virtual ICollection<ProjectFavorites> ProjectFavorites { get; set; }
     }
 }

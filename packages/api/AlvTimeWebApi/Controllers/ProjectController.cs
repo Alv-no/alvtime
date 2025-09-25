@@ -20,4 +20,11 @@ public class ProjectController(ProjectService projectService) : ControllerBase
             projects => Ok(projects),
             errors => BadRequest(errors.ToValidationProblemDetails("Hent prosjekter feilet med følgende feil")));
     }
+
+    [HttpPut("user/project/favorites")]
+    public async Task<ActionResult> UpdateProjectFavorites(IEnumerable<ProjectFavoriteDto> projectFavorites)
+    {
+        await projectService.UpdateProjectFavorites(projectFavorites);
+        return NoContent();
+    }
 }
