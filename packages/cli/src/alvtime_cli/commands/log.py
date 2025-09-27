@@ -6,15 +6,8 @@ import click
 from alvtime_cli.utils import group_by
 from alvtime_cli.param_types import DateParam
 from alvtime_cli.local_service import LocalService
-from alvtime_cli.utils import style_time_entry, style_task
+from alvtime_cli.utils import style_time_entry, style_task, iterate_dates
 from alvtime_cli import model
-
-
-def _iterate_dates(start_date, end_date):
-    current = start_date
-    while current <= end_date:
-        yield current
-        current += timedelta(days=1)
 
 
 def _set_duration_for_open_entry(entry: model.TimeEntry) -> model.TimeEntry:
@@ -44,7 +37,7 @@ def log(ctx, from_: date, to: date, details: DetailLevel):
                       service.get_entries(from_, to))
     entries_by_date = group_by(all_entries,
                                lambda e: e.start.date())
-    for current_date in _iterate_dates(from_, to):
+    for current_date in iterate_dates(from_, to):
         entries = entries_by_date.get(current_date, [])
         total = sum((e.duration for e in entries), timedelta())
 

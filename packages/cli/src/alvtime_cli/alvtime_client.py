@@ -65,3 +65,15 @@ class AlvtimeClient:
                                  json=body)
         response.raise_for_status()
         return response.json()
+
+    def list_bank_holidays(self, fromYear, toYear):
+        pat = config.get(config.Keys.personal_access_token, "")
+        headers = {"Authorization": f"Bearer {pat}"}
+        params = {"fromYearInclusive": str(fromYear),
+                  "toYearInclusive": str(toYear)}
+        response = requests.get(f"{self.base_url}/api/Holidays/Years",
+                                headers=headers,
+                                params=params)
+        response.raise_for_status()
+
+        return list(date.fromisoformat(dateString) for dateString in response.json())

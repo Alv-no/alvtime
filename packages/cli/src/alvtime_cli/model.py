@@ -1,5 +1,6 @@
+from enum import Enum
 from pydantic import BaseModel
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 
 class Customer(BaseModel):
@@ -35,3 +36,16 @@ class TimeEntry(BaseModel):
     comment: str | None = None
     is_changed: bool = False
     task: Task | None = None
+
+
+class CheckResultType(str, Enum):
+    ok = "ok"
+    warning = "warning"
+    error = "error"
+
+
+class CheckResult(BaseModel):
+    date: date
+    result_type: CheckResultType
+    registered_duration: timedelta
+    message: str = ""
