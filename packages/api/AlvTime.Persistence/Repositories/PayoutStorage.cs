@@ -110,9 +110,10 @@ public class PayoutStorage : IPayoutStorage
 
     public async Task<List<PayoutDto>> GetActivePayouts(int userId)
     {
+        var cutoffDate = FindClosestPreviousCutoffDate();
+        
         var allActivePayouts = await _context.PaidOvertime
-            .Where(p => p.Date.Month >= dateAlvTime.Now.Month &&
-                        p.Date.Year == dateAlvTime.Now.Year &&
+            .Where(p => p.Date.Date >= cutoffDate &&
                         p.User == userId).ToListAsync();
 
         return allActivePayouts.Select(po => new PayoutDto
