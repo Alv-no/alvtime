@@ -12,9 +12,9 @@
         Class="align-self-center ma-4"
         Color="Color.Secondary"
         Style="width: 80px; height: 80px; ">
-        @if (AvatarImageUrl is not null)
+        @if (ProfilePicture is not null)
         {
-            // Add image stuff
+            <img src="data:image/jpeg;base64,@ProfilePicture" alt="@($"Profile picture of {Name}")" style="width: 100%; height: 100%; object-fit: cover;"/>
         }
         else if (AvatarIconUrl is not null)
         {
@@ -57,7 +57,7 @@
     [Parameter] public RenderFragment? CustomerCardAvatarImage { get; set; }
     [Parameter] public EventCallback OnActionPress { get; set; }
     [Parameter] public string ActionLabel { get; set; } = "";
-    [Parameter] public string? AvatarImageUrl { get; set; }
+    [Parameter] public string? ProfilePicture { get; set; }
     [Parameter] public string? AvatarIconUrl { get; set; }
     [Parameter] public string? Name { get; set; }
     

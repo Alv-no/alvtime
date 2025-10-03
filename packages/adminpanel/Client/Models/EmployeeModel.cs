@@ -9,6 +9,7 @@ public class EmployeeModel
     public DateTime? EndDate { get; set; }
     public int EmployeeId { get; set; }
     public bool ShowDetails { get; set; }
+    public string ProfilePicture { get; set; }
     public IList<EmployeeEmploymentRateModel>? EmploymentRates { get; set; }
 }
 

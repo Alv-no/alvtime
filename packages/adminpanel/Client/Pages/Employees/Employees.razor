@@ -43,6 +43,7 @@
                 {
                     <EmployeeCard
                         ActionLabel="@Localizer["Common.NavigateTo"]"
+                        ProfilePicture="@employee.ProfilePicture"
                         OnActionPress="@(() => Navigation.NavigateTo($"/ansatte/{employee.Id}"))"
                         Name="@employee.Name"/>
                 }
