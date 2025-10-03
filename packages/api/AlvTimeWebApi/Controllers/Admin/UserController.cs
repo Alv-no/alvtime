@@ -24,9 +24,20 @@ public class UserController(UserService userService, GraphService graphService) 
     public async Task<ActionResult<IEnumerable<UserAdminResponse>>> FetchUsers()
     {
         var result = await userService.GetUsers(new UserQuerySearch());
-        return result.Match<ActionResult<IEnumerable<UserAdminResponse>>>(
-            users => Ok(users.Select(u => u.MapToUserResponse())),
-            errors => BadRequest(errors.ToValidationProblemDetails("Hent brukere feilet")));
+
+        if (!result.IsSuccess) return BadRequest(result.Errors.ToValidationProblemDetails("Hent brukere feilet"));
+        
+        var userResponses = new List<UserAdminResponse>();
+        var users = result.Value;
+
+        foreach (var user in users)
+        {
+            var response = user.MapToUserResponse();
+            response.ProfilePicture = await graphService.GetProfilePictureBase64(user.Oid, user.Email);
+            userResponses.Add(response);
+        }
+
+        return Ok(userResponses);
     }
     
     [HttpPost("Users")]
@@ -43,7 +54,11 @@ public class UserController(UserService userService, GraphService graphService) 
     public async Task<ActionResult<UserAdminResponse>> GetUserById(int userId)
     {
         var result = await userService.GetUserById(userId);
-        return result is not null ? Ok(result.MapToUserResponse()) : NotFound();
+        if (result is null) return NotFound();
+        
+        var response = result.MapToUserResponse();
+        response.ProfilePicture = await graphService.GetProfilePictureBase64(result.Oid, result.Email);
+        return response;
     }
 
     [HttpPut("Users/{userId:int}")]

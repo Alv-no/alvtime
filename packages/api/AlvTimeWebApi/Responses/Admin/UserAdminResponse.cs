@@ -10,6 +10,7 @@ public class UserAdminResponse
     public string StartDate { get; set; }
     public string EndDate { get; set; }
     public int? EmployeeId { get; set; }
+    public string ProfilePicture { get; set; }
     public IEnumerable<UserEmploymentRateAdminResponse> EmploymentRates { get; set; }
 }
 
