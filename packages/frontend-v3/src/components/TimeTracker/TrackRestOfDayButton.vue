@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, defineEmits, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useTimeEntriesStore } from "@/stores/timeEntriesStore";
 
 const timeLeftInWorkday = ref<number>(0);

@@ -36,7 +36,6 @@
 
 <script setup lang="ts">
 import FeatherIcon from "../utils/FeatherIcon.vue";
-import { defineProps } from "vue";
 import { type Project } from "@/types/ProjectTypes";
 import { useTaskStore } from "@/stores/taskStore";
 
