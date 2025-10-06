@@ -8,31 +8,34 @@
 				{{ currentWeekString }}
 			</div>
 			<div class="button-wrapper">
-				<button>
+				<AlvtimeButton
+					@click="sortProjects"
+				>
 					<HugeiconsIcon
 						:icon="SortByDown02Icon"
 						class="sort-icon"
 						:size="16"
-						@click="sortProjects"
 					/>
-				</button>
-				<button
+				</AlvtimeButton>
+				<AlvtimeButton
 					id="prev-button"
-					class="prev-button"
+					iconLeft
 					@click="prevSlide"
 				>
 					<FeatherIcon name="chevron-left" /> Tilbake
-				</button>
-				<button @click="goToCurrentWeek">
+				</AlvtimeButton>
+				<AlvtimeButton
+					@click="goToCurrentWeek"
+				>
 					I dag
-				</button>
-				<button
+				</AlvtimeButton>
+				<AlvtimeButton
 					id="next-button"
-					class="next-button"
+					iconRight
 					@click="nextSlide"
 				>
 					Fremover <FeatherIcon name="chevron-right" />
-				</button>
+				</AlvtimeButton>
 			</div>
 		</div>
 		<swiper-container
@@ -98,6 +101,7 @@ import { HugeiconsIcon } from "@hugeicons/vue";
 import { SortByDown02Icon } from "@hugeicons/core-free-icons";
 import { storeToRefs } from "pinia";
 import TimeTrackerError from "./TimeTrackerError.vue";
+import AlvtimeButton from "../utils/AlvtimeButton.vue";
 
 const swiper = ref<Swiper | null>(null);
 const taskStore = useTaskStore();
@@ -227,6 +231,8 @@ onMounted(() => {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	flex-wrap: wrap;
+	gap: 12px;
 
 	.current-week-string {
 		font-size: 14px;
@@ -261,7 +267,7 @@ onMounted(() => {
 	justify-content: flex-end;
 	gap: 8px;
 
-	button {
+	/* button {
 		border: none;
 		cursor: pointer;
 		background-color: $secondary-color;
@@ -282,7 +288,7 @@ onMounted(() => {
 		&.prev-button {
 			padding: 9px 16px 12px 12px;
 		}
-	}
+	} */
 }
 
 .project-stats {
