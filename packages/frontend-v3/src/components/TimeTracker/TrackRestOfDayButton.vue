@@ -43,5 +43,12 @@ button {
 	z-index: 5;
 	position: absolute;
 	left: -60px;
+
+	@media screen and (max-width: 768px) {
+		left: -40px;
+		top: -4px;
+		padding: 5px 10px;
+		font-size: 0.75rem;
+	}
 }
 </style>
