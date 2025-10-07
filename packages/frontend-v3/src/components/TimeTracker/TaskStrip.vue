@@ -36,6 +36,11 @@ const compensationRateInPercentage = computed(() => {
 	flex-wrap: wrap;
 
 	@media screen and (max-width: 768px) {
+		.task-description {
+			font-size: 1rem;
+			font-weight: 600;
+			margin-top: .5rem;
+		}
 		.task-week {
 			width: 100%;
 			margin-top: 0.5rem;

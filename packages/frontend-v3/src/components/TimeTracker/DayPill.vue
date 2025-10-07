@@ -95,7 +95,6 @@ const today = computed(() => {
 			height: auto;
 			font-size: 0.75rem;
 			font-weight: 600;
-			padding: 5px 2px 3px 2px;
 		}
 
 		@media screen and (min-width: 769px) {
@@ -124,7 +123,7 @@ const today = computed(() => {
 		height: auto;
 		font-size: 0.75rem;
 		font-weight: 600;
-		padding: 5px 2px 3px 2px;
+		padding: 8px 2px 6px 2px;
 	}
 }
 </style>
