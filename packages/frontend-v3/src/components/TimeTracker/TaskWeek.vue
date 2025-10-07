@@ -66,5 +66,10 @@ const { task, week } = defineProps<{
 	flex-direction: row;
 	align-items: center;
 	gap: 1rem;
+
+	@media screen and (max-width: 768px) {
+		gap: 0.5rem;
+		justify-content: space-between;
+	}
 }
 </style>

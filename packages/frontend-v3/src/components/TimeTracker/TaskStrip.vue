@@ -4,6 +4,7 @@
 			{{ task.name }} - {{ compensationRateInPercentage }}
 		</div>
 		<TaskWeek
+			class="task-week"
 			:task="task"
 			:week="week"
 		/>
@@ -32,5 +33,13 @@ const compensationRateInPercentage = computed(() => {
 	align-items: center;
 	border-radius: 5px;
 	font-size: 1.2rem;
+	flex-wrap: wrap;
+
+	@media screen and (max-width: 768px) {
+		.task-week {
+			width: 100%;
+			margin-top: 0.5rem;
+		}
+	}
 }
 </style>

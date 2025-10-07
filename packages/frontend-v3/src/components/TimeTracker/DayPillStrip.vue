@@ -23,5 +23,10 @@ const { week } = defineProps<{
 	align-items: center;
 	gap: 1rem;
 	margin-top: .2rem;
+
+	@media screen and (max-width: 768px) {
+		gap: .5rem;
+		justify-content: space-between;
+	}
 }
 </style>

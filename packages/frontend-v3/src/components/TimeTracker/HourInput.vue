@@ -99,6 +99,13 @@ const onInputFocus = () => {
 		&.weekend {
 			background-color: #f0f0f0;
 		}
+
+		@media screen and (max-width: 768px) {
+			width: 1.5rem;
+			padding: 0.25rem;
+			font-size: 0.75rem;
+			font-weight: 600;
+		}
 	}
 }
 </style>

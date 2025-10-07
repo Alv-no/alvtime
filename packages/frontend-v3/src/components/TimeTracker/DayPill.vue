@@ -101,5 +101,13 @@ const today = computed(() => {
 			font-weight: 700;
 		}
 	}
+
+	@media screen and (max-width: 768px) {
+		width: auto;
+		height: auto;
+		font-size: 0.75rem;
+		font-weight: 600;
+		padding: 4px 2px 3px 2px;
+	}
 }
 </style>
