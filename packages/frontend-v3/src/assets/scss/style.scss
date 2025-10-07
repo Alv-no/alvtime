@@ -1,3 +1,7 @@
+* {
+	box-sizing: border-box;
+}
+
 html, body {
 	margin: 0;
 	padding: 0;
@@ -7,7 +11,6 @@ html, body {
   	font-style: normal;
 	color: $primary-color;
 	background-color: $primary-color;
-	box-sizing: border-box;
 	overflow-x: hidden;
 }
 

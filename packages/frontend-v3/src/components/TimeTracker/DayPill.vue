@@ -107,6 +107,10 @@ const today = computed(() => {
 	&.today {
 		outline: 3px solid $primary-color;
 		font-weight: 700;
+
+		@media screen and (max-width: 768px) {
+			outline: 2px solid $primary-color;
+		}
 	}
 
 	&.is-complete {
@@ -116,10 +120,18 @@ const today = computed(() => {
 			outline: 3px solid $secondary-color;
 			font-weight: 700;
 		}
+
+		@media screen and (max-width: 768px) {
+			outline: 1px solid $secondary-color;
+
+			&.today {
+				outline: 2px solid $secondary-color;
+			}
+		}
 	}
 
 	@media screen and (max-width: 768px) {
-		width: 40px;
+		width: 36px;
 		height: auto;
 		font-size: 0.75rem;
 		font-weight: 600;
