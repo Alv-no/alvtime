@@ -79,7 +79,9 @@ const today = computed(() => {
 	height: 24px;
 	text-align: center;
 	vertical-align: baseline;
-	font-size: .9rem;
+	font-size: 1rem;
+	font-weight: 500;
+	text-wrap: nowrap;
 
 	&.weekend {
 		background-color: #f0f0f0;
