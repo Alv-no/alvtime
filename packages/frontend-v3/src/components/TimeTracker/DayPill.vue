@@ -74,14 +74,13 @@ const today = computed(() => {
 	border: 1px solid #ccc;
 	background-color: rgb(250, 245, 235);
 	transition: border-color 0.3s ease;
-	padding: 8px 8px 4px 8px;
-	width: 48px;
-	height: 24px;
+	padding: 8px 2px 4px 2px;
+	width: 64px;
+	height: 32px;
 	text-align: center;
 	vertical-align: baseline;
 	font-size: 1rem;
 	font-weight: 500;
-	text-wrap: nowrap;
 
 	&.weekend {
 		background-color: #f0f0f0;
@@ -91,6 +90,7 @@ const today = computed(() => {
 		background-color: #f8d7da;
 		border-color: #f5c6cb;
 		color: #721c24;
+		font-size: 0.8rem;
 
 		@media screen and (max-width: 768px) {
 			width: 40px;
