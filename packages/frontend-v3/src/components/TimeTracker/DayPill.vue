@@ -131,11 +131,11 @@ const today = computed(() => {
 	}
 
 	@media screen and (max-width: 768px) {
-		width: 36px;
+		width: 40px;
 		height: auto;
-		font-size: 0.75rem;
+		font-size: 0.70rem;
 		font-weight: 600;
-		padding: 8px 2px 6px 2px;
+		padding: 8px 1px 6px 1px;
 	}
 }
 </style>

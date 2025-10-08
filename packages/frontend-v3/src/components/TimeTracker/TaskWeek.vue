@@ -68,7 +68,7 @@ const { task, week } = defineProps<{
 	gap: 1rem;
 
 	@media screen and (max-width: 768px) {
-		gap: initial;
+		gap: unset;
 		justify-content: space-between;
 	}
 }

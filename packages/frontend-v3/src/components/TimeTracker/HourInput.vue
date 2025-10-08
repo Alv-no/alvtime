@@ -101,11 +101,11 @@ const onInputFocus = () => {
 		}
 
 		@media screen and (max-width: 768px) {
-			width: 36px;
-			height: 20px;
-			padding: 5px 2px 3px 2px;
+			width: 40px;
+			height: 30px;
+			padding: 4px 2px 3px 2px;
 			margin: 0;
-			font-size: 0.75rem;
+			font-size: .8rem;
 			font-weight: 600;
 		}
 	}
