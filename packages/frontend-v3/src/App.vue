@@ -21,9 +21,7 @@ import NavigationBar from "./components/NavigationBar.vue";
 		margin-bottom: 20px;
 		padding: 16px;
 		background-color: $background-color;
-		height: 100%;
 		border-radius: 25px;
-		min-height: 70vh;
 	}
 }
 </style>

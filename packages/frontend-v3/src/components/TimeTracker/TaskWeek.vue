@@ -11,7 +11,7 @@
 
 <script lang="ts" setup>
 import { storeToRefs } from "pinia";
-import { defineProps, computed } from "vue";
+import { computed } from "vue";
 import { type Task } from "@/types/ProjectTypes";
 import HourInput from "./HourInput.vue";
 import { useTimeEntriesStore } from "@/stores/timeEntriesStore";
@@ -66,5 +66,10 @@ const { task, week } = defineProps<{
 	flex-direction: row;
 	align-items: center;
 	gap: 1rem;
+
+	@media screen and (max-width: 768px) {
+		gap: initial;
+		justify-content: space-between;
+	}
 }
 </style>

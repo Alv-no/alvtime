@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, defineEmits, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useTimeEntriesStore } from "@/stores/timeEntriesStore";
 
 const timeLeftInWorkday = ref<number>(0);
@@ -43,5 +43,12 @@ button {
 	z-index: 5;
 	position: absolute;
 	left: -60px;
+
+	@media screen and (max-width: 768px) {
+		left: -40px;
+		top: -4px;
+		padding: 5px 10px;
+		font-size: 0.75rem;
+	}
 }
 </style>

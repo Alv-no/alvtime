@@ -53,4 +53,5 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.STATICWEBAPP_V3_DEPLOYMENT_TOKEN }}
+          app_location: "./packages/frontend-v3" # App source code path
           action: "close"

@@ -66,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, computed, ref } from "vue";
+import { computed, ref } from "vue";
 import { type TimeBankEntry } from "@/stores/timeBankStore";
 import FeatherIcon from "../utils/FeatherIcon.vue";
 import { useTimeBankStore } from "@/stores/timeBankStore";

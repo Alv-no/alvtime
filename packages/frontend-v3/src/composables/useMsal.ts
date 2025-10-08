@@ -31,5 +31,5 @@ export function useMsal(): MsalContext {
 		instance: instance.value,
 		accounts,
 		inProgress
-	}
+	};
 }
