@@ -95,6 +95,7 @@ const onInputFocus = () => {
 
 	input {
 		text-align: center;
+		width: 64px;
 
 		&.weekend {
 			background-color: #f0f0f0;
