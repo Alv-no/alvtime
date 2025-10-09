@@ -11,6 +11,7 @@ import { computed } from "vue";
 import { useTimeEntriesStore } from "@/stores/timeEntriesStore";
 import { storeToRefs } from "pinia";
 import type { Project } from "@/types/ProjectTypes";
+import { adjustTimeOfDay } from "@/utils/dateHelper";
 
 const timeEntriesStore = useTimeEntriesStore();
 
@@ -30,7 +31,7 @@ const allHoursInProjectThisWeek = computed(() => {
 	const totalHoursProjectThisWeek = filteredTimeEntries.reduce((total, entry) => {
 		const entryDate = new Date(entry.date);
 
-		if (entryDate >= currentWeek[0] && entryDate <= new Date(currentWeek[6].getTime() + 60 * 60 * 1000 * 2)) {
+		if (entryDate >= currentWeek[0] && entryDate <= adjustTimeOfDay(currentWeek[6])) {
 			return total + entry.value;
 		}
 		return total;

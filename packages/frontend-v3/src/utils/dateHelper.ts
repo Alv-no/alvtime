@@ -47,6 +47,10 @@ const isSameDay = (date1: Date, date2: Date): boolean => {
 		date1.getDate() === date2.getDate();
 };
 
+const adjustTimeOfDay = (date: Date): Date => {
+	return new Date(date.getTime() + 2 * 60 * 60 * 1000);
+};
+
 const formatDate = (date: Date): string => {
 	const year = date.getFullYear();
 	let month = String(date.getMonth() + 1).padStart(2, "0");
@@ -68,4 +72,5 @@ export {
 	isSameDay,
 	formatDate,
 	dayOfWeek,
+	adjustTimeOfDay,
 };
