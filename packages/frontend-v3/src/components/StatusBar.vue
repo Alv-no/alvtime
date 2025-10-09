@@ -53,7 +53,8 @@ const { currentWeek } = storeToRefs(useDateStore());
 const totalHoursThisWeek = computed(() => {
 	return timeEntries.value.reduce((total, entry) => {
 		const entryDate = new Date(entry.date);
-		if (entryDate >= currentWeek.value[0] && entryDate <= currentWeek.value[6]) {
+
+		if (entryDate >= currentWeek.value[0] && entryDate <= new Date(currentWeek.value[6].getTime() + 60 * 60 * 1000 * 2)) {
 			return total + entry.value;
 		}
 		return total;

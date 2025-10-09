@@ -16,7 +16,7 @@ const timeEntriesStore = useTimeEntriesStore();
 
 const { timeEntries } = storeToRefs(timeEntriesStore);
 
-const { project, currentWeek} = defineProps<{
+const { project, currentWeek } = defineProps<{
 	project: Project;
 	currentWeek: Date[];
 }>();
@@ -29,7 +29,8 @@ const allHoursInProjectThisWeek = computed(() => {
 
 	const totalHoursProjectThisWeek = filteredTimeEntries.reduce((total, entry) => {
 		const entryDate = new Date(entry.date);
-		if (entryDate >= currentWeek[0] && entryDate <= currentWeek[6]) {
+
+		if (entryDate >= currentWeek[0] && entryDate <= new Date(currentWeek[6].getTime() + 60 * 60 * 1000 * 2)) {
 			return total + entry.value;
 		}
 		return total;
