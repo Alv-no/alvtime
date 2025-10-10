@@ -1,6 +1,7 @@
 <template>
 	<button
 		v-if="timeLeftInWorkday > 0"
+		:class="{ 'first-day-of-week': isFirstDayOfWeek }"
 		@click="logRestOfDay"
 	>
 		{{ timeLeftInWorkday.toLocaleString("nb-NO") }}
@@ -8,7 +9,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { useTimeEntriesStore } from "@/stores/timeEntriesStore";
 
 const timeLeftInWorkday = ref<number>(0);
@@ -26,6 +27,11 @@ const emit = defineEmits(["track-rest-of-day"]);
 const logRestOfDay = () => {
 	emit("track-rest-of-day", timeLeftInWorkday.value + currentValue);
 };
+
+const isFirstDayOfWeek = computed(() => {
+	const day = new Date(date).getDay();
+	return day === 1; // Monday is the first day of the week
+});
 
 onMounted(() => {
 	// Calculate the remaining time in the workday when the component is mounted.
@@ -45,10 +51,15 @@ button {
 	left: -60px;
 
 	@media screen and (max-width: 768px) {
-		left: -40px;
-		top: -4px;
+		left: -42px;
+		top: 2px;
 		padding: 5px 10px;
 		font-size: 0.75rem;
+
+		&.first-day-of-week {
+			left: unset;
+			right: -42px;
+		}
 	}
 }
 </style>
