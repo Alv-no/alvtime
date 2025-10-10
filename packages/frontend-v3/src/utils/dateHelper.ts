@@ -15,12 +15,31 @@ const dayOfWeek = (day: number) => {
 	}
 };
 
+const normalizeToMidnight = (date: Date): Date => {
+	const d = new Date(date);
+	d.setHours(0, 0, 0, 0);
+	return d;
+};
+
 const isBefore = (date: Date, compareDate: Date): boolean => {
 	return date.getTime() < compareDate.getTime();
 };
 
 const isAfter = (date: Date, compareDate: Date): boolean => {
 	return !isBefore(compareDate, date);
+};
+
+
+const isOnOrBefore = (date: Date, compareDate: Date): boolean => {
+	const d = normalizeToMidnight(date);
+	const c = normalizeToMidnight(compareDate);
+	return d.getTime() <= c.getTime();
+};
+
+const isOnOrAfter = (date: Date, compareDate: Date): boolean => {
+	const d = normalizeToMidnight(date);
+	const c = normalizeToMidnight(compareDate);
+	return d.getTime() >= c.getTime();
 };
 
 const todayIsBefore = (compareDate: Date): boolean => {
@@ -47,10 +66,6 @@ const isSameDay = (date1: Date, date2: Date): boolean => {
 		date1.getDate() === date2.getDate();
 };
 
-const adjustTimeOfDay = (date: Date): Date => {
-	return new Date(date.getTime() + 2 * 60 * 60 * 1000);
-};
-
 const formatDate = (date: Date): string => {
 	const year = date.getFullYear();
 	let month = String(date.getMonth() + 1).padStart(2, "0");
@@ -65,6 +80,8 @@ const formatDate = (date: Date): string => {
 export {
 	isBefore,
 	isAfter,
+	isOnOrBefore,
+	isOnOrAfter,
 	isBetween,
 	todayIsBefore,
 	todayIsAfter,
@@ -72,5 +89,4 @@ export {
 	isSameDay,
 	formatDate,
 	dayOfWeek,
-	adjustTimeOfDay,
 };

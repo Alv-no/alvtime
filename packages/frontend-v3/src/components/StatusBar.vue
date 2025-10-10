@@ -39,7 +39,7 @@ import { HugeiconsIcon } from "@hugeicons/vue";
 import { MoneyBag02Icon, BeachIcon } from "@hugeicons/core-free-icons";
 import InvoiceRateVisualizer from "./utils/InvoiceRateVisualizer.vue";
 import WeekSummary from "./StatusBarComponents/WeekSummary.vue";
-import { adjustTimeOfDay } from "@/utils/dateHelper";
+import { isOnOrBefore, isOnOrAfter } from "@/utils/dateHelper";
 
 const vacationStore = useVacationStore();
 const { vacation } = storeToRefs(vacationStore);
@@ -55,7 +55,7 @@ const totalHoursThisWeek = computed(() => {
 	return timeEntries.value.reduce((total, entry) => {
 		const entryDate = new Date(entry.date);
 
-		if (entryDate >= currentWeek.value[0] && entryDate <= adjustTimeOfDay(currentWeek.value[6])) {
+		if (isOnOrAfter(entryDate, currentWeek.value[0]) && isOnOrBefore(entryDate, currentWeek.value[6])) {
 			return total + entry.value;
 		}
 		return total;
