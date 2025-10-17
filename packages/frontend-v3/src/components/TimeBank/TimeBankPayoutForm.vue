@@ -70,7 +70,6 @@ watch(hours, (newVal) => {
 		padding: 0.5rem;
 		border: 1px solid #ccc;
 		border-radius: 25px;
-		height: 24px;
 		flex-grow: 2;
 		text-align: center;
 	}

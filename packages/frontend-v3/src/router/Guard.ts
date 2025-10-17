@@ -9,7 +9,8 @@ export function registerGuard(router: Router) {
 			const request = {
 				...loginRequest,
 				redirectStartPage: to.fullPath
-			}
+			};
+
 			const shouldProceed = await isAuthenticated(msalInstance, request);
 			return shouldProceed || "/failed";
 		}
