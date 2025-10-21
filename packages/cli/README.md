@@ -24,12 +24,12 @@ pipx install git+https://github.com/Alv-no/alvtime.git#subdirectory=packages/cli
 
 ## Configure personal access token
 
-Obtain a personal access token (PAT) for Alvtime at https://alvtime.no/#/tokens and
+Obtain a personal access token (PAT) for Alvtime at https://classic.alvtime.no/#/tokens and
 add it to Alvtime CLI:
 
 ```
 ❯ alvtime config pat set
-Create a personal access token at https://alvtime.no/#/tokens.
+Create a personal access token at https://classic.alvtime.no/#/tokens.
 Personal access token:
 ```
 
