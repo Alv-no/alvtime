@@ -8,9 +8,15 @@ leaving your precious terminal.
 Prerequisites:
 
 - python 3.13+
-- pipx
+- uv or pipx
 
 both of which should be availble in a package manager near you
+
+```
+uv tool install git+https://github.com/Alv-no/alvtime.git#subdirectory=packages/cli
+```
+
+or with pipx:
 
 ```
 pipx install git+https://github.com/Alv-no/alvtime.git#subdirectory=packages/cli
