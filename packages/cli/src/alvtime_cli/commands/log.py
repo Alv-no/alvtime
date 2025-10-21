@@ -6,7 +6,7 @@ import click
 from alvtime_cli.utils import group_by
 from alvtime_cli.param_types import DateParam
 from alvtime_cli.local_service import LocalService
-from alvtime_cli.utils import style_time_entry, style_task, iterate_dates
+from alvtime_cli.utils import style, style_task, iterate_dates
 from alvtime_cli import model
 
 
@@ -27,7 +27,7 @@ class DetailLevel(enum.Enum):
 @click.option("--to", type=DateParam, default=date.today())
 @click.option("--details", "-d",
               type=click.Choice(DetailLevel, case_sensitive=False),
-              default=DetailLevel.standard,
+              default=DetailLevel.full,
               help="Print full details")
 @click.pass_context
 def log(ctx, from_: date, to: date, details: DetailLevel):
@@ -53,16 +53,25 @@ def log(ctx, from_: date, to: date, details: DetailLevel):
         entries_by_task = group_by(entries,
                                    lambda e: e.task_id)
 
-        if details == DetailLevel.standard:
-            for task_id in sorted(entries_by_task.keys()):
-                task = entries_by_task[task_id][0].task
-                task_total = sum((e.duration for e in entries_by_task[task_id]), timedelta())
-                click.echo(f"    {task_total} - {style_task(task)}")
+        for task_id in sorted(entries_by_task.keys()):
+            task = entries_by_task[task_id][0].task
+            task_total = sum((e.duration for e in entries_by_task[task_id]), timedelta())
+            click.echo(f"  {task_total} - {style_task(task)}")
 
-        elif details == DetailLevel.full:
-            for entry in entries:
+            if details == DetailLevel.standard:
+                continue
+
+            for entry in entries_by_task[task_id]:
                 task = entry.task
                 task_total = entry.duration
-                click.echo(f"    {task_total} - {style_time_entry(entry)}")
+                if entry.duration:
+                    stop = (entry.start + entry.duration).strftime("%H:%M")
+                else:
+                    stop = ""
+                click.echo("    ", nl=False)
+                click.echo(f"{style(entry.duration, 'duration')} ", nl=False)
+                time_string = f"({entry.start.strftime('%H:%M')} - {stop}) "
+                click.echo(style(time_string, "time"), nl=False)
+                click.echo(f"{style(entry.comment, 'comment')}")
 
         click.echo()
