@@ -39,7 +39,7 @@
 
     readonly MudTheme _alvTheme = new ()
     {
-        PaletteLight = new PaletteLight()
+        PaletteLight = new PaletteLight
         {
                 Primary = AlvBrandingBlue,
                 PrimaryContrastText = AlvBrandingLightBrown,
@@ -58,39 +58,39 @@
                 TableLines = AlvBrandingBlue,
    
         },
-        Typography = new Typography()
+        Typography = new Typography
         {
-            Default = new Default()
+            Default = new DefaultTypography
             {
                 FontFamily = AlvBrandFontFamilyDefault,
             },
-            Button = new Button()
+            Button = new ButtonTypography
             {
                 FontFamily = AlvBrandFontFamilyDefault,
-                FontWeight = 600,
+                FontWeight = "600",
                 FontSize = "18px"
             },
-            H1 = new H1()
+            H1 = new H1Typography
             {
                 FontFamily = AlvBrandFontFamilyHeading
             },
-            H2 = new H2()
+            H2 = new H2Typography
             {
                 FontFamily = AlvBrandFontFamilyHeading
             },
-            H3 = new H3()
+            H3 = new H3Typography
             {
                 FontFamily = AlvBrandFontFamilyHeading
             },
-            H4 = new H4()
+            H4 = new H4Typography
             {
                 FontFamily = AlvBrandFontFamilyHeading
             },
-            H5 = new H5()
+            H5 = new H5Typography
             {
                 FontFamily = AlvBrandFontFamilyHeading
             },
-            H6 = new H6()
+            H6 = new H6Typography
             {
                 FontFamily = AlvBrandFontFamilyHeading
             },
