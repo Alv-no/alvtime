@@ -103,6 +103,17 @@ const updateList = (evt: any) => {
 					}
 				}
 			}
+
+			@media screen and (max-width: 768px) {
+				min-width: 90%;
+				padding: 16px;
+
+				.project-sorter-header {
+					h2 {
+						font-size: 1.2rem;
+					}
+				}
+			}
 		}
 	}
 </style>

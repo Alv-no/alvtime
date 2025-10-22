@@ -1,3 +1,7 @@
+* {
+	box-sizing: border-box;
+}
+
 html, body {
 	margin: 0;
 	padding: 0;
@@ -6,9 +10,13 @@ html, body {
   	font-weight: 400;
   	font-style: normal;
 	color: $primary-color;
-	height: 100vh;
 	background-color: $primary-color;
-	box-sizing: border-box;
+	overflow-x: hidden;
+}
+
+body {
+	touch-action: pan-y;
+	overscroll-behavior-x: contain;
 }
 
 input {

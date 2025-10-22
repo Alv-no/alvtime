@@ -49,6 +49,8 @@ FALLBACK_COLORS = {}
 
 
 def style(message: str, main_class: str, extra: dict = {}) -> str:
+    if message is None:
+        return ""
     colors = COLOR_MAP.get(main_class, FALLBACK_COLORS)
     return click.style(message, **{**colors, **extra})
 

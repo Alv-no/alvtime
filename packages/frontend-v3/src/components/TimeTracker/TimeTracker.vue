@@ -8,31 +8,34 @@
 				{{ currentWeekString }}
 			</div>
 			<div class="button-wrapper">
-				<button>
+				<AlvtimeButton
+					@click="sortProjects"
+				>
 					<HugeiconsIcon
 						:icon="SortByDown02Icon"
 						class="sort-icon"
 						:size="16"
-						@click="sortProjects"
 					/>
-				</button>
-				<button
+				</AlvtimeButton>
+				<AlvtimeButton
 					id="prev-button"
-					class="prev-button"
+					iconLeft
 					@click="prevSlide"
 				>
 					<FeatherIcon name="chevron-left" /> Tilbake
-				</button>
-				<button @click="goToCurrentWeek">
+				</AlvtimeButton>
+				<AlvtimeButton
+					@click="goToCurrentWeek"
+				>
 					I dag
-				</button>
-				<button
+				</AlvtimeButton>
+				<AlvtimeButton
 					id="next-button"
-					class="next-button"
+					iconRight
 					@click="nextSlide"
 				>
 					Fremover <FeatherIcon name="chevron-right" />
-				</button>
+				</AlvtimeButton>
 			</div>
 		</div>
 		<swiper-container
@@ -56,11 +59,18 @@
 							:project="project"
 						>
 							<template #header>
-								<div class="project-stats">
-									Denne uken: {{ allHoursInProjectThisWeek(project) }} | Denne måneden: {{ allHoursInProjectThisMonth(project) }}
-								</div>
+								<ProjectStats
+									v-if="!isMobile"
+									:project="project"
+									:currentWeek="currentWeek"
+								/>
 							</template>
 							<template #content>
+								<ProjectStats
+									v-if="isMobile"
+									:project="project"
+									:currentWeek="currentWeek"
+								/>
 								<DayPillStrip
 									:week="week"
 								/>
@@ -86,25 +96,26 @@ import { onMounted, ref, computed } from "vue";
 import ProjectExpandable from "./ProjectExpandable.vue";
 import { useTaskStore } from "@/stores/taskStore";
 import { useDateStore } from "@/stores/dateStore";
-import { useTimeEntriesStore } from "@/stores/timeEntriesStore";
 import { getWeekNumber, getInitialWeekSlide} from "@/utils/weekHelper";
 import FeatherIcon from "@/components/utils/FeatherIcon.vue";
 import type Swiper from "swiper";
 import DayPillStrip from "./DayPillStrip.vue";
 import TaskStrip from "./TaskStrip.vue";
-import type { Project } from "@/types/ProjectTypes";
 import ProjectSorter from "./ProjectSorter.vue";
 import { HugeiconsIcon } from "@hugeicons/vue";
 import { SortByDown02Icon } from "@hugeicons/core-free-icons";
 import { storeToRefs } from "pinia";
 import TimeTrackerError from "./TimeTrackerError.vue";
+import AlvtimeButton from "../utils/AlvtimeButton.vue";
+import ProjectStats from "./ProjectStats.vue";
 
 const swiper = ref<Swiper | null>(null);
 const taskStore = useTaskStore();
 const dateStore = useDateStore();
-const timeEntriesStore = useTimeEntriesStore();
 
 const { favoriteProjects, editingProjectOrder } = storeToRefs(taskStore);
+
+const isMobile = window.innerWidth <= 768;
 
 const getWeekNumberString = (date: Date) => {
 	if(date.getFullYear() !== new Date().getFullYear()) {
@@ -163,39 +174,6 @@ const sortProjects = () => {
 	editingProjectOrder.value = true;
 };
 
-const allHoursInProjectThisWeek = (project: Project) => {
-	const taskIds = project.tasks.map((task) => task.id);
-	const filteredTimeEntries = timeEntriesStore.timeEntries.filter((entry) =>
-		taskIds.includes(entry.taskId)
-	);
-
-	const totalHoursProjectThisWeek = filteredTimeEntries.reduce((total, entry) => {
-		const entryDate = new Date(entry.date);
-		if (entryDate >= currentWeek.value[0] && entryDate <= currentWeek.value[6]) {
-			return total + entry.value;
-		}
-		return total;
-	}, 0);
-
-	return `${totalHoursProjectThisWeek}t`;
-};
-
-const allHoursInProjectThisMonth = (project: Project) => {
-	const taskIds = project.tasks.map((task) => task.id);
-	const filteredTimeEntries = timeEntriesStore.timeEntries.filter((entry) =>
-		taskIds.includes(entry.taskId)
-	);
-
-	const totalHoursProjectThisMonth = filteredTimeEntries.reduce((total, entry) => {
-		if (entry.date.includes(`${currentWeek.value[0].getFullYear().toString()}-${(currentWeek.value[0].getMonth() + 1).toString().padStart(2, "0")}`)) {
-			return total + entry.value;
-		}
-		return total;
-	}, 0);
-
-	return `${totalHoursProjectThisMonth}t`;
-};
-
 const nextSlide = () => {
 	if (swiper.value) {
 		swiper.value?.slideNext();
@@ -227,6 +205,8 @@ onMounted(() => {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	flex-wrap: wrap;
+	gap: 12px;
 
 	.current-week-string {
 		font-size: 14px;
@@ -260,35 +240,6 @@ onMounted(() => {
 	display: flex;
 	justify-content: flex-end;
 	gap: 8px;
-
-	button {
-		border: none;
-		cursor: pointer;
-		background-color: $secondary-color;
-		color: $primary-color;
-		border-radius: 25px;
-		padding: 9px 16px 12px 16px;
-		font-size: 14px;
-		font-weight: 600;
-
-		&:hover {
-			background-color: $secondary-color-light;
-		}
-
-		&.next-button {
-			padding: 9px 12px 12px 16px;
-		}
-
-		&.prev-button {
-			padding: 9px 16px 12px 12px;
-		}
-	}
-}
-
-.project-stats {
-	background-color: rgb(206, 214, 194);
-	border-radius: 10px;
-	padding: 12px 12px 9px;
 }
 
 .sort-icon {

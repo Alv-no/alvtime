@@ -44,13 +44,11 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 			return;
 		}
 
-		console.log("Pushing time entries to the service:", timeEntryPushQueue.value);
 		const timeEntriesToUpdate = [...timeEntryPushQueue.value];
 		timeEntryPushQueue.value = []; // Clear the queue before processing
 		try {
 			const response = await timeService.updateTimeEntries(timeEntriesToUpdate);
 			if (response.status === 200) {
-				console.log("Time entries updated successfully:", response.data);
 				updateTimeEntries(response.data.map(createTimeEntry));
 				timeBankStore.getTimeBankOverview();
 				vacationStore.getVacationOverview();
@@ -144,12 +142,7 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 
 	// Helper function to check if two time entries match based on id and date
 	const isMatchingEntry = (entry: TimeEntry, paramEntry: TimeEntry): boolean => {
-		if((entry.id === paramEntry.id) || (entry.date === paramEntry.date && entry.taskId === paramEntry.taskId)) {
-			console.log("Matching entry found");
-			return true;
-		}
-
-		return false;
+		return (entry.id === paramEntry.id) || (entry.date === paramEntry.date && entry.taskId === paramEntry.taskId);
 	};
 
 	// Function to create a time entry object with the correct date format

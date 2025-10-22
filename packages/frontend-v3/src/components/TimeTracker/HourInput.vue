@@ -95,9 +95,19 @@ const onInputFocus = () => {
 
 	input {
 		text-align: center;
+		width: 64px;
 
 		&.weekend {
 			background-color: #f0f0f0;
+		}
+
+		@media screen and (max-width: 768px) {
+			width: 40px;
+			height: 30px;
+			padding: 4px 2px 3px 2px;
+			margin: 0;
+			font-size: .8rem;
+			font-weight: 600;
 		}
 	}
 }

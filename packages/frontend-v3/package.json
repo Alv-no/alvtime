@@ -3,6 +3,9 @@
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",
+	"engines": {
+        "node": ">=22.17.0"
+      },
 	"scripts": {
 		"dev": "vite --host 0.0.0.0",
 		"build": "vue-tsc -b && vite build",
@@ -16,22 +19,22 @@
 		"date-easter": "^1.0.3",
 		"feather-icons": "^4.29.2",
 		"fuse.js": "^7.1.0",
-		"pinia": "^3.0.2",
+		"pinia": "^3.0.3",
 		"sortablejs-vue3": "^1.2.11",
 		"swiper": "^11.2.8",
-		"vue": "^3.5.13",
+		"vue": "^3.5.22",
 		"vue-router": "^4.5.1"
 	},
 	"devDependencies": {
 		"@types/feather-icons": "^4.29.4",
-		"@vitejs/plugin-vue": "^5.2.3",
+		"@vitejs/plugin-vue": "^6.0.1",
 		"@vue/tsconfig": "^0.7.0",
 		"eslint": "^9.27.0",
 		"eslint-plugin-vue": "^10.1.0",
 		"sass-embedded": "^1.89.0",
 		"typescript": "~5.8.3",
 		"typescript-eslint": "^8.32.1",
-		"vite": "^6.3.6",
+		"vite": "^7.1.9",
 		"vue-tsc": "^2.2.8"
 	}
 }
