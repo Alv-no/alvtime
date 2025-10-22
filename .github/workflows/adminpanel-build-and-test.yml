@@ -23,7 +23,7 @@ jobs:
           docker build \
             -f packages/adminpanel/Server/Dockerfile \
             -t adminpanel-test:latest \
-            packages/adminpanel/Server
+            .
 
       - name: Run container sanity check
         run: |
