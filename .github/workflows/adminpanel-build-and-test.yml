@@ -27,4 +27,4 @@ jobs:
 
       - name: Run container sanity check
         run: |
-          docker run --rm adminpanel-test:latest echo "Docker build successful"
+          docker run --rm adminpanel-test:latest dotnet --info
