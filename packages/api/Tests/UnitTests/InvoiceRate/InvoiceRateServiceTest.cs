@@ -540,7 +540,7 @@ public class InvoiceRateServiceTest
 
         var service = CreateInvoiceRateService(hours);
 
-        var statistics = await service.GetEmployeeInvoiceStatisticsByPeriod(startDate, endDate, InvoicePeriods.Annualy, ExtendPeriod.None, false);
+        var statistics = await service.GetEmployeeInvoiceStatisticsByPeriod(startDate, endDate, InvoicePeriods.Annually, ExtendPeriod.None, false);
 
         Assert.Equal(2, statistics.BillableHours.Length);
         Assert.Equal(2, statistics.NonBillableHours.Length);
