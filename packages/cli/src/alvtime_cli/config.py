@@ -1,11 +1,32 @@
 from enum import StrEnum
 from pathlib import Path
+import datetime
 import os
+import pydantic
 import yaml
 
 
 config_filename = os.getenv("ALVTIME_CONFIG",
                             Path.home() / ".alvtime.conf")
+
+
+class Weekday(StrEnum):
+    mon = "mon"
+    tue = "tue"
+    wed = "wed"
+    thu = "thu"
+    fri = "fri"
+    sat = "sat"
+    sun = "sun"
+
+
+class AutoBreak(pydantic.BaseModel):
+    comment: str = ""
+    weekdays: list[Weekday]
+    start: datetime.time
+    stop: datetime.time
+
+    model_config = {"extra": "forbid"}
 
 
 class Keys(StrEnum):
