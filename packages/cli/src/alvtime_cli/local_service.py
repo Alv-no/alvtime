@@ -176,16 +176,29 @@ class LocalService:
 
         return entries
 
+    def add_time_entry(self, entry: model.TimeEntry):
+        self.repo.insert_time_entry(entry)
+
+    def update_time_entry(self, entry: model.TimeEntry):
+        self.repo.update_time_entry(entry)
+
+    def delete_time_entry(self, entry_id: int):
+        self.repo.delete_time_entry(entry_id)
+
     def get_breaks(self, from_: date, to: date) -> list[model.TimeBreak]:
         return self.repo.list_time_breaks(
                 from_date=from_,
                 to_date=to)
 
-    def add_break(self, from_: datetime, to: datetime, comment: str):
-        duration = timedelta(seconds=round((to - from_).total_seconds()))
-        break_ = model.TimeBreak(start=from_, duration=duration, comment=comment)
+    def add_break(self, break_: model.TimeBreak):
         self.repo.insert_time_break(break_)
         return break_
+
+    def update_break(self, break_: model.TimeBreak):
+        self.repo.update_time_break(break_)
+
+    def delete_break(self, break_id: int):
+        self.repo.delete_time_break(break_id)
 
     def add_missing_auto_breaks(self, date: date) -> list[config.AutoBreak]:
         auto_breaks = pydantic.parse_obj_as(list[config.AutoBreak], config.get("autoBreaks", []))
@@ -200,7 +213,7 @@ class LocalService:
                               datetime.combine(datetime.now(), auto_break.start)),
                     comment=auto_break.comment)
             if any(entries_overlap(break_, e) for e in time_entries):
-                self.add_break(break_.start, break_.start + break_.duration, break_.comment)
+                self.add_break(break_)
                 ret.append(auto_break)
         return ret
 
@@ -395,10 +408,12 @@ class LocalService:
     def get_available_hours(self) -> model.AvailableHours:
         return self.alvtime_client.get_available_hours()
 
-
     def order_payout(self, hours: float) -> model.GenericPayoutHourEntry:
         payout_hour_entry = model.GenericPayoutHourEntry(
             date=date.today(),
             hours=hours,
         )
         return self.alvtime_client.upsert_payout(payout_hour_entry)
+
+
+

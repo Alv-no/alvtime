@@ -1,5 +1,5 @@
 import click
-from .commands import check, completion, log, ping, pull, restart, start, status, stop, sync, version
+from .commands import check, completion, edit, log, ping, pull, restart, start, status, stop, sync, version
 from .commands.config import group as config_group
 from .commands.tasks import group as tasks_group
 from .commands.alias import group as alias_group
@@ -33,6 +33,7 @@ def main(ctx: click.Context, config_filename):
 
 main.add_command(check.check)
 main.add_command(completion.completion)
+main.add_command(edit.edit)
 main.add_command(log.log)
 main.add_command(ping.ping)
 main.add_command(pull.pull)
