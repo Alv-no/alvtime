@@ -186,9 +186,10 @@ class LocalService:
         self.repo.insert_time_break(break_)
         return break_
 
-    def add_missing_auto_breaks(self, date: date):
+    def add_missing_auto_breaks(self, date: date) -> list[config.AutoBreak]:
         auto_breaks = pydantic.parse_obj_as(list[config.AutoBreak], config.get("autoBreaks", []))
         time_entries = self.get_entries(date, date, breakify=True)
+        ret = []
         for auto_break in auto_breaks:
             if config.Weekday.from_date(date) not in auto_break.weekdays:
                 continue
@@ -199,6 +200,8 @@ class LocalService:
                     comment=auto_break.comment)
             if any(entries_overlap(break_, e) for e in time_entries):
                 self.add_break(break_.start, break_.start + break_.duration, break_.comment)
+                ret.append(auto_break)
+        return ret
 
     def round_duration(self, duration: timedelta) -> timedelta:
         total_seconds = duration.total_seconds()

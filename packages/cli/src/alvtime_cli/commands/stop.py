@@ -19,13 +19,17 @@ def stop(ctx, at: datetime = None, comment: str = None):
         time_entry = service.stop(
             at=at,
             comment=comment)
-        service.add_missing_auto_breaks(time_entry.start.date())
+        added_auto_breaks = service.add_missing_auto_breaks(time_entry.start.date())
     except TaskNotRunningError:
         raise click.exceptions.ClickException("No project running")
     except ValueError as ex:
         raise click.exceptions.ClickException(str(ex))
 
     click.echo(style_time_entry(time_entry))
+
+    if added_auto_breaks:
+        for auto_break in added_auto_breaks:
+            click.echo(f"Added break '{auto_break.comment}'")
 
     if config.get(config.Keys.auto_sync):
         ctx.invoke(sync,
