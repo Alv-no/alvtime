@@ -19,6 +19,10 @@ class Weekday(StrEnum):
     sat = "sat"
     sun = "sun"
 
+    @classmethod
+    def from_date(cls, date: datetime.date):
+        return list(cls)[date.isoweekday() - 1]
+
 
 class AutoBreak(pydantic.BaseModel):
     comment: str = ""

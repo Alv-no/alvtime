@@ -1,10 +1,11 @@
+import pydantic
 from dataclasses import dataclass
 from datetime import datetime, date, timedelta
 
 from alvtime_cli import config, model
 from alvtime_cli.repo import Repo
 from alvtime_cli.alvtime_client import AlvtimeClient
-from alvtime_cli.utils import group_by, iterate_dates, breakify_entries
+from alvtime_cli.utils import group_by, iterate_dates, breakify_entries, entries_overlap
 
 
 class TaskAlreadyStartedError(Exception):
@@ -184,6 +185,20 @@ class LocalService:
         break_ = model.TimeBreak(start=from_, duration=duration, comment=comment)
         self.repo.insert_time_break(break_)
         return break_
+
+    def add_missing_auto_breaks(self, date: date):
+        auto_breaks = pydantic.parse_obj_as(list[config.AutoBreak], config.get("autoBreaks", []))
+        time_entries = self.get_entries(date, date, breakify=True)
+        for auto_break in auto_breaks:
+            if config.Weekday.from_date(date) not in auto_break.weekdays:
+                continue
+            break_ = model.TimeBreak(
+                    start=datetime.combine(datetime.now(), auto_break.start).astimezone(),
+                    duration=(datetime.combine(datetime.now(), auto_break.stop) -
+                              datetime.combine(datetime.now(), auto_break.start)),
+                    comment=auto_break.comment)
+            if any(entries_overlap(break_, e) for e in time_entries):
+                self.add_break(break_.start, break_.start + break_.duration, break_.comment)
 
     def round_duration(self, duration: timedelta) -> timedelta:
         total_seconds = duration.total_seconds()

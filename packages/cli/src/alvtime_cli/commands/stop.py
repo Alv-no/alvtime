@@ -13,12 +13,13 @@ from alvtime_cli.commands.sync import sync
 @click.option("--comment", type=str)
 @click.pass_context
 def stop(ctx, at: datetime = None, comment: str = None):
-    service = cast(LocalService, ctx.obj)
+    service: LocalService = cast(LocalService, ctx.obj)
 
     try:
         time_entry = service.stop(
             at=at,
             comment=comment)
+        service.add_missing_auto_breaks(time_entry.start.date())
     except TaskNotRunningError:
         raise click.exceptions.ClickException("No project running")
     except ValueError as ex:

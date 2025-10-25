@@ -171,6 +171,13 @@ def _breakify_entry(entry: model.TimeEntry, _break: model.TimeBreak) -> list[mod
             "duration": (entry_stop - break_stop)})]
 
 
+def entries_overlap(e1: model.BaseEntry, e2: model.BaseEntry) -> bool:
+    e1_stop = e1.start + e1.duration
+    e2_stop = e2.start + e2.duration
+
+    return e1.start < e2_stop and e1_stop > e2.start
+
+
 def breakify_entries(entries: list[model.TimeEntry],
                      breaks: list[model.TimeBreak]) -> list[model.TimeEntry]:
     """
