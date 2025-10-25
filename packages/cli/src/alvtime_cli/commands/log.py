@@ -31,7 +31,7 @@ class DetailLevel(enum.Enum):
               help="Print full details")
 @click.pass_context
 def log(ctx, from_: date, to: date, details: DetailLevel):
-    service = cast(LocalService, ctx.obj)
+    service: LocalService = cast(LocalService, ctx.obj)
 
     all_entries = map(_set_duration_for_open_entry,
                       service.get_entries(from_, to))
@@ -41,14 +41,18 @@ def log(ctx, from_: date, to: date, details: DetailLevel):
                                    lambda e: e.start.date())
     breakified_entries_by_date = group_by(breakified_entries,
                                           lambda e: e.start.date())
+    all_breaks_by_date = group_by(service.get_breaks(from_, to),
+                                  lambda e: e.start.date())
     for current_date in iterate_dates(from_, to):
         all_entries = all_entries_by_date.get(current_date, [])
         breakified_entries = breakified_entries_by_date.get(current_date, [])
-        total = sum((e.duration for e in breakified_entries), timedelta())
+        breakified_total = sum((e.duration for e in breakified_entries), timedelta())
+        breaks = all_breaks_by_date.get(current_date, [])
+        breaks_total = sum((b.duration for b in breaks), timedelta())
 
         click.echo(current_date, nl=False)
-        if total:
-            click.echo(f" ({total})")
+        if breakified_total:
+            click.echo(f" ({breakified_total})")
         else:
             click.echo("  ---")
 
@@ -80,5 +84,17 @@ def log(ctx, from_: date, to: date, details: DetailLevel):
                 time_string = f"({entry.start.strftime('%H:%M')} - {stop}) "
                 click.echo(style(time_string, "time"), nl=False)
                 click.echo(f"{style(entry.comment, 'comment')}")
+
+        if details == DetailLevel.full and breaks_total:
+            click.echo(f" -{breaks_total} - {style('Breaks', 'comment')}")
+            for break_ in breaks:
+                if break_.duration:
+                    stop = (break_.start + break_.duration).strftime("%H:%M")
+                else:
+                    stop = ""
+                click.echo(f"    {style(break_.duration, 'duration')} ", nl=False)
+                time_string = f"({break_.start.strftime('%H:%M')} - {stop}) "
+                click.echo(style(time_string, "time"), nl=False)
+                click.echo(f"{style(break_.comment, 'comment')}")
 
         click.echo()

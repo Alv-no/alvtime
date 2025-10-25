@@ -174,6 +174,11 @@ class LocalService:
 
         return entries
 
+    def get_breaks(self, from_: date, to: date) -> list[model.TimeBreak]:
+        return self.repo.list_time_breaks(
+                from_date=from_,
+                to_date=to)
+
     def add_break(self, from_: datetime, to: datetime, comment: str):
         duration = timedelta(seconds=round((to - from_).total_seconds()))
         break_ = model.TimeBreak(start=from_, duration=duration, comment=comment)
