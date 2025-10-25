@@ -26,7 +26,7 @@ def edit():
 
     # Let the user edit the YAML in their default editor
     try:
-        text_response = click.edit(text)
+        text_response = click.edit(text, extension=".yaml")
     except click.exceptions.ClickException:
         text_response = None
 
