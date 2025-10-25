@@ -11,7 +11,7 @@ def edit():
     breaks = config.get("autoBreaks", [])
 
     # Build the YAML for the user to edit
-    text = textwrap.dedent("""
+    template = textwrap.dedent("""
         # - comment: Lunsj
         #   weekdays:
         #   - mon
@@ -22,7 +22,12 @@ def edit():
         #   start: "11:30"
         #   stop: "12:00"
 
-        """).lstrip() + yaml.dump(breaks)
+        """).lstrip()
+
+    if breaks:
+        text = yaml.dump(breaks)
+    else:
+        text = template
 
     # Let the user edit the YAML in their default editor
     try:
