@@ -1,0 +1,214 @@
+import click
+import datetime
+import pydantic
+import textwrap
+import yaml
+from typing import cast
+
+from alvtime_cli import model
+from alvtime_cli.local_service import LocalService
+from alvtime_cli.param_types import DateParam
+
+
+class EditEntry(pydantic.BaseModel):
+    task: str
+    start: datetime.time
+    stop: datetime.time
+    comment: str | None = None
+    ref: int | None = None
+
+    @pydantic.field_validator("start", "stop", mode="before")
+    def parse_time_string(cls, v):
+        if isinstance(v, str):
+            return datetime.time.fromisoformat(v)
+        return v
+
+    @pydantic.field_serializer("start", "stop")
+    def serialize_time(self, v: datetime.time):
+        return v.strftime("%H:%M")
+
+
+class EditBreak(pydantic.BaseModel):
+    start: datetime.time
+    stop: datetime.time
+    comment: str | None = None
+    ref: int | None = None
+
+    @pydantic.field_validator("start", "stop", mode="before")
+    def parse_time_string(cls, v):
+        if isinstance(v, str):
+            return datetime.time.fromisoformat(v)
+        return v
+
+    @pydantic.field_serializer("start", "stop")
+    def serialize_time(self, v: datetime.time):
+        return v.strftime("%H:%M")
+
+
+class EditModel(pydantic.BaseModel):
+    entries: list[EditEntry] = []
+    breaks: list[EditBreak] = []
+
+    model_config = {"extra": "forbid"}
+
+
+def editable_entry(entry: model.TimeEntry, aliases: list[model.TaskAlias]) -> EditEntry:
+    alias = next((a for a in aliases if a.task.id == entry.task_id), None)
+    if alias:
+        task_name = alias.name
+    else:
+        task_name = f"[{entry.task_id}] {entry.task.customer_name} {entry.task.project_name} {entry.task.name}"
+    return EditEntry(
+            ref=entry.id,
+            task=task_name,
+            start=_round_time_to_minute(entry.start.time()),
+            stop=_round_time_to_minute((entry.start + entry.duration).time()),
+            comment=entry.comment)
+
+
+def editable_break(break_: model.TimeBreak) -> EditBreak:
+    return EditBreak(
+            ref=break_.id,
+            start=_round_time_to_minute(break_.start.time()),
+            stop=_round_time_to_minute((break_.start + break_.duration).time()),
+            comment=break_.comment)
+
+
+def drop_empty(obj):
+    """Recursively remove empty lists, dicts, and None values."""
+    if isinstance(obj, dict):
+        return {
+            k: drop_empty(v)
+            for k, v in obj.items()
+            if v not in (None, [], {}) and drop_empty(v) is not None
+        }
+    elif isinstance(obj, list):
+        return [drop_empty(v) for v in obj if v not in (None, [], {})]
+    else:
+        return obj
+
+
+def _round_time_to_minute(t: datetime.time) -> datetime.time:
+    # Combine with a dummy date to allow arithmetic
+    dt = datetime.datetime.combine(datetime.datetime.min, t)
+
+    # Round to nearest minute
+    if dt.second >= 30:
+        dt += datetime.timedelta(minutes=1)
+    dt = dt.replace(second=0, microsecond=0)
+
+    return dt.time()
+
+
+@click.command(help="Edit entries for a given date")
+@click.argument("date", type=DateParam, default=datetime.date.today(), required=False)
+@click.pass_context
+def edit(ctx, date):
+    service: LocalService = cast(LocalService, ctx.obj)
+
+    aliases = service.get_aliases()
+
+    original = EditModel(
+            entries=map(lambda x: editable_entry(x, aliases),
+                        service.get_entries(date, date)),
+            breaks=map(editable_break, service.get_breaks(date, date)))
+
+    instructions = textwrap.dedent("""
+        # Add, modify or delete entries in this file. Please note:
+        # - Do NOT change the 'ref' field
+        # - If adding entries, do not provide a 'ref' field
+        #
+    """).lstrip()
+
+    text = instructions + yaml.dump(
+            drop_empty(original.model_dump(by_alias=True)),
+            sort_keys=False,
+            width=float("inf"))
+
+    # Let the user edit the YAML in their default editor
+    try:
+        text_response = click.edit(text, extension=".yaml")
+    except click.exceptions.ClickException:
+        text_response = None
+
+    # If not cancelled or not saved
+    if text_response is None:
+        click.echo("Cancelled.", err=True)
+        return
+
+    # Parse the YAML
+    try:
+        untyped_response = yaml.safe_load(text_response)
+    except yaml.YAMLError as e:
+        click.echo(f"YAML error: {e}", err=True)
+        return
+
+    # Treat empty file as empty
+    if untyped_response is None:
+        untyped_response = {"entries": [], "breaks": []}
+
+    # Deserialize the EditModel
+    try:
+        response = EditModel.model_validate(untyped_response)
+    except pydantic.ValidationError as e:
+        messages = ["Validation failed"]
+        for err in e.errors():
+            loc = ".".join(str(p) for p in err["loc"])
+            msg = err["msg"]
+            messages.append(f"  - {loc}: {msg}")
+        raise click.exceptions.ClickException("\n".join(messages))
+
+    _perform_changes(service, original, response)
+
+
+def _perform_changes(service: LocalService, original: EditModel, response: EditModel):
+    # Check for changes in original entries
+    for original_entry in original.entries:
+        response_entry = next((e for e in response.entries if e.ref == original_entry.ref), None)
+
+        # Is response entry equal to original?
+        if original_entry == response_entry:
+            continue
+
+        # Is entry deleted in response?
+        if response_entry is None:
+            _delete_entry(service, original_entry)
+            continue
+
+        # Entry has changed
+        _update_entry(service, original_entry, response_entry)
+
+    # Check for new entries
+    for response_entry in response.entries:
+        # Skip entries with 'ref' as these are not new
+        if response_entry.ref is not None:
+            continue
+
+        _new_entry(service, response_entry)
+
+
+def _new_entry(service: LocalService, entry: EditEntry):
+    click.echo("New entry")
+
+
+def _update_entry(service: LocalService, original_entry: EditEntry, response_entry: EditEntry):
+    click.echo(f"Updating entry {original_entry.ref}")
+    entry: model.TimeEntry = service.get_entry(original_entry.ref)
+
+    # Update start time
+    entry.start = entry.start.replace(
+            hour=response_entry.start.hour,
+            minute=response_entry.start.minute)
+
+    # Update stop time
+    entry.stop = entry.stop.replace(
+            hour=response_entry.stop.hour,
+            minute=response_entry.stop.minute)
+
+    # Update comment
+    entry.comment = response_entry.comment
+
+
+def _delete_entry(service: LocalService, original_entry: EditEntry):
+    click.echo(f"Deleting entry {original_entry.ref}")
+    # service.delete_time_entry(original_entry.ref)
