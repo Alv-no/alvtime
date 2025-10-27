@@ -39,11 +39,20 @@ class Repo:
                     locked        INTEGER NOT NULL)""")
 
     def _time_entry_from_dbo(self, dbo) -> model.TimeEntry:
+        start = datetime.fromisoformat(dbo["from_time"])
+        if dbo["duration"] is None:
+            duration = (datetime.now().replace(microsecond=0).astimezone() - start)
+            is_open = True
+        else:
+            duration = timedelta(seconds=dbo["duration"])
+            is_open = False
+
         return model.TimeEntry(
             id=dbo["id"],
             task_id=dbo["task_id"],
-            start=datetime.fromisoformat(dbo["from_time"]),
-            duration=timedelta(seconds=dbo["duration"]) if dbo["duration"] else None,
+            start=start,
+            duration=duration,
+            is_open=is_open,
             comment=dbo["comment"],
             is_changed=(dbo["is_changed"] != 0)
         )

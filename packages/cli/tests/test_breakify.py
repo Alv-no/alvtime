@@ -6,6 +6,7 @@ def test_no_overlap_before():
     entry = model.TimeEntry(
         start=datetime(2025, 1, 1, 8, 0, 0).astimezone(),
         duration=timedelta(minutes=8*60),
+        is_open=False,
         comment="",
         task_id=0)
     brk1 = model.TimeBreak(
@@ -22,6 +23,7 @@ def test_no_overlap_after():
     entry = model.TimeEntry(
         start=datetime(2025, 1, 1, 8, 0, 0).astimezone(),
         duration=timedelta(minutes=8*60),
+        is_open=False,
         comment="",
         task_id=0)
     brk1 = model.TimeBreak(
@@ -38,6 +40,7 @@ def test_overlap_start():
     entry = model.TimeEntry(
         start=datetime(2025, 1, 1, 8, 0, 0).astimezone(),
         duration=timedelta(minutes=8*60),
+        is_open=False,
         comment="",
         task_id=0)
     brk1 = model.TimeBreak(
@@ -55,6 +58,7 @@ def test_overlap_end():
     entry = model.TimeEntry(
         start=datetime(2025, 1, 1, 8, 0, 0).astimezone(),
         duration=timedelta(minutes=8*60),
+        is_open=False,
         comment="",
         task_id=0)
     brk1 = model.TimeBreak(
@@ -75,11 +79,13 @@ def test_overlap_middle():
     entry = model.TimeEntry(
         start=datetime(2025, 1, 1, 8, 0, 0).astimezone(),
         duration=timedelta(minutes=8*60),
+        is_open=False,
         comment="",
         task_id=0)
     brk1 = model.TimeBreak(
         start=datetime(2025, 1, 1, 12, 30, 0).astimezone(),
         duration=timedelta(minutes=60),
+        is_open=False,
         comment="")
     entries = utils.breakify_entries([entry.model_copy()], [brk1])
 

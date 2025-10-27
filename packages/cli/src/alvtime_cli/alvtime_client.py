@@ -19,6 +19,7 @@ def _time_entry_from_dto(dto) -> model.TimeEntry:
         task_id=dto["taskId"],
         start=datetime.fromisoformat(dto["date"]),
         duration=timedelta(hours=dto["value"]),
+        is_open=False,
         comment=dto["comment"])
 
 

@@ -40,6 +40,7 @@ class TimeEntry(BaseEntry):
     task_id: int
     start: datetime | None = None
     duration: timedelta | None = None
+    is_open: bool
     comment: str | None = None
     is_changed: bool = False
     task: Task | None = None

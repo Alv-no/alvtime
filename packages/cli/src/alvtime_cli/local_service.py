@@ -81,6 +81,7 @@ class LocalService:
         entry = model.TimeEntry(
             task_id=task_id,
             start=at or datetime.now().astimezone(),
+            is_open=True,
             comment=comment)
 
         # Make sure the start time is rounded (down) to nearest second
@@ -242,6 +243,7 @@ class LocalService:
                     task_id=cloud_entry.task_id,
                     start=cloud_entry.start.astimezone(),
                     duration=cloud_entry.duration,
+                    is_open=False,
                     comment=cloud_entry.comment)
 
                 # Store it
@@ -272,6 +274,7 @@ class LocalService:
                 task_id=task_id,
                 start=current_date,
                 duration=rounded_duration,
+                is_open=False,
                 comment=comment))
 
         # Upsert it
