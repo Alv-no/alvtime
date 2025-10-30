@@ -186,29 +186,65 @@ def _perform_changes(service: LocalService, original: EditModel, response: EditM
 
         _new_entry(service, response_entry)
 
+    # Check for changes in original breaks
+    for original_break in original.breaks:
+        response_break = next((e for e in response.breaks if e.ref == original_break.ref), None)
+
+        # Is response break equal to original?
+        if original_break == response_break:
+            continue
+
+        # Is break deleted in response?
+        if response_break is None:
+            _delete_break(service, original_break)
+            continue
+
+        # Break has changed
+        _update_break(service, original_break, response_break)
+
+    # Check for new breaks
+    for response_break in response.breaks:
+        # Skip breaks with 'ref' as these are not new
+        if response_break.ref is not None:
+            continue
+
+        _new_break(service, response_break)
+
 
 def _new_entry(service: LocalService, entry: EditEntry):
     click.echo("New entry")
 
 
-def _update_entry(service: LocalService, original_entry: EditEntry, response_entry: EditEntry):
-    click.echo(f"Updating entry {original_entry.ref}")
-    entry: model.TimeEntry = service.get_entry(original_entry.ref)
+def _update_entry(service: LocalService, original: EditEntry, response: EditEntry):
+    click.echo(f"Updating entry {original.ref}")
+    entry: model.TimeEntry = service.get_entry(original.ref)
 
     # Update start time
     entry.start = entry.start.replace(
-            hour=response_entry.start.hour,
-            minute=response_entry.start.minute)
+            hour=response.start.hour,
+            minute=response.start.minute)
 
     # Update stop time
     entry.stop = entry.stop.replace(
-            hour=response_entry.stop.hour,
-            minute=response_entry.stop.minute)
+            hour=response.stop.hour,
+            minute=response.stop.minute)
 
     # Update comment
-    entry.comment = response_entry.comment
+    entry.comment = response.comment
 
 
-def _delete_entry(service: LocalService, original_entry: EditEntry):
-    click.echo(f"Deleting entry {original_entry.ref}")
+def _delete_entry(service: LocalService, entry: EditEntry):
+    click.echo(f"Deleting entry {entry.ref}")
     # service.delete_time_entry(original_entry.ref)
+
+
+def _new_break(service: LocalService, break_: EditBreak):
+    pass
+
+
+def _update_break(service: LocalService, original: EditBreak, response: EditBreak):
+    pass
+
+
+def _delete_break(service: LocalService, break_: EditBreak):
+    pass
