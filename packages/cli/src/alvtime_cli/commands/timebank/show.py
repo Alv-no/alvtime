@@ -56,46 +56,42 @@ def show(ctx: click.Context, raw: bool, show_money: bool) -> None:
 
 
     if not raw:
-            # Show breakdown by compensation rate
-            unspent_overtime = service.calculate_unspent_overtime(available_hours.entries)
+        # Show breakdown by compensation rate
+        unspent_overtime = service.calculate_unspent_overtime(available_hours.entries)
 
-            compensation_labels = {
-                "0.5": "Frivillig (Volunteer)",
-                "1.0": "Interntid (Mandatory)",
-                "1.5": "Fakturerbart (Billable)",
-                "2.0": "Tommy Time (Mandatory Billable)",
-            }
+        compensation_labels = {
+            "0.5": "Frivillig (Volunteer)",
+            "1.0": "Interntid (Mandatory)",
+            "1.5": "Fakturerbart (Billable)",
+            "2.0": "Tommy Time (Mandatory Billable)",
+        }
 
-            click.secho("Breakdown by compensation rate:", fg="green")
-            total = f"{' ':<2}{'Total':.<35}{format_hours(available_hours.available_hours_before_compensation)}"
-            total_money = 0
-            for rate, label in compensation_labels.items():
-                hours = unspent_overtime.get(rate, 0)
-                if hours == 0:
-                    continue
+        click.secho("Breakdown by compensation rate:", fg="green")
+        total = f"{' ':<2}{'Total':.<35}{format_hours(available_hours.available_hours_before_compensation)}"
+        total_money = 0
+        for rate, label in compensation_labels.items():
+            hours = unspent_overtime.get(rate, 0)
+            if hours == 0:
+                continue
 
-                output = f"{' ':<2}{label:.<35}{format_hours(hours)}"
+            output = f"{' ':<2}{label:.<35}{format_hours(hours)}"
 
-                if show_money:
-                    try:
-                        rate_multiplier = float(rate)
-                        total_hours_with_rate = hours * rate_multiplier
-                        value = int(service.calculate_monetary_timebank(timedelta(hours=total_hours_with_rate)))
-                        output += f" = {format_currency(value):>10}"
-                        total_money += value
-                    except ConfigKeyError:
-                        # Silently skip monetary display for breakdown if salary not configured
-                        pass
-                    except TypeError:
-                        pass
-
-                click.echo(output)
             if show_money:
-                total += f" = {format_currency(total_money):>10}"
+                try:
+                    rate_multiplier = float(rate)
+                    total_hours_with_rate = hours * rate_multiplier
+                    value = int(service.calculate_monetary_timebank(timedelta(hours=total_hours_with_rate)))
+                    output += f" = {format_currency(value):>10}"
+                    total_money += value
+                except ConfigKeyError:
+                    # Silently skip monetary display for breakdown if salary not configured
+                    pass
+                except TypeError:
+                    pass
 
+            click.echo(output)
+        if show_money:
+            total += f" = {format_currency(total_money):>10}"
 
-
-            click.echo("  " + "-"*(len(total)-2))
-            click.echo(total)
-
-
+        click.echo("  " + "-"*(len(total)-2))
+        click.echo(total)
