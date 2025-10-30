@@ -11,6 +11,7 @@ from alvtime_cli.param_types import DateParam
 
 
 class EditEntry(pydantic.BaseModel):
+    task_id: int | None = None
     task: str
     date: datetime.date | None = None
     start: datetime.time
@@ -59,7 +60,7 @@ def _editable_entry(entry: model.TimeEntry, aliases: list[model.TaskAlias]) -> E
     if alias:
         task_name = alias.name
     else:
-        task_name = f"[{entry.task_id}] {entry.task.customer_name} {entry.task.project_name} {entry.task.name}"
+        task_name = _format_task_string(entry.task)
     return EditEntry(
             ref=entry.id,
             task=task_name,
@@ -164,6 +165,11 @@ def edit(ctx, date):
     for entry in original.entries + original.breaks + response.entries + response.breaks:
         entry.date = date
 
+    # Hydrate task IDs
+    all_tasks = service.get_all_tasks(include_locked=True)
+    for entry in original.entries + response.entries:
+        entry.task_id = _task_id_from_task_string(entry.task, all_tasks, aliases)
+
     _perform_changes(service, original, response)
 
 
@@ -223,7 +229,7 @@ def _to_time_entry(edit_entry: EditEntry):
 
     return model.TimeEntry(
         id=edit_entry.ref,
-        task_id=_task_id_from_task_string(edit_entry.task),
+        task_id=edit_entry.task_id,
         start=start,
         duration=(stop-start),
         is_open=False,
@@ -239,3 +245,20 @@ def _to_time_break(edit_break: EditBreak):
         start=start,
         duration=(stop-start),
         comment=edit_break.comment)
+
+
+def _task_id_from_task_string(task_string: str, all_tasks: list[model.Task], aliases: list[model.TaskAlias]) -> int:
+    task_id = next((a.task.id for a in aliases if a.name == task_string), None)
+    if task_id is not None:
+        return task_id
+
+    task_id = next((t.id for t in all_tasks if _format_task_string(t) == task_string), None)
+    if task_id is not None:
+        return task_id
+
+    raise AttributeError(f"Task '{task_string}' not found")
+
+
+def _format_task_string(task: model.Task) -> str:
+    return f"[{task.id}] {task.customer_name} {task.project_name} {task.name}"
+
