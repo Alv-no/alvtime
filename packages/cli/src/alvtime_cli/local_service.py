@@ -181,9 +181,7 @@ class LocalService:
                 from_date=from_,
                 to_date=to)
 
-    def add_break(self, from_: datetime, to: datetime, comment: str):
-        duration = timedelta(seconds=round((to - from_).total_seconds()))
-        break_ = model.TimeBreak(start=from_, duration=duration, comment=comment)
+    def add_break(self, break_: model.TimeBreak):
         self.repo.insert_time_break(break_)
         return break_
 
@@ -200,7 +198,7 @@ class LocalService:
                               datetime.combine(datetime.now(), auto_break.start)),
                     comment=auto_break.comment)
             if any(entries_overlap(break_, e) for e in time_entries):
-                self.add_break(break_.start, break_.start + break_.duration, break_.comment)
+                self.add_break(break_)
                 ret.append(auto_break)
         return ret
 

@@ -2,7 +2,7 @@ import click
 from datetime import datetime
 from typing import cast
 
-from alvtime_cli import config
+from alvtime_cli import config, model
 from alvtime_cli.commands.sync import sync
 from alvtime_cli.param_types import DateTimeParam
 from alvtime_cli.utils import handle_exceptions, style
@@ -18,10 +18,10 @@ from alvtime_cli.local_service import LocalService
 def add(ctx: click.Context, start: datetime, stop: datetime, comment: str):
     service = cast(LocalService, ctx.obj)
 
-    break_ = service.add_break(
-            from_=start,
-            to=stop,
-            comment=comment)
+    break_ = service.add_break(model.TimeBreak(
+            start=start,
+            duration=(stop-start),
+            comment=comment))
 
     duration = break_.duration
     click.echo(f"Added break for {style(duration, 'time')}")

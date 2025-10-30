@@ -178,11 +178,11 @@ def _perform_changes(service: LocalService, original: EditModel, response: EditM
 
         # Is entry deleted in response?
         if response_entry is None:
-            _delete_entry(service, original_entry)
+            service.delete_time_entry(original_entry.ref)
             continue
 
         # Entry has changed
-        _update_entry(service, original_entry, response_entry)
+        service.update_time_entry(_to_time_entry(response_entry))
 
     # Check for new entries
     for response_entry in response.entries:
@@ -190,7 +190,7 @@ def _perform_changes(service: LocalService, original: EditModel, response: EditM
         if response_entry.ref is not None:
             continue
 
-        _new_entry(service, response_entry)
+        service.add_time_entry(_to_time_entry(response_entry))
 
     # Check for changes in original breaks
     for original_break in original.breaks:
@@ -202,11 +202,11 @@ def _perform_changes(service: LocalService, original: EditModel, response: EditM
 
         # Is break deleted in response?
         if response_break is None:
-            _delete_break(service, original_break)
+            service.delete_break(original_break.ref)
             continue
 
         # Break has changed
-        _update_break(service, original_break, response_break)
+        service.update_break(_to_time_break(response_break))
 
     # Check for new breaks
     for response_break in response.breaks:
@@ -214,46 +214,28 @@ def _perform_changes(service: LocalService, original: EditModel, response: EditM
         if response_break.ref is not None:
             continue
 
-        _new_break(service, response_break)
+        service.add_break(_to_time_break(response_break))
 
 
-def _new_entry(service: LocalService, entry: EditEntry):
-    click.echo("New entry")
-    service.add_entry(model.TimeEntry(
-        task_id=_task_id_from_task_string(entry.task),
-        start=entry.start))
+def _to_time_entry(edit_entry: EditEntry):
+    start = datetime.datetime.combine(edit_entry.date, edit_entry.start)
+    stop = datetime.datetime.combine(edit_entry.date, edit_entry.stop)
+
+    return model.TimeEntry(
+        id=edit_entry.ref,
+        task_id=_task_id_from_task_string(edit_entry.task),
+        start=start,
+        duration=(stop-start),
+        is_open=False,
+        comment=edit_entry.comment)
 
 
-def _update_entry(service: LocalService, original: EditEntry, response: EditEntry):
-    click.echo(f"Updating entry {original.ref}")
-    entry: model.TimeEntry = service.get_entry(original.ref)
+def _to_time_break(edit_break: EditBreak):
+    start = datetime.datetime.combine(edit_break.date, edit_break.start)
+    stop = datetime.datetime.combine(edit_break.date, edit_break.stop)
 
-    # Update start time
-    entry.start = entry.start.replace(
-            hour=response.start.hour,
-            minute=response.start.minute)
-
-    # Update stop time
-    entry.stop = entry.stop.replace(
-            hour=response.stop.hour,
-            minute=response.stop.minute)
-
-    # Update comment
-    entry.comment = response.comment
-
-
-def _delete_entry(service: LocalService, entry: EditEntry):
-    click.echo(f"Deleting entry {entry.ref}")
-    # service.delete_time_entry(original_entry.ref)
-
-
-def _new_break(service: LocalService, break_: EditBreak):
-    pass
-
-
-def _update_break(service: LocalService, original: EditBreak, response: EditBreak):
-    pass
-
-
-def _delete_break(service: LocalService, break_: EditBreak):
-    pass
+    return model.TimeBreak(
+        id=edit_break.ref,
+        start=start,
+        duration=(stop-start),
+        comment=edit_break.comment)
