@@ -12,6 +12,7 @@ from alvtime_cli.param_types import DateParam
 
 class EditEntry(pydantic.BaseModel):
     task: str
+    date: datetime.date | None = None
     start: datetime.time
     stop: datetime.time
     comment: str | None = None
@@ -29,6 +30,7 @@ class EditEntry(pydantic.BaseModel):
 
 
 class EditBreak(pydantic.BaseModel):
+    date: datetime.date | None = None
     start: datetime.time
     stop: datetime.time
     comment: str | None = None
@@ -157,6 +159,10 @@ def edit(ctx, date):
             msg = err["msg"]
             messages.append(f"  - {loc}: {msg}")
         raise click.exceptions.ClickException("\n".join(messages))
+
+    # Hydrate date
+    for entry in original.entries + original.breaks + response.entries + response.breaks:
+        entry.date = date
 
     _perform_changes(service, original, response)
 
