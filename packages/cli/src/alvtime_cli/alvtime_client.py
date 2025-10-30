@@ -78,3 +78,14 @@ class AlvtimeClient:
         response.raise_for_status()
 
         return list(date.fromisoformat(dateString) for dateString in response.json())
+
+    def get_available_hours(self) -> model.AvailableHours:
+        pat = config.get(config.Keys.personal_access_token, "")
+        headers = {"Authorization": f"Bearer {pat}"} if pat else {}
+        response = requests.get(f"{self.base_url}/api/user/AvailableHours",
+                                headers=headers)
+        response.raise_for_status()
+        payload = response.json()
+        if payload.get("entries") is None:
+            payload["entries"] = []
+        return model.AvailableHours.model_validate(payload)

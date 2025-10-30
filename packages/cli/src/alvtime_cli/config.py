@@ -6,6 +6,11 @@ import pydantic
 import yaml
 
 
+class ConfigKeyError(Exception):
+    """Raised when a required configuration key is missing"""
+    pass
+
+
 config_filename = os.getenv("ALVTIME_CONFIG",
                             Path.home() / ".alvtime.conf")
 
@@ -39,6 +44,7 @@ class Keys(StrEnum):
     alvtime_base_url = "alvtimeBaseUrl"
     task_aliases = "taskAliases"
     auto_sync = "autoSync"
+    salary = "salary"
 
 
 defaults = {
@@ -74,6 +80,8 @@ def get(key, default=None):
     if key in defaults:
         return config.get(key, defaults[key])
     else:
+        if key not in config:
+            raise ConfigKeyError(f"Missing required configuration key: '{key}'")
         return config[key]
 
 

@@ -1,6 +1,9 @@
-from enum import Enum
-from pydantic import BaseModel
-from datetime import date, datetime, timedelta
+from __future__ import annotations
+
+from datetime import date as DateType, datetime, timedelta
+from enum import Enum, IntEnum
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class Customer(BaseModel):
@@ -61,3 +64,27 @@ class CheckResult(BaseModel):
 
 class TimeBreak(BaseEntry):
     pass
+
+
+class TimebankEntryType(IntEnum):
+    OVERTIME = 0
+    PAYOUT = 1
+    FLEX = 2
+
+
+class AvailableHoursEntry(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    date: DateType | None = None
+    hours: float
+    compensation_rate: float = Field(alias="compensationRate")
+    type: TimebankEntryType
+    active: bool | None = None
+
+
+class AvailableHours(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    available_hours_before_compensation: float = Field(alias="availableHoursBeforeCompensation")
+    available_hours_after_compensation: float = Field(alias="availableHoursAfterCompensation")
+    entries: list[AvailableHoursEntry] = Field(default_factory=list)

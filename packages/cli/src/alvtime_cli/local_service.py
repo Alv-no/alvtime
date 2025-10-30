@@ -307,7 +307,7 @@ class LocalService:
 
         return ret
 
-    def get_total_registered_duration_by_date(self, from_: date, to: date, rounding=False) -> dict[date, timedelta]:
+    def get_total_registered_duration_by_date(self, from_: date, to: date, rounding: bool = False) -> dict[date, timedelta]:
         # Check if we're already started
         if self.current_entry():
             raise TaskAlreadyStartedError()
@@ -353,3 +353,45 @@ class LocalService:
             ret.append(status)
 
         return ret
+
+    def calculate_monetary_timebank(self, duration: timedelta) -> float:
+        """
+        Calculate monetary value of timebank hours based on configured salary.
+        Returns unformatted float value (hourly rate * total hours).
+        """
+        salary: int = config.get(config.Keys.salary)
+        hourly_rate = salary / 1950  # Assuming 1950 working hours per year
+        return duration.total_seconds() / 60 / 60 * hourly_rate
+
+    def get_total_hours_with_compensation(self, entries: list[model.AvailableHoursEntry]) -> float:
+        """
+        Calculate total hours multiplied by their compensation rates.
+        Returns unformatted float value.
+        """
+        return sum(entry.hours * entry.compensation_rate for entry in entries)
+
+    def calculate_unspent_overtime(self, entries: list[model.AvailableHoursEntry]) -> dict[str, float]:
+        """
+        Groups overtime entries by compensation rate.
+        Returns dict with compensation rates as keys and total hours as values.
+
+        Note: This includes ALL entries filtered by compensation rate,
+        matching the frontend implementation in TimeBankOverview.vue
+        """
+        unspent_overtime: dict[str, float] = {
+            "0.5": 0.0,   # Frivillig (Volunteer)
+            "1.0": 0.0,   # Interntid (Mandatory)
+            "1.5": 0.0,   # Fakturerbart (Billable)
+            "2.0": 0.0,   # Tommy Time (Mandatory Billable)
+        }
+
+        for entry in entries:
+            rate_key = f"{entry.compensation_rate}"
+            if rate_key in unspent_overtime:
+                unspent_overtime[rate_key] += entry.hours
+
+        return unspent_overtime
+
+    def get_available_hours(self) -> model.AvailableHours:
+        return self.alvtime_client.get_available_hours()
+

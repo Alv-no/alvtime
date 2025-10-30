@@ -4,6 +4,7 @@ from .commands.config import group as config_group
 from .commands.tasks import group as tasks_group
 from .commands.alias import group as alias_group
 from .commands.breaks import group as break_group
+from .commands.timebank import group as timebank_group
 from .local_service import LocalService
 from .alvtime_client import AlvtimeClient
 from .repo import Repo
@@ -43,6 +44,7 @@ main.add_command(alias_group.group)
 main.add_command(break_group.group)
 main.add_command(config_group.group)
 main.add_command(tasks_group.group)
+main.add_command(timebank_group.group)
 
 
 if __name__ == "__main__":
