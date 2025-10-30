@@ -52,7 +52,7 @@ class EditModel(pydantic.BaseModel):
     model_config = {"extra": "forbid"}
 
 
-def editable_entry(entry: model.TimeEntry, aliases: list[model.TaskAlias]) -> EditEntry:
+def _editable_entry(entry: model.TimeEntry, aliases: list[model.TaskAlias]) -> EditEntry:
     alias = next((a for a in aliases if a.task.id == entry.task_id), None)
     if alias:
         task_name = alias.name
@@ -66,7 +66,7 @@ def editable_entry(entry: model.TimeEntry, aliases: list[model.TaskAlias]) -> Ed
             comment=entry.comment)
 
 
-def editable_break(break_: model.TimeBreak) -> EditBreak:
+def _editable_break(break_: model.TimeBreak) -> EditBreak:
     return EditBreak(
             ref=break_.id,
             start=_round_time_to_minute(break_.start.time()),
@@ -74,16 +74,16 @@ def editable_break(break_: model.TimeBreak) -> EditBreak:
             comment=break_.comment)
 
 
-def drop_empty(obj):
+def _drop_empty(obj):
     """Recursively remove empty lists, dicts, and None values."""
     if isinstance(obj, dict):
         return {
-            k: drop_empty(v)
+            k: _drop_empty(v)
             for k, v in obj.items()
-            if v not in (None, [], {}) and drop_empty(v) is not None
+            if v not in (None, [], {}) and _drop_empty(v) is not None
         }
     elif isinstance(obj, list):
-        return [drop_empty(v) for v in obj if v not in (None, [], {})]
+        return [_drop_empty(v) for v in obj if v not in (None, [], {})]
     else:
         return obj
 
@@ -109,9 +109,9 @@ def edit(ctx, date):
     aliases = service.get_aliases()
 
     original = EditModel(
-            entries=map(lambda x: editable_entry(x, aliases),
+            entries=map(lambda x: _editable_entry(x, aliases),
                         service.get_entries(date, date)),
-            breaks=map(editable_break, service.get_breaks(date, date)))
+            breaks=map(_editable_break, service.get_breaks(date, date)))
 
     instructions = textwrap.dedent("""
         # Add, modify or delete entries in this file. Please note:
@@ -121,7 +121,7 @@ def edit(ctx, date):
     """).lstrip()
 
     text = instructions + yaml.dump(
-            drop_empty(original.model_dump(by_alias=True)),
+            _drop_empty(original.model_dump(by_alias=True)),
             sort_keys=False,
             width=float("inf"))
 
@@ -213,6 +213,9 @@ def _perform_changes(service: LocalService, original: EditModel, response: EditM
 
 def _new_entry(service: LocalService, entry: EditEntry):
     click.echo("New entry")
+    service.add_entry(model.TimeEntry(
+        task_id=_task_id_from_task_string(entry.task),
+        start=entry.start))
 
 
 def _update_entry(service: LocalService, original: EditEntry, response: EditEntry):
