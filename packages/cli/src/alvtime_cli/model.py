@@ -4,6 +4,7 @@ from datetime import date as DateType, datetime, timedelta
 from enum import Enum, IntEnum
 
 from pydantic import BaseModel, ConfigDict, Field
+from typing import  ClassVar
 
 
 class Customer(BaseModel):
@@ -73,7 +74,7 @@ class TimebankEntryType(IntEnum):
 
 
 class AvailableHoursEntry(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
+    model_config: ClassVar[ConfigDict] = ConfigDict(populate_by_name=True)
 
     date: DateType | None = None
     hours: float
@@ -83,8 +84,13 @@ class AvailableHoursEntry(BaseModel):
 
 
 class AvailableHours(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
+    model_config: ClassVar[ConfigDict] = ConfigDict(populate_by_name=True)
 
     available_hours_before_compensation: float = Field(alias="availableHoursBeforeCompensation")
     available_hours_after_compensation: float = Field(alias="availableHoursAfterCompensation")
     entries: list[AvailableHoursEntry] = Field(default_factory=list)
+
+
+class GenericPayoutHourEntry(BaseModel):
+    date: DateType
+    hours: float

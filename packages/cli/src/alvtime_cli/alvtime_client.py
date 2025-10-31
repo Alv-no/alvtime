@@ -30,6 +30,27 @@ def _time_entry_to_dto(entry: model.TimeEntry) -> dict:
             "comment": entry.comment}
 
 
+def _payout_to_dto(entry: model.GenericPayoutHourEntry) -> dict:
+    return {
+        "date": entry.date.isoformat(),
+        "hours": float(entry.hours)
+    }
+
+def _payout_from_dto(dto) -> model.GenericPayoutHourEntry:
+    payout_date = dto.get("date")
+    if payout_date is None:
+        raise ValueError("Payout response missing date")
+
+    try:
+        parsed_date = date.fromisoformat(payout_date)
+    except ValueError:
+        parsed_date = datetime.fromisoformat(payout_date).date()
+
+    return model.GenericPayoutHourEntry(
+        date=parsed_date,
+        hours=float(dto["hours"]))
+
+
 class AlvtimeClient:
     def __init__(self, base_url: str | None = None):
         self.base_url = base_url or config.get(config.Keys.alvtime_base_url)
@@ -89,3 +110,14 @@ class AlvtimeClient:
         if payload.get("entries") is None:
             payload["entries"] = []
         return model.AvailableHours.model_validate(payload)
+
+    def upsert_payout(self, payout_hour_entry: model.GenericPayoutHourEntry) -> model.GenericPayoutHourEntry:
+        pat = config.get(config.Keys.personal_access_token, "")
+        headers = {"Authorization": f"Bearer {pat}"} if pat else {}
+        body = _payout_to_dto(payout_hour_entry)
+        response = requests.post(
+            f"{self.base_url}/api/user/Payouts",
+            headers=headers,
+            json=body)
+        response.raise_for_status()
+        return _payout_from_dto(response.json()) if response.content else None

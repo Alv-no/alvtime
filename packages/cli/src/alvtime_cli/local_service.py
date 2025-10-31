@@ -395,3 +395,10 @@ class LocalService:
     def get_available_hours(self) -> model.AvailableHours:
         return self.alvtime_client.get_available_hours()
 
+
+    def order_payout(self, hours: float) -> model.GenericPayoutHourEntry:
+        payout_hour_entry = model.GenericPayoutHourEntry(
+            date=date.today(),
+            hours=hours,
+        )
+        return self.alvtime_client.upsert_payout(payout_hour_entry)
