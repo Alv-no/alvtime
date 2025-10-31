@@ -1,9 +1,10 @@
 [project]
 name = "alvtime-cli"
-version = "0.1.0"
+version = "0.7.0"
 description = ""
 authors = [
-    {name = "Anders Norman",email = "anders@alv.no"}
+    {name = "Anders Norman",email = "anders@alv.no"},
+    {name = "Ronnie Sletta",email = "ronnie@alv.no"}
 ]
 readme = "README.md"
 requires-python = ">=3.13"
