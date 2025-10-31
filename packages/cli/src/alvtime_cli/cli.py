@@ -1,5 +1,5 @@
 import click
-from .commands import check, completion, log, ping, pull, restart, start, status, stop, sync
+from .commands import check, completion, log, ping, pull, restart, start, status, stop, sync, version
 from .commands.config import group as config_group
 from .commands.tasks import group as tasks_group
 from .commands.alias import group as alias_group
@@ -41,6 +41,7 @@ main.add_command(start.start)
 main.add_command(status.status)
 main.add_command(stop.stop)
 main.add_command(sync.sync)
+main.add_command(version.version_)
 main.add_command(alias_group.group)
 main.add_command(break_group.group)
 main.add_command(config_group.group)
