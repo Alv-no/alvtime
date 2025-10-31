@@ -4,7 +4,7 @@ from datetime import date as DateType, datetime, timedelta
 from enum import Enum, IntEnum
 
 from pydantic import BaseModel, ConfigDict, Field
-from typing import  ClassVar
+from typing import ClassVar
 
 
 class Customer(BaseModel):
@@ -57,7 +57,7 @@ class CheckResultType(str, Enum):
 
 
 class CheckResult(BaseModel):
-    date: date
+    date: DateType
     result_type: CheckResultType
     registered_duration: timedelta
     message: str = ""
