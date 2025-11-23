@@ -8,7 +8,7 @@ mod projector;
 mod store;
 mod utils;
 mod view;
-mod handlers;
+mod actions;
 
 use chrono::{Datelike, Local, NaiveDate};
 use events::Event;
@@ -17,7 +17,14 @@ use rustyline::error::ReadlineError;
 use rustyline::Editor;
 use store::EventStore;
 use view::ViewMode;
-use handlers::{add_event, handle_config, handle_edit, handle_favorites, handle_push, handle_start, handle_sync, process_autobreak, get_help_text};
+use crate::actions::add_event;
+use crate::actions::autobreak::autobreak;
+use crate::actions::config::handle_config;
+use crate::actions::edit::handle_edit;
+use crate::actions::favorites::handle_favorites;
+use crate::actions::push::handle_push;
+use crate::actions::start::handle_start;
+use crate::actions::sync::handle_sync;
 
 fn main() {
     let mut app_config = config::Config::load();
@@ -99,7 +106,7 @@ fn main() {
 
         // --- Autobreak Logic ---
         if app_config.autobreak {
-            if let Some(fb) = process_autobreak(&mut today_tasks, &mut today_history, &event_store) {
+            if let Some(fb) = autobreak(&mut today_tasks, &mut today_history, &event_store) {
                 feedback = fb;
             }
         }
@@ -264,4 +271,22 @@ fn main() {
             }
         }
     }
+}
+
+pub fn get_help_text() -> String {
+    r#"Commands:
+        start [name]                - Start tracking a task (from favorites)
+        break                       - Take a break
+        stop                        - Stop tracking
+        sync                        - Sync entries from server (current year)
+        push                        - push all local changes to server
+        view [w/m/y]                - Show the timeline (Day/Week/Month/Year)
+        edit                        - Edit events for a selectable day
+        undo                        - Undo the last entry
+        redo                        - Redo the last entry
+        favorites [add/remove]      - Manage favorite tasks for quick access
+        config set-token <token>    - Set personal token
+        config autobreak <on|off>   - Enable/disable 11:00-11:30 break
+        help                        - List commands
+        quit                        - Exit"#.to_string()
 }

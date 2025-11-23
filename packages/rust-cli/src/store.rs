@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use chrono::NaiveDate;
 use crate::events::Event;
 use sled::Db;
@@ -15,39 +15,48 @@ impl EventStore {
     }
 
     pub fn persist(&self, event: &Event) {
-        // Generate a unique, monotonic ID for the key
-        // 'id_sequence' is a special key used to track the counter
-        let id = self.db.update_and_fetch("id_sequence", |val| {
-            let current = val.map(|v| {
-                let mut bytes = [0u8; 8];
-                bytes.copy_from_slice(v);
-                u64::from_be_bytes(bytes)
-            }).unwrap_or(0);
+        self.persist_batch(std::slice::from_ref(event));
+    }
 
-            Some((current + 1).to_be_bytes())
-        }).unwrap().unwrap();
+    pub fn persist_batch(&self, events: &[Event]) {
+        if events.is_empty() {
+            return;
+        }
 
-        let key = id.as_ref(); // id is IVec, can serve as key directly
-
-        let date = event.date();
-        let date_str = date.format("%Y-%m-%d").to_string();
-
-        // 1. Update the index of existing days
         let dates_idx = self.db.open_tree("dates_index").unwrap();
-        // We only need the key (date), value can be empty
-        dates_idx.insert(&date_str, &[]).unwrap();
+        let mut trees: HashMap<String, sled::Tree> = HashMap::new();
 
-        // 2. Insert the event into the partition (tree) for that day
-        let tree_key = format!("events_{}", date_str);
-        let tree = self.db.open_tree(tree_key).unwrap();
+        for event in events {
+            let id = self.db.update_and_fetch("id_sequence", |val| {
+                let current = val.map(|v| {
+                    let mut bytes = [0u8; 8];
+                    bytes.copy_from_slice(v);
+                    u64::from_be_bytes(bytes)
+                }).unwrap_or(0);
 
-        // Serialize event to JSON and save
-        let value = serde_json::to_vec(event).unwrap();
-        tree.insert(key, value).unwrap();
+                Some((current + 1).to_be_bytes())
+            }).unwrap().unwrap();
 
-        // Ensure it's written to disk immediately
-        tree.flush().unwrap();
+            let key = id.as_ref(); // id is IVec, can serve as key directly
+
+            let date = event.date();
+            let date_str = date.format("%Y-%m-%d").to_string();
+
+            // Update dates index (we only use the key)
+            dates_idx.insert(&date_str, &[]).unwrap();
+
+            let tree_key = format!("events_{}", date_str);
+            let tree = trees.entry(tree_key.clone())
+                .or_insert_with(|| self.db.open_tree(&tree_key).unwrap());
+
+            let value = serde_json::to_vec(event).unwrap();
+            tree.insert(key, value).unwrap();
+        }
+
         dates_idx.flush().unwrap();
+        for tree in trees.values() {
+            tree.flush().unwrap();
+        }
     }
 
     pub fn events_for_day(&self, date: NaiveDate) -> Vec<Event> {
@@ -64,14 +73,20 @@ impl EventStore {
         }
     }
 
-    pub fn delete_events_for_day(&self, date: NaiveDate) {
-        let tree_key = format!("events_{}", date.format("%Y-%m-%d"));
-        if let Ok(tree) = self.db.open_tree(tree_key) {
-            tree.clear().unwrap();
+    pub fn delete_events_for_days(&self, dates: &[NaiveDate]) {
+        let mut trees = Vec::with_capacity(dates.len());
+        for date in dates {
+            let tree_key = format!("events_{}", date.format("%Y-%m-%d"));
+            if let Ok(tree) = self.db.open_tree(tree_key) {
+                tree.clear().unwrap();
+                trees.push(tree);
+            }
+        }
+        for tree in trees {
             tree.flush().unwrap();
         }
     }
-
+    
     pub fn has_cached_holidays(&self, year: i32) -> bool {
         let meta = self.db.open_tree("meta").unwrap();
         let key = format!("holidays_{}", year);

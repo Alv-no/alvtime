@@ -226,16 +226,29 @@ pub fn render_day(projects: &[&Task]) {
         }
 
         // Visual calculation
-        let label = if minutes >= 60 {
+        let mut label = if minutes >= 60 {
             format!("{}h {}m", minutes / 60, minutes % 60)
         } else {
             format!("{}m", minutes)
         };
 
+        let mut bg_style = None;
+        let rate = p.rate;
+        if (rate - 0.5).abs() < 0.001 {
+            bg_style = Some("\x1b[42;102m"); // Green BG, White FG
+            label.push_str(" (0.5)");
+        } else if (rate - 1.0).abs() < 0.001 {
+            bg_style = Some("\x1b[48;5;93;102m"); // Purple BG, White FG
+            label.push_str(" (1.0)");
+        } else if (rate - 1.5).abs() < 0.001 {
+            bg_style = Some("\x1b[45;102m"); // Magenta BG, White FG
+            label.push_str(" (1.5)");
+        }
+
         let info_text = if p.is_break {
             p.name.clone()
         } else {
-            format!("{} | {} @ {}%", p.name, p.project_name, p.rate * 100.0)
+            format!("{} | {}", p.name, p.project_name)
         };
 
         let label_len = label.len();
@@ -262,6 +275,8 @@ pub fn render_day(projects: &[&Task]) {
                 // Inactive break in light grey (using bright black)
                 format!("\x1b[90m{}\x1b[0m", bar_text)
             }
+        } else if let Some(style) = bg_style {
+            format!("{}{}\x1b[0m", style, bar_text)
         } else if p.end_time.is_none() {
             // Highlight current running project in green
             format!("\x1b[32m{}\x1b[0m", bar_text)
