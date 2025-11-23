@@ -86,7 +86,7 @@ impl EventStore {
             tree.flush().unwrap();
         }
     }
-    
+
     pub fn has_cached_holidays(&self, year: i32) -> bool {
         let meta = self.db.open_tree("meta").unwrap();
         let key = format!("holidays_{}", year);

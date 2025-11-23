@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 use chrono::{Datelike, Local, NaiveDate};
 use inquire::Select;
 use crate::{alvtime, external_models, models, projector};
-use crate::actions::utils::generate_events_from_server_entries;
+use crate::actions::utils::{generate_events_from_server_entries, round_duration_to_quarter_hour};
 use crate::events::Event;
 use crate::external_models::TaskDto;
 use crate::store::EventStore;
@@ -88,10 +88,12 @@ pub fn handle_push(
 
         if has_server_entries {
             let server_hours: f64 = server_entries.unwrap().iter().map(|e| e.value).sum();
-            let local_hours: f64 = day_tasks
-                .iter()
-                .map(|t| t.duration().num_minutes() as f64 / 60.0)
-                .sum();
+
+            let mut local_sums: HashMap<i32, i64> = HashMap::new();
+            for t in &day_tasks {
+                *local_sums.entry(t.id).or_default() += t.duration().num_minutes();
+            }
+            let local_hours: f64 = local_sums.values().map(|m| round_duration_to_quarter_hour(*m)).sum();
 
             let msg = format!(
                 "Conflict on {}: Local {:.1}h vs Server {:.1}h. What do you want to do?",
@@ -135,16 +137,15 @@ pub fn handle_push(
         }
 
         if should_push {
-            let mut sums: HashMap<i32, f64> = HashMap::new();
+            let mut sums: HashMap<i32, i64> = HashMap::new();
             for t in day_tasks {
-                let hours = t.duration().num_minutes() as f64 / 60.0;
-                *sums.entry(t.id).or_default() += hours;
+                *sums.entry(t.id).or_default() += t.duration().num_minutes();
             }
 
             let empty_vec = Vec::new();
             let server_entries_for_day = server_entries.unwrap_or(&empty_vec);
 
-            for (task_id, hours) in sums {
+            for (task_id, minutes) in sums {
                 let existing_id = server_entries_for_day
                     .iter()
                     .find(|e| e.task_id == task_id)
@@ -155,7 +156,7 @@ pub fn handle_push(
                     id: existing_id,
                     task_id,
                     date: date.format("%Y-%m-%d").to_string(),
-                    value: hours,
+                    value: round_duration_to_quarter_hour(minutes),
                     comment: None,
                 });
             }

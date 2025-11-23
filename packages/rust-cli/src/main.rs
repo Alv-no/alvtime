@@ -10,10 +10,15 @@ mod utils;
 mod view;
 mod actions;
 
+use std::collections::HashSet;
+use std::io;
+use clap::{CommandFactory, Parser, Subcommand, ValueEnum};
 use chrono::{Datelike, Local, NaiveDate};
+use clap_complete::{generate, Shell};
 use events::Event;
 use input_helper::InputHelper;
 use rustyline::error::ReadlineError;
+use rustyline::history::DefaultHistory;
 use rustyline::Editor;
 use store::EventStore;
 use view::ViewMode;
@@ -25,8 +30,127 @@ use crate::actions::favorites::handle_favorites;
 use crate::actions::push::handle_push;
 use crate::actions::start::handle_start;
 use crate::actions::sync::handle_sync;
+use crate::config::Config;
+use crate::external_models::TaskDto;
+use crate::models::Task;
+
+#[derive(Parser)]
+#[command(name = "atime")]
+#[command(about = "Alvtime CLI", long_about = None)]
+struct Cli {
+    /// Start interactive shell mode
+    #[arg(short, long)]
+    shell: bool,
+
+    #[command(subcommand)]
+    command: Option<Commands>,
+}
+
+#[derive(Subcommand, Clone)]
+enum Commands {
+    /// Start tracking a task
+    Start {
+        /// Task name (optional)
+        name: Option<String>,
+    },
+    /// Take a break
+    Break,
+    /// Stop tracking
+    Stop,
+    /// Sync entries from server
+    Sync,
+    /// Push local changes to server
+    Push,
+    /// View the timeline
+    View {
+        #[arg(value_enum)]
+        mode: Option<ViewModeArg>,
+    },
+    /// Edit events (interactive)
+    Edit,
+    /// Undo last action
+    Undo,
+    /// Redo last action
+    Redo,
+    /// Manage favorites
+    Favorites {
+        #[command(subcommand)]
+        action: Option<FavoritesAction>,
+    },
+    /// Manage configuration
+    Config {
+        #[command(subcommand)]
+        action: Option<ConfigAction>,
+    },
+    /// Generate shell completions
+    ///
+    /// Example for zsh: source <(atime completions zsh)
+    #[command(long_about = "Generate shell completions to stdout.
+
+To install completions for zsh, you can add this to your ~/.zshrc:
+
+    source <(atime completions zsh)
+
+Or write it to a file in your $fpath:
+
+    atime completions zsh > /usr/local/share/zsh/site-functions/_atime")]
+    Completions {
+        /// The shell to generate the completions for
+        #[arg(value_enum)]
+        shell: Shell,
+    },
+    /// Exit the shell
+    Quit,
+}
+
+#[derive(Clone, ValueEnum)]
+enum ViewModeArg {
+    Day,
+    Week,
+    Month,
+    Year,
+    D, W, M, Y
+}
+
+impl From<ViewModeArg> for ViewMode {
+    fn from(arg: ViewModeArg) -> Self {
+        match arg {
+            ViewModeArg::Day | ViewModeArg::D => ViewMode::Day,
+            ViewModeArg::Week | ViewModeArg::W => ViewMode::Week,
+            ViewModeArg::Month | ViewModeArg::M => ViewMode::Month,
+            ViewModeArg::Year | ViewModeArg::Y => ViewMode::Year,
+        }
+    }
+}
+
+#[derive(Subcommand, Clone)]
+enum FavoritesAction {
+    Add,
+    Remove,
+    List,
+}
+
+#[derive(Subcommand, Clone)]
+enum ConfigAction {
+    SetToken { token: String },
+    Autobreak { value: String },
+}
+
+struct AppContext<'a> {
+    app_config: &'a mut Config,
+    event_store: &'a EventStore,
+    client: &'a alvtime::AlvtimeClient,
+    external_tasks: &'a [TaskDto],
+    holidays: &'a HashSet<NaiveDate>,
+    today_history: &'a mut Vec<Event>,
+    today_tasks: &'a mut Vec<Task>,
+    view_mode: &'a mut ViewMode,
+    editor: &'a mut Editor<InputHelper, DefaultHistory>,
+}
 
 fn main() {
+    let cli = Cli::parse();
+
     let mut app_config = config::Config::load();
     let event_store = EventStore::new(&app_config.storage_path);
 
@@ -40,8 +164,8 @@ fn main() {
     let external_tasks = client.list_tasks().unwrap_or_else(|e| {
         eprintln!("Warning: Failed to fetch tasks from API: {}", e);
         Vec::new()
-    })
-        ;
+    });
+
     // Check and fetch holidays
     let current_year = Local::now().year();
     if !event_store.has_cached_holidays(current_year) && app_config.personal_token.is_some() {
@@ -64,49 +188,226 @@ fn main() {
     // 2. Rebuild State (Current Day)
     let mut today_tasks = projector::restore_state(&today_history);
 
-    let mut feedback = format!(
-        "Type 'help' for commands. Autobreak is {}.",
-        if app_config.autobreak { "ON" } else { "OFF" }
-    );
+    // 3. Setup Editor (Shared between Shell and CLI modes)
+    let helper = create_input_helper(&external_tasks, &app_config);
+    let mut editor = Editor::new().expect("Failed to init readline");
+    editor.set_helper(Some(helper));
 
-    // We need to map the favorites (which are IDs) to strings for the helper if needed,
-    // but InputHelper was updated to take Vec<i32> for favorites.
-    // Ensure InputHelper definition in input_helper.rs matches this usage.
-    let helper = InputHelper {
-        commands: vec![
-            "start".to_string(),
-            "break".to_string(),
-            "stop".to_string(),
-            "view".to_string(),
-            "sync".to_string(),
-            "push".to_string(),
-            "undo".to_string(),
-            "redo".to_string(),
-            "help".to_string(),
-            "config".to_string(),
-            "favorites".to_string(),
-            "edit".to_string(),
-            "quit".to_string(),
-        ],
-        tasks: external_tasks.clone(),
-        favorites: app_config.favorite_tasks.clone(),
+    let mut view_mode = ViewMode::Day;
+
+    // 4. Create Context ONCE
+    let mut ctx = AppContext {
+        app_config: &mut app_config,
+        event_store: &event_store,
+        client: &client,
+        external_tasks: &external_tasks,
+        holidays: &holidays,
+        today_history: &mut today_history,
+        today_tasks: &mut today_tasks,
+        view_mode: &mut view_mode,
+        editor: &mut editor,
     };
 
-    let mut rl = Editor::new().expect("Failed to initialize readline");
-    rl.set_helper(Some(helper));
+    if cli.shell {
+        run_shell(&mut ctx);
+    } else if let Some(command) = cli.command {
+        let feedback = execute_command(command.clone(), &mut ctx);
 
-    let mut current_mode = ViewMode::Month;
+        if let Commands::View { .. } = command {
+            let tasks = get_tasks_for_view(ctx.view_mode, ctx.event_store, ctx.today_tasks);
+            view::draw_timeline(&tasks, ctx.view_mode, ctx.holidays);
+        } else {
+            println!("{}", feedback);
+        }
+    } else {
+        Cli::command().print_help().unwrap();
+    }
+}
+
+fn create_input_helper(tasks: &[TaskDto], config: &Config) -> InputHelper {
+    InputHelper {
+        commands: vec![
+            "start".to_string(), "break".to_string(), "stop".to_string(),
+            "view".to_string(), "sync".to_string(), "push".to_string(),
+            "undo".to_string(), "redo".to_string(), "help".to_string(),
+            "config".to_string(), "favorites".to_string(), "edit".to_string(),
+            "quit".to_string(),
+        ],
+        tasks: tasks.to_vec(),
+        favorites: config.favorite_tasks.clone(),
+    }
+}
+
+fn execute_command(command: Commands, ctx: &mut AppContext) -> String {
+    match command {
+        Commands::Start { name } => {
+            let mut parts = vec!["start"];
+            if let Some(n) = &name {
+                parts.push(n);
+            }
+            handle_start(
+                &parts,
+                ctx.today_tasks,
+                ctx.today_history,
+                ctx.event_store,
+                ctx.app_config,
+                ctx.external_tasks,
+            )
+        },
+        Commands::Break => {
+            add_event(ctx.today_tasks, ctx.today_history, ctx.event_store, Event::BreakStarted { start_time: Local::now(), is_generated: false }, "Break started.")
+        },
+        Commands::Stop => {
+            add_event(ctx.today_tasks, ctx.today_history, ctx.event_store, Event::Stopped { end_time: Local::now(), is_generated: false }, "Stopped.")
+        },
+        Commands::Sync => {
+            handle_sync(
+                ctx.client,
+                ctx.today_tasks,
+                ctx.today_history,
+                ctx.event_store,
+                ctx.external_tasks,
+            )
+        },
+        Commands::Push => {
+            handle_push(
+                ctx.client,
+                ctx.today_tasks,
+                ctx.today_history,
+                ctx.event_store,
+                ctx.external_tasks,
+            )
+        },
+        Commands::View { mode } => {
+            if let Some(m) = mode {
+                *ctx.view_mode = m.into();
+            }
+            String::new()
+        },
+        Commands::Edit => {
+            handle_edit(
+                ctx.today_tasks,
+                ctx.today_history,
+                ctx.event_store,
+                ctx.external_tasks,
+                ctx.app_config,
+            )
+        },
+        Commands::Undo => {
+            add_event(ctx.today_tasks, ctx.today_history, ctx.event_store, Event::Undo { time: Local::now() }, "Undone.")
+        },
+        Commands::Redo => {
+            add_event(ctx.today_tasks, ctx.today_history, ctx.event_store, Event::Redo { time: Local::now() }, "Redone.")
+        },
+        Commands::Favorites { action } => {
+            let mut parts = vec!["favorites"];
+            let binding_add = "add".to_string();
+            let binding_remove = "remove".to_string();
+            match action {
+                Some(FavoritesAction::Add) => parts.push(&binding_add),
+                Some(FavoritesAction::Remove) => parts.push(&binding_remove),
+                _ => {}
+            }
+            handle_favorites(
+                &parts,
+                ctx.app_config,
+                ctx.external_tasks,
+                ctx.editor,
+            )
+        },
+        Commands::Config { action } => {
+            let mut parts = vec!["config"];
+            let binding_token = "set-token".to_string();
+            let binding_autobreak = "autobreak".to_string();
+            let token_val;
+            let auto_val;
+
+            match action {
+                Some(ConfigAction::SetToken { token }) => {
+                    parts.push(&binding_token);
+                    token_val = token;
+                    parts.push(&token_val);
+                },
+                Some(ConfigAction::Autobreak { value }) => {
+                    parts.push(&binding_autobreak);
+                    auto_val = value;
+                    parts.push(&auto_val);
+                },
+                None => {}
+            }
+            handle_config(&parts, ctx.app_config)
+        },
+        Commands::Completions { shell } => {
+            let mut cmd = Cli::command();
+            let bin_name = cmd.get_name().to_string();
+            generate(shell, &mut cmd, bin_name, &mut io::stdout());
+            String::new()
+        },
+        Commands::Quit => "Exiting...".to_string(),
+    }
+}
+
+fn get_tasks_for_view(mode: &ViewMode, store: &EventStore, today_tasks: &[Task]) -> Vec<Task> {
+    let now = Local::now();
+    match mode {
+        ViewMode::Day => today_tasks.to_vec(),
+        ViewMode::Week => {
+            let mut all_tasks = Vec::new();
+            let start_of_week = now.date_naive() - chrono::Duration::days(now.weekday().num_days_from_monday() as i64);
+            for i in 0..7 {
+                let d = start_of_week + chrono::Duration::days(i);
+                let events = store.events_for_day(d);
+                all_tasks.extend(projector::restore_state(&events));
+            }
+            all_tasks
+        },
+        ViewMode::Month => {
+            let mut all_tasks = Vec::new();
+            let start_of_month = NaiveDate::from_ymd_opt(now.year(), now.month(), 1).unwrap();
+            let mut d = start_of_month;
+            while d.month() == now.month() {
+                let events = store.events_for_day(d);
+                all_tasks.extend(projector::restore_state(&events));
+                d += chrono::Duration::days(1);
+            }
+            all_tasks
+        },
+        ViewMode::Year => {
+            let mut all_tasks = Vec::new();
+            let start_of_year = NaiveDate::from_ymd_opt(now.year(), 1, 1).unwrap();
+            let mut d = start_of_year;
+            while d.year() == now.year() {
+                let events = store.events_for_day(d);
+                all_tasks.extend(projector::restore_state(&events));
+                d += chrono::Duration::days(1);
+            }
+            all_tasks
+        }
+    }
+}
+
+fn run_shell(ctx: &mut AppContext) {
+    let mut feedback = format!(
+        "Type 'help' for commands. Autobreak is {}.",
+        if ctx.app_config.autobreak { "ON" } else { "OFF" }
+    );
+
+    // Default mode for shell
+    *ctx.view_mode = ViewMode::Month;
+    let today = Local::now().date_naive();
 
     loop {
-        // Handle day change logic? (Simplistic approach: if date changed, reset today vars)
+        // Check day change
         let now = Local::now();
         if now.date_naive() != today {
-            // Ideally restart main or update refs, but for now we assume single-session-day usage or restart
+            // In a real persistent app, we'd need to reload today_history here
         }
 
         // --- Autobreak Logic ---
-        if app_config.autobreak {
-            if let Some(fb) = autobreak(&mut today_tasks, &mut today_history, &event_store) {
+        // We can access ctx fields directly.
+        // Because they are distinct fields, Rust allows splitting the borrow.
+        if ctx.app_config.autobreak {
+            if let Some(fb) = autobreak(ctx.today_tasks, ctx.today_history, ctx.event_store) {
                 feedback = fb;
             }
         }
@@ -114,50 +415,15 @@ fn main() {
         print!("\x1b[2J\x1b[1;1H"); // Clear screen
 
         // Build tasks for view
-        let tasks_to_view = match current_mode {
-            ViewMode::Day => today_tasks.clone(),
-            ViewMode::Week => {
-                let mut all_tasks = Vec::new();
-                let start_of_week = now.date_naive() - chrono::Duration::days(now.weekday().num_days_from_monday() as i64);
-                for i in 0..7 {
-                    let d = start_of_week + chrono::Duration::days(i);
-                    let events = event_store.events_for_day(d);
-                    all_tasks.extend(projector::restore_state(&events));
-                }
-                all_tasks
-            },
-            ViewMode::Month => {
-                let mut all_tasks = Vec::new();
-                let start_of_month = NaiveDate::from_ymd_opt(now.year(), now.month(), 1).unwrap();
-                let mut d = start_of_month;
-                while d.month() == now.month() {
-                    let events = event_store.events_for_day(d);
-                    all_tasks.extend(projector::restore_state(&events));
-                    d += chrono::Duration::days(1);
-                }
-                all_tasks
-            },
-            ViewMode::Year => {
-                let mut all_tasks = Vec::new();
-                let start_of_year = NaiveDate::from_ymd_opt(now.year(), 1, 1).unwrap();
-                let mut d = start_of_year;
-                while d.year() == now.year() {
-                    let events = event_store.events_for_day(d);
-                    all_tasks.extend(projector::restore_state(&events));
-                    d += chrono::Duration::days(1);
-                }
-                all_tasks
-            }
-        };
-
-        view::draw_timeline(&tasks_to_view, &current_mode, &holidays);
+        let tasks_to_view = get_tasks_for_view(ctx.view_mode, ctx.event_store, ctx.today_tasks);
+        view::draw_timeline(&tasks_to_view, ctx.view_mode, ctx.holidays);
 
         if !feedback.is_empty() {
             println!("\n{}", feedback);
             feedback.clear();
         }
 
-        let readline = rl.readline("> ");
+        let readline = ctx.editor.readline("> ");
         match readline {
             Ok(line) => {
                 let input = line.trim();
@@ -165,103 +431,40 @@ fn main() {
                     continue;
                 }
 
-                let _ = rl.add_history_entry(input);
-                let parts: Vec<&str> = input.split_whitespace().collect();
+                let _ = ctx.editor.add_history_entry(input);
 
-                match parts[0] {
-                    "start" => {
-                        feedback = handle_start(
-                            &parts,
-                            &mut today_tasks,
-                            &mut today_history,
-                            &event_store,
-                            &app_config,
-                            &external_tasks,
-                        );
-                    }
-                    "favorites" => {
-                        feedback = handle_favorites(
-                            &parts,
-                            &mut app_config,
-                            &external_tasks,
-                            &mut rl,
-                        );
-                    }
-                    "break" => {
-                        feedback = add_event(&mut today_tasks, &mut today_history, &event_store, Event::BreakStarted { start_time: Local::now(), is_generated: false }, "Break started.");
-                    }
-                    "stop" => {
-                        let now = Local::now();
-                        let rounded_end = utils::round_ceil_quarter(now);
-                        feedback = add_event(&mut today_tasks, &mut today_history, &event_store, Event::Stopped { end_time: rounded_end, is_generated: false }, "Stopped.");
-                    }
-                    "view" => {
-                        current_mode = if parts.len() > 1 {
-                            match parts[1] {
-                                "week" | "w" => ViewMode::Week,
-                                "month" | "m" => ViewMode::Month,
-                                "year" | "y" => ViewMode::Year,
-                                _ => ViewMode::Day,
+                let parts = input.split_whitespace();
+                let mut args = vec!["atime"];
+                args.extend(parts);
+
+                match Cli::try_parse_from(args) {
+                    Ok(cli) => {
+                        if let Some(command) = cli.command {
+                            if matches!(command, Commands::Quit) {
+                                break;
                             }
-                        } else {
-                            ViewMode::Month
-                        };
-                    }
-                    "undo" => {
-                        feedback = add_event(&mut today_tasks, &mut today_history, &event_store, Event::Undo { time: Local::now() }, "Undone.");
-                    }
-                    "redo" => {
-                        feedback = add_event(&mut today_tasks, &mut today_history, &event_store, Event::Redo { time: Local::now() }, "Redone.");
-                    }
-                    "sync" => {
-                        feedback = handle_sync(
-                            &client,
-                            &mut today_tasks,
-                            &mut today_history,
-                            &event_store,
-                            &external_tasks,
-                        );
-                    }
-                    "push" => {
-                        feedback = handle_push(
-                            &client,
-                            &mut today_tasks,
-                            &mut today_history,
-                            &event_store,
-                            &external_tasks,
-                        );
-                    }
-                    "edit" => {
-                        feedback = handle_edit(
-                            &mut today_tasks,
-                            &mut today_history,
-                            &event_store,
-                            &external_tasks,
-                            &app_config,
-                        );
-                    }
-                    "config" => {
-                        feedback = handle_config(&parts, &mut app_config);
-                        // If token was set, break inner loop to re-initialize client in outer loop
-                        if parts.len() >= 2 && parts[1] == "set-token" {
-                            println!("Token saved. Reloading session...");
-                            break;
+
+                            // Pass the existing context re-borrowed
+                            feedback = execute_command(command, ctx);
+
+                            if feedback.starts_with("Token saved") {
+                                println!("Token saved. Reloading session...");
+                                break;
+                            }
                         }
                     }
-                    "help" => {
-                        feedback = get_help_text();
-                    }
-                    "quit" => break,
-                    _ => {
-                        feedback = "Unknown command. Type 'help' for list of commands.".to_string()
+                    Err(e) => {
+                        if e.kind() == clap::error::ErrorKind::DisplayHelp {
+                            println!("{}", e);
+                            println!("Press enter to continue...");
+                            let _ = std::io::stdin().read_line(&mut String::new());
+                        } else {
+                            feedback = format!("Error: {}", e);
+                        }
                     }
                 }
             }
-            Err(ReadlineError::Interrupted) => {
-                println!("Exited");
-                break;
-            }
-            Err(ReadlineError::Eof) => {
+            Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => {
                 println!("Exited");
                 break;
             }
@@ -271,22 +474,4 @@ fn main() {
             }
         }
     }
-}
-
-pub fn get_help_text() -> String {
-    r#"Commands:
-        start [name]                - Start tracking a task (from favorites)
-        break                       - Take a break
-        stop                        - Stop tracking
-        sync                        - Sync entries from server (current year)
-        push                        - push all local changes to server
-        view [w/m/y]                - Show the timeline (Day/Week/Month/Year)
-        edit                        - Edit events for a selectable day
-        undo                        - Undo the last entry
-        redo                        - Redo the last entry
-        favorites [add/remove]      - Manage favorite tasks for quick access
-        config set-token <token>    - Set personal token
-        config autobreak <on|off>   - Enable/disable 11:00-11:30 break
-        help                        - List commands
-        quit                        - Exit"#.to_string()
 }

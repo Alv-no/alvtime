@@ -222,3 +222,11 @@ pub fn generate_events_from_server_entries(
 
     events
 }
+
+pub fn round_duration_to_quarter_hour(minutes: i64) -> f64 {
+    if minutes <= 0 {
+        return 0.0;
+    }
+    let quarters = (minutes as f64 / 15.0).ceil();
+    quarters * 0.25
+}

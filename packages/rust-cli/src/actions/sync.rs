@@ -1,4 +1,4 @@
-use crate::actions::utils::generate_events_from_server_entries;
+use crate::actions::utils::{generate_events_from_server_entries, round_duration_to_quarter_hour};
 use crate::events::Event;
 use crate::external_models::TaskDto;
 use crate::store::EventStore;
@@ -90,11 +90,60 @@ pub fn handle_sync(
         }
 
         if has_server_entries {
-            let server_hours: f64 = server_entries.unwrap().iter().map(|e| e.value).sum();
-            let local_hours: f64 = day_tasks
-                .iter()
-                .map(|t| t.duration().num_minutes() as f64 / 60.0)
-                .sum();
+            let server_entries_list = server_entries.unwrap();
+
+            // Check if content is effectively the same (Task IDs and durations match)
+            let mut server_breakdown: HashMap<i32, f64> = HashMap::new();
+            for e in server_entries_list {
+                *server_breakdown.entry(e.task_id).or_default() += e.value;
+            }
+
+            let mut local_breakdown: HashMap<i32, f64> = HashMap::new();
+            let mut local_sums: HashMap<i32, i64> = HashMap::new();
+            for t in &day_tasks {
+                *local_sums.entry(t.id).or_default() += t.duration().num_minutes();
+            }
+            for (tid, mins) in local_sums {
+                local_breakdown.insert(tid, round_duration_to_quarter_hour(mins));
+            }
+
+            let mut is_match = server_breakdown.len() == local_breakdown.len();
+            if is_match {
+                for (t_id, s_hours) in &server_breakdown {
+                    let l_hours = local_breakdown.get(t_id).unwrap_or(&0.0);
+                    // Allow 0.02h (approx 1 min) difference for rounding
+                    if (s_hours - l_hours).abs() > 0.02 {
+                        is_match = false;
+                        break;
+                    }
+                }
+            }
+
+            if is_match {
+                // Auto-sync: Replace local manual entries with server generated ones
+                // because they represent the same data.
+                let new_events = generate_events_from_server_entries(
+                    *date,
+                    server_entries_list,
+                    external_tasks,
+                );
+
+                event_store.delete_events_for_days(&[*date]);
+                event_store.persist_batch(&new_events);
+
+                let today = Local::now().date_naive();
+                if *date == today {
+                    history.clear();
+                    history.extend(new_events);
+                }
+
+                synced_days += 1;
+                println!("Auto-synced {}: Local matched Server.", date);
+                continue;
+            }
+
+            let server_hours: f64 = server_entries_list.iter().map(|e| e.value).sum();
+            let local_hours: f64 = local_breakdown.values().sum();
 
             let msg = format!(
                 "Conflict on {}: Local {:.1}h vs Server {:.1}h. What do you want to do?",
@@ -109,7 +158,7 @@ pub fn handle_sync(
                         // Generate events from server data
                         let new_events = generate_events_from_server_entries(
                             *date,
-                            server_entries.unwrap(),
+                            server_entries_list,
                             external_tasks,
                         );
                         let revised_event = Event::DayRevised {
