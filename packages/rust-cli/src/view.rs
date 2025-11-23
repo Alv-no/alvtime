@@ -259,12 +259,13 @@ pub fn render_day(projects: &[&Task]) {
         let width = std::cmp::min(std::cmp::max(std::cmp::max(min_width, calc_width), 8), 200);
 
         let padding = width.saturating_sub(label_len + 2);
+        let close_char = if p.end_time.is_none() { ">" } else { "]" };
         let bar_text = if p.is_break {
             // Safe subtraction for w
             let w = width.saturating_sub(2);
-            format!("[{:-<w$}]", label, w = w)
+            format!("[{:-<w$}{}", label, close_char, w = w)
         } else {
-            format!("[{}{}]", label, " ".repeat(padding))
+            format!("[{}{}{}", label, " ".repeat(padding), close_char)
         };
 
         let bar_content = if p.is_break {
