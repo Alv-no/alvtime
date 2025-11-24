@@ -1,14 +1,19 @@
 use inquire::MultiSelect;
 use rustyline::Editor;
+use std::collections::HashMap;
+use chrono::Local;
 use crate::config;
 use crate::external_models::TaskDto;
 use crate::input_helper::InputHelper;
+use crate::store::EventStore;
+use crate::projector;
 
 pub fn handle_favorites(
     parts: &[&str],
     app_config: &mut config::Config,
     tasks: &[TaskDto],
     rl: &mut Editor<InputHelper, rustyline::history::DefaultHistory>,
+    store: &EventStore,
 ) -> String {
     if parts.len() < 2 {
         let mut output = String::from("Favorites:\n");
@@ -24,7 +29,31 @@ pub fn handle_favorites(
 
     match parts[1] {
         "add" => {
-            let options: Vec<String> = tasks.iter()
+            // Calculate usage stats for the last year
+            let mut task_seconds: HashMap<i32, i64> = HashMap::new();
+            let today = Local::now().date_naive();
+            let start_date = today - chrono::Duration::days(365);
+
+            let mut d = start_date;
+            while d <= today {
+                let events = store.events_for_day(d);
+                let day_tasks = projector::restore_state(&events);
+                for t in day_tasks {
+                    if !t.is_break {
+                        *task_seconds.entry(t.id).or_default() += t.duration().num_seconds();
+                    }
+                }
+                d += chrono::Duration::days(1);
+            }
+
+            let mut sorted_tasks = tasks.to_vec();
+            sorted_tasks.sort_by(|a, b| {
+                let sec_a = task_seconds.get(&a.id).copied().unwrap_or(0);
+                let sec_b = task_seconds.get(&b.id).copied().unwrap_or(0);
+                sec_b.cmp(&sec_a)
+            });
+
+            let options: Vec<String> = sorted_tasks.iter()
                 .map(|t| t.to_string())
                 .collect();
 
@@ -33,7 +62,7 @@ pub fn handle_favorites(
             }
 
             let mut default_indices = Vec::new();
-            for (i, t) in tasks.iter().enumerate() {
+            for (i, t) in sorted_tasks.iter().enumerate() {
                 if app_config.favorite_tasks.contains(&t.id) {
                     default_indices.push(i);
                 }
@@ -48,7 +77,7 @@ pub fn handle_favorites(
                 Ok(selections) => {
                     let mut new_favorites = Vec::new();
                     for sel in selections {
-                        if let Some(task) = tasks.iter().find(|t| t.to_string() == sel) {
+                        if let Some(task) = sorted_tasks.iter().find(|t| t.to_string() == sel) {
                             new_favorites.push(task.id);
                         }
                     }

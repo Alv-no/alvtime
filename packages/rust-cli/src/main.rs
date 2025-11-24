@@ -6,7 +6,6 @@ mod input_helper;
 mod models;
 mod projector;
 mod store;
-mod utils;
 mod view;
 mod actions;
 
@@ -313,6 +312,7 @@ fn execute_command(command: Commands, ctx: &mut AppContext) -> String {
                 ctx.app_config,
                 ctx.external_tasks,
                 ctx.editor,
+                ctx.event_store,
             )
         },
         Commands::Config { action } => {
