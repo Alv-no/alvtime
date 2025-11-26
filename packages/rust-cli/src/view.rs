@@ -2,6 +2,34 @@ use crate::models::Task;
 use chrono::{Datelike, Local, NaiveDate, Weekday};
 use std::collections::{BTreeMap, HashSet};
 
+// ANSI Color Constants
+mod colors {
+    // Background colors for compensation rates (matching timebank)
+    pub const BG_RATE_0_5: &str = "\x1b[42m";      // Green BG (Volunteer 0.5)
+    pub const BG_RATE_1_0: &str = "\x1b[48;5;93m"; // Purple BG (Internal 1.0)
+    pub const BG_RATE_1_5: &str = "\x1b[45m";      // Magenta BG (Billable 1.5)
+    pub const BG_RATE_2_0: &str = "\x1b[43m";      // Yellow BG (Billable Mandatory 2.0)
+
+    // Status colors
+    pub const BG_ACTIVE: &str = "\x1b[42m";        // Green BG for active tasks
+    pub const BG_LOCAL_ONLY: &str = "\x1b[48;5;208;30m"; // Orange BG, Black text for local/manual tasks
+    pub const BG_HOLIDAY: &str = "\x1b[101m";      // Bright Red BG
+    pub const BG_WEEKEND: &str = "\x1b[41m";       // Red BG
+
+    // Text colors
+    pub const FG_BREAK_ACTIVE: &str = "\x1b[31m";  // Red text for active break
+    pub const FG_BREAK_INACTIVE: &str = "\x1b[90m"; // Grey text for inactive break
+    pub const FG_HOLIDAY: &str = "\x1b[91m";       // Bright red text
+    pub const FG_WEEKEND: &str = "\x1b[31m";       // Dark red text
+    pub const FG_DIMMED: &str = "\x1b[90m";        // Dimmed text
+    pub const FG_BOLD: &str = "\x1b[1m";           // Bold text
+    pub const FG_OVERTIME: &str = "\x1b[33m";      // Yellow/orange text
+    pub const FG_HOURS_WORKED: &str = "\x1b[32m";  // Green text
+    pub const FG_HOURS_OVERTIME: &str = "\x1b[33m"; // Yellow text
+
+    pub const RESET: &str = "\x1b[0m";
+}
+
 pub enum ViewMode {
     Day,
     Week,
@@ -23,6 +51,7 @@ pub fn draw_timeline(projects: &[Task], mode: &ViewMode, holidays: &HashSet<Naiv
         _ => draw_linear_timeline(projects, mode, holidays),
     }
 }
+
 fn draw_year_calendar(projects: &[Task], holidays: &HashSet<NaiveDate>) {
     let now = Local::now();
     let year = now.year();
@@ -30,6 +59,7 @@ fn draw_year_calendar(projects: &[Task], holidays: &HashSet<NaiveDate>) {
         draw_month_calendar(year, month, projects, holidays);
     }
 }
+
 fn draw_month_calendar(year: i32, month: u32, projects: &[Task], holidays: &HashSet<NaiveDate>) {
     let first_day = NaiveDate::from_ymd_opt(year, month, 1).unwrap();
     let month_name = first_day.format("%B");
@@ -87,29 +117,23 @@ fn draw_month_calendar(year: i32, month: u32, projects: &[Task], holidays: &Hash
         let day_str = format!("{:02}", day);
 
         let colored_day = if has_manual {
-            // Orange background for local-only tasks
-            format!("\x1b[48;5;208;30m{}\x1b[0m", day_str)
+            format!("{}{}{}", colors::BG_LOCAL_ONLY, day_str, colors::RESET)
         } else if is_holiday {
-            // Bright Red Text for Holidays
-            format!("\x1b[91m{}\x1b[0m", day_str)
+            format!("{}{}{}", colors::FG_HOLIDAY, day_str, colors::RESET)
         } else if is_weekend {
-            // Dark Red/Grey Text for Weekends
-            format!("\x1b[31m{}\x1b[0m", day_str)
+            format!("{}{}{}", colors::FG_WEEKEND, day_str, colors::RESET)
         } else if minutes > 0 {
-            // Bold/White for active days
-            format!("\x1b[1m{}\x1b[0m", day_str)
+            format!("{}{}{}", colors::FG_BOLD, day_str, colors::RESET)
         } else {
-            // Dimmed for empty days
-            format!("\x1b[90m{}\x1b[0m", day_str)
+            format!("{}{}{}", colors::FG_DIMMED, day_str, colors::RESET)
         };
 
         let colored_hours = if minutes > 0 {
             let content = format!("{:<6}", hours_str);
-            // Orange if holiday, weekend (red day), or overtime
             if is_holiday || is_weekend || minutes > 450 {
-                format!("\x1b[33m{}\x1b[0m", content)
+                format!("{}{}{}", colors::FG_HOURS_OVERTIME, content, colors::RESET)
             } else {
-                format!("\x1b[32m{}\x1b[0m", content)
+                format!("{}{}{}", colors::FG_HOURS_WORKED, content, colors::RESET)
             }
         } else {
             format!("{:<6}", "")
@@ -134,6 +158,7 @@ fn draw_month_calendar(year: i32, month: u32, projects: &[Task], holidays: &Hash
     }
     println!();
 }
+
 fn draw_linear_timeline(projects: &[Task], mode: &ViewMode, holidays: &HashSet<NaiveDate>) {
     let now = Local::now();
     let today = now.date_naive();
@@ -176,14 +201,11 @@ fn draw_linear_timeline(projects: &[Task], mode: &ViewMode, holidays: &HashSet<N
 
         // Colored backgrounds for the Date header line
         let header = if has_manual {
-            // Orange Background, Black Text for local tasks
-            format!("\x1b[48;5;208;30m {} (Local) \x1b[0m", date_str)
+            format!("{} {} (Local) {}", colors::BG_LOCAL_ONLY, date_str, colors::RESET)
         } else if is_holiday {
-            // Bright Red Background, Black Text
-            format!("\x1b[101;30m {} (Holiday) \x1b[0m", date_str)
+            format!("{} {} (Holiday) {}", colors::BG_HOLIDAY, date_str, colors::RESET)
         } else if is_weekend {
-            // Red Background, White Text
-            format!("\x1b[41;37m {} \x1b[0m", date_str)
+            format!("{} {} {}", colors::BG_WEEKEND, date_str, colors::RESET)
         } else {
             format!("Date: {}", date_str)
         };
@@ -200,6 +222,34 @@ fn get_days_in_month(year: i32, month: u32) -> u32 {
         let next_month = NaiveDate::from_ymd_opt(year, month + 1, 1).unwrap();
         let this_month = NaiveDate::from_ymd_opt(year, month, 1).unwrap();
         (next_month - this_month).num_days() as u32
+    }
+}
+
+fn get_rate_color(rate: f64) -> Option<&'static str> {
+    if (rate - 0.5).abs() < 0.001 {
+        Some(colors::BG_RATE_0_5)
+    } else if (rate - 1.0).abs() < 0.001 {
+        Some(colors::BG_RATE_1_0)
+    } else if (rate - 1.5).abs() < 0.001 {
+        Some(colors::BG_RATE_1_5)
+    } else if (rate - 2.0).abs() < 0.001 {
+        Some(colors::BG_RATE_2_0)
+    } else {
+        None
+    }
+}
+
+fn format_rate_label(rate: f64) -> String {
+    if (rate - 0.5).abs() < 0.001 {
+        " (0.5)".to_string()
+    } else if (rate - 1.0).abs() < 0.001 {
+        " (1.0)".to_string()
+    } else if (rate - 1.5).abs() < 0.001 {
+        " (1.5)".to_string()
+    } else if (rate - 2.0).abs() < 0.001 {
+        " (2.0)".to_string()
+    } else {
+        String::new()
     }
 }
 
@@ -232,17 +282,14 @@ pub fn render_day(projects: &[&Task]) {
             format!("{}m", minutes)
         };
 
-        let mut bg_style = None;
-        let rate = p.rate;
-        if (rate - 0.5).abs() < 0.001 {
-            bg_style = Some("\x1b[42;102m"); // Green BG, White FG
-            label.push_str(" (0.5)");
-        } else if (rate - 1.0).abs() < 0.001 {
-            bg_style = Some("\x1b[48;5;93;102m"); // Purple BG, White FG
-            label.push_str(" (1.0)");
-        } else if (rate - 1.5).abs() < 0.001 {
-            bg_style = Some("\x1b[45;102m"); // Magenta BG, White FG
-            label.push_str(" (1.5)");
+        let bg_style = if !p.is_break {
+            get_rate_color(p.rate)
+        } else {
+            None
+        };
+
+        if !p.is_break {
+            label.push_str(&format_rate_label(p.rate));
         }
 
         let info_text = if p.is_break {
@@ -260,29 +307,24 @@ pub fn render_day(projects: &[&Task]) {
 
         let padding = width.saturating_sub(label_len + 2);
         let close_char = if p.end_time.is_none() { ">" } else { "]" };
-        let bar_text = if p.is_break {
-            // Safe subtraction for w
-            let w = width.saturating_sub(2);
-            format!("[{:-<w$}{}", label, close_char, w = w)
-        } else {
-            format!("[{}{}{}", label, " ".repeat(padding), close_char)
-        };
 
         let bar_content = if p.is_break {
+            // Safe subtraction for w
+            let w = width.saturating_sub(2);
+            let inner = format!("{:-<w$}", label, w = w);
             if p.end_time.is_none() {
-                // Active break in red
-                format!("\x1b[31m{}\x1b[0m", bar_text)
+                format!("[{}{}{}{}", colors::FG_BREAK_ACTIVE, inner, colors::RESET, close_char)
             } else {
-                // Inactive break in light grey (using bright black)
-                format!("\x1b[90m{}\x1b[0m", bar_text)
+                format!("[{}{}{}{}", colors::FG_BREAK_INACTIVE, inner, colors::RESET, close_char)
             }
         } else if let Some(style) = bg_style {
-            format!("{}{}\x1b[0m", style, bar_text)
+            let inner = format!("{}{}", label, " ".repeat(padding));
+            format!("[{}{}{}{}", style, inner, colors::RESET, close_char)
         } else if p.end_time.is_none() {
-            // Highlight current running project in green
-            format!("\x1b[32m{}\x1b[0m", bar_text)
+            let inner = format!("{}{}", label, " ".repeat(padding));
+            format!("[{}{}{}{}", colors::BG_ACTIVE, inner, colors::RESET, close_char)
         } else {
-            bar_text
+            format!("[{}{}{}", label, " ".repeat(padding), close_char)
         };
 
         let start_str = p.start_time.format("%H:%M").to_string();
@@ -314,6 +356,6 @@ pub fn render_day(projects: &[&Task]) {
     if total_minutes > 450 {
         // 7h 30m = 450m
         let ot = total_minutes - 450;
-        println!("\x1b[33mOvertime: {}h {}m\x1b[0m", ot / 60, ot % 60);
+        println!("{}Overtime: {}h {}m{}", colors::FG_OVERTIME, ot / 60, ot % 60, colors::RESET);
     }
 }

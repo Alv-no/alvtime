@@ -7,13 +7,15 @@ use crate::external_models::TaskDto;
 use crate::input_helper::InputHelper;
 use crate::store::EventStore;
 use crate::projector;
+use crate::alvtime::AlvtimeClient;
 
 pub fn handle_favorites(
     parts: &[&str],
     app_config: &mut config::Config,
-    tasks: &[TaskDto],
+    tasks: &mut Vec<TaskDto>,
     rl: &mut Editor<InputHelper, rustyline::history::DefaultHistory>,
     store: &EventStore,
+    client: &AlvtimeClient,
 ) -> String {
     if parts.len() < 2 {
         let mut output = String::from("Favorites:\n");
@@ -29,6 +31,19 @@ pub fn handle_favorites(
 
     match parts[1] {
         "add" => {
+            // Update cache when adding new favorites
+            println!("Refreshing task list...");
+            match client.list_tasks() {
+                Ok(fetched) => {
+                    store.save_tasks(&fetched);
+                    if let Some(h) = rl.helper_mut() {
+                        h.tasks = fetched.clone();
+                    }
+                    *tasks = fetched;
+                },
+                Err(e) => eprintln!("Failed to refresh tasks: {}", e),
+            }
+
             // Calculate usage stats for the last year
             let mut task_seconds: HashMap<i32, i64> = HashMap::new();
             let today = Local::now().date_naive();

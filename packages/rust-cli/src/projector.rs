@@ -42,7 +42,15 @@ pub fn restore_state(events: &[Event]) -> Vec<Task> {
 
 fn process_event(projects: &mut Vec<Task>, event: &Event) {
     match event {
-        Event::TaskStarted { id, name,project_name,rate, start_time, is_generated } => {
+        Event::TaskStarted { id, name, project_name, rate, start_time, is_generated } => {
+            // Check if the last task is the same as the one being started
+            if let Some(last) = projects.last_mut() {
+                if last.name == *name && last.project_name == *project_name && !last.is_break {
+                    last.end_time = None;
+                    return;
+                }
+            }
+
             // Logic: Starting a new project stops the previous one
             close_last_project(projects, *start_time);
 
@@ -53,6 +61,7 @@ fn process_event(projects: &mut Vec<Task>, event: &Event) {
                 name: name.clone(),
                 start_time: *start_time,
                 end_time: None,
+                comment: None,
                 is_break: false,
                 is_generated: *is_generated,
             });
@@ -67,12 +76,41 @@ fn process_event(projects: &mut Vec<Task>, event: &Event) {
                 name: "Break".to_string(),
                 start_time: *start_time,
                 end_time: None,
+                comment: None,
                 is_break: true,
                 is_generated: *is_generated,
             });
         }
         Event::Stopped { end_time, .. } => {
             close_last_project(projects, *end_time);
+        }
+        Event::Reopen { start_time, is_generated } => {
+            // Find the latest closed task (not break) to reopen
+            let target_task = projects.iter().rev().find(|t| !t.is_break && t.end_time.is_some()).cloned();
+
+            if let Some(task) = target_task {
+                // Check if we can just "open the old task" if it's the immediate predecessor
+                if let Some(last) = projects.last_mut() {
+                    if last.name == task.name && last.project_name == task.project_name && !last.is_break {
+                        last.end_time = None;
+                        return;
+                    }
+                }
+
+                close_last_project(projects, *start_time);
+
+                projects.push(Task {
+                    id: task.id,
+                    project_name: task.project_name,
+                    rate: task.rate,
+                    name: task.name,
+                    start_time: *start_time,
+                    end_time: None,
+                    comment: None,
+                    is_break: false,
+                    is_generated: *is_generated,
+                });
+            }
         }
         Event::DayRevised { date, events } => {
             // Remove all projects that fall on this date
@@ -138,6 +176,7 @@ fn close_last_project(projects: &mut Vec<Task>, time: chrono::DateTime<chrono::L
                 name: name.clone(),
                 start_time: current_start,
                 end_time: Some(next_day_local),
+                comment: None,
                 is_break,
                 is_generated,
             });
@@ -152,6 +191,7 @@ fn close_last_project(projects: &mut Vec<Task>, time: chrono::DateTime<chrono::L
             name,
             start_time: current_start,
             end_time: Some(end_time),
+            comment: None,
             is_break,
             is_generated,
         });

@@ -1,12 +1,9 @@
-use chrono::{Local, NaiveDate};
-use crate::{external_models, models};
 use crate::events::Event;
 use crate::external_models::TaskDto;
+use crate::{external_models, models};
+use chrono::{Local, NaiveDate};
 
-pub fn insert_and_resolve_overlaps(
-    tasks: &mut Vec<models::Task>,
-    new_entry: models::Task,
-) {
+pub fn insert_and_resolve_overlaps(tasks: &mut Vec<models::Task>, new_entry: models::Task) {
     let mut result = Vec::new();
     let n_start = new_entry.start_time;
     // If end time is missing (running task), treat it as 'now' for overlap logic
@@ -48,8 +45,26 @@ pub fn insert_and_resolve_overlaps(
         // If p is fully inside n, both checks fail and p is dropped.
     }
 
-    result.push(new_entry);
+    // Merge logic: Check if we can merge new_entry with the last element in result
+    let mut merged = false;
+    if let Some(last) = result.last_mut() {
+        // Check if ID matches (same task) and time is contiguous
+        // Note: breaks usually have id -1. We might want to merge breaks too.
+        if last.id == new_entry.id && last.end_time == Some(new_entry.start_time) {
+            last.end_time = new_entry.end_time;
+            merged = true;
+        }
+    }
+
+    if !merged {
+        result.push(new_entry);
+    }
+
     result.sort_by_key(|p| p.start_time);
+
+    // Remove zero duration tasks/breaks (unless running)
+    result.retain(|p| p.end_time.is_none() || p.end_time.unwrap() > p.start_time);
+
     *tasks = result;
 }
 
@@ -65,7 +80,6 @@ pub fn parse_time(date: NaiveDate, time_str: &str) -> Option<chrono::DateTime<Lo
     let naive = date.and_hms_opt(hour, min, 0)?;
     Some(naive.and_local_timezone(Local).unwrap())
 }
-
 
 pub fn generate_events_from_server_entries(
     date: NaiveDate,

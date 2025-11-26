@@ -9,6 +9,7 @@ pub mod favorites;
 pub mod push;
 pub mod start;
 pub mod sync;
+pub mod timebank;
 mod utils;
 
 pub fn add_event(

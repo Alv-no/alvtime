@@ -2,6 +2,7 @@ use std::collections::{HashMap, HashSet};
 use chrono::NaiveDate;
 use crate::events::Event;
 use sled::Db;
+use crate::external_models::TaskDto;
 
 pub struct EventStore {
     db: Db,
@@ -117,5 +118,41 @@ impl EventStore {
             }
         }
         set
+    }
+
+    pub fn save_tasks(&self, tasks: &[TaskDto]) {
+        let tree = self.db.open_tree("tasks_cache").unwrap();
+        tree.clear().unwrap();
+        for task in tasks {
+            let key = task.id.to_be_bytes();
+            let value = serde_json::to_vec(task).unwrap();
+            tree.insert(key, value).unwrap();
+        }
+        tree.flush().unwrap();
+    }
+
+    pub fn get_cached_tasks(&self) -> Vec<TaskDto> {
+        let tree = self.db.open_tree("tasks_cache").unwrap();
+        let mut tasks = Vec::new();
+        for item in tree.iter() {
+            if let Ok((_, value)) = item {
+                if let Ok(task) = serde_json::from_slice::<TaskDto>(&value) {
+                    tasks.push(task);
+                }
+            }
+        }
+        tasks
+    }
+
+    pub fn get_all_dates_with_events(&self) -> Vec<NaiveDate> {
+        let dates_idx = self.db.open_tree("dates_index").unwrap();
+        dates_idx
+            .iter()
+            .filter_map(|res| {
+                let (k, _) = res.ok()?;
+                let date_str = std::str::from_utf8(&k).ok()?;
+                NaiveDate::parse_from_str(date_str, "%Y-%m-%d").ok()
+            })
+            .collect()
     }
 }

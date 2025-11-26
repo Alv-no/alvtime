@@ -8,6 +8,7 @@ pub struct Task {
     pub name: String,
     pub start_time: DateTime<Local>,
     pub end_time: Option<DateTime<Local>>,
+    pub comment: Option<String>,
     pub is_break: bool,
     pub is_generated: bool,
 }

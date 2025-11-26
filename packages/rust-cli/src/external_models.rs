@@ -66,5 +66,5 @@ pub struct AvailableHoursEntryDto {
     pub compensation_rate: f64,
     #[serde(rename = "type")]
     pub entry_type: i32,
-    pub active: bool,
+    pub active: Option<bool>,
 }

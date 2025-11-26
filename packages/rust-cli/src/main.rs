@@ -29,6 +29,7 @@ use crate::actions::favorites::handle_favorites;
 use crate::actions::push::handle_push;
 use crate::actions::start::handle_start;
 use crate::actions::sync::handle_sync;
+use crate::actions::timebank::handle_timebank;
 use crate::config::Config;
 use crate::external_models::TaskDto;
 use crate::models::Task;
@@ -76,6 +77,9 @@ enum Commands {
         #[command(subcommand)]
         action: Option<FavoritesAction>,
     },
+    /// Manage Timebank
+    Timebank,
+
     /// Manage configuration
     Config {
         #[command(subcommand)]
@@ -139,7 +143,7 @@ struct AppContext<'a> {
     app_config: &'a mut Config,
     event_store: &'a EventStore,
     client: &'a alvtime::AlvtimeClient,
-    external_tasks: &'a [TaskDto],
+    external_tasks: &'a mut Vec<TaskDto>,
     holidays: &'a HashSet<NaiveDate>,
     today_history: &'a mut Vec<Event>,
     today_tasks: &'a mut Vec<Task>,
@@ -159,11 +163,16 @@ fn main() {
         app_config.personal_token.clone(),
     );
 
-    // Fetch tasks
-    let external_tasks = client.list_tasks().unwrap_or_else(|e| {
-        eprintln!("Warning: Failed to fetch tasks from API: {}", e);
-        Vec::new()
-    });
+    // Fetch tasks (Check cache first)
+    let mut external_tasks = event_store.get_cached_tasks();
+    if external_tasks.is_empty() {
+        if let Ok(tasks) = client.list_tasks() {
+            event_store.save_tasks(&tasks);
+            external_tasks = tasks;
+        } else {
+            eprintln!("Warning: Failed to fetch tasks from API and cache is empty.");
+        }
+    }
 
     // Check and fetch holidays
     let current_year = Local::now().year();
@@ -194,12 +203,12 @@ fn main() {
 
     let mut view_mode = ViewMode::Day;
 
-    // 4. Create Context ONCE
+    // 4. Create Context 
     let mut ctx = AppContext {
         app_config: &mut app_config,
         event_store: &event_store,
         client: &client,
-        external_tasks: &external_tasks,
+        external_tasks: &mut external_tasks,
         holidays: &holidays,
         today_history: &mut today_history,
         today_tasks: &mut today_tasks,
@@ -230,6 +239,7 @@ fn create_input_helper(tasks: &[TaskDto], config: &Config) -> InputHelper {
             "view".to_string(), "sync".to_string(), "push".to_string(),
             "undo".to_string(), "redo".to_string(), "help".to_string(),
             "config".to_string(), "favorites".to_string(), "edit".to_string(),
+            "timebank".to_string(),
             "quit".to_string(),
         ],
         tasks: tasks.to_vec(),
@@ -269,13 +279,38 @@ fn execute_command(command: Commands, ctx: &mut AppContext) -> String {
             )
         },
         Commands::Push => {
-            handle_push(
-                ctx.client,
-                ctx.today_tasks,
-                ctx.today_history,
-                ctx.event_store,
-                ctx.external_tasks,
-            )
+            // Process each day individually instead of loading all days at once
+            let all_dates = ctx.event_store.get_all_dates_with_events();
+            let mut overall_feedback = Vec::new();
+
+            for date in all_dates {
+                let mut day_history = ctx.event_store.events_for_day(date);
+                let mut day_tasks = projector::restore_state(&day_history);
+
+                // Push this specific day
+                let day_result = handle_push(
+                    ctx.client,
+                    &mut day_tasks,
+                    &mut day_history,
+                    ctx.event_store,
+                    ctx.external_tasks,
+                );
+
+                if !day_result.is_empty() {
+                    overall_feedback.push(format!("{}: {}", date, day_result));
+                }
+            }
+
+            // Refresh current day view context
+            let today = Local::now().date_naive();
+            *ctx.today_history = ctx.event_store.events_for_day(today);
+            *ctx.today_tasks = projector::restore_state(ctx.today_history);
+
+            if overall_feedback.is_empty() {
+                "All days pushed successfully.".to_string()
+            } else {
+                overall_feedback.join("\n")
+            }
         },
         Commands::View { mode } => {
             if let Some(m) = mode {
@@ -313,8 +348,12 @@ fn execute_command(command: Commands, ctx: &mut AppContext) -> String {
                 ctx.external_tasks,
                 ctx.editor,
                 ctx.event_store,
+                ctx.client,
             )
         },
+        Commands::Timebank => {
+            handle_timebank(ctx.client)
+        }
         Commands::Config { action } => {
             let mut parts = vec!["config"];
             let binding_token = "set-token".to_string();
@@ -455,9 +494,7 @@ fn run_shell(ctx: &mut AppContext) {
                     }
                     Err(e) => {
                         if e.kind() == clap::error::ErrorKind::DisplayHelp {
-                            println!("{}", e);
-                            println!("Press enter to continue...");
-                            let _ = std::io::stdin().read_line(&mut String::new());
+                            feedback = e.to_string();
                         } else {
                             feedback = format!("Error: {}", e);
                         }

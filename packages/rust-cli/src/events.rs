@@ -17,6 +17,11 @@ pub enum Event {
         #[serde(default)]
         is_generated: bool,
     },
+    Reopen {
+        start_time: DateTime<Local>,
+        #[serde(default)]
+        is_generated: bool,
+    },
     Stopped {
         end_time: DateTime<Local>,
         #[serde(default)]
@@ -40,6 +45,7 @@ impl Event {
             Event::TaskStarted { start_time, .. } => start_time.date_naive(),
             Event::BreakStarted { start_time, .. } => start_time.date_naive(),
             Event::Stopped { end_time, .. } => end_time.date_naive(),
+            Event::Reopen { start_time, .. } => start_time.date_naive(),
             Event::Undo { time } => time.date_naive(),
             Event::Redo { time } => time.date_naive(),
             Event::DayRevised { date, .. } => *date,
