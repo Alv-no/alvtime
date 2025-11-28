@@ -219,6 +219,13 @@ fn main() {
     if cli.shell {
         run_shell(&mut ctx);
     } else if let Some(command) = cli.command {
+        // Apply autobreak before executing command
+        if ctx.app_config.autobreak {
+            if let Some(autobreak_feedback) = autobreak(ctx.today_tasks, ctx.today_history, ctx.event_store) {
+                println!("{}", autobreak_feedback);
+            }
+        }
+
         let feedback = execute_command(command.clone(), &mut ctx);
 
         if let Commands::View { .. } = command {

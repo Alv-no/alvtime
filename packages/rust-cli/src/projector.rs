@@ -42,7 +42,7 @@ pub fn restore_state(events: &[Event]) -> Vec<Task> {
 
 fn process_event(projects: &mut Vec<Task>, event: &Event) {
     match event {
-        Event::TaskStarted { id, name, project_name, rate, start_time, is_generated } => {
+        Event::TaskStarted { id, name, project_name, customer_name, rate, start_time, is_generated } => {
             // Check if the last task is the same as the one being started
             if let Some(last) = projects.last_mut() {
                 if last.name == *name && last.project_name == *project_name && !last.is_break {
@@ -57,6 +57,7 @@ fn process_event(projects: &mut Vec<Task>, event: &Event) {
             projects.push(Task {
                 id: *id,
                 project_name: project_name.clone(),
+                customer_name: customer_name.to_string(),
                 rate: rate.clone(),
                 name: name.clone(),
                 start_time: *start_time,
@@ -72,6 +73,7 @@ fn process_event(projects: &mut Vec<Task>, event: &Event) {
             projects.push(Task {
                 id: -1,
                 project_name: "".to_string(),
+                customer_name: "".to_string(),
                 rate: 0.0,
                 name: "Break".to_string(),
                 start_time: *start_time,
@@ -102,6 +104,7 @@ fn process_event(projects: &mut Vec<Task>, event: &Event) {
                 projects.push(Task {
                     id: task.id,
                     project_name: task.project_name,
+                    customer_name: task.customer_name,
                     rate: task.rate,
                     name: task.name,
                     start_time: *start_time,
@@ -148,6 +151,7 @@ fn close_last_project(projects: &mut Vec<Task>, time: chrono::DateTime<chrono::L
         // Split the project across midnight boundaries
         let name = projects[last_idx].name.clone();
         let project_name = projects[last_idx].project_name.clone();
+        let customer_name = projects[last_idx].customer_name.clone();
         let rate = projects[last_idx].rate.clone();
         let id = projects[last_idx].id;
         let is_break = projects[last_idx].is_break;
@@ -172,6 +176,7 @@ fn close_last_project(projects: &mut Vec<Task>, time: chrono::DateTime<chrono::L
             projects.push(Task {
                 id,
                 project_name: project_name.clone(),
+                customer_name: customer_name.to_string(),
                 rate,
                 name: name.clone(),
                 start_time: current_start,
@@ -187,6 +192,7 @@ fn close_last_project(projects: &mut Vec<Task>, time: chrono::DateTime<chrono::L
         projects.push(Task {
             id,
             project_name,
+            customer_name,
             rate,
             name,
             start_time: current_start,

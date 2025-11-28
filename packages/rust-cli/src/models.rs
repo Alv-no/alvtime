@@ -4,6 +4,7 @@ use chrono::{DateTime, Duration, Local};
 pub struct Task {
     pub id: i32,
     pub project_name: String,
+    pub customer_name: String,
     pub rate: f64,
     pub name: String,
     pub start_time: DateTime<Local>,

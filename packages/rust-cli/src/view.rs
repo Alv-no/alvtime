@@ -295,7 +295,7 @@ pub fn render_day(projects: &[&Task]) {
         let info_text = if p.is_break {
             p.name.clone()
         } else {
-            format!("{} | {}", p.name, p.project_name)
+            format!("{} | {}", p.name, p.customer_name)
         };
 
         let label_len = label.len();

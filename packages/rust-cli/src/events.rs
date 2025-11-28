@@ -7,6 +7,7 @@ pub enum Event {
         id: i32,
         name: String,
         project_name: String,
+        customer_name: String,
         rate: f64,
         start_time: DateTime<Local>,
         #[serde(default)]

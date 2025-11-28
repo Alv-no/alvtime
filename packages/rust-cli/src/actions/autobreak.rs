@@ -60,6 +60,7 @@ pub fn autobreak(
                         id: prev_id,
                         name: prev_name.clone(),
                         project_name: prev.project_name.clone() ,
+                        customer_name: prev.customer_name.clone(),
                         rate:prev.rate,
                         start_time: today_break_end,
                         is_generated: true,

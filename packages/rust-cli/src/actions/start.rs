@@ -18,6 +18,7 @@ pub fn handle_start(
     let mut name = String::new();
     let mut id = 0;
     let mut project_name = String::new();
+    let mut customer_name = String::new();
     let mut rate = 0.0;
     let now = Local::now();
 
@@ -77,6 +78,7 @@ pub fn handle_start(
                     name = task.name.clone();
                     id = task.id;
                     project_name = task.project.name.clone();
+                    customer_name = task.project.customer.name.clone();
                     rate = task.compensation_rate;
                 }
             },
@@ -93,6 +95,7 @@ pub fn handle_start(
             name = task.name.clone();
             id = task.id;
             project_name = task.project.name.clone();
+            customer_name = task.project.customer.name.clone();
             rate = task.compensation_rate ;
         } else {
             let matches: Vec<&TaskDto> = external_tasks.iter()
@@ -103,6 +106,7 @@ pub fn handle_start(
                 name = matches[0].name.clone();
                 id = matches[0].id;
                 project_name = matches[0].project.name.clone();
+                customer_name = matches[0].project.customer.name.clone();
                 rate = matches[0].compensation_rate ;
             } else if matches.is_empty() {
                 return "Task not found in favorites. Use 'favorites add' to find it.".to_string();
@@ -115,6 +119,7 @@ pub fn handle_start(
                             name = task.name.clone();
                             id = task.id;
                             project_name = task.project.name.clone();
+                            customer_name = task.project.customer.name.clone();
                             rate = task.compensation_rate ;
                         }
                     },
@@ -149,6 +154,7 @@ pub fn handle_start(
         id,
         name: name.clone(),
         project_name,
+        customer_name,
         rate,
         start_time: now,
         is_generated: false,

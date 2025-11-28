@@ -165,6 +165,10 @@ pub fn generate_events_from_server_entries(
             .map(|t| t.project.name.clone())
             .unwrap_or_default();
 
+        let customer_name = found_task
+            .map(|t| t.project.customer.name.clone())
+            .unwrap_or_default();
+
         let rate = found_task.map(|t| t.compensation_rate).unwrap_or(0.0);
 
         let mut remaining_minutes = (entry.value * 60.0).round() as i64;
@@ -189,6 +193,7 @@ pub fn generate_events_from_server_entries(
                         id: entry.task_id,
                         name: task_name.clone(),
                         project_name: project_name.clone(),
+                        customer_name: customer_name.clone(),
                         rate,
                         start_time: cursor,
                         is_generated: true,
@@ -221,6 +226,7 @@ pub fn generate_events_from_server_entries(
                 id: entry.task_id,
                 name: task_name.clone(),
                 project_name: project_name.clone(),
+                customer_name: customer_name.clone(),
                 rate,
                 start_time: cursor,
                 is_generated: true,

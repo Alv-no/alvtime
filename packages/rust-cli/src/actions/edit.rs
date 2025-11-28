@@ -124,8 +124,8 @@ pub fn handle_edit(
                         Err(_) => continue,
                     };
 
-                let (name, id, is_break, project_name, rate) = if task_choice == "Break" {
-                    ("Break".to_string(), -1, true, "".to_string(), 0.0)
+                let (name, id, is_break, project_name, customer_name, rate) = if task_choice == "Break" {
+                    ("Break".to_string(), -1, true, "".to_string(),"".to_string(), 0.0)
                 } else {
                     let t = favorite_tasks
                         .iter()
@@ -136,6 +136,7 @@ pub fn handle_edit(
                         t.id,
                         false,
                         t.project.name.clone(),
+                        t.project.customer.name.clone(),
                         t.compensation_rate,
                     )
                 };
@@ -175,6 +176,7 @@ pub fn handle_edit(
                     id,
                     name,
                     project_name,
+                    customer_name,
                     rate,
                     start_time,
                     end_time: Some(end_time),
@@ -316,6 +318,7 @@ pub fn handle_edit(
                                 id: -1,
                                 name: "Break".to_string(),
                                 project_name: "".to_string(),
+                                customer_name: "".to_string(),
                                 rate: 0.0,
                                 start_time: removed.start_time,
                                 end_time: Some(end_time),
@@ -369,6 +372,7 @@ pub fn handle_edit(
                             id: p.id,
                             name: p.name,
                             project_name: p.project_name,
+                            customer_name: p.customer_name,
                             rate: p.rate,
                             start_time: p.start_time,
                             is_generated: false,
@@ -442,6 +446,7 @@ mod edit_tests {
             id,
             name: name.to_string(),
             project_name: "Test Project".to_string(),
+            customer_name: "".to_string(),
             rate: 100.0,
             start_time: test_datetime(start_hour, start_min),
             end_time: Some(test_datetime(end_hour, end_min)),
@@ -730,6 +735,7 @@ mod edit_tests {
                     id: p.id,
                     name: p.name,
                     project_name: p.project_name,
+                    customer_name: p.customer_name,
                     rate: p.rate,
                     start_time: p.start_time,
                     is_generated: false,
@@ -788,6 +794,7 @@ mod edit_tests {
                 id: p.id,
                 name: p.name.clone(),
                 project_name: p.project_name.clone(),
+                customer_name: p.customer_name,
                 rate: p.rate,
                 start_time: p.start_time,
                 is_generated: false,
@@ -859,6 +866,7 @@ mod edit_tests {
                     id: -1,
                     name: "Break".to_string(),
                     project_name: "".to_string(),
+                    customer_name: "".to_string(),
                     rate: 0.0,
                     start_time: removed.start_time,
                     end_time: Some(end_time),
@@ -954,6 +962,7 @@ mod edit_tests {
                 id: 1,
                 name: "Task 1".to_string(),
                 project_name: "Project A".to_string(),
+                customer_name: "".to_string(),
                 rate: 100.0,
                 start_time: test_datetime(9, 0),
                 is_generated: false,
@@ -996,6 +1005,7 @@ mod edit_tests {
             id: 1,
             name: "Ongoing Task".to_string(),
             project_name: "Project A".to_string(),
+            customer_name: "".to_string(),
             rate: 100.0,
             start_time: test_datetime(9, 0),
             end_time: None,
@@ -1071,6 +1081,7 @@ mod edit_tests {
             id: -1,
             name: "Break".to_string(),
             project_name: "".to_string(),
+            customer_name: "".to_string(),
             rate: 0.0,
             start_time: test_datetime(10, 0),
             end_time: Some(test_datetime(10, 30)),
@@ -1092,6 +1103,7 @@ mod edit_tests {
             id: 1,
             name: "Important Task".to_string(),
             project_name: "Critical Project".to_string(),
+            customer_name: "".to_string(),
             rate: 250.0,
             start_time: test_datetime(9, 0),
             end_time: Some(test_datetime(12, 0)),

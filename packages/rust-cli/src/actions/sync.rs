@@ -161,6 +161,7 @@ pub fn handle_sync(
                             id: task.id,
                             name: task.name.clone(),
                             project_name: task.project_name.clone(),
+                            customer_name: task.customer_name.clone(),
                             rate: task.rate,
                             start_time: task.start_time,
                             is_generated: true,
