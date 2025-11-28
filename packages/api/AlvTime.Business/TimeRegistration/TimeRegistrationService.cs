@@ -9,7 +9,6 @@ using AlvTime.Business.Overtime;
 using AlvTime.Business.Payouts;
 using AlvTime.Business.Users;
 using AlvTime.Business.Utils;
-using FluentValidation;
 using Microsoft.Extensions.Options;
 
 namespace AlvTime.Business.TimeRegistration;

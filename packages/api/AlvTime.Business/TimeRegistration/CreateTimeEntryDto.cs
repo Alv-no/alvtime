@@ -9,7 +9,7 @@ public class CreateTimeEntryDto
     public DateTime Date { get; set; }
 
     [QuarterHour]
-    [Range(0, int.MaxValue, ErrorMessage = "Only positive values allowed")]
+    [Range(0, int.MaxValue, ErrorMessage = "Kun positive tall er tillatt")]
     public decimal Value { get; set; }
 
     public int TaskId { get; set; }
