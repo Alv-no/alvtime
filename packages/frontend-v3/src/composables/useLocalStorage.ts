@@ -1,7 +1,6 @@
 import type { Project } from "@/types/ProjectTypes";
 
 const setLocalProjects = (value: Project[]): void => {
-	console.log("Setting local projects:", value);
 	const localProjects = value.map(project => ({
 		id: `${project.name}-${project.customerName}`,
 		open: project.open,
