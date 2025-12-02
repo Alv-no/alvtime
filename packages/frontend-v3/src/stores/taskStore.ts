@@ -53,16 +53,9 @@ export const useTaskStore = defineStore("task", () => {
 		if (project) {
 			project.open = !project.open;
 		}
+
 		setLocalProjects(projects.value ?? []);
 		setFavoriteProjects();
-	};
-
-	const setFavoriteProjectsOrder = () => {
-		for (const [index, project] of (favoriteProjects.value ?? []).entries()) {
-			project.index = index;
-		}
-
-		setLocalProjects(favoriteProjects.value ?? []);
 	};
 
 	const setFavoriteProjects = () => {
@@ -78,6 +71,17 @@ export const useTaskStore = defineStore("task", () => {
 			.filter((project): project is Project => project !== null).sort((a, b) => {
 				return (a.index ?? 0) - (b.index ?? 0);
 			});
+	};
+
+	const saveFavoritesOrderToProjects = async () => {
+		if (!projects.value) return;
+
+		projects.value.forEach((project) => {
+			const favoriteProject = favoriteProjects.value.find(fp => fp.id === project.id);
+			if (favoriteProject) {
+				project.index = favoriteProject?.index;
+			}
+		});
 	};
 
 	const filteredProjects = computed(() => {
@@ -117,6 +121,6 @@ export const useTaskStore = defineStore("task", () => {
 		getTasks,
 		updateTasks,
 		toggleProjectExpandable,
-		setFavoriteProjectsOrder,
+		saveFavoritesOrderToProjects,
 	};
 });
