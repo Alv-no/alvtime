@@ -64,8 +64,12 @@ const updateList = async (evt: any) => {
 	const newProjectOrder = favoriteProjects.value.map(
 		(project) => { return { id: project.id, index: project.index ?? 0 }; }
 	);
+	try {
+		await taskService.updateProjectFavoriteOrder(newProjectOrder);
+	} catch (error) {
+		console.error("Failed to update project order:", error);
+	}
 
-	await taskService.updateProjectFavoriteOrder(newProjectOrder);
 	taskStore.saveFavoritesOrderToProjects();
 };
 
