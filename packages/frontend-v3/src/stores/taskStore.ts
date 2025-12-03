@@ -73,13 +73,13 @@ export const useTaskStore = defineStore("task", () => {
 			});
 	};
 
-	const saveFavoritesOrderToProjects = async () => {
+	const saveFavoritesOrderToProjects = () => {
 		if (!projects.value) return;
 
 		projects.value.forEach((project) => {
 			const favoriteProject = favoriteProjects.value.find(fp => fp.id === project.id);
 			if (favoriteProject) {
-				project.index = favoriteProject?.index;
+				project.index = favoriteProject.index;
 			}
 		});
 	};

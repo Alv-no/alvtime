@@ -62,7 +62,7 @@ const updateList = async (evt: any) => {
 	const { oldIndex, newIndex } = evt;
 	moveItemInArray(favoriteProjects.value, oldIndex, newIndex);
 	const newProjectOrder = favoriteProjects.value.map(
-		(project) => { return { id: project.id, index: favoriteProjects.value.indexOf(project) }; }
+		(project) => { return { id: project.id, index: project.index ?? 0 }; }
 	);
 
 	await taskService.updateProjectFavoriteOrder(newProjectOrder);
