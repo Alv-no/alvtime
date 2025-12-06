@@ -155,4 +155,31 @@ impl EventStore {
             })
             .collect()
     }
+
+    pub fn save_autobreak(&self, date: &NaiveDate, flag: bool) {
+        let tree = self.db.open_tree("properties").unwrap();
+        let value = format!("{}|{}", date.format("%Y-%m-%d"), flag);
+        tree.insert("autobreak", value.as_bytes()).unwrap();
+        tree.flush().unwrap();
+    }
+
+    pub fn get_autobreak(&self) -> (NaiveDate, bool) {
+        let tree = self.db.open_tree("properties").unwrap();
+
+        if let Some(raw) = tree.get("autobreak").unwrap() {
+            if let Ok(s) = String::from_utf8(raw.to_vec()) {
+                let parts: Vec<&str> = s.split('|').collect();
+                if parts.len() == 2 {
+                    if let Ok(date) = NaiveDate::parse_from_str(parts[0], "%Y-%m-%d") {
+                        let flag = parts[1].parse::<bool>().unwrap_or(false);
+                        return (date, flag);
+                    }
+                }
+            }
+        }
+
+        // default: today + false
+        let today = chrono::Local::now().naive_local().date();
+        (today, false)
+    }
 }

@@ -1,7 +1,9 @@
 use crate::events::Event;
 use crate::external_models::TaskDto;
-use crate::{external_models, models};
+use crate::{external_models, models, projector};
 use chrono::{Local, NaiveDate};
+use crate::models::Task;
+use crate::store::EventStore;
 
 pub fn insert_and_resolve_overlaps(tasks: &mut Vec<models::Task>, new_entry: models::Task) {
     let mut result = Vec::new();
@@ -241,6 +243,16 @@ pub fn generate_events_from_server_entries(
     }
 
     events
+}
+
+pub fn get_all_tasks(store: &EventStore) -> Vec<Task> {
+    let all_dates = store.get_all_dates_with_events();
+    let mut all_tasks = Vec::new();
+    for date in all_dates {
+        let events = store.events_for_day(date);
+        all_tasks.extend(projector::restore_state(&events));
+    }
+    all_tasks
 }
 
 pub fn round_duration_to_quarter_hour(minutes: i64) -> f64 {

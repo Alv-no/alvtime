@@ -32,7 +32,7 @@ pub struct CustomerDto {
     pub name: String,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct TimeEntryDto {
     #[serde(rename = "taskId")]
     pub task_id: i32,

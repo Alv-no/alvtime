@@ -1,54 +1,169 @@
-use crate::actions::utils::{insert_and_resolve_overlaps, parse_time};
+use crate::actions::utils::{get_all_tasks, insert_and_resolve_overlaps, parse_time};
 use crate::events::Event;
 use crate::external_models::TaskDto;
 use crate::store::EventStore;
 use crate::{config, models, projector, view};
-use chrono::{Datelike, Local, NaiveDate};
+use chrono::{Local, NaiveDate};
 use inquire::{Select, Text};
+use std::collections::HashSet;
 
+// Helper function to create a default 7.5 hour task from a TaskDto
+fn create_default_day_task(date: NaiveDate, task_dto: &TaskDto) -> models::Task {
+    let start_time = date
+        .and_hms_opt(8, 0, 0)
+        .unwrap()
+        .and_local_timezone(Local)
+        .unwrap();
+    let end_time = date
+        .and_hms_opt(15, 30, 0)
+        .unwrap()
+        .and_local_timezone(Local)
+        .unwrap(); // 7.5 hours later
+
+    models::Task {
+        id: task_dto.id,
+        name: task_dto.name.clone(),
+        project_name: task_dto.project.name.clone(),
+        customer_name: task_dto.project.customer.name.clone(),
+        rate: task_dto.compensation_rate,
+        start_time,
+        end_time: Some(end_time),
+        comment: None,
+        is_break: false,
+        is_generated: false,
+    }
+}
+
+fn apply_day_revision(
+    date: NaiveDate,
+    day_tasks: Option<Vec<models::Task>>,
+    event_store: &EventStore,
+) -> Option<Event> {
+    let today = Local::now().date_naive();
+
+    let revised_event = if let Some(tasks) = day_tasks {
+        // Rebuild events from the list of tasks (similar to the 'Save & Finish' logic)
+        let mut new_events = Vec::new();
+        let mut last_end_time: Option<chrono::DateTime<Local>> = None;
+
+        let mut tasks = tasks;
+        tasks.sort_by_key(|p| p.start_time);
+
+        for p in tasks {
+            if let Some(last_end) = last_end_time {
+                if p.start_time > last_end {
+                    // Implicit break needed
+                    new_events.push(Event::BreakStarted {
+                        start_time: last_end,
+                        is_generated: true,
+                    });
+                    new_events.push(Event::Stopped {
+                        end_time: p.start_time,
+                        is_generated: true,
+                    });
+                }
+            }
+
+            if p.is_break {
+                new_events.push(Event::BreakStarted {
+                    start_time: p.start_time,
+                    is_generated: false,
+                });
+            } else {
+                new_events.push(Event::TaskStarted {
+                    id: p.id,
+                    name: p.name,
+                    project_name: p.project_name,
+                    customer_name: p.customer_name,
+                    rate: p.rate,
+                    start_time: p.start_time,
+                    is_generated: false,
+                });
+            }
+            if let Some(end) = p.end_time {
+                new_events.push(Event::Stopped {
+                    end_time: end,
+                    is_generated: false,
+                });
+                last_end_time = Some(end);
+            } else {
+                last_end_time = None;
+            }
+        }
+        Event::DayRevised {
+            date,
+            events: new_events,
+        }
+    } else {
+        // Clear all tasks/events for the day
+        Event::DayRevised {
+            date,
+            events: Vec::new(),
+        }
+    };
+
+    // Persist
+    event_store.persist(&revised_event);
+
+    // Return the event if it was for today, so the caller *could* update in-memory state
+    if date == today {
+        Some(revised_event)
+    } else {
+        None
+    }
+}
+
+// MODIFIED SIGNATURE: Returns only String.
 pub fn handle_edit(
-    tasks: &mut Vec<models::Task>,
-    history: &mut Vec<Event>,
+    holidays: &HashSet<NaiveDate>,
     event_store: &EventStore,
     external_tasks: &[TaskDto],
     app_config: &config::Config,
 ) -> String {
-    // 1. Select Day
-    let now = Local::now();
-    let current_year = now.year();
-    let today = now.date_naive();
+    // 1. Initial Action Selection
+    let initial_options = vec!["Edit Single Day", "Bulk Edit/Clear Days", "Cancel"];
 
-    let mut dates = Vec::new();
-    let mut d = NaiveDate::from_ymd_opt(current_year, 1, 1).unwrap();
-
-    while d.year() == current_year {
-        dates.push(d);
-        d += chrono::Duration::days(1);
-    }
-
-    dates.reverse(); // Newest first
-
-    let date_options: Vec<String> = dates
-        .iter()
-        .map(|d| d.format("%Y-%m-%d").to_string())
-        .collect();
-
-    let default_idx = dates.iter().position(|d| *d == today).unwrap_or(0);
-
-    let selected_date_str = match Select::new("Select day to edit:", date_options)
-        .with_starting_cursor(default_idx)
-        .prompt()
-    {
-        Ok(s) => s,
+    let initial_action = match Select::new("Select editing mode:", initial_options).prompt() {
+        Ok(a) => a,
         Err(_) => return "Cancelled.".to_string(),
     };
 
-    let selected_date = NaiveDate::parse_from_str(&selected_date_str, "%Y-%m-%d").unwrap();
+    // Get the tasks needed for the interactive month view
+    let all_tasks = get_all_tasks(event_store);
 
-    // 2. Get tasks for that day
-    // We need to load events for that day to reconstruct the tasks
-    // Note: We are not using the passed 'tasks' or 'history' here as they likely represent "today"
-    // We will load fresh data for the edit session.
+    match initial_action {
+        "Edit Single Day" => {
+            // 1. Select Day using the interactive view
+            let selected_dates = match view::interactive_month_view(&all_tasks, &holidays, false) {
+                Ok(d) => d,
+                Err(e) => return format!("Interactive view failed: {}", e),
+            };
+
+            let selected_date = match selected_dates.first() {
+                Some(d) => *d,
+                None => return "Cancelled. No day selected.".to_string(),
+            };
+
+            handle_single_day_edit(selected_date, event_store, external_tasks, app_config)
+        }
+        "Bulk Edit/Clear Days" => handle_bulk_day_edit(
+            holidays,
+            event_store,
+            external_tasks,
+            app_config,
+            &all_tasks,
+        ),
+        _ => "Cancelled.".to_string(),
+    }
+}
+
+fn handle_single_day_edit(
+    selected_date: NaiveDate,
+    event_store: &EventStore,
+    external_tasks: &[TaskDto],
+    app_config: &config::Config,
+) -> String {
+    let today = Local::now().date_naive();
     let day_events = event_store.events_for_day(selected_date);
     let mut day_tasks = projector::restore_state(&day_events);
 
@@ -65,11 +180,10 @@ pub fn handle_edit(
         // Show graphical timeline
         if !day_tasks.is_empty() {
             let refs: Vec<&models::Task> = day_tasks.iter().collect();
-            view::render_day(&refs);
-        }
-
-        if day_tasks.is_empty() {
-            println!("(No tasks)");
+            // Assuming view::render_day returns IOResult<()>
+            if let Err(e) = view::render_day(&refs) {
+                eprintln!("Error rendering day: {}", e);
+            }
         }
 
         for (i, p) in day_tasks.iter().enumerate() {
@@ -78,11 +192,12 @@ pub fn handle_edit(
                 .map(|t| t.format("%H:%M").to_string())
                 .unwrap_or("...".to_string());
             println!(
-                "{}. [{}-{}] {}",
+                "{}. [{}-{}] {} ({})",
                 i + 1,
                 p.start_time.format("%H:%M"),
                 end_str,
-                p.name
+                p.name,
+                p.project_name
             );
         }
         println!("-----------------------");
@@ -103,7 +218,7 @@ pub fn handle_edit(
 
         match action {
             "Add Entry" => {
-                // Pick Task - Filter only Favorites
+                // ... (Original "Add Entry" logic remains here, unchanged) ...
                 let favorite_tasks: Vec<&TaskDto> = external_tasks
                     .iter()
                     .filter(|t| app_config.favorite_tasks.contains(&t.id))
@@ -124,22 +239,30 @@ pub fn handle_edit(
                         Err(_) => continue,
                     };
 
-                let (name, id, is_break, project_name, customer_name, rate) = if task_choice == "Break" {
-                    ("Break".to_string(), -1, true, "".to_string(),"".to_string(), 0.0)
-                } else {
-                    let t = favorite_tasks
-                        .iter()
-                        .find(|t| t.to_string() == task_choice)
-                        .unwrap();
-                    (
-                        t.name.clone(),
-                        t.id,
-                        false,
-                        t.project.name.clone(),
-                        t.project.customer.name.clone(),
-                        t.compensation_rate,
-                    )
-                };
+                let (name, id, is_break, project_name, customer_name, rate) =
+                    if task_choice == "Break" {
+                        (
+                            "Break".to_string(),
+                            -1,
+                            true,
+                            "".to_string(),
+                            "".to_string(),
+                            0.0,
+                        )
+                    } else {
+                        let t = favorite_tasks
+                            .iter()
+                            .find(|t| t.to_string() == task_choice)
+                            .unwrap();
+                        (
+                            t.name.clone(),
+                            t.id,
+                            false,
+                            t.project.name.clone(),
+                            t.project.customer.name.clone(),
+                            t.compensation_rate,
+                        )
+                    };
 
                 // Ask Start Time
                 let start_str = match Text::new("Start Time (HH:MM):").prompt() {
@@ -188,6 +311,7 @@ pub fn handle_edit(
                 insert_and_resolve_overlaps(&mut day_tasks, new_p);
             }
             "Edit Entry Time" => {
+                // ... (Original "Edit Entry Time" logic remains here, unchanged) ...
                 if day_tasks.is_empty() {
                     continue;
                 }
@@ -247,6 +371,7 @@ pub fn handle_edit(
                 }
             }
             "Edit Entry Type" => {
+                // ... (Original "Edit Entry Type" logic remains here, unchanged) ...
                 if day_tasks.is_empty() {
                     continue;
                 }
@@ -279,6 +404,7 @@ pub fn handle_edit(
                         entry.id = -1;
                         entry.name = "Break".to_string();
                         entry.project_name.clear();
+                        entry.customer_name.clear();
                         entry.rate = 0.0;
                         entry.is_break = true;
                     } else if let Some(new_task) = favorite_tasks
@@ -288,6 +414,7 @@ pub fn handle_edit(
                         entry.id = new_task.id;
                         entry.name = new_task.name.clone();
                         entry.project_name = new_task.project.name.clone();
+                        entry.customer_name = new_task.project.customer.name.clone();
                         entry.rate = new_task.compensation_rate;
                         entry.is_break = false;
                         entry.comment = None;
@@ -296,6 +423,7 @@ pub fn handle_edit(
                 }
             }
             "Delete Entry" => {
+                // ... (Original "Delete Entry" logic remains here, unchanged) ...
                 if day_tasks.is_empty() {
                     continue;
                 }
@@ -343,65 +471,8 @@ pub fn handle_edit(
                     }
                 }
 
-                // Rebuild events for this day
-                day_tasks.sort_by_key(|p| p.start_time);
-                let mut new_events = Vec::new();
-                let mut last_end_time: Option<chrono::DateTime<Local>> = None;
-
-                for p in day_tasks {
-                    if let Some(last_end) = last_end_time {
-                        if p.start_time > last_end {
-                            new_events.push(Event::BreakStarted {
-                                start_time: last_end,
-                                is_generated: true,
-                            });
-                            new_events.push(Event::Stopped {
-                                end_time: p.start_time,
-                                is_generated: true,
-                            });
-                        }
-                    }
-
-                    if p.is_break {
-                        new_events.push(Event::BreakStarted {
-                            start_time: p.start_time,
-                            is_generated: false,
-                        });
-                    } else {
-                        new_events.push(Event::TaskStarted {
-                            id: p.id,
-                            name: p.name,
-                            project_name: p.project_name,
-                            customer_name: p.customer_name,
-                            rate: p.rate,
-                            start_time: p.start_time,
-                            is_generated: false,
-                        });
-                    }
-                    if let Some(end) = p.end_time {
-                        new_events.push(Event::Stopped {
-                            end_time: end,
-                            is_generated: false,
-                        });
-                        last_end_time = Some(end);
-                    } else {
-                        last_end_time = None;
-                    }
-                }
-
-                let revised_event = Event::DayRevised {
-                    date: selected_date,
-                    events: new_events,
-                };
-
-                // Persist
-                event_store.persist(&revised_event);
-
-                // If we edited today, we should update the in-memory state passed to this function
-                if selected_date == Local::now().date_naive() {
-                    history.push(revised_event);
-                    *tasks = projector::restore_state(history);
-                }
+                // Apply the revision and discard the returned event
+                let _ = apply_day_revision(selected_date, Some(day_tasks), event_store);
 
                 return "Day updated.".to_string();
             }
@@ -411,6 +482,115 @@ pub fn handle_edit(
     }
 }
 
+fn handle_bulk_day_edit(
+    holidays: &HashSet<NaiveDate>,
+    event_store: &EventStore,
+    external_tasks: &[TaskDto],
+    app_config: &config::Config,
+    all_tasks: &[models::Task],
+) -> String {
+    println!("\n--- Bulk Edit Mode ---");
+    let days_to_edit = match view::interactive_month_view(all_tasks, &holidays, true) {
+        Ok(d) => d,
+        Err(e) => return format!("Interactive view failed: {}", e),
+    };
+
+    if days_to_edit.is_empty() {
+        return "Cancelled. No days selected.".to_string();
+    }
+
+    let bulk_options = vec![
+        "Add Full Day Task (7.5h)",
+        "Clear All Tasks on Selected Days",
+        "Cancel",
+    ];
+    let bulk_action = match Select::new(
+        &format!("Action for {} days:", days_to_edit.len()),
+        bulk_options,
+    )
+    .prompt()
+    {
+        Ok(a) => a,
+        Err(_) => return "Cancelled.".to_string(),
+    };
+
+    let today = Local::now().date_naive();
+    let mut days_processed = 0;
+
+    match bulk_action {
+        "Add Full Day Task (7.5h)" => {
+            // Select the Task to apply (Favorites only)
+            let favorite_tasks: Vec<&TaskDto> = external_tasks
+                .iter()
+                .filter(|t| app_config.favorite_tasks.contains(&t.id))
+                .collect();
+
+            let task_options: Vec<String> = favorite_tasks.iter().map(|t| t.to_string()).collect();
+
+            let task_choice =
+                match Select::new("Select Task (7.5h) to apply:", task_options).prompt() {
+                    Ok(t) => t,
+                    Err(_) => return "Cancelled.".to_string(),
+                };
+
+            let selected_task_dto = favorite_tasks
+                .iter()
+                .find(|t| t.to_string() == task_choice)
+                .unwrap();
+
+            for date in days_to_edit {
+                // Check if the day is today and has an open task (Prevent bulk edit of an active day)
+                if date == today {
+                    let day_events = event_store.events_for_day(date);
+                    let day_tasks = projector::restore_state(&day_events);
+                    if day_tasks.iter().any(|t| t.end_time.is_none()) {
+                        println!("\rSkipping {} (has an active task).", date);
+                        continue;
+                    }
+                }
+
+                // Create the single 7.5h task
+                let full_day_task = create_default_day_task(date, selected_task_dto);
+
+                // Apply the revision (overwriting existing tasks for that day)
+                let _ = apply_day_revision(date, Some(vec![full_day_task]), event_store);
+
+                days_processed += 1;
+            }
+
+            if days_processed == 0 {
+                "No days were updated due to active tasks or cancellation.".to_string()
+            } else {
+                format!("Successfully added 7.5h task to {} days.", days_processed)
+            }
+        }
+        "Clear All Tasks on Selected Days" => {
+            for date in days_to_edit {
+                // Check if the day is today and has an open task
+                if date == today {
+                    let day_events = event_store.events_for_day(date);
+                    let day_tasks = projector::restore_state(&day_events);
+                    if day_tasks.iter().any(|t| t.end_time.is_none()) {
+                        println!("\rSkipping {} (has an active task).", date);
+                        continue;
+                    }
+                }
+
+                // Apply the revision with no tasks (clearing the day)
+                let _ = apply_day_revision(date, None, event_store);
+
+                days_processed += 1;
+            }
+
+            if days_processed == 0 {
+                "No days were cleared due to active tasks or cancellation.".to_string()
+            } else {
+                format!("Successfully cleared tasks from {} days.", days_processed)
+            }
+        }
+        _ => "Cancelled.".to_string(),
+    }
+}
 #[cfg(test)]
 mod edit_tests {
     use super::*;
@@ -418,7 +598,7 @@ mod edit_tests {
     use crate::events::Event;
     use crate::external_models::{CustomerDto, TaskDto};
     use crate::{config, models, projector};
-    use chrono::{Local, NaiveDate, TimeZone, Timelike};
+    use chrono::{Datelike, Local, NaiveDate, TimeZone, Timelike};
 
     // Helper function to create a test date
     fn test_date() -> NaiveDate {

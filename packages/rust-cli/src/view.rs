@@ -1,31 +1,39 @@
 use crate::models::Task;
-use chrono::{Datelike, Local, NaiveDate, Weekday};
+use chrono::{Datelike, Duration, Local, NaiveDate, Weekday};
 use std::collections::{BTreeMap, HashSet};
+use std::io::{self, Write, Result as IOResult};
+use crossterm::{
+    cursor::{Hide, MoveTo, Show},
+    event::{self, Event, KeyCode, KeyEventKind},
+    execute,
+    terminal::{
+        Clear, ClearType, EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode,
+        enable_raw_mode,
+    },
+};
 
-// ANSI Color Constants
 mod colors {
-    // Background colors for compensation rates (matching timebank)
-    pub const BG_RATE_0_5: &str = "\x1b[42m";      // Green BG (Volunteer 0.5)
-    pub const BG_RATE_1_0: &str = "\x1b[48;5;93m"; // Purple BG (Internal 1.0)
-    pub const BG_RATE_1_5: &str = "\x1b[45m";      // Magenta BG (Billable 1.5)
-    pub const BG_RATE_2_0: &str = "\x1b[43m";      // Yellow BG (Billable Mandatory 2.0)
+    pub const BG_RATE_0_5: &str = "\x1b[42m";
+    pub const BG_RATE_1_0: &str = "\x1b[48;5;93m";
+    pub const BG_RATE_1_5: &str = "\x1b[45m";
+    pub const BG_RATE_2_0: &str = "\x1b[43m";
 
-    // Status colors
-    pub const BG_ACTIVE: &str = "\x1b[42m";        // Green BG for active tasks
-    pub const BG_LOCAL_ONLY: &str = "\x1b[48;5;208;30m"; // Orange BG, Black text for local/manual tasks
-    pub const BG_HOLIDAY: &str = "\x1b[101m";      // Bright Red BG
-    pub const BG_WEEKEND: &str = "\x1b[41m";       // Red BG
+    pub const BG_ACTIVE: &str = "\x1b[42m";
+    pub const BG_LOCAL_ONLY: &str = "\x1b[48;5;208;30m";
+    pub const BG_HOLIDAY: &str = "\x1b[101m";
+    pub const BG_WEEKEND: &str = "\x1b[41m";
 
-    // Text colors
-    pub const FG_BREAK_ACTIVE: &str = "\x1b[31m";  // Red text for active break
-    pub const FG_BREAK_INACTIVE: &str = "\x1b[90m"; // Grey text for inactive break
-    pub const FG_HOLIDAY: &str = "\x1b[91m";       // Bright red text
-    pub const FG_WEEKEND: &str = "\x1b[31m";       // Dark red text
-    pub const FG_DIMMED: &str = "\x1b[90m";        // Dimmed text
-    pub const FG_BOLD: &str = "\x1b[1m";           // Bold text
-    pub const FG_OVERTIME: &str = "\x1b[33m";      // Yellow/orange text
-    pub const FG_HOURS_WORKED: &str = "\x1b[32m";  // Green text
-    pub const FG_HOURS_OVERTIME: &str = "\x1b[33m"; // Yellow text
+    pub const FG_BREAK_ACTIVE: &str = "\x1b[31m";
+    pub const FG_BREAK_INACTIVE: &str = "\x1b[90m";
+    pub const FG_HOLIDAY: &str = "\x1b[91m";
+    pub const FG_WEEKEND: &str = "\x1b[31m";
+    pub const FG_DIMMED: &str = "\x1b[90m";
+    pub const FG_BOLD: &str = "\x1b[1m";
+    pub const FG_OVERTIME: &str = "\x1b[33m";
+    pub const FG_HOURS_WORKED: &str = "\x1b[32m";
+    pub const FG_HOURS_OVERTIME: &str = "\x1b[33m";
+    pub const BG_CURRENT_SELECT: &str = "\x1b[44m\x1b[37m";
+    pub const BG_MARKED_SELECT: &str = "\x1b[48;5;220;30m";
 
     pub const RESET: &str = "\x1b[0m";
 }
@@ -37,34 +45,57 @@ pub enum ViewMode {
     Year,
 }
 
-pub fn draw_timeline(projects: &[Task], mode: &ViewMode, holidays: &HashSet<NaiveDate>) {
+pub fn draw_timeline(projects: &[Task], mode: &ViewMode, holidays: &HashSet<NaiveDate>) -> IOResult<()> {
     match mode {
         ViewMode::Month => {
             let now = Local::now();
-            draw_month_calendar(now.year(), now.month(), projects, holidays);
-            draw_linear_timeline(projects, &ViewMode::Day, holidays);
+            draw_month_calendar(
+                now.year(),
+                now.month(),
+                projects,
+                holidays,
+                Some(now.date_naive()),
+                &HashSet::new(),
+            )?;
+            draw_linear_timeline(projects, &ViewMode::Day, holidays)?;
         }
         ViewMode::Year => {
-            draw_year_calendar(projects, holidays);
-            draw_linear_timeline(projects, &ViewMode::Day, holidays);
+            draw_year_calendar(projects, holidays)?;
+            draw_linear_timeline(projects, &ViewMode::Day, holidays)?;
         }
-        _ => draw_linear_timeline(projects, mode, holidays),
+        _ => draw_linear_timeline(projects, mode, holidays)?,
     }
+    Ok(())
 }
 
-fn draw_year_calendar(projects: &[Task], holidays: &HashSet<NaiveDate>) {
+fn draw_year_calendar(projects: &[Task], holidays: &HashSet<NaiveDate>) -> IOResult<()> {
     let now = Local::now();
     let year = now.year();
     for month in 1..=12 {
-        draw_month_calendar(year, month, projects, holidays);
+        draw_month_calendar(
+            year,
+            month,
+            projects,
+            holidays,
+            Some(now.date_naive()),
+            &HashSet::new(),
+        )?;
     }
+    Ok(())
 }
 
-fn draw_month_calendar(year: i32, month: u32, projects: &[Task], holidays: &HashSet<NaiveDate>) {
+fn draw_month_calendar(
+    year: i32,
+    month: u32,
+    projects: &[Task],
+    holidays: &HashSet<NaiveDate>,
+    highlight: Option<NaiveDate>,
+    marked: &HashSet<NaiveDate>,
+) -> IOResult<()> {
     let first_day = NaiveDate::from_ymd_opt(year, month, 1).unwrap();
     let month_name = first_day.format("%B");
+    let mut stdout = io::stdout();
 
-    // Calculate totals per day
     let mut daily_minutes: BTreeMap<NaiveDate, i64> = BTreeMap::new();
     let mut manual_dates: HashSet<NaiveDate> = HashSet::new();
 
@@ -79,20 +110,16 @@ fn draw_month_calendar(year: i32, month: u32, projects: &[Task], holidays: &Hash
         }
     }
 
-    println!("\n{} {}", month_name, year);
-    // Headers: Wk + 7 Days (11 chars each)
-    println!(" Wk  Mon        Tue        Wed        Thu        Fri        Sat        Sun       ");
+    writeln!(&mut stdout, "\r\n{} {}", month_name, year)?;
+    writeln!(&mut stdout, "\r Wk  Mon        Tue        Wed        Thu        Fri        Sat        Sun       ")?;
 
-    // Find weekday of 1st day. Mon=0 .. Sun=6
     let start_weekday = first_day.weekday().num_days_from_monday();
 
     let mut current_line = String::new();
 
-    // Start line with Week Number
     let week_num = first_day.iso_week().week();
     current_line.push_str(&format!(" {:2} ", week_num));
 
-    // Print initial padding
     for _ in 0..start_weekday {
         current_line.push_str("           ");
     }
@@ -105,6 +132,8 @@ fn draw_month_calendar(year: i32, month: u32, projects: &[Task], holidays: &Hash
         let is_weekend = weekday == Weekday::Sat || weekday == Weekday::Sun;
         let is_holiday = holidays.contains(&date);
         let has_manual = manual_dates.contains(&date);
+        let is_selected = highlight == Some(date);
+        let is_marked = marked.contains(&date);
 
         let minutes = daily_minutes.get(&date).copied().unwrap_or(0);
         let hours_str = if minutes > 0 {
@@ -113,39 +142,81 @@ fn draw_month_calendar(year: i32, month: u32, projects: &[Task], holidays: &Hash
             "".to_string()
         };
 
-        // Cell format: " 01 7.5h   "
         let day_str = format!("{:02}", day);
 
-        let colored_day = if has_manual {
-            format!("{}{}{}", colors::BG_LOCAL_ONLY, day_str, colors::RESET)
+        // --- Styles for the Day Number (Date) ---
+        let mut day_styles = Vec::new();
+
+        if is_selected {
+            day_styles.push(colors::BG_CURRENT_SELECT);
+        } else if is_marked {
+            day_styles.push(colors::BG_MARKED_SELECT);
+        } else if has_manual {
+            day_styles.push(colors::BG_LOCAL_ONLY);
         } else if is_holiday {
-            format!("{}{}{}", colors::FG_HOLIDAY, day_str, colors::RESET)
+            day_styles.push(colors::FG_HOLIDAY);
         } else if is_weekend {
-            format!("{}{}{}", colors::FG_WEEKEND, day_str, colors::RESET)
+            day_styles.push(colors::FG_WEEKEND);
         } else if minutes > 0 {
-            format!("{}{}{}", colors::FG_BOLD, day_str, colors::RESET)
+            day_styles.push(colors::FG_BOLD);
         } else {
-            format!("{}{}{}", colors::FG_DIMMED, day_str, colors::RESET)
+            day_styles.push(colors::FG_DIMMED);
         };
 
+        let colored_day = format!("{}{}{}", day_styles.concat(), day_str, colors::RESET);
+
+        // --- Styles for the Hours (Time) ---
         let colored_hours = if minutes > 0 {
             let content = format!("{:<6}", hours_str);
-            if is_holiday || is_weekend || minutes > 450 {
-                format!("{}{}{}", colors::FG_HOURS_OVERTIME, content, colors::RESET)
+
+            // Revert to non-selection specific hour colors
+            let hour_styles = if is_holiday || is_weekend || minutes > 450 {
+                colors::FG_HOURS_OVERTIME
             } else {
-                format!("{}{}{}", colors::FG_HOURS_WORKED, content, colors::RESET)
-            }
+                colors::FG_HOURS_WORKED
+            };
+
+            // If the day is selected/marked, we still need to apply the selection background
+            // to the padding/space *after* the hours if the selection background was applied to the date.
+            // However, the request is specifically to *not* color the hours. The structure of the
+            // calendar cell is: ` {day_num} {hours_str} ` (11 characters total).
+
+            // To prevent coloring the background of the hours string, we only apply the
+            // foreground hour styles and then reset.
+            format!("{}{}{}", hour_styles, content, colors::RESET)
         } else {
-            format!("{:<6}", "")
+            let empty_content = format!("{:<6}", "");
+
+            // If there are no hours, only the background applied to the date will show up next to it.
+            // To prevent the selection background from bleeding into the empty hour space, we must
+            // explicitly check if the selection/marking background was applied to the date number,
+            // and if so, we need to apply a transparent background or the normal cell background
+            // to the hours space, but since ANSI reset clears the BG, the easiest is to just
+            // output the empty space.
+            "".to_string() + &empty_content // Only output the space, relying on the next cell to clear BG
         };
 
-        current_line.push_str(&format!(" {} {} ", colored_day, colored_hours));
+        // If the date was selected/marked, the background is active.
+        // We must manually reset the background after the date *before* the hours string,
+        // otherwise, the selection BG spills into the hours content.
+        let cell_content = if is_selected || is_marked || has_manual {
+            // Since the selection/manual BG is applied in `colored_day`, we reset it immediately
+            // after the day number and before the hours string.
+            format!(" {} {} {}",
+                    colored_day,
+                    colors::RESET.to_string() + &colored_hours,
+                    colors::RESET)
+        } else {
+            format!(" {} {} ", colored_day, colored_hours)
+        };
+
+        current_line.push_str(&cell_content);
+
 
         if weekday == Weekday::Sun {
-            println!("{}", current_line);
+            writeln!(&mut stdout, "\r{}", current_line)?;
             current_line.clear();
 
-            // If there are more days, start next line with next week number
             if day < days_in_month {
                 let next_day = NaiveDate::from_ymd_opt(year, month, day + 1).unwrap();
                 let next_week = next_day.iso_week().week();
@@ -154,16 +225,21 @@ fn draw_month_calendar(year: i32, month: u32, projects: &[Task], holidays: &Hash
         }
     }
     if !current_line.is_empty() {
-        println!("{}", current_line);
+        while current_line.len() < 80 {
+            current_line.push(' ');
+        }
+        writeln!(&mut stdout, "\r{}", current_line)?;
     }
-    println!();
+    writeln!(&mut stdout, "\r")?;
+
+    Ok(())
 }
 
-fn draw_linear_timeline(projects: &[Task], mode: &ViewMode, holidays: &HashSet<NaiveDate>) {
+fn draw_linear_timeline(projects: &[Task], mode: &ViewMode, holidays: &HashSet<NaiveDate>) -> IOResult<()> {
     let now = Local::now();
     let today = now.date_naive();
+    let mut stdout = io::stdout();
 
-    // Group projects by date
     let mut grouped: BTreeMap<NaiveDate, Vec<&Task>> = BTreeMap::new();
 
     for p in projects {
@@ -174,7 +250,6 @@ fn draw_linear_timeline(projects: &[Task], mode: &ViewMode, holidays: &HashSet<N
                 p.start_time.iso_week().week() == now.iso_week().week()
                     && p.start_time.year() == now.year()
             }
-            // Month handled separately, but fallthrough safety for grouped logic
             ViewMode::Month => {
                 p.start_time.month() == now.month() && p.start_time.year() == now.year()
             }
@@ -187,8 +262,8 @@ fn draw_linear_timeline(projects: &[Task], mode: &ViewMode, holidays: &HashSet<N
     }
 
     if grouped.is_empty() {
-        println!("No activity recorded for this period.");
-        return;
+        writeln!(&mut stdout, "\rNo activity recorded for this period.")?;
+        return Ok(());
     }
 
     for (date, day_projects) in grouped {
@@ -199,20 +274,30 @@ fn draw_linear_timeline(projects: &[Task], mode: &ViewMode, holidays: &HashSet<N
 
         let date_str = date.format("%Y-%m-%d (%A)").to_string();
 
-        // Colored backgrounds for the Date header line
         let header = if has_manual {
-            format!("{} {} (Local) {}", colors::BG_LOCAL_ONLY, date_str, colors::RESET)
+            format!(
+                "{} {} (Local) {}",
+                colors::BG_LOCAL_ONLY,
+                date_str,
+                colors::RESET
+            )
         } else if is_holiday {
-            format!("{} {} (Holiday) {}", colors::BG_HOLIDAY, date_str, colors::RESET)
+            format!(
+                "{} {} (Holiday) {}",
+                colors::BG_HOLIDAY,
+                date_str,
+                colors::RESET
+            )
         } else if is_weekend {
             format!("{} {} {}", colors::BG_WEEKEND, date_str, colors::RESET)
         } else {
             format!("Date: {}", date_str)
         };
 
-        println!("\n{}", header);
-        render_day(&day_projects);
+        writeln!(&mut stdout, "\r\n{}", header)?;
+        render_day(&day_projects)?;
     }
+    Ok(())
 }
 
 fn get_days_in_month(year: i32, month: u32) -> u32 {
@@ -253,10 +338,12 @@ fn format_rate_label(rate: f64) -> String {
     }
 }
 
-pub fn render_day(projects: &[&Task]) {
+pub fn render_day(projects: &[&Task]) -> IOResult<()> {
+    let mut buffer = String::new();
+
     if projects.is_empty() {
-        println!("No activity recorded.");
-        return;
+        buffer.push_str("\rNo activity recorded.\n");
+        return io::stdout().write_all(buffer.as_bytes());
     }
 
     let mut line_names = String::new();
@@ -269,13 +356,12 @@ pub fn render_day(projects: &[&Task]) {
 
     for p in projects {
         let duration = p.duration();
-        let minutes = std::cmp::max(0, duration.num_minutes()); // Ensure non-negative
+        let minutes = std::cmp::max(0, duration.num_minutes());
 
         if !p.is_break {
             total_minutes += minutes;
         }
 
-        // Visual calculation
         let mut label = if minutes >= 60 {
             format!("{}h {}m", minutes / 60, minutes % 60)
         } else {
@@ -300,29 +386,44 @@ pub fn render_day(projects: &[&Task]) {
 
         let label_len = label.len();
         let min_width = std::cmp::max(label_len, info_text.len()) + 2;
-        // Scale: 1 char per 15 minutes, but cap it to avoid overflow on huge durations
         let calc_width = (minutes / 15) as usize;
-        // Cap width to something reasonable for terminal (e.g., 200 chars)
         let width = std::cmp::min(std::cmp::max(std::cmp::max(min_width, calc_width), 8), 200);
 
         let padding = width.saturating_sub(label_len + 2);
         let close_char = if p.end_time.is_none() { ">" } else { "]" };
 
         let bar_content = if p.is_break {
-            // Safe subtraction for w
             let w = width.saturating_sub(2);
             let inner = format!("{:-<w$}", label, w = w);
             if p.end_time.is_none() {
-                format!("[{}{}{}{}", colors::FG_BREAK_ACTIVE, inner, colors::RESET, close_char)
+                format!(
+                    "[{}{}{}{}",
+                    colors::FG_BREAK_ACTIVE,
+                    inner,
+                    colors::RESET,
+                    close_char
+                )
             } else {
-                format!("[{}{}{}{}", colors::FG_BREAK_INACTIVE, inner, colors::RESET, close_char)
+                format!(
+                    "[{}{}{}{}",
+                    colors::FG_BREAK_INACTIVE,
+                    inner,
+                    colors::RESET,
+                    close_char
+                )
             }
         } else if let Some(style) = bg_style {
             let inner = format!("{}{}", label, " ".repeat(padding));
             format!("[{}{}{}{}", style, inner, colors::RESET, close_char)
         } else if p.end_time.is_none() {
             let inner = format!("{}{}", label, " ".repeat(padding));
-            format!("[{}{}{}{}", colors::BG_ACTIVE, inner, colors::RESET, close_char)
+            format!(
+                "[{}{}{}{}",
+                colors::BG_ACTIVE,
+                inner,
+                colors::RESET,
+                close_char
+            )
         } else {
             format!("[{}{}{}", label, " ".repeat(padding), close_char)
         };
@@ -343,19 +444,191 @@ pub fn render_day(projects: &[&Task]) {
         }
     }
 
-    println!("\n{}", line_names);
-    println!("{}", line_top);
-    println!("{}", line_bars);
-    println!("{}", line_bot);
-    println!("{}\n", line_times);
+    buffer.push_str(&format!("\r\n{}\n", line_names));
+    buffer.push_str(&format!("\r{}\n", line_top));
+    buffer.push_str(&format!("\r{}\n", line_bars));
+    buffer.push_str(&format!("\r{}\n", line_bot));
+    buffer.push_str(&format!("\r{}\n\n", line_times));
 
     let hours = total_minutes / 60;
     let mins = total_minutes % 60;
-    println!("Total time: {}h {}m", hours, mins);
+    buffer.push_str(&format!("\rTotal time: {}h {}m\n", hours, mins));
 
     if total_minutes > 450 {
-        // 7h 30m = 450m
         let ot = total_minutes - 450;
-        println!("{}Overtime: {}h {}m{}", colors::FG_OVERTIME, ot / 60, ot % 60, colors::RESET);
+        buffer.push_str(&format!(
+            "\r{}Overtime: {}h {}m{}\n",
+            colors::FG_OVERTIME,
+            ot / 60,
+            ot % 60,
+            colors::RESET
+        ));
     }
+
+    io::stdout().write_all(buffer.as_bytes())
+}
+
+pub fn interactive_month_view(
+    projects: &[Task],
+    holidays: &HashSet<NaiveDate>,
+    allow_selection: bool,
+) -> IOResult<Vec<NaiveDate>> {
+    let _guard = TerminalGuard::new()?;
+    let mut stdout = io::stdout();
+    let mut selected = Local::now().date_naive();
+    let mut marked_dates: HashSet<NaiveDate> = HashSet::new();
+
+    let instruction = if allow_selection {
+        "Interactive month view — ←/→ day | ↑/↓ week | PgUp/PgDn month | **SPACE to mark/unmark** | **ENTER to confirm marked dates** | Q/Esc to clear & exit"
+    } else {
+        "Interactive month view — ←/→ day | ↑/↓ week | PgUp/PgDn month | **ENTER to select current day** | Q/Esc to clear & exit"
+    };
+
+    loop {
+        execute!(stdout, MoveTo(0, 0), Clear(ClearType::All))?;
+
+        write!(stdout, "{}\n\r", instruction)?;
+
+        let legend_selection = if allow_selection {
+            format!(" | {}Marked{}{}", colors::BG_MARKED_SELECT, "    ", colors::RESET)
+        } else {
+            String::new()
+        };
+
+        writeln!(stdout, "Legend: {}Current{}{} {} | {}Local/Manual{}{} | {}Holiday{}{}",
+                 colors::BG_CURRENT_SELECT, "    ", colors::RESET,
+                 legend_selection,
+                 colors::BG_LOCAL_ONLY, "    ", colors::RESET,
+                 colors::BG_HOLIDAY, "    ", colors::RESET
+        )?;
+        writeln!(stdout, "\r--------------------------------------------------------------------------------\n\r")?;
+
+        draw_month_calendar(
+            selected.year(),
+            selected.month(),
+            projects,
+            holidays,
+            Some(selected),
+            &marked_dates,
+        )?;
+
+        let day_entries: Vec<&Task> = projects
+            .iter()
+            .filter(|t| t.start_time.date_naive() == selected)
+            .collect();
+
+        let marked_info = if allow_selection {
+            format!(" - {}Marked: {} Dates{}", colors::FG_BOLD, marked_dates.len(), colors::RESET)
+        } else {
+            String::new()
+        };
+
+        writeln!(
+            stdout,
+            "\r\nSelected day: {} ({} entries){}\n",
+            selected.format("%Y-%m-%d (%A)"),
+            day_entries.len(),
+            marked_info,
+        )?;
+        render_day(&day_entries)?;
+        stdout.flush().ok();
+
+        match event::read()? {
+            Event::Key(key) if key.kind == KeyEventKind::Press => match key.code {
+                // 1. Confirmation & Exit (ENTER)
+                KeyCode::Enter => {
+                    let mut result: Vec<NaiveDate> = if allow_selection {
+                        // Return all marked dates
+                        marked_dates.into_iter().collect()
+                    } else {
+                        // Return only the currently selected day
+                        vec![selected]
+                    };
+                    result.sort();
+                    return Ok(result);
+                }
+
+                // 2. Clear Selection & Exit (ESC/Q)
+                KeyCode::Esc | KeyCode::Char('q') | KeyCode::Char('Q') => {
+                    return Ok(Vec::new());
+                }
+
+                // 3. Multi-Select/Mark (Conditional)
+                KeyCode::Char(' ') if allow_selection => {
+                    if marked_dates.contains(&selected) {
+                        marked_dates.remove(&selected);
+                    } else {
+                        marked_dates.insert(selected);
+                    }
+                }
+
+                // 4. Navigation (Unchanged)
+                KeyCode::Left => selected = shift_days(selected, -1),
+                KeyCode::Right => selected = shift_days(selected, 1),
+                KeyCode::Up => selected = shift_days(selected, -7),
+                KeyCode::Down => selected = shift_days(selected, 7),
+                KeyCode::PageUp => {
+                    selected = shift_months(selected, -1);
+                    if selected.month() != (Local::now().date_naive().month() as i32 + -1).rem_euclid(12) as u32 {
+                        selected = NaiveDate::from_ymd_opt(selected.year(), selected.month(), 1).unwrap_or(selected);
+                    }
+                }
+                KeyCode::PageDown => {
+                    selected = shift_months(selected, 1);
+                    if selected.month() != (Local::now().date_naive().month() as i32 + 1).rem_euclid(12) as u32 {
+                        selected = NaiveDate::from_ymd_opt(selected.year(), selected.month(), 1).unwrap_or(selected);
+                    }
+                }
+                KeyCode::Home => {
+                    selected = selected.with_day(1).unwrap_or(selected);
+                }
+                KeyCode::End => {
+                    let last = get_days_in_month(selected.year(), selected.month());
+                    selected = selected.with_day(last).unwrap_or(selected);
+                }
+                _ => {}
+            },
+            _ => {}
+        }
+    }
+}
+
+struct TerminalGuard;
+
+impl TerminalGuard {
+    fn new() -> IOResult<Self> {
+        enable_raw_mode()?;
+        let mut stdout = io::stdout();
+        execute!(stdout, EnterAlternateScreen, Hide)?;
+        Ok(Self)
+    }
+}
+
+impl Drop for TerminalGuard {
+    fn drop(&mut self) {
+        let _ = disable_raw_mode();
+        let mut stdout = io::stdout();
+        let _ = execute!(stdout, Show, LeaveAlternateScreen, Clear(ClearType::All));
+    }
+}
+
+fn shift_days(date: NaiveDate, delta: i64) -> NaiveDate {
+    date.checked_add_signed(Duration::days(delta))
+        .unwrap_or(date)
+}
+
+fn shift_months(date: NaiveDate, delta: i32) -> NaiveDate {
+    let mut year = date.year();
+    let mut month = date.month() as i32 + delta;
+    while month < 1 {
+        month += 12;
+        year -= 1;
+    }
+    while month > 12 {
+        month -= 12;
+        year += 1;
+    }
+    let last_day = get_days_in_month(year, month as u32);
+    let day = date.day().min(last_day);
+    NaiveDate::from_ymd_opt(year, month as u32, day).unwrap_or(date)
 }
