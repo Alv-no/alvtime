@@ -1,74 +1,9 @@
 use crate::events::Event;
 use crate::external_models::TaskDto;
-use crate::{external_models, models, projector};
+use crate::{external_models, projector};
 use chrono::{Local, NaiveDate};
 use crate::models::Task;
 use crate::store::EventStore;
-
-pub fn insert_and_resolve_overlaps(tasks: &mut Vec<models::Task>, new_entry: models::Task) {
-    let mut result = Vec::new();
-    let n_start = new_entry.start_time;
-    // If end time is missing (running task), treat it as 'now' for overlap logic
-    let n_end = new_entry.end_time.unwrap_or_else(Local::now);
-
-    // We use drain to move out all existing tasks, filter/modify them, and put back into result
-    for p in tasks.drain(..) {
-        let p_start = p.start_time;
-        let p_end = p.end_time.unwrap_or_else(Local::now);
-
-        // Case 0: No overlap
-        // Existing: |---|
-        // New:            |---|
-        // OR
-        // New:      |---|
-        // Existing:       |---|
-        if p_end <= n_start || p_start >= n_end {
-            result.push(p);
-            continue;
-        }
-
-        // Overlap detected. The new entry "wins". We keep parts of 'p' that are outside 'new'.
-
-        // 1. Keep part of p strictly before n
-        if p_start < n_start {
-            let mut left = p.clone();
-            left.end_time = Some(n_start);
-            result.push(left);
-        }
-
-        // 2. Keep part of p strictly after n
-        if p_end > n_end {
-            let mut right = p.clone();
-            right.start_time = n_end;
-            // right.end_time remains as p.end_time
-            result.push(right);
-        }
-
-        // If p is fully inside n, both checks fail and p is dropped.
-    }
-
-    // Merge logic: Check if we can merge new_entry with the last element in result
-    let mut merged = false;
-    if let Some(last) = result.last_mut() {
-        // Check if ID matches (same task) and time is contiguous
-        // Note: breaks usually have id -1. We might want to merge breaks too.
-        if last.id == new_entry.id && last.end_time == Some(new_entry.start_time) {
-            last.end_time = new_entry.end_time;
-            merged = true;
-        }
-    }
-
-    if !merged {
-        result.push(new_entry);
-    }
-
-    result.sort_by_key(|p| p.start_time);
-
-    // Remove zero duration tasks/breaks (unless running)
-    result.retain(|p| p.end_time.is_none() || p.end_time.unwrap() > p.start_time);
-
-    *tasks = result;
-}
 
 pub fn parse_time(date: NaiveDate, time_str: &str) -> Option<chrono::DateTime<Local>> {
     let parts: Vec<&str> = time_str.trim().split(':').collect();

@@ -158,12 +158,12 @@ atime sync
 
 #### 📅 View & Navigation
 
-| Command | Shortcut | Description | Example |
-|---------|----------|-------------|---------|
-| `view day` | `v d` | Switch to day view | `view week` |
-| `view week` | `v w` | Switch to week view | `view month` |
-| `view month` | `v m` | Switch to month view | `view year` |
-| `month-view` | `mv` | Interactive calendar | `month-view` |
+| Command            | Shortcut | Description | Example |
+|--------------------|----------|-------------|---------|
+| `view day`         | `v d` | Switch to day view | `view week` |
+| `view week`        | `v w` | Switch to week view | `view month` |
+| `view month`       | `v m` | Switch to month view | `view year` |
+| `interactive-view` | `mv` | Interactive calendar | `interactive-view` |
 
 #### 🔄 Synchronization
 
@@ -228,7 +228,7 @@ atime sync
 > view month
 
 # Use interactive calendar
-> month-view
+> interactive-view
 ```
 
 #### Managing Favorites

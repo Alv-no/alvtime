@@ -1,7 +1,5 @@
 use crate::models::Task;
 use chrono::{Datelike, Duration, Local, NaiveDate, Weekday};
-use std::collections::{BTreeMap, HashSet};
-use std::io::{self, Write, Result as IOResult};
 use crossterm::{
     cursor::{Hide, MoveTo, Show},
     event::{self, Event, KeyCode, KeyEventKind},
@@ -11,6 +9,8 @@ use crossterm::{
         enable_raw_mode,
     },
 };
+use std::collections::{BTreeMap, HashSet};
+use std::io::{self, Result as IOResult, Write};
 
 mod colors {
     pub const BG_RATE_0_5: &str = "\x1b[42m";
@@ -45,7 +45,11 @@ pub enum ViewMode {
     Year,
 }
 
-pub fn draw_timeline(projects: &[Task], mode: &ViewMode, holidays: &HashSet<NaiveDate>) -> IOResult<()> {
+pub fn draw_timeline(
+    projects: &[Task],
+    mode: &ViewMode,
+    holidays: &HashSet<NaiveDate>,
+) -> IOResult<()> {
     match mode {
         ViewMode::Month => {
             let now = Local::now();
@@ -111,7 +115,10 @@ fn draw_month_calendar(
     }
 
     writeln!(&mut stdout, "\r\n{} {}", month_name, year)?;
-    writeln!(&mut stdout, "\r Wk  Mon        Tue        Wed        Thu        Fri        Sat        Sun       ")?;
+    writeln!(
+        &mut stdout,
+        "\r Wk  Mon        Tue        Wed        Thu        Fri        Sat        Sun       "
+    )?;
 
     let start_weekday = first_day.weekday().num_days_from_monday();
 
@@ -202,16 +209,17 @@ fn draw_month_calendar(
         let cell_content = if is_selected || is_marked || has_manual {
             // Since the selection/manual BG is applied in `colored_day`, we reset it immediately
             // after the day number and before the hours string.
-            format!(" {} {} {}",
-                    colored_day,
-                    colors::RESET.to_string() + &colored_hours,
-                    colors::RESET)
+            format!(
+                " {} {} {}",
+                colored_day,
+                colors::RESET.to_string() + &colored_hours,
+                colors::RESET
+            )
         } else {
             format!(" {} {} ", colored_day, colored_hours)
         };
 
         current_line.push_str(&cell_content);
-
 
         if weekday == Weekday::Sun {
             writeln!(&mut stdout, "\r{}", current_line)?;
@@ -235,7 +243,11 @@ fn draw_month_calendar(
     Ok(())
 }
 
-fn draw_linear_timeline(projects: &[Task], mode: &ViewMode, holidays: &HashSet<NaiveDate>) -> IOResult<()> {
+fn draw_linear_timeline(
+    projects: &[Task],
+    mode: &ViewMode,
+    holidays: &HashSet<NaiveDate>,
+) -> IOResult<()> {
     let now = Local::now();
     let today = now.date_naive();
     let mut stdout = io::stdout();
@@ -468,7 +480,7 @@ pub fn render_day(projects: &[&Task]) -> IOResult<()> {
     io::stdout().write_all(buffer.as_bytes())
 }
 
-pub fn interactive_month_view(
+pub fn interactive_view(
     projects: &[Task],
     holidays: &HashSet<NaiveDate>,
     allow_selection: bool,
@@ -490,18 +502,34 @@ pub fn interactive_month_view(
         write!(stdout, "{}\n\r", instruction)?;
 
         let legend_selection = if allow_selection {
-            format!(" | {}Marked{}{}", colors::BG_MARKED_SELECT, "    ", colors::RESET)
+            format!(
+                " | {}Marked{}{}",
+                colors::BG_MARKED_SELECT,
+                "    ",
+                colors::RESET
+            )
         } else {
             String::new()
         };
 
-        writeln!(stdout, "Legend: {}Current{}{} {} | {}Local/Manual{}{} | {}Holiday{}{}",
-                 colors::BG_CURRENT_SELECT, "    ", colors::RESET,
-                 legend_selection,
-                 colors::BG_LOCAL_ONLY, "    ", colors::RESET,
-                 colors::BG_HOLIDAY, "    ", colors::RESET
+        writeln!(
+            stdout,
+            "Legend: {}Current{}{} {} | {}Local/Manual{}{} | {}Holiday{}{}",
+            colors::BG_CURRENT_SELECT,
+            "    ",
+            colors::RESET,
+            legend_selection,
+            colors::BG_LOCAL_ONLY,
+            "    ",
+            colors::RESET,
+            colors::BG_HOLIDAY,
+            "    ",
+            colors::RESET
         )?;
-        writeln!(stdout, "\r--------------------------------------------------------------------------------\n\r")?;
+        writeln!(
+            stdout,
+            "\r--------------------------------------------------------------------------------\n\r"
+        )?;
 
         draw_month_calendar(
             selected.year(),
@@ -518,7 +546,12 @@ pub fn interactive_month_view(
             .collect();
 
         let marked_info = if allow_selection {
-            format!(" - {}Marked: {} Dates{}", colors::FG_BOLD, marked_dates.len(), colors::RESET)
+            format!(
+                " - {}Marked: {} Dates{}",
+                colors::FG_BOLD,
+                marked_dates.len(),
+                colors::RESET
+            )
         } else {
             String::new()
         };
@@ -562,21 +595,27 @@ pub fn interactive_month_view(
                     }
                 }
 
-                // 4. Navigation (Unchanged)
+                // 4. Navigation
                 KeyCode::Left => selected = shift_days(selected, -1),
                 KeyCode::Right => selected = shift_days(selected, 1),
                 KeyCode::Up => selected = shift_days(selected, -7),
                 KeyCode::Down => selected = shift_days(selected, 7),
                 KeyCode::PageUp => {
                     selected = shift_months(selected, -1);
-                    if selected.month() != (Local::now().date_naive().month() as i32 + -1).rem_euclid(12) as u32 {
-                        selected = NaiveDate::from_ymd_opt(selected.year(), selected.month(), 1).unwrap_or(selected);
+                    if selected.month()
+                        != (Local::now().date_naive().month() as i32 + -1).rem_euclid(12) as u32
+                    {
+                        selected = NaiveDate::from_ymd_opt(selected.year(), selected.month(), 1)
+                            .unwrap_or(selected);
                     }
                 }
                 KeyCode::PageDown => {
                     selected = shift_months(selected, 1);
-                    if selected.month() != (Local::now().date_naive().month() as i32 + 1).rem_euclid(12) as u32 {
-                        selected = NaiveDate::from_ymd_opt(selected.year(), selected.month(), 1).unwrap_or(selected);
+                    if selected.month()
+                        != (Local::now().date_naive().month() as i32 + 1).rem_euclid(12) as u32
+                    {
+                        selected = NaiveDate::from_ymd_opt(selected.year(), selected.month(), 1)
+                            .unwrap_or(selected);
                     }
                 }
                 KeyCode::Home => {

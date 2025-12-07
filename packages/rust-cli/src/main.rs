@@ -68,7 +68,7 @@ enum Commands {
         mode: Option<ViewModeArg>,
     },
     /// Start interactive monthly calendar view
-    MonthView,
+    InteractiveView,
     /// Edit events (interactive)
     Edit,
     /// Undo last action
@@ -235,7 +235,7 @@ fn main() {
 
         let feedback = execute_command(command.clone(), &mut ctx);
 
-        if matches!(command, Commands::MonthView) {
+        if matches!(command, Commands::InteractiveView) {
             println!("{}", feedback);
         } else if let Commands::View { .. } = command {
             let tasks = get_tasks_for_view(ctx.view_mode, ctx.event_store, ctx.today_tasks);
@@ -266,7 +266,7 @@ fn create_input_helper(tasks: &[TaskDto], config: &Config) -> InputHelper {
             "favorites".to_string(),
             "edit".to_string(),
             "timebank".to_string(),
-            "month-view".to_string(),
+            "interactive-view".to_string(),
             "quit".to_string(),
         ],
         tasks: tasks.to_vec(),
@@ -363,8 +363,8 @@ fn execute_command(command: Commands, ctx: &mut AppContext) -> String {
             ctx.external_tasks,
             ctx.app_config,
         ),
-        Commands::MonthView => {
-            match view::interactive_month_view(&*get_all_tasks(ctx.event_store), ctx.holidays, false) {
+        Commands::InteractiveView => {
+            match view::interactive_view(&*get_all_tasks(ctx.event_store), ctx.holidays, false) {
                 Ok(_) => "".to_string(),
                 Err(e) => format!("Error in interactive month view: {}", e),
             }

@@ -129,7 +129,6 @@ mod tests {
             rate: 1.3,
             start_time: ts(9, 0),
             end_time: Some(ts(10, 0)),
-            comment: None,
             is_break: false,
             is_generated: false,
         };
@@ -145,7 +144,6 @@ mod tests {
             rate: 1.0,
             start_time: ts(10, 0),
             end_time: Some(ts(10, 30)),
-            comment: None,
             is_break: true,
             is_generated: false,
         };
@@ -161,7 +159,6 @@ mod tests {
             rate: 1.0,
             start_time: ts(10, 30),
             end_time: Some(ts(12, 0)),
-            comment: None,
             is_break: false,
             is_generated: false,
         };
@@ -190,7 +187,7 @@ mod tests {
             !t.is_break && t.start_time.time().hour() == 11 && t.start_time.time().minute() == 30
         });
         let day_projects_refs: Vec<&Task> = tasks.iter().collect();
-        render_day(&day_projects_refs);
+        render_day(&day_projects_refs).unwrap();
 
         assert!(resumed_task.is_some());
         assert_eq!(resumed_task.unwrap().name, "More work");
@@ -228,7 +225,6 @@ mod tests {
             rate: 1.0,
             start_time: ts(10, 0),
             end_time: Some(ts(12, 0)),
-            comment: None,
             is_break: false,
             is_generated: false,
         };
@@ -257,7 +253,6 @@ mod tests {
             rate: 1.0,
             start_time: ts(9, 0),
             end_time: Some(ts(10, 45)),
-            comment: None,
             is_break: false,
             is_generated: false,
         };
@@ -271,7 +266,6 @@ mod tests {
             rate: 0.0,
             start_time: ts(11, 0),
             end_time: Some(ts(11, 30)),
-            comment: None,
             is_break: true,
             is_generated: false,
         };
@@ -300,7 +294,6 @@ mod tests {
             rate: 1.0,
             start_time: ts(9, 0),
             end_time: Some(ts(10, 45)),
-            comment: None,
             is_break: false,
             is_generated: false,
         };
@@ -314,7 +307,6 @@ mod tests {
             rate: 0.0,
             start_time: ts(11, 0),
             end_time: Some(ts(11, 30)),
-            comment: None,
             is_break: true,
             is_generated: false,
         };
@@ -327,7 +319,6 @@ mod tests {
             rate: 0.0,
             start_time: ts(11, 30),
             end_time: None,
-            comment: None,
             is_break: true,
             is_generated: false,
         };

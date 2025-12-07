@@ -20,60 +20,13 @@ pub fn handle_push(
     let date = if let Some(task) = tasks.first() {
         task.start_time.date_naive()
     } else if let Some(event) = history.first() {
-        match event {
-            Event::TaskStarted { start_time, .. } => start_time.date_naive(),
-            Event::BreakStarted { start_time, .. } => start_time.date_naive(),
-            Event::Stopped { end_time, .. } => end_time.date_naive(),
-            Event::Reopen { start_time, .. } => start_time.date_naive(),
-            Event::Undo { time } => time.date_naive(),
-            Event::Redo { time } => time.date_naive(),
-            Event::DayRevised { date, .. } => *date,
-        }
+        event.date()
     } else {
         return "No events to push.".to_string();
     };
 
-    // 2. Check for suppressed local changes (clean DayRevised event)
-    let last_for_date = history.iter().rev().find(|e| {
-        let e_date = match e {
-            Event::TaskStarted { start_time, .. }
-            | Event::BreakStarted { start_time, .. }
-            | Event::Reopen { start_time, .. } => start_time.date_naive(),
-            Event::Stopped { end_time, .. } => end_time.date_naive(),
-            Event::Undo { time } | Event::Redo { time } => time.date_naive(),
-            Event::DayRevised { date: d, .. } => *d,
-        };
-        e_date == date
-    });
-
-    let suppress_local_changes = match last_for_date {
-        Some(Event::DayRevised { events, .. }) => {
-            events.iter().all(|ev| match ev {
-                Event::TaskStarted { is_generated, .. }
-                | Event::BreakStarted { is_generated, .. }
-                | Event::Stopped { is_generated, .. }
-                | Event::Reopen { is_generated, .. } => *is_generated,
-                Event::Undo { .. } | Event::Redo { .. } | Event::DayRevised { .. } => true,
-            })
-        }
-        _ => false,
-    };
-
-    if suppress_local_changes {
-        return String::new();
-    }
-
-    // 3. Check for non-generated events for this date (actual local changes)
     let has_local_events = history.iter().any(|e| {
-        let e_date = match e {
-            // ... (Date filtering logic omitted for brevity, it's correct from the prompt)
-            Event::TaskStarted { start_time, .. }
-            | Event::BreakStarted { start_time, .. }
-            | Event::Reopen { start_time, .. } => start_time.date_naive(),
-            Event::Stopped { end_time, .. } => end_time.date_naive(),
-            Event::Undo { time } | Event::Redo { time } => time.date_naive(),
-            Event::DayRevised { date: d, .. } => *d,
-        };
+        let e_date = e.date();
         if e_date != date {
             return false;
         }
@@ -82,15 +35,9 @@ pub fn handle_push(
             Event::TaskStarted { is_generated, .. }
             | Event::BreakStarted { is_generated, .. }
             | Event::Stopped { is_generated, .. }
-            | Event::Reopen { is_generated, .. } => !*is_generated,
-
-            Event::DayRevised { events, .. } => events.iter().any(|ev| match ev {
-                Event::TaskStarted { is_generated, .. }
-                | Event::BreakStarted { is_generated, .. }
-                | Event::Stopped { is_generated, .. }
-                | Event::Reopen { is_generated, .. } => !*is_generated, // Found a local change!
-                _ => false,
-            }),
+            | Event::Reopen { is_generated, .. }
+            | Event::LocallyCleared { is_generated, .. } // LocallyCleared check included
+            | Event::CommentAdded { is_generated, .. } => !*is_generated,
 
             Event::Undo { .. } | Event::Redo { .. } => false,
         }
@@ -106,10 +53,7 @@ pub fn handle_push(
         Err(e) => return format!("Failed to fetch entries for {}: {}", date, e),
     };
 
-    let day_tasks: Vec<&Task> = tasks
-        .iter()
-        .filter(|t| !t.is_break)
-        .collect();
+    let day_tasks: Vec<&Task> = tasks.iter().filter(|t| !t.is_break).collect();
 
     let has_server_entries = !entries.is_empty();
 
@@ -127,7 +71,10 @@ pub fn handle_push(
         for t in &day_tasks {
             *local_sums.entry(t.id).or_default() += t.duration().num_minutes();
         }
-        let local_hours: f64 = local_sums.values().map(|m| round_duration_to_quarter_hour(*m)).sum();
+        let local_hours: f64 = local_sums
+            .values()
+            .map(|m| round_duration_to_quarter_hour(*m))
+            .sum();
 
         // 5a. Generate Server's current Task state
         let new_events_server = generate_events_from_server_entries(
@@ -175,45 +122,48 @@ pub fn handle_push(
 
         if are_identical_after_rounding {
             let mut new_events = Vec::new();
-            for task in tasks.iter() {
-                if task.is_break {
-                    new_events.push(Event::BreakStarted {
-                        start_time: task.start_time,
-                        is_generated: true,
-                    });
-                } else {
-                    new_events.push(Event::TaskStarted {
-                        id: task.id,
-                        name: task.name.clone(),
-                        project_name: task.project_name.clone(),
-                        customer_name: task.customer_name.clone(),
-                        rate: task.rate,
-                        start_time: task.start_time,
-                        is_generated: true,
-                    });
-                }
-
-                if let Some(end_time) = task.end_time {
-                    new_events.push(Event::Stopped {
-                        end_time,
-                        is_generated: true,
-                    });
-                }
+            for event in history.iter().filter(|e| e.date() == date) {
+                let synced_event = match event {
+                    Event::TaskStarted { id, name, project_name, customer_name, rate, start_time, is_generated: _ } => Event::TaskStarted {
+                        id: *id, name: name.clone(), project_name: project_name.clone(), customer_name: customer_name.clone(), rate: *rate, start_time: *start_time, is_generated: true,
+                    },
+                    Event::BreakStarted { start_time, is_generated: _ } => Event::BreakStarted {
+                        start_time: *start_time, is_generated: true,
+                    },
+                    Event::Stopped { end_time, is_generated: _ } => Event::Stopped {
+                        end_time: *end_time, is_generated: true,
+                    },
+                    Event::Reopen { start_time, is_generated: _ } => Event::Reopen {
+                        start_time: *start_time, is_generated: true,
+                    },
+                    Event::CommentAdded {date,  task_id, comment, is_generated: _ } => Event::CommentAdded {
+                        task_id: *task_id, comment: comment.clone(), date: *date, is_generated: true,
+                    },
+                    Event::LocallyCleared { date, is_generated: _ } => Event::LocallyCleared {
+                        date: *date, is_generated: true,
+                    },
+                    _ => continue,
+                };
+                new_events.push(synced_event);
             }
 
-            // 2. Create and persist the DayRevised event
-            let revised_event = Event::DayRevised {
-                date,
-                events: new_events,
-            };
-            event_store.persist(&revised_event);
-            history.push(revised_event);
+            event_store.delete_events_for_days(&[date]);
+            event_store.persist_batch(&new_events);
 
-            // 3. The tasks state is already correct, but restore_state is cheap and ensures
-            //    the tasks vector is consistent with the new history entry.
+            let mut new_full_history = history
+                .iter()
+                .filter(|e| e.date() != date)
+                .cloned()
+                .collect::<Vec<Event>>();
+            new_full_history.extend_from_slice(&new_events);
+            *history = new_full_history;
+
             *tasks = restore_state(history);
 
-            return format!("Local changes for {} match server entries after rounding. Marked local history as synced.", date);
+            return format!(
+                "Local changes for {} match server entries after rounding. Marked local history as synced.",
+                date
+            );
         }
         // Continue with conflict resolution (only if states are different)
 
@@ -226,7 +176,10 @@ pub fn handle_push(
         let local_tasks_for_snapshot = restore_state(&new_events_local_pushed);
 
         // Use the newly generated local snapshot for the comparison view
-        render_snapshots(&local_tasks_for_snapshot.iter().collect::<Vec<_>>(), &server_tasks);
+        render_snapshots(
+            &local_tasks_for_snapshot.iter().collect::<Vec<_>>(),
+            &server_tasks,
+        );
 
         let msg = format!(
             "Conflict on {}: Local {:.1}h vs Server {:.1}h. What do you want to do?",
@@ -260,12 +213,8 @@ pub fn handle_push(
                     &entries.iter().collect::<Vec<_>>(),
                     external_tasks,
                 );
-                let revised_event = Event::DayRevised {
-                    date,
-                    events: new_events,
-                };
-                event_store.persist(&revised_event);
-                history.push(revised_event);
+                event_store.persist_batch(&new_events);
+                history.extend_from_slice(&new_events);
                 *tasks = restore_state(history);
                 return format!("Synced {} from server.", date);
             }
@@ -323,38 +272,42 @@ pub fn handle_push(
 
             // Mark all local events as generated (synced)
             let mut new_events = Vec::new();
-            for task in tasks.iter() {
-                if task.is_break {
-                    new_events.push(Event::BreakStarted {
-                        start_time: task.start_time,
-                        is_generated: true,
-                    });
-                } else {
-                    new_events.push(Event::TaskStarted {
-                        id: task.id,
-                        name: task.name.clone(),
-                        project_name: task.project_name.clone(),
-                        customer_name: task.customer_name.clone(),
-                        rate: task.rate,
-                        start_time: task.start_time,
-                        is_generated: true,
-                    });
-                }
-
-                if let Some(end_time) = task.end_time {
-                    new_events.push(Event::Stopped {
-                        end_time,
-                        is_generated: true,
-                    });
-                }
+            for event in history.iter().filter(|e| e.date() == date) {
+                let synced_event = match event {
+                    Event::TaskStarted { id, name, project_name, customer_name, rate, start_time, is_generated: _ } => Event::TaskStarted {
+                        id: *id, name: name.clone(), project_name: project_name.clone(), customer_name: customer_name.clone(), rate: *rate, start_time: *start_time, is_generated: true,
+                    },
+                    Event::BreakStarted { start_time, is_generated: _ } => Event::BreakStarted {
+                        start_time: *start_time, is_generated: true,
+                    },
+                    Event::Stopped { end_time, is_generated: _ } => Event::Stopped {
+                        end_time: *end_time, is_generated: true,
+                    },
+                    Event::Reopen { start_time, is_generated: _ } => Event::Reopen {
+                        start_time: *start_time, is_generated: true,
+                    },
+                    Event::CommentAdded { date, task_id, comment, is_generated: _ } => Event::CommentAdded {
+                       date: *date, task_id: *task_id, comment: comment.clone(), is_generated: true,
+                    },
+                    Event::LocallyCleared { date, is_generated: _ } => Event::LocallyCleared {
+                        date: *date, is_generated: true,
+                    },
+                    _ => continue,
+                };
+                new_events.push(synced_event);
             }
 
-            let revised_event = Event::DayRevised {
-                date,
-                events: new_events,
-            };
-            event_store.persist(&revised_event);
-            history.push(revised_event);
+            event_store.delete_events_for_days(&[date]);
+            event_store.persist_batch(&new_events);
+
+            let mut new_full_history = history
+                .iter()
+                .filter(|e| e.date() != date)
+                .cloned()
+                .collect::<Vec<Event>>();
+            new_full_history.extend_from_slice(&new_events);
+            *history = new_full_history;
+
             *tasks = restore_state(history);
         }
 

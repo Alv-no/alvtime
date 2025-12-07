@@ -34,10 +34,18 @@ pub enum Event {
     Redo {
         time: DateTime<Local>,
     },
-    DayRevised {
+    CommentAdded {
         date: NaiveDate,
-        events: Vec<Event>,
+        #[serde(default)]
+        is_generated: bool,
+        task_id: i32,
+        comment: String,
     },
+    LocallyCleared {
+        date: NaiveDate,
+        #[serde(default)]
+        is_generated: bool,
+    }
 }
 
 impl Event {
@@ -49,7 +57,8 @@ impl Event {
             Event::Reopen { start_time, .. } => start_time.date_naive(),
             Event::Undo { time } => time.date_naive(),
             Event::Redo { time } => time.date_naive(),
-            Event::DayRevised { date, .. } => *date,
+            Event::CommentAdded { date,.. } => {*date}
+            Event::LocallyCleared { date,.. } => {*date}
         }
     }
 }

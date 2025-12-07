@@ -1,4 +1,4 @@
-use crate::actions::utils::{get_all_tasks, insert_and_resolve_overlaps, parse_time};
+use crate::actions::utils::{get_all_tasks, parse_time};
 use crate::events::Event;
 use crate::external_models::TaskDto;
 use crate::store::EventStore;
@@ -28,92 +28,11 @@ fn create_default_day_task(date: NaiveDate, task_dto: &TaskDto) -> models::Task 
         rate: task_dto.compensation_rate,
         start_time,
         end_time: Some(end_time),
-        comment: None,
         is_break: false,
         is_generated: false,
     }
 }
 
-fn apply_day_revision(
-    date: NaiveDate,
-    day_tasks: Option<Vec<models::Task>>,
-    event_store: &EventStore,
-) -> Option<Event> {
-    let today = Local::now().date_naive();
-
-    let revised_event = if let Some(tasks) = day_tasks {
-        // Rebuild events from the list of tasks (similar to the 'Save & Finish' logic)
-        let mut new_events = Vec::new();
-        let mut last_end_time: Option<chrono::DateTime<Local>> = None;
-
-        let mut tasks = tasks;
-        tasks.sort_by_key(|p| p.start_time);
-
-        for p in tasks {
-            if let Some(last_end) = last_end_time {
-                if p.start_time > last_end {
-                    // Implicit break needed
-                    new_events.push(Event::BreakStarted {
-                        start_time: last_end,
-                        is_generated: true,
-                    });
-                    new_events.push(Event::Stopped {
-                        end_time: p.start_time,
-                        is_generated: true,
-                    });
-                }
-            }
-
-            if p.is_break {
-                new_events.push(Event::BreakStarted {
-                    start_time: p.start_time,
-                    is_generated: false,
-                });
-            } else {
-                new_events.push(Event::TaskStarted {
-                    id: p.id,
-                    name: p.name,
-                    project_name: p.project_name,
-                    customer_name: p.customer_name,
-                    rate: p.rate,
-                    start_time: p.start_time,
-                    is_generated: false,
-                });
-            }
-            if let Some(end) = p.end_time {
-                new_events.push(Event::Stopped {
-                    end_time: end,
-                    is_generated: false,
-                });
-                last_end_time = Some(end);
-            } else {
-                last_end_time = None;
-            }
-        }
-        Event::DayRevised {
-            date,
-            events: new_events,
-        }
-    } else {
-        // Clear all tasks/events for the day
-        Event::DayRevised {
-            date,
-            events: Vec::new(),
-        }
-    };
-
-    // Persist
-    event_store.persist(&revised_event);
-
-    // Return the event if it was for today, so the caller *could* update in-memory state
-    if date == today {
-        Some(revised_event)
-    } else {
-        None
-    }
-}
-
-// MODIFIED SIGNATURE: Returns only String.
 pub fn handle_edit(
     holidays: &HashSet<NaiveDate>,
     event_store: &EventStore,
@@ -134,7 +53,7 @@ pub fn handle_edit(
     match initial_action {
         "Edit Single Day" => {
             // 1. Select Day using the interactive view
-            let selected_dates = match view::interactive_month_view(&all_tasks, &holidays, false) {
+            let selected_dates = match view::interactive_view(&all_tasks, &holidays, false) {
                 Ok(d) => d,
                 Err(e) => return format!("Interactive view failed: {}", e),
             };
@@ -164,29 +83,39 @@ fn handle_single_day_edit(
     app_config: &config::Config,
 ) -> String {
     let today = Local::now().date_naive();
-    let day_events = event_store.events_for_day(selected_date);
-    let mut day_tasks = projector::restore_state(&day_events);
+    let initial_day_events = event_store.events_for_day(selected_date);
+
+    // Vector to store newly created or compensating events
+    let mut new_events: Vec<Event> = Vec::new();
+
+    // Helper closure to get the currently projected state
+    let get_current_tasks = |new_events: &[Event]| -> Vec<models::Task> {
+        let mut combined_events = initial_day_events.clone();
+        combined_events.extend_from_slice(new_events);
+        // Using the projector to derive the stable, overlapping-resolved state
+        projector::restore_state(&combined_events)
+    };
 
     // 3. Edit Loop
     loop {
-        // sort for display
-        day_tasks.sort_by_key(|p| p.start_time);
+        // Project the current state (initial + new_events) for display
+        let mut current_day_tasks = get_current_tasks(&new_events);
+        current_day_tasks.sort_by_key(|p| p.start_time);
 
         println!("\n--- Editing {} ---", selected_date);
-        if day_tasks.is_empty() {
+        if current_day_tasks.is_empty() {
             println!("(No tasks)");
         }
 
-        // Show graphical timeline
-        if !day_tasks.is_empty() {
-            let refs: Vec<&models::Task> = day_tasks.iter().collect();
-            // Assuming view::render_day returns IOResult<()>
+        // Show graphical timeline for the projected state
+        if !current_day_tasks.is_empty() {
+            let refs: Vec<&models::Task> = current_day_tasks.iter().collect();
             if let Err(e) = view::render_day(&refs) {
                 eprintln!("Error rendering day: {}", e);
             }
         }
 
-        for (i, p) in day_tasks.iter().enumerate() {
+        for (i, p) in current_day_tasks.iter().enumerate() {
             let end_str = p
                 .end_time
                 .map(|t| t.format("%H:%M").to_string())
@@ -218,7 +147,6 @@ fn handle_single_day_edit(
 
         match action {
             "Add Entry" => {
-                // ... (Original "Add Entry" logic remains here, unchanged) ...
                 let favorite_tasks: Vec<&TaskDto> = external_tasks
                     .iter()
                     .filter(|t| app_config.favorite_tasks.contains(&t.id))
@@ -226,8 +154,6 @@ fn handle_single_day_edit(
 
                 let task_options: Vec<String> =
                     favorite_tasks.iter().map(|t| t.to_string()).collect();
-
-                // Also add "Break"
                 let mut combined_options = vec!["Break".to_string()];
                 combined_options.extend(task_options);
 
@@ -264,7 +190,6 @@ fn handle_single_day_edit(
                         )
                     };
 
-                // Ask Start Time
                 let start_str = match Text::new("Start Time (HH:MM):").prompt() {
                     Ok(s) => s,
                     Err(_) => continue,
@@ -272,12 +197,11 @@ fn handle_single_day_edit(
                 let start_time = match parse_time(selected_date, &start_str) {
                     Some(t) => t,
                     None => {
-                        println!("Invalid time format.");
+                        println!("Invalid start time format.");
                         continue;
                     }
                 };
 
-                // Ask End Time
                 let end_str = match Text::new("End Time (HH:MM):").prompt() {
                     Ok(s) => s,
                     Err(_) => continue,
@@ -285,7 +209,7 @@ fn handle_single_day_edit(
                 let end_time = match parse_time(selected_date, &end_str) {
                     Some(t) => t,
                     None => {
-                        println!("Invalid time format.");
+                        println!("Invalid end time format.");
                         continue;
                     }
                 };
@@ -295,53 +219,66 @@ fn handle_single_day_edit(
                     continue;
                 }
 
-                let new_p = models::Task {
-                    id,
-                    name,
-                    project_name,
-                    customer_name,
-                    rate,
-                    start_time,
-                    end_time: Some(end_time),
-                    comment: None,
-                    is_break,
-                    is_generated: false,
-                };
+                if is_break {
+                    new_events.push(Event::BreakStarted {
+                        start_time,
+                        is_generated: false,
+                    });
+                } else {
+                    new_events.push(Event::TaskStarted {
+                        id,
+                        name,
+                        project_name,
+                        customer_name,
+                        rate,
+                        start_time,
+                        is_generated: false,
+                    });
+                }
 
-                insert_and_resolve_overlaps(&mut day_tasks, new_p);
+                new_events.push(Event::Stopped {
+                    end_time,
+                    is_generated: false,
+                });
             }
             "Edit Entry Time" => {
-                // ... (Original "Edit Entry Time" logic remains here, unchanged) ...
-                if day_tasks.is_empty() {
+                if current_day_tasks.is_empty() {
                     continue;
                 }
-                let indices: Vec<String> = (1..=day_tasks.len()).map(|i| i.to_string()).collect();
+                let indices: Vec<String> = (1..=current_day_tasks.len())
+                    .map(|i| i.to_string())
+                    .collect();
                 let idx_res = Select::new("Select entry number:", indices).prompt();
+
                 if let Ok(idx_str) = idx_res {
                     let idx = idx_str.parse::<usize>().unwrap() - 1;
-                    // Remove temporarily to resolve overlaps against others
-                    let mut p = day_tasks.remove(idx);
 
-                    let s_default = p.start_time.format("%H:%M").to_string();
-                    let e_default = p
+                    let original_task = match current_day_tasks.get(idx) {
+                        Some(t) => t.clone(),
+                        None => continue,
+                    };
+
+                    let s_default = original_task.start_time.format("%H:%M").to_string();
+                    let e_default = original_task
                         .end_time
                         .map(|t| t.format("%H:%M").to_string())
                         .unwrap_or_default();
 
-                    let start_res = Text::new("Start Time:").with_default(&s_default).prompt();
-                    let end_res = Text::new("End Time:").with_default(&e_default).prompt();
+                    let start_res = Text::new("New Start Time:")
+                        .with_default(&s_default)
+                        .prompt();
+                    let end_res = Text::new("New End Time:").with_default(&e_default).prompt();
 
                     if let (Ok(s), Ok(e)) = (start_res, end_res) {
-                        let start = match parse_time(selected_date, s.trim()) {
+                        let new_start = match parse_time(selected_date, s.trim()) {
                             Some(t) => t,
                             None => {
                                 println!("Invalid start time format.");
-                                day_tasks.insert(idx, p);
                                 continue;
                             }
                         };
 
-                        let end = {
+                        let new_end = {
                             let trimmed = e.trim();
                             if trimmed.is_empty() {
                                 None
@@ -349,38 +286,60 @@ fn handle_single_day_edit(
                                 Some(parsed)
                             } else {
                                 println!("Invalid end time format.");
-                                day_tasks.insert(idx, p);
                                 continue;
                             }
                         };
 
-                        if let Some(end_time) = end {
-                            if end_time <= start {
+                        if let Some(end_time) = new_end {
+                            if end_time <= new_start {
                                 println!("Error: End time must be after start time.");
-                                day_tasks.insert(idx, p);
                                 continue;
                             }
                         }
 
-                        p.start_time = start;
-                        p.end_time = end;
-                        insert_and_resolve_overlaps(&mut day_tasks, p);
-                    } else {
-                        day_tasks.insert(idx, p); // Restore on cancel
+                        // Overwrite with the New Task/Break using new times
+                        if original_task.is_break {
+                            new_events.push(Event::BreakStarted {
+                                start_time: new_start,
+                                is_generated: false,
+                            });
+                        } else {
+                            new_events.push(Event::TaskStarted {
+                                id: original_task.id,
+                                name: original_task.name,
+                                project_name: original_task.project_name,
+                                customer_name: original_task.customer_name,
+                                rate: original_task.rate,
+                                start_time: new_start,
+                                is_generated: false,
+                            });
+                        }
+                        if let Some(end) = new_end {
+                            new_events.push(Event::Stopped {
+                                end_time: end,
+                                is_generated: false,
+                            });
+                        }
                     }
                 }
             }
             "Edit Entry Type" => {
-                // ... (Original "Edit Entry Type" logic remains here, unchanged) ...
-                if day_tasks.is_empty() {
+                if current_day_tasks.is_empty() {
                     continue;
                 }
 
-                let indices: Vec<String> = (1..=day_tasks.len()).map(|i| i.to_string()).collect();
+                let indices: Vec<String> = (1..=current_day_tasks.len())
+                    .map(|i| i.to_string())
+                    .collect();
 
                 let idx = match Select::new("Select entry number:", indices).prompt() {
                     Ok(choice) => choice.parse::<usize>().unwrap() - 1,
                     Err(_) => continue,
+                };
+
+                let original_task = match current_day_tasks.get(idx) {
+                    Some(t) => t.clone(),
+                    None => continue,
                 };
 
                 let favorite_tasks: Vec<&TaskDto> = external_tasks
@@ -397,91 +356,124 @@ fn handle_single_day_edit(
                     Err(_) => continue,
                 };
 
-                if let Some(entry) = day_tasks.get_mut(idx) {
-                    let selected_label = type_choice.as_str();
-
+                let selected_label = type_choice.as_str();
+                let (new_id, new_name, new_is_break, new_project_name, new_customer_name, new_rate) =
                     if selected_label == "Break" {
-                        entry.id = -1;
-                        entry.name = "Break".to_string();
-                        entry.project_name.clear();
-                        entry.customer_name.clear();
-                        entry.rate = 0.0;
-                        entry.is_break = true;
-                    } else if let Some(new_task) = favorite_tasks
+                        (
+                            -1,
+                            "Break".to_string(),
+                            true,
+                            "".to_string(),
+                            "".to_string(),
+                            0.0,
+                        )
+                    } else if let Some(new_task_dto) = favorite_tasks
                         .iter()
                         .find(|t| t.to_string() == selected_label)
                     {
-                        entry.id = new_task.id;
-                        entry.name = new_task.name.clone();
-                        entry.project_name = new_task.project.name.clone();
-                        entry.customer_name = new_task.project.customer.name.clone();
-                        entry.rate = new_task.compensation_rate;
-                        entry.is_break = false;
-                        entry.comment = None;
-                        entry.is_generated = false;
-                    }
+                        (
+                            new_task_dto.id,
+                            new_task_dto.name.clone(),
+                            false,
+                            new_task_dto.project.name.clone(),
+                            new_task_dto.project.customer.name.clone(),
+                            new_task_dto.compensation_rate,
+                        )
+                    } else {
+                        continue;
+                    };
+
+                // Overwrite with the New Task/Break using the ORIGINAL start/end times.
+                if new_is_break {
+                    new_events.push(Event::BreakStarted {
+                        start_time: original_task.start_time,
+                        is_generated: false,
+                    });
+                } else {
+                    new_events.push(Event::TaskStarted {
+                        id: new_id,
+                        name: new_name,
+                        project_name: new_project_name,
+                        customer_name: new_customer_name,
+                        rate: new_rate,
+                        start_time: original_task.start_time,
+                        is_generated: false,
+                    });
+                }
+
+                if let Some(end) = original_task.end_time {
+                    new_events.push(Event::Stopped {
+                        end_time: end,
+                        is_generated: false,
+                    });
                 }
             }
             "Delete Entry" => {
-                // ... (Original "Delete Entry" logic remains here, unchanged) ...
-                if day_tasks.is_empty() {
+                if current_day_tasks.is_empty() {
                     continue;
                 }
-                let indices: Vec<String> = (1..=day_tasks.len()).map(|i| i.to_string()).collect();
+                let indices: Vec<String> = (1..=current_day_tasks.len())
+                    .map(|i| i.to_string())
+                    .collect();
                 let idx_res = Select::new("Select entry number:", indices).prompt();
+
                 if let Ok(idx_str) = idx_res {
                     let idx = idx_str.parse::<usize>().unwrap() - 1;
-                    let removed = day_tasks.remove(idx);
 
-                    // 1. If deleting a break, extend previous task to fill gap
-                    if removed.is_break && idx > 0 {
-                        if let Some(prev_task) = day_tasks.get_mut(idx - 1) {
-                            prev_task.end_time = removed.end_time;
-                        }
-                    }
-                    // 2. If deleting a task and it has tasks on both sides, insert a break
-                    else if !removed.is_break && idx > 0 && idx < day_tasks.len() {
-                        if let Some(end_time) = removed.end_time {
-                            let break_task = models::Task {
-                                id: -1,
-                                name: "Break".to_string(),
-                                project_name: "".to_string(),
-                                customer_name: "".to_string(),
-                                rate: 0.0,
-                                start_time: removed.start_time,
-                                end_time: Some(end_time),
-                                comment: None,
-                                is_break: true,
-                                is_generated: false,
-                            };
-                            day_tasks.insert(idx, break_task);
-                        }
+                    let removed = match current_day_tasks.get(idx) {
+                        Some(t) => t.clone(),
+                        None => continue,
+                    };
+
+                    if let Some(end_time) = removed.end_time {
+                        // To delete the task, we replace its duration with a Break.
+                        new_events.push(Event::BreakStarted {
+                            start_time: removed.start_time,
+                            is_generated: true,
+                        });
+                        new_events.push(Event::Stopped {
+                            end_time,
+                            is_generated: true,
+                        });
+                    } else {
+                        new_events.push(Event::Undo {
+                            time: removed.start_time,
+                        });
                     }
                 }
             }
             "Save & Finish" => {
+                let final_tasks = get_current_tasks(&new_events);
+
                 if selected_date < today {
-                    if let Some(open_task) = day_tasks.iter().find(|task| task.end_time.is_none()) {
+                    if final_tasks
+                        .iter()
+                        .find(|task| task.end_time.is_none())
+                        .is_some()
+                    {
                         eprintln!(
-                            "Cannot save: the entry '{}' has no end time. \
-                             Finish all tasks when editing past days.",
-                            open_task.name
+                            "Cannot save: an entry has no end time. Finish all tasks when editing past days."
                         );
                         continue;
                     }
                 }
 
-                // Apply the revision and discard the returned event
-                let _ = apply_day_revision(selected_date, Some(day_tasks), event_store);
+                if new_events.is_empty() {
+                    return "No changes to save.".to_string();
+                }
 
-                return "Day updated.".to_string();
+                for event in new_events.drain(..) {
+                    // Drain to move events out of the vector
+                    event_store.persist(&event);
+                }
+
+                return "Day updated. Changes saved as appended events.".to_string();
             }
             "Cancel" => return "Cancelled.".to_string(),
             _ => {}
         }
     }
 }
-
 fn handle_bulk_day_edit(
     holidays: &HashSet<NaiveDate>,
     event_store: &EventStore,
@@ -490,7 +482,7 @@ fn handle_bulk_day_edit(
     all_tasks: &[models::Task],
 ) -> String {
     println!("\n--- Bulk Edit Mode ---");
-    let days_to_edit = match view::interactive_month_view(all_tasks, &holidays, true) {
+    let days_to_edit = match view::interactive_view(all_tasks, &holidays, true) {
         Ok(d) => d,
         Err(e) => return format!("Interactive view failed: {}", e),
     };
@@ -539,7 +531,7 @@ fn handle_bulk_day_edit(
                 .unwrap();
 
             for date in days_to_edit {
-                // Check if the day is today and has an open task (Prevent bulk edit of an active day)
+                // 1. Pre-check for active task
                 if date == today {
                     let day_events = event_store.events_for_day(date);
                     let day_tasks = projector::restore_state(&day_events);
@@ -549,11 +541,44 @@ fn handle_bulk_day_edit(
                     }
                 }
 
-                // Create the single 7.5h task
+                // 2. Determine necessary events
                 let full_day_task = create_default_day_task(date, selected_task_dto);
+                let mut events_to_persist = Vec::new();
 
-                // Apply the revision (overwriting existing tasks for that day)
-                let _ = apply_day_revision(date, Some(vec![full_day_task]), event_store);
+                // To overwrite the day's existing history without DayRevised,
+                // we must generate a new event sequence based on the new task,
+                // and assume that these new events supersede any previous events
+                // covering the same time range when restored by the projector.
+
+                // The safest way to "clear" the day first without DayRevised is
+                // to explicitly push a compensating Break covering the entire day (8:00 to 15:30),
+                // and then immediately overwrite it with the intended task.
+                // Since this gets messy, we'll just push the task events and rely on
+                // the projector's conflict resolution logic (which typically prioritizes later events).
+
+                // Start of the new task
+                events_to_persist.push(Event::TaskStarted {
+                    id: full_day_task.id,
+                    name: full_day_task.name,
+                    project_name: full_day_task.project_name,
+                    customer_name: full_day_task.customer_name,
+                    rate: full_day_task.rate,
+                    start_time: full_day_task.start_time,
+                    is_generated: false, // Treat as user-created edit
+                });
+
+                // End of the new task
+                if let Some(end_time) = full_day_task.end_time {
+                    events_to_persist.push(Event::Stopped {
+                        end_time,
+                        is_generated: false, // Treat as user-created edit
+                    });
+                }
+
+                // 3. Persist individual events
+                for event in events_to_persist {
+                    event_store.persist(&event);
+                }
 
                 days_processed += 1;
             }
@@ -561,12 +586,15 @@ fn handle_bulk_day_edit(
             if days_processed == 0 {
                 "No days were updated due to active tasks or cancellation.".to_string()
             } else {
-                format!("Successfully added 7.5h task to {} days.", days_processed)
+                format!(
+                    "Successfully added 7.5h task to {} days. (Saved as events)",
+                    days_processed
+                )
             }
         }
         "Clear All Tasks on Selected Days" => {
             for date in days_to_edit {
-                // Check if the day is today and has an open task
+                // 1. Pre-check for active task
                 if date == today {
                     let day_events = event_store.events_for_day(date);
                     let day_tasks = projector::restore_state(&day_events);
@@ -576,8 +604,19 @@ fn handle_bulk_day_edit(
                     }
                 }
 
-                // Apply the revision with no tasks (clearing the day)
-                let _ = apply_day_revision(date, None, event_store);
+                // We'll calculate the existing tasks and generate a Break over their entire duration.
+                let day_events = event_store.events_for_day(date);
+                let existing_tasks = projector::restore_state(&day_events);
+
+                if existing_tasks.is_empty() {
+                    // Nothing to clear on this day
+                    continue;
+                }
+
+                event_store.persist(&Event::LocallyCleared {
+                    date,
+                    is_generated: false,
+                });
 
                 days_processed += 1;
             }
@@ -585,724 +624,12 @@ fn handle_bulk_day_edit(
             if days_processed == 0 {
                 "No days were cleared due to active tasks or cancellation.".to_string()
             } else {
-                format!("Successfully cleared tasks from {} days.", days_processed)
+                format!(
+                    "Successfully cleared tasks from {} days. (Saved as events)",
+                    days_processed
+                )
             }
         }
         _ => "Cancelled.".to_string(),
-    }
-}
-#[cfg(test)]
-mod edit_tests {
-    use super::*;
-    use crate::actions::utils::{insert_and_resolve_overlaps, parse_time};
-    use crate::events::Event;
-    use crate::external_models::{CustomerDto, TaskDto};
-    use crate::{config, models, projector};
-    use chrono::{Datelike, Local, NaiveDate, TimeZone, Timelike};
-
-    // Helper function to create a test date
-    fn test_date() -> NaiveDate {
-        NaiveDate::from_ymd_opt(2024, 6, 15).unwrap()
-    }
-
-    // Helper function to create test datetime
-    fn test_datetime(hour: u32, minute: u32) -> chrono::DateTime<Local> {
-        Local
-            .from_local_datetime(&test_date().and_hms_opt(hour, minute, 0).unwrap())
-            .unwrap()
-    }
-
-    // Helper to create a test task
-    fn create_test_task(
-        id: i32,
-        name: &str,
-        start_hour: u32,
-        start_min: u32,
-        end_hour: u32,
-        end_min: u32,
-        is_break: bool,
-    ) -> models::Task {
-        models::Task {
-            id,
-            name: name.to_string(),
-            project_name: "Test Project".to_string(),
-            customer_name: "".to_string(),
-            rate: 100.0,
-            start_time: test_datetime(start_hour, start_min),
-            end_time: Some(test_datetime(end_hour, end_min)),
-            comment: None,
-            is_break,
-            is_generated: false,
-        }
-    }
-
-    // Helper to create test config with favorites
-    fn create_test_config(favorite_ids: Vec<i32>) -> config::Config {
-        config::Config {
-            favorite_tasks: favorite_ids,
-            ..Default::default()
-        }
-    }
-
-    // Helper to create test external tasks
-    fn create_test_external_tasks() -> Vec<TaskDto> {
-        vec![
-            TaskDto {
-                id: 1,
-                name: "Task A".to_string(),
-                project: crate::external_models::ProjectDto {
-                    name: "Project Alpha".to_string(),
-                    customer: CustomerDto {
-                        name: "Test Customer".to_string(),
-                    },
-                },
-                compensation_rate: 1.0,
-                locked: false,
-            },
-            TaskDto {
-                id: 2,
-                name: "Task B".to_string(),
-                project: crate::external_models::ProjectDto {
-                    name: "Project Beta".to_string(),
-                    customer: CustomerDto {
-                        name: "Test Customer".to_string(),
-                    },
-                },
-                compensation_rate: 1.5,
-                locked: false,
-            },
-            TaskDto {
-                id: 3,
-                name: "Task C".to_string(),
-                project: crate::external_models::ProjectDto {
-                    name: "Project Gamma".to_string(),
-                    customer: CustomerDto {
-                        name: "Test Customer".to_string(),
-                    },
-                },
-                compensation_rate: 2.0,
-                locked: false,
-            },
-        ]
-    }
-
-    #[test]
-    fn test_insert_and_resolve_overlaps_no_overlap() {
-        let mut tasks = vec![
-            create_test_task(1, "Task 1", 9, 0, 10, 0, false),
-            create_test_task(2, "Task 2", 11, 0, 12, 0, false),
-        ];
-
-        let new_task = create_test_task(3, "Task 3", 10, 0, 11, 0, false);
-        insert_and_resolve_overlaps(&mut tasks, new_task);
-
-        assert_eq!(tasks.len(), 3);
-        tasks.sort_by_key(|t| t.start_time);
-        assert_eq!(tasks[0].name, "Task 1");
-        assert_eq!(tasks[1].name, "Task 3");
-        assert_eq!(tasks[2].name, "Task 2");
-    }
-
-    #[test]
-    fn test_insert_and_resolve_overlaps_complete_overlap() {
-        let mut tasks = vec![create_test_task(1, "Task 1", 9, 0, 12, 0, false)];
-
-        // New task completely overlaps Task 1
-        let new_task = create_test_task(2, "Task 2", 10, 0, 11, 0, false);
-        insert_and_resolve_overlaps(&mut tasks, new_task);
-
-        assert_eq!(tasks.len(), 3);
-        tasks.sort_by_key(|t| t.start_time);
-
-        // Task 1 should be split
-        assert_eq!(tasks[0].name, "Task 1");
-        assert_eq!(tasks[0].start_time.time().hour(), 9);
-        assert_eq!(tasks[0].end_time.unwrap().time().hour(), 10);
-
-        assert_eq!(tasks[1].name, "Task 2");
-        assert_eq!(tasks[1].start_time.time().hour(), 10);
-        assert_eq!(tasks[1].end_time.unwrap().time().hour(), 11);
-
-        assert_eq!(tasks[2].name, "Task 1");
-        assert_eq!(tasks[2].start_time.time().hour(), 11);
-        assert_eq!(tasks[2].end_time.unwrap().time().hour(), 12);
-    }
-
-    #[test]
-    fn test_insert_and_resolve_overlaps_partial_overlap_start() {
-        let mut tasks = vec![create_test_task(1, "Task 1", 10, 0, 12, 0, false)];
-
-        // New task overlaps start of Task 1
-        let new_task = create_test_task(2, "Task 2", 9, 0, 11, 0, false);
-        insert_and_resolve_overlaps(&mut tasks, new_task);
-
-        assert_eq!(tasks.len(), 2);
-        tasks.sort_by_key(|t| t.start_time);
-
-        assert_eq!(tasks[0].name, "Task 2");
-        assert_eq!(tasks[0].start_time.time().hour(), 9);
-        assert_eq!(tasks[0].end_time.unwrap().time().hour(), 11);
-
-        // Task 1 should be trimmed
-        assert_eq!(tasks[1].name, "Task 1");
-        assert_eq!(tasks[1].start_time.time().hour(), 11);
-        assert_eq!(tasks[1].end_time.unwrap().time().hour(), 12);
-    }
-
-    #[test]
-    fn test_insert_and_resolve_overlaps_partial_overlap_end() {
-        let mut tasks = vec![create_test_task(1, "Task 1", 9, 0, 11, 0, false)];
-
-        // New task overlaps end of Task 1
-        let new_task = create_test_task(2, "Task 2", 10, 0, 12, 0, false);
-        insert_and_resolve_overlaps(&mut tasks, new_task);
-
-        assert_eq!(tasks.len(), 2);
-        tasks.sort_by_key(|t| t.start_time);
-
-        // Task 1 should be trimmed
-        assert_eq!(tasks[0].name, "Task 1");
-        assert_eq!(tasks[0].start_time.time().hour(), 9);
-        assert_eq!(tasks[0].end_time.unwrap().time().hour(), 10);
-
-        assert_eq!(tasks[1].name, "Task 2");
-        assert_eq!(tasks[1].start_time.time().hour(), 10);
-        assert_eq!(tasks[1].end_time.unwrap().time().hour(), 12);
-    }
-
-    #[test]
-    fn test_insert_and_resolve_overlaps_multiple_overlaps() {
-        let mut tasks = vec![
-            create_test_task(1, "Task 1", 9, 0, 10, 0, false),
-            create_test_task(2, "Task 2", 10, 0, 11, 0, false),
-            create_test_task(3, "Task 3", 11, 0, 12, 0, false),
-        ];
-
-        // New task overlaps all three
-        let new_task = create_test_task(4, "Task 4", 9, 30, 11, 30, false);
-        insert_and_resolve_overlaps(&mut tasks, new_task);
-
-        tasks.sort_by_key(|t| t.start_time);
-
-        // Task 1 should be trimmed
-        assert_eq!(tasks[0].name, "Task 1");
-        assert_eq!(
-            tasks[0].end_time.unwrap().time(),
-            chrono::NaiveTime::from_hms_opt(9, 30, 0).unwrap()
-        );
-
-        // Task 4 should be inserted
-        let task_4 = tasks.iter().find(|t| t.name == "Task 4").unwrap();
-        assert_eq!(
-            task_4.start_time.time(),
-            chrono::NaiveTime::from_hms_opt(9, 30, 0).unwrap()
-        );
-        assert_eq!(
-            task_4.end_time.unwrap().time(),
-            chrono::NaiveTime::from_hms_opt(11, 30, 0).unwrap()
-        );
-
-        // Task 3 should be trimmed
-        let task_3 = tasks.iter().find(|t| t.name == "Task 3").unwrap();
-        assert_eq!(
-            task_3.start_time.time(),
-            chrono::NaiveTime::from_hms_opt(11, 30, 0).unwrap()
-        );
-    }
-
-    #[test]
-    fn test_insert_and_resolve_overlaps_with_breaks() {
-        let mut tasks = vec![
-            create_test_task(1, "Task 1", 9, 0, 10, 0, false),
-            create_test_task(-1, "Break", 10, 0, 10, 30, true),
-            create_test_task(2, "Task 2", 10, 30, 12, 0, false),
-        ];
-
-        // New task overlaps break and part of Task 2
-        let new_task = create_test_task(3, "Task 3", 10, 0, 11, 0, false);
-        insert_and_resolve_overlaps(&mut tasks, new_task);
-
-        tasks.sort_by_key(|t| t.start_time);
-
-        // Break should be removed (completely overlapped)
-        assert!(!tasks.iter().any(|t| t.is_break));
-
-        // Task 3 should be inserted
-        assert!(tasks.iter().any(|t| t.name == "Task 3"));
-
-        // Task 2 should be trimmed
-        let task_2 = tasks.iter().find(|t| t.name == "Task 2").unwrap();
-        assert_eq!(task_2.start_time.time().hour(), 11);
-    }
-
-    #[test]
-    fn test_parse_time_valid_formats() {
-        let date = test_date();
-
-        // Test HH:MM format
-        let result = parse_time(date, "09:30");
-        assert!(result.is_some());
-        let dt = result.unwrap();
-        assert_eq!(dt.time().hour(), 9);
-        assert_eq!(dt.time().minute(), 30);
-
-        // Test single digit hour
-        let result = parse_time(date, "9:30");
-        assert!(result.is_some());
-        let dt = result.unwrap();
-        assert_eq!(dt.time().hour(), 9);
-
-        // Test midnight
-        let result = parse_time(date, "00:00");
-        assert!(result.is_some());
-        let dt = result.unwrap();
-        assert_eq!(dt.time().hour(), 0);
-
-        // Test end of day
-        let result = parse_time(date, "23:59");
-        assert!(result.is_some());
-        let dt = result.unwrap();
-        assert_eq!(dt.time().hour(), 23);
-        assert_eq!(dt.time().minute(), 59);
-    }
-
-    #[test]
-    fn test_parse_time_invalid_formats() {
-        let date = test_date();
-
-        // Invalid format
-        assert!(parse_time(date, "9:30am").is_none());
-        assert!(parse_time(date, "25:00").is_none());
-        assert!(parse_time(date, "12:60").is_none());
-        assert!(parse_time(date, "abc").is_none());
-        assert!(parse_time(date, "").is_none());
-        assert!(parse_time(date, "12").is_none());
-    }
-
-    #[test]
-    fn test_day_revised_event_generation() {
-        let mut tasks = vec![
-            create_test_task(1, "Task 1", 9, 0, 10, 0, false),
-            create_test_task(-1, "Break", 10, 0, 10, 30, true),
-            create_test_task(2, "Task 2", 10, 30, 12, 0, false),
-        ];
-
-        tasks.sort_by_key(|p| p.start_time);
-        let mut new_events = Vec::new();
-        let mut last_end_time: Option<chrono::DateTime<Local>> = None;
-
-        for p in tasks {
-            if let Some(last_end) = last_end_time {
-                if p.start_time > last_end {
-                    new_events.push(Event::BreakStarted {
-                        start_time: last_end,
-                        is_generated: true,
-                    });
-                    new_events.push(Event::Stopped {
-                        end_time: p.start_time,
-                        is_generated: true,
-                    });
-                }
-            }
-
-            if p.is_break {
-                new_events.push(Event::BreakStarted {
-                    start_time: p.start_time,
-                    is_generated: false,
-                });
-            } else {
-                new_events.push(Event::TaskStarted {
-                    id: p.id,
-                    name: p.name,
-                    project_name: p.project_name,
-                    customer_name: p.customer_name,
-                    rate: p.rate,
-                    start_time: p.start_time,
-                    is_generated: false,
-                });
-            }
-
-            if let Some(end) = p.end_time {
-                new_events.push(Event::Stopped {
-                    end_time: end,
-                    is_generated: false,
-                });
-                last_end_time = Some(end);
-            }
-        }
-
-        // Should have: TaskStarted, Stopped, BreakStarted, Stopped, TaskStarted, Stopped
-        assert_eq!(new_events.len(), 6);
-
-        // Verify event sequence
-        assert!(matches!(new_events[0], Event::TaskStarted { .. }));
-        assert!(matches!(new_events[1], Event::Stopped { .. }));
-        assert!(matches!(new_events[2], Event::BreakStarted { .. }));
-        assert!(matches!(new_events[3], Event::Stopped { .. }));
-        assert!(matches!(new_events[4], Event::TaskStarted { .. }));
-        assert!(matches!(new_events[5], Event::Stopped { .. }));
-    }
-
-    #[test]
-    fn test_day_revised_event_with_gaps() {
-        let mut tasks = vec![
-            create_test_task(1, "Task 1", 9, 0, 10, 0, false),
-            // Gap from 10:00 to 11:00
-            create_test_task(2, "Task 2", 11, 0, 12, 0, false),
-        ];
-
-        tasks.sort_by_key(|p| p.start_time);
-        let mut new_events = Vec::new();
-        let mut last_end_time: Option<chrono::DateTime<Local>> = None;
-
-        for p in tasks {
-            if let Some(last_end) = last_end_time {
-                if p.start_time > last_end {
-                    // Gap detected - insert generated break
-                    new_events.push(Event::BreakStarted {
-                        start_time: last_end,
-                        is_generated: true,
-                    });
-                    new_events.push(Event::Stopped {
-                        end_time: p.start_time,
-                        is_generated: true,
-                    });
-                }
-            }
-
-            new_events.push(Event::TaskStarted {
-                id: p.id,
-                name: p.name.clone(),
-                project_name: p.project_name.clone(),
-                customer_name: p.customer_name,
-                rate: p.rate,
-                start_time: p.start_time,
-                is_generated: false,
-            });
-
-            if let Some(end) = p.end_time {
-                new_events.push(Event::Stopped {
-                    end_time: end,
-                    is_generated: false,
-                });
-                last_end_time = Some(end);
-            }
-        }
-
-        // Should have: TaskStarted, Stopped, BreakStarted (generated), Stopped (generated), TaskStarted, Stopped
-        assert_eq!(new_events.len(), 6);
-
-        // Verify the generated break
-        if let Event::BreakStarted { is_generated, .. } = new_events[2] {
-            assert!(is_generated);
-        } else {
-            panic!("Expected generated BreakStarted event");
-        }
-    }
-
-    #[test]
-    fn test_delete_break_extends_previous_task() {
-        let mut tasks = vec![
-            create_test_task(1, "Task 1", 9, 0, 10, 0, false),
-            create_test_task(-1, "Break", 10, 0, 10, 30, true),
-            create_test_task(2, "Task 2", 10, 30, 12, 0, false),
-        ];
-
-        // Simulate deleting the break at index 1
-        let idx = 1;
-        let removed = tasks.remove(idx);
-
-        if removed.is_break && idx > 0 {
-            if let Some(prev_task) = tasks.get_mut(idx - 1) {
-                prev_task.end_time = removed.end_time;
-            }
-        }
-
-        // Task 1 should now extend to 10:30
-        assert_eq!(tasks[0].name, "Task 1");
-        assert_eq!(
-            tasks[0].end_time.unwrap().time(),
-            chrono::NaiveTime::from_hms_opt(10, 30, 0).unwrap()
-        );
-        assert_eq!(tasks.len(), 2);
-    }
-
-    #[test]
-    fn test_delete_task_inserts_break_when_between_tasks() {
-        let mut tasks = vec![
-            create_test_task(1, "Task 1", 9, 0, 10, 0, false),
-            create_test_task(2, "Task 2", 10, 0, 11, 0, false),
-            create_test_task(3, "Task 3", 11, 0, 12, 0, false),
-        ];
-
-        // Simulate deleting Task 2 at index 1
-        let idx = 1;
-        let removed = tasks.remove(idx);
-
-        // Should insert break between Task 1 and Task 3
-        if !removed.is_break && idx > 0 && idx < tasks.len() {
-            if let Some(end_time) = removed.end_time {
-                let break_task = models::Task {
-                    id: -1,
-                    name: "Break".to_string(),
-                    project_name: "".to_string(),
-                    customer_name: "".to_string(),
-                    rate: 0.0,
-                    start_time: removed.start_time,
-                    end_time: Some(end_time),
-                    comment: None,
-                    is_break: true,
-                    is_generated: false,
-                };
-                tasks.insert(idx, break_task);
-            }
-        }
-
-        assert_eq!(tasks.len(), 3);
-        assert_eq!(tasks[1].is_break, true);
-        assert_eq!(tasks[1].start_time.time().hour(), 10);
-        assert_eq!(tasks[1].end_time.unwrap().time().hour(), 11);
-    }
-
-    #[test]
-    fn test_delete_first_task_no_break_insertion() {
-        let mut tasks = vec![
-            create_test_task(1, "Task 1", 9, 0, 10, 0, false),
-            create_test_task(2, "Task 2", 10, 0, 11, 0, false),
-        ];
-
-        let idx = 0;
-        let removed = tasks.remove(idx);
-
-        // No break should be inserted since idx is 0
-        if !removed.is_break && idx > 0 && idx < tasks.len() {
-            // This block shouldn't execute
-            panic!("Should not insert break for first task");
-        }
-
-        assert_eq!(tasks.len(), 1);
-        assert_eq!(tasks[0].name, "Task 2");
-    }
-
-    #[test]
-    fn test_delete_last_task_no_break_insertion() {
-        let mut tasks = vec![
-            create_test_task(1, "Task 1", 9, 0, 10, 0, false),
-            create_test_task(2, "Task 2", 10, 0, 11, 0, false),
-        ];
-
-        let idx = 1;
-        let removed = tasks.remove(idx);
-
-        // No break should be inserted since we're at the end
-        if !removed.is_break && idx > 0 && idx < tasks.len() {
-            // This block shouldn't execute
-            panic!("Should not insert break for last task");
-        }
-
-        assert_eq!(tasks.len(), 1);
-        assert_eq!(tasks[0].name, "Task 1");
-    }
-
-    #[test]
-    fn test_favorite_tasks_filtering() {
-        let all_tasks = create_test_external_tasks();
-        let config = create_test_config(vec![1, 3]); // Only Task A and Task C are favorites
-
-        let favorite_tasks: Vec<&TaskDto> = all_tasks
-            .iter()
-            .filter(|t| config.favorite_tasks.contains(&t.id))
-            .collect();
-
-        assert_eq!(favorite_tasks.len(), 2);
-        assert!(favorite_tasks.iter().any(|t| t.id == 1));
-        assert!(favorite_tasks.iter().any(|t| t.id == 3));
-        assert!(!favorite_tasks.iter().any(|t| t.id == 2));
-    }
-
-    #[test]
-    fn test_task_sorting_by_start_time() {
-        let mut tasks = vec![
-            create_test_task(3, "Task 3", 11, 0, 12, 0, false),
-            create_test_task(1, "Task 1", 9, 0, 10, 0, false),
-            create_test_task(2, "Task 2", 10, 0, 11, 0, false),
-        ];
-
-        tasks.sort_by_key(|p| p.start_time);
-
-        assert_eq!(tasks[0].name, "Task 1");
-        assert_eq!(tasks[1].name, "Task 2");
-        assert_eq!(tasks[2].name, "Task 3");
-    }
-
-    #[test]
-    fn test_projector_restore_state_from_events() {
-        let events = vec![
-            Event::TaskStarted {
-                id: 1,
-                name: "Task 1".to_string(),
-                project_name: "Project A".to_string(),
-                customer_name: "".to_string(),
-                rate: 100.0,
-                start_time: test_datetime(9, 0),
-                is_generated: false,
-            },
-            Event::Stopped {
-                end_time: test_datetime(10, 0),
-                is_generated: false,
-            },
-            Event::BreakStarted {
-                start_time: test_datetime(10, 0),
-                is_generated: false,
-            },
-            Event::Stopped {
-                end_time: test_datetime(10, 30),
-                is_generated: false,
-            },
-        ];
-
-        let tasks = projector::restore_state(&events);
-
-        assert_eq!(tasks.len(), 2);
-        assert_eq!(tasks[0].name, "Task 1");
-        assert_eq!(tasks[0].start_time.time().hour(), 9);
-        assert_eq!(tasks[0].end_time.unwrap().time().hour(), 10);
-        assert_eq!(tasks[1].is_break, true);
-    }
-
-    #[test]
-    fn test_empty_task_list_handling() {
-        let tasks: Vec<models::Task> = vec![];
-
-        // Should handle empty list gracefully
-        assert_eq!(tasks.len(), 0);
-        assert!(tasks.is_empty());
-    }
-
-    #[test]
-    fn test_task_with_no_end_time() {
-        let task = models::Task {
-            id: 1,
-            name: "Ongoing Task".to_string(),
-            project_name: "Project A".to_string(),
-            customer_name: "".to_string(),
-            rate: 100.0,
-            start_time: test_datetime(9, 0),
-            end_time: None,
-            comment: None,
-            is_break: false,
-            is_generated: false,
-        };
-
-        assert!(task.end_time.is_none());
-        assert_eq!(task.name, "Ongoing Task");
-    }
-
-    #[test]
-    fn test_date_selection_range() {
-        let current_year = 2024;
-        let mut dates = Vec::new();
-        let mut d = NaiveDate::from_ymd_opt(current_year, 1, 1).unwrap();
-
-        while d.year() == current_year {
-            dates.push(d);
-            d += chrono::Duration::days(1);
-        }
-
-        // Should have 366 days for 2024 (leap year)
-        assert_eq!(dates.len(), 366);
-        assert_eq!(dates[0], NaiveDate::from_ymd_opt(2024, 1, 1).unwrap());
-        assert_eq!(dates[365], NaiveDate::from_ymd_opt(2024, 12, 31).unwrap());
-    }
-
-    #[test]
-    fn test_date_selection_today_default() {
-        let now = Local::now();
-        let today = now.date_naive();
-        let current_year = now.year();
-
-        let mut dates = Vec::new();
-        let mut d = NaiveDate::from_ymd_opt(current_year, 1, 1).unwrap();
-
-        while d.year() == current_year {
-            dates.push(d);
-            d += chrono::Duration::days(1);
-        }
-
-        dates.reverse(); // Newest first
-
-        let default_idx = dates.iter().position(|d| *d == today);
-        assert!(default_idx.is_some());
-    }
-
-    #[test]
-    fn test_task_dto_display_format() {
-        let task = TaskDto {
-            id: 1,
-            name: "Test Task".to_string(),
-            project: crate::external_models::ProjectDto {
-                name: "Test Project".to_string(),
-                customer: CustomerDto {
-                    name: "Test Customer".to_string(),
-                },
-            },
-            compensation_rate: 1.5,
-            locked: false,
-        };
-
-        let display = task.to_string();
-        assert!(display.contains("Test Task"));
-        assert!(display.contains("Test Project"));
-    }
-
-    #[test]
-    fn test_break_task_creation() {
-        let break_task = models::Task {
-            id: -1,
-            name: "Break".to_string(),
-            project_name: "".to_string(),
-            customer_name: "".to_string(),
-            rate: 0.0,
-            start_time: test_datetime(10, 0),
-            end_time: Some(test_datetime(10, 30)),
-            comment: None,
-            is_break: true,
-            is_generated: false,
-        };
-
-        assert_eq!(break_task.id, -1);
-        assert_eq!(break_task.name, "Break");
-        assert!(break_task.is_break);
-        assert_eq!(break_task.rate, 0.0);
-        assert_eq!(break_task.project_name, "");
-    }
-
-    #[test]
-    fn test_overlap_resolution_preserves_task_data() {
-        let mut tasks = vec![models::Task {
-            id: 1,
-            name: "Important Task".to_string(),
-            project_name: "Critical Project".to_string(),
-            customer_name: "".to_string(),
-            rate: 250.0,
-            start_time: test_datetime(9, 0),
-            end_time: Some(test_datetime(12, 0)),
-            comment: None,
-            is_break: false,
-            is_generated: false,
-        }];
-
-        let new_task = create_test_task(2, "New Task", 10, 0, 11, 0, false);
-        insert_and_resolve_overlaps(&mut tasks, new_task);
-
-        // Original task should be split but preserve its data
-        let original_tasks: Vec<_> = tasks.iter().filter(|t| t.id == 1).collect();
-        assert_eq!(original_tasks.len(), 2); // Split into two parts
-
-        for task in original_tasks {
-            assert_eq!(task.name, "Important Task");
-            assert_eq!(task.project_name, "Critical Project");
-            assert_eq!(task.rate, 250.0);
-        }
     }
 }

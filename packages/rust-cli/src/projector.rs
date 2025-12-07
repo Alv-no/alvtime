@@ -2,11 +2,12 @@ use crate::events::Event;
 use crate::models::Task;
 use chrono::{Duration, Local, TimeZone};
 
+// Only used on single days
 pub fn restore_state(events: &[Event]) -> Vec<Task> {
     let mut projects = Vec::new();
     let mut paused_tasks = Vec::new();
 
-    // Replay logic for Undo/Redo
+    // 1. Determine Effective Events (Handle Undo/Redo)
     let mut effective_events = Vec::new();
     let mut redo_stack = Vec::new();
 
@@ -29,9 +30,21 @@ pub fn restore_state(events: &[Event]) -> Vec<Task> {
         }
     }
 
-    for event in effective_events {
+    // 2. Identify the last effective Event::LocallyCleared.
+    let last_clear_index = effective_events.iter()
+        .rposition(|e| matches!(e, Event::LocallyCleared { .. }));
+
+    // 3. Filter the stream: Keep only events that occurred AFTER the last clear.
+    let starting_index = last_clear_index.map(|i| i + 1).unwrap_or(0);
+    let final_effective_events = &effective_events[starting_index..];
+
+
+    // 4. Process the final filtered and ordered events
+    for event in final_effective_events {
         process_event(&mut projects, &mut paused_tasks, event);
     }
+
+    remove_edge_breaks(&mut projects);
 
     projects.sort_by_key(|p| p.start_time);
     projects
@@ -59,7 +72,6 @@ fn process_event(projects: &mut Vec<Task>, paused_tasks: &mut Vec<Task>, event: 
                 name: name.clone(),
                 start_time: *start_time,
                 end_time: None,
-                comment: None,
                 is_break: false,
                 is_generated: *is_generated,
             });
@@ -86,7 +98,6 @@ fn process_event(projects: &mut Vec<Task>, paused_tasks: &mut Vec<Task>, event: 
                 name: "Break".to_string(),
                 start_time: *start_time,
                 end_time: None,
-                comment: None,
                 is_break: true,
                 is_generated: *is_generated,
             });
@@ -119,19 +130,14 @@ fn process_event(projects: &mut Vec<Task>, paused_tasks: &mut Vec<Task>, event: 
                     name: task.name,
                     start_time: *start_time,
                     end_time: None,
-                    comment: None,
                     is_break: false,
                     is_generated: *is_generated,
                 });
             }
         }
-        Event::DayRevised { date, events } => {
-            projects.retain(|p| p.start_time.date_naive() != *date);
-            for sub_event in events {
-                process_event(projects, paused_tasks, sub_event);
-            }
-        }
         Event::Undo { .. } | Event::Redo { .. } => {}
+        Event::CommentAdded { .. } => {}
+        Event::LocallyCleared { .. } => {}
     }
 }
 
@@ -300,7 +306,6 @@ fn close_last_project(projects: &mut Vec<Task>, time: chrono::DateTime<chrono::L
                 name: name.clone(),
                 start_time: current_start,
                 end_time: Some(next_day_local),
-                comment: None,
                 is_break,
                 is_generated,
             });
@@ -316,10 +321,21 @@ fn close_last_project(projects: &mut Vec<Task>, time: chrono::DateTime<chrono::L
             name,
             start_time: current_start,
             end_time: Some(end_time),
-            comment: None,
             is_break,
             is_generated,
         });
+    }
+}
+
+fn remove_edge_breaks(projects: &mut Vec<Task>) {
+    // Remove leading breaks
+    while projects.first().map(|t| t.is_break).unwrap_or(false) {
+        projects.remove(0);
+    }
+
+    // Remove trailing breaks
+    while projects.last().map(|t| t.is_break).unwrap_or(false) {
+        projects.pop();
     }
 }
 
@@ -328,18 +344,13 @@ mod tests {
     use super::*;
     use crate::view::render_day;
     // Imports Event, Task, restore_state, etc.
-        use chrono::{DateTime, Duration, NaiveDate, NaiveDateTime, TimeZone};
+        use chrono::{DateTime, Duration, NaiveDateTime, TimeZone};
 
     // --- Helper for creating Local DateTime from string ---
     fn dt(s: &str) -> DateTime<Local> {
         let naive = NaiveDateTime::parse_from_str(s, "%Y-%m-%d %H:%M:%S")
             .expect("Failed to parse date string");
         Local.from_local_datetime(&naive).unwrap()
-    }
-
-    // --- Helper for creating NaiveDate ---
-    fn nd(s: &str) -> NaiveDate {
-        NaiveDate::parse_from_str(s, "%Y-%m-%d").unwrap()
     }
 
     #[test]
@@ -528,57 +539,6 @@ mod tests {
     }
 
     #[test]
-    fn test_day_revised_overwrites_history() {
-        let day_target = nd("2023-10-27");
-        let day_other = nd("2023-10-28");
-
-        let t1_start = dt("2023-10-27 09:00:00");
-        let t2_start = dt("2023-10-28 09:00:00"); // Different day
-
-        let events = vec![
-            // 1. Initial history for Day 27
-            Event::TaskStarted {
-                id: 1, name: "Old Task".into(), project_name: "P".into(), customer_name: "C".into(),
-                rate: 50.0, start_time: t1_start, is_generated: false
-            },
-            Event::Stopped { end_time: dt("2023-10-27 10:00:00"), is_generated: false },
-
-            // 2. History for Day 28 (Should not be touched)
-            Event::TaskStarted {
-                id: 2, name: "Keep Me".into(), project_name: "P".into(), customer_name: "C".into(),
-                rate: 50.0, start_time: t2_start, is_generated: false
-            },
-
-            // 3. Revision for Day 27 (Replaces "Old Task" with "New Task")
-            Event::DayRevised {
-                date: day_target,
-                events: vec![
-                    Event::TaskStarted {
-                        id: 3, name: "New Task".into(), project_name: "P".into(), customer_name: "C".into(),
-                        rate: 50.0, start_time: dt("2023-10-27 12:00:00"), is_generated: false
-                    },
-                    Event::Stopped { end_time: dt("2023-10-27 13:00:00"), is_generated: false }
-                ]
-            }
-        ];
-
-        let tasks = restore_state(&events);
-
-        assert_eq!(tasks.len(), 2);
-
-        // Sort acts on start time.
-        // 1. New Task (12:00 Day 27)
-        // 2. Keep Me (09:00 Day 28)
-
-        let t_day27 = tasks.iter().find(|t| t.start_time.date_naive() == day_target).unwrap();
-        assert_eq!(t_day27.name, "New Task");
-        assert_eq!(t_day27.start_time, dt("2023-10-27 12:00:00"));
-
-        let t_day28 = tasks.iter().find(|t| t.start_time.date_naive() == day_other).unwrap();
-        assert_eq!(t_day28.name, "Keep Me");
-    }
-
-    #[test]
     fn test_overlap_punch_hole() {
         // Existing: A [09:00 -------- 12:00]
         // Insert:   B      [10:00 - 11:00]
@@ -728,7 +688,7 @@ mod tests {
 
         let mut tasks = restore_state(&events);
         let day_projects_refs: Vec<&Task> = tasks.iter().collect();
-        render_day(&day_projects_refs);
+        render_day(&day_projects_refs).unwrap();
         // Ensure chronological order
         tasks.sort_by_key(|t| t.start_time);
 
@@ -806,7 +766,7 @@ mod tests {
 
         let mut tasks = restore_state(&events);
         let day_projects_refs: Vec<&Task> = tasks.iter().collect();
-        render_day(&day_projects_refs);
+        render_day(&day_projects_refs).unwrap();
         // Ensure chronological order
         tasks.sort_by_key(|t| t.start_time);
 

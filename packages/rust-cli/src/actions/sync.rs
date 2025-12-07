@@ -90,7 +90,8 @@ pub fn handle_sync(
                 } => (start_time.date_naive(), *is_generated),
                 Event::Undo { time } => (time.date_naive(), false), // Undo is manual
                 Event::Redo { time } => (time.date_naive(), false), // Redo is manual
-                Event::DayRevised { date, .. } => (*date, false),   // Manual revision
+                Event::CommentAdded {date,is_generated, .. } => (*date, *is_generated),
+                Event::LocallyCleared {date,is_generated, .. } => (*date, *is_generated),
             };
             if !is_generated { Some(date) } else { None }
         })
@@ -176,13 +177,8 @@ pub fn handle_sync(
                     }
                 }
 
-                let revised_event = Event::DayRevised {
-                    date: *date,
-                    events: new_events,
-                };
-
-                event_store.persist(&revised_event);
-                history.push(revised_event);
+                event_store.persist_batch(&new_events);
+                history.extend_from_slice(&new_events);
 
                 synced_days += 1;
                 println!("Auto-synced {}: Local matched Server.", date);
@@ -208,12 +204,8 @@ pub fn handle_sync(
                             server_entries_list,
                             external_tasks,
                         );
-                        let revised_event = Event::DayRevised {
-                            date: *date,
-                            events: new_events,
-                        };
-                        event_store.persist(&revised_event);
-                        history.push(revised_event);
+                        event_store.persist_batch(&new_events);
+                        history.extend_from_slice(&new_events);
                         synced_days += 1;
                     }
                     _ => {
