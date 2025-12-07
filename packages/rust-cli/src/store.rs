@@ -20,14 +20,67 @@ impl EventStore {
     }
 
     pub fn persist_batch(&self, events: &[Event]) {
-        if events.is_empty() {
+        let dates_to_unsync = self.persist_events_data(events);
+
+        // Use the batch function to mark all collected dates as UNSYNCED
+        self.set_days_synced_batch(&dates_to_unsync, false);
+    }
+
+    /// Persists a batch of events received from the server and marks the affected dates as SYNCHRONIZED.
+    pub fn persist_synced_batch(&self, events: &[Event]) {
+        let dates_to_sync = self.persist_events_data(events);
+
+        // Use the batch function to mark all collected dates as SYNCHRONIZED
+        self.set_days_synced_batch(&dates_to_sync, true);
+    }
+
+    /// Sets the sync status for a single day.
+    /// Note: This is now just a wrapper for the batch function for convenience.
+    pub fn set_day_synced(&self, date: &NaiveDate, is_synced: bool) {
+        self.set_days_synced_batch(std::slice::from_ref(date), is_synced);
+    }
+
+    /// Batch version: Sets the sync status for multiple days at once.
+    /// - `is_synced = true`: Dates are removed from the unsynced tree (Implicitly Synced).
+    /// - `is_synced = false`: Dates are inserted into the unsynced tree (Explicitly Unsynced).
+    pub fn set_days_synced_batch(&self, dates: &[NaiveDate], is_synced: bool) {
+        if dates.is_empty() {
             return;
+        }
+
+        let unsynced_tree = self.db.open_tree("unsynced_dates").unwrap();
+
+        let mut batch = sled::Batch::default();
+
+        for date in dates {
+            let date_str = date.format("%Y-%m-%d").to_string();
+            let key = date_str.as_bytes();
+
+            if is_synced {
+                // To sync: remove the key.
+                batch.remove(key);
+            } else {
+                // To mark as unsynced: insert the key (value is empty slice).
+                batch.insert(key, &[]);
+            }
+        }
+
+        // Apply all operations in a single atomic database call
+        unsynced_tree.apply_batch(batch).unwrap();
+        unsynced_tree.flush().unwrap();
+    }
+
+    fn persist_events_data(&self, events: &[Event]) -> Vec<NaiveDate> {
+        if events.is_empty() {
+            return Vec::new();
         }
 
         let dates_idx = self.db.open_tree("dates_index").unwrap();
         let mut trees: HashMap<String, sled::Tree> = HashMap::new();
+        let mut affected_dates: HashSet<NaiveDate> = HashSet::new();
 
         for event in events {
+            // 1. Get next ID
             let id = self.db.update_and_fetch("id_sequence", |val| {
                 let current = val.map(|v| {
                     let mut bytes = [0u8; 8];
@@ -38,14 +91,17 @@ impl EventStore {
                 Some((current + 1).to_be_bytes())
             }).unwrap().unwrap();
 
-            let key = id.as_ref(); // id is IVec, can serve as key directly
+            let key = id.as_ref();
 
             let date = event.date();
             let date_str = date.format("%Y-%m-%d").to_string();
 
-            // Update dates index (we only use the key)
+            affected_dates.insert(date);
+
+            // 2. Update dates index
             dates_idx.insert(&date_str, &[]).unwrap();
 
+            // 3. Persist event data
             let tree_key = format!("events_{}", date_str);
             let tree = trees.entry(tree_key.clone())
                 .or_insert_with(|| self.db.open_tree(&tree_key).unwrap());
@@ -58,6 +114,8 @@ impl EventStore {
         for tree in trees.values() {
             tree.flush().unwrap();
         }
+
+        affected_dates.drain().collect()
     }
 
     pub fn events_for_day(&self, date: NaiveDate) -> Vec<Event> {
@@ -181,5 +239,23 @@ impl EventStore {
         // default: today + false
         let today = chrono::Local::now().naive_local().date();
         (today, false)
+    }
+
+
+    /// Retrieves all dates from the dedicated 'unsynced_dates' tree.
+    /// This is highly performant as it only iterates over the necessary keys.
+    pub fn get_unsynced_dates(&self) -> HashSet<NaiveDate> {
+        let unsynced_tree = self.db.open_tree("unsynced_dates").unwrap();
+
+        unsynced_tree
+            .iter()
+            .filter_map(|res| {
+                // Only the key (k) is needed
+                let (k, _) = res.ok()?;
+
+                let date_str = std::str::from_utf8(&k).ok()?;
+                NaiveDate::parse_from_str(date_str, "%Y-%m-%d").ok()
+            })
+            .collect()
     }
 }

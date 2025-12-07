@@ -133,11 +133,9 @@ pub fn generate_events_from_server_entries(
                         customer_name: customer_name.clone(),
                         rate,
                         start_time: cursor,
-                        is_generated: true,
                     });
                     events.push(Event::Stopped {
                         end_time: pre_lunch_end,
-                        is_generated: true,
                     });
                     remaining_minutes -= mins_to_lunch;
                 }
@@ -145,11 +143,9 @@ pub fn generate_events_from_server_entries(
                 // Insert lunch break
                 events.push(Event::BreakStarted {
                     start_time: lunch_start,
-                    is_generated: true,
                 });
                 events.push(Event::Stopped {
                     end_time: lunch_end,
-                    is_generated: true,
                 });
                 cursor = lunch_end;
                 lunch_inserted = true;
@@ -166,11 +162,9 @@ pub fn generate_events_from_server_entries(
                 customer_name: customer_name.clone(),
                 rate,
                 start_time: cursor,
-                is_generated: true,
             });
             events.push(Event::Stopped {
                 end_time: segment_end,
-                is_generated: true,
             });
             cursor = segment_end;
             remaining_minutes -= mins_to_add;

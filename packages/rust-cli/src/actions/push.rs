@@ -25,29 +25,6 @@ pub fn handle_push(
         return "No events to push.".to_string();
     };
 
-    let has_local_events = history.iter().any(|e| {
-        let e_date = e.date();
-        if e_date != date {
-            return false;
-        }
-
-        match e {
-            Event::TaskStarted { is_generated, .. }
-            | Event::BreakStarted { is_generated, .. }
-            | Event::Stopped { is_generated, .. }
-            | Event::Reopen { is_generated, .. }
-            | Event::LocallyCleared { is_generated, .. } // LocallyCleared check included
-            | Event::CommentAdded { is_generated, .. } => !*is_generated,
-
-            Event::Undo { .. } | Event::Redo { .. } => false,
-        }
-    });
-
-    if !has_local_events {
-        return String::new();
-    }
-
-    // 4. Fetch server entries for this specific day
     let entries = match client.list_time_entries(date, date) {
         Ok(e) => e,
         Err(e) => return format!("Failed to fetch entries for {}: {}", date, e),
@@ -63,7 +40,7 @@ pub fn handle_push(
 
     let mut should_push = true;
 
-    // 5. Conflict Check and Resolution
+    // Conflict Check and Resolution
     if has_server_entries {
         let server_hours: f64 = entries.iter().map(|e| e.value).sum();
 
@@ -121,45 +98,7 @@ pub fn handle_push(
         let are_identical_after_rounding = normalized_local_entries == normalized_server_entries;
 
         if are_identical_after_rounding {
-            let mut new_events = Vec::new();
-            for event in history.iter().filter(|e| e.date() == date) {
-                let synced_event = match event {
-                    Event::TaskStarted { id, name, project_name, customer_name, rate, start_time, is_generated: _ } => Event::TaskStarted {
-                        id: *id, name: name.clone(), project_name: project_name.clone(), customer_name: customer_name.clone(), rate: *rate, start_time: *start_time, is_generated: true,
-                    },
-                    Event::BreakStarted { start_time, is_generated: _ } => Event::BreakStarted {
-                        start_time: *start_time, is_generated: true,
-                    },
-                    Event::Stopped { end_time, is_generated: _ } => Event::Stopped {
-                        end_time: *end_time, is_generated: true,
-                    },
-                    Event::Reopen { start_time, is_generated: _ } => Event::Reopen {
-                        start_time: *start_time, is_generated: true,
-                    },
-                    Event::CommentAdded {date,  task_id, comment, is_generated: _ } => Event::CommentAdded {
-                        task_id: *task_id, comment: comment.clone(), date: *date, is_generated: true,
-                    },
-                    Event::LocallyCleared { date, is_generated: _ } => Event::LocallyCleared {
-                        date: *date, is_generated: true,
-                    },
-                    _ => continue,
-                };
-                new_events.push(synced_event);
-            }
-
-            event_store.delete_events_for_days(&[date]);
-            event_store.persist_batch(&new_events);
-
-            let mut new_full_history = history
-                .iter()
-                .filter(|e| e.date() != date)
-                .cloned()
-                .collect::<Vec<Event>>();
-            new_full_history.extend_from_slice(&new_events);
-            *history = new_full_history;
-
-            *tasks = restore_state(history);
-
+           event_store.set_day_synced(&date, true);
             return format!(
                 "Local changes for {} match server entries after rounding. Marked local history as synced.",
                 date
@@ -213,7 +152,7 @@ pub fn handle_push(
                     &entries.iter().collect::<Vec<_>>(),
                     external_tasks,
                 );
-                event_store.persist_batch(&new_events);
+                event_store.persist_synced_batch(&new_events);
                 history.extend_from_slice(&new_events);
                 *tasks = restore_state(history);
                 return format!("Synced {} from server.", date);
@@ -270,45 +209,7 @@ pub fn handle_push(
                 return format!("Error pushing {}: {}", date, e);
             }
 
-            // Mark all local events as generated (synced)
-            let mut new_events = Vec::new();
-            for event in history.iter().filter(|e| e.date() == date) {
-                let synced_event = match event {
-                    Event::TaskStarted { id, name, project_name, customer_name, rate, start_time, is_generated: _ } => Event::TaskStarted {
-                        id: *id, name: name.clone(), project_name: project_name.clone(), customer_name: customer_name.clone(), rate: *rate, start_time: *start_time, is_generated: true,
-                    },
-                    Event::BreakStarted { start_time, is_generated: _ } => Event::BreakStarted {
-                        start_time: *start_time, is_generated: true,
-                    },
-                    Event::Stopped { end_time, is_generated: _ } => Event::Stopped {
-                        end_time: *end_time, is_generated: true,
-                    },
-                    Event::Reopen { start_time, is_generated: _ } => Event::Reopen {
-                        start_time: *start_time, is_generated: true,
-                    },
-                    Event::CommentAdded { date, task_id, comment, is_generated: _ } => Event::CommentAdded {
-                       date: *date, task_id: *task_id, comment: comment.clone(), is_generated: true,
-                    },
-                    Event::LocallyCleared { date, is_generated: _ } => Event::LocallyCleared {
-                        date: *date, is_generated: true,
-                    },
-                    _ => continue,
-                };
-                new_events.push(synced_event);
-            }
-
-            event_store.delete_events_for_days(&[date]);
-            event_store.persist_batch(&new_events);
-
-            let mut new_full_history = history
-                .iter()
-                .filter(|e| e.date() != date)
-                .cloned()
-                .collect::<Vec<Event>>();
-            new_full_history.extend_from_slice(&new_events);
-            *history = new_full_history;
-
-            *tasks = restore_state(history);
+            event_store.set_day_synced(&date, true);
         }
 
         format!("Pushed {}.", date)

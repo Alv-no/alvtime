@@ -18,6 +18,7 @@ use crate::actions::push::handle_push;
 use crate::actions::start::handle_start;
 use crate::actions::sync::handle_sync;
 use crate::actions::timebank::handle_timebank;
+use crate::actions::utils::get_all_tasks;
 use crate::config::Config;
 use crate::external_models::TaskDto;
 use crate::models::Task;
@@ -33,7 +34,6 @@ use std::collections::HashSet;
 use std::io;
 use store::EventStore;
 use view::ViewMode;
-use crate::actions::utils::get_all_tasks;
 
 #[derive(Parser)]
 #[command(name = "atime")]
@@ -159,7 +159,7 @@ struct AppContext<'a> {
 fn main() {
     let cli = Cli::parse();
 
-    let mut app_config = config::Config::load();
+    let mut app_config = Config::load();
     let event_store = EventStore::new(&app_config.storage_path);
 
     // Setup Client
@@ -239,7 +239,12 @@ fn main() {
             println!("{}", feedback);
         } else if let Commands::View { .. } = command {
             let tasks = get_tasks_for_view(ctx.view_mode, ctx.event_store, ctx.today_tasks);
-            if let Err(e) = view::draw_timeline(&tasks, ctx.view_mode, ctx.holidays) {
+            if let Err(e) = view::draw_timeline(
+                &tasks,
+                ctx.view_mode,
+                ctx.holidays,
+                &ctx.event_store.get_unsynced_dates(),
+            ) {
                 eprintln!("Error drawing timeline: {}", e);
             }
         } else {
@@ -296,7 +301,6 @@ fn execute_command(command: Commands, ctx: &mut AppContext) -> String {
             ctx.event_store,
             Event::BreakStarted {
                 start_time: Local::now(),
-                is_generated: false,
             },
             "Break started.",
         ),
@@ -306,7 +310,6 @@ fn execute_command(command: Commands, ctx: &mut AppContext) -> String {
             ctx.event_store,
             Event::Stopped {
                 end_time: Local::now(),
-                is_generated: false,
             },
             "Stopped.",
         ),
@@ -319,7 +322,7 @@ fn execute_command(command: Commands, ctx: &mut AppContext) -> String {
         ),
         Commands::Push => {
             // Process each day individually instead of loading all days at once
-            let all_dates = ctx.event_store.get_all_dates_with_events();
+            let all_dates = ctx.event_store.get_unsynced_dates();
             let mut overall_feedback = Vec::new();
 
             for date in all_dates {
@@ -364,7 +367,12 @@ fn execute_command(command: Commands, ctx: &mut AppContext) -> String {
             ctx.app_config,
         ),
         Commands::InteractiveView => {
-            match view::interactive_view(&*get_all_tasks(ctx.event_store), ctx.holidays, false) {
+            match view::interactive_view(
+                &*get_all_tasks(ctx.event_store),
+                ctx.holidays,
+                &ctx.event_store.get_unsynced_dates(),
+                false,
+            ) {
                 Ok(_) => "".to_string(),
                 Err(e) => format!("Error in interactive month view: {}", e),
             }
@@ -433,7 +441,6 @@ fn execute_command(command: Commands, ctx: &mut AppContext) -> String {
         Commands::Quit => "Exiting...".to_string(),
     }
 }
-
 
 fn get_tasks_for_view(mode: &ViewMode, store: &EventStore, today_tasks: &[Task]) -> Vec<Task> {
     let now = Local::now();
@@ -506,7 +513,13 @@ fn run_shell(ctx: &mut AppContext) {
 
         // Build tasks for view
         let tasks_to_view = get_tasks_for_view(ctx.view_mode, ctx.event_store, ctx.today_tasks);
-        view::draw_timeline(&tasks_to_view, ctx.view_mode, ctx.holidays).unwrap();
+        view::draw_timeline(
+            &tasks_to_view,
+            ctx.view_mode,
+            ctx.holidays,
+            &ctx.event_store.get_unsynced_dates(),
+        )
+        .unwrap();
 
         if !feedback.is_empty() {
             println!("\n{}", feedback);

@@ -28,7 +28,6 @@ pub fn handle_start(
             if last_task.end_time.is_none() {
                 let stop_event = Event::Stopped {
                     end_time: now,
-                    is_generated: false,
                 };
                 add_event(tasks, history, event_store, stop_event, "Stopped previous task.");
             }
@@ -135,14 +134,12 @@ pub fn handle_start(
             if end_time < now && end_time.date_naive() == now.date_naive() {
                 let break_event = Event::BreakStarted {
                     start_time: end_time,
-                    is_generated: true,
                 };
                 event_store.persist(&break_event);
                 history.push(break_event);
 
                 let stop_event = Event::Stopped {
                     end_time: now,
-                    is_generated: true,
                 };
                 event_store.persist(&stop_event);
                 history.push(stop_event);
@@ -157,7 +154,6 @@ pub fn handle_start(
         customer_name,
         rate,
         start_time: now,
-        is_generated: false,
     };
     add_event(tasks, history, event_store, event, &format!("Started task at {}", now.format("%H:%M")))
 }

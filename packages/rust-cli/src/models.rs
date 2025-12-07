@@ -11,7 +11,6 @@ pub struct Task {
     pub start_time: DateTime<Local>,
     pub end_time: Option<DateTime<Local>>,
     pub is_break: bool,
-    pub is_generated: bool,
 }
 
 impl Task {
@@ -27,7 +26,6 @@ impl Task {
         if self.is_break {
             events.push(Event::BreakStarted {
                 start_time: self.start_time,
-                is_generated: self.is_generated,
             });
         } else {
             events.push(Event::TaskStarted {
@@ -37,7 +35,6 @@ impl Task {
                 customer_name: self.customer_name.clone(),
                 rate: self.rate,
                 start_time: self.start_time,
-                is_generated: self.is_generated,
             });
         }
 
@@ -45,7 +42,6 @@ impl Task {
         if let Some(end_time) = self.end_time {
             events.push(Event::Stopped {
                 end_time,
-                is_generated: self.is_generated,
             });
         }
 

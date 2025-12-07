@@ -49,6 +49,7 @@ pub fn draw_timeline(
     projects: &[Task],
     mode: &ViewMode,
     holidays: &HashSet<NaiveDate>,
+    unsynced_dates: &HashSet<NaiveDate>,
 ) -> IOResult<()> {
     match mode {
         ViewMode::Month => {
@@ -60,19 +61,24 @@ pub fn draw_timeline(
                 holidays,
                 Some(now.date_naive()),
                 &HashSet::new(),
+                unsynced_dates
             )?;
-            draw_linear_timeline(projects, &ViewMode::Day, holidays)?;
+            draw_linear_timeline(projects, &ViewMode::Day, holidays,
+                                 unsynced_dates)?;
         }
         ViewMode::Year => {
-            draw_year_calendar(projects, holidays)?;
-            draw_linear_timeline(projects, &ViewMode::Day, holidays)?;
+            draw_year_calendar(projects, holidays,
+                               unsynced_dates)?;
+            draw_linear_timeline(projects, &ViewMode::Day, holidays,
+                                 unsynced_dates)?;
         }
-        _ => draw_linear_timeline(projects, mode, holidays)?,
+        _ => draw_linear_timeline(projects, mode, holidays,
+                                  unsynced_dates)?,
     }
     Ok(())
 }
 
-fn draw_year_calendar(projects: &[Task], holidays: &HashSet<NaiveDate>) -> IOResult<()> {
+fn draw_year_calendar(projects: &[Task], holidays: &HashSet<NaiveDate>, unsynced_dates: &HashSet<NaiveDate>,) -> IOResult<()> {
     let now = Local::now();
     let year = now.year();
     for month in 1..=12 {
@@ -83,6 +89,7 @@ fn draw_year_calendar(projects: &[Task], holidays: &HashSet<NaiveDate>) -> IORes
             holidays,
             Some(now.date_naive()),
             &HashSet::new(),
+            unsynced_dates
         )?;
     }
     Ok(())
@@ -95,22 +102,18 @@ fn draw_month_calendar(
     holidays: &HashSet<NaiveDate>,
     highlight: Option<NaiveDate>,
     marked: &HashSet<NaiveDate>,
+    unsynced_dates: &HashSet<NaiveDate>,
 ) -> IOResult<()> {
     let first_day = NaiveDate::from_ymd_opt(year, month, 1).unwrap();
     let month_name = first_day.format("%B");
     let mut stdout = io::stdout();
 
     let mut daily_minutes: BTreeMap<NaiveDate, i64> = BTreeMap::new();
-    let mut manual_dates: HashSet<NaiveDate> = HashSet::new();
 
     for p in projects {
         let date = p.start_time.date_naive();
         if date.year() == year && date.month() == month && !p.is_break {
             *daily_minutes.entry(date).or_default() += p.duration().num_minutes();
-
-            if !p.is_generated {
-                manual_dates.insert(date);
-            }
         }
     }
 
@@ -138,9 +141,9 @@ fn draw_month_calendar(
         let weekday = date.weekday();
         let is_weekend = weekday == Weekday::Sat || weekday == Weekday::Sun;
         let is_holiday = holidays.contains(&date);
-        let has_manual = manual_dates.contains(&date);
         let is_selected = highlight == Some(date);
         let is_marked = marked.contains(&date);
+        let is_unsynced = unsynced_dates.contains(&date);
 
         let minutes = daily_minutes.get(&date).copied().unwrap_or(0);
         let hours_str = if minutes > 0 {
@@ -151,15 +154,12 @@ fn draw_month_calendar(
 
         let day_str = format!("{:02}", day);
 
-        // --- Styles for the Day Number (Date) ---
         let mut day_styles = Vec::new();
 
         if is_selected {
             day_styles.push(colors::BG_CURRENT_SELECT);
-        } else if is_marked {
+        } else if is_marked || is_unsynced {
             day_styles.push(colors::BG_MARKED_SELECT);
-        } else if has_manual {
-            day_styles.push(colors::BG_LOCAL_ONLY);
         } else if is_holiday {
             day_styles.push(colors::FG_HOLIDAY);
         } else if is_weekend {
@@ -172,43 +172,22 @@ fn draw_month_calendar(
 
         let colored_day = format!("{}{}{}", day_styles.concat(), day_str, colors::RESET);
 
-        // --- Styles for the Hours (Time) ---
         let colored_hours = if minutes > 0 {
             let content = format!("{:<6}", hours_str);
 
-            // Revert to non-selection specific hour colors
             let hour_styles = if is_holiday || is_weekend || minutes > 450 {
                 colors::FG_HOURS_OVERTIME
             } else {
                 colors::FG_HOURS_WORKED
             };
 
-            // If the day is selected/marked, we still need to apply the selection background
-            // to the padding/space *after* the hours if the selection background was applied to the date.
-            // However, the request is specifically to *not* color the hours. The structure of the
-            // calendar cell is: ` {day_num} {hours_str} ` (11 characters total).
-
-            // To prevent coloring the background of the hours string, we only apply the
-            // foreground hour styles and then reset.
             format!("{}{}{}", hour_styles, content, colors::RESET)
         } else {
             let empty_content = format!("{:<6}", "");
-
-            // If there are no hours, only the background applied to the date will show up next to it.
-            // To prevent the selection background from bleeding into the empty hour space, we must
-            // explicitly check if the selection/marking background was applied to the date number,
-            // and if so, we need to apply a transparent background or the normal cell background
-            // to the hours space, but since ANSI reset clears the BG, the easiest is to just
-            // output the empty space.
-            "".to_string() + &empty_content // Only output the space, relying on the next cell to clear BG
+            "".to_string() + &empty_content
         };
 
-        // If the date was selected/marked, the background is active.
-        // We must manually reset the background after the date *before* the hours string,
-        // otherwise, the selection BG spills into the hours content.
-        let cell_content = if is_selected || is_marked || has_manual {
-            // Since the selection/manual BG is applied in `colored_day`, we reset it immediately
-            // after the day number and before the hours string.
+        let cell_content = if is_selected || is_marked || is_unsynced {
             format!(
                 " {} {} {}",
                 colored_day,
@@ -247,6 +226,7 @@ fn draw_linear_timeline(
     projects: &[Task],
     mode: &ViewMode,
     holidays: &HashSet<NaiveDate>,
+    unsynced_dates: &HashSet<NaiveDate>,
 ) -> IOResult<()> {
     let now = Local::now();
     let today = now.date_naive();
@@ -282,13 +262,13 @@ fn draw_linear_timeline(
         let weekday = date.weekday();
         let is_weekend = weekday == Weekday::Sat || weekday == Weekday::Sun;
         let is_holiday = holidays.contains(&date);
-        let has_manual = day_projects.iter().any(|p| !p.is_break && !p.is_generated);
+        let is_unsynced = unsynced_dates.contains(&date);
 
         let date_str = date.format("%Y-%m-%d (%A)").to_string();
 
-        let header = if has_manual {
+        let header = if is_unsynced {
             format!(
-                "{} {} (Local) {}",
+                "{} {} (Unsynced) {}",
                 colors::BG_LOCAL_ONLY,
                 date_str,
                 colors::RESET
@@ -483,6 +463,7 @@ pub fn render_day(projects: &[&Task]) -> IOResult<()> {
 pub fn interactive_view(
     projects: &[Task],
     holidays: &HashSet<NaiveDate>,
+    unsynced_dates: &HashSet<NaiveDate>,
     allow_selection: bool,
 ) -> IOResult<Vec<NaiveDate>> {
     let _guard = TerminalGuard::new()?;
@@ -538,6 +519,7 @@ pub fn interactive_view(
             holidays,
             Some(selected),
             &marked_dates,
+            unsynced_dates
         )?;
 
         let day_entries: Vec<&Task> = projects

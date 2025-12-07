@@ -10,23 +10,15 @@ pub enum Event {
         customer_name: String,
         rate: f64,
         start_time: DateTime<Local>,
-        #[serde(default)]
-        is_generated: bool,
     },
     BreakStarted {
         start_time: DateTime<Local>,
-        #[serde(default)]
-        is_generated: bool,
     },
     Reopen {
         start_time: DateTime<Local>,
-        #[serde(default)]
-        is_generated: bool,
     },
     Stopped {
         end_time: DateTime<Local>,
-        #[serde(default)]
-        is_generated: bool,
     },
     Undo {
         time: DateTime<Local>,
@@ -36,15 +28,11 @@ pub enum Event {
     },
     CommentAdded {
         date: NaiveDate,
-        #[serde(default)]
-        is_generated: bool,
         task_id: i32,
         comment: String,
     },
     LocallyCleared {
         date: NaiveDate,
-        #[serde(default)]
-        is_generated: bool,
     }
 }
 

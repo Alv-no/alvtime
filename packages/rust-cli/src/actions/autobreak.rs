@@ -35,13 +35,11 @@ pub fn autobreak(
     // Insert break at 11:00
     let break_event = Event::BreakStarted {
         start_time: break_start,
-        is_generated: true,
     };
 
     add_event(tasks, history, event_store, break_event, "");
     let break_event_end = Event::Stopped {
         end_time: break_end,
-        is_generated: true,
     };
     add_event(tasks, history, event_store, break_event_end, "");
 
@@ -130,7 +128,6 @@ mod tests {
             start_time: ts(9, 0),
             end_time: Some(ts(10, 0)),
             is_break: false,
-            is_generated: false,
         };
         history.extend(task1.to_events());
         tasks.push(task1);
@@ -145,7 +142,6 @@ mod tests {
             start_time: ts(10, 0),
             end_time: Some(ts(10, 30)),
             is_break: true,
-            is_generated: false,
         };
         history.extend(manual_break.to_events());
         tasks.push(manual_break);
@@ -160,7 +156,6 @@ mod tests {
             start_time: ts(10, 30),
             end_time: Some(ts(12, 0)),
             is_break: false,
-            is_generated: false,
         };
 
         history.extend(task2.to_events());
@@ -226,7 +221,6 @@ mod tests {
             start_time: ts(10, 0),
             end_time: Some(ts(12, 0)),
             is_break: false,
-            is_generated: false,
         };
         tasks.push(long_task);
 
@@ -254,7 +248,6 @@ mod tests {
             start_time: ts(9, 0),
             end_time: Some(ts(10, 45)),
             is_break: false,
-            is_generated: false,
         };
         tasks.push(morning_task);
 
@@ -267,7 +260,6 @@ mod tests {
             start_time: ts(11, 0),
             end_time: Some(ts(11, 30)),
             is_break: true,
-            is_generated: false,
         };
         tasks.push(break_task);
 
@@ -295,7 +287,6 @@ mod tests {
             start_time: ts(9, 0),
             end_time: Some(ts(10, 45)),
             is_break: false,
-            is_generated: false,
         };
         tasks.push(morning_task);
 
@@ -308,7 +299,6 @@ mod tests {
             start_time: ts(11, 0),
             end_time: Some(ts(11, 30)),
             is_break: true,
-            is_generated: false,
         };
         tasks.push(break_task);
         let after_lunsh_task = models::Task {
@@ -320,7 +310,6 @@ mod tests {
             start_time: ts(11, 30),
             end_time: None,
             is_break: true,
-            is_generated: false,
         };
         tasks.push(after_lunsh_task);
 

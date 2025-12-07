@@ -29,7 +29,6 @@ fn create_default_day_task(date: NaiveDate, task_dto: &TaskDto) -> models::Task 
         start_time,
         end_time: Some(end_time),
         is_break: false,
-        is_generated: false,
     }
 }
 
@@ -53,7 +52,7 @@ pub fn handle_edit(
     match initial_action {
         "Edit Single Day" => {
             // 1. Select Day using the interactive view
-            let selected_dates = match view::interactive_view(&all_tasks, &holidays, false) {
+            let selected_dates = match view::interactive_view(&all_tasks, &holidays, &event_store.get_unsynced_dates(),false) {
                 Ok(d) => d,
                 Err(e) => return format!("Interactive view failed: {}", e),
             };
@@ -102,19 +101,35 @@ fn handle_single_day_edit(
         let mut current_day_tasks = get_current_tasks(&new_events);
         current_day_tasks.sort_by_key(|p| p.start_time);
 
+        let (closed_tasks, open_tasks): (Vec<models::Task>, Vec<models::Task>) =
+            current_day_tasks
+                .into_iter()
+                .partition(|t| t.end_time.is_some());
+
+        let current_day_tasks = closed_tasks;
+
         println!("\n--- Editing {} ---", selected_date);
         if current_day_tasks.is_empty() {
-            println!("(No tasks)");
+            println!("(No closed tasks available for edit)");
         }
 
-        // Show graphical timeline for the projected state
-        if !current_day_tasks.is_empty() {
-            let refs: Vec<&models::Task> = current_day_tasks.iter().collect();
+        // Show graphical timeline for the projected state (including open tasks for context)
+        // Rebuild refs using the original, unfiltered list for rendering
+        let all_tasks_for_view = {
+            let mut combined = current_day_tasks.clone();
+            combined.extend(open_tasks.clone());
+            combined.sort_by_key(|p| p.start_time);
+            combined
+        };
+
+        if !all_tasks_for_view.is_empty() {
+            let refs: Vec<&models::Task> = all_tasks_for_view.iter().collect();
             if let Err(e) = view::render_day(&refs) {
                 eprintln!("Error rendering day: {}", e);
             }
         }
 
+        // Print only the CLOSED tasks available for editing, plus the open ones with a warning
         for (i, p) in current_day_tasks.iter().enumerate() {
             let end_str = p
                 .end_time
@@ -129,6 +144,19 @@ fn handle_single_day_edit(
                 p.project_name
             );
         }
+
+        if !open_tasks.is_empty() {
+            println!("--- Active Tasks (Cannot be edited) ---");
+            for p in open_tasks.iter() {
+                println!(
+                    "   [{}->] {} ({})",
+                    p.start_time.format("%H:%M"),
+                    p.name,
+                    p.project_name
+                );
+            }
+        }
+
         println!("-----------------------");
 
         let options = vec![
@@ -222,7 +250,6 @@ fn handle_single_day_edit(
                 if is_break {
                     new_events.push(Event::BreakStarted {
                         start_time,
-                        is_generated: false,
                     });
                 } else {
                     new_events.push(Event::TaskStarted {
@@ -232,17 +259,16 @@ fn handle_single_day_edit(
                         customer_name,
                         rate,
                         start_time,
-                        is_generated: false,
                     });
                 }
 
                 new_events.push(Event::Stopped {
                     end_time,
-                    is_generated: false,
                 });
             }
             "Edit Entry Time" => {
                 if current_day_tasks.is_empty() {
+                    println!("No closed tasks available to edit.");
                     continue;
                 }
                 let indices: Vec<String> = (1..=current_day_tasks.len())
@@ -257,6 +283,12 @@ fn handle_single_day_edit(
                         Some(t) => t.clone(),
                         None => continue,
                     };
+
+                    // Guardrail against accidental open task editing - redundant due to filtering, but safe.
+                    if original_task.end_time.is_none() {
+                        println!("Error: Cannot edit an active (unclosed) task.");
+                        continue;
+                    }
 
                     let s_default = original_task.start_time.format("%H:%M").to_string();
                     let e_default = original_task
@@ -281,7 +313,9 @@ fn handle_single_day_edit(
                         let new_end = {
                             let trimmed = e.trim();
                             if trimmed.is_empty() {
-                                None
+                                // Prevent saving as an open task during edit time operation
+                                println!("Error: End time is mandatory when editing a closed entry.");
+                                continue;
                             } else if let Some(parsed) = parse_time(selected_date, trimmed) {
                                 Some(parsed)
                             } else {
@@ -301,7 +335,6 @@ fn handle_single_day_edit(
                         if original_task.is_break {
                             new_events.push(Event::BreakStarted {
                                 start_time: new_start,
-                                is_generated: false,
                             });
                         } else {
                             new_events.push(Event::TaskStarted {
@@ -311,13 +344,11 @@ fn handle_single_day_edit(
                                 customer_name: original_task.customer_name,
                                 rate: original_task.rate,
                                 start_time: new_start,
-                                is_generated: false,
                             });
                         }
                         if let Some(end) = new_end {
                             new_events.push(Event::Stopped {
                                 end_time: end,
-                                is_generated: false,
                             });
                         }
                     }
@@ -325,6 +356,7 @@ fn handle_single_day_edit(
             }
             "Edit Entry Type" => {
                 if current_day_tasks.is_empty() {
+                    println!("No closed tasks available to edit.");
                     continue;
                 }
 
@@ -341,6 +373,12 @@ fn handle_single_day_edit(
                     Some(t) => t.clone(),
                     None => continue,
                 };
+
+                // Guardrail against accidental open task editing - redundant due to filtering, but safe.
+                if original_task.end_time.is_none() {
+                    println!("Error: Cannot edit an active (unclosed) task.");
+                    continue;
+                }
 
                 let favorite_tasks: Vec<&TaskDto> = external_tasks
                     .iter()
@@ -387,7 +425,6 @@ fn handle_single_day_edit(
                 if new_is_break {
                     new_events.push(Event::BreakStarted {
                         start_time: original_task.start_time,
-                        is_generated: false,
                     });
                 } else {
                     new_events.push(Event::TaskStarted {
@@ -397,19 +434,18 @@ fn handle_single_day_edit(
                         customer_name: new_customer_name,
                         rate: new_rate,
                         start_time: original_task.start_time,
-                        is_generated: false,
                     });
                 }
 
                 if let Some(end) = original_task.end_time {
                     new_events.push(Event::Stopped {
                         end_time: end,
-                        is_generated: false,
                     });
                 }
             }
             "Delete Entry" => {
                 if current_day_tasks.is_empty() {
+                    println!("No closed tasks available to delete.");
                     continue;
                 }
                 let indices: Vec<String> = (1..=current_day_tasks.len())
@@ -425,21 +461,18 @@ fn handle_single_day_edit(
                         None => continue,
                     };
 
-                    if let Some(end_time) = removed.end_time {
-                        // To delete the task, we replace its duration with a Break.
-                        new_events.push(Event::BreakStarted {
-                            start_time: removed.start_time,
-                            is_generated: true,
-                        });
-                        new_events.push(Event::Stopped {
-                            end_time,
-                            is_generated: true,
-                        });
-                    } else {
-                        new_events.push(Event::Undo {
-                            time: removed.start_time,
-                        });
+                    if removed.end_time.is_none() {
+                        println!("Error: Cannot delete an active (unclosed) task.");
+                        continue;
                     }
+
+                    // To delete the task, we replace its duration with a Break.
+                    new_events.push(Event::BreakStarted {
+                        start_time: removed.start_time,
+                    });
+                    new_events.push(Event::Stopped {
+                        end_time: removed.end_time.unwrap(), // Safe due to filtering/guardrail
+                    });
                 }
             }
             "Save & Finish" => {
@@ -473,8 +506,7 @@ fn handle_single_day_edit(
             _ => {}
         }
     }
-}
-fn handle_bulk_day_edit(
+}fn handle_bulk_day_edit(
     holidays: &HashSet<NaiveDate>,
     event_store: &EventStore,
     external_tasks: &[TaskDto],
@@ -482,7 +514,7 @@ fn handle_bulk_day_edit(
     all_tasks: &[models::Task],
 ) -> String {
     println!("\n--- Bulk Edit Mode ---");
-    let days_to_edit = match view::interactive_view(all_tasks, &holidays, true) {
+    let days_to_edit = match view::interactive_view(all_tasks, &holidays, &event_store.get_unsynced_dates(),true) {
         Ok(d) => d,
         Err(e) => return format!("Interactive view failed: {}", e),
     };
@@ -564,14 +596,12 @@ fn handle_bulk_day_edit(
                     customer_name: full_day_task.customer_name,
                     rate: full_day_task.rate,
                     start_time: full_day_task.start_time,
-                    is_generated: false, // Treat as user-created edit
                 });
 
                 // End of the new task
                 if let Some(end_time) = full_day_task.end_time {
                     events_to_persist.push(Event::Stopped {
                         end_time,
-                        is_generated: false, // Treat as user-created edit
                     });
                 }
 
@@ -615,7 +645,6 @@ fn handle_bulk_day_edit(
 
                 event_store.persist(&Event::LocallyCleared {
                     date,
-                    is_generated: false,
                 });
 
                 days_processed += 1;
