@@ -42,10 +42,10 @@ import { useTaskStore } from "@/stores/taskStore";
 const taskStore = useTaskStore();
 
 const toggleExpand = () => {
-	taskStore.toggleProjectExpandable(`${project.name}-${project.customerName}`);
+	taskStore.toggleProjectExpandable(`${props.project.name}-${props.project.customerName}`);
 };
 
-const { project } = defineProps<{
+const props = defineProps<{
 	project: Project;
 }>();
 </script>

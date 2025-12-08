@@ -4,7 +4,6 @@ const setLocalProjects = (value: Project[]): void => {
 	const localProjects = value.map(project => ({
 		id: `${project.name}-${project.customerName}`,
 		open: project.open,
-		index: project.index || 0,
 	}));
 
 	localStorage.setItem("projects", JSON.stringify(localProjects));
@@ -23,7 +22,6 @@ const getLocalProjects = (projects: Project[]): Project[] | null => {
 				return {
 					...project,
 					open: localProject?.open ?? false,
-					index: localProject?.index
 				};
 			});
 		} catch (error) {
