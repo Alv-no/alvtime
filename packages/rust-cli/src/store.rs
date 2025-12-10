@@ -1,4 +1,6 @@
 use std::collections::{HashMap, HashSet};
+use std::io::Error;
+use std::time::{Duration, Instant};
 use chrono::NaiveDate;
 use crate::events::Event;
 use sled::Db;
@@ -9,10 +11,31 @@ pub struct EventStore {
 }
 
 impl EventStore {
-    pub fn new(path: &str) -> Self {
-        // Creates a folder named "tracker_db" in your project root
-        let db = sled::open(path).expect("Failed to open database");
-        EventStore { db }
+    pub fn new(path: &str) -> Result<Self, Error> {
+        const TIMEOUT: Duration = Duration::from_secs(1);
+        const RETRY_DELAY: Duration = Duration::from_millis(50);
+        let start = Instant::now();
+
+        loop {
+            match sled::open(path) {
+                Ok(db) => {
+                    // Successfully opened the database
+                    return Ok(EventStore { db });
+                }
+                Err(e) => {
+                    let elapsed = start.elapsed();
+
+                    // If the timeout is reached, return the last error.
+                    if elapsed >= TIMEOUT {
+                        // Return the sled::Error directly for graceful handling
+                        return Err(e);
+                    }
+
+                    // Wait before retrying to yield control and reduce CPU load
+                    std::thread::sleep(RETRY_DELAY);
+                }
+            }
+        }
     }
 
     pub fn persist(&self, event: &Event) {

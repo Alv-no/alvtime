@@ -87,27 +87,46 @@ pub fn handle_sync(
         if has_server_entries {
             let server_entries_list = server_entries.unwrap();
 
-            // Check if content is effectively the same (Task IDs and durations match)
-            let mut server_breakdown: HashMap<i32, f64> = HashMap::new();
+            // Check if content is effectively the same (Task IDs, durations, and comments match)
+            let mut server_breakdown: HashMap<i32, (f64, Option<String>)> = HashMap::new();
             for e in server_entries_list {
-                *server_breakdown.entry(e.task_id).or_default() += e.value;
+                let entry = server_breakdown.entry(e.task_id).or_insert((0.0, None));
+                entry.0 += e.value;
+                // Keep the comment (assume all entries for same task have same comment)
+                if entry.1.is_none() {
+                    entry.1 = e.comment.clone();
+                }
             }
 
-            let mut local_breakdown: HashMap<i32, f64> = HashMap::new();
+            let mut local_breakdown: HashMap<i32, (f64, Option<String>)> = HashMap::new();
             let mut local_sums: HashMap<i32, i64> = HashMap::new();
+            let mut local_comments: HashMap<i32, Option<String>> = HashMap::new();
+
             for t in &day_tasks {
                 *local_sums.entry(t.id).or_default() += t.duration().num_minutes();
+                local_comments.entry(t.id).or_insert_with(|| t.comment.clone());
             }
+
             for (tid, mins) in local_sums {
-                local_breakdown.insert(tid, round_duration_to_quarter_hour(mins));
+                let comment = local_comments.get(&tid).and_then(|c| c.clone());
+                local_breakdown.insert(tid, (round_duration_to_quarter_hour(mins), comment));
             }
 
             let mut is_match = server_breakdown.len() == local_breakdown.len();
             if is_match {
-                for (t_id, s_hours) in &server_breakdown {
-                    let l_hours = local_breakdown.get(t_id).unwrap_or(&0.0);
-                    // Allow 0.02h (approx 1 min) difference for rounding
-                    if (s_hours - l_hours).abs() > 0.02 {
+                for (t_id, (s_hours, s_comment)) in &server_breakdown {
+                    if let Some((l_hours, l_comment)) = local_breakdown.get(t_id) {
+                        // Allow 0.02h (approx 1 min) difference for rounding
+                        if (s_hours - l_hours).abs() > 0.02 {
+                            is_match = false;
+                            break;
+                        }
+                        // Check if comments match
+                        if s_comment != l_comment {
+                            is_match = false;
+                            break;
+                        }
+                    } else {
                         is_match = false;
                         break;
                     }
@@ -124,7 +143,7 @@ pub fn handle_sync(
 
                 let mut new_events = Vec::new();
                 for task in all_day_tasks {
-                   new_events.extend_from_slice(task.to_events().as_slice())
+                    new_events.extend_from_slice(task.to_events().as_slice())
                 }
 
                 event_store.persist_synced_batch(&new_events);
@@ -136,7 +155,7 @@ pub fn handle_sync(
             }
 
             let server_hours: f64 = server_entries_list.iter().map(|e| e.value).sum();
-            let local_hours: f64 = local_breakdown.values().sum();
+            let local_hours: f64 = local_breakdown.values().map(|(h, _)| h).sum();
 
             let msg = format!(
                 "Conflict on {}: Local {:.1}h vs Server {:.1}h. What do you want to do?",

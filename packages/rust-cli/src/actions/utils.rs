@@ -171,6 +171,18 @@ pub fn generate_events_from_server_entries(
         }
     }
 
+    // After generating all TaskStarted/Stopped events, add CommentAdded events
+    // for any entries that have comments
+    for entry in day_entries {
+        if let Some(comment) = &entry.comment {
+            events.push(Event::CommentAdded {
+                date,
+                task_id: entry.task_id,
+                comment: comment.clone(),
+            });
+        }
+    }
+
     events
 }
 

@@ -14,9 +14,6 @@ pub enum Event {
     BreakStarted {
         start_time: DateTime<Local>,
     },
-    Reopen {
-        start_time: DateTime<Local>,
-    },
     Stopped {
         end_time: DateTime<Local>,
     },
@@ -31,6 +28,10 @@ pub enum Event {
         task_id: i32,
         comment: String,
     },
+    CommentRemoved {
+        date: NaiveDate,
+        task_id: i32,
+    },
     LocallyCleared {
         date: NaiveDate,
     }
@@ -42,11 +43,11 @@ impl Event {
             Event::TaskStarted { start_time, .. } => start_time.date_naive(),
             Event::BreakStarted { start_time, .. } => start_time.date_naive(),
             Event::Stopped { end_time, .. } => end_time.date_naive(),
-            Event::Reopen { start_time, .. } => start_time.date_naive(),
             Event::Undo { time } => time.date_naive(),
             Event::Redo { time } => time.date_naive(),
             Event::CommentAdded { date,.. } => {*date}
             Event::LocallyCleared { date,.. } => {*date}
+            Event::CommentRemoved { date,.. } => {*date}
         }
     }
 }

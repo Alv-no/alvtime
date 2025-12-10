@@ -11,6 +11,7 @@ pub mod start;
 pub mod sync;
 pub mod timebank;
 pub mod utils;
+pub mod comment;
 
 pub fn add_event(
     tasks: &mut Vec<models::Task>,

@@ -1,4 +1,4 @@
-mod actions;
+mod actions; // Added 'actions' mod declaration for completeness, even if empty
 mod alvtime;
 mod config;
 mod events;
@@ -34,6 +34,7 @@ use std::collections::HashSet;
 use std::io;
 use store::EventStore;
 use view::ViewMode;
+use crate::actions::comment::handle_comments;
 
 #[derive(Parser)]
 #[command(name = "atime")]
@@ -71,6 +72,8 @@ enum Commands {
     InteractiveView,
     /// Edit events (interactive)
     Edit,
+    /// Add a comment to one of the tasks
+    Comment,
     /// Undo last action
     Undo,
     /// Redo last action
@@ -159,8 +162,43 @@ struct AppContext<'a> {
 fn main() {
     let cli = Cli::parse();
 
+    if let Some(Commands::Completions { shell }) = cli.command.clone() {
+        let mut cmd = Cli::command();
+        let bin_name = cmd.get_name().to_string();
+        generate(shell, &mut cmd, bin_name, &mut io::stdout());
+        return;
+    }
+
     let mut app_config = Config::load();
-    let event_store = EventStore::new(&app_config.storage_path);
+    let event_store: EventStore;
+    match EventStore::new(&app_config.storage_path) {
+        Ok(store) => {
+            event_store = store;
+        }
+        Err(_) => {
+            // Graceful (and whimsical) failure if the database remains locked after the retry loop
+            eprintln!("\n\
+\x1b[33m\x1b[1m+-------------------------------------------------------------+\n\
+| A Solemn Decree from the Timeless Archive! 📜✨             |\n\
++-------------------------------------------------------------+\x1b[0m\n\
+\n\
+The \x1b[1mGrand Ledger of Time\x1b[0m (your database) is currently under the careful guard \n\
+of a diligent \x1b[1mTimekeeping Elf\x1b[0m. This Elf is deep in concentration, meticulously \n\
+recording recent events. \n\
+\n\
+The Ledger is held fast by a \x1b[1mMagical Lock of Exclusivity\x1b[0m to ensure the records \n\
+remain pure and free from overlapping scribbles.\n\
+\n\
+Our little 'atime' Elf attempted to gain access for a patient, one-second vigil, \n\
+but the lock held firm. The \x1b[1mElder Elf\x1b[0m (the other running instance) holds the key.\n\
+\n\
+\x1b[33m\x1b[1mTo proceed, the Elder Elf must first complete its work and respectfully close the \n\
+Grand Ledger.\x1b[0m Please wait for the other instance to finish its duty, then try again.\n\
+");
+            // Exit the application with a non-zero status code
+            std::process::exit(1);
+        }
+    }
 
     // Setup Client
     let client = alvtime::AlvtimeClient::new(
@@ -286,40 +324,92 @@ fn execute_command(command: Commands, ctx: &mut AppContext) -> String {
             if let Some(n) = &name {
                 parts.push(n);
             }
-            handle_start(
+
+            // --- START: Required logic for implicit Stop ---
+            // Check if a task is already running (end_time is None)
+            let is_running = ctx.today_tasks.iter().any(|t| t.end_time.is_none());
+            let mut stop_feedback = String::new();
+
+            if is_running {
+                // If running, implicitly issue a Stop event
+                stop_feedback = add_event(
+                    ctx.today_tasks,
+                    ctx.today_history,
+                    ctx.event_store,
+                    Event::Stopped {
+                        end_time: Local::now(),
+                    },
+                    "\x1b[36m\x1b[1mThe Clockwork Cog pauses.\x1b[0m Your previous chapter is automatically closed.",
+                );
+            }
+            // --- END: Required logic for implicit Stop ---
+
+            let result = handle_start(
                 &parts,
                 ctx.today_tasks,
                 ctx.today_history,
                 ctx.event_store,
                 ctx.app_config,
                 ctx.external_tasks,
+            );
+
+            let start_feedback = if result.starts_with("Started task") {
+                format!("\x1b[32m\x1b[1mThe Clockwork Cog has begun to turn!\x1b[0m Your 'upon a \x1b[1mTIME\x1b[0m' tale of labor has been noted.")
+            } else {
+                format!("\x1b[31m\x1b[1mThe Scroll of Beginnings is confused:\x1b[0m {}", result)
+            };
+
+            // Combine implicit stop feedback with start feedback
+            if is_running {
+                format!("{}\n{}", stop_feedback, start_feedback)
+            } else {
+                start_feedback
+            }
+        }
+        Commands::Break => {
+            add_event(
+                ctx.today_tasks,
+                ctx.today_history,
+                ctx.event_store,
+                Event::BreakStarted {
+                    start_time: Local::now(),
+                },
+                "\x1b[36m\x1b[1mThe Timekeeping Elf has declared a recess.\x1b[0m Rest well, for the Grand Ledger awaits your return.",
             )
         }
-        Commands::Break => add_event(
-            ctx.today_tasks,
-            ctx.today_history,
-            ctx.event_store,
-            Event::BreakStarted {
-                start_time: Local::now(),
-            },
-            "Break started.",
-        ),
-        Commands::Stop => add_event(
-            ctx.today_tasks,
-            ctx.today_history,
-            ctx.event_store,
-            Event::Stopped {
-                end_time: Local::now(),
-            },
-            "Stopped.",
-        ),
-        Commands::Sync => handle_sync(
-            ctx.client,
-            ctx.today_tasks,
-            ctx.today_history,
-            ctx.event_store,
-            ctx.external_tasks,
-        ),
+        Commands::Stop => {
+            // --- START: Required logic to ensure a task is running ---
+            let is_running = ctx.today_tasks.iter().any(|t| t.end_time.is_none());
+
+            if !is_running {
+                return "\x1b[31m\x1b[1mThe Elder Elf is confused:\x1b[0m No task is currently running to stop. The Grand Ledger is at rest.".to_string();
+            }
+            // --- END: Required logic to ensure a task is running ---
+
+            add_event(
+                ctx.today_tasks,
+                ctx.today_history,
+                ctx.event_store,
+                Event::Stopped {
+                    end_time: Local::now(),
+                },
+                "\x1b[36m\x1b[1mThe quill has been set down.\x1b[0m Your current chapter is closed in the Grand Ledger.",
+            )
+        }
+        Commands::Sync => {
+            let result = handle_sync(
+                ctx.client,
+                ctx.today_tasks,
+                ctx.today_history,
+                ctx.event_store,
+                ctx.external_tasks,
+            );
+            if result.starts_with("Synced") {
+                format!("\x1b[33m\x1b[1mThe Whisperwind Post arrives!\x1b[0m The day's events are harmonized with the Elder Elves' Master Scroll.")
+            } else {
+                format!("\x1b[31m\x1b[1mA Snag in the Temporal Threads:\x1b[0m {}", result)
+            }
+        }
         Commands::Push => {
             // Process each day individually instead of loading all days at once
             let all_dates = ctx.event_store.get_unsynced_dates();
@@ -338,8 +428,9 @@ fn execute_command(command: Commands, ctx: &mut AppContext) -> String {
                     ctx.external_tasks,
                 );
 
-                if !day_result.is_empty() {
-                    overall_feedback.push(format!("{}: {}", date, day_result));
+                // Filter out success messages, only push errors/warnings to feedback
+                if !day_result.starts_with("Pushed") {
+                    overall_feedback.push(format!("\x1b[31mDate {}:\x1b[0m {}", date, day_result));
                 }
             }
 
@@ -349,8 +440,9 @@ fn execute_command(command: Commands, ctx: &mut AppContext) -> String {
             *ctx.today_tasks = projector::restore_state(ctx.today_history);
 
             if overall_feedback.is_empty() {
-                "All days pushed successfully.".to_string()
+                "\x1b[32m\x1b[1mThe Carrier Pigeons have flown!\x1b[0m All local scripts are now etched into the Mountain Archives.".to_string()
             } else {
+                overall_feedback.insert(0, "\x1b[31m\x1b[1mObstacles on the Path to the Archives:\x1b[0m".to_string());
                 overall_feedback.join("\n")
             }
         }
@@ -358,14 +450,48 @@ fn execute_command(command: Commands, ctx: &mut AppContext) -> String {
             if let Some(m) = mode {
                 *ctx.view_mode = m.into();
             }
-            String::new()
+            "\x1b[33m\x1b[1mThe Temporal Scope is Adjusted!\x1b[0m Now viewing the Grand Ledger through a new lens.".to_string()
         }
-        Commands::Edit => handle_edit(
-            ctx.holidays,
-            ctx.event_store,
-            ctx.external_tasks,
-            ctx.app_config,
-        ),
+        Commands::Edit => {
+            // We can't capture the internal feedback of handle_edit directly, but we can set a thematic success message
+            let result = handle_edit(
+                ctx.holidays,
+                ctx.event_store,
+                ctx.external_tasks,
+                ctx.app_config,
+            );
+            if result.starts_with("Error") {
+                format!("\x1b[31m\x1b[1mA Glitch in the Loom of Time:\x1b[0m {}", result)
+            } else {
+                // handle_edit is interactive and should print its own success/error messages, so this is just a confirmation of initiation
+                "\x1b[33m\x1b[1mOpening the Scroll of Revisions.\x1b[0m The Elder Elf is ready to mend the time fabric.".to_string()
+            }
+        }
+        Commands::Comment => {
+            let result = handle_comments(
+                ctx.holidays,
+                ctx.event_store,
+            );
+
+            if result.starts_with("Error") {
+                format!(
+                    "\x1b[31m\x1b[1mThe Ink Sprite refuses your annotation:\x1b[0m {}",
+                    result
+                )
+            } else if result.contains("updated") {
+                "\x1b[33m\x1b[1mA fresh note is etched into the margin.\x1b[0m The Ledger now whispers your thoughts."
+                    .to_string()
+            } else if result.contains("removed") {
+                "\x1b[33m\x1b[1mThe note fades from the parchment.\x1b[0m Silence returns to that moment in time."
+                    .to_string()
+            } else if result.contains("No tasks") {
+                "\x1b[31m\x1b[1mThe Quill is idle:\x1b[0m No tasks on this day to annotate."
+                    .to_string()
+            } else {
+                "\x1b[34m\x1b[1mThe Annotation Scroll opens.\x1b[0m Choose wisely what words you bind to time."
+                    .to_string()
+            }
+        }
         Commands::InteractiveView => {
             match view::interactive_view(
                 &*get_all_tasks(ctx.event_store),
@@ -373,8 +499,8 @@ fn execute_command(command: Commands, ctx: &mut AppContext) -> String {
                 &ctx.event_store.get_unsynced_dates(),
                 false,
             ) {
-                Ok(_) => "".to_string(),
-                Err(e) => format!("Error in interactive month view: {}", e),
+                Ok(_) => "".to_string(), // Interactive view clears screen, no need for feedback here.
+                Err(e) => format!("\x1b[31m\x1b[1mThe Map of the Months is torn:\x1b[0m {}", e),
             }
         }
         Commands::Undo => add_event(
@@ -382,14 +508,14 @@ fn execute_command(command: Commands, ctx: &mut AppContext) -> String {
             ctx.today_history,
             ctx.event_store,
             Event::Undo { time: Local::now() },
-            "Undone.",
+            "\x1b[35m\x1b[1mThe Hourglass is Reversed!\x1b[0m The last mark is scrubbed from the Grand Ledger.",
         ),
         Commands::Redo => add_event(
             ctx.today_tasks,
             ctx.today_history,
             ctx.event_store,
             Event::Redo { time: Local::now() },
-            "Redone.",
+            "\x1b[35m\x1b[1mThe Sands are Restored!\x1b[0m The forgotten mark has been brought back to the Grand Ledger.",
         ),
         Commands::Favorites { action } => {
             let mut parts = vec!["favorites"];
@@ -400,16 +526,29 @@ fn execute_command(command: Commands, ctx: &mut AppContext) -> String {
                 Some(FavoritesAction::Remove) => parts.push(&binding_remove),
                 _ => {}
             }
-            handle_favorites(
+            let result = handle_favorites(
                 &parts,
                 ctx.app_config,
                 ctx.external_tasks,
                 ctx.editor,
                 ctx.event_store,
                 ctx.client,
-            )
+            );
+            // Favorites handling is interactive or has complex feedback, just wrap the result
+            if result.starts_with("Error") {
+                format!("\x1b[31m\x1b[1mThe Scroll of Favors is Tangled:\x1b[0m {}", result)
+            } else {
+                format!("\x1b[33m\x1b[1mThe Scroll of Favors Updated:\x1b[0m {}", result)
+            }
         }
-        Commands::Timebank => handle_timebank(ctx.client),
+        Commands::Timebank => {
+            let result = handle_timebank(ctx.client);
+            if result.starts_with("Error") {
+                format!("\x1b[31m\x1b[1mThe Timebank Golem is uncooperative:\x1b[0m {}", result)
+            } else {
+                format!("\x1b[34m\x1b[1mThe Treasury's Count:\x1b[0m\n{}", result)
+            }
+        }
         Commands::Config { action } => {
             let mut parts = vec!["config"];
             let binding_token = "set-token".to_string();
@@ -430,18 +569,26 @@ fn execute_command(command: Commands, ctx: &mut AppContext) -> String {
                 }
                 None => {}
             }
-            handle_config(&parts, ctx.app_config)
+            let result = handle_config(&parts, ctx.app_config);
+
+            if result.starts_with("Token saved") {
+                // Special case, needs to trigger a break and reload
+                result
+            } else if result.starts_with("Error") {
+                format!("\x1b[31m\x1b[1mThe Edict of Settings is Invalid:\x1b[0m {}", result)
+            } else {
+                format!("\x1b[33m\x1b[1mThe Edict of Settings has been updated:\x1b[0m {}", result)
+            }
         }
         Commands::Completions { shell } => {
             let mut cmd = Cli::command();
             let bin_name = cmd.get_name().to_string();
             generate(shell, &mut cmd, bin_name, &mut io::stdout());
-            String::new()
+            "\x1b[32m\x1b[1mThe Word-Weaver's Spell is Cast!\x1b[0m Completion scrolls sent to the shell's feet.".to_string()
         }
         Commands::Quit => "Exiting...".to_string(),
     }
 }
-
 fn get_tasks_for_view(mode: &ViewMode, store: &EventStore, today_tasks: &[Task]) -> Vec<Task> {
     let now = Local::now();
     match mode {
@@ -484,11 +631,11 @@ fn get_tasks_for_view(mode: &ViewMode, store: &EventStore, today_tasks: &[Task])
 
 fn run_shell(ctx: &mut AppContext) {
     let mut feedback = format!(
-        "Type 'help' for commands. Autobreak is {}.",
+        "\x1b[34m\x1b[1mWelcome, Time Traveler!\x1b[0m Type 'help' to consult the Lorekeeper. The 'Auto-Nap' charm is {}.",
         if ctx.app_config.autobreak {
-            "ON"
+            "\x1b[32mACTIVE\x1b[34m\x1b[1m"
         } else {
-            "OFF"
+            "\x1b[31mDORMANT\x1b[34m\x1b[1m"
         }
     );
 
@@ -505,7 +652,8 @@ fn run_shell(ctx: &mut AppContext) {
 
         if ctx.app_config.autobreak {
             if let Some(fb) = autobreak(ctx.today_tasks, ctx.today_history, ctx.event_store) {
-                feedback = fb;
+                // Autobreak is a BreakStarted event, use the thematic message
+                feedback = fb.replace("Break started.", "\x1b[36m\x1b[1mThe Auto-Nap Charm Activated!\x1b[0m The Timekeeping Elf insisted you take a pause.");
             }
         }
 
@@ -519,14 +667,15 @@ fn run_shell(ctx: &mut AppContext) {
             ctx.holidays,
             &ctx.event_store.get_unsynced_dates(),
         )
-        .unwrap();
+            .unwrap();
 
         if !feedback.is_empty() {
             println!("\n{}", feedback);
             feedback.clear();
         }
 
-        let readline = ctx.editor.readline("> ");
+        // Custom, themed prompt
+        let readline = ctx.editor.readline("\x1b[32mThe Lorekeeper awaits your command:\x1b[0m ");
         match readline {
             Ok(line) => {
                 let input = line.trim();
@@ -544,33 +693,37 @@ fn run_shell(ctx: &mut AppContext) {
                     Ok(cli) => {
                         if let Some(command) = cli.command {
                             if matches!(command, Commands::Quit) {
+                                println!("\x1b[35m\x1b[1mThe Grand Ledger is carefully closed.\x1b[0m Farewell for now!");
                                 break;
                             }
 
-                            // Pass the existing context re-borrowed
+                            // Execute command and get themed feedback
                             feedback = execute_command(command, ctx);
 
+                            // Check for the special case of 'Token saved' which requires a reload/exit
                             if feedback.starts_with("Token saved") {
-                                println!("Token saved. Reloading session...");
+                                println!("\x1b[33m\x1b[1mThe Elder Elf received the new Seal of Authority!\x1b[0m Please restart to acknowledge the change.");
                                 break;
                             }
                         }
                     }
                     Err(e) => {
                         if e.kind() == clap::error::ErrorKind::DisplayHelp {
+                            // Clap help is fine, just use the error string
                             feedback = e.to_string();
                         } else {
-                            feedback = format!("Error: {}", e);
+                            // Translate general parsing errors
+                            feedback = format!("\x1b[31m\x1b[1mThe Word-Weaver did not understand the spell:\x1b[0m {}", e);
                         }
                     }
                 }
             }
             Err(ReadlineError::Interrupted) | Err(ReadlineError::Eof) => {
-                println!("Exited");
+                println!("\x1b[35m\x1b[1mThe Grand Ledger is carefully closed.\x1b[0m Farewell for now!");
                 break;
             }
             Err(err) => {
-                println!("Error: {:?}", err);
+                println!("\x1b[31m\x1b[1mA Glitch in the Crystal Ball:\x1b[0m {:?}", err);
                 break;
             }
         }

@@ -35,6 +35,9 @@ mod colors {
     pub const BG_CURRENT_SELECT: &str = "\x1b[44m\x1b[37m";
     pub const BG_MARKED_SELECT: &str = "\x1b[48;5;220;30m";
 
+    pub const FG_COMMENT_HEADER: &str = "\x1b[1;37m"; // Bold White
+    pub const FG_COMMENT_TEXT: &str = "\x1b[37m";     // White
+    pub const FG_PROJECT: &str = "\x1b[36m";          // Cyan
     pub const RESET: &str = "\x1b[0m";
 }
 
@@ -346,7 +349,13 @@ pub fn render_day(projects: &[&Task]) -> IOResult<()> {
 
     let mut total_minutes = 0;
 
+    // We use this to track which IDs we have already rendered comments for
+    // to ensure we only print the comment once per task ID.
+    let mut processed_comment_ids: HashSet<i32> = HashSet::new();
+    let mut comments_buffer = String::new();
+
     for p in projects {
+        // --- Existing Timeline Logic ---
         let duration = p.duration();
         let minutes = std::cmp::max(0, duration.num_minutes());
 
@@ -436,6 +445,7 @@ pub fn render_day(projects: &[&Task]) -> IOResult<()> {
         }
     }
 
+    // --- Render Timeline ---
     buffer.push_str(&format!("\r\n{}\n", line_names));
     buffer.push_str(&format!("\r{}\n", line_top));
     buffer.push_str(&format!("\r{}\n", line_bars));
@@ -456,6 +466,54 @@ pub fn render_day(projects: &[&Task]) -> IOResult<()> {
             colors::RESET
         ));
     }
+
+    // --- Generate Comment Section ---
+    let mut has_comments = false;
+    for p in projects {
+        if processed_comment_ids.contains(&p.id) {
+            continue;
+        }
+        processed_comment_ids.insert(p.id);
+
+        if let Some(comment) = &p.comment {
+            if !comment.trim().is_empty() {
+                // Initialize header only once
+                if !has_comments {
+                    comments_buffer.push_str(&format!(
+                        "\r\n{}Notes & Comments:{}\n",
+                        colors::FG_BOLD,
+                        colors::RESET
+                    ));
+                    has_comments = true;
+                }
+
+                // Header line: Task Name | Project
+                let task_header = format!(
+                    " • {}{}{} | {}{}{} ({})",
+                    colors::FG_COMMENT_HEADER,
+                    p.name,
+                    colors::RESET,
+                    colors::FG_PROJECT,
+                    p.project_name,
+                    colors::RESET,
+                    p.customer_name
+                );
+
+                // Comment body with indentation
+                let comment_body = format!(
+                    "    {}{}{}",
+                    colors::FG_COMMENT_TEXT,
+                    comment.trim().replace('\n', "\n    "), // Handle multi-line comments nicely
+                    colors::RESET
+                );
+
+                comments_buffer.push_str(&format!("\r{}\n\r{}\n", task_header, comment_body));
+            }
+        }
+    }
+
+    // Append comments to the main buffer
+    buffer.push_str(&comments_buffer);
 
     io::stdout().write_all(buffer.as_bytes())
 }

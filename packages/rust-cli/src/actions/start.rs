@@ -22,17 +22,16 @@ pub fn handle_start(
     let mut rate = 0.0;
     let now = Local::now();
 
-    if parts.len() < 2 {
-        // If we have a running task, stop it first
-        if let Some(last_task) = tasks.last() {
-            if last_task.end_time.is_none() {
-                let stop_event = Event::Stopped {
-                    end_time: now,
-                };
-                add_event(tasks, history, event_store, stop_event, "Stopped previous task.");
-            }
+    if let Some(last_task) = tasks.last() {
+        if last_task.end_time.is_none() {
+            let stop_event = Event::Stopped {
+                end_time: now,
+            };
+            add_event(tasks, history, event_store, stop_event, "Auto-stopped previous task.");
         }
+    }
 
+    if parts.len() < 2 {
         if app_config.favorite_tasks.is_empty() {
             return "No favorites found. Use 'favorites add' to search and add tasks.".to_string();
         }
@@ -95,7 +94,7 @@ pub fn handle_start(
             id = task.id;
             project_name = task.project.name.clone();
             customer_name = task.project.customer.name.clone();
-            rate = task.compensation_rate ;
+            rate = task.compensation_rate;
         } else {
             let matches: Vec<&TaskDto> = external_tasks.iter()
                 .filter(|t| app_config.favorite_tasks.contains(&t.id) && t.name.to_lowercase().contains(&search.to_lowercase()))
@@ -106,7 +105,7 @@ pub fn handle_start(
                 id = matches[0].id;
                 project_name = matches[0].project.name.clone();
                 customer_name = matches[0].project.customer.name.clone();
-                rate = matches[0].compensation_rate ;
+                rate = matches[0].compensation_rate;
             } else if matches.is_empty() {
                 return "Task not found in favorites. Use 'favorites add' to find it.".to_string();
             } else {
@@ -119,7 +118,7 @@ pub fn handle_start(
                             id = task.id;
                             project_name = task.project.name.clone();
                             customer_name = task.project.customer.name.clone();
-                            rate = task.compensation_rate ;
+                            rate = task.compensation_rate;
                         }
                     },
                     Err(_) => return "Cancelled.".to_string(),
@@ -128,21 +127,19 @@ pub fn handle_start(
         }
     }
 
-    // If there is a gap after the last task, fill it with a break
     if let Some(last_task) = tasks.last() {
         if let Some(end_time) = last_task.end_time {
             if end_time < now && end_time.date_naive() == now.date_naive() {
+
                 let break_event = Event::BreakStarted {
                     start_time: end_time,
                 };
-                event_store.persist(&break_event);
-                history.push(break_event);
+                add_event(tasks, history, event_store, break_event, ""); // Helper adds to store/history
 
                 let stop_event = Event::Stopped {
                     end_time: now,
                 };
-                event_store.persist(&stop_event);
-                history.push(stop_event);
+                add_event(tasks, history, event_store, stop_event, "Filled gap with break.");
             }
         }
     }
@@ -155,5 +152,7 @@ pub fn handle_start(
         rate,
         start_time: now,
     };
-    add_event(tasks, history, event_store, event, &format!("Started task at {}", now.format("%H:%M")))
+
+    // Using add_event ensures the local state (tasks vec) stays in sync for the next command
+    add_event(tasks, history, event_store, event, &format!("Started task '{}' at {}", name, now.format("%H:%M")))
 }

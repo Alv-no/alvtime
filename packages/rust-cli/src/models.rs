@@ -8,6 +8,7 @@ pub struct Task {
     pub customer_name: String,
     pub rate: f64,
     pub name: String,
+    pub comment: Option<String>,
     pub start_time: DateTime<Local>,
     pub end_time: Option<DateTime<Local>>,
     pub is_break: bool,

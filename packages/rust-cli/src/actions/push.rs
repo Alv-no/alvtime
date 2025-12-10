@@ -45,9 +45,14 @@ pub fn handle_push(
         let server_hours: f64 = entries.iter().map(|e| e.value).sum();
 
         let mut local_sums: HashMap<i32, i64> = HashMap::new();
+        let mut local_comments: HashMap<i32, Option<String>> = HashMap::new();
+
         for t in &day_tasks {
             *local_sums.entry(t.id).or_default() += t.duration().num_minutes();
+            // Store comment for this task (all segments share the same comment)
+            local_comments.entry(t.id).or_insert_with(|| t.comment.clone());
         }
+
         let local_hours: f64 = local_sums
             .values()
             .map(|m| round_duration_to_quarter_hour(*m))
@@ -65,12 +70,11 @@ pub fn handle_push(
         let mut local_time_entries_to_compare: Vec<TimeEntryDto> = Vec::new();
         for (task_id, minutes) in &local_sums {
             local_time_entries_to_compare.push(TimeEntryDto {
-                // ID is irrelevant for comparison and should be ignored/normalized
                 id: 0,
                 task_id: *task_id,
                 date: date.format("%Y-%m-%d").to_string(),
-                value: round_duration_to_quarter_hour(*minutes), // Apply rounding
-                comment: None,
+                value: round_duration_to_quarter_hour(*minutes),
+                comment: local_comments.get(task_id).and_then(|c| c.clone()),
             });
         }
 
@@ -79,26 +83,25 @@ pub fn handle_push(
         let mut normalized_server_entries: Vec<TimeEntryDto> = entries
             .iter()
             .map(|e| TimeEntryDto {
-                id: 0, // Reset ID
+                id: 0,
                 task_id: e.task_id,
                 date: e.date.clone(),
                 value: e.value,
-                comment: None,
+                comment: e.comment.clone(),
             })
             .collect();
 
         // Normalize local entries (sort)
         let mut normalized_local_entries = local_time_entries_to_compare.clone();
 
-        // Sorting both vectors by task_id ensures reliable comparison,
-        // ignoring order differences from server response vs local HashMap iteration.
+        // Sorting both vectors by task_id ensures reliable comparison
         normalized_server_entries.sort_by_key(|e| e.task_id);
         normalized_local_entries.sort_by_key(|e| e.task_id);
 
         let are_identical_after_rounding = normalized_local_entries == normalized_server_entries;
 
         if are_identical_after_rounding {
-           event_store.set_day_synced(&date, true);
+            event_store.set_day_synced(&date, true);
             return format!(
                 "Local changes for {} match server entries after rounding. Marked local history as synced.",
                 date
@@ -165,10 +168,14 @@ pub fn handle_push(
 
     // 6. Push Logic
     if should_push {
-        // Calculate local task sums (in minutes)
+        // Calculate local task sums (in minutes) and collect comments
         let mut local_sums: HashMap<i32, i64> = HashMap::new();
+        let mut local_comments: HashMap<i32, Option<String>> = HashMap::new();
+
         for t in &day_tasks {
             *local_sums.entry(t.id).or_default() += t.duration().num_minutes();
+            // Store comment for this task (all segments share the same comment)
+            local_comments.entry(t.id).or_insert_with(|| t.comment.clone());
         }
 
         let local_task_ids: HashSet<i32> = local_sums.keys().copied().collect();
@@ -187,7 +194,7 @@ pub fn handle_push(
             }
         }
 
-        // Add/update local entries
+        // Add/update local entries with comments
         for (task_id, minutes) in local_sums {
             let existing_id = entries
                 .iter()
@@ -200,7 +207,7 @@ pub fn handle_push(
                 task_id,
                 date: date.format("%Y-%m-%d").to_string(),
                 value: round_duration_to_quarter_hour(minutes),
-                comment: None,
+                comment: local_comments.get(&task_id).and_then(|c| c.clone()),
             });
         }
 

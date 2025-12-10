@@ -99,7 +99,7 @@ mod tests {
     fn setup_test_store() -> (EventStore, TempDir) {
         let temp_dir = TempDir::new().unwrap();
         let store = EventStore::new(temp_dir.path().to_str().unwrap());
-        (store, temp_dir)
+        (store.unwrap(), temp_dir)
     }
 
     fn ts(hour: u32, minute: u32) -> DateTime<Local> {
@@ -124,6 +124,7 @@ mod tests {
             name: "Morning work".to_string(),
             project_name: "test".to_string(),
             customer_name: "test".to_string(),
+            comment:None,
             rate: 1.3,
             start_time: ts(9, 0),
             end_time: Some(ts(10, 0)),
@@ -138,6 +139,7 @@ mod tests {
             name: "Break".to_string(),
             project_name: "test".to_string(),
             customer_name: "test".to_string(),
+            comment:None,
             rate: 1.0,
             start_time: ts(10, 0),
             end_time: Some(ts(10, 30)),
@@ -152,6 +154,7 @@ mod tests {
             name: "More work".to_string(),
             project_name: "test".to_string(),
             customer_name: "test".to_string(),
+            comment:None,
             rate: 1.0,
             start_time: ts(10, 30),
             end_time: Some(ts(12, 0)),
@@ -218,6 +221,7 @@ mod tests {
             project_name: "test".to_string(),
             customer_name: "test".to_string(),
             rate: 1.0,
+            comment:None,
             start_time: ts(10, 0),
             end_time: Some(ts(12, 0)),
             is_break: false,
@@ -243,6 +247,7 @@ mod tests {
             id: 1,
             name: "Work".to_string(),
             project_name: "test".to_string(),
+            comment:None,
             customer_name: "test".to_string(),
             rate: 1.0,
             start_time: ts(9, 0),
@@ -256,6 +261,7 @@ mod tests {
             name: "Lunch".to_string(),
             project_name: "test".to_string(),
             customer_name: "test".to_string(),
+            comment:None,
             rate: 0.0,
             start_time: ts(11, 0),
             end_time: Some(ts(11, 30)),
@@ -283,6 +289,7 @@ mod tests {
             name: "Work".to_string(),
             project_name: "test".to_string(),
             customer_name: "test".to_string(),
+            comment:None,
             rate: 1.0,
             start_time: ts(9, 0),
             end_time: Some(ts(10, 45)),
@@ -295,6 +302,7 @@ mod tests {
             name: "Lunch".to_string(),
             project_name: "test".to_string(),
             customer_name: "test".to_string(),
+            comment:None,
             rate: 0.0,
             start_time: ts(11, 0),
             end_time: Some(ts(11, 30)),
@@ -306,6 +314,7 @@ mod tests {
             name: "Lunch".to_string(),
             project_name: "test".to_string(),
             customer_name: "test".to_string(),
+            comment:None,
             rate: 0.0,
             start_time: ts(11, 30),
             end_time: None,

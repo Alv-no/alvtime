@@ -25,6 +25,7 @@ fn create_default_day_task(date: NaiveDate, task_dto: &TaskDto) -> models::Task 
         name: task_dto.name.clone(),
         project_name: task_dto.project.name.clone(),
         customer_name: task_dto.project.customer.name.clone(),
+        comment:None,
         rate: task_dto.compensation_rate,
         start_time,
         end_time: Some(end_time),
@@ -52,7 +53,12 @@ pub fn handle_edit(
     match initial_action {
         "Edit Single Day" => {
             // 1. Select Day using the interactive view
-            let selected_dates = match view::interactive_view(&all_tasks, &holidays, &event_store.get_unsynced_dates(),false) {
+            let selected_dates = match view::interactive_view(
+                &all_tasks,
+                &holidays,
+                &event_store.get_unsynced_dates(),
+                false,
+            ) {
                 Ok(d) => d,
                 Err(e) => return format!("Interactive view failed: {}", e),
             };
@@ -101,10 +107,9 @@ fn handle_single_day_edit(
         let mut current_day_tasks = get_current_tasks(&new_events);
         current_day_tasks.sort_by_key(|p| p.start_time);
 
-        let (closed_tasks, open_tasks): (Vec<models::Task>, Vec<models::Task>) =
-            current_day_tasks
-                .into_iter()
-                .partition(|t| t.end_time.is_some());
+        let (closed_tasks, open_tasks): (Vec<models::Task>, Vec<models::Task>) = current_day_tasks
+            .into_iter()
+            .partition(|t| t.end_time.is_some());
 
         let current_day_tasks = closed_tasks;
 
@@ -248,9 +253,7 @@ fn handle_single_day_edit(
                 }
 
                 if is_break {
-                    new_events.push(Event::BreakStarted {
-                        start_time,
-                    });
+                    new_events.push(Event::BreakStarted { start_time });
                 } else {
                     new_events.push(Event::TaskStarted {
                         id,
@@ -262,9 +265,7 @@ fn handle_single_day_edit(
                     });
                 }
 
-                new_events.push(Event::Stopped {
-                    end_time,
-                });
+                new_events.push(Event::Stopped { end_time });
             }
             "Edit Entry Time" => {
                 if current_day_tasks.is_empty() {
@@ -284,17 +285,15 @@ fn handle_single_day_edit(
                         None => continue,
                     };
 
-                    // Guardrail against accidental open task editing - redundant due to filtering, but safe.
+                    // Guardrail against accidental open task editing
                     if original_task.end_time.is_none() {
                         println!("Error: Cannot edit an active (unclosed) task.");
                         continue;
                     }
+                    let original_end = original_task.end_time.unwrap();
 
                     let s_default = original_task.start_time.format("%H:%M").to_string();
-                    let e_default = original_task
-                        .end_time
-                        .map(|t| t.format("%H:%M").to_string())
-                        .unwrap_or_default();
+                    let e_default = original_end.format("%H:%M").to_string();
 
                     let start_res = Text::new("New Start Time:")
                         .with_default(&s_default)
@@ -313,8 +312,9 @@ fn handle_single_day_edit(
                         let new_end = {
                             let trimmed = e.trim();
                             if trimmed.is_empty() {
-                                // Prevent saving as an open task during edit time operation
-                                println!("Error: End time is mandatory when editing a closed entry.");
+                                println!(
+                                    "Error: End time is mandatory when editing a closed entry."
+                                );
                                 continue;
                             } else if let Some(parsed) = parse_time(selected_date, trimmed) {
                                 Some(parsed)
@@ -331,7 +331,19 @@ fn handle_single_day_edit(
                             }
                         }
 
-                        // Overwrite with the New Task/Break using new times
+                        // --- INSERT FILLER BREAKS LOGIC ---
+
+                        // 1. If new start is later than original start, fill the leading gap
+                        if new_start > original_task.start_time {
+                            new_events.push(Event::BreakStarted {
+                                start_time: original_task.start_time,
+                            });
+                            new_events.push(Event::Stopped {
+                                end_time: new_start,
+                            });
+                        }
+
+                        // 2. Overwrite with the New Task/Break using new times
                         if original_task.is_break {
                             new_events.push(Event::BreakStarted {
                                 start_time: new_start,
@@ -346,10 +358,17 @@ fn handle_single_day_edit(
                                 start_time: new_start,
                             });
                         }
+
                         if let Some(end) = new_end {
-                            new_events.push(Event::Stopped {
-                                end_time: end,
-                            });
+                            new_events.push(Event::Stopped { end_time: end });
+
+                            // 3. If new end is earlier than original end, fill the trailing gap
+                            if end < original_end {
+                                new_events.push(Event::BreakStarted { start_time: end });
+                                new_events.push(Event::Stopped {
+                                    end_time: original_end,
+                                });
+                            }
                         }
                     }
                 }
@@ -374,7 +393,6 @@ fn handle_single_day_edit(
                     None => continue,
                 };
 
-                // Guardrail against accidental open task editing - redundant due to filtering, but safe.
                 if original_task.end_time.is_none() {
                     println!("Error: Cannot edit an active (unclosed) task.");
                     continue;
@@ -421,7 +439,6 @@ fn handle_single_day_edit(
                         continue;
                     };
 
-                // Overwrite with the New Task/Break using the ORIGINAL start/end times.
                 if new_is_break {
                     new_events.push(Event::BreakStarted {
                         start_time: original_task.start_time,
@@ -438,9 +455,7 @@ fn handle_single_day_edit(
                 }
 
                 if let Some(end) = original_task.end_time {
-                    new_events.push(Event::Stopped {
-                        end_time: end,
-                    });
+                    new_events.push(Event::Stopped { end_time: end });
                 }
             }
             "Delete Entry" => {
@@ -471,7 +486,7 @@ fn handle_single_day_edit(
                         start_time: removed.start_time,
                     });
                     new_events.push(Event::Stopped {
-                        end_time: removed.end_time.unwrap(), // Safe due to filtering/guardrail
+                        end_time: removed.end_time.unwrap(),
                     });
                 }
             }
@@ -481,8 +496,7 @@ fn handle_single_day_edit(
                 if selected_date < today {
                     if final_tasks
                         .iter()
-                        .find(|task| task.end_time.is_none())
-                        .is_some()
+                        .any(|task| task.end_time.is_none())
                     {
                         eprintln!(
                             "Cannot save: an entry has no end time. Finish all tasks when editing past days."
@@ -496,7 +510,6 @@ fn handle_single_day_edit(
                 }
 
                 for event in new_events.drain(..) {
-                    // Drain to move events out of the vector
                     event_store.persist(&event);
                 }
 
@@ -506,7 +519,9 @@ fn handle_single_day_edit(
             _ => {}
         }
     }
-}fn handle_bulk_day_edit(
+}
+
+fn handle_bulk_day_edit(
     holidays: &HashSet<NaiveDate>,
     event_store: &EventStore,
     external_tasks: &[TaskDto],
@@ -514,7 +529,12 @@ fn handle_single_day_edit(
     all_tasks: &[models::Task],
 ) -> String {
     println!("\n--- Bulk Edit Mode ---");
-    let days_to_edit = match view::interactive_view(all_tasks, &holidays, &event_store.get_unsynced_dates(),true) {
+    let days_to_edit = match view::interactive_view(
+        all_tasks,
+        &holidays,
+        &event_store.get_unsynced_dates(),
+        true,
+    ) {
         Ok(d) => d,
         Err(e) => return format!("Interactive view failed: {}", e),
     };
@@ -532,7 +552,7 @@ fn handle_single_day_edit(
         &format!("Action for {} days:", days_to_edit.len()),
         bulk_options,
     )
-    .prompt()
+        .prompt()
     {
         Ok(a) => a,
         Err(_) => return "Cancelled.".to_string(),
@@ -543,7 +563,6 @@ fn handle_single_day_edit(
 
     match bulk_action {
         "Add Full Day Task (7.5h)" => {
-            // Select the Task to apply (Favorites only)
             let favorite_tasks: Vec<&TaskDto> = external_tasks
                 .iter()
                 .filter(|t| app_config.favorite_tasks.contains(&t.id))
@@ -563,7 +582,6 @@ fn handle_single_day_edit(
                 .unwrap();
 
             for date in days_to_edit {
-                // 1. Pre-check for active task
                 if date == today {
                     let day_events = event_store.events_for_day(date);
                     let day_tasks = projector::restore_state(&day_events);
@@ -573,22 +591,9 @@ fn handle_single_day_edit(
                     }
                 }
 
-                // 2. Determine necessary events
                 let full_day_task = create_default_day_task(date, selected_task_dto);
                 let mut events_to_persist = Vec::new();
 
-                // To overwrite the day's existing history without DayRevised,
-                // we must generate a new event sequence based on the new task,
-                // and assume that these new events supersede any previous events
-                // covering the same time range when restored by the projector.
-
-                // The safest way to "clear" the day first without DayRevised is
-                // to explicitly push a compensating Break covering the entire day (8:00 to 15:30),
-                // and then immediately overwrite it with the intended task.
-                // Since this gets messy, we'll just push the task events and rely on
-                // the projector's conflict resolution logic (which typically prioritizes later events).
-
-                // Start of the new task
                 events_to_persist.push(Event::TaskStarted {
                     id: full_day_task.id,
                     name: full_day_task.name,
@@ -598,14 +603,10 @@ fn handle_single_day_edit(
                     start_time: full_day_task.start_time,
                 });
 
-                // End of the new task
                 if let Some(end_time) = full_day_task.end_time {
-                    events_to_persist.push(Event::Stopped {
-                        end_time,
-                    });
+                    events_to_persist.push(Event::Stopped { end_time });
                 }
 
-                // 3. Persist individual events
                 for event in events_to_persist {
                     event_store.persist(&event);
                 }
@@ -624,7 +625,6 @@ fn handle_single_day_edit(
         }
         "Clear All Tasks on Selected Days" => {
             for date in days_to_edit {
-                // 1. Pre-check for active task
                 if date == today {
                     let day_events = event_store.events_for_day(date);
                     let day_tasks = projector::restore_state(&day_events);
@@ -634,18 +634,14 @@ fn handle_single_day_edit(
                     }
                 }
 
-                // We'll calculate the existing tasks and generate a Break over their entire duration.
                 let day_events = event_store.events_for_day(date);
                 let existing_tasks = projector::restore_state(&day_events);
 
                 if existing_tasks.is_empty() {
-                    // Nothing to clear on this day
                     continue;
                 }
 
-                event_store.persist(&Event::LocallyCleared {
-                    date,
-                });
+                event_store.persist(&Event::LocallyCleared { date });
 
                 days_processed += 1;
             }
