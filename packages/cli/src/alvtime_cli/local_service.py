@@ -320,7 +320,7 @@ class LocalService:
 
         return ret
 
-    def get_total_registered_duration_by_date(self, from_: date, to: date, rounding: bool = False) -> dict[date, timedelta]:
+    def _get_total_registered_duration_by_date(self, from_: date, to: date, rounding: bool = False) -> dict[date, timedelta]:
         # Check if we're already started
         if self.current_entry():
             raise TaskAlreadyStartedError()
@@ -328,7 +328,7 @@ class LocalService:
         ret = {}
 
         # Get all local entries, grouped by date
-        local_entries = group_by(self.repo.list_time_entries(from_, to),
+        local_entries = group_by(self.get_entries(from_, to, breakify=True),
                                  lambda e: e.start.date())
 
         # Iterate over desired date range
@@ -348,7 +348,7 @@ class LocalService:
     def check(self, from_: date, to: date) -> list[model.CheckResult]:
         ret = []
         expected_hours = self.get_expected_durations(from_, to)
-        registered_hours = self.get_total_registered_duration_by_date(from_, to, rounding=True)
+        registered_hours = self._get_total_registered_duration_by_date(from_, to, rounding=True)
 
         # Iterate over desired date range
         for current_date in iterate_dates(from_, to):
