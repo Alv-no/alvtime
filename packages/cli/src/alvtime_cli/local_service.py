@@ -235,7 +235,7 @@ class LocalService:
         result.pulled_task_count = len(cloud_entries)
 
         # ...and all local entries, grouped by date
-        local_entries = group_by(self.repo.list_time_entries(from_, to),
+        local_entries = group_by(self.get_entries(from_, to, breakify=True),
                                  lambda e: e.start.date())
 
         for cloud_entry in cloud_entries:
@@ -255,7 +255,7 @@ class LocalService:
                 new_entry = model.TimeEntry(
                     task_id=cloud_entry.task_id,
                     start=cloud_entry.start.astimezone(),
-                    duration=cloud_entry.duration,
+                    duration=(cloud_entry.duration - rounded_local_duration),
                     is_open=False,
                     comment=cloud_entry.comment)
 
