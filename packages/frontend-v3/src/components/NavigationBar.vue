@@ -37,6 +37,13 @@
 						Timebank
 					</router-link>
 				</div>
+				<div>
+					<router-link
+						to="/statistikk"
+					>
+						Statistikk
+					</router-link>
+				</div>
 			</div>
 			<div class="user-container">
 				<p>{{ user?.name }}</p>
