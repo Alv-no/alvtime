@@ -37,7 +37,24 @@ The first step when a developer wants to fix a bug or implement a feature is to 
 
 This can be done in several different ways. Select the method that suits you and the operating system of your choice. If you encounter situations where it is required to login, please ask one of your colleagues for a username and password. We have set up dummy users that can be used for development. It is also possible to combine the two methods as you wish.
 
-#### a) Using a local setup
+#### a) Using docker (recommended)
+
+Dependencies:
+
+- [Docker](https://www.docker.com/products/docker-desktop)
+
+A docker compose development environment has been defined for this project in `docker-compose.yaml`. This enables the whole or part of the local environment to be started using docker. `docker-compose up --build -d frontend-v3` will start the frontend client with all dependencies (API and database). The API can be run using both Docker or from your favourite IDE, they will both work identically. For running only API or database, simply replace `frontend-v3` with `api` or `db` in the `docker-compose` command.
+
+Whenever a dependency is added to the backend code is changed you have to rebuild the container to see the changes. This is done by shutting down the container `docker-compose down api` and running `docker-compose up --build -d api`.
+
+Note: For running the adminpanel - The API service requires a secret to access the Microsoft Graph API. This secret can be placed in a separate `.env`-file at the root directory. The secret will be read by `docker-compose` and will not be included in version control.
+
+```
+#.env
+AZUREAD_GRAPH_CLIENT_SECRET=<secret>
+```
+
+#### b) Using a local setup
 
 Dependencies:
 
@@ -48,23 +65,6 @@ Dependencies:
 
 Follow the instructions in the Readme file in each of the packages and start the services you need. The architecture drawing above is a good starting point to decide what services you need to start up to be able to accomplish your task.
 
-#### b) Using docker
-
-Dependencies:
-
-- [Docker](https://www.docker.com/products/docker-desktop)
-
-A docker compose development environment has been defined for this project in `docker-compose.yaml`. This enables the whole or part of the local environment to be started using docker. Several helper commands have been added to the `run` script file. Have a quick look through the `run` file to find some of the possibilities. In order to start the frontend development server, backend api and database, just run `./run frontend` from the project root. This is equivalent to running `docker-compose up --build -d frontend`. The first time this is done, docker downloads all the necessary images and compiles the necessary code. This might take some time. The next time you start the development environment is much faster. To shut down the development environment, run `./run down`.
-
-Whenever a dependency is added to the frontend or the backend code is changed you have to rebuild the container to see the changes. This is done by shutting down the environment `./run down` and running `docker-compose build <service name>`. For example running `docker-compose build frontend` will download all the dependencies inside the container and make them available to the development server. Make sure to run `docker-compose build api` to rebuild the api backend service and include changes.
-
-Note: The API service requires a secret to access the Microsoft Graph API. This secret can be placed in a separate `.env`-file at the root directory. The secret will be read by `docker-compose` and will not be included in version control.
-
-```
-#.env
-AZUREAD_GRAPH_CLIENT_SECRET=<secret>
-```
-
 ##### Mac with ARM processor
 
 The MSSQL server doesn't compile on the new ARM processors for Mac and you will need to use docker with either `docker compose` or as a standalone container for a local setup. Both options require you to to enable Rosetta in docker. In docker Desktop, go to Settings and enable "Use Rosetta for x86/amd64 emulation on Apple Silicon" and restart docker. You can either run a single docker container with a local setup or use docker as usual.
@@ -73,20 +73,20 @@ Another option is to use an SQL server in Azure, more info [here](https://github
 
 ### 3. Run Tests and build all the services
 
-Run `./run build` from the root of the project.
+Run `docker-compose build` from the root of the project.
 
-### 5. Push
+### 4. Push
 
 When the developer is ready to get their changes integrated and ship their changes to the rest of the team, they push their local branch to a branch on the server, and open a pull request.
 
-### 6. Pull Request
+### 5. Pull Request
 
 We use Github Pull Requests to control how developers branches are merged into main. Pull Requests ensure that our branch policies are satisfied: first, we build the proposed changes and run a quick test pass. Next, we require that one other members of the team review the code and approve the changes. Code review picks up where the automated tests left off, and are particularly good at spotting architectural problems. Manual code reviews ensure that more engineers on the team have visibility into the changes and that code quality remains high.
 
-### 7. Merge
+### 6. Merge
 
 Once all the build policies are satisfied and reviewers have signed off, then the pull request is completed. This means that the topic branch is merged into the main integration branch, main. 
 
-### 8. Deploy
+### 7. Deploy
 
 A merge to the main branch will trigger an automatic deploy to the test environment, `test-alvtime.no`. For deploy to production, a manual approval is required by an admin user.
