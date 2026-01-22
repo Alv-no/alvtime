@@ -11,8 +11,6 @@
 
 > Welcome to the Alvtime monorepo. Alvtime is the internal timekeeping system for Alv AS. Below you can find a list of the services that make up the system.
 
-Sondre tester endring nr. 1
-
 ## Packages
 
 | Packages                            | Type         | Description                                    |

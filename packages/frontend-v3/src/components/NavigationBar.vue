@@ -20,7 +20,7 @@
 					<router-link
 						to="/"
 					>
-						Timeføring
+						Timeføring er lættis
 					</router-link>
 				</div>
 				<div>
