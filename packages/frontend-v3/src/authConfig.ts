@@ -10,7 +10,8 @@ export const msalConfig = {
 		postLogoutRedirectUri: "/" // Must be registered as a SPA redirectURI on your app registration
 	},
 	cache: {
-		cacheLocation: "localStorage"
+		cacheLocation: "localStorage",
+		storeAuthStateInCookie: false,
 	},
 	system: {
 		loggerOptions: {
