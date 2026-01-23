@@ -44,6 +44,10 @@ jobs:
           output_location: "dist" # Built app content directory - optional
       - name: Print Deployment URL
         run: echo "Deployed to ${{ steps.builddeploy.outputs.static_web_app_url }}"
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: Azure CLI script
         uses: azure/cli@v2
         with:
