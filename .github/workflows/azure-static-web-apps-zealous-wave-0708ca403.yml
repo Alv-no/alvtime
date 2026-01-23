@@ -44,6 +44,12 @@ jobs:
           output_location: "dist" # Built app content directory - optional
       - name: Print Deployment URL
         run: echo "Deployed to ${{ steps.builddeploy.outputs.static_web_app_url }}"
+      - name: Azure CLI script
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            az ad app show --id 148ac485-a123-479c-8ed3-bfaa56619e04 --query spa.redirectUris
 
   close_pull_request_job:
     if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
