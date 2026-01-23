@@ -19,6 +19,8 @@ on:
 jobs:
   build_and_deploy_job:
     # if: ${{github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')}}
+    permissions:
+      id-token: write # Require write permission to Fetch an OIDC token.
     runs-on: ubuntu-latest
     name: Build and Deploy to Test Job
     environment: test
