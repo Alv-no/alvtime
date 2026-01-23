@@ -47,7 +47,8 @@ jobs:
       - name: Azure Login
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          tenant-id: 76749190-4427-4b08-a3e4-161767dd1b73
+          client-id: 148ac485-a123-479c-8ed3-bfaa56619e04
       - name: Azure CLI script
         uses: azure/cli@v2
         with:
