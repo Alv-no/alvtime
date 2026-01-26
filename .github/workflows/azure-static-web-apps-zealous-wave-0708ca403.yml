@@ -57,7 +57,7 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
-            az ad app show --id 148ac485-a123-479c-8ed3-bfaa56619e04 --query spa.redirectUris
+            az ad app show --id 8ba4841a-7b82-4320-964b-d1fcbcd37485
 
   close_pull_request_job:
     if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
