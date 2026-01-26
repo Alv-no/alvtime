@@ -57,7 +57,7 @@ jobs:
         with:
           azcliversion: latest
           inlineScript: |
-            az ad app update --id 148ac485-a123-479c-8ed3-bfaa56619e04 --set 'spa={\"redirectUris\": [\"https://test-alvtime.no\",\"https://v3.test-alvtime.no\"]}'
+            az ad app update --id 148ac485-a123-479c-8ed3-bfaa56619e04 --set "spa={'redirectUris': ['https://test-alvtime.no','https://v3.test-alvtime.no','https://vg.no']}"
 
   close_pull_request_job:
     if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
