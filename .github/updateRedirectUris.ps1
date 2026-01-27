@@ -1,8 +1,12 @@
 
 # ${{ steps.builddeploy.outputs.static_web_app_url }}
 
+param (
+    [string]$uriToAdd,
+)
+
 $clientId = '148ac485-a123-479c-8ed3-bfaa56619e04'
-$newUri = "https://ap.no"
+#$newUri = "https://ap.no"
 
 
 $existingRedirectUrisList = az ad app show --id $clientId --query spa.redirectUris 
@@ -10,7 +14,7 @@ $existingRedirectUrisList = az ad app show --id $clientId --query spa.redirectUr
 $cleanedRedirectUriList = $existingRedirectUrisList | Out-String | ForEach-Object { $_ -replace '\s', '' } | ForEach-Object { $_ -replace '"', '' } | ForEach-Object { $_ -replace '\[|\]', '' } | ForEach-Object { $_.Split(',') }
 
 
-$urisToSet = $cleanedRedirectUriList + ${{ steps.builddeploy.outputs.static_web_app_url }}
+$urisToSet = $cleanedRedirectUriList + $uriToAdd
 
 $uriListString = $urisToSet -join "','"
 
