@@ -2,7 +2,7 @@
 # ${{ steps.builddeploy.outputs.static_web_app_url }}
 
 param (
-    [string]$uriToAdd,
+    [string]$uriToAdd
 )
 
 $clientId = '148ac485-a123-479c-8ed3-bfaa56619e04'
