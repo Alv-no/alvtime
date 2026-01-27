@@ -70,3 +70,5 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.STATICWEBAPP_V3_DEPLOYMENT_TOKEN }}
           app_location: "./packages/frontend-v3" # App source code path
           action: "close"
+      - name: Display static web app URL
+        run: echo "URL is ${{ steps.closepullrequest.outputs.static_web_app_url }}"
