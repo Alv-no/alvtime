@@ -54,7 +54,7 @@ jobs:
         uses: azure/cli@v2
         with:
           azcliversion: latest
-          inlineScript: pwsh -Command "& .github/updateRedirectUris.ps1"
+          inlineScript: pwsh -Command .github/updateRedirectUris.ps1
           
           
   close_pull_request_job:
