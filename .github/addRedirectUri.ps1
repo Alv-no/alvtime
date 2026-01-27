@@ -1,4 +1,3 @@
-
 param (
     [string]$uriToAdd,
     [string]$appRegistrationClientId
@@ -13,7 +12,7 @@ $urisToSet = $cleanedRedirectUriList + $uriToAdd
 
 $uriListString = $urisToSet -join "','"
 
-$setArgument = "spa={'redirectUris': ['" + $uriListString + "']}"
 
+$setArgument = "spa={'redirectUris': ['" + $uriListString + "']}"
 
 az ad app update --id $appRegistrationClientId --set $setArgument

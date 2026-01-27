@@ -51,10 +51,10 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: 98994b48-e477-4e82-84b7-bf6239f49f93
       - name: Make script executable
-        run: chmod +x .github/updateRedirectUris.ps1
-      - name: Run PowerShell script
+        run: chmod +x .github/addRedirectUri.ps1
+      - name: Add site to redirectUris script
         shell: pwsh
-        run: .github/updateRedirectUris.ps1 -uriToAdd ${{ steps.builddeploy.outputs.static_web_app_url }} -appRegistrationClientId ${{ secrets.AZURE_FRONTEND_APP_REGISTRATION_CLIENT_ID }}
+        run: .github/addRedirectUri.ps1 -uriToAdd ${{ steps.builddeploy.outputs.static_web_app_url }} -appRegistrationClientId ${{ secrets.AZURE_FRONTEND_APP_REGISTRATION_CLIENT_ID }}
           
           
   close_pull_request_job:
