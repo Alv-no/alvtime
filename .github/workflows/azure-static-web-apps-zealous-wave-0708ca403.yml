@@ -59,6 +59,8 @@ jobs:
           
   close_pull_request_job:
     if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
+    permissions:
+      id-token: write # Require write permission to Fetch an OIDC token.
     runs-on: ubuntu-latest
     name: Close Pull Request Job
     environment: test
