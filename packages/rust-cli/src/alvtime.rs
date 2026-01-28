@@ -3,7 +3,6 @@ use chrono::NaiveDate;
 use reqwest::blocking::Client;
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use reqwest::StatusCode;
-use serde_json::Value;
 
 pub struct AlvtimeClient {
     base_url: String,
@@ -28,12 +27,6 @@ impl AlvtimeClient {
             }
         }
         headers
-    }
-
-    pub fn ping(&self) -> Result<Value, reqwest::Error> {
-        let url = format!("{}/api/ping", self.base_url);
-        let response = self.client.get(&url).send()?;
-        response.json()
     }
 
     pub fn list_tasks(&self) -> Result<Vec<TaskDto>, reqwest::Error> {

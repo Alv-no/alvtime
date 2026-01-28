@@ -1,211 +1,237 @@
-use std::collections::{HashMap, HashSet};
-use chrono::{Datelike, Local, NaiveDate};
-use inquire::Select;
-use crate::{alvtime, external_models, models, projector};
-use crate::actions::utils::generate_events_from_server_entries;
+use crate::actions::utils::{generate_events_from_server_entries, round_duration_to_quarter_hour};
+use crate::alvtime::AlvtimeClient;
 use crate::events::Event;
-use crate::external_models::TaskDto;
+use crate::external_models::{TaskDto, TimeEntryDto};
+use crate::models::Task;
+use crate::projector::restore_state;
 use crate::store::EventStore;
+use crate::view::render_day;
+use inquire::Select;
+use std::collections::{HashMap, HashSet};
 
 pub fn handle_push(
-    client: &alvtime::AlvtimeClient,
-    tasks: &mut Vec<models::Task>,
+    client: &AlvtimeClient,
+    tasks: &mut Vec<Task>,
     history: &mut Vec<Event>,
     event_store: &EventStore,
     external_tasks: &[TaskDto],
 ) -> String {
-    // 1. Identify which dates already have LOCAL events
-    let local_dates: HashSet<NaiveDate> = history
-        .iter()
-        .filter_map(|e| {
-            let (date, is_generated) = match e {
-                Event::TaskStarted {
-                    start_time,
-                    is_generated,
-                    ..
-                } => (start_time.date_naive(), *is_generated),
-                Event::BreakStarted {
-                    start_time,
-                    is_generated,
-                } => (start_time.date_naive(), *is_generated),
-                Event::Stopped {
-                    end_time,
-                    is_generated,
-                } => (end_time.date_naive(), *is_generated),
-                Event::Undo { time } => (time.date_naive(), false),
-                Event::Redo { time } => (time.date_naive(), false),
-                Event::DayRevised { date, .. } => (*date, false),
-            };
-            if !is_generated {
-                Some(date)
-            } else {
-                None
-            }
-        })
-        .collect();
-
-    if local_dates.is_empty() {
-        return "No local changes to push.".to_string();
-    }
-
-    let current_year = Local::now().year();
-    let start_date = NaiveDate::from_ymd_opt(current_year, 1, 1).unwrap();
-    let end_date = Local::now().date_naive();
-
-    println!("Fetching server state for checks ({} to {})...", start_date, end_date);
-
-    let entries = match client.list_time_entries(start_date, end_date) {
-        Ok(e) => e,
-        Err(e) => return format!("Failed to fetch entries: {}", e),
+    // 1. Extract the date from the tasks/history
+    let date = if let Some(task) = tasks.first() {
+        task.start_time.date_naive()
+    } else if let Some(event) = history.first() {
+        event.date()
+    } else {
+        return "No events to push.".to_string();
     };
 
-    let mut entries_by_date: HashMap<NaiveDate, Vec<&external_models::TimeEntryDto>> =
-        HashMap::new();
-    for entry in &entries {
-        if let Ok(date) = NaiveDate::parse_from_str(&entry.date, "%Y-%m-%d") {
-            entries_by_date.entry(date).or_default().push(entry);
+    let entries = match client.list_time_entries(date, date) {
+        Ok(e) => e,
+        Err(e) => return format!("Failed to fetch entries for {}: {}", date, e),
+    };
+
+    let day_tasks: Vec<&Task> = tasks.iter().filter(|t| !t.is_break).collect();
+
+    let has_server_entries = !entries.is_empty();
+
+    if day_tasks.is_empty() && !has_server_entries {
+        return String::new();
+    }
+
+    let mut should_push = true;
+
+    // Conflict Check and Resolution
+    if has_server_entries {
+        let server_hours: f64 = entries.iter().map(|e| e.value).sum();
+
+        let mut local_sums: HashMap<i32, i64> = HashMap::new();
+        let mut local_comments: HashMap<i32, Option<String>> = HashMap::new();
+
+        for t in &day_tasks {
+            *local_sums.entry(t.id).or_default() += t.duration().num_minutes();
+            // Store comment for this task (all segments share the same comment)
+            local_comments.entry(t.id).or_insert_with(|| t.comment.clone());
+        }
+
+        let local_hours: f64 = local_sums
+            .values()
+            .map(|m| round_duration_to_quarter_hour(*m))
+            .sum();
+
+        // 5a. Generate Server's current Task state
+        let new_events_server = generate_events_from_server_entries(
+            date,
+            &entries.iter().collect::<Vec<_>>(),
+            external_tasks,
+        );
+        let server_tasks = restore_state(&new_events_server);
+
+        // 5b. Generate Local's PUSHED TimeEntryDto state (Apply rounding/aggregation)
+        let mut local_time_entries_to_compare: Vec<TimeEntryDto> = Vec::new();
+        for (task_id, minutes) in &local_sums {
+            local_time_entries_to_compare.push(TimeEntryDto {
+                id: 0,
+                task_id: *task_id,
+                date: date.format("%Y-%m-%d").to_string(),
+                value: round_duration_to_quarter_hour(*minutes),
+                comment: local_comments.get(task_id).and_then(|c| c.clone()),
+            });
+        }
+
+        // 5c. Compare Local Pushed State with Server State
+        // Normalize server entries (reset ID and sort) for comparison
+        let mut normalized_server_entries: Vec<TimeEntryDto> = entries
+            .iter()
+            .map(|e| TimeEntryDto {
+                id: 0,
+                task_id: e.task_id,
+                date: e.date.clone(),
+                value: e.value,
+                comment: e.comment.clone(),
+            })
+            .collect();
+
+        // Normalize local entries (sort)
+        let mut normalized_local_entries = local_time_entries_to_compare.clone();
+
+        // Sorting both vectors by task_id ensures reliable comparison
+        normalized_server_entries.sort_by_key(|e| e.task_id);
+        normalized_local_entries.sort_by_key(|e| e.task_id);
+
+        let are_identical_after_rounding = normalized_local_entries == normalized_server_entries;
+
+        if are_identical_after_rounding {
+            event_store.set_day_synced(&date, true);
+            return format!(
+                "Local changes for {} match server entries after rounding. Marked local history as synced.",
+                date
+            );
+        }
+        // Continue with conflict resolution (only if states are different)
+
+        // Then, convert the aggregated/rounded entries back into tasks for the snapshot.
+        let new_events_local_pushed = generate_events_from_server_entries(
+            date,
+            &local_time_entries_to_compare.iter().collect::<Vec<_>>(),
+            external_tasks,
+        );
+        let local_tasks_for_snapshot = restore_state(&new_events_local_pushed);
+
+        // Use the newly generated local snapshot for the comparison view
+        render_snapshots(
+            &local_tasks_for_snapshot.iter().collect::<Vec<_>>(),
+            &server_tasks,
+        );
+
+        let msg = format!(
+            "Conflict on {}: Local {:.1}h vs Server {:.1}h. What do you want to do?",
+            date, local_hours, server_hours
+        );
+
+        let options = vec![
+            "Overwrite Server (Push Local)",
+            "Discard Local (Sync from Server)",
+            "Skip Day",
+        ];
+
+        let choice = if cfg!(test) {
+            "Overwrite Server (Push Local)"
+        } else {
+            match Select::new(&msg, options).prompt() {
+                Ok(c) => c,
+                Err(_) => {
+                    return format!("Cancelled push for {}.", date);
+                }
+            }
+        };
+
+        match choice {
+            "Overwrite Server (Push Local)" => {
+                should_push = true;
+            }
+            "Discard Local (Sync from Server)" => {
+                let new_events = generate_events_from_server_entries(
+                    date,
+                    &entries.iter().collect::<Vec<_>>(),
+                    external_tasks,
+                );
+                event_store.persist_synced_batch(&new_events);
+                history.extend_from_slice(&new_events);
+                *tasks = restore_state(history);
+                return format!("Synced {} from server.", date);
+            }
+            _ => {
+                return format!("Skipped {}.", date);
+            }
         }
     }
 
-    let mut pushed_days = 0;
-    let mut synced_days = 0;
-    let mut entries_to_push: Vec<external_models::TimeEntryDto> = Vec::new();
+    // 6. Push Logic
+    if should_push {
+        // Calculate local task sums (in minutes) and collect comments
+        let mut local_sums: HashMap<i32, i64> = HashMap::new();
+        let mut local_comments: HashMap<i32, Option<String>> = HashMap::new();
 
-    for date in &local_dates {
-        let server_entries = entries_by_date.get(date);
-        let has_server_entries = server_entries.map(|e| !e.is_empty()).unwrap_or(false);
-
-        let day_tasks: Vec<&models::Task> = tasks
-            .iter()
-            .filter(|t| t.start_time.date_naive() == *date && !t.is_break)
-            .collect();
-
-        if day_tasks.is_empty() && !has_server_entries {
-            continue;
+        for t in &day_tasks {
+            *local_sums.entry(t.id).or_default() += t.duration().num_minutes();
+            // Store comment for this task (all segments share the same comment)
+            local_comments.entry(t.id).or_insert_with(|| t.comment.clone());
         }
 
-        let mut should_push = true;
+        let local_task_ids: HashSet<i32> = local_sums.keys().copied().collect();
+        let mut entries_to_push: Vec<TimeEntryDto> = Vec::new();
 
-        if has_server_entries {
-            let server_hours: f64 = server_entries.unwrap().iter().map(|e| e.value).sum();
-            let local_hours: f64 = day_tasks
-                .iter()
-                .map(|t| t.duration().num_minutes() as f64 / 60.0)
-                .sum();
-
-            let msg = format!(
-                "Conflict on {}: Local {:.1}h vs Server {:.1}h. What do you want to do?",
-                date, local_hours, server_hours
-            );
-
-            let options = vec![
-                "Overwrite Server (Push Local)",
-                "Discard Local (Sync from Server)",
-                "Skip Day",
-            ];
-
-            match Select::new(&msg, options).prompt() {
-                Ok(choice) => match choice {
-                    "Overwrite Server (Push Local)" => {
-                        should_push = true;
-                    }
-                    "Discard Local (Sync from Server)" => {
-                        should_push = false;
-                        let new_events = generate_events_from_server_entries(
-                            *date,
-                            server_entries.unwrap(),
-                            external_tasks,
-                        );
-                        let revised_event = Event::DayRevised {
-                            date: *date,
-                            events: new_events,
-                        };
-                        event_store.persist(&revised_event);
-                        history.push(revised_event);
-                        synced_days += 1;
-                    }
-                    _ => {
-                        should_push = false;
-                    }
-                },
-                Err(_) => {
-                    should_push = false;
-                }
-            }
-        }
-
-        if should_push {
-            let mut sums: HashMap<i32, f64> = HashMap::new();
-            for t in day_tasks {
-                let hours = t.duration().num_minutes() as f64 / 60.0;
-                *sums.entry(t.id).or_default() += hours;
-            }
-
-            let empty_vec = Vec::new();
-            let server_entries_for_day = server_entries.unwrap_or(&empty_vec);
-
-            for (task_id, hours) in sums {
-                let existing_id = server_entries_for_day
-                    .iter()
-                    .find(|e| e.task_id == task_id)
-                    .map(|e| e.id)
-                    .unwrap_or(0);
-
-                entries_to_push.push(external_models::TimeEntryDto {
-                    id: existing_id,
-                    task_id,
+        // Remove server entries that don't exist locally (value: 0.0)
+        for server_entry in &entries {
+            if !local_task_ids.contains(&server_entry.task_id) {
+                entries_to_push.push(TimeEntryDto {
+                    id: server_entry.id,
+                    task_id: server_entry.task_id,
                     date: date.format("%Y-%m-%d").to_string(),
-                    value: hours,
+                    value: 0.0,
                     comment: None,
                 });
             }
-            pushed_days += 1;
-        }
-    }
-
-    if !entries_to_push.is_empty() {
-        println!(
-            "Pushing {} entries for {} days...",
-            entries_to_push.len(),
-            pushed_days
-        );
-        if let Err(e) = client.upsert_time_entries(&entries_to_push) {
-            return format!("Error pushing local entries: {}", e);
         }
 
-        let mut pushed_dates: HashSet<NaiveDate> = HashSet::new();
-        for entry in &entries_to_push {
-            if let Ok(d) = NaiveDate::parse_from_str(&entry.date, "%Y-%m-%d") {
-                pushed_dates.insert(d);
+        // Add/update local entries with comments
+        for (task_id, minutes) in local_sums {
+            let existing_id = entries
+                .iter()
+                .find(|e| e.task_id == task_id)
+                .map(|e| e.id)
+                .unwrap_or(0);
+
+            entries_to_push.push(TimeEntryDto {
+                id: existing_id,
+                task_id,
+                date: date.format("%Y-%m-%d").to_string(),
+                value: round_duration_to_quarter_hour(minutes),
+                comment: local_comments.get(&task_id).and_then(|c| c.clone()),
+            });
+        }
+
+        if !entries_to_push.is_empty() {
+            if let Err(e) = client.upsert_time_entries(&entries_to_push) {
+                return format!("Error pushing {}: {}", date, e);
             }
+
+            event_store.set_day_synced(&date, true);
         }
 
-        for date in pushed_dates {
-            match client.list_time_entries(date, date) {
-                Ok(server_entries) => {
-                    let refs: Vec<&external_models::TimeEntryDto> =
-                        server_entries.iter().collect();
-                    let new_events =
-                        generate_events_from_server_entries(date, &refs, external_tasks);
-                    let revised_event = Event::DayRevised {
-                        date,
-                        events: new_events,
-                    };
-                    event_store.persist(&revised_event);
-                    history.push(revised_event);
-                }
-                Err(e) => eprintln!("Failed to refetch day {}: {}", date, e),
-            }
-        }
-    }
-
-    if pushed_days > 0 || synced_days > 0 {
-        *tasks = projector::restore_state(history);
-        format!(
-            "Push complete. Pushed {} days, Synced {} days.",
-            pushed_days, synced_days
-        )
+        format!("Pushed {}.", date)
     } else {
-        "No changes pushed.".to_string()
+        String::new()
     }
+}
+
+// Provided, but modified to take a slice of references for local tasks
+fn render_snapshots(local: &[&Task], server: &[Task]) {
+    println!("\n--- 💾 Server Snapshot ---");
+    let server_refs: Vec<&Task> = server.iter().collect();
+    render_day(&server_refs).unwrap();
+
+    println!("\n--- 🖥️ Local Snapshot ---");
+    render_day(local).unwrap();
+    println!("--------------------------");
 }

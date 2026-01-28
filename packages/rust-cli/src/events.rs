@@ -7,20 +7,15 @@ pub enum Event {
         id: i32,
         name: String,
         project_name: String,
+        customer_name: String,
         rate: f64,
         start_time: DateTime<Local>,
-        #[serde(default)]
-        is_generated: bool,
     },
     BreakStarted {
         start_time: DateTime<Local>,
-        #[serde(default)]
-        is_generated: bool,
     },
     Stopped {
         end_time: DateTime<Local>,
-        #[serde(default)]
-        is_generated: bool,
     },
     Undo {
         time: DateTime<Local>,
@@ -28,10 +23,18 @@ pub enum Event {
     Redo {
         time: DateTime<Local>,
     },
-    DayRevised {
+    CommentAdded {
         date: NaiveDate,
-        events: Vec<Event>,
+        task_id: i32,
+        comment: String,
     },
+    CommentRemoved {
+        date: NaiveDate,
+        task_id: i32,
+    },
+    LocallyCleared {
+        date: NaiveDate,
+    }
 }
 
 impl Event {
@@ -42,7 +45,9 @@ impl Event {
             Event::Stopped { end_time, .. } => end_time.date_naive(),
             Event::Undo { time } => time.date_naive(),
             Event::Redo { time } => time.date_naive(),
-            Event::DayRevised { date, .. } => *date,
+            Event::CommentAdded { date,.. } => {*date}
+            Event::LocallyCleared { date,.. } => {*date}
+            Event::CommentRemoved { date,.. } => {*date}
         }
     }
 }
