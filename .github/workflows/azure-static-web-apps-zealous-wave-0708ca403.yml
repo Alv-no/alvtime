@@ -56,10 +56,13 @@ jobs:
 
   close_pull_request_job:
     if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
+    permissions:
+      id-token: write # Require write permission to fetch OIDC token when using Azure Login action
     runs-on: ubuntu-latest
     name: Close Pull Request Job
     environment: test
     steps:
+      - uses: actions/checkout@v3
       - name: Close Pull Request
         id: closepullrequest
         uses: Azure/static-web-apps-deploy@v1
@@ -67,3 +70,14 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.STATICWEBAPP_V3_DEPLOYMENT_TOKEN }}
           app_location: "./packages/frontend-v3" # App source code path
           action: "close"
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          allow-no-subscriptions: true
+      - name: Make script executable
+        run: chmod +x .github/scripts/removeRedirectUri.ps1
+      - name: Remove site from redirectUris script
+        shell: pwsh
+        run: .github/scripts/removeRedirectUri.ps1 -numberPR ${{ github.event.pull_request.number }} -appRegistrationClientId ${{ secrets.AZURE_FRONTEND_APP_REGISTRATION_CLIENT_ID }}
