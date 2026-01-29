@@ -17,7 +17,6 @@
 			</div>
 			<div class="statistics-filter-item">
 				<label for="granularity"><b>Velg oppløsning:</b></label>
-
 				<select
 					id="granularity"
 					v-model="granularity"
@@ -71,6 +70,10 @@
 				/>
 			</div>
 		</div>
+		<RecentHoursOverview
+			v-if="timeEntryOverview"
+			:timeEntryOverview="timeEntryOverview"
+		/>
 	</div>
 </template>
 
@@ -83,18 +86,36 @@ import { type TimeBankEntry, useTimeBankStore } from "@/stores/timeBankStore.ts"
 import { VueDatePicker } from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import StatisticsChart from "@/components/Statistics/StatisticsChart.vue";
+import RecentHoursOverview from "@/components/Statistics/RecentHoursOverview.vue";
+
+const STORAGE_KEYS = {
+	fromMonth: "statistics-fromMonthInclusive",
+	toMonth: "statistics-toMonthInclusive",
+	granularity: "statistics-granularity",
+};
+
+const getStoredMonth = (key: string, fallback: { month: number; year: number }) => {
+	const stored = localStorage.getItem(key);
+	if (stored) {
+		try {
+			return JSON.parse(stored);
+		} catch {
+			return fallback;
+		}
+	}
+	return fallback;
+};
 
 const loading = ref<boolean>(true);
-const fromMonthInclusive = ref({
-	month: new Date().getMonth(),
-	year: new Date().getFullYear()
-});
-const toMonthInclusive = ref({
-	month: new Date().getMonth(),
-	year: new Date().getFullYear()
-});
 
-const granularity = ref<string>("month");
+const defaultMonth = {
+	month: new Date().getMonth(),
+	year: new Date().getFullYear()
+};
+
+const fromMonthInclusive = ref(getStoredMonth(STORAGE_KEYS.fromMonth, defaultMonth));
+const toMonthInclusive = ref(getStoredMonth(STORAGE_KEYS.toMonth, defaultMonth));
+const granularity = ref<string>(localStorage.getItem(STORAGE_KEYS.granularity) ?? "month");
 const granularityToPeriod: Record<string, 0 | 1 | 2 | 3> = {
 	day: 0,
 	week: 1,
@@ -104,6 +125,7 @@ const granularityToPeriod: Record<string, 0 | 1 | 2 | 3> = {
 
 const statisticsStore = useStatisticsStore();
 const { statistics } = storeToRefs(statisticsStore);
+const { timeEntryOverview } = storeToRefs(statisticsStore);
 
 const timeBankStore = useTimeBankStore();
 const { timeBankOverview } = storeToRefs(timeBankStore);
@@ -121,7 +143,7 @@ const sumNonBillableHours = computed(() => {
 const averageInvoiceRate = computed(() => {
 	if (!statistics.value) return 0;
 	const sumInvoiceRate = statistics.value.invoiceRate.reduce((total, period) => total + period, 0);
-	return (sumInvoiceRate / statistics.value.invoiceRate.length).toFixed(1);
+	return ((sumInvoiceRate*100) / statistics.value.invoiceRate.length).toFixed(1);
 });
 
 const sumBillableOvertimeHours = computed(() => {
@@ -165,8 +187,13 @@ const fetchStatistics = async () => {
 	});
 };
 
+const fetchTimeEntryOverview = async () => {
+	await statisticsStore.getTimeEntryOverview();
+};
+
 onMounted( async () => {
 	await fetchStatistics();
+	await fetchTimeEntryOverview();
 	await timeBankStore.getTimeBankOverview();
 	loading.value = false;
 });
@@ -179,6 +206,18 @@ watch([fromDate, toDate], async () => {
 watch(granularity, async () => {
 	if (loading.value) return;
 	await fetchStatistics();
+});
+
+watch(fromMonthInclusive, (newVal) => {
+	localStorage.setItem(STORAGE_KEYS.fromMonth, JSON.stringify(newVal));
+}, { deep: true });
+
+watch(toMonthInclusive, (newVal) => {
+	localStorage.setItem(STORAGE_KEYS.toMonth, JSON.stringify(newVal));
+}, { deep: true });
+
+watch(granularity, (newVal) => {
+	localStorage.setItem(STORAGE_KEYS.granularity, newVal);
 });
 </script>
 

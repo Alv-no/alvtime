@@ -12,8 +12,20 @@ export type Statistics = {
 	end: Date[];
 }
 
+export type TimeEntryOverview = {
+	year: number;
+	month: number;
+	tasksWithHours: TaskWithHours[];
+}
+
+export type TaskWithHours = {
+	taskId: number;
+	hours: number;
+}
+
 export const useStatisticsStore = defineStore("statistics", () => {
 	const statistics = ref<Statistics>();
+	const timeEntryOverview = ref<TimeEntryOverview[]>();
 
 	type GetStatisticsParams = {
 		fromDate: Date;
@@ -38,5 +50,15 @@ export const useStatisticsStore = defineStore("statistics", () => {
 		}
 	};
 
-	return { statistics, getStatistics };
+	const getTimeEntryOverview = async () => {
+		try {
+			const response = await timeService.getTimeEntriesOverview();
+			statistics.value = response.data;
+		} catch (error) {
+			console.error("Failed to fetch time entry overview:", error);
+			throw error;
+		}
+	};
+
+	return { statistics, timeEntryOverview, getTimeEntryOverview, getStatistics };
 });

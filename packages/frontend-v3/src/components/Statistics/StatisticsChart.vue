@@ -22,6 +22,14 @@ const props = defineProps<{
   period: 0 | 1 | 2 | 3
 }>();
 
+interface ChartDataPoint {
+  label: string;
+  billableHours: number;
+  nonBillableHours: number;
+  invoiceRate: number;
+  nonBillableInvoiceRate: number;
+}
+
 type StackedData = Series<Record<string, number | string>, string>;
 type StackedPoint = SeriesPoint<Record<string, number | string>>;
 
@@ -29,25 +37,29 @@ const svgRef = ref<SVGSVGElement | null>(null);
 const chartRef = ref<HTMLDivElement | null>(null);
 const tooltipRef = ref<HTMLDivElement | null>(null);
 
+const TOOLTIP_OFFSET_X = 120;
+const TOOLTIP_OFFSET_Y = 40;
+
+const locale = "nb-NO";
 const getDateFormatter = (period: 0 | 1 | 2 | 3) => {
 	switch (period) {
 	case 0: // Day
-		return new Intl.DateTimeFormat("nb-NO", {
+		return new Intl.DateTimeFormat(locale, {
 			day: "numeric",
 			month: "short",
 		});
 	case 1: // Week
-		return new Intl.DateTimeFormat("nb-NO", {
+		return new Intl.DateTimeFormat(locale, {
 			day: "numeric",
 			month: "short",
 		});
 	case 2: // Month
-		return new Intl.DateTimeFormat("nb-NO", {
+		return new Intl.DateTimeFormat(locale, {
 			month: "long",
 			year: "numeric",
 		});
 	case 3: // Year
-		return new Intl.DateTimeFormat("nb-NO", {
+		return new Intl.DateTimeFormat(locale, {
 			year: "numeric",
 		});
 	}
@@ -86,9 +98,8 @@ const data = computed(() =>
 	}))
 );
 
-//TODO: Add tooltip on hover
 const draw = () => {
-	if (!svgRef.value || !chartRef.value) return;
+	if (!svgRef.value || !chartRef.value || data.value.length === 0) return;
 
 	const rect = chartRef.value.getBoundingClientRect();
 	const margin = { top: 16, right: 16, bottom: 32, left: 48 };
@@ -109,7 +120,7 @@ const draw = () => {
 		.padding(0.2);
 
 	const maxRateWorked = Math.max(...data.value.map((d) => d.invoiceRate + d.nonBillableInvoiceRate));
-	const yMax = maxRateWorked * 1.1;
+	const yMax = maxRateWorked * 1.2;
 
 	const y = d3
 		.scaleLinear([0, yMax], [height - margin.bottom, margin.top]);
@@ -136,17 +147,17 @@ const draw = () => {
   	.selectAll("rect")
   	.data((d: StackedData) => d)
   	.join("rect")
-  	.attr("x", (d: StackedPoint) => x((d.data as any).label)!)
+  	.attr("x", (d: StackedPoint) => x((d.data as ChartDataPoint).label)!)
   	.attr("y", (d: StackedPoint) => y(d[1]))
   	.attr("height", (d: StackedPoint) => y(d[0]) - y(d[1]))
   	.attr("width", x.bandwidth())
 		.on("mouseenter", (event: MouseEvent, d: StackedPoint) => {
-			const dataPoint = d.data as any;
+			const dataPoint = d.data as ChartDataPoint;
 			const containerRect = chartRef.value!.getBoundingClientRect();
 			tooltip
 				.style("opacity", 1)
-				.style("left", `${event.clientX - containerRect.left + 120}px`)
-				.style("top", `${event.clientY - containerRect.top + 40}px`)
+				.style("left", `${event.clientX - containerRect.left + TOOLTIP_OFFSET_X}px`)
+				.style("top", `${event.clientY - containerRect.top + TOOLTIP_OFFSET_Y}px`)
 				.html(`
   				<strong>${dataPoint.label}</strong><br>
   				<strong>Faktureringsgrad:</strong> ${dataPoint.invoiceRate.toFixed(1)}%
@@ -155,8 +166,8 @@ const draw = () => {
 		.on("mousemove", (event: MouseEvent) => {
 			const containerRect = chartRef.value!.getBoundingClientRect();
 			tooltip
-				.style("left", `${event.clientX - containerRect.left + 120}px`)
-				.style("top", `${event.clientY - containerRect.top + 40}px`);
+				.style("left", `${event.clientX - containerRect.left + TOOLTIP_OFFSET_X}px`)
+				.style("top", `${event.clientY - containerRect.top + TOOLTIP_OFFSET_Y}px`);
 		})
 		.on("mouseleave", () => {
 			tooltip.style("opacity", 0);
@@ -169,7 +180,7 @@ const draw = () => {
 			.selectAll("text")
 			.data(s)
 			.join("text")
-			.attr("x", (d: StackedPoint) => x((d.data as any).label)! + x.bandwidth() / 2)
+			.attr("x", (d: StackedPoint) => x((d.data as ChartDataPoint).label)! + x.bandwidth() / 2)
 			.attr("y", (d: StackedPoint) => {
 				const barHeight = y(d[0]) - y(d[1]);
 				return y(d[1]) + barHeight / 2;

@@ -11,7 +11,6 @@ public class InvoiceStatisticsDto
     public decimal[] NonBillableInvoiceRate { get; set; }
     public DateTime[] Start { get; set; }
     public DateTime[] End { get; set; }
-    public decimal[] RelativeScale { get; set; }
 
     public enum InvoicePeriods
     {
