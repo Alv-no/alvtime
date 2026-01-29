@@ -103,8 +103,8 @@ const close = () => {
 		width: 1200px;
 		padding: 0 20px;
 		display: flex;
-		justify-content: space-between;
 		align-items: center;
+		justify-content: space-between;
 
 		a {
 			text-decoration: none;
