@@ -62,9 +62,14 @@ public class Startup
 
         app.UseRouting();
 
-        if (env.IsDevelopment() || env.IsTest())
+        if (env.IsDevelopment())
         {
             app.UseCors(CorsExtensions.DevCorsPolicyName);
+        }
+        else if (env.IsTest())
+        {
+            app.UseCors(CorsExtensions.TestCorsPolicyName);
+            app.UseHttpsRedirection();
         }
         else
         {
