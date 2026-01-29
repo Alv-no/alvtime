@@ -66,6 +66,11 @@ public class Startup
         {
             app.UseCors(CorsExtensions.DevCorsPolicyName);
         }
+        else if (env.IsTest())
+        {
+            app.UseCors(CorsExtensions.TestCorsPolicyName);
+            app.UseHttpsRedirection();
+        }
         else
         {
             app.UseCors();

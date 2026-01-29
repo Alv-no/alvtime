@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Net.Http.Headers;
@@ -8,6 +9,7 @@ namespace AlvTimeWebApi.Cors
     {
 
         public static string DevCorsPolicyName => "devCorsPolicyName";
+        public static string TestCorsPolicyName => "testCorsPolicyName";
 
         public static void AddAlvtimeCorsPolicys(this IServiceCollection services, IConfiguration configuration)
         {
@@ -23,6 +25,23 @@ namespace AlvTimeWebApi.Cors
                             .AllowAnyMethod();
                     }
                 );
+                
+                options.AddPolicy(TestCorsPolicyName, builder =>
+                {
+                    builder
+                        .SetIsOriginAllowed(origin =>
+                        {
+                            if (Uri.TryCreate(origin, UriKind.Absolute, out var uri))
+                            {
+                                return uri.Scheme == Uri.UriSchemeHttps &&
+                                       uri.Host.EndsWith(".westeurope.2.azurestaticapps.net");
+                            }
+
+                            return false;
+                        })
+                        .WithHeaders(HeaderNames.ContentType, HeaderNames.Authorization)
+                        .AllowAnyMethod();
+                });
 
                 options.AddPolicy(name: DevCorsPolicyName,
                     builder =>
