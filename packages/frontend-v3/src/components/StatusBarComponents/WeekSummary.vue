@@ -8,7 +8,7 @@
 			<HugeiconsIcon
 				:icon="Calendar03Icon"
 				class="icon"
-			/> {{ totalHoursThisWeek }}/37,5
+			/> {{ totalHoursThisWeek }}/37.5
 		</div>
 		<div
 			id="expander"
