@@ -25,7 +25,7 @@ jobs:
     name: Build and Deploy to Test Job
     environment: test
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
         with:
           submodules: true
           lfs: false	
@@ -69,7 +69,7 @@ jobs:
     name: Close Pull Request Job
     environment: test
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
       - name: Close Pull Request
         id: closepullrequest
         uses: Azure/static-web-apps-deploy@v1
