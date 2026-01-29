@@ -53,7 +53,7 @@ export const useStatisticsStore = defineStore("statistics", () => {
 	const getTimeEntryOverview = async () => {
 		try {
 			const response = await timeService.getTimeEntriesOverview();
-			statistics.value = response.data;
+			timeEntryOverview.value = response.data;
 		} catch (error) {
 			console.error("Failed to fetch time entry overview:", error);
 			throw error;

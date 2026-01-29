@@ -71,8 +71,9 @@
 			</div>
 		</div>
 		<RecentHoursOverview
-			v-if="timeEntryOverview"
+			v-if="timeEntryOverview && projects"
 			:timeEntryOverview="timeEntryOverview"
+			:projects="projects"
 		/>
 	</div>
 </template>
@@ -87,6 +88,7 @@ import { VueDatePicker } from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import StatisticsChart from "@/components/Statistics/StatisticsChart.vue";
 import RecentHoursOverview from "@/components/Statistics/RecentHoursOverview.vue";
+import { useTaskStore } from "@/stores/taskStore.ts";
 
 const STORAGE_KEYS = {
 	fromMonth: "statistics-fromMonthInclusive",
@@ -129,6 +131,9 @@ const { timeEntryOverview } = storeToRefs(statisticsStore);
 
 const timeBankStore = useTimeBankStore();
 const { timeBankOverview } = storeToRefs(timeBankStore);
+
+const taskStore = useTaskStore();
+const { projects } = storeToRefs(taskStore);
 
 const sumBillableHours = computed(() => {
 	if (!statistics.value) return 0;
@@ -195,6 +200,7 @@ onMounted( async () => {
 	await fetchStatistics();
 	await fetchTimeEntryOverview();
 	await timeBankStore.getTimeBankOverview();
+	await taskStore.getTasks();
 	loading.value = false;
 });
 
