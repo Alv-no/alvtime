@@ -30,8 +30,8 @@ interface ChartDataPoint {
   nonBillableInvoiceRate: number;
 }
 
-type StackedData = Series<Record<string, number | string>, string>;
-type StackedPoint = SeriesPoint<Record<string, number | string>>;
+type StackedData = Series<ChartDataPoint, string>;
+type StackedPoint = SeriesPoint<ChartDataPoint>;
 
 const svgRef = ref<SVGSVGElement | null>(null);
 const chartRef = ref<HTMLDivElement | null>(null);
@@ -131,8 +131,8 @@ const draw = () => {
 		nonBillableHours: d.nonBillableInvoiceRate,
 	}));
 
-	const stack = d3.stack().keys(["billableHours", "nonBillableHours"]);
-	const series = stack(scaledData as Array<Record<string, number | string>>);
+	const stack = d3.stack<ChartDataPoint>().keys(["billableHours", "nonBillableHours"]);
+	const series = stack(scaledData);
 
 	const colors = d3
   	.scaleOrdinal<string>(["billableHours", "nonBillableHours"])
@@ -207,7 +207,7 @@ const draw = () => {
 	svg
   	.append("g")
   	.attr("transform", `translate(${margin.left},0)`)
-		.call(d3.axisLeft(y).tickFormat((d: number) => `${d} %`))
+		.call(d3.axisLeft(y).tickFormat((d) => `${d} %`))
   	.selectAll("text")
   	.style("font-size", "14px")
   	.style("font-weight", "bold");

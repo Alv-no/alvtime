@@ -28,6 +28,7 @@
 		"vue-router": "^4.5.1"
 	},
 	"devDependencies": {
+		"@types/d3": "^7.4.3",
 		"@types/feather-icons": "^4.29.4",
 		"@vitejs/plugin-vue": "^6.0.1",
 		"@vue/tsconfig": "^0.7.0",
