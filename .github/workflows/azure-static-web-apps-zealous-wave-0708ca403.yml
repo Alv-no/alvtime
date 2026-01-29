@@ -7,14 +7,12 @@ on:
       - main
     paths:
       - "packages/frontend-v3/**"
-      - ".github/workflows/azure-static-web-apps-zealous-wave-0708ca403.yml"
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
       - main
     paths:
       - "packages/frontend-v3/**"
-      - ".github/workflows/azure-static-web-apps-zealous-wave-0708ca403.yml"
 
 jobs:
   build_and_deploy_job:
