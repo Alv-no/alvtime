@@ -3,7 +3,7 @@
 		iconRight
 		@click="logOut"
 	>
-		Logg ut <FeatherIcon name="log-out" />
+		Loggggg ut <FeatherIcon name="log-out" />
 	</AlvtimeButton>
 </template>
 
