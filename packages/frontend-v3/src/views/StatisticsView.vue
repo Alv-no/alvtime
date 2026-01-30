@@ -146,7 +146,7 @@ const sumNonBillableHours = computed(() => {
 });
 
 const averageInvoiceRate = computed(() => {
-	if (!statistics.value) return 0;
+	if (!statistics.value || statistics.value.invoiceRate.length === 0) return 0;
 	const sumInvoiceRate = statistics.value.invoiceRate.reduce((total, period) => total + period, 0);
 	return ((sumInvoiceRate*100) / statistics.value.invoiceRate.length).toFixed(1);
 });
