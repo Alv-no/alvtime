@@ -43,6 +43,50 @@ public class TimeRegistrationService
         _flexTask = timeEntryOptions.CurrentValue.FlexTask;
         _paidHolidayTask = timeEntryOptions.CurrentValue.PaidHolidayTask;
     }
+    
+    public async Task<IEnumerable<TimeEntryOverviewDto>> FetchTimeEntryOverview(int numberOfMonths = 3)
+    {
+        var user = await _userContext.GetCurrentUser();
+        var userId = user.Id;
+
+        var today = DateTime.Today;
+        var fromDate = new DateTime(today.Year, today.Month, 1).AddMonths(-numberOfMonths);
+        var toDate = new DateTime(today.Year, today.Month, 1).AddMonths(1).AddDays(-1);
+
+        var timeEntries = await _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
+        {
+            UserId = userId,
+            FromDateInclusive = fromDate,
+            ToDateInclusive = toDate,
+        });
+
+        var monthGroups = timeEntries.GroupBy(te => new { te.Date.Year, te.Date.Month });
+
+        var response = new List<TimeEntryOverviewDto>();
+        foreach (var timeEntryGroup in monthGroups)
+        {
+            var taskGroups = timeEntryGroup.GroupBy(te => te.TaskId);
+
+            var tasksWithHours = new List<TaskWithHours>();
+            foreach (var taskGroup in taskGroups)
+            {
+                tasksWithHours.Add(new TaskWithHours
+                {
+                    TaskId = taskGroup.Key,
+                    Hours = taskGroup.Sum(te => te.Value)
+                });
+            }
+
+            response.Add(new TimeEntryOverviewDto
+            {
+                Year = timeEntryGroup.Key.Year,
+                Month = timeEntryGroup.Key.Month,
+                TasksWithHours = tasksWithHours
+            });
+        }
+
+        return response;
+    }
 
     public async Task<Result<IEnumerable<TimeEntryResponseDto>>> UpsertTimeEntry(IEnumerable<CreateTimeEntryDto> timeEntries)
     {
