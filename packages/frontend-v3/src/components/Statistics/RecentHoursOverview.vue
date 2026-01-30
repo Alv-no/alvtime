@@ -1,6 +1,6 @@
 ﻿<template>
 	<div class="table-container">
-		<h3>Timesoversikt siste 3 måneder</h3>
+		<h3>Timesoversikt siste 4 måneder</h3>
 		<table class="time-overview-table">
 			<thead>
 				<tr>
