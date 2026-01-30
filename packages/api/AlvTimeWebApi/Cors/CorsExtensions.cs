@@ -2,6 +2,7 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Net.Http.Headers;
+using System.Linq;
 
 namespace AlvTimeWebApi.Cors
 {
@@ -33,8 +34,9 @@ namespace AlvTimeWebApi.Cors
                         {
                             if (Uri.TryCreate(origin, UriKind.Absolute, out var uri))
                             {
-                                return uri.Scheme == Uri.UriSchemeHttps &&
-                                       uri.Host.EndsWith(".westeurope.2.azurestaticapps.net");
+                                return AllowedOrigins.Contains(origin) ||
+                                        (uri.Scheme == Uri.UriSchemeHttps &&
+                                        uri.Host.EndsWith(".westeurope.2.azurestaticapps.net"));
                             }
 
                             return false;
