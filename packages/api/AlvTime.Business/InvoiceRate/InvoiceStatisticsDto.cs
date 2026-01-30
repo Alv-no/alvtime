@@ -12,6 +12,14 @@ public class InvoiceStatisticsDto
     public DateTime[] Start { get; set; }
     public DateTime[] End { get; set; }
 
+    public DateTime[] Labels
+    {
+        get
+        {
+            return Start;
+        }
+    }
+
     public enum InvoicePeriods
     {
         Daily = 0,
