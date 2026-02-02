@@ -50,10 +50,15 @@ public class Startup
         services.AddRazorPages();
         services.AddAlvtimeCorsPolicys(Configuration);
         services.ConfigureLogging(_environment);
+        services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        });
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
+        app.UseForwardedHeaders();
         if (!env.IsDevelopment())
         {
             app.UseHsts(); // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
