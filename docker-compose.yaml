@@ -51,6 +51,7 @@ services:
       - AzureAd__Domain=api://c9126a83-01c3-43c0-8bb3-298d352d2d7f
       - AzureAd__ClientId=c9126a83-01c3-43c0-8bb3-298d352d2d7f
       - AzureAd__GraphClientSecret=${AZUREAD_GRAPH_CLIENT_SECRET}
+      - AzureAd__AuthCodeFlowSecret=${AZUREAD_AUTH_CODE_FLOW_CLIENT_SECRET}
       - ASPNETCORE_ENVIRONMENT=Development
       - DOTNET_URLS=http://0.0.0.0:8080
     ports:

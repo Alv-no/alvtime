@@ -1,5 +1,6 @@
 ﻿using AlvTimeWebApi.Authentication.OAuth;
 using AlvTimeWebApi.Authentication.PersonalAccessToken;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,16 +15,30 @@ public static class AuthenticationExtensions
         configuration.Bind("AzureAd", authentication);
 
         services
-            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
+            .AddAuthentication(options =>
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = "AzureAd";
+            })
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddOpenIdConnect("AzureAd", options =>
             {
                 options.Authority = $"{authentication.Instance}{authentication.TenantId}";
-                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-                {
-                    ValidAudience = $"{authentication.ClientId}",
-                    ValidIssuer = $"{authentication.Instance}{authentication.TenantId}/v2.0"
-                };
+                options.ClientId = authentication.ClientId;
+                options.ClientSecret = authentication.AuthCodeFlowSecret;
+                options.ResponseType = "code";
+                options.CallbackPath = "/signin-oidc";
+                options.UsePkce = true;
             })
+            // .AddJwtBearer(options =>
+            // {
+            //     options.Authority = $"{authentication.Instance}{authentication.TenantId}";
+            //     options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+            //     {
+            //         ValidAudience = $"{authentication.ClientId}",
+            //         ValidIssuer = $"{authentication.Instance}{authentication.TenantId}/v2.0"
+            //     };
+            // })
             .AddScheme<PersonalAccessTokenOptions, PersonalAccessTokenHandler>("PersonalAccessTokenScheme", null);
     }
 }
