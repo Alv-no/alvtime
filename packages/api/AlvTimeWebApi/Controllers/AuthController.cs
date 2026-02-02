@@ -26,6 +26,7 @@ public class AuthController : Controller
         await HttpContext.SignOutAsync();
     }
     
+    [AllowAnonymous]
     [HttpGet("userinfo")]
     public async Task<UserInfo> GetUserInfo()
     {
@@ -35,7 +36,6 @@ public class AuthController : Controller
             IsAuthenticated = user.Succeeded,
             Name = user.Principal?.Identity?.Name,
             Email = user.Principal?.FindFirst("preferred_username")?.Value,
-            Claims = user.Principal?.Claims
         };
     }
 }

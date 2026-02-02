@@ -1,5 +1,4 @@
-﻿// src/services/authService.ts
-import axios from "axios";
+﻿import axios from "axios";
 import config from "@/config.ts";
 
 export interface UserInfo {
@@ -17,7 +16,8 @@ const authApi = axios.create({
 export const authService = {
 	login(returnUrl?: string): void {
 		const currentPath = returnUrl ?? window.location.pathname + window.location.search;
-		const encodedReturnUrl = encodeURIComponent(currentPath);
+		const fullReturnUrl = window.location.origin + currentPath;
+		const encodedReturnUrl = encodeURIComponent(fullReturnUrl);
 		window.location.href = `${config.API_HOST}/api/auth/login?returnUrl=${encodedReturnUrl}`;
 	},
 

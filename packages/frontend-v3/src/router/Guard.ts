@@ -12,7 +12,7 @@ export function registerGuard(router: Router) {
 
 			if (!authStore.isAuthenticated) {
 				sessionStorage.setItem("redirectAfterLogin", to.fullPath);
-				authStore.login();
+				// authStore.login();
 				return false;
 			}
 

@@ -1,7 +1,10 @@
-﻿using AlvTimeWebApi.Authentication.OAuth;
+﻿using System.Net;
+using System.Threading.Tasks;
+using AlvTimeWebApi.Authentication.OAuth;
 using AlvTimeWebApi.Authentication.PersonalAccessToken;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,9 +23,21 @@ public static class AuthenticationExtensions
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = "AzureAd";
             })
-            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+            {
+                options.Events.OnRedirectToLogin = context =>
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    return Task.CompletedTask;
+                };
+            })
             .AddOpenIdConnect("AzureAd", options =>
             {
+                options.Events = new OpenIdConnectEvents
+                {
+                    OnRedirectToIdentityProvider = _ => Task.CompletedTask,
+                    OnTokenValidated = _ => Task.CompletedTask
+                };
                 options.Authority = $"{authentication.Instance}{authentication.TenantId}";
                 options.ClientId = authentication.ClientId;
                 options.ClientSecret = authentication.AuthCodeFlowSecret;

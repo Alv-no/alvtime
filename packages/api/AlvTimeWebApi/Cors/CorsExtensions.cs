@@ -16,6 +16,8 @@ namespace AlvTimeWebApi.Cors
         {
             string[] AllowedOrigins = configuration["AllowedOrigins"].Split(",");
 
+            string[] AllowedOriginsDev = [ "http://localhost:8080", "http://localhost:8081"];
+            
             services.AddCors(options =>
             {
                 options.AddDefaultPolicy(
@@ -48,7 +50,7 @@ namespace AlvTimeWebApi.Cors
                 options.AddPolicy(name: DevCorsPolicyName,
                     builder =>
                     {
-                        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+                        builder.WithOrigins(AllowedOriginsDev).AllowAnyMethod().AllowAnyHeader().AllowCredentials();
                     }
                 );
             });
