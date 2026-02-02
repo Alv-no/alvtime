@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using AlvTimeWebApi.Authentication.OAuth;
 using AlvTimeWebApi.Authentication.PersonalAccessToken;
@@ -35,7 +36,16 @@ public static class AuthenticationExtensions
             {
                 options.Events = new OpenIdConnectEvents
                 {
-                    OnRedirectToIdentityProvider = _ => Task.CompletedTask,
+                    OnRedirectToIdentityProvider = context =>
+                    {
+                        var builder = new UriBuilder(context.ProtocolMessage.RedirectUri)
+                        {
+                            Scheme = "https",
+                            Port = -1
+                        };
+                        context.ProtocolMessage.RedirectUri = builder.ToString();
+                        return Task.CompletedTask;
+                    },
                     OnTokenValidated = _ => Task.CompletedTask
                 };
                 options.Authority = $"{authentication.Instance}{authentication.TenantId}";
