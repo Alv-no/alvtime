@@ -25,7 +25,8 @@ namespace AlvTimeWebApi.Cors
                     {
                         builder.WithOrigins(AllowedOrigins)
                             .WithHeaders(HeaderNames.ContentType, HeaderNames.Authorization)
-                            .AllowAnyMethod();
+                            .AllowAnyMethod()
+                            .AllowCredentials();
                     }
                 );
                 
@@ -44,7 +45,8 @@ namespace AlvTimeWebApi.Cors
                             return false;
                         })
                         .WithHeaders(HeaderNames.ContentType, HeaderNames.Authorization)
-                        .AllowAnyMethod();
+                        .AllowAnyMethod()
+                        .AllowCredentials();
                 });
 
                 options.AddPolicy(name: DevCorsPolicyName,
