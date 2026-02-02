@@ -16,4 +16,8 @@ app.use(router);
 app.mount("#app");
 
 const authStore = useAuthStore();
-authStore.checkAuth();
+authStore.checkAuth().then(() => {
+	if (!authStore.isAuthenticated) {
+		authStore.login();
+	}
+});

@@ -12,16 +12,6 @@ export const useAuthStore = defineStore("auth", () => {
 		isLoading.value = true;
 		try {
 			user.value = await authService.getUserInfo();
-
-			console.log("User info:", user.value);
-			// if (user.value.isAuthenticated) {
-			// 	const redirectPath = sessionStorage.getItem("redirectAfterLogin");
-			// if (redirectPath) {
-			// 	console.log("Redirecting to:", redirectPath);
-			// 	sessionStorage.removeItem("redirectAfterLogin");
-			// 	window.location.href = redirectPath;
-			// }
-			// }
 		} catch {
 			user.value = { isAuthenticated: false };
 		} finally {

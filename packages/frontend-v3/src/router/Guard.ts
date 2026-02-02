@@ -10,13 +10,7 @@ export function registerGuard(router: Router) {
 				await authStore.checkAuth();
 			}
 
-			if (!authStore.isAuthenticated) {
-				sessionStorage.setItem("redirectAfterLogin", to.fullPath);
-				// authStore.login();
-				return false;
-			}
-
-			return true;
+			return authStore.isAuthenticated;
 		}
 
 		return true;
