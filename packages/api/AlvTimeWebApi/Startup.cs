@@ -50,6 +50,12 @@ public class Startup
         services.AddRazorPages();
         services.AddAlvtimeCorsPolicys(Configuration);
         services.ConfigureLogging(_environment);
+        services.Configure<ForwardedHeadersOptions>(o =>
+        {
+            o.ForwardedHeaders = ForwardedHeaders.XForwardedProto;
+            o.KnownNetworks.Clear();
+            o.KnownProxies.Clear();
+        });
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -71,19 +77,13 @@ public class Startup
         {
             app.UseCors(CorsExtensions.TestCorsPolicyName);
             app.UseHttpsRedirection();
-            app.UseForwardedHeaders(new ForwardedHeadersOptions
-            {
-                ForwardedHeaders = ForwardedHeaders.XForwardedProto
-            });
+            app.UseForwardedHeaders();
         }
         else
         {
             app.UseCors();
             app.UseHttpsRedirection();
-            app.UseForwardedHeaders(new ForwardedHeadersOptions
-            {
-                ForwardedHeaders = ForwardedHeaders.XForwardedProto
-            });
+            app.UseForwardedHeaders();
         }
 
         app.UseAuthentication();
