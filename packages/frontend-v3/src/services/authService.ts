@@ -4,8 +4,6 @@ import config from "@/config.ts";
 export interface UserInfo {
   isAuthenticated: boolean;
   name?: string;
-  email?: string;
-  claims?: string[];
 }
 
 const authApi = axios.create({

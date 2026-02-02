@@ -34,8 +34,7 @@ public class AuthController : Controller
         return new UserInfo
         {
             IsAuthenticated = user.Succeeded,
-            Name = user.Principal?.Identity?.Name,
-            Email = user.Principal?.FindFirst("preferred_username")?.Value,
+            Name = user.Principal?.FindFirst("name")?.Value,
         };
     }
 }

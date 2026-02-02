@@ -84,12 +84,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import LogOutButton from "@/components/LogOutButton.vue";
-import { useUserStore } from "@/stores/userStore";
 import FeatherIcon from "./utils/FeatherIcon.vue";
 import MobileMenu from "./utils/MobileMenu.vue";
+import { useAuthStore} from "@/stores/authStore.ts";
+import { storeToRefs } from "pinia";
 
 const open = ref(false);
-const { user } = useUserStore();
+const authStore = useAuthStore();
+const { user } = storeToRefs(authStore);
 const isMobile = window.innerWidth <= 768;
 
 const close = () => {
