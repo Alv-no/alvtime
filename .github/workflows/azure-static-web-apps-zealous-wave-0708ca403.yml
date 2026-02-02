@@ -16,7 +16,7 @@ on:
 
 jobs:
   build_and_deploy_job:
-    if: ${{github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed') || github.event_name == 'workflow_dispatch}}
+    if: ${{github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed') || github.event_name == 'workflow_dispatch'}}
     permissions:
       id-token: write # Require write permission to fetch OIDC token when using Azure Login action
       contents: read
