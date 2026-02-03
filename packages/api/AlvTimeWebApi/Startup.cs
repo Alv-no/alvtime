@@ -41,7 +41,7 @@ public class Startup
             options => options.UseSqlServer(Configuration.GetConnectionString("AlvTime")),
             contextLifetime: ServiceLifetime.Scoped, optionsLifetime: ServiceLifetime.Scoped);
         services.AddMvc();
-        services.AddAlvtimeAuthentication(Configuration);
+        services.AddAlvtimeAuthentication(Configuration, _environment);
         services.AddMicrosoftGraphClient(Configuration, _environment);
         services.AddScoped<GraphService>();
         services.Configure<TimeEntryOptions>(Configuration.GetSection("TimeEntryOptions"));

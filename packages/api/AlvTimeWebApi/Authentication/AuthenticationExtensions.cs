@@ -9,12 +9,14 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace AlvTimeWebApi.Authentication;
 
 public static class AuthenticationExtensions
 {
-    public static void AddAlvtimeAuthentication(this IServiceCollection services, IConfiguration configuration)
+    public static void AddAlvtimeAuthentication(this IServiceCollection services, IConfiguration configuration,
+        IHostEnvironment env)
     {
         var authentication = new OAuthOptions();
         configuration.Bind("AzureAd", authentication);
@@ -40,36 +42,30 @@ public static class AuthenticationExtensions
             })
             .AddOpenIdConnect("AzureAd", options =>
             {
-                //options.Events = new OpenIdConnectEvents
-                //{
-                //    OnRedirectToIdentityProvider = context =>
-                //    {
-                //        var builder = new UriBuilder(context.ProtocolMessage.RedirectUri)
-                //        {
-                //            Scheme = "https",
-                //            Port = -1
-                //        };
-                //        context.ProtocolMessage.RedirectUri = builder.ToString();
-                //        return Task.CompletedTask;
-                //    },
-                //    OnTokenValidated = _ => Task.CompletedTask
-                //};
+                if (!env.IsDevelopment())
+                {
+                    options.Events = new OpenIdConnectEvents
+                    {
+                        OnRedirectToIdentityProvider = context =>
+                        {
+                            var builder = new UriBuilder(context.ProtocolMessage.RedirectUri)
+                            {
+                                Scheme = "https",
+                            };
+                            context.ProtocolMessage.RedirectUri = builder.ToString();
+                            return Task.CompletedTask;
+                        },
+                        OnTokenValidated = _ => Task.CompletedTask
+                    };
+                }
+
                 options.Authority = $"{authentication.Instance}{authentication.TenantId}";
                 options.ClientId = authentication.ClientId;
                 options.ClientSecret = authentication.AuthCodeFlowSecret;
                 options.ResponseType = "code";
-                //options.CallbackPath = "/signin-oidc";
+                options.CallbackPath = "/signin-oidc";
                 options.UsePkce = true;
             })
-            // .AddJwtBearer(options =>
-            // {
-            //     options.Authority = $"{authentication.Instance}{authentication.TenantId}";
-            //     options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-            //     {
-            //         ValidAudience = $"{authentication.ClientId}",
-            //         ValidIssuer = $"{authentication.Instance}{authentication.TenantId}/v2.0"
-            //     };
-            // })
             .AddScheme<PersonalAccessTokenOptions, PersonalAccessTokenHandler>("PersonalAccessTokenScheme", null);
     }
 }
