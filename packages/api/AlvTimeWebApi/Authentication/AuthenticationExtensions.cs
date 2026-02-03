@@ -47,6 +47,7 @@ public static class AuthenticationExtensions
                         var builder = new UriBuilder(context.ProtocolMessage.RedirectUri)
                         {
                             Scheme = "https",
+                            Port = -1
                         };
                         context.ProtocolMessage.RedirectUri = builder.ToString();
                         return Task.CompletedTask;
