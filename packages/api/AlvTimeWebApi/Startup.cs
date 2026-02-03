@@ -61,6 +61,7 @@ public class Startup
     {
         app.UseForwardedHeaders(new ForwardedHeadersOptions
         {
+            ForwardLimit = null,
             KnownProxies = 
             {
                 IPAddress.Parse("20.100.38.31"),
