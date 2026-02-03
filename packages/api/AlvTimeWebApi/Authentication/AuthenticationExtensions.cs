@@ -42,23 +42,6 @@ public static class AuthenticationExtensions
             })
             .AddOpenIdConnect("AzureAd", options =>
             {
-                if (!env.IsDevelopment())
-                {
-                    options.Events = new OpenIdConnectEvents
-                    {
-                        OnRedirectToIdentityProvider = context =>
-                        {
-                            var builder = new UriBuilder(context.ProtocolMessage.RedirectUri)
-                            {
-                                Scheme = "https",
-                            };
-                            context.ProtocolMessage.RedirectUri = builder.ToString();
-                            return Task.CompletedTask;
-                        },
-                        OnTokenValidated = _ => Task.CompletedTask
-                    };
-                }
-
                 options.Authority = $"{authentication.Instance}{authentication.TenantId}";
                 options.ClientId = authentication.ClientId;
                 options.ClientSecret = authentication.AuthCodeFlowSecret;
