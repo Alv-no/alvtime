@@ -26,6 +26,7 @@
     private void Logout()
     {
         var apiBase = configuration["ApiSettings:BaseUrl"]?.TrimEnd('/');
-        Navigation.NavigateTo($"{apiBase}/api/auth/logout", forceLoad: true);
+        var returnUrl = Uri.EscapeDataString(Navigation.BaseUri);
+        Navigation.NavigateTo($"{apiBase}/api/auth/logout?returnUrl={returnUrl}", forceLoad: true);
     }
 }

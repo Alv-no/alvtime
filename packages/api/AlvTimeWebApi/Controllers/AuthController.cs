@@ -23,9 +23,12 @@ public class AuthController : Controller
     }
 
     [HttpGet("logout")]
-    public async Task Logout()
+    public async Task Logout(string returnUrl = "/")
     {
-        await HttpContext.SignOutAsync();
+        await HttpContext.SignOutAsync(new AuthenticationProperties
+        {
+            RedirectUri = returnUrl
+        });
     }
     
     [AllowAnonymous]

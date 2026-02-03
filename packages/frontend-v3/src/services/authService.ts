@@ -20,7 +20,8 @@ export const authService = {
 	},
 
 	logout(): void {
-		window.location.href = `${config.API_HOST}/api/auth/logout`;
+		const baseUrl = window.location.origin;
+		window.location.href = `${config.API_HOST}/api/auth/logout?returnUrl=${baseUrl}`;
 	},
 
 	async getUserInfo(): Promise<UserInfo> {
