@@ -61,7 +61,21 @@ public class Startup
     {
         app.UseForwardedHeaders(new ForwardedHeadersOptions
         {
-            KnownProxies = { IPAddress.Parse("20.100.3.4") }
+            KnownProxies = 
+            {
+                IPAddress.Parse("20.100.38.31"),
+                IPAddress.Parse("20.100.38.48"),
+                IPAddress.Parse("20.100.38.90"),
+                IPAddress.Parse("20.100.38.131"),
+                IPAddress.Parse("20.100.38.209"),
+                IPAddress.Parse("20.100.38.218"),
+                IPAddress.Parse("20.100.136.167"),
+                IPAddress.Parse("20.100.136.2"),
+                IPAddress.Parse("20.100.140.30"),
+                IPAddress.Parse("20.100.140.59"),
+                IPAddress.Parse("20.100.140.116"),
+                IPAddress.Parse("20.100.3.4")
+            }
         });
 
         if (!env.IsDevelopment())
