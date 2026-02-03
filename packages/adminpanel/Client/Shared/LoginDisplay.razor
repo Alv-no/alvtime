@@ -3,20 +3,29 @@
 @using Microsoft.Extensions.Localization
 @inject NavigationManager Navigation
 @inject IStringLocalizer<SharedContentStrings> Localizer
+@inject IConfiguration configuration
 
 <AuthorizeView >
     <Authorized>
         Hei, @context.User.Identity?.Name!
-        <MudLink OnClick="BeginLogOut" Color="Color.Secondary" Class="ml-2">@Localizer["Common.Logout"]</MudLink>
+        <MudLink OnClick="Logout" Color="Color.Secondary" Class="ml-2">@Localizer["Common.Logout"]</MudLink>
     </Authorized>
     <NotAuthorized>
-        <MudLink Href="authentication/login" Color="Color.Secondary">@Localizer["Common.Login"]</MudLink>
+        <MudLink OnClick="Login" Color="Color.Secondary">@Localizer["Common.Login"]</MudLink>
     </NotAuthorized>
 </AuthorizeView>
 
 @code{
-    public void BeginLogOut()
+    private void Login()
     {
-        Navigation.NavigateToLogout("authentication/logout");
+        var apiBase = configuration["ApiSettings:BaseUrl"]?.TrimEnd('/');
+        var returnUrl = Uri.EscapeDataString(Navigation.Uri);
+        Navigation.NavigateTo($"{apiBase}/api/auth/login?returnUrl={returnUrl}", forceLoad: true);
+    }
+
+    private void Logout()
+    {
+        var apiBase = configuration["ApiSettings:BaseUrl"]?.TrimEnd('/');
+        Navigation.NavigateTo($"{apiBase}/api/auth/logout", forceLoad: true);
     }
 }

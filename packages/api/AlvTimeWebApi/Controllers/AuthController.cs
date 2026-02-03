@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using AlvTimeWebApi.Responses;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -35,6 +37,9 @@ public class AuthController : Controller
         {
             IsAuthenticated = user.Succeeded,
             Name = user.Principal?.FindFirst("name")?.Value,
+            Roles = user.Principal?.FindAll(ClaimTypes.Role)
+                .Select(c => c.Value)
+                .ToList() ?? []
         };
     }
 }

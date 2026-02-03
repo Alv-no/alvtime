@@ -4,58 +4,54 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Net.Http.Headers;
 using System.Linq;
 
-namespace AlvTimeWebApi.Cors
+namespace AlvTimeWebApi.Cors;
+
+public static class CorsExtensions
 {
-    public static class CorsExtensions
+    public static string DevCorsPolicyName => "devCorsPolicyName";
+    public static string TestCorsPolicyName => "testCorsPolicyName";
+
+    public static void AddAlvtimeCorsPolicys(this IServiceCollection services, IConfiguration configuration)
     {
-
-        public static string DevCorsPolicyName => "devCorsPolicyName";
-        public static string TestCorsPolicyName => "testCorsPolicyName";
-
-        public static void AddAlvtimeCorsPolicys(this IServiceCollection services, IConfiguration configuration)
-        {
-            string[] AllowedOrigins = configuration["AllowedOrigins"].Split(",");
-
-            string[] AllowedOriginsDev = [ "http://localhost:8080", "http://localhost:8081"];
+        var AllowedOrigins = configuration["AllowedOrigins"].Split(",");
             
-            services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(
-                    builder =>
-                    {
-                        builder.WithOrigins(AllowedOrigins)
-                            .WithHeaders(HeaderNames.ContentType, HeaderNames.Authorization)
-                            .AllowAnyMethod()
-                            .AllowCredentials();
-                    }
-                );
-                
-                options.AddPolicy(TestCorsPolicyName, builder =>
+        services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(
+                builder =>
                 {
-                    builder
-                        .SetIsOriginAllowed(origin =>
-                        {
-                            if (Uri.TryCreate(origin, UriKind.Absolute, out var uri))
-                            {
-                                return AllowedOrigins.Contains(origin) ||
-                                        (uri.Scheme == Uri.UriSchemeHttps &&
-                                        uri.Host.EndsWith(".westeurope.2.azurestaticapps.net"));
-                            }
-
-                            return false;
-                        })
+                    builder.WithOrigins(AllowedOrigins)
                         .WithHeaders(HeaderNames.ContentType, HeaderNames.Authorization)
                         .AllowAnyMethod()
                         .AllowCredentials();
-                });
-
-                options.AddPolicy(name: DevCorsPolicyName,
-                    builder =>
+                }
+            );
+                
+            options.AddPolicy(TestCorsPolicyName, builder =>
+            {
+                builder
+                    .SetIsOriginAllowed(origin =>
                     {
-                        builder.WithOrigins(AllowedOriginsDev).AllowAnyMethod().AllowAnyHeader().AllowCredentials();
-                    }
-                );
+                        if (Uri.TryCreate(origin, UriKind.Absolute, out var uri))
+                        {
+                            return AllowedOrigins.Contains(origin) ||
+                                   (uri.Scheme == Uri.UriSchemeHttps &&
+                                    uri.Host.EndsWith(".westeurope.2.azurestaticapps.net"));
+                        }
+
+                        return false;
+                    })
+                    .WithHeaders(HeaderNames.ContentType, HeaderNames.Authorization)
+                    .AllowAnyMethod()
+                    .AllowCredentials();
             });
-        }
+
+            options.AddPolicy(name: DevCorsPolicyName,
+                builder =>
+                {
+                    builder.WithOrigins(AllowedOrigins).AllowAnyMethod().AllowAnyHeader().AllowCredentials();
+                }
+            );
+        });
     }
 }

@@ -4,8 +4,6 @@ using System.Threading.Tasks;
 using AlvTimeWebApi.Authentication.OAuth;
 using AlvTimeWebApi.Authentication.PersonalAccessToken;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,6 +40,20 @@ public static class AuthenticationExtensions
             })
             .AddOpenIdConnect("AzureAd", options =>
             {
+                if (!env.IsDevelopment())
+                {
+                    options.Events.OnRedirectToIdentityProvider = context =>
+                    {
+                        var builder = new UriBuilder(context.ProtocolMessage.RedirectUri)
+                        {
+                            Scheme = "https",
+                        };
+                        context.ProtocolMessage.RedirectUri = builder.ToString();
+                        return Task.CompletedTask;
+                    };
+                }
+
+                options.Events.OnTokenValidated = _ => Task.CompletedTask;
                 options.Authority = $"{authentication.Instance}{authentication.TenantId}";
                 options.ClientId = authentication.ClientId;
                 options.ClientSecret = authentication.AuthCodeFlowSecret;
