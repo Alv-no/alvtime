@@ -59,26 +59,6 @@ public class Startup
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        app.UseForwardedHeaders(new ForwardedHeadersOptions
-        {
-            ForwardLimit = null,
-            KnownProxies = 
-            {
-                IPAddress.Parse("20.100.38.31"),
-                IPAddress.Parse("20.100.38.48"),
-                IPAddress.Parse("20.100.38.90"),
-                IPAddress.Parse("20.100.38.131"),
-                IPAddress.Parse("20.100.38.209"),
-                IPAddress.Parse("20.100.38.218"),
-                IPAddress.Parse("20.100.136.167"),
-                IPAddress.Parse("20.100.136.2"),
-                IPAddress.Parse("20.100.140.30"),
-                IPAddress.Parse("20.100.140.59"),
-                IPAddress.Parse("20.100.140.116"),
-                IPAddress.Parse("20.100.3.4")
-            }
-        });
-
         if (!env.IsDevelopment())
         {
             app.UseHsts(); // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
