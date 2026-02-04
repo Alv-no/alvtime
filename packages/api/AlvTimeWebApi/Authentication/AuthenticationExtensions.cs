@@ -32,6 +32,9 @@ public static class AuthenticationExtensions
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.Cookie.SameSite = SameSiteMode.Strict;
 
+                options.ExpireTimeSpan = TimeSpan.FromHours(1);
+                options.SlidingExpiration = true;
+
                 options.Events.OnRedirectToLogin = context =>
                 {
                     context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
