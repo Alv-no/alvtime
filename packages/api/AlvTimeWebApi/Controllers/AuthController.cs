@@ -1,10 +1,11 @@
-﻿using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using AlvTimeWebApi.Responses;
+﻿using AlvTimeWebApi.Responses;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace AlvTimeWebApi.Controllers;
 
@@ -25,10 +26,11 @@ public class AuthController : Controller
     [HttpGet("logout")]
     public async Task Logout(string returnUrl = "/")
     {
-        await HttpContext.SignOutAsync(new AuthenticationProperties
+        await HttpContext.SignOutAsync("AzureAd", new AuthenticationProperties
         {
             RedirectUri = returnUrl
         });
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
     }
     
     [AllowAnonymous]
