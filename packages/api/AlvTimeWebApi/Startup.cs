@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Scalar.AspNetCore;
 using System.Net;
+using Microsoft.AspNetCore.Http;
 
 namespace AlvTimeWebApi;
 
@@ -79,6 +80,7 @@ public class Startup
             app.UseHttpsRedirection();
         }
 
+        app.UseCsrfMiddleware();
         app.UseAuthentication();
         app.UseAuthorization();
 

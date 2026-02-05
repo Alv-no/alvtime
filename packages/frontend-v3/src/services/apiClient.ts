@@ -5,6 +5,9 @@ import { useAuthStore } from "@/stores/authStore";
 const api = axios.create({
 	baseURL: config.API_HOST,
 	withCredentials: true,
+	headers: {
+		"X-CSRF": "1"
+	}
 });
 
 api.interceptors.response.use(

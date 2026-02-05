@@ -21,7 +21,7 @@ public static class CorsExtensions
                 builder =>
                 {
                     builder.WithOrigins(AllowedOrigins)
-                        .WithHeaders(HeaderNames.ContentType, HeaderNames.Authorization)
+                        .WithHeaders(HeaderNames.ContentType, HeaderNames.Authorization, "X-CSRF")
                         .AllowAnyMethod()
                         .AllowCredentials();
                 }
@@ -41,7 +41,7 @@ public static class CorsExtensions
 
                         return false;
                     })
-                    .WithHeaders(HeaderNames.ContentType, HeaderNames.Authorization)
+                    .WithHeaders(HeaderNames.ContentType, HeaderNames.Authorization, "X-CSRF")
                     .AllowAnyMethod()
                     .AllowCredentials();
             });
@@ -49,7 +49,7 @@ public static class CorsExtensions
             options.AddPolicy(name: DevCorsPolicyName,
                 builder =>
                 {
-                    builder.WithOrigins(AllowedOrigins).AllowAnyMethod().AllowAnyHeader().AllowCredentials();
+                    builder.WithOrigins(AllowedOrigins).AllowAnyMethod().WithHeaders(HeaderNames.ContentType, HeaderNames.Authorization, "X-CSRF").AllowCredentials();
                 }
             );
         });

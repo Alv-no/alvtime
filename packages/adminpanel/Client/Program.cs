@@ -16,6 +16,7 @@ builder.Services.AddLocalization();
 builder.Services.AddHttpClient("Alvtime.API", (sp, client) =>
     {
         client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!);
+        client.DefaultRequestHeaders.Add("X-CSRF", "1");
         client.EnableIntercept(sp);
     })
     .ConfigurePrimaryHttpMessageHandler<CookieIncludingHandler>();
