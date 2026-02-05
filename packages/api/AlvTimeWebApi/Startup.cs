@@ -47,14 +47,10 @@ public class Startup
         services.AddScoped<GraphService>();
         services.Configure<TimeEntryOptions>(Configuration.GetSection("TimeEntryOptions"));
         services.AddAlvtimeAuthorization();
-        services.AddOpenApi(o => o.AddDocumentTransformer<OpenApiSecuritySchemeTransformer>());
+        services.AddOpenApi();
         services.AddRazorPages();
         services.AddAlvtimeCorsPolicys(Configuration);
         services.ConfigureLogging(_environment);
-        services.Configure<ForwardedHeadersOptions>(options =>
-        {
-            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-        });
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
