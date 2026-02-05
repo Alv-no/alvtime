@@ -1,15 +1,10 @@
-﻿import axios from "axios";
-import config from "@/config.ts";
+﻿import config from "@/config.ts";
+import { api } from "./apiClient";
 
 export interface UserInfo {
   isAuthenticated: boolean;
   name?: string;
 }
-
-const authApi = axios.create({
-	baseURL: config.API_HOST + "/api/auth",
-	withCredentials: true,
-});
 
 export const authService = {
 	login(returnUrl?: string): void {
@@ -26,7 +21,7 @@ export const authService = {
 
 	async getUserInfo(): Promise<UserInfo> {
 		try {
-			const response = await authApi.get<UserInfo>("/userInfo");
+			const response = await api.get<UserInfo>("/api/auth/userInfo");
 			return response.data;
 		} catch {
 			return { isAuthenticated: false };
