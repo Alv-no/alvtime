@@ -34,7 +34,7 @@ namespace AlvTime.Persistence.Repositories
             return new AccessTokenDto(accessToken.Id, accessToken.Value, accessToken.ExpiryDate, accessToken.FriendlyName);
         }
 
-        public async Task<AccessTokenDto> DeleteActiveTokens(int tokenId)
+        public async Task<AccessTokenDto> DeleteActiveToken(int tokenId)
         {
             var token = _dbContext.AccessTokens
                 .FirstOrDefault(t => t.Id == tokenId);
