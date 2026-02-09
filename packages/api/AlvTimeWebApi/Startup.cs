@@ -9,11 +9,14 @@ using AlvTimeWebApi.Infrastructure;
 using AlvTimeWebApi.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Scalar.AspNetCore;
+using System.Net;
+using Microsoft.AspNetCore.Http;
 
 namespace AlvTimeWebApi;
 
@@ -40,12 +43,12 @@ public class Startup
             options => options.UseSqlServer(Configuration.GetConnectionString("AlvTime")),
             contextLifetime: ServiceLifetime.Scoped, optionsLifetime: ServiceLifetime.Scoped);
         services.AddMvc();
-        services.AddAlvtimeAuthentication(Configuration);
+        services.AddAlvtimeAuthentication(Configuration, _environment);
         services.AddMicrosoftGraphClient(Configuration, _environment);
         services.AddScoped<GraphService>();
         services.Configure<TimeEntryOptions>(Configuration.GetSection("TimeEntryOptions"));
         services.AddAlvtimeAuthorization();
-        services.AddOpenApi(o => o.AddDocumentTransformer<OpenApiSecuritySchemeTransformer>());
+        services.AddOpenApi();
         services.AddRazorPages();
         services.AddAlvtimeCorsPolicys(Configuration);
         services.ConfigureLogging(_environment);
@@ -77,6 +80,7 @@ public class Startup
             app.UseHttpsRedirection();
         }
 
+        app.UseCsrfMiddleware();
         app.UseAuthentication();
         app.UseAuthorization();
 

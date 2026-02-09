@@ -1,14 +1,21 @@
 <template>
-	<NavigationBar />
-	<div class="wrapper">
-		<div class="content-container">
-			<RouterView :key="$route.path" />
+	<div v-if="user?.isAuthenticated">
+		<NavigationBar />
+		<div class="wrapper">
+			<div class="content-container">
+				<RouterView :key="$route.path" />
+			</div>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
 import NavigationBar from "./components/NavigationBar.vue";
+import { useAuthStore } from "@/stores/authStore";
+import { storeToRefs } from "pinia";
+
+const authStore = useAuthStore();
+const { user } = storeToRefs(authStore);
 </script>
 
 <style lang="scss" scoped>

@@ -39,7 +39,6 @@ export default defineConfig({
 					vue: ['vue', 'vue-router', 'pinia'],
 					swiper: ['swiper'],
 					utils: ['axios', 'date-easter', 'fuse.js', 'sortablejs-vue3', 'feather-icons', '@hugeicons/core-free-icons', '@hugeicons/vue'],
-					msal: ['@azure/msal-browser']
 				}
 			}
 		}	

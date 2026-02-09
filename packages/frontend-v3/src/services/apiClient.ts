@@ -1,49 +1,24 @@
 import axios from "axios";
 import config from "@/config";
-import { msalInstance } from "@/authConfig";
-import { InteractionRequiredAuthError } from "@azure/msal-browser";
-
-const getAccessToken = async () => {
-	const accounts = msalInstance.getAllAccounts();
-	if (accounts.length > 0) {
-		const account = accounts[0];
-		try {
-			const response = await msalInstance.acquireTokenSilent({
-				scopes: [config.ACCESS_SCOPE],
-				account: account,
-			});
-
-			return response.accessToken;
-		} catch (e) {
-			if (e instanceof InteractionRequiredAuthError) {
-				const response = await msalInstance.acquireTokenPopup({
-					scopes: [config.ACCESS_SCOPE],
-					account: account,
-				});
-				return response.accessToken;
-			}
-			throw e;
-		}
-	} else {
-		throw new Error("No accounts found");
-	}
-};
+import { useAuthStore } from "@/stores/authStore";
 
 const api = axios.create({
 	baseURL: config.API_HOST,
+	withCredentials: true,
+	headers: {
+		"X-CSRF": "1"
+	}
 });
 
-api.interceptors.request.use(
-	async (config) => {
-		const token = await getAccessToken();
-		config.headers.Authorization = `Bearer ${token}`;
-		return config;
-	},
+api.interceptors.response.use(
+	(response) => response,
 	(error) => {
+		if (error.response?.status === 401) {
+			const authStore = useAuthStore();
+			authStore.login();
+		}
 		return Promise.reject(error);
 	}
 );
 
-export {
-	api
-};
+export { api };
