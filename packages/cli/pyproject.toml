@@ -1,6 +1,6 @@
 [project]
 name = "alvtime-cli"
-version = "0.8.0"
+version = "0.8.1"
 description = ""
 authors = [
     {name = "Anders Norman",email = "anders@alv.no"},
