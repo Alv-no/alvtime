@@ -1,78 +1,104 @@
 ﻿<template>
-<div v-if="!loading">
-  <h1>Personal access tokens</h1>
-  <div class="description">
-    Personlige access token fungerer akkurat som OAuth tilgangstoken for å
-    autentisere deg mot Alvtime API. Bruk de som bearer tokens i
-    applikasjoner der det ikke er mulig eller praktisk å implementere login
-    på vanlig måte.
-  </div>
-  <div class="form-container">
-    <div class="form-row">
-    <input
-      id="create-pat"
-      v-model="tokenName"
-      type="string"
-      placeholder="Navn på nytt token"
-      @focus="onInputFocus"
-    />
-    <button
-      :disabled="tokenName.length <= 0"
-      @click="createToken"
-    >
-      Lag token
-    </button>
-    </div>
-    <div v-if="temporaryVisibleToken" class="new-token-container">
-      <b>Kopiér opprettet token og lagre det. Tokenet vil ikke kunne vises på nytt.</b>
-      <p>Token: <b>{{ temporaryVisibleToken.token }}</b></p>
-      <p>Utgår: {{ formatDate(temporaryVisibleToken.expiryDate) }}</p>
-      <div class="copy-button-wrapper">
-
-      <AlvtimeButton iconRight @click="copyTokenToClipboard">
-        Kopiér <FeatherIcon name="clipboard" />
-      </AlvtimeButton>
-      <span v-if="showCopiedTooltip" class="copied-tooltip">Kopiert!</span>
-      </div>
-    </div>
-  </div>
-  <div class="table-container">
-    <h3>Eksisterende tokens</h3>
-    <table class="token-table">
-      <thead>
-      <tr>
-        <th>Navn</th>
-        <th>Utgår</th>
-        <th></th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr v-for="token in accessTokens" :key="token.id">
-        <td>{{ token.friendlyName }}</td>
-        <td>{{ formatDate(token.expiryDate) }}</td>
-        <td class="action-cell">
-          <div class="action-buttons">
-            <template v-if="confirmingDeleteId === token.id">
-              <button class="delete-btn confirm-btn" @click="confirmDelete(token.id)" title="Bekreft sletting">
-                <FeatherIcon name="check" />
-              </button>
-              <button class="delete-btn cancel-btn" @click="cancelDelete" title="Avbryt">
-                <FeatherIcon name="x" />
-              </button>
-            </template>
-          <button v-if="confirmingDeleteId !== token.id" class="delete-btn" @click="requestDelete(token.id)" title="Slett token">
-            <FeatherIcon name="trash-2" />
-          </button>
-          </div>
-        </td>
-      </tr>
-      <tr v-if="accessTokens.length === 0">
-        <td colspan="2">Ingen tokens funnet</td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+	<div v-if="!loading">
+		<h1>Personal access tokens</h1>
+		<div class="description">
+			Personlige access token fungerer akkurat som OAuth tilgangstoken for å
+			autentisere deg mot Alvtime API. Bruk de som bearer tokens i
+			applikasjoner der det ikke er mulig eller praktisk å implementere login
+			på vanlig måte.
+		</div>
+		<div class="form-container">
+			<div class="form-row">
+				<input
+					id="create-pat"
+					v-model="tokenName"
+					type="string"
+					placeholder="Navn på nytt token"
+					@focus="onInputFocus"
+				/>
+				<button
+					:disabled="tokenName.length <= 0"
+					@click="createToken"
+				>
+					Lag token
+				</button>
+			</div>
+			<div
+				v-if="temporaryVisibleToken"
+				class="new-token-container"
+			>
+				<b>Kopiér opprettet token og lagre det. Tokenet vil ikke kunne vises på nytt.</b>
+				<p>Token: <b>{{ temporaryVisibleToken.token }}</b></p>
+				<p>Utgår: {{ formatDate(temporaryVisibleToken.expiryDate) }}</p>
+				<div class="copy-button-wrapper">
+					<AlvtimeButton 
+						iconRight 
+						@click="copyTokenToClipboard"
+					>
+						Kopiér <FeatherIcon name="clipboard" />
+					</AlvtimeButton>
+					<span
+						v-if="showCopiedTooltip"
+						class="copied-tooltip"
+					>Kopiert!</span>
+				</div>
+			</div>
+		</div>
+		<div class="table-container">
+			<h3>Eksisterende tokens</h3>
+			<table class="token-table">
+				<thead>
+					<tr>
+						<th>Navn</th>
+						<th>Utgår</th>
+						<th />
+					</tr>
+				</thead>
+				<tbody>
+					<tr
+						v-for="token in accessTokens"
+						:key="token.id"
+					>
+						<td>{{ token.friendlyName }}</td>
+						<td>{{ formatDate(token.expiryDate) }}</td>
+						<td class="action-cell">
+							<div class="action-buttons">
+								<template v-if="confirmingDeleteId === token.id">
+									<button
+										class="delete-btn confirm-btn"
+										title="Bekreft sletting"
+										@click="confirmDelete(token.id)"
+									>
+										<FeatherIcon name="check" />
+									</button>
+									<button
+										class="delete-btn cancel-btn"
+										title="Avbryt"
+										@click="cancelDelete"
+									>
+										<FeatherIcon name="x" />
+									</button>
+								</template>
+								<button
+									v-if="confirmingDeleteId !== token.id"
+									class="delete-btn"
+									title="Slett token"
+									@click="requestDelete(token.id)"
+								>
+									<FeatherIcon name="trash-2" />
+								</button>
+							</div>
+						</td>
+					</tr>
+					<tr v-if="accessTokens.length === 0">
+						<td colspan="2">
+							Ingen tokens funnet
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
 </template>
 
 <script setup lang="ts">
@@ -91,52 +117,52 @@ const showCopiedTooltip = ref(false);
 const confirmingDeleteId = ref<number | null>(null);
 
 const createToken = async () => {
-  const createdToken = await accessTokenStore.createAccessToken(tokenName.value);
-  if (createdToken){
-    temporaryVisibleToken.value = createdToken;
-    tokenName.value = "";
-  }
-}
+	const createdToken = await accessTokenStore.createAccessToken(tokenName.value);
+	if (createdToken){
+		temporaryVisibleToken.value = createdToken;
+		tokenName.value = "";
+	}
+};
 
 const requestDelete = (tokenId: number) => {
-  confirmingDeleteId.value = tokenId;
+	confirmingDeleteId.value = tokenId;
 };
 
 const confirmDelete = async (tokenId: number) => {
-  await accessTokenStore.deleteAccessToken(tokenId);
-  confirmingDeleteId.value = null;
+	await accessTokenStore.deleteAccessToken(tokenId);
+	confirmingDeleteId.value = null;
 };
 
 const cancelDelete = () => {
-  confirmingDeleteId.value = null;
+	confirmingDeleteId.value = null;
 };
 
 const onInputFocus = () => {
-  const inputElement = document.getElementById("create-pat") as HTMLInputElement;
-  inputElement.select();
+	const inputElement = document.getElementById("create-pat") as HTMLInputElement;
+	inputElement.select();
 };
 
 const copyTokenToClipboard = () => {
-  if (temporaryVisibleToken.value) {
-    navigator.clipboard.writeText(temporaryVisibleToken.value.token);
-    showCopiedTooltip.value = true;
-    setTimeout(() => {
-      showCopiedTooltip.value = false;
-    }, 2500);
-  }
-}
+	if (temporaryVisibleToken.value) {
+		navigator.clipboard.writeText(temporaryVisibleToken.value.token);
+		showCopiedTooltip.value = true;
+		setTimeout(() => {
+			showCopiedTooltip.value = false;
+		}, 2500);
+	}
+};
 
 function formatDate(date: Date): string {
-  return new Date(date).toLocaleDateString("nb-NO", {
-    day: "numeric",
-    month: "short",
-    year: "numeric"
-  });
+	return new Date(date).toLocaleDateString("nb-NO", {
+		day: "numeric",
+		month: "short",
+		year: "numeric"
+	});
 }
 
 onMounted( async () => {
-  await accessTokenStore.getAccessTokens();
-  loading.value = false;
+	await accessTokenStore.getAccessTokens();
+	loading.value = false;
 });
 </script>
 
