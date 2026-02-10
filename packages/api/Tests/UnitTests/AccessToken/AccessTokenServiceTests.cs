@@ -51,7 +51,7 @@ public class AccessTokenServiceTests
     {
         var service = CreateAccessTokenService(_context);
 
-        await service.DeleteToken(new List<int>{1});
+        await service.DeleteToken(1);
 
         var tokens = await service.GetActiveTokens();
 
