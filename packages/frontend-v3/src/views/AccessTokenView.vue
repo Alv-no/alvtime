@@ -47,13 +47,23 @@
       </tr>
       </thead>
       <tbody>
-      <tr v-for="token in accessTokens" :key="token.friendlyName">
+      <tr v-for="token in accessTokens" :key="token.id">
         <td>{{ token.friendlyName }}</td>
         <td>{{ formatDate(token.expiryDate) }}</td>
         <td class="action-cell">
-          <button class="delete-btn" @click="deleteToken(token.id)" title="Slett token">
+          <div class="action-buttons">
+            <template v-if="confirmingDeleteId === token.id">
+              <button class="delete-btn confirm-btn" @click="confirmDelete(token.id)" title="Bekreft sletting">
+                <FeatherIcon name="check" />
+              </button>
+              <button class="delete-btn cancel-btn" @click="cancelDelete" title="Avbryt">
+                <FeatherIcon name="x" />
+              </button>
+            </template>
+          <button v-if="confirmingDeleteId !== token.id" class="delete-btn" @click="requestDelete(token.id)" title="Slett token">
             <FeatherIcon name="trash-2" />
           </button>
+          </div>
         </td>
       </tr>
       <tr v-if="accessTokens.length === 0">
@@ -76,8 +86,9 @@ const accessTokenStore = useAccessTokenStore();
 const { accessTokens } = storeToRefs(accessTokenStore);
 const loading = ref<boolean>(true);
 const tokenName = ref<string>("");
-let temporaryVisibleToken = ref<CreatedTokenResponse | null>(null);
+const temporaryVisibleToken = ref<CreatedTokenResponse | null>(null);
 const showCopiedTooltip = ref(false);
+const confirmingDeleteId = ref<number | null>(null);
 
 const createToken = async () => {
   const createdToken = await accessTokenStore.createAccessToken(tokenName.value);
@@ -87,9 +98,18 @@ const createToken = async () => {
   }
 }
 
-const deleteToken = async (tokenId: number) => {
+const requestDelete = (tokenId: number) => {
+  confirmingDeleteId.value = tokenId;
+};
+
+const confirmDelete = async (tokenId: number) => {
   await accessTokenStore.deleteAccessToken(tokenId);
-}
+  confirmingDeleteId.value = null;
+};
+
+const cancelDelete = () => {
+  confirmingDeleteId.value = null;
+};
 
 const onInputFocus = () => {
   const inputElement = document.getElementById("create-pat") as HTMLInputElement;
@@ -222,6 +242,22 @@ onMounted( async () => {
     color: #c53030;
     background-color: rgba(197, 48, 48, 0.1);
   }
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.25rem;
+  justify-content: center;
+}
+
+.confirm-btn:hover {
+  color: #2f855a;
+  background-color: rgba(47, 133, 90, 0.1);
+}
+
+.cancel-btn:hover {
+  color: #c53030;
+  background-color: rgba(197, 48, 48, 0.1);
 }
 
 .copy-button-wrapper {
