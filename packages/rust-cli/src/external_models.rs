@@ -32,7 +32,7 @@ pub struct CustomerDto {
     pub name: String,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct TimeEntryDto {
     #[serde(rename = "taskId")]
     pub task_id: i32,
@@ -66,5 +66,5 @@ pub struct AvailableHoursEntryDto {
     pub compensation_rate: f64,
     #[serde(rename = "type")]
     pub entry_type: i32,
-    pub active: bool,
+    pub active: Option<bool>,
 }

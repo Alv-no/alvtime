@@ -9,7 +9,9 @@ pub mod favorites;
 pub mod push;
 pub mod start;
 pub mod sync;
-mod utils;
+pub mod timebank;
+pub mod utils;
+pub mod comment;
 
 pub fn add_event(
     tasks: &mut Vec<models::Task>,

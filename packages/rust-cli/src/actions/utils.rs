@@ -1,57 +1,9 @@
-use chrono::{Local, NaiveDate};
-use crate::{external_models, models};
 use crate::events::Event;
 use crate::external_models::TaskDto;
-
-pub fn insert_and_resolve_overlaps(
-    tasks: &mut Vec<models::Task>,
-    new_entry: models::Task,
-) {
-    let mut result = Vec::new();
-    let n_start = new_entry.start_time;
-    // If end time is missing (running task), treat it as 'now' for overlap logic
-    let n_end = new_entry.end_time.unwrap_or_else(Local::now);
-
-    // We use drain to move out all existing tasks, filter/modify them, and put back into result
-    for p in tasks.drain(..) {
-        let p_start = p.start_time;
-        let p_end = p.end_time.unwrap_or_else(Local::now);
-
-        // Case 0: No overlap
-        // Existing: |---|
-        // New:            |---|
-        // OR
-        // New:      |---|
-        // Existing:       |---|
-        if p_end <= n_start || p_start >= n_end {
-            result.push(p);
-            continue;
-        }
-
-        // Overlap detected. The new entry "wins". We keep parts of 'p' that are outside 'new'.
-
-        // 1. Keep part of p strictly before n
-        if p_start < n_start {
-            let mut left = p.clone();
-            left.end_time = Some(n_start);
-            result.push(left);
-        }
-
-        // 2. Keep part of p strictly after n
-        if p_end > n_end {
-            let mut right = p.clone();
-            right.start_time = n_end;
-            // right.end_time remains as p.end_time
-            result.push(right);
-        }
-
-        // If p is fully inside n, both checks fail and p is dropped.
-    }
-
-    result.push(new_entry);
-    result.sort_by_key(|p| p.start_time);
-    *tasks = result;
-}
+use crate::{external_models, projector};
+use chrono::{Local, NaiveDate};
+use crate::models::Task;
+use crate::store::EventStore;
 
 pub fn parse_time(date: NaiveDate, time_str: &str) -> Option<chrono::DateTime<Local>> {
     let parts: Vec<&str> = time_str.trim().split(':').collect();
@@ -65,7 +17,6 @@ pub fn parse_time(date: NaiveDate, time_str: &str) -> Option<chrono::DateTime<Lo
     let naive = date.and_hms_opt(hour, min, 0)?;
     Some(naive.and_local_timezone(Local).unwrap())
 }
-
 
 pub fn generate_events_from_server_entries(
     date: NaiveDate,
@@ -151,6 +102,10 @@ pub fn generate_events_from_server_entries(
             .map(|t| t.project.name.clone())
             .unwrap_or_default();
 
+        let customer_name = found_task
+            .map(|t| t.project.customer.name.clone())
+            .unwrap_or_default();
+
         let rate = found_task.map(|t| t.compensation_rate).unwrap_or(0.0);
 
         let mut remaining_minutes = (entry.value * 60.0).round() as i64;
@@ -175,13 +130,12 @@ pub fn generate_events_from_server_entries(
                         id: entry.task_id,
                         name: task_name.clone(),
                         project_name: project_name.clone(),
+                        customer_name: customer_name.clone(),
                         rate,
                         start_time: cursor,
-                        is_generated: true,
                     });
                     events.push(Event::Stopped {
                         end_time: pre_lunch_end,
-                        is_generated: true,
                     });
                     remaining_minutes -= mins_to_lunch;
                 }
@@ -189,11 +143,9 @@ pub fn generate_events_from_server_entries(
                 // Insert lunch break
                 events.push(Event::BreakStarted {
                     start_time: lunch_start,
-                    is_generated: true,
                 });
                 events.push(Event::Stopped {
                     end_time: lunch_end,
-                    is_generated: true,
                 });
                 cursor = lunch_end;
                 lunch_inserted = true;
@@ -207,18 +159,47 @@ pub fn generate_events_from_server_entries(
                 id: entry.task_id,
                 name: task_name.clone(),
                 project_name: project_name.clone(),
+                customer_name: customer_name.clone(),
                 rate,
                 start_time: cursor,
-                is_generated: true,
             });
             events.push(Event::Stopped {
                 end_time: segment_end,
-                is_generated: true,
             });
             cursor = segment_end;
             remaining_minutes -= mins_to_add;
         }
     }
 
+    // After generating all TaskStarted/Stopped events, add CommentAdded events
+    // for any entries that have comments
+    for entry in day_entries {
+        if let Some(comment) = &entry.comment {
+            events.push(Event::CommentAdded {
+                date,
+                task_id: entry.task_id,
+                comment: comment.clone(),
+            });
+        }
+    }
+
     events
+}
+
+pub fn get_all_tasks(store: &EventStore) -> Vec<Task> {
+    let all_dates = store.get_all_dates_with_events();
+    let mut all_tasks = Vec::new();
+    for date in all_dates {
+        let events = store.events_for_day(date);
+        all_tasks.extend(projector::restore_state(&events));
+    }
+    all_tasks
+}
+
+pub fn round_duration_to_quarter_hour(minutes: i64) -> f64 {
+    if minutes <= 0 {
+        return 0.0;
+    }
+    let quarters = (minutes as f64 / 15.0).ceil();
+    quarters * 0.25
 }
