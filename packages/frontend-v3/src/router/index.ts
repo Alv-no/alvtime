@@ -35,6 +35,14 @@ const routes: Array<RouteRecordRaw> = [
 		}
 	},
 	{
+		path: "/pat",
+		name: "pat",
+		component: () => import("@/views/AccessTokenView.vue"),
+		meta: {
+			requiresAuth: true,
+		}
+	},
+	{
 		path: "/failed",
 		name: "failed",
 		component: () => import("@/views/HomeView.vue"),

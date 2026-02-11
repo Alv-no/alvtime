@@ -44,6 +44,13 @@
 						Statistikk
 					</router-link>
 				</div>
+        <div>
+          <router-link
+            to="/pat"
+          >
+            PAT
+          </router-link>
+        </div>
 			</div>
 			<div class="user-container">
 				<p>{{ user?.name }}</p>
