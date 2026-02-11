@@ -9,14 +9,12 @@ using AlvTimeWebApi.Infrastructure;
 using AlvTimeWebApi.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Scalar.AspNetCore;
-using System.Net;
-using Microsoft.AspNetCore.Http;
 
 namespace AlvTimeWebApi;
 
@@ -48,7 +46,7 @@ public class Startup
         services.AddScoped<GraphService>();
         services.Configure<TimeEntryOptions>(Configuration.GetSection("TimeEntryOptions"));
         services.AddAlvtimeAuthorization();
-        services.AddOpenApi();
+        services.AddOpenApi(o => o.AddDocumentTransformer<OpenApiLoginTransformer>());
         services.AddRazorPages();
         services.AddAlvtimeCorsPolicys(Configuration);
         services.ConfigureLogging(_environment);
@@ -95,11 +93,6 @@ public class Startup
             endpoints.MapScalarApiReference(options =>
             {
                 options
-                    .WithOAuth2Authentication(oAuth2Options =>
-                    {
-                        oAuth2Options.ClientId = Configuration["AzureAd:ClientId"];
-                        oAuth2Options.Scopes = [Configuration["AzureAd:Domain"]];
-                    })
                     .WithTheme(ScalarTheme.Kepler)
                     .WithTitle("AlvTime API")
                     .WithFavicon("/assets/favicon.ico")
