@@ -2,10 +2,8 @@
 - [![adminpanel-workflow-runner](https://github.com/Alv-no/alvtime/actions/workflows/adminpanel-workflow-runner.yml/badge.svg)](https://github.com/Alv-no/alvtime/actions/workflows/adminpanel-workflow-runner.yml)
 - [![api-workflow-runner](https://github.com/Alv-no/alvtime/actions/workflows/api-workflow-runner.yml/badge.svg)](https://github.com/Alv-no/alvtime/actions/workflows/api-workflow-runner.yml)
 - [![migrationclient-workflow-runner](https://github.com/Alv-no/alvtime/actions/workflows/migrationclient-workflow-runner.yml/badge.svg)](https://github.com/Alv-no/alvtime/actions/workflows/migrationclient-workflow-runner.yml)
-- [![Frontend Test](https://github.com/Alv-no/alvtime/actions/workflows/azure-static-web-apps-red-sand-043c70a03.yml/badge.svg)](https://github.com/Alv-no/alvtime/actions/workflows/azure-static-web-apps-red-sand-043c70a03.yml)
-- [![Frontend Production](https://github.com/Alv-no/alvtime/actions/workflows/azure-static-web-apps-mango-island-0a2b55803.yml/badge.svg)](https://github.com/Alv-no/alvtime/actions/workflows/azure-static-web-apps-mango-island-0a2b55803.yml)
-- [![Frontend V3 Test](https://github.com/Alv-no/alvtime/actions/workflows/azure-static-web-apps-zealous-wave-0708ca403.yml/badge.svg)](https://github.com/Alv-no/alvtime/actions/workflows/azure-static-web-apps-zealous-wave-0708ca403.yml)
-- [![Frontend V3 Production](https://github.com/Alv-no/alvtime/actions/workflows/azure-static-web-apps-kind-water-073df6f03.yml/badge.svg)](https://github.com/Alv-no/alvtime/actions/workflows/azure-static-web-apps-kind-water-073df6f03.yml)
+- [![Frontend Test](https://github.com/Alv-no/alvtime/actions/workflows/azure-static-web-apps-zealous-wave-0708ca403.yml/badge.svg)](https://github.com/Alv-no/alvtime/actions/workflows/azure-static-web-apps-zealous-wave-0708ca403.yml)
+- [![Frontend Production](https://github.com/Alv-no/alvtime/actions/workflows/azure-static-web-apps-kind-water-073df6f03.yml/badge.svg)](https://github.com/Alv-no/alvtime/actions/workflows/azure-static-web-apps-kind-water-073df6f03.yml)
 
 # AlvTime
 
