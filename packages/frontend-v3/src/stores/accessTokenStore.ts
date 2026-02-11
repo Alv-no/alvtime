@@ -21,7 +21,7 @@ export const useAccessTokenStore = defineStore('accessTokenStore', () => {
       const response = await accessTokenService.getAccessTokens();
       accessTokens.value = response.data;
     } catch (error) {
-      console.error("Failed to fetch statistics:", error);
+      console.error("Failed to fetch access tokens:", error);
       throw error;
     }
   };
