@@ -92,10 +92,15 @@ const getInitialWeekSlide = () => {
 	return RADIUS_OF_WEEKS;
 };
 
+const getRadiusOfWeeks = () => {
+	return RADIUS_OF_WEEKS;
+};
+
 export {
 	getFirstDayOfWeek,
 	getWeekNumber,
 	createWeek,
 	createWeeks,
-	getInitialWeekSlide
+	getInitialWeekSlide,
+	getRadiusOfWeeks
 };
