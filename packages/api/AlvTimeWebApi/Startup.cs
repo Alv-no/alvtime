@@ -9,7 +9,6 @@ using AlvTimeWebApi.Infrastructure;
 using AlvTimeWebApi.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,7 +45,11 @@ public class Startup
         services.AddScoped<GraphService>();
         services.Configure<TimeEntryOptions>(Configuration.GetSection("TimeEntryOptions"));
         services.AddAlvtimeAuthorization();
-        services.AddOpenApi(o => o.AddDocumentTransformer<OpenApiLoginTransformer>());
+        services.AddOpenApi(o => 
+        {
+            o.AddDocumentTransformer<OpenApiLoginTransformer>();
+            o.AddOperationTransformer<DefaultHeaderTransformer>();
+        });
         services.AddRazorPages();
         services.AddAlvtimeCorsPolicys(Configuration);
         services.ConfigureLogging(_environment);
@@ -95,8 +98,7 @@ public class Startup
                 options
                     .WithTheme(ScalarTheme.Kepler)
                     .WithTitle("AlvTime API")
-                    .WithFavicon("/assets/favicon.ico")
-                    .WithDarkModeToggle(true);
+                    .WithFavicon("/assets/favicon.ico");
             });
         });
     }
