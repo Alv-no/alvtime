@@ -1,7 +1,7 @@
-import type { NorwegianHolidays } from "@/utils/holidayHelper";
+import { createNorwegianHolidays, type NorwegianHolidays } from "@/utils/holidayHelper";
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
-import { createWeeks } from "@/utils/weekHelper";
+import { createWeek, createWeeks, getRadiusOfWeeks } from "@/utils/weekHelper";
 import { useTimeEntriesStore } from "@/stores/timeEntriesStore";
 import Swiper from "swiper";
 
@@ -53,6 +53,39 @@ export const useDateStore = defineStore("date", () => {
 		return weeks.value[activeWeekIndex.value] || [];
 	});
 
+	const extendWeeks = async (): Promise<number> => {
+		const radius = getRadiusOfWeeks();
+		const newWeeks: Date[][] = [];
+
+		const lastWeek = weeks.value[weeks.value.length - 1];
+		const lastDay = lastWeek[6];
+
+		for (let i = 1; i <= radius; i++) {
+			const date = new Date(lastDay);
+			date.setDate(lastDay.getDate() + i * 7);
+			newWeeks.push(createWeek(date))
+		}
+
+		weeks.value = [...weeks.value, ...newWeeks];
+
+		const years = getYearsInRange(weeks.value[0][0].getFullYear(), weeks.value[weeks.value.length - 1][6].getFullYear());
+		holidays.value = createNorwegianHolidays(years);
+
+		if (weeksDateRange.value) {
+			await timeEntriesStore.getTimeEntries(weeksDateRange.value);
+		}
+
+		return newWeeks.length;
+	}
+
+	const getYearsInRange = (start: number, end: number): number[] => {
+		const years: number[] = [];
+		for (let y = start; y <= end; y++) {
+			years.push(y);
+		}
+		return years;
+	};
+
 	return {
 		activeDate,
 		currentWeek,
@@ -61,5 +94,6 @@ export const useDateStore = defineStore("date", () => {
 		setActiveDate,
 		setActiveWeekIndex,
 		setSwiper,
+		extendWeeks
 	};
 });
