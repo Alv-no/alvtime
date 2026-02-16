@@ -14,7 +14,7 @@ namespace AlvTimeWebApi.Controllers.Admin;
 
 [Route("api/admin")]
 [ApiController]
-[Authorize(Roles = "Admin")]
+[Authorize(Policy = "AdminPolicy")]
 public class TaskController : ControllerBase
 {
     private readonly TaskService _taskService;

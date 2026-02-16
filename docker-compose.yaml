@@ -10,20 +10,6 @@ services:
     ports:
       - "3000:8080"
 
-  frontend:
-    user: vscode
-    tty: true
-    depends_on:
-      - api
-    build:
-      context: ./packages/frontend
-      target: dev
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./packages/frontend:/src
-      - /src/node_modules
-
   frontend-v3:
     user: vscode
     tty: true
@@ -58,6 +44,9 @@ services:
       - "8081:8080"
     expose:
       - "8080"
+    networks:
+      - shared
+      - host
 
   migrations:
     build:
@@ -69,6 +58,8 @@ services:
     environment:
       - DOTNET_ENVIRONMENT=Development
       - ConnectionStrings__AlvTime=Data Source=tcp:db,1433;Initial Catalog=AlvDevDB;User ID=sa;Password=AlvTimeTestErMoro32;Trust Server Certificate=True;
+    networks:
+      - host
 
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -104,64 +95,12 @@ services:
       timeout: 5s
       retries: 30
       start_period: 20s
+    networks:
+      - host
 
-  slack-app:
-    tty: true
-    build:
-      context: ./packages/slack-app
-      target: dev
-    volumes:
-      - ./packages/slack-app:/src:delegated
-      - /src/node_modules/
-    depends_on:
-      - api
-      - ngrok
-      - mongo
-      - mongo-express
-    expose:
-      - 1337
-    ports:
-      - 9229:9229
-    environment:
-      - NODE_ENV=development
-      - AZURE_AD_CLIENT_ID=c9126a83-01c3-43c0-8bb3-298d352d2d7f
-      - AZURE_AD_ACCESS_AS_USER_SCOPE=api://c9126a83-01c3-43c0-8bb3-298d352d2d7f/access_as_user
-      - REPORT_USER_PERSONAL_ACCESS_TOKEN=5801gj90-jf39-5j30-fjk3-480fj39kl409
-      - ADMIN_USERS=U013CDC0VTQ
-      - ALVTIME_API_URI=http://api
-      - DB_ENCRYPTION_KEY=dbencryptionkey
-      - PORT=1337
-      - DB_CONNECTION_STRING=mongodb://root:settesForBrukNarManByggerLokalt@mongo
-      - HOST
-      - AZURE_AD_CLIENT_SECTRET
-      - SLACK_BOT_TOKEN
-      - SLACK_SIGNING_SECRET
-      - LEARNING_COLLECTOR_SLACK_BOT_SIGNING_SECRET
-      - LEARNING_COLLECTOR_SLACK_BOT_TOKEN
-      - CVPARTNER_API_TOKEN
-      - LEARNING_COLLECTOR_SHARING_CHANNEL_ID=C02TUVC9LJ2
-
-  ngrok:
-    ports:
-      - "0.0.0.0:4040:4040"
-    image: ngrok/ngrok
-    environment:
-      NGROK_AUTHTOKEN: ${NGROK_AUTH}
-    command: http --url ${NGROK_HOSTNAME} slack-app:1337
-
-  mongo:
-    image: mongo
-    restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: settesForBrukNarManByggerLokalt
-
-  mongo-express:
-    image: mongo-express
-    restart: always
-    ports:
-      - 8083:8081
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: settesForBrukNarManByggerLokalt
-      ME_CONFIG_MONGODB_URL: mongodb://root:settesForBrukNarManByggerLokalt@mongo:27017/
+networks:
+  host:
+    driver: bridge
+    internal: false
+  shared:
+    name: shared-net

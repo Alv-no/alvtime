@@ -36,10 +36,10 @@ namespace AlvTime.Business.TimeRegistration
 
     public class MultipleTimeEntriesQuerySearch
     {
-        public IEnumerable<int> EmployeeIds { get; set; }
+        public IEnumerable<int>? EmployeeIds { get; set; }
         public DateTime? FromDateInclusive { get; set; }
         public DateTime? ToDateInclusive { get; set; }
-        public IEnumerable<int> TaskIds { get; set; }
+        public IEnumerable<int>? TaskIds { get; set; }
     }
 
     public class OvertimeQueryFilter
