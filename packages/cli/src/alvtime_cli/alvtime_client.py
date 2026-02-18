@@ -56,12 +56,14 @@ class AlvtimeClient:
         self.base_url = base_url or config.get(config.Keys.alvtime_base_url)
 
     def ping(self):
-        response = requests.get(f"{self.base_url}/api/ping")
+        headers = {"x-csrf": "dummy"}
+        response = requests.get(f"{self.base_url}/api/ping", headers=headers)
+        response.raise_for_status()
         return response.json()
 
     def list_tasks(self):
         pat = config.get(config.Keys.personal_access_token, "")
-        headers = {"Authorization": f"Bearer {pat}"}
+        headers = {"Authorization": f"Bearer {pat}", "x-csrf": "dummy"}
         response = requests.get(f"{self.base_url}/api/user/Tasks",
                                 headers=headers)
         response.raise_for_status()
@@ -69,7 +71,7 @@ class AlvtimeClient:
 
     def list_time_entries(self, from_: date, to: date) -> list[model.TimeEntry]:
         pat = config.get(config.Keys.personal_access_token, "")
-        headers = {"Authorization": f"Bearer {pat}"}
+        headers = {"Authorization": f"Bearer {pat}", "x-csrf": "dummy"}
         params = {"fromDateInclusive": from_.isoformat(),
                   "toDateInclusive": to.isoformat()}
         response = requests.get(f"{self.base_url}/api/user/TimeEntries",
@@ -80,7 +82,7 @@ class AlvtimeClient:
 
     def upsert_time_entries(self, entries: list[model.TimeEntry]):
         pat = config.get(config.Keys.personal_access_token, "")
-        headers = {"Authorization": f"Bearer {pat}"}
+        headers = {"Authorization": f"Bearer {pat}", "x-csrf": "dummy"}
         body = list(map(_time_entry_to_dto, entries))
         response = requests.post(f"{self.base_url}/api/user/TimeEntries",
                                  headers=headers,
@@ -90,7 +92,7 @@ class AlvtimeClient:
 
     def list_bank_holidays(self, fromYear, toYear):
         pat = config.get(config.Keys.personal_access_token, "")
-        headers = {"Authorization": f"Bearer {pat}"}
+        headers = {"Authorization": f"Bearer {pat}", "x-csrf": "dummy"}
         params = {"fromYearInclusive": str(fromYear),
                   "toYearInclusive": str(toYear)}
         response = requests.get(f"{self.base_url}/api/Holidays/Years",
@@ -102,7 +104,7 @@ class AlvtimeClient:
 
     def get_available_hours(self) -> model.AvailableHours:
         pat = config.get(config.Keys.personal_access_token, "")
-        headers = {"Authorization": f"Bearer {pat}"} if pat else {}
+        headers = {"Authorization": f"Bearer {pat}", "x-csrf": "dummy"} if pat else {}
         response = requests.get(f"{self.base_url}/api/user/AvailableHours",
                                 headers=headers)
         response.raise_for_status()
@@ -113,7 +115,7 @@ class AlvtimeClient:
 
     def upsert_payout(self, payout_hour_entry: model.GenericPayoutHourEntry) -> model.GenericPayoutHourEntry:
         pat = config.get(config.Keys.personal_access_token, "")
-        headers = {"Authorization": f"Bearer {pat}"} if pat else {}
+        headers = {"Authorization": f"Bearer {pat}", "x-csrf": "dummy"} if pat else {}
         body = _payout_to_dto(payout_hour_entry)
         response = requests.post(
             f"{self.base_url}/api/user/Payouts",

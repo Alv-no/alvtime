@@ -5,7 +5,6 @@ interface Config {
   AUTHORITY: string;
   TENANT_ID: string;
   CLIENT_ID: string;
-  ACCESS_SCOPE: string;
   SLACK_TEAM_ID: string;
   SLACK_CHANNEL_ID: string;
   BASE_URL_ADMINPANEL: string;

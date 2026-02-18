@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using AlvTimeWebApi.Authorization.Handlers;
+﻿using AlvTimeWebApi.Authorization.Handlers;
 using AlvTimeWebApi.Authorization.Requirements;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AlvTimeWebApi.Authorization;
 
@@ -14,7 +14,7 @@ public static class AuthorizationExtensions
         {
             options.DefaultPolicy = new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
-                .AddAuthenticationSchemes("PersonalAccessTokenScheme", JwtBearerDefaults.AuthenticationScheme)
+                .AddAuthenticationSchemes("PersonalAccessTokenScheme", CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddRequirements(new EmployeeStillActiveRequirement())
                 .Build();
         });

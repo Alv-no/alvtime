@@ -31,21 +31,14 @@ namespace AlvTime.Business.AccessTokens
             return await _tokenStorage.CreateLifetimeToken(personalAccessToken);
         }
 
-        public async Task<IEnumerable<AccessTokenDto>> DeleteActiveTokens(IEnumerable<int> tokenIds)
+        public async Task DeleteToken(int tokenId)
         {
             var userTokenIds = (await GetActiveTokens()).Select(token => token.Id);
-
-            var response = new List<AccessTokenDto>();
-
-            foreach (var tokenId in tokenIds)
+            
+            if (userTokenIds.Contains(tokenId))
             {
-                if (userTokenIds.Contains(tokenId))
-                {
-                    response.Add(await _tokenStorage.DeleteActiveTokens(tokenId));
-                }
+                await _tokenStorage.DeleteActiveToken(tokenId);
             }
-
-            return response;
         }
 
         public async Task<IEnumerable<AccessTokenDto>> GetActiveTokens()

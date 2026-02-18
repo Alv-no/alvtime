@@ -37,6 +37,12 @@ public class TimeEntriesController : Controller
         _reportUser = _timeEntryOptions.CurrentValue.ReportUser;
     }
 
+    [HttpGet("TimeEntryOverview")]
+    public async Task<ActionResult<IEnumerable<TimeEntryOverviewDto>>> FetchTimeEntryOverview(int numberOfMonths = 3)
+    {
+        return Ok(await _timeRegistrationService.FetchTimeEntryOverview());
+    }
+
     [HttpGet("TimeEntries")]
     public async Task<ActionResult<IEnumerable<TimeEntryResponseDto>>> FetchTimeEntries(DateTime fromDateInclusive, DateTime toDateInclusive)
     {
