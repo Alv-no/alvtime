@@ -1,10 +1,11 @@
+import pydantic
 from dataclasses import dataclass
 from datetime import datetime, date, timedelta
 
 from alvtime_cli import config, model
 from alvtime_cli.repo import Repo
 from alvtime_cli.alvtime_client import AlvtimeClient
-from alvtime_cli.utils import group_by, iterate_dates
+from alvtime_cli.utils import group_by, iterate_dates, breakify_entries, entries_overlap
 
 
 class TaskAlreadyStartedError(Exception):
@@ -80,6 +81,7 @@ class LocalService:
         entry = model.TimeEntry(
             task_id=task_id,
             start=at or datetime.now().astimezone(),
+            is_open=True,
             comment=comment)
 
         # Make sure the start time is rounded (down) to nearest second
@@ -149,7 +151,7 @@ class LocalService:
 
         return entry
 
-    def get_entries(self, from_: date, to: date) -> list[model.TimeEntry]:
+    def get_entries(self, from_: date, to: date, breakify=False) -> list[model.TimeEntry]:
         # Put all tasks  in a dict
         tasks = {t.id: t for t in self.get_all_tasks()}
 
@@ -162,7 +164,58 @@ class LocalService:
         for entry in entries:
             entry.task = tasks[entry.task_id]
 
+        # Breakify if needed
+        if breakify:
+            # load all relevant time breaks
+            breaks = self.repo.list_time_breaks(
+                    from_date=from_,
+                    to_date=to)
+
+            # Chop, chop!
+            entries = breakify_entries(entries, breaks)
+
         return entries
+
+    def add_time_entry(self, entry: model.TimeEntry):
+        self.repo.insert_time_entry(entry)
+
+    def update_time_entry(self, entry: model.TimeEntry):
+        self.repo.update_time_entry(entry)
+
+    def delete_time_entry(self, entry_id: int):
+        self.repo.delete_time_entry(entry_id)
+
+    def get_breaks(self, from_: date, to: date) -> list[model.TimeBreak]:
+        return self.repo.list_time_breaks(
+                from_date=from_,
+                to_date=to)
+
+    def add_break(self, break_: model.TimeBreak):
+        self.repo.insert_time_break(break_)
+        return break_
+
+    def update_break(self, break_: model.TimeBreak):
+        self.repo.update_time_break(break_)
+
+    def delete_break(self, break_id: int):
+        self.repo.delete_time_break(break_id)
+
+    def add_missing_auto_breaks(self, date: date) -> list[config.AutoBreak]:
+        auto_breaks = pydantic.parse_obj_as(list[config.AutoBreak], config.get("autoBreaks", []))
+        time_entries = self.get_entries(date, date, breakify=True)
+        ret = []
+        for auto_break in auto_breaks:
+            if config.Weekday.from_date(date) not in auto_break.weekdays:
+                continue
+            break_ = model.TimeBreak(
+                    start=datetime.combine(datetime.now(), auto_break.start).astimezone(),
+                    duration=(datetime.combine(datetime.now(), auto_break.stop) -
+                              datetime.combine(datetime.now(), auto_break.start)),
+                    comment=auto_break.comment)
+            if any(entries_overlap(break_, e) for e in time_entries):
+                self.add_break(break_)
+                ret.append(auto_break)
+        return ret
 
     def round_duration(self, duration: timedelta) -> timedelta:
         total_seconds = duration.total_seconds()
@@ -182,7 +235,7 @@ class LocalService:
         result.pulled_task_count = len(cloud_entries)
 
         # ...and all local entries, grouped by date
-        local_entries = group_by(self.repo.list_time_entries(from_, to),
+        local_entries = group_by(self.get_entries(from_, to, breakify=True),
                                  lambda e: e.start.date())
 
         for cloud_entry in cloud_entries:
@@ -202,7 +255,8 @@ class LocalService:
                 new_entry = model.TimeEntry(
                     task_id=cloud_entry.task_id,
                     start=cloud_entry.start.astimezone(),
-                    duration=cloud_entry.duration,
+                    duration=(cloud_entry.duration - rounded_local_duration),
+                    is_open=False,
                     comment=cloud_entry.comment)
 
                 # Store it
@@ -219,7 +273,7 @@ class LocalService:
         result = PushResult()
 
         # Get all local entries, grouped by date
-        local_entries = group_by(self.repo.list_time_entries(from_, to),
+        local_entries = group_by(self.get_entries(from_, to, breakify=True),
                                  lambda e: (e.start.date(), e.task_id))
 
         to_push = list()
@@ -233,6 +287,7 @@ class LocalService:
                 task_id=task_id,
                 start=current_date,
                 duration=rounded_duration,
+                is_open=False,
                 comment=comment))
 
         # Upsert it
@@ -265,7 +320,7 @@ class LocalService:
 
         return ret
 
-    def get_total_registered_duration_by_date(self, from_: date, to: date, rounding=False) -> dict[date, timedelta]:
+    def _get_total_registered_duration_by_date(self, from_: date, to: date, rounding: bool = False) -> dict[date, timedelta]:
         # Check if we're already started
         if self.current_entry():
             raise TaskAlreadyStartedError()
@@ -273,7 +328,7 @@ class LocalService:
         ret = {}
 
         # Get all local entries, grouped by date
-        local_entries = group_by(self.repo.list_time_entries(from_, to),
+        local_entries = group_by(self.get_entries(from_, to, breakify=True),
                                  lambda e: e.start.date())
 
         # Iterate over desired date range
@@ -293,7 +348,7 @@ class LocalService:
     def check(self, from_: date, to: date) -> list[model.CheckResult]:
         ret = []
         expected_hours = self.get_expected_durations(from_, to)
-        registered_hours = self.get_total_registered_duration_by_date(from_, to, rounding=True)
+        registered_hours = self._get_total_registered_duration_by_date(from_, to, rounding=True)
 
         # Iterate over desired date range
         for current_date in iterate_dates(from_, to):
@@ -311,3 +366,54 @@ class LocalService:
             ret.append(status)
 
         return ret
+
+    def calculate_monetary_timebank(self, duration: timedelta) -> float:
+        """
+        Calculate monetary value of timebank hours based on configured salary.
+        Returns unformatted float value (hourly rate * total hours).
+        """
+        salary: int = config.get(config.Keys.salary)
+        hourly_rate = salary / 1950  # Assuming 1950 working hours per year
+        return duration.total_seconds() / 60 / 60 * hourly_rate
+
+    def get_total_hours_with_compensation(self, entries: list[model.AvailableHoursEntry]) -> float:
+        """
+        Calculate total hours multiplied by their compensation rates.
+        Returns unformatted float value.
+        """
+        return sum(entry.hours * entry.compensation_rate for entry in entries)
+
+    def calculate_unspent_overtime(self, entries: list[model.AvailableHoursEntry]) -> dict[str, float]:
+        """
+        Groups overtime entries by compensation rate.
+        Returns dict with compensation rates as keys and total hours as values.
+
+        Note: This includes ALL entries filtered by compensation rate,
+        matching the frontend implementation in TimeBankOverview.vue
+        """
+        unspent_overtime: dict[str, float] = {
+            "0.5": 0.0,   # Frivillig (Volunteer)
+            "1.0": 0.0,   # Interntid (Mandatory)
+            "1.5": 0.0,   # Fakturerbart (Billable)
+            "2.0": 0.0,   # Tommy Time (Mandatory Billable)
+        }
+
+        for entry in entries:
+            rate_key = f"{entry.compensation_rate}"
+            if rate_key in unspent_overtime:
+                unspent_overtime[rate_key] += entry.hours
+
+        return unspent_overtime
+
+    def get_available_hours(self) -> model.AvailableHours:
+        return self.alvtime_client.get_available_hours()
+
+    def order_payout(self, hours: float) -> model.GenericPayoutHourEntry:
+        payout_hour_entry = model.GenericPayoutHourEntry(
+            date=date.today(),
+            hours=hours,
+        )
+        return self.alvtime_client.upsert_payout(payout_hour_entry)
+
+
+

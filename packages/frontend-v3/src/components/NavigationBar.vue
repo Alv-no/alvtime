@@ -37,6 +37,20 @@
 						Timebank
 					</router-link>
 				</div>
+				<div>
+					<router-link
+						to="/statistikk"
+					>
+						Statistikk
+					</router-link>
+				</div>
+        <div>
+          <router-link
+            to="/pat"
+          >
+            PAT
+          </router-link>
+        </div>
 			</div>
 			<div class="user-container">
 				<p>{{ user?.name }}</p>
@@ -77,12 +91,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import LogOutButton from "@/components/LogOutButton.vue";
-import { useUserStore } from "@/stores/userStore";
 import FeatherIcon from "./utils/FeatherIcon.vue";
 import MobileMenu from "./utils/MobileMenu.vue";
+import { useAuthStore} from "@/stores/authStore.ts";
+import { storeToRefs } from "pinia";
 
 const open = ref(false);
-const { user } = useUserStore();
+const authStore = useAuthStore();
+const { user } = storeToRefs(authStore);
 const isMobile = window.innerWidth <= 768;
 
 const close = () => {
@@ -103,8 +119,8 @@ const close = () => {
 		width: 1200px;
 		padding: 0 20px;
 		display: flex;
-		justify-content: space-between;
 		align-items: center;
+		justify-content: space-between;
 
 		a {
 			text-decoration: none;

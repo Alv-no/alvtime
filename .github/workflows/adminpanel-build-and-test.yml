@@ -1,0 +1,26 @@
+name: Build and test Adminpanel
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "packages/adminpanel/**"
+
+jobs:
+  build:
+    name: Build Docker image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -f packages/adminpanel/Server/Dockerfile \
+            -t adminpanel-test:latest \
+            packages/adminpanel

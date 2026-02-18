@@ -27,6 +27,22 @@ const routes: Array<RouteRecordRaw> = [
 		}
 	},
 	{
+		path: "/statistikk",
+		name: "statistikk",
+		component: () => import("@/views/StatisticsView.vue"),
+		meta: {
+			requiresAuth: true,
+		}
+	},
+	{
+		path: "/pat",
+		name: "pat",
+		component: () => import("@/views/AccessTokenView.vue"),
+		meta: {
+			requiresAuth: true,
+		}
+	},
+	{
 		path: "/failed",
 		name: "failed",
 		component: () => import("@/views/HomeView.vue"),

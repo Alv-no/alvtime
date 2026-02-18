@@ -5,7 +5,7 @@
 		:closable="true"
 		@close="close"
 	>
-		{{ timeEntryError?.errors.InvalidAction[0] || "En feil oppstod ved lagring av tidsregistreringen." }}
+		{{ getErrorMessage() }}
 	</ErrorBox>
 </template>
 
@@ -16,6 +16,21 @@ import { storeToRefs } from "pinia";
 
 const timeEntriesStore = useTimeEntriesStore();
 const { timeEntryError } = storeToRefs(timeEntriesStore);
+
+const getErrorMessage = () => {
+	if (!timeEntryError.value) {
+		return "En feil oppstod ved lagring av tidsregistreringen.";
+	}
+
+	if (timeEntryError.value.errors) {
+		const firstErrorKey = Object.keys(timeEntryError.value.errors)[0];
+		if (firstErrorKey && timeEntryError.value.errors[firstErrorKey]?.[0]) {
+			return timeEntryError.value.errors[firstErrorKey][0];
+		}
+	}
+
+	return timeEntryError.value.title || "En feil oppstod ved lagring av tidsregistreringen.";
+};
 
 const close = () => {
 	timeEntryError.value = {};

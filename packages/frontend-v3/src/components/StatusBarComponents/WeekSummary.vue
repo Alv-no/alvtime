@@ -8,7 +8,7 @@
 			<HugeiconsIcon
 				:icon="Calendar03Icon"
 				class="icon"
-			/> {{ totalHoursThisWeek }}/37,5
+			/> {{ totalHoursThisWeek }}/37.5
 		</div>
 		<div
 			id="expander"
@@ -39,7 +39,9 @@ const { totalHoursThisWeek, totalHoursEachDayThisWeek } = defineProps<{
 
 const toggleExpander = () => {
 	const expander = document.getElementById("expander");
-	if (hovering.value) {
+	const isMobile = window.innerWidth < 768;
+	
+	if (hovering.value && !isMobile) {
 		expander?.classList.add("visible");
 		expander?.style.setProperty("width", expander?.scrollWidth + "px");
 	} else {

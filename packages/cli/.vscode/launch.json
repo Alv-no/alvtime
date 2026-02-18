@@ -5,10 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Module",
+            "name": "Alvtime CLI (Poetry)",
             "type": "debugpy",
             "request": "launch",
             "module": "alvtime_cli.cli",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": false,
             "args": "${command:pickArgs}"
         }
     ]

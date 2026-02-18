@@ -242,11 +242,10 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
         await _context.SaveChangesAsync();
     }
 
-
-
     public Task<List<TimeEntryWithCustomerDto>> GetTimeEntriesWithCustomer(int userId, DateTime fromDate, DateTime toDate)
     {
         return (from hour in _context.Hours
+                where hour.Value > 0
                 join task in _context.Task on hour.TaskId equals task.Id
                 join project in _context.Project on task.Project equals project.Id
                 join customer in _context.Customer on project.Customer equals customer.Id

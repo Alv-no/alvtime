@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Alvtime.Adminpanel.Client;
 using Alvtime.Adminpanel.Client.Authorization;
 using Alvtime.Adminpanel.Client.ErrorHandling;
-using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor.Services;
 using Toolbelt.Blazor.Extensions.DependencyInjection;
 
@@ -13,32 +13,23 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddLocalization();
 
-builder.Services.AddTransient<CustomAuthorizationMessageHandler>();
-
 builder.Services.AddHttpClient("Alvtime.API", (sp, client) =>
     {
         client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"]!);
+        client.DefaultRequestHeaders.Add("X-CSRF", "1");
         client.EnableIntercept(sp);
     })
-    .AddHttpMessageHandler<CustomAuthorizationMessageHandler>();
+    .ConfigurePrimaryHttpMessageHandler<CookieIncludingHandler>();
+
+builder.Services.AddTransient<CookieIncludingHandler>();
 
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("Alvtime.API"));
 builder.Services.AddScoped<HttpInterceptorService>();
 
-
-builder.Services.AddMsalAuthentication(options =>
-{
-    builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
-    options.ProviderOptions.DefaultAccessTokenScopes.Add(builder.Configuration["ApiSettings:Scope"]!);
-    options.ProviderOptions.LoginMode = "redirect";
-    options.ProviderOptions.Cache.CacheLocation = "localStorage";
-    options.UserOptions.RoleClaim = "roles";
-});
+builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<AuthenticationStateProvider, BffAuthenticationStateProvider>();
 
 builder.Services.AddHttpClientInterceptor();
 builder.Services.AddMudServices();
-
-builder.Services.AddScoped(typeof(AccountClaimsPrincipalFactory<RemoteUserAccount>),
-    typeof(CustomAccountFactory));
 
 await builder.Build().RunAsync();

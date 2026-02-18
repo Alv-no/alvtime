@@ -8,13 +8,13 @@
 </template>
 
 <script setup lang="ts">
-import { useMsal } from "@/composables/useMsal";
 import FeatherIcon from "./utils/FeatherIcon.vue";
 import AlvtimeButton from "./utils/AlvtimeButton.vue";
+import { useAuthStore } from "@/stores/authStore";
 
-const { instance } = useMsal();
+const { logout } = useAuthStore();
 
 const logOut = async () => {
-	await instance.logoutRedirect();
+	logout();
 };
 </script>

@@ -1,31 +1,24 @@
 import axios from "axios";
 import config from "@/config";
-import { msalInstance } from "@/authConfig";
-
-const getAccessToken = async () => {
-	const accounts = msalInstance.getAllAccounts();
-	if (accounts.length > 0) {
-		const account = accounts[0];
-		const response = await msalInstance.acquireTokenSilent({
-			scopes: [config.ACCESS_SCOPE],
-			account: account,
-		});
-
-		return response.accessToken;
-	} else {
-		throw new Error("No accounts found");
-	}
-};
-
-const token = await getAccessToken();
+import { useAuthStore } from "@/stores/authStore";
 
 const api = axios.create({
 	baseURL: config.API_HOST,
+	withCredentials: true,
 	headers: {
-		"Authorization": `Bearer ${token}`
+		"X-CSRF": "1"
 	}
 });
 
-export {
-	api
-};
+api.interceptors.response.use(
+	(response) => response,
+	(error) => {
+		if (error.response?.status === 401) {
+			const authStore = useAuthStore();
+			authStore.login();
+		}
+		return Promise.reject(error);
+	}
+);
+
+export { api };

@@ -87,7 +87,7 @@
 @code {
     [Inject] private HttpClient HttpClient { get; set; }
 
-    [CascadingParameter] private MudDialogInstance? MudDialog { get; set; }
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
     [Parameter] public EventCallback OnHourRateSubmit { get; set; }
     [Parameter] public IEnumerable<ProjectModel> Projects { get; set; }
     [Parameter] public HourRateModel? SelectedHourRate { get; set; }

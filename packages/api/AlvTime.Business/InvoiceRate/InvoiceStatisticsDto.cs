@@ -11,16 +11,21 @@ public class InvoiceStatisticsDto
     public decimal[] NonBillableInvoiceRate { get; set; }
     public DateTime[] Start { get; set; }
     public DateTime[] End { get; set; }
-    [Obsolete("This attribute will be removed in the next iteration of invoice-rate functionality. Use Start or End instead")]
-    public DateTime[] Labels { get { return Start; } }
 
+    public DateTime[] Labels
+    {
+        get
+        {
+            return Start;
+        }
+    }
 
     public enum InvoicePeriods
     {
         Daily = 0,
         Weekly = 1,
         Monthly = 2,
-        Annualy = 3
+        Annually = 3
     }
 
     [Flags]

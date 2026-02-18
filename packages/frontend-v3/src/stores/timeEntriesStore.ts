@@ -13,12 +13,18 @@ export type TimeEntryError = {
 	errors?: any;
 };
 
+export type InvoiceRateMonth = {
+	month: number;
+	rate: number;
+	year: number;
+};
+
 export const useTimeEntriesStore = defineStore("timeEntries", () => {
 	const timeEntries = ref<TimeEntry[]>([]);
 	const timeEntriesMap = ref<TimeEntryMap>({});
 	const timeEntryPushQueue = ref<TimeEntry[]>([]);
 	const loadingTimeEntries = ref<boolean>(false);
-	const invoiceRate = ref<number>(0);
+	const invoiceRate = ref<InvoiceRateMonth[]>([]);
 	const timeEntryError = ref<TimeEntryError>();
 
 	const vacationStore = useVacationStore();
@@ -28,7 +34,7 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 	const getTimeEntries = async (params: {fromDateInclusive: Date, toDateInclusive: Date}) => {
 		loadingTimeEntries.value = true;
 		const response = await timeService.getTimeEntries(params);
-		getInvoiceRate();
+		getInvoiceRateByMonth();
 		if (response.status === 200) {
 			updateTimeEntries(response.data.map(createTimeEntry));
 		} else {
@@ -52,7 +58,7 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 				updateTimeEntries(response.data.map(createTimeEntry));
 				timeBankStore.getTimeBankOverview();
 				vacationStore.getVacationOverview();
-				getInvoiceRate();
+				getInvoiceRateByMonth();
 			} else {
 				console.error("Failed to update time entries:", response.statusText);
 			}
@@ -165,12 +171,17 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 		return timeTrackedForDate > 7.5 ? 0 : 7.5 - timeTrackedForDate;
 	};
 
-	const getInvoiceRate = async () => {
-		const response = await timeService.getInvoiceRate();
+	const getInvoiceRateByMonth = async (monthsToFetch:number = 6) => {
+		const response = await timeService.getInvoiceRateByMonth(monthsToFetch);
 		if (response.status === 200) {
-			invoiceRate.value = Math.round(response.data * 1000) / 10;
+			invoiceRate.value = response.data.map((item: InvoiceRateMonth) => ({
+				month: item.month,
+				rate: Math.round(item.rate * 1000) / 10,
+				year: item.year,
+			}));
 		} else {
-			console.error("Failed to fetch invoice rate:", response.statusText);
+			console.error("Failed to fetch invoice rate by month:", response.statusText);
+			return [];
 		}
 	};
 

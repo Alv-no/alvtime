@@ -1,11 +1,41 @@
 from enum import StrEnum
 from pathlib import Path
+import datetime
 import os
+import pydantic
 import yaml
+
+
+class ConfigKeyError(Exception):
+    """Raised when a required configuration key is missing"""
+    pass
 
 
 config_filename = os.getenv("ALVTIME_CONFIG",
                             Path.home() / ".alvtime.conf")
+
+
+class Weekday(StrEnum):
+    mon = "mon"
+    tue = "tue"
+    wed = "wed"
+    thu = "thu"
+    fri = "fri"
+    sat = "sat"
+    sun = "sun"
+
+    @classmethod
+    def from_date(cls, date: datetime.date):
+        return list(cls)[date.isoweekday() - 1]
+
+
+class AutoBreak(pydantic.BaseModel):
+    comment: str = ""
+    weekdays: list[Weekday]
+    start: datetime.time
+    stop: datetime.time
+
+    model_config = {"extra": "forbid"}
 
 
 class Keys(StrEnum):
@@ -14,6 +44,7 @@ class Keys(StrEnum):
     alvtime_base_url = "alvtimeBaseUrl"
     task_aliases = "taskAliases"
     auto_sync = "autoSync"
+    salary = "salary"
 
 
 defaults = {
@@ -49,6 +80,8 @@ def get(key, default=None):
     if key in defaults:
         return config.get(key, defaults[key])
     else:
+        if key not in config:
+            raise ConfigKeyError(f"Missing required configuration key: '{key}'")
         return config[key]
 
 

@@ -23,6 +23,15 @@ onMounted(async () => {
 		taskStore.getTasks()
 	]);
 	loading.value = false;
+
+	document.addEventListener("visibilitychange", async () => {
+		if (document.visibilityState === "visible") {
+			await Promise.all([
+				dateStore.setActiveDate(new Date()),
+				taskStore.getTasks()
+			]);
+		}
+	});
 });
 
 </script>

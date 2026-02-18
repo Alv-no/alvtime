@@ -1,8 +1,11 @@
 import click
-from .commands import check, completion, log, ping, pull, restart, start, status, stop, sync
+from .commands import check, completion, edit, log, ping, pull, restart, start, status, stop, sync, version
 from .commands.config import group as config_group
 from .commands.tasks import group as tasks_group
 from .commands.alias import group as alias_group
+from .commands.breaks import group as break_group
+from .commands.payout import group as payout_group
+from .commands.timebank import group as timebank_group
 from .local_service import LocalService
 from .alvtime_client import AlvtimeClient
 from .repo import Repo
@@ -30,6 +33,7 @@ def main(ctx: click.Context, config_filename):
 
 main.add_command(check.check)
 main.add_command(completion.completion)
+main.add_command(edit.edit)
 main.add_command(log.log)
 main.add_command(ping.ping)
 main.add_command(pull.pull)
@@ -38,9 +42,13 @@ main.add_command(start.start)
 main.add_command(status.status)
 main.add_command(stop.stop)
 main.add_command(sync.sync)
+main.add_command(version.version_)
 main.add_command(alias_group.group)
+main.add_command(break_group.group)
 main.add_command(config_group.group)
+main.add_command(payout_group.group)
 main.add_command(tasks_group.group)
+main.add_command(timebank_group.group)
 
 
 if __name__ == "__main__":

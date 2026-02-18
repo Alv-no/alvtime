@@ -36,6 +36,7 @@ import { Sortable } from "sortablejs-vue3";
 import ProjectSorterStrip from "./ProjectSorterStrip.vue";
 import { storeToRefs } from "pinia";
 import FeatherIcon from "@/components/utils/FeatherIcon.vue";
+import taskService from "@/services/taskService";
 
 const taskStore = useTaskStore();
 const { favoriteProjects } = storeToRefs(taskStore);
@@ -48,15 +49,28 @@ const closeSorter = () => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const updateList = (evt: any) => {
-	const moveItemInArray = <T>(array: T[], from: number, to: number) => {
+const updateList = async (evt: any) => {
+	const moveItemInArray = <T extends { index?: number }>(array: T[], from: number, to: number) => {
 		const item = array.splice(from, 1)[0];
 		array.splice(to, 0, item);
+		array = array.map((item, index) => {
+			item.index = index;
+			return item;
+		});
 	};
 
 	const { oldIndex, newIndex } = evt;
 	moveItemInArray(favoriteProjects.value, oldIndex, newIndex);
-	taskStore.setFavoriteProjectsOrder();
+	const newProjectOrder = favoriteProjects.value.map(
+		(project) => { return { id: project.id, index: project.index ?? 0 }; }
+	);
+	try {
+		await taskService.updateProjectFavoriteOrder(newProjectOrder);
+	} catch (error) {
+		console.error("Failed to update project order:", error);
+	}
+
+	taskStore.saveFavoritesOrderToProjects();
 };
 
 </script>

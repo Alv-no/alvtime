@@ -40,12 +40,16 @@ public class Startup
             options => options.UseSqlServer(Configuration.GetConnectionString("AlvTime")),
             contextLifetime: ServiceLifetime.Scoped, optionsLifetime: ServiceLifetime.Scoped);
         services.AddMvc();
-        services.AddAlvtimeAuthentication(Configuration);
+        services.AddAlvtimeAuthentication(Configuration, _environment);
         services.AddMicrosoftGraphClient(Configuration, _environment);
         services.AddScoped<GraphService>();
         services.Configure<TimeEntryOptions>(Configuration.GetSection("TimeEntryOptions"));
         services.AddAlvtimeAuthorization();
-        services.AddOpenApi(o => o.AddDocumentTransformer<OpenApiSecuritySchemeTransformer>());
+        services.AddOpenApi(o => 
+        {
+            o.AddDocumentTransformer<OpenApiLoginTransformer>();
+            o.AddOperationTransformer<DefaultHeaderTransformer>();
+        });
         services.AddRazorPages();
         services.AddAlvtimeCorsPolicys(Configuration);
         services.ConfigureLogging(_environment);
@@ -66,12 +70,18 @@ public class Startup
         {
             app.UseCors(CorsExtensions.DevCorsPolicyName);
         }
+        else if (env.IsTest())
+        {
+            app.UseCors(CorsExtensions.TestCorsPolicyName);
+            app.UseHttpsRedirection();
+        }
         else
         {
             app.UseCors();
             app.UseHttpsRedirection();
         }
 
+        app.UseCsrfMiddleware();
         app.UseAuthentication();
         app.UseAuthorization();
 
@@ -86,15 +96,9 @@ public class Startup
             endpoints.MapScalarApiReference(options =>
             {
                 options
-                    .WithOAuth2Authentication(oAuth2Options =>
-                    {
-                        oAuth2Options.ClientId = Configuration["AzureAd:ClientId"];
-                        oAuth2Options.Scopes = [Configuration["AzureAd:Domain"]];
-                    })
                     .WithTheme(ScalarTheme.Kepler)
                     .WithTitle("AlvTime API")
-                    .WithFavicon("/assets/favicon.ico")
-                    .WithDarkModeToggle(true);
+                    .WithFavicon("/assets/favicon.ico");
             });
         });
     }

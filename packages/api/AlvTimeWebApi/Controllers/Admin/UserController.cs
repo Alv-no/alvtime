@@ -1,9 +1,6 @@
-﻿using System;
-using AlvTime.Business.Users;
-using AlvTimeWebApi.Authentication;
+﻿using AlvTime.Business.Users;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using AlvTimeWebApi.Controllers.Utils;
 using AlvTimeWebApi.Requests;

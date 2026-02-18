@@ -1,6 +1,10 @@
-from enum import Enum
-from pydantic import BaseModel
-from datetime import date, datetime, timedelta
+from __future__ import annotations
+
+from datetime import date as DateType, datetime, timedelta
+from enum import Enum, IntEnum
+
+from pydantic import BaseModel, ConfigDict, Field
+from typing import ClassVar
 
 
 class Customer(BaseModel):
@@ -28,11 +32,19 @@ class TaskAlias(BaseModel):
     task: Task
 
 
-class TimeEntry(BaseModel):
+class BaseEntry(BaseModel):
+    id: int | None = None
+    start: datetime
+    duration: timedelta
+    comment: str
+
+
+class TimeEntry(BaseEntry):
     id: int | None = None
     task_id: int
     start: datetime | None = None
     duration: timedelta | None = None
+    is_open: bool
     comment: str | None = None
     is_changed: bool = False
     task: Task | None = None
@@ -45,7 +57,40 @@ class CheckResultType(str, Enum):
 
 
 class CheckResult(BaseModel):
-    date: date
+    date: DateType
     result_type: CheckResultType
     registered_duration: timedelta
     message: str = ""
+
+
+class TimeBreak(BaseEntry):
+    pass
+
+
+class TimebankEntryType(IntEnum):
+    OVERTIME = 0
+    PAYOUT = 1
+    FLEX = 2
+
+
+class AvailableHoursEntry(BaseModel):
+    model_config: ClassVar[ConfigDict] = ConfigDict(populate_by_name=True)
+
+    date: DateType | None = None
+    hours: float
+    compensation_rate: float = Field(alias="compensationRate")
+    type: TimebankEntryType
+    active: bool | None = None
+
+
+class AvailableHours(BaseModel):
+    model_config: ClassVar[ConfigDict] = ConfigDict(populate_by_name=True)
+
+    available_hours_before_compensation: float = Field(alias="availableHoursBeforeCompensation")
+    available_hours_after_compensation: float = Field(alias="availableHoursAfterCompensation")
+    entries: list[AvailableHoursEntry] = Field(default_factory=list)
+
+
+class GenericPayoutHourEntry(BaseModel):
+    date: DateType
+    hours: float

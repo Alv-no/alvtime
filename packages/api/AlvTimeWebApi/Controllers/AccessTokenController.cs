@@ -31,14 +31,12 @@ namespace AlvTimeWebApi.Controllers
             return Ok(new AccessTokenCreatedResponse(accessToken.Token, accessToken.ExpiryDate.ToDateOnly()));
         }
 
-        [HttpDelete("AccessToken")]
-        public async Task<ActionResult<IEnumerable<AccessTokenFriendlyNameResponse>>> DeleteAccessToken(
-            [FromBody] IEnumerable<AccessTokenDeleteRequest> tokenIds)
+        [HttpDelete("AccessToken/{tokenId}")]
+        public async Task<ActionResult> DeleteAccessToken(int tokenId)
         {
-            var accessTokens = await _tokenService.DeleteActiveTokens(tokenIds.Select(tokenId => tokenId.TokenId));
+            await _tokenService.DeleteToken(tokenId);
 
-            return Ok(accessTokens.Select(token =>
-                new AccessTokenFriendlyNameResponse(token.Id, token.FriendlyName, token.ExpiryDate.ToDateOnly())));
+            return NoContent();
         }
 
         [HttpGet("ActiveAccessTokens")]
