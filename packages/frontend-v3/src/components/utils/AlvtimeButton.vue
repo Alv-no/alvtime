@@ -55,5 +55,12 @@ button {
 		background-color: $secondary-color-light;
 		color: $primary-color;
 	}
+
+  &.disabled,
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
 }
 </style>

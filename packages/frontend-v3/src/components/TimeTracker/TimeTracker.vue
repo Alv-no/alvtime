@@ -20,7 +20,8 @@
 				<AlvtimeButton
 					id="prev-button"
 					iconLeft
-					@click="prevSlide"
+					@click="handlePrevClick"
+          :disabled="backwardSlideDisabled"
 				>
 					<FeatherIcon name="chevron-left" /> Tilbake
 				</AlvtimeButton>
@@ -32,7 +33,7 @@
 				<AlvtimeButton
 					id="next-button"
 					iconRight
-					@click="nextSlide"
+					@click="handleNextClick"
 				>
 					Fremover <FeatherIcon name="chevron-right" />
 				</AlvtimeButton>
@@ -125,6 +126,10 @@ const getWeekNumberString = (date: Date) => {
 	}
 };
 
+const backwardSlideDisabled = computed(() => {
+  return currentSlideIndex.value === 0;
+})
+
 const currentSlideIndex = computed(() => {
 	if (swiper.value) {
 		dateStore.setActiveWeekIndex(swiper.value.activeIndex);
@@ -174,22 +179,25 @@ const sortProjects = () => {
 	editingProjectOrder.value = true;
 };
 
-const nextSlide = () => {
-	if (swiper.value) {
-		swiper.value?.slideNext();
-	}
+const handleNextClick = async () => {
+  if (swiper.value) {
+    if (currentSlideIndex.value === dateStore.weeks.length - 1) {
+      await dateStore.extendWeeks();
+    }
+    swiper.value?.slideNext();
+  }
 };
 
-const prevSlide = () => {
-	if (swiper.value) {
-		swiper.value?.slidePrev();
-	}
+const handlePrevClick = async () => {
+  if (swiper.value) {
+    swiper.value?.slidePrev();
+  }
 };
 
 const goToCurrentWeek = () => {
-	if (swiper.value) {
-		swiper.value.slideTo(getInitialWeekSlide());
-	}
+  if (swiper.value) {
+    swiper.value.slideTo(getInitialWeekSlide());
+  }
 };
 
 onMounted(() => {
