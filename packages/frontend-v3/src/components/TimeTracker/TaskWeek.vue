@@ -2,7 +2,7 @@
 	<div class="task-week">
 		<HourInput
 			v-for="timeEntry in filteredTimeEntriesForTask"
-			:key="`${timeEntry.taskId}-${timeEntry.date}`"
+			:key="`${timeEntry.taskId}-${timeEntry.date}-${timeEntry.id}`"
 			:timeEntry="timeEntry"
 			:enableComments="task.enableComments"
 		/>

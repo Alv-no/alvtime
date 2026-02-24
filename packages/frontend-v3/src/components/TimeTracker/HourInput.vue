@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed } from "vue";
 import { type TimeEntry } from "@/types/TimeEntryTypes";
 import { useTimeEntriesStore } from "@/stores/timeEntriesStore";
 import TrackRestOfDayButton from "./TrackRestOfDayButton.vue";
@@ -47,12 +47,6 @@ const { timeEntry, enableComments } = defineProps<{
 const comment = ref<string>(timeEntry.comment || "");
 
 const timeValue = ref<string>(timeEntry.value.toLocaleString("nb-NO"));
-
-watch(() => timeEntry.value, (newValue) => {
-	if (!isInputActive.value) {
-		timeValue.value = newValue.toLocaleString("nb-NO");
-	}
-});
 
 const weekend = computed(() => {
 	const day = new Date(timeEntry.date).getDay();
