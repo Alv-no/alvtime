@@ -1,5 +1,5 @@
 import { createNorwegianHolidays, type NorwegianHolidays } from "@/utils/holidayHelper";
-const RADIUS_OF_WEEKS = 26;
+const RADIUS_OF_WEEKS = 52;
 //const RADIUS_OF_DAYS = 7 * RADIUS_OF_WEEKS;
 
 const getFirstDayOfWeek = (date: Date, weekStartsOn: number = 1): Date => {
@@ -17,7 +17,6 @@ const getWeekNumber = (date: Date) => {
 	if(!date) {
 		date = new Date();
 	}
-
 	referenceDate.setHours(0, 0, 0, 0);
 	// Thursday in current week decides the year.
 	referenceDate.setDate(referenceDate.getDate() + 3 - (referenceDate.getDay() + 6) % 7);
