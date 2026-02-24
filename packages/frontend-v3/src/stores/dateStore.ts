@@ -53,6 +53,32 @@ export const useDateStore = defineStore("date", () => {
 		return weeks.value[activeWeekIndex.value] || [];
 	});
 
+	const prependWeeks = async (): Promise<number> => {
+		const radius = getRadiusOfWeeks();
+		const newWeeks: Date[][] = [];
+		const firstDay = weeks.value[0][0];
+
+		for (let i = radius; i >= 1; i--) {
+			const date = new Date(firstDay);
+			date.setDate(firstDay.getDate() - i * 7);
+			newWeeks.push(createWeek(date));
+		}
+
+		weeks.value = [...newWeeks, ...weeks.value];
+
+		const years = getYearsInRange(
+			weeks.value[0][0].getFullYear(),
+			weeks.value[weeks.value.length - 1][6].getFullYear()
+		);
+		holidays.value = createNorwegianHolidays(years);
+
+		if (weeksDateRange.value) {
+			await timeEntriesStore.getTimeEntries(weeksDateRange.value);
+		}
+
+		return newWeeks.length;
+	};
+
 	const extendWeeks = async (): Promise<number> => {
 		const radius = getRadiusOfWeeks();
 		const newWeeks: Date[][] = [];
@@ -63,7 +89,7 @@ export const useDateStore = defineStore("date", () => {
 		for (let i = 1; i <= radius; i++) {
 			const date = new Date(lastDay);
 			date.setDate(lastDay.getDate() + i * 7);
-			newWeeks.push(createWeek(date))
+			newWeeks.push(createWeek(date));
 		}
 
 		weeks.value = [...weeks.value, ...newWeeks];
@@ -76,7 +102,7 @@ export const useDateStore = defineStore("date", () => {
 		}
 
 		return newWeeks.length;
-	}
+	};
 
 	const getYearsInRange = (start: number, end: number): number[] => {
 		const years: number[] = [];
@@ -94,6 +120,7 @@ export const useDateStore = defineStore("date", () => {
 		setActiveDate,
 		setActiveWeekIndex,
 		setSwiper,
-		extendWeeks
+		extendWeeks,
+		prependWeeks
 	};
 });

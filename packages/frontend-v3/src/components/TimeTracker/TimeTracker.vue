@@ -21,7 +21,6 @@
 					id="prev-button"
 					iconLeft
 					@click="handlePrevClick"
-          :disabled="backwardSlideDisabled"
 				>
 					<FeatherIcon name="chevron-left" /> Tilbake
 				</AlvtimeButton>
@@ -93,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, nextTick } from "vue";
 import ProjectExpandable from "./ProjectExpandable.vue";
 import { useTaskStore } from "@/stores/taskStore";
 import { useDateStore } from "@/stores/dateStore";
@@ -125,10 +124,6 @@ const getWeekNumberString = (date: Date) => {
 		return `Uke ${getWeekNumber(date)}`;
 	}
 };
-
-const backwardSlideDisabled = computed(() => {
-  return currentSlideIndex.value === 0;
-})
 
 const currentSlideIndex = computed(() => {
 	if (swiper.value) {
@@ -180,24 +175,36 @@ const sortProjects = () => {
 };
 
 const handleNextClick = async () => {
-  if (swiper.value) {
-    if (currentSlideIndex.value === dateStore.weeks.length - 1) {
-      await dateStore.extendWeeks();
-    }
-    swiper.value?.slideNext();
-  }
+	if (swiper.value) {
+		if (currentSlideIndex.value === dateStore.weeks.length - 1) {
+			await dateStore.extendWeeks();
+		}
+		swiper.value?.slideNext();
+	}
 };
 
 const handlePrevClick = async () => {
-  if (swiper.value) {
-    swiper.value?.slidePrev();
-  }
+	if (swiper.value) {
+		if (currentSlideIndex.value === 0) {
+			const addedWeeksCount = await dateStore.prependWeeks();
+			await nextTick();
+			swiper.value.slideTo(addedWeeksCount - 1);
+		} else {
+			swiper.value.slidePrev();
+		}
+	}
 };
 
 const goToCurrentWeek = () => {
-  if (swiper.value) {
-    swiper.value.slideTo(getInitialWeekSlide());
-  }
+	if (swiper.value) {
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
+		const todayTime = today.getTime();
+		const index = dateStore.weeks.findIndex(week =>
+			week.some(day => day.getTime() === todayTime)
+		);
+		swiper.value.slideTo(index !== -1 ? index : getInitialWeekSlide());
+	}
 };
 
 onMounted(() => {
