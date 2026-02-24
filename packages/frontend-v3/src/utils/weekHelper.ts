@@ -1,5 +1,5 @@
 import { createNorwegianHolidays, type NorwegianHolidays } from "@/utils/holidayHelper";
-const RADIUS_OF_WEEKS = 52;
+const RADIUS_OF_WEEKS = 8;
 //const RADIUS_OF_DAYS = 7 * RADIUS_OF_WEEKS;
 
 const getFirstDayOfWeek = (date: Date, weekStartsOn: number = 1): Date => {
@@ -91,10 +91,15 @@ const getInitialWeekSlide = () => {
 	return RADIUS_OF_WEEKS;
 };
 
+const getRadiusOfWeeks = () => {
+	return RADIUS_OF_WEEKS;
+};
+
 export {
 	getFirstDayOfWeek,
 	getWeekNumber,
 	createWeek,
 	createWeeks,
-	getInitialWeekSlide
+	getInitialWeekSlide,
+	getRadiusOfWeeks
 };

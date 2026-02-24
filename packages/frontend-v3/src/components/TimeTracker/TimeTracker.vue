@@ -20,7 +20,7 @@
 				<AlvtimeButton
 					id="prev-button"
 					iconLeft
-					@click="prevSlide"
+					@click="handlePrevClick"
 				>
 					<FeatherIcon name="chevron-left" /> Tilbake
 				</AlvtimeButton>
@@ -32,7 +32,7 @@
 				<AlvtimeButton
 					id="next-button"
 					iconRight
-					@click="nextSlide"
+					@click="handleNextClick"
 				>
 					Fremover <FeatherIcon name="chevron-right" />
 				</AlvtimeButton>
@@ -92,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, nextTick } from "vue";
 import ProjectExpandable from "./ProjectExpandable.vue";
 import { useTaskStore } from "@/stores/taskStore";
 import { useDateStore } from "@/stores/dateStore";
@@ -174,21 +174,36 @@ const sortProjects = () => {
 	editingProjectOrder.value = true;
 };
 
-const nextSlide = () => {
+const handleNextClick = async () => {
 	if (swiper.value) {
+		if (currentSlideIndex.value === dateStore.weeks.length - 1) {
+			await dateStore.extendWeeks();
+		}
 		swiper.value?.slideNext();
 	}
 };
 
-const prevSlide = () => {
+const handlePrevClick = async () => {
 	if (swiper.value) {
-		swiper.value?.slidePrev();
+		if (currentSlideIndex.value === 0) {
+			const addedWeeksCount = await dateStore.prependWeeks();
+			await nextTick();
+			swiper.value.slideTo(addedWeeksCount - 1);
+		} else {
+			swiper.value.slidePrev();
+		}
 	}
 };
 
 const goToCurrentWeek = () => {
 	if (swiper.value) {
-		swiper.value.slideTo(getInitialWeekSlide());
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
+		const todayTime = today.getTime();
+		const index = dateStore.weeks.findIndex(week =>
+			week.some(day => day.getTime() === todayTime)
+		);
+		swiper.value.slideTo(index !== -1 ? index : getInitialWeekSlide());
 	}
 };
 
