@@ -125,13 +125,7 @@ const getWeekNumberString = (date: Date) => {
 	}
 };
 
-const currentSlideIndex = computed(() => {
-	if (swiper.value) {
-		dateStore.setActiveWeekIndex(swiper.value.activeIndex);
-		return swiper.value.activeIndex;
-	}
-	return 0;
-});
+const currentSlideIndex = ref(0);
 
 const currentWeek = computed(() => {
 	if (dateStore.weeks.length > 0) {
@@ -211,6 +205,12 @@ onMounted(() => {
 	const swiperContainer = document.getElementById("week-swiper-container");
 	if (swiperContainer && "swiper" in swiperContainer) {
 		swiper.value = swiperContainer.swiper as Swiper;
+		currentSlideIndex.value = swiper.value.activeIndex;
+		dateStore.setActiveWeekIndex(swiper.value.activeIndex);
+		swiper.value.on('slideChange', () => {
+			currentSlideIndex.value = swiper.value!.activeIndex;
+			dateStore.setActiveWeekIndex(swiper.value!.activeIndex);
+		});
 	}
 });
 </script>
