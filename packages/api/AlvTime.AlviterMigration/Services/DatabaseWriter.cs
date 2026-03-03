@@ -17,7 +17,7 @@ public class DatabaseWriter : IDatabaseWriter
         _logger = logger;
     }
 
-    public async Task ApplyAsync(IReadOnlyList<MigrationChange> changes)
+    public async Task ExecuteMigrationAsync(IReadOnlyList<MigrationChange> changes)
     {
         var affectedUserIds = changes.Select(c => c.UserId).Distinct().ToList();
 
@@ -29,15 +29,15 @@ public class DatabaseWriter : IDatabaseWriter
 
             foreach (var change in changes)
             {
-                await UpsertTask336Async(change);
-                await UpdateSourceEntriesAsync(change);
+                await UpsertTargetTaskEntryAsync(change);
+                await ReduceSourceHoursAsync(change);
             }
 
             await _context.SaveChangesAsync();
 
             var postTotals = await QueryHourTotalsPerUserAsync(affectedUserIds);
 
-            ValidateTotals(preTotals, postTotals);
+            ValidateHourTotalsUnchanged(preTotals, postTotals);
 
             await transaction.CommitAsync();
 
@@ -64,7 +64,7 @@ public class DatabaseWriter : IDatabaseWriter
             .ToDictionaryAsync(x => x.UserId, x => x.Total);
     }
 
-    private void ValidateTotals(Dictionary<int, decimal> pre, Dictionary<int, decimal> post)
+    private void ValidateHourTotalsUnchanged(Dictionary<int, decimal> pre, Dictionary<int, decimal> post)
     {
         var preGlobal = pre.Values.Sum();
         var postGlobal = post.Values.Sum();
@@ -94,7 +94,7 @@ public class DatabaseWriter : IDatabaseWriter
             preGlobal, pre.Count);
     }
 
-    private async Task UpsertTask336Async(MigrationChange change)
+    private async Task UpsertTargetTaskEntryAsync(MigrationChange change)
     {
         if (change.ExistingTask336Id.HasValue)
         {
@@ -114,7 +114,7 @@ public class DatabaseWriter : IDatabaseWriter
             var newEntry = new Hours
             {
                 User = change.UserId,
-                TaskId = 336,
+                TaskId = MigrationConstants.TargetTaskId,
                 Date = change.Date,
                 Value = change.NewTask336Value,
                 Year = (short)change.Date.Year,
@@ -131,7 +131,7 @@ public class DatabaseWriter : IDatabaseWriter
         }
     }
 
-    private async Task UpdateSourceEntriesAsync(MigrationChange change)
+    private async Task ReduceSourceHoursAsync(MigrationChange change)
     {
         foreach (var update in change.SourceHourUpdates)
         {

@@ -4,5 +4,5 @@ namespace AlvTime.AlviterMigration.Services;
 
 public interface IDatabaseWriter
 {
-    Task ApplyAsync(IReadOnlyList<MigrationChange> changes);
+    Task ExecuteMigrationAsync(IReadOnlyList<MigrationChange> changes);
 }

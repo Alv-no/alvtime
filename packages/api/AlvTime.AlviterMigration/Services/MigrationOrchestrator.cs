@@ -31,18 +31,18 @@ public class MigrationOrchestrator : IMigrationOrchestrator
         var csvEntries = _csvReader.Read(csvFilePath);
         _logger.LogInformation("Step 1/4: Read {Count} entries from CSV", csvEntries.Count);
 
-        var (sourceHours, target336Hours) = await _databaseReader.ReadAsync(csvEntries);
+        var (sourceHours, target336Hours) = await _databaseReader.LoadSourceAndTarget336HoursAsync(csvEntries);
         _logger.LogInformation(
             "Step 2/4: Loaded {Source} source entries and {Target} existing task-336 entries from database",
             sourceHours.Count, target336Hours.Count);
 
-        var changes = _calculator.Calculate(csvEntries, sourceHours, target336Hours);
+        var changes = _calculator.CalculateMigrationChanges(csvEntries, sourceHours, target336Hours);
         _logger.LogInformation(
             "Step 3/4: Calculated {Changes} changes ({Updates} source entries to update)",
             changes.Count,
             changes.Sum(c => c.SourceHourUpdates.Count));
 
-        await _databaseWriter.ApplyAsync(changes);
+        await _databaseWriter.ExecuteMigrationAsync(changes);
         _logger.LogInformation("Step 4/4: All changes written to database. Migration complete.");
     }
 }

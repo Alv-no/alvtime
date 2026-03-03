@@ -16,7 +16,7 @@ public class DatabaseReader : IDatabaseReader
         _logger = logger;
     }
 
-    public async Task<(List<Hours> SourceHours, List<Hours> Target336Hours)> ReadAsync(IReadOnlyList<CsvTimeEntry> csvEntries)
+    public async Task<(List<Hours> SourceHours, List<Hours> Target336Hours)> LoadSourceAndTarget336HoursAsync(IReadOnlyList<CsvTimeEntry> csvEntries)
     {
         var userIds = csvEntries.Select(e => e.UserId).Distinct().ToList();
         var dates = csvEntries.Select(e => e.Date).Distinct().ToList();
@@ -31,7 +31,7 @@ public class DatabaseReader : IDatabaseReader
         var target336Hours = await _context.Hours
             .Where(h => userIds.Contains(h.User)
                      && dates.Contains(h.Date)
-                     && h.TaskId == 336)
+                     && h.TaskId == MigrationConstants.TargetTaskId)
             .ToListAsync();
 
         _logger.LogInformation(

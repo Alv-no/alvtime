@@ -5,5 +5,5 @@ namespace AlvTime.AlviterMigration.Services;
 
 public interface IDatabaseReader
 {
-    Task<(List<Hours> SourceHours, List<Hours> Target336Hours)> ReadAsync(IReadOnlyList<CsvTimeEntry> csvEntries);
+    Task<(List<Hours> SourceHours, List<Hours> Target336Hours)> LoadSourceAndTarget336HoursAsync(IReadOnlyList<CsvTimeEntry> csvEntries);
 }

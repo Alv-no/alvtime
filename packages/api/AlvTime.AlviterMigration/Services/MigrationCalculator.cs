@@ -13,7 +13,7 @@ public class MigrationCalculator : IMigrationCalculator
         _logger = logger;
     }
 
-    public IReadOnlyList<MigrationChange> Calculate(
+    public IReadOnlyList<MigrationChange> CalculateMigrationChanges(
         IReadOnlyList<CsvTimeEntry> csvEntries,
         List<Hours> sourceHours,
         List<Hours> target336Hours)
@@ -30,7 +30,7 @@ public class MigrationCalculator : IMigrationCalculator
 
             foreach (var entry in group)
             {
-                if (entry.SourceTaskId == 336)
+                if (entry.SourceTaskId == MigrationConstants.TargetTaskId)
                 {
                     _logger.LogWarning(
                         "CSV entry for UserId={UserId}, Date={Date:yyyy-MM-dd} has sourceTaskId=336 (already the target task) — skipping",
@@ -66,16 +66,15 @@ public class MigrationCalculator : IMigrationCalculator
 
             foreach (var (id, (dbValue, csvAmount)) in sourceUpdates)
             {
-                var amountToMove = csvAmount;
-
-                if (amountToMove > dbValue)
+                if (csvAmount > dbValue)
                 {
                     throw new InvalidOperationException(
-                        $"CSV wants to move {csvAmount}h from Hours.Id={id} but DB only has {dbValue}h. Aborting.");
+                        $"CSV wants to move {csvAmount}h from Hours.Id={id} " +
+                        $"(UserId={userId}, Date={date:yyyy-MM-dd}) but DB only has {dbValue}h. Aborting.");
                 }
 
-                totalToMove += amountToMove;
-                hourUpdates.Add(new SourceHourUpdate(id, dbValue - amountToMove));
+                totalToMove += csvAmount;
+                hourUpdates.Add(new SourceHourUpdate(id, dbValue - csvAmount));
             }
 
             if (totalToMove == 0)
