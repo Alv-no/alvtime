@@ -88,7 +88,7 @@ public class MigrationCalculatorTests
     }
 
     [Fact]
-    public void LockedSourceEntryIsSkippedAndNotIncluded()
+    public void LockedSourceEntryIsIncluded()
     {
         var csvEntries = new List<CsvTimeEntry>
         {
@@ -101,7 +101,9 @@ public class MigrationCalculatorTests
 
         var changes = CreateCalculator().Calculate(csvEntries, sourceHours, target336Hours: []);
 
-        Assert.Empty(changes);
+        Assert.Single(changes);
+        Assert.Equal(2m, changes[0].NewTask336Value);
+        Assert.Equal([1], changes[0].SourceHourIdsToDelete);
     }
 
     [Fact]
@@ -145,7 +147,51 @@ public class MigrationCalculatorTests
     }
 
     [Fact]
-    public void PartiallyLockedGroupStillMovesUnlockedHours()
+    public void UsesDbValueNotCsvValueWhenTheyDiffer()
+    {
+        // CSV was exported when DB had 2h, but DB was later updated to 7.5h.
+        // We must move the full DB value to avoid losing hours.
+        var csvEntries = new List<CsvTimeEntry>
+        {
+            new(UserId: 33, Date: Day1, SourceTaskId: 59, Value: 2m)
+        };
+        var sourceHours = new List<Hours>
+        {
+            new() { Id = 1, User = 33, Date = Day1, TaskId = 59, Value = 7.5m, Locked = false }
+        };
+
+        var changes = CreateCalculator().Calculate(csvEntries, sourceHours, target336Hours: []);
+
+        Assert.Single(changes);
+        Assert.Equal(7.5m, changes[0].NewTask336Value);
+        Assert.Equal([1], changes[0].SourceHourIdsToDelete);
+    }
+
+    [Fact]
+    public void DuplicateCsvRowsForSameDbEntryAreDeduped()
+    {
+        // Two CSV rows pointing to the same (userId, date, taskId) DB entry.
+        // That DB entry should only be counted and deleted once.
+        var csvEntries = new List<CsvTimeEntry>
+        {
+            new(UserId: 33, Date: Day1, SourceTaskId: 59, Value: 2m),
+            new(UserId: 33, Date: Day1, SourceTaskId: 59, Value: 5.5m)
+        };
+        var sourceHours = new List<Hours>
+        {
+            new() { Id = 1, User = 33, Date = Day1, TaskId = 59, Value = 7.5m, Locked = false }
+        };
+
+        var changes = CreateCalculator().Calculate(csvEntries, sourceHours, target336Hours: []);
+
+        Assert.Single(changes);
+        Assert.Equal(7.5m, changes[0].NewTask336Value);
+        Assert.Equal(1, changes[0].SourceHourIdsToDelete.Count);
+        Assert.Equal([1], changes[0].SourceHourIdsToDelete);
+    }
+
+    [Fact]
+    public void AllHoursInGroupAreMovedRegardlessOfLockStatus()
     {
         var csvEntries = new List<CsvTimeEntry>
         {
@@ -161,7 +207,8 @@ public class MigrationCalculatorTests
         var changes = CreateCalculator().Calculate(csvEntries, sourceHours, target336Hours: []);
 
         Assert.Single(changes);
-        Assert.Equal(2m, changes[0].NewTask336Value);
-        Assert.Equal([1], changes[0].SourceHourIdsToDelete);
+        Assert.Equal(3.5m, changes[0].NewTask336Value);
+        Assert.Contains(1, changes[0].SourceHourIdsToDelete);
+        Assert.Contains(2, changes[0].SourceHourIdsToDelete);
     }
 }

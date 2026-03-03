@@ -8,7 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <None Remove="Alviter_timer_2025.csv" />
         <None Remove="appsettings.json" />
+        <Content Include="Alviter_timer_2025.csv">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
         <Content Include="appsettings.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>

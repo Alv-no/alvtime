@@ -35,13 +35,13 @@ public class CsvReaderTests : IDisposable
 
         var first = entries[0];
         Assert.Equal(33, first.UserId);
-        Assert.Equal(new DateTime(2025, 2, 1), first.Date);
+        Assert.Equal(new DateTime(2025, 1, 2), first.Date);
         Assert.Equal(59, first.SourceTaskId);
         Assert.Equal(2m, first.Value);
 
         var second = entries[1];
         Assert.Equal(42, second.UserId);
-        Assert.Equal(new DateTime(2025, 3, 1), second.Date);
+        Assert.Equal(new DateTime(2025, 1, 3), second.Date);
         Assert.Equal(199, second.SourceTaskId);
         Assert.Equal(4m, second.Value);
     }

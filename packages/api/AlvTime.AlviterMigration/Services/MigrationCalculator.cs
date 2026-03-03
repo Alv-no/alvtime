@@ -24,11 +24,20 @@ public class MigrationCalculator : IMigrationCalculator
         {
             var (userId, date) = group.Key;
 
-            decimal totalToMove = 0;
-            var sourceIdsToDelete = new List<int>();
+            // Track per source entry: original DB value and total CSV amount to move.
+            // Key = Hours.Id, Value = (dbValue, csvAmountToMove)
+            var sourceUpdates = new Dictionary<int, (decimal DbValue, decimal CsvAmount)>();
 
             foreach (var entry in group)
             {
+                if (entry.SourceTaskId == 336)
+                {
+                    _logger.LogWarning(
+                        "CSV entry for UserId={UserId}, Date={Date:yyyy-MM-dd} has sourceTaskId=336 (already the target task) — skipping",
+                        entry.UserId, entry.Date);
+                    continue;
+                }
+
                 var sourceEntry = sourceHours.FirstOrDefault(h =>
                     h.User == entry.UserId
                     && h.Date == entry.Date
@@ -42,16 +51,31 @@ public class MigrationCalculator : IMigrationCalculator
                     continue;
                 }
 
-                if (sourceEntry.Locked)
+                if (!sourceUpdates.ContainsKey(sourceEntry.Id))
+                    sourceUpdates[sourceEntry.Id] = (sourceEntry.Value, 0);
+
+                var (dbValue, csvAmount) = sourceUpdates[sourceEntry.Id];
+                sourceUpdates[sourceEntry.Id] = (dbValue, csvAmount + entry.Value);
+            }
+
+            if (sourceUpdates.Count == 0)
+                continue;
+
+            decimal totalToMove = 0;
+            var hourUpdates = new List<SourceHourUpdate>();
+
+            foreach (var (id, (dbValue, csvAmount)) in sourceUpdates)
+            {
+                var amountToMove = csvAmount;
+
+                if (amountToMove > dbValue)
                 {
-                    _logger.LogWarning(
-                        "Entry is locked: UserId={UserId}, Date={Date:yyyy-MM-dd}, TaskId={TaskId} — skipping",
-                        entry.UserId, entry.Date, entry.SourceTaskId);
-                    continue;
+                    throw new InvalidOperationException(
+                        $"CSV wants to move {csvAmount}h from Hours.Id={id} but DB only has {dbValue}h. Aborting.");
                 }
 
-                totalToMove += entry.Value;
-                sourceIdsToDelete.Add(sourceEntry.Id);
+                totalToMove += amountToMove;
+                hourUpdates.Add(new SourceHourUpdate(id, dbValue - amountToMove));
             }
 
             if (totalToMove == 0)
@@ -65,13 +89,13 @@ public class MigrationCalculator : IMigrationCalculator
                 Date: date,
                 NewTask336Value: (existing336?.Value ?? 0) + totalToMove,
                 ExistingTask336Id: existing336?.Id,
-                SourceHourIdsToDelete: sourceIdsToDelete));
+                SourceHourUpdates: hourUpdates));
         }
 
         _logger.LogInformation(
-            "Calculated {Changes} changes, {Deletes} source entries to delete",
+            "Calculated {Changes} changes, {Updates} source entries to update",
             changes.Count,
-            changes.Sum(c => c.SourceHourIdsToDelete.Count));
+            changes.Sum(c => c.SourceHourUpdates.Count));
 
         return changes;
     }

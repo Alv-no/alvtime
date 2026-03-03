@@ -38,9 +38,9 @@ public class MigrationOrchestrator : IMigrationOrchestrator
 
         var changes = _calculator.Calculate(csvEntries, sourceHours, target336Hours);
         _logger.LogInformation(
-            "Step 3/4: Calculated {Changes} changes ({Deletes} source entries to delete)",
+            "Step 3/4: Calculated {Changes} changes ({Updates} source entries to update)",
             changes.Count,
-            changes.Sum(c => c.SourceHourIdsToDelete.Count));
+            changes.Sum(c => c.SourceHourUpdates.Count));
 
         await _databaseWriter.ApplyAsync(changes);
         _logger.LogInformation("Step 4/4: All changes written to database. Migration complete.");

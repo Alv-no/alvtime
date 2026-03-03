@@ -76,7 +76,7 @@ public class CsvReader : ICsvReader
             return false;
         }
 
-        if (!DateTime.TryParseExact(fields[colDate], "MM/dd/yyyy HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+        if (!DateTime.TryParseExact(fields[colDate], "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
         {
             _logger.LogWarning("Line {Line}: could not parse date '{Val}' — skipping", lineNumber, fields[colDate]);
             return false;
