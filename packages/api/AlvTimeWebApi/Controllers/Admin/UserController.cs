@@ -14,7 +14,7 @@ namespace AlvTimeWebApi.Controllers.Admin;
 
 [Route("api/admin")]
 [ApiController]
-[Authorize(Roles = "Admin")]
+[Authorize(Policy = "AdminPolicy")]
 public class UserController(UserService userService, GraphService graphService) : ControllerBase
 {
     [HttpGet("Users")]

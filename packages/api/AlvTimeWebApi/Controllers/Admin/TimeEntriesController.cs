@@ -12,7 +12,7 @@ namespace AlvTimeWebApi.Controllers.Admin;
 
 [Route("api/admin")]
 [ApiController]
-[Authorize(Roles = "Admin")]
+[Authorize(Policy = "AdminPolicy")]
 public class TimeEntriesController : ControllerBase
 {
     private readonly ITimeRegistrationStorage _storage;
@@ -23,26 +23,15 @@ public class TimeEntriesController : ControllerBase
     }
 
     [HttpGet("TimeEntries")]
-    public async Task<ActionResult<IEnumerable<TimeEntryEmployeeResponseDto>>> GetTimeEntriesForEmployees([FromQuery] int[] employeeIds, [FromQuery] int[] taskIds, DateTime fromDate, DateTime toDate)
+    public async Task<ActionResult<IEnumerable<TimeEntryEmployeeResponseDto>>> GetTimeEntriesForEmployees([FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
     {
         try
         {
-            return Ok((await _storage.GetTimeEntriesForEmployees(new MultipleTimeEntriesQuerySearch
-                {
-                    EmployeeIds = employeeIds,
-                    FromDateInclusive = fromDate,
-                    ToDateInclusive = toDate,
-                    TaskIds = taskIds
-                }))
-                .Select(timeEntry => new
-                {
-                    User = timeEntry.User,
-                    EmployeeId = timeEntry.EmployeeId,
-                    Date = timeEntry.Date.ToDateOnly(),
-                    Value = timeEntry.Value,
-                    TaskId = timeEntry.TaskId,
-                    ProjectId = timeEntry.ProjectId,
-                }));
+            return Ok(await _storage.GetTimeEntriesForEmployees(new MultipleTimeEntriesQuerySearch
+            {
+                FromDateInclusive = fromDate,
+                ToDateInclusive = toDate,
+            }));
         }
         catch (Exception e)
         {
