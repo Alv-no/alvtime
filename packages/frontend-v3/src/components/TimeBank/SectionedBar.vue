@@ -83,5 +83,20 @@ const total = computed(() => filteredSections.value.reduce((acc, section) => acc
 		background-color: #721c24;
 		color: $background-color
 	}
+
+	.hatched-green {
+		background:
+      repeating-linear-gradient(
+			45deg,
+			transparent, transparent 5px,
+      $secondary-color 6px, $secondary-color 6px
+    ),
+      repeating-linear-gradient(
+      -45deg,
+      transparent, transparent 5px,
+      $secondary-color 6px, $secondary-color 6px
+    ),
+      $secondary-color-light;
+	}
 }
 </style>
