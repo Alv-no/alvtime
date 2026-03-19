@@ -3,7 +3,7 @@
 		v-if="!loading"
 	>
 		<h2>
-			Betalte feriedager
+			Feriedager
 			<div class="tooltip">
 				&#9432;
 				<span class="tooltiptext">
@@ -57,7 +57,17 @@
 				</span>
 			</div>
 		</h2>
-		<SectionedBar :sections="vacationSections" />
+		<div v-if="vacationGroupLabels.length > 0" class="vacation-group-labels">
+		<div
+			v-for="group in vacationGroupLabels"
+			:key="group.label"
+			class="vacation-group-label"
+			:style="{ width: `${group.widthPercent}%` }"
+		>
+			{{ group.label }}
+		</div>
+	</div>
+	<SectionedBar :sections="vacationSections" />
 	</div>
 </template>
 
@@ -73,23 +83,52 @@ const vacationStore = useVacationStore();
 const { vacation } = storeToRefs(vacationStore);
 
 const vacationSections = computed(() => {
+	const available = vacation.value?.availableVacationDays || 0;
+	const used = vacation.value?.usedVacationDaysThisYear || 0;
+	const planned = vacation.value?.plannedVacationDaysThisYear || 0;
+	const totalEarned = available + used + planned;
+	const totalConsumed = used + planned;
+
 	return [
 		{
 			title: "Brukt",
-			amount: vacation.value?.usedVacationDaysThisYear || 0,
+			amount: used,
 			color: "yellow",
 		},
+    {
+      title: "Planlagt",
+      amount: planned,
+      color: "blue",
+    },
 		{
-			title: "Tilgjengelig",
-			amount: vacation.value?.availableVacationDays || 0,
+			title: "Betalte",
+			amount: Math.max(0, available),
 			color: "green",
 		},
 		{
-			title: "Planlagt",
-			amount: vacation.value?.plannedVacationDaysThisYear || 0,
-			color: "blue",
-		}
+			title: "Ikke betalte",
+			amount: Math.max(0, 25 - Math.max(totalEarned, totalConsumed)),
+			color: "hatched-green",
+		},
 	];
+});
+
+const vacationGroupLabels = computed(() => {
+	const sections = vacationSections.value;
+	const filtered = sections.filter(s => s.amount > 0);
+	const total = filtered.reduce((acc, s) => acc + s.amount, 0);
+	if (total === 0) return [];
+
+	const bruktTotal = (sections[0].amount > 0 ? sections[0].amount : 0)
+	                 + (sections[1].amount > 0 ? sections[1].amount : 0);
+	const resterendeTotal = (sections[2].amount > 0 ? sections[2].amount : 0)
+	                      + (sections[3].amount > 0 ? sections[3].amount : 0);
+	const groups = [];
+	if (bruktTotal > 0)
+		groups.push({ label: "Brukte feriedager", widthPercent: (bruktTotal / total) * 100 });
+	if (resterendeTotal > 0)
+		groups.push({ label: "Resterende feriedager", widthPercent: (resterendeTotal / total) * 100 });
+	return groups;
 });
 
 onMounted( async () => {
@@ -152,5 +191,23 @@ h2 {
 /* Show the tooltip text on hover */
 .tooltip:hover .tooltiptext {
   visibility: visible;
+}
+
+.vacation-group-labels {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 3px;
+
+  .vacation-group-label {
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding-bottom: 3px;
+    border-bottom: 2px solid $primary-color;
+
+    &:not(:last-child) {
+      margin-right: 8px;
+    }
+  }
 }
 </style>
