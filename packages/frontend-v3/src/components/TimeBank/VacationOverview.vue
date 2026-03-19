@@ -101,7 +101,7 @@ const vacationSections = computed(() => {
       color: "blue",
     },
 		{
-			title: "Betalte",
+			title: "Opptjente",
 			amount: Math.max(0, available),
 			color: "green",
 		},
