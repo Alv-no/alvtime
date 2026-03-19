@@ -146,7 +146,7 @@ h2 {
 .tooltip {
   position: relative;
   display: inline-block;
-  border-bottom: 1px dotted black; /* Add dots under the hoverable text */
+  border-bottom: 1px dotted $primary-color;
   cursor: pointer;
   vertical-align: middle;
   font-size: 0.9em;
@@ -157,14 +157,17 @@ h2 {
   width: 500px;
   max-height: 400px;
   overflow-y: auto;
-  background-color: #333;
-  color: #ffffff;
+  background-color: $primary-color;
+  color: $background-color;
   padding: 16px;
-  border-radius: 8px;
+  border-radius: 10px;
   position: absolute;
   z-index: 1;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.65;
+  letter-spacing: 0.01em;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 
   p {
     margin: 12px 0;
@@ -180,15 +183,17 @@ h2 {
   }
 
   strong {
-    color: #ffd700;
+    color: $accent-color;
+    font-weight: 600;
   }
 
   em {
-    color: #87ceeb;
+    color: $secondary-color-light;
+    font-style: normal;
+    font-weight: 500;
   }
 }
 
-/* Show the tooltip text on hover */
 .tooltip:hover .tooltiptext {
   visibility: visible;
 }
