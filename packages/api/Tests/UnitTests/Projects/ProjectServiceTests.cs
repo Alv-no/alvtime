@@ -1,7 +1,11 @@
-﻿using AlvTime.Business.Projects;
+﻿using System;
+using AlvTime.Business.Options;
+using AlvTime.Business.Projects;
 using AlvTime.Business.Users;
+using AlvTime.Business.Utils;
 using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;
+using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 using Task = System.Threading.Tasks.Task;
@@ -12,6 +16,7 @@ public class ProjectServiceTests
 {
     private readonly AlvTime_dbContext _context;
     private readonly Mock<IUserContext> _userContextMock;
+    private readonly IOptionsMonitor<TimeEntryOptions> _options;
     
     public ProjectServiceTests()
     {
@@ -30,6 +35,17 @@ public class ProjectServiceTests
 
         _userContextMock.Setup(context => context.GetCurrentUser())
             .Returns(Task.FromResult(user));
+        
+        var entryOptions = new TimeEntryOptions
+        {
+            SickDaysTask = 14,
+            PaidHolidayTask = 13,
+            UnpaidHolidayTask = 19,
+            FlexTask = 18,
+            StartOfOvertimeSystem = new DateTime(2020, 01, 01),
+            AbsenceProject = 9
+        };
+        _options = Mock.Of<IOptionsMonitor<TimeEntryOptions>>(options => options.CurrentValue == entryOptions);
     }
     
     [Fact]
@@ -44,7 +60,12 @@ public class ProjectServiceTests
 
     private ProjectService CreateProjectService(AlvTime_dbContext context)
     {
-        var storage = new ProjectStorage(context);
+        var storage = new ProjectStorage(context, CreateTaskUtils());
         return new ProjectService(storage, _userContextMock.Object);
+    }
+    
+    private TaskUtils CreateTaskUtils()
+    {
+        return new TaskUtils(new TaskStorage(_context), _options);
     }
 }

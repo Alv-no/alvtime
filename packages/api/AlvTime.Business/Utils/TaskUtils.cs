@@ -17,6 +17,11 @@ public class TaskUtils
         _taskStorage = taskStorage;
         _absenceProjectId = timeEntryOptions.CurrentValue.AbsenceProject;
     }
+    
+    public bool ProjectIsAbsence(int projectId)
+    {
+        return projectId == _absenceProjectId;
+    }
         
     public async Task<bool> TaskGivesOvertime(int taskId)
     {
@@ -24,12 +29,6 @@ public class TaskUtils
         return task != null && task.Project.Id != _absenceProjectId;
     }
 
-    public async Task<bool> TaskIsImposed(int taskId)
-    {
-        var task = (await _taskStorage.GetTasks(new TaskQuerySearch{ Id = taskId })).FirstOrDefault();
-        return task != null && task.Imposed;
-    }
-    
     public async Task<List<int>> GetAllImposedTaskIds()
     {
         var allTasks = await _taskStorage.GetTasks(new TaskQuerySearch());
