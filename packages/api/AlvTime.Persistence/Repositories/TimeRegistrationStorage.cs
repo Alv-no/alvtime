@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.Overtime;
+using AlvTime.Business.Tasks;
 using AlvTime.Business.TimeRegistration;
+using AlvTime.Business.Users;
 using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Task = System.Threading.Tasks.Task;
@@ -264,17 +266,15 @@ public class TimeRegistrationStorage : ITimeRegistrationStorage
 
     public async Task<IEnumerable<TimeEntryEmployeeResponseDto>> GetTimeEntriesForEmployees(MultipleTimeEntriesQuerySearch criteria)
     {
-
-        var hours = await _context.Hours.AsQueryable()
+        var hours = await _context.Hours.Include(h => h.Task).Include(h => h.UserNavigation).AsQueryable()
              .Filter(criteria)
              .Select(hour => new TimeEntryEmployeeResponseDto
              {
-                 User = hour.User,
-                 EmployeeId = hour.UserNavigation.EmployeeId,
-                 Value = hour.Value,
+                 Id = hour.Id,
                  Date = hour.Date,
+                 Value = hour.Value,
                  TaskId = hour.TaskId,
-                 ProjectId = hour.Task.Project
+                 UserId = hour.User
              })
              .ToListAsync();
 

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 
 namespace AlvTimeWebApi.Authentication;
 
@@ -65,6 +66,17 @@ public static class AuthenticationExtensions
                 options.CallbackPath = "/signin-oidc";
                 options.UsePkce = true;
             })
-            .AddScheme<PersonalAccessTokenOptions, PersonalAccessTokenHandler>("PersonalAccessTokenScheme", null);
+            .AddScheme<PersonalAccessTokenOptions, PersonalAccessTokenHandler>("PersonalAccessTokenScheme", null)
+            .AddJwtBearer("Alviter", options =>
+            {
+                options.Authority = $"{authentication.Instance}{authentication.TenantId}/v2.0";
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidAudience = authentication.ClientId,
+                    ValidIssuer = $"https://login.microsoftonline.com/{authentication.TenantId}/v2.0",
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                };
+            });
     }
 }

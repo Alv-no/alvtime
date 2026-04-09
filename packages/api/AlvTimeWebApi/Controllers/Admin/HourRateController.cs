@@ -11,7 +11,7 @@ namespace AlvTimeWebApi.Controllers.Admin;
 
 [Route("api/admin")]
 [ApiController]
-[Authorize(Roles = "Admin")]
+[Authorize(Policy = "AdminPolicy")]
 public class HourRateController : Controller
 {
     private readonly HourRateService _hourRateService;

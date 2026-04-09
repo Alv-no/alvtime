@@ -1,5 +1,4 @@
 ﻿using AlvTime.Business.Customers;
-using AlvTimeWebApi.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,12 +13,13 @@ namespace AlvTimeWebApi.Controllers.Admin;
 
 [Route("api/admin")]
 [ApiController]
-[Authorize(Roles = "Admin")]
+[Authorize(Policy = "AdminPolicy")]
 public class CustomerController(CustomerService customerService) : ControllerBase
 {
     [HttpGet("Customers")]    
     public async Task<ActionResult<IEnumerable<CustomerAdminResponse>>> FetchCustomersAdmin()
     {
+        var user = HttpContext.User;
         var customers = await customerService.GetCustomersAdmin();
         return Ok(customers.Select(c => c.MapToCustomerResponse()));
     }
