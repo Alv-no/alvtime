@@ -21,7 +21,7 @@ packages = [{include = "alvtime_cli", from = "src"}]
 
 
 [tool.poetry.group.test.dependencies]
-pytest = "^8.3.5"
+pytest = "^9.0.3"
 
 
 [tool.poetry.group.dev.dependencies]
