@@ -58,6 +58,7 @@ const hoveredSection = computed(() =>
 );
 
 function onBarEnter(event: MouseEvent, index: number) {
+	if (window.innerWidth < 768) return;
 	hoveredIndex.value = index;
 	const el = event.currentTarget as HTMLElement;
 	tooltipLeft.value = el.offsetLeft + el.offsetWidth / 2;
