@@ -89,17 +89,29 @@ const vacationSections = computed(() => {
 	const totalEarned = available + used + planned;
 	const totalConsumed = used + planned;
 
+	const currentYear = new Date().getFullYear().toString();
+	const usedDates = (vacation.value?.usedTransactions ?? [])
+		.filter(t => t.date.startsWith(currentYear))
+		.map(t => t.date)
+		.sort();
+	const plannedDates = (vacation.value?.plannedTransactions ?? [])
+		.filter(t => t.date.startsWith(currentYear))
+		.map(t => t.date)
+		.sort();
+
 	return [
 		{
 			title: "Brukt",
 			amount: used,
 			color: "yellow",
+			dates: usedDates,
 		},
-    {
-      title: "Planlagt",
-      amount: planned,
-      color: "blue",
-    },
+		{
+			title: "Planlagt",
+			amount: planned,
+			color: "blue",
+			dates: plannedDates,
+		},
 		{
 			title: "Opptjente",
 			amount: Math.max(0, available),

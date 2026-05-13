@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.Tasks;
+using AlvTime.Business.Utils;
 using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Task = System.Threading.Tasks.Task;
 
 namespace AlvTime.Persistence.Repositories;
 
-public class ProjectStorage(AlvTime_dbContext context) : IProjectStorage
+public class ProjectStorage(AlvTime_dbContext context, TaskUtils taskUtils) : IProjectStorage
 {
     public async Task<IEnumerable<ProjectDto>> GetProjects(ProjectQuerySearch criteria)
     {
@@ -56,6 +57,16 @@ public class ProjectStorage(AlvTime_dbContext context) : IProjectStorage
                     EnableComments = context.TaskFavorites.Any(fav => fav.UserId == userId && fav.TaskId == t.Id && fav.EnableComments),
                 })
             }).ToListAsync();
+
+        var absenceProject = projects.FirstOrDefault(p => taskUtils.ProjectIsAbsence(p.Id));
+
+        if (absenceProject is not null)
+        {
+            foreach (var task in absenceProject.Tasks)
+            {
+                task.Favorite = true;
+            }
+        }
 
         return projects;
     }
