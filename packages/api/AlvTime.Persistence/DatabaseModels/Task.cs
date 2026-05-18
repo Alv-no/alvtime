@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AlvTime.Business.Tasks;
 
 namespace AlvTime.Persistence.DatabaseModels
 {
@@ -20,6 +21,7 @@ namespace AlvTime.Persistence.DatabaseModels
         public bool Locked { get; set; }
         public bool Favorite { get; set; }
         public bool Imposed { get; set; }
+        public CompensationType CompensationType { get; set; }
 
         public virtual Project ProjectNavigation { get; set; }
         public virtual ICollection<AssociatedTasks> AssociatedTasks { get; set; }
