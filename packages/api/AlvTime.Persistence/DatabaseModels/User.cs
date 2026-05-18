@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using AlvTime.Business.Overtime;
 
 namespace AlvTime.Persistence.DatabaseModels
 {
@@ -27,6 +28,7 @@ namespace AlvTime.Persistence.DatabaseModels
         public int EmployeeId { get; set; }
         [Required]
         public string Oid { get; set; }
+        public SalaryModel SalaryModel { get; set; }
 
         public virtual ICollection<AccessTokens> AccessTokens { get; set; }
         public virtual ICollection<AssociatedTasks> AssociatedTasks { get; set; }
