@@ -12,6 +12,7 @@ namespace AlvTime.Business.Tasks
         public decimal CompensationRate { get; set; }
         public bool Imposed { get; set; }
         public bool EnableComments { get; set; }
+        public CompensationType CompensationType { get; set; }
 
         public ProjectResponseDto Project { get; set; }
     }
