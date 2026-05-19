@@ -14,5 +14,6 @@ public class TaskAdminDto
     public decimal CompensationRate { get; set; }
     public int ProjectId { get; set; }
     public string ProjectName { get; set; }
+    public CompensationType CompensationType { get; set; }
     public IEnumerable<HourRateDto> HourRates { get; set; }
 }

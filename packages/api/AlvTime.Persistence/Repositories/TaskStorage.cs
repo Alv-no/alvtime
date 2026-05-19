@@ -25,7 +25,6 @@ public class TaskStorage(AlvTime_dbContext context) : ITaskStorage
                 Name = x.Name,
                 Locked = x.Locked,
                 Favorite = false,
-                CompensationRate = EnsureCompensationRate(x.CompensationRate),
                 Imposed = x.Imposed,
                 CompensationType = x.CompensationType,
                 Project = new ProjectResponseDto
@@ -45,11 +44,6 @@ public class TaskStorage(AlvTime_dbContext context) : ITaskStorage
             }).ToListAsync();
 
         return tasks;
-    }
-
-    private static decimal EnsureCompensationRate(IEnumerable<CompensationRate> compensationRate)
-    {
-        return compensationRate.MaxBy(cr => cr.FromDate)?.Value ?? 0.0M;
     }
 
     public async Task<IEnumerable<TaskResponseDto>> GetUsersTasks(TaskQuerySearch criterias, int userId)

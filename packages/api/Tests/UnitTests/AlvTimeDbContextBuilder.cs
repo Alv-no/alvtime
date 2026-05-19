@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Data.Common;
+using AlvTime.Business.Tasks;
 using AlvTime.Persistence.DatabaseModels;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -198,7 +199,8 @@ namespace Tests.UnitTests
                 Id = 1,
                 Description = "",
                 Project = 1,
-                Name = "ExampleTask"
+                Name = "ExampleTask",
+                CompensationType = CompensationType.Billable
             });
 
             _context.Task.Add(new Task
@@ -206,7 +208,8 @@ namespace Tests.UnitTests
                 Id = 2,
                 Description = "",
                 Project = 2,
-                Name = "ExampleTaskTwo"
+                Name = "ExampleTaskTwo",
+                CompensationType = CompensationType.Internal
             });
             
             _context.Task.Add(new Task
@@ -214,7 +217,8 @@ namespace Tests.UnitTests
                 Id = 3,
                 Description = "",
                 Project = 2,
-                Name = "ExampleTaskThree"
+                Name = "ExampleTaskThree",
+                CompensationType = CompensationType.Billable
             });
             
             _context.Task.Add(new Task
@@ -239,7 +243,8 @@ namespace Tests.UnitTests
                 Id = 6,
                 Description = "",
                 Project = 2,
-                Name = "ExampleTaskSix"
+                Name = "ExampleTaskSix",
+                CompensationType = CompensationType.Internal
             });
             
             _context.Task.Add(new Task
@@ -247,49 +252,8 @@ namespace Tests.UnitTests
                 Id = 7,
                 Description = "",
                 Project = 2,
-                Name = "ExampleTaskSeven"
-            });
-            
-            _context.CompensationRate.Add(new CompensationRate
-            {
-                TaskId = 1,
-                Value = 1.5M,
-                FromDate = new DateTime(2019, 01 ,01)
-            });
-
-            _context.CompensationRate.Add(new CompensationRate
-            {
-                TaskId = 2,
-                Value = 1.0M,
-                FromDate = new DateTime(2019, 01 ,01)
-            });
-            
-            _context.CompensationRate.Add(new CompensationRate
-            {
-                TaskId = 3,
-                Value = 0.5M,
-                FromDate = new DateTime(2019, 01 ,01)
-            });
-            
-            _context.CompensationRate.Add(new CompensationRate
-            {
-                TaskId = 5,
-                Value = 1.5M,
-                FromDate = new DateTime(2019, 01 ,01)
-            });
-
-            _context.CompensationRate.Add(new CompensationRate
-            {
-                TaskId = 6,
-                Value = 1.0M,
-                FromDate = new DateTime(2019, 01 ,01)
-            });
-            
-            _context.CompensationRate.Add(new CompensationRate
-            {
-                TaskId = 7,
-                Value = 0.5M,
-                FromDate = new DateTime(2019, 01 ,01)
+                Name = "ExampleTaskSeven",
+                CompensationType = CompensationType.Volunteer
             });
 
             _context.SaveChanges();
