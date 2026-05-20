@@ -1,4 +1,6 @@
-﻿namespace AlvTimeWebApi.Responses.Admin;
+﻿using AlvTime.Business.Tasks;
+
+namespace AlvTimeWebApi.Responses.Admin;
 
 public class TaskResponseSimple
 {
@@ -7,5 +9,5 @@ public class TaskResponseSimple
     public string Description { get; set; }
     public bool Favorite { get; set; }
     public bool Locked { get; set; }
-    public decimal CompensationRate { get; set; }
+    public CompensationType CompensationType { get; set; }
 }

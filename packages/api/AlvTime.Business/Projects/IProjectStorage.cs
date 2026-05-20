@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using AlvTime.Business.Users;
 
 namespace AlvTime.Business.Projects;
 
 public interface IProjectStorage
 {
     Task<IEnumerable<ProjectDto>> GetProjects(ProjectQuerySearch criteria);
-    Task<IEnumerable<ProjectResponseDtoV2>> GetProjectsWithTasks(ProjectQuerySearch criteria, int userId);
+    Task<IEnumerable<ProjectResponseDtoV2>> GetProjectsWithTasksForUser(ProjectQuerySearch criteria, User user);
     Task UpdateProject(ProjectDto request);
     Task CreateProject(string projectName, int customerId);
     Task UpdateProjectFavorites(IEnumerable<ProjectFavoriteDto> projectFavorites, int userId);

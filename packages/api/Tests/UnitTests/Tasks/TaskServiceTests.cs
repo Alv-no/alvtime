@@ -185,7 +185,7 @@ public class TaskServiceTests
         var taskService = CreateTaskService(_context);
 
         await taskService.UpdateTask(new TaskDto
-            { Id = 1, Locked = true, Name = "MyExampleTask", CompensationRate = 1.50M });
+            { Id = 1, Locked = true, Name = "MyExampleTask", CompensationType = CompensationType.Billable });
 
         var task = _context.Task.FirstOrDefault(x => x.Id == 1);
 

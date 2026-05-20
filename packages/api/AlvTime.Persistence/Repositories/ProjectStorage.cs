@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AlvTime.Business.CompensationRate;
 using AlvTime.Business.Tasks;
 using AlvTime.Business.Utils;
 using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Task = System.Threading.Tasks.Task;
+using User = AlvTime.Business.Users.User;
 
 namespace AlvTime.Persistence.Repositories;
 
@@ -25,7 +27,7 @@ public class ProjectStorage(AlvTime_dbContext context, TaskUtils taskUtils) : IP
         return projects;
     }
     
-    public async Task<IEnumerable<ProjectResponseDtoV2>> GetProjectsWithTasks(ProjectQuerySearch criteria, int userId)
+    public async Task<IEnumerable<ProjectResponseDtoV2>> GetProjectsWithTasksForUser(ProjectQuerySearch criteria, User user)
     {
         var projects = await context.Project.AsQueryable().AsNoTracking()
             .Filter(criteria)
@@ -39,7 +41,7 @@ public class ProjectStorage(AlvTime_dbContext context, TaskUtils taskUtils) : IP
                 Name = p.Name,
                 CustomerName = p.CustomerNavigation.Name,
                 Index = p.ProjectFavorites
-                    .Where(pf => pf.UserId == userId && pf.ProjectId == p.Id)
+                    .Where(pf => pf.UserId == user.Id && pf.ProjectId == p.Id)
                     .Select(pf => (int?)pf.Index)
                     .FirstOrDefault() ?? 9999,
                 Tasks = p.Task.Select(t => new TaskResponseDtoV2
@@ -47,14 +49,12 @@ public class ProjectStorage(AlvTime_dbContext context, TaskUtils taskUtils) : IP
                     Id = t.Id,
                     Name = t.Name,
                     Description = t.Description,
-                    Favorite = context.TaskFavorites.Any(fav => fav.UserId == userId && fav.TaskId == t.Id),
+                    Favorite = context.TaskFavorites.Any(fav => fav.UserId == user.Id && fav.TaskId == t.Id),
                     Locked = t.Locked,
                     Imposed = t.Imposed,
-                    CompensationRate = t.CompensationRate
-                        .OrderByDescending(cr => cr.FromDate)
-                        .Select(cr => cr.Value)
-                        .FirstOrDefault(),
-                    EnableComments = context.TaskFavorites.Any(fav => fav.UserId == userId && fav.TaskId == t.Id && fav.EnableComments),
+                    CompensationRate = CompensationRateHelper.ResolveCompensationRate(t.CompensationType, t.Imposed, user.SalaryModel),
+                    EnableComments = context.TaskFavorites.Any(fav => fav.UserId == user.Id && fav.TaskId == t.Id && fav.EnableComments),
+                    CompensationType = t.CompensationType
                 })
             }).ToListAsync();
 

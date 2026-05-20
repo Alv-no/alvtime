@@ -5,9 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AlvTime.Business.CompensationRate;
 using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Task = AlvTime.Persistence.DatabaseModels.Task;
+using User = AlvTime.Business.Users.User;
 
 namespace AlvTime.Persistence.Repositories;
 
@@ -46,9 +48,9 @@ public class TaskStorage(AlvTime_dbContext context) : ITaskStorage
         return tasks;
     }
 
-    public async Task<IEnumerable<TaskResponseDto>> GetUsersTasks(TaskQuerySearch criterias, int userId)
+    public async Task<IEnumerable<TaskResponseDto>> GetUsersTasks(TaskQuerySearch criterias, User user)
     {
-        var usersFavoriteTasks = await context.TaskFavorites.Where(x => x.UserId == userId).ToListAsync();
+        var usersFavoriteTasks = await context.TaskFavorites.Where(x => x.UserId == user.Id).ToListAsync();
 
         var tasks = await GetTasks(criterias);
 
@@ -57,6 +59,8 @@ public class TaskStorage(AlvTime_dbContext context) : ITaskStorage
         {
             task.Favorite = favoriteIds.Contains(task.Id);
             task.EnableComments = usersFavoriteTasks.Select(t => t.Id).Contains(task.Id) && usersFavoriteTasks.First(t => t.Id == task.Id).EnableComments;
+            task.CompensationRate =
+                CompensationRateHelper.ResolveCompensationRate(task.CompensationType, task.Imposed, user.SalaryModel);
         }
 
         return tasks;

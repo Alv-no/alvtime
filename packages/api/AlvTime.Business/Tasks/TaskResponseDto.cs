@@ -9,10 +9,10 @@ namespace AlvTime.Business.Tasks
         public string Description { get; set; }
         public bool Favorite { get; set; }
         public bool Locked { get; set; }
-        public decimal CompensationRate { get; set; }
         public bool Imposed { get; set; }
         public bool EnableComments { get; set; }
         public CompensationType CompensationType { get; set; }
+        public decimal CompensationRate { get; set; }
 
         public ProjectResponseDto Project { get; set; }
     }

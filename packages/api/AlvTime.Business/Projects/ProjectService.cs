@@ -10,7 +10,7 @@ public class ProjectService(IProjectStorage projectStorage, IUserContext userCon
     public async Task<Result<IEnumerable<ProjectResponseDtoV2>>> GetProjectsWithTasks(ProjectQuerySearch criteria)
     {
         var currentUser = await userContext.GetCurrentUser();
-        var projects = await projectStorage.GetProjectsWithTasks(criteria, currentUser.Id);
+        var projects = await projectStorage.GetProjectsWithTasksForUser(criteria, currentUser);
         var orderedProjects = projects.OrderBy(p => p.Index).ThenBy(p => p.Name);
         return new Result<IEnumerable<ProjectResponseDtoV2>>(orderedProjects);
     }

@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using AlvTime.Business.Users;
 
 namespace AlvTime.Business.Tasks
 {
     public interface ITaskStorage
     {
         Task<IEnumerable<TaskResponseDto>> GetTasks(TaskQuerySearch criterias);
-        Task<TaskResponseDto> GetTaskById(int taskId);
-        Task<IEnumerable<TaskResponseDto>> GetUsersTasks(TaskQuerySearch criterias, int userId);
+        Task<IEnumerable<TaskResponseDto>> GetUsersTasks(TaskQuerySearch criterias, User user);
         Task CreateFavoriteTask(int taskId, int userId);
         Task RemoveFavoriteTask(int taskId, int userId);
         Task<bool> IsFavorite(int taskId, int userId);
