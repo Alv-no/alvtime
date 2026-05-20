@@ -30,7 +30,7 @@ public class TaskServiceTests
             .WithTaskFavorites()
             .WithLeaveTasks()
             .WithProjects()
-            .WithUsers()
+            .WithStaticSalaryUsers()
             .WithCustomers()
             .CreateDbContext();
 

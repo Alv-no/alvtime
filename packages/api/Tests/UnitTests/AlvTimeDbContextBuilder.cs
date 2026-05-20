@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Data.Common;
+using AlvTime.Business.Overtime;
 using AlvTime.Business.Tasks;
 using AlvTime.Persistence.DatabaseModels;
 using Microsoft.Data.Sqlite;
@@ -269,6 +270,7 @@ namespace Tests.UnitTests
                 Project = AbsenceProject,
                 Name = "UnpaidHoliday",
                 Locked = false,
+                CompensationType = CompensationType.Internal
             });
 
             _context.Task.Add(new Task
@@ -277,7 +279,8 @@ namespace Tests.UnitTests
                 Description = "",
                 Project = AbsenceProject,
                 Name = "PaidHoliday",
-                Locked = false
+                Locked = false,
+                CompensationType = CompensationType.Internal
             });
 
             _context.Task.Add(new Task
@@ -286,7 +289,8 @@ namespace Tests.UnitTests
                 Description = "",
                 Project = AbsenceProject,
                 Name = "SickDay",
-                Locked = false
+                Locked = false,
+                CompensationType = CompensationType.Internal
             });
             
             _context.Task.Add(new Task
@@ -295,42 +299,15 @@ namespace Tests.UnitTests
                 Description = "",
                 Project = AbsenceProject,
                 Name = "Flex",
-                Locked = false
-            });
-            
-            _context.CompensationRate.Add(new CompensationRate
-            {
-                TaskId = 12,
-                Value = 1.0M,
-                FromDate = new DateTime(2019, 01 ,01)
-            });
-
-            _context.CompensationRate.Add(new CompensationRate
-            {
-                TaskId = 13,
-                Value = 1.0M,
-                FromDate = new DateTime(2019, 01 ,01)
-            });
-            
-            _context.CompensationRate.Add(new CompensationRate
-            {
-                TaskId = 14,
-                Value = 1.0M,
-                FromDate = new DateTime(2019, 01 ,01)
-            });
-            
-            _context.CompensationRate.Add(new CompensationRate
-            {
-                TaskId = 18,
-                Value = 1.0M,
-                FromDate = new DateTime(2019, 01 ,01)
+                Locked = false,
+                CompensationType = CompensationType.Internal
             });
 
             _context.SaveChanges();
             return this;
         }
 
-        public AlvTimeDbContextBuilder WithUsers()
+        public AlvTimeDbContextBuilder WithStaticSalaryUsers()
         {
             _context.User.Add(new User
             {
@@ -339,7 +316,8 @@ namespace Tests.UnitTests
                 Name = "Someone",
                 StartDate = new DateTime(2020, 01, 02),
                 EmployeeId = 999,
-                Oid = "12345678-1234-1234-1234-123456789012"
+                Oid = "12345678-1234-1234-1234-123456789012",
+                SalaryModel = SalaryModel.Static
             });
 
             _context.User.Add(new User
@@ -349,9 +327,26 @@ namespace Tests.UnitTests
                 Name = "Someone2",
                 StartDate = DateTime.Now,
                 EmployeeId = 888,
-                Oid = "23456789-2345-2345-2345-234567890123"
+                Oid = "23456789-2345-2345-2345-234567890123",
+                SalaryModel = SalaryModel.Static
             });
 
+            _context.SaveChanges();
+            return this;
+        }
+
+        public AlvTimeDbContextBuilder WithInvoiceBasedSalaryUsers()
+        {
+            _context.User.Add(new User
+            {
+                Id = 1,
+                Email = "someone@alv.no",
+                Name = "Someone",
+                StartDate = new DateTime(2020, 01, 02),
+                EmployeeId = 999,
+                Oid = "12345678-1234-1234-1234-123456789012",
+                SalaryModel = SalaryModel.InvoiceBased
+            });
             _context.SaveChanges();
             return this;
         }

@@ -16,7 +16,7 @@ public class TaskStorage(AlvTime_dbContext context) : ITaskStorage
     public async Task<IEnumerable<TaskResponseDto>> GetTasks(TaskQuerySearch criterias)
     {
         var tasks = await context.Task
-            .Include(t => t.CompensationRate).AsQueryable()
+            .AsQueryable()
             .Filter(criterias)
             .Select(x => new TaskResponseDto
             {
@@ -72,14 +72,7 @@ public class TaskStorage(AlvTime_dbContext context) : ITaskStorage
             Imposed = task.Imposed,
             Name = task.Name,
             Project = projectId,
-            CompensationRate = new List<CompensationRate>
-            {
-                new()
-                {
-                    FromDate = new DateTime(1990, 1, 1),
-                    Value = task.CompensationRate,
-                }
-            }
+            CompensationType = task.CompensationType
         };
         context.Task.Add(newTask);
         await context.SaveChangesAsync();
@@ -94,11 +87,6 @@ public class TaskStorage(AlvTime_dbContext context) : ITaskStorage
         existingTask.Name = task.Name;
         existingTask.Description = task.Description ?? existingTask.Description;
         existingTask.Imposed = task.Imposed;
-
-        var compensationRates =
-            (await context.CompensationRate.ToListAsync()).OrderByDescending(cr => cr.FromDate);
-        var compRateToBeUpdated = compensationRates.First(cr => cr.TaskId == task.Id);
-        compRateToBeUpdated.Value = task.CompensationRate;
 
         await context.SaveChangesAsync();
     }

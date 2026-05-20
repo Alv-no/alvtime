@@ -17,7 +17,7 @@ public class UserServiceTests
     public UserServiceTests()
     {
         _context = new AlvTimeDbContextBuilder()
-            .WithUsers()
+            .WithStaticSalaryUsers()
             .CreateDbContext();
     }
 

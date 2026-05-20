@@ -6,6 +6,7 @@ using AlvTime.Business.Options;
 using AlvTime.Business.Payouts;
 using AlvTime.Business.TimeRegistration;
 using AlvTime.Business.Users;
+using AlvTime.Business.Tasks;
 using AlvTime.Business.Utils;
 using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;
@@ -32,7 +33,7 @@ public class PayoutServiceTests
             .WithTasks()
             .WithLeaveTasks()
             .WithProjects()
-            .WithUsers()
+            .WithStaticSalaryUsers()
             .WithCustomers()
             .CreateDbContext();
 
@@ -71,7 +72,7 @@ public class PayoutServiceTests
     public async System.Threading.Tasks.Task GetRegisteredPayouts_Registered10Hours_10HoursRegistered()
     {
         var timeEntry1 =
-            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 17.5M, 1.0M, out _); //Monday
+            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 17.5M, CompensationType.Internal, out _); //Monday
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
 
@@ -98,7 +99,7 @@ public class PayoutServiceTests
     public async System.Threading.Tasks.Task GetRegisteredPayouts_Registered3Times_ListWith3Items()
     {
         var timeEntry1 =
-            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 17.5M, 1.0M, out _); //Monday
+            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 17.5M, CompensationType.Internal, out _); //Monday
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
 
@@ -130,12 +131,12 @@ public class PayoutServiceTests
     [Fact]
     public async System.Threading.Tasks.Task RegisterPayout_CalculationCorrectForBeforeAndAfterCompRate()
     {
-        var timeEntry1 = CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 10M, 2.0M, out _); //Monday
+        var timeEntry1 = CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 10M, CompensationType.Billable, out _, imposed: true); //Monday
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
 
         var timeEntry2 =
-            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 14), 17.5M, 0.5M, out _); //Tuesday
+            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 14), 17.5M, CompensationType.Volunteer, out _); //Tuesday
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId } });
 
@@ -156,22 +157,22 @@ public class PayoutServiceTests
     public async System.Threading.Tasks.Task RegisterPayout_CalculationCorrectForBeforeAndAfterCompRate2()
     {
         var timeEntry1 =
-            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 8.5M, 1.5M, out _); //Monday
+            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 8.5M, CompensationType.Billable, out _); //Monday
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
 
         var timeEntry2 =
-            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 14), 12.5M, 0.5M, out _); //Tuesday
+            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 14), 12.5M, CompensationType.Volunteer, out _); //Tuesday
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId } });
 
         var timeEntry3 =
-            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 15), 9.0M, 1.0M, out _); //Wednesday
+            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 15), 9.0M, CompensationType.Internal, out _); //Wednesday
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId } });
 
         var timeEntry4 =
-            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 16), 9.5M, 1.5M, out _); //Thursday
+            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 16), 9.5M, CompensationType.Billable, out _); //Thursday
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry4.Date, Value = timeEntry4.Value, TaskId = timeEntry4.TaskId } });
 
@@ -193,7 +194,7 @@ public class PayoutServiceTests
     public async System.Threading.Tasks.Task RegisterPayout_NotEnoughOvertime_CannotRegisterPayout()
     {
         var timeEntry1 =
-            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 11.5M, 1.5M, out _); //Monday
+            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 11.5M, CompensationType.Billable, out _); //Monday
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
 
@@ -216,7 +217,7 @@ public class PayoutServiceTests
     public async System.Threading.Tasks.Task Lock_payout()
     {
         var timeEntry1 =
-            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 17.5M, 1.0M, out _);
+            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 17.5M, CompensationType.Internal, out _);
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
 
@@ -243,7 +244,7 @@ public class PayoutServiceTests
     public async System.Threading.Tasks.Task RegisterPayout_RegisteringPayoutBeforeWorkingOvertime_NoPayout()
     {
         var timeEntry1 =
-            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 11.5M, 1.5M, out _); //Monday
+            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 11.5M, CompensationType.Billable, out _); //Monday
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
 
@@ -266,16 +267,16 @@ public class PayoutServiceTests
     public async System.Threading.Tasks.Task RegisterPayout_WorkingOvertimeAfterPayout_OnlyConsiderOvertimeWorkedBeforePayout()
     {
         var timeEntry1 =
-            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 7.5M, 1.5M, out _); //Monday
+            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 7.5M, CompensationType.Billable, out _); //Monday
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
 
-        var timeEntry2 = CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 3M, 0.5M, out _); //Monday
+        var timeEntry2 = CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 3M, CompensationType.Volunteer, out _); //Monday
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry2.Date, Value = timeEntry2.Value, TaskId = timeEntry2.TaskId } });
 
         var timeEntry3 =
-            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 1.5M, 1.0M, out _); //Monday
+            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 13), 1.5M, CompensationType.Internal, out _); //Monday
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId } });
 
@@ -287,12 +288,12 @@ public class PayoutServiceTests
         });
 
         var timeEntry4 =
-            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 15), 7.5M, 1.5M, out _); //Wednesday
+            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 15), 7.5M, CompensationType.Billable, out _); //Wednesday
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry4.Date, Value = timeEntry4.Value, TaskId = timeEntry4.TaskId } });
 
         var timeEntry5 =
-            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 15), 2M, 0.5M, out _); //Wednesday
+            CreateTimeEntryWithCompensationRate(new DateTime(2021, 12, 15), 2M, CompensationType.Volunteer, out _); //Wednesday
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry5.Date, Value = timeEntry5.Value, TaskId = timeEntry5.TaskId } });
 
@@ -329,7 +330,7 @@ public class PayoutServiceTests
         var currentYear = DateTime.Now.Year;
 
         var timeEntry1 =
-            CreateTimeEntryWithCompensationRate(new DateTime(currentYear, currentMonth, 02), 17.5M, 1.0M,
+            CreateTimeEntryWithCompensationRate(new DateTime(currentYear, currentMonth, 02), 17.5M, CompensationType.Internal,
                 out _); //Monday
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
@@ -362,7 +363,7 @@ public class PayoutServiceTests
         var yearToTest = previousMonth == 12 ? currentYear - 1 : currentYear;
 
         var timeEntry1 =
-            CreateTimeEntryWithCompensationRate(new DateTime(yearToTest, previousMonth, 02), 17.5M, 1.0M,
+            CreateTimeEntryWithCompensationRate(new DateTime(yearToTest, previousMonth, 02), 17.5M, CompensationType.Internal,
                 out _); //Monday
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry1.Date, Value = timeEntry1.Value, TaskId = timeEntry1.TaskId } });
@@ -390,7 +391,7 @@ public class PayoutServiceTests
         var currentMonth = DateTime.Now.Month;
         var currentDay = DateTime.Now.Day;
         var overtimeEntry =
-            CreateTimeEntryWithCompensationRate(new DateTime(currentYear, currentMonth, currentDay), 12M, 1.5M, out _);
+            CreateTimeEntryWithCompensationRate(new DateTime(currentYear, currentMonth, currentDay), 12M, CompensationType.Billable, out _);
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = overtimeEntry.Date, Value = overtimeEntry.Value, TaskId = overtimeEntry.TaskId } });
 
@@ -420,7 +421,7 @@ public class PayoutServiceTests
         {
             var date = DateTime.Now.AddDays(-i);
             var incompleteTimeEntry =
-                CreateTimeEntryWithCompensationRate(date, 5M, 1.5M, out _);
+                CreateTimeEntryWithCompensationRate(date, 5M, CompensationType.Billable, out _);
             await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 { new() { Date = incompleteTimeEntry.Date, Value = incompleteTimeEntry.Value, TaskId = incompleteTimeEntry.TaskId } });
         }
@@ -446,7 +447,7 @@ public class PayoutServiceTests
         {
             var date = startDate.AddDays(-i);
             var completeTimeEntry =
-                CreateTimeEntryWithCompensationRate(date, 7.5M, 1.5M, out _);
+                CreateTimeEntryWithCompensationRate(date, 7.5M, CompensationType.Billable, out _);
             if (date.Day == 17)
             {
                 completeTimeEntry.Value = 5;
@@ -474,7 +475,7 @@ public class PayoutServiceTests
         {
             var date = DateTime.Now.AddDays(-i);
             var completeTimeEntry =
-                CreateTimeEntryWithCompensationRate(date, 8M, 1.5M, out _);
+                CreateTimeEntryWithCompensationRate(date, 8M, CompensationType.Billable, out _);
             await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
                 { new() { Date = completeTimeEntry.Date, Value = completeTimeEntry.Value, TaskId = completeTimeEntry.TaskId } });
         }
@@ -500,7 +501,7 @@ public class PayoutServiceTests
         var dateAlvTime = new DateAlvTime { Provider = mockProvider.Object };
 
         var timeEntry =
-            CreateTimeEntryWithCompensationRate(dateAlvTime.Now, 12M, 1.5M, out _);
+            CreateTimeEntryWithCompensationRate(dateAlvTime.Now, 12M, CompensationType.Billable, out _);
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId } });
 
@@ -528,7 +529,7 @@ public class PayoutServiceTests
         var dateAlvTime = new DateAlvTime { Provider = mockProvider.Object };
 
         var timeEntry =
-            CreateTimeEntryWithCompensationRate(new DateTime(2024, 4, 6), 12M, 1.5M, out _);
+            CreateTimeEntryWithCompensationRate(new DateTime(2024, 4, 6), 12M, CompensationType.Billable, out _);
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId } });
 
@@ -569,14 +570,12 @@ public class PayoutServiceTests
         return new TaskUtils(new TaskStorage(_context), _options);
     }
 
-    private Hours CreateTimeEntryWithCompensationRate(DateTime date, decimal value, decimal compensationRate,
-        out int taskId)
+    private Hours CreateTimeEntryWithCompensationRate(DateTime date, decimal value,
+        CompensationType compensationType, out int taskId, bool imposed = false)
     {
         taskId = new Random().Next(1000, 10000000);
-        var task = new Task { Id = taskId, Project = 1, };
+        var task = new Task { Id = taskId, Project = 1, CompensationType = compensationType, Imposed = imposed };
         _context.Task.Add(task);
-        _context.CompensationRate.Add(new CompensationRate
-            { TaskId = taskId, Value = compensationRate, FromDate = new DateTime(2021, 01, 01) });
         _context.SaveChanges();
 
         return new Hours

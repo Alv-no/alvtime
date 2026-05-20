@@ -8,4 +8,5 @@ public class TaskDto
     public bool Locked { get; set; }
     public decimal CompensationRate { get; set; }
     public bool Imposed { get; set; }
+    public CompensationType CompensationType { get; set; }
 }

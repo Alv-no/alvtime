@@ -19,7 +19,7 @@ public class AccessTokenServiceTests
     {
         _context = new AlvTimeDbContextBuilder()
             .WithPersonalAccessTokens()
-            .WithUsers()
+            .WithStaticSalaryUsers()
             .CreateDbContext();
     }
     

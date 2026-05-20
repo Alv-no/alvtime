@@ -22,7 +22,7 @@ public class TimeEntryStorageTests
             .WithProjects()
             .WithTimeEntries()
             .WithTasks()
-            .WithUsers()
+            .WithStaticSalaryUsers()
             .CreateDbContext();
 
         var entryOptions = new TimeEntryOptions

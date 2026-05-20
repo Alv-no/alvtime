@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business;
 using AlvTime.Business.Options;
+using AlvTime.Business.Overtime;
 using AlvTime.Business.Payouts;
 using AlvTime.Business.TimeRegistration;
 using AlvTime.Business.Users;
+using AlvTime.Business.Tasks;
 using AlvTime.Business.Utils;
 using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;
@@ -31,7 +33,7 @@ public class OvertimeTests
             .WithTasks()
             .WithLeaveTasks()
             .WithProjects()
-            .WithUsers()
+            .WithStaticSalaryUsers()
             .WithCustomers()
             .CreateDbContext();
 
@@ -48,15 +50,15 @@ public class OvertimeTests
 
         _userContextMock = new Mock<IUserContext>();
 
-        var user = new AlvTime.Business.Users.User
+        var userWithStaticSalaryModel = new AlvTime.Business.Users.User
         {
             Id = 1,
             Email = "someone@alv.no",
             Name = "Someone",
-            Oid = "12345678-1234-1234-1234-123456789012"
+            Oid = "12345678-1234-1234-1234-123456789012",
         };
 
-        _userContextMock.Setup(context => context.GetCurrentUser()).Returns(System.Threading.Tasks.Task.FromResult(user));
+        _userContextMock.Setup(context => context.GetCurrentUser()).Returns(System.Threading.Tasks.Task.FromResult(userWithStaticSalaryModel));
         _timeRegistrationService = CreateTimeRegistrationService();
 
         _payoutValidationServiceMock = new Mock<PayoutValidationService>(new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)),
@@ -260,7 +262,7 @@ public class OvertimeTests
             .WithProjects()
             .WithTasks()
             .WithLeaveTasks()
-            .WithUsers()
+            .WithStaticSalaryUsers()
             .CreateDbContext();
         var mockRepo = new Mock<TimeRegistrationStorage>(sqliteContext);
         mockRepo.Setup(mr => mr.DeleteOvertimeOnDate(It.IsAny<DateTime>(), It.IsAny<int>()))
@@ -1275,17 +1277,17 @@ public class OvertimeTests
             { new() { Date = flexEntry1.Date, Value = flexEntry1.Value, TaskId = flexEntry1.TaskId } });
         
         var timeEntry2 =
-            await CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 10), 8.5M, 1.5M); //Monday
+            await CreateTimeEntryWithCompensationRate(new DateTime(2022, 01, 10), 8.5M, 0.5M); //Monday
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry2.entry.Date, Value = timeEntry2.entry.Value, TaskId = timeEntry2.entry.TaskId } });
         
         var timeEntry3 =
-            CreateTimeEntryForExistingTask(new DateTime(2022, 01, 10), 2M, 3); //Monday
+            CreateTimeEntryForExistingTask(new DateTime(2022, 01, 10), 8.5M, 3); //Monday
         await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = timeEntry3.Date, Value = timeEntry3.Value, TaskId = timeEntry3.TaskId } });
         
         var overtime = await _timeRegistrationService.GetAvailableOvertimeHoursAtDate(new DateTime(2022, 01, 11));
-        Assert.Equal(0.5M, overtime.AvailableHoursAfterCompensation);
+        Assert.Equal(3.75M, overtime.AvailableHoursAfterCompensation);
         
         var registeredFlexOnTuesday = (await _timeRegistrationService.GetFlexTimeEntries()).Where(f => f.Date == new DateTime(2022, 01, 11)).ToList();
         Assert.Equal(2, registeredFlexOnTuesday.Count);
@@ -1439,10 +1441,15 @@ public class OvertimeTests
     private async Task<(Hours entry, int taskId)> CreateTimeEntryWithCompensationRate(DateTime date, decimal value, decimal compensationRate)
     {
         var taskId = new Random().Next(1000, 10000000);
-        var task = new Task {Id = taskId, Project = 1,};
+        var (compensationType, imposed) = compensationRate switch
+        {
+            2.0M => (CompensationType.Billable, true),
+            1.5M => (CompensationType.Billable, false),
+            1.0M => (CompensationType.Internal, false),
+            _    => (CompensationType.Volunteer, false)
+        };
+        var task = new Task { Id = taskId, Project = 1, CompensationType = compensationType, Imposed = imposed };
         await _context.Task.AddAsync(task);
-        await _context.CompensationRate.AddAsync(new CompensationRate
-            {TaskId = taskId, Value = compensationRate, FromDate = new DateTime(2019, 01, 01)});
         await _context.SaveChangesAsync();
 
         return (new Hours
@@ -1458,10 +1465,8 @@ public class OvertimeTests
     private async Task<Hours> CreateImposedOvertimeTimeEntry(DateTime date, decimal value)
     {
         var taskId = new Random().Next(1000, 10000000);
-        var task = new Task {Id = taskId, Project = 1, Imposed = true};
+        var task = new Task { Id = taskId, Project = 1, CompensationType = CompensationType.Billable, Imposed = true };
         await _context.Task.AddAsync(task);
-        await _context.CompensationRate.AddAsync(new CompensationRate
-            {TaskId = taskId, Value = 2.0M, FromDate = new DateTime(2019, 01, 01)});
         await _context.SaveChangesAsync();
 
         return new Hours

@@ -26,7 +26,7 @@ public class VacationTests
             .WithTasks()
             .WithLeaveTasks()
             .WithProjects()
-            .WithUsers()
+            .WithStaticSalaryUsers()
             .WithCustomers()
             .CreateDbContext();
 
