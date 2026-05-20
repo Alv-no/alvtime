@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using AlvTime.Business.Overtime;
 
 namespace AlvTime.Business.Users;
 
@@ -13,6 +14,8 @@ public class UserDto
     public int? EmployeeId { get; set; }
     public required string Oid { get; set; }
     public IEnumerable<UserEmploymentRateDto>? EmploymentRates { get; set; }
+    public SalaryModel SalaryModel { get; set; }
+    public DateTime? LastSwitchedSalaryModel { get; set; }
 }
 
 public class UserEmploymentRateDto

@@ -11,6 +11,13 @@ public class EmployeeModel
     public bool ShowDetails { get; set; }
     public string ProfilePicture { get; set; }
     public IList<EmployeeEmploymentRateModel>? EmploymentRates { get; set; }
+    public SalaryModel SalaryModel { get; set; }
+}
+
+public enum SalaryModel
+{
+    Static = 0,
+    InvoiceBased = 1
 }
 
 public class EmployeeEmploymentRateModel : IEquatable<EmployeeEmploymentRateModel>

@@ -69,6 +69,8 @@ public class UserRepository : IUserRepository
                 EndDate = u.EndDate,
                 EmployeeId = u.EmployeeId,
                 Oid = u.Oid,
+                SalaryModel = u.SalaryModel,
+                LastSwitchedSalaryModel = u.LastSwitchedSalaryModel,
                 EmploymentRates = u.EmploymentRate.Select(er => new UserEmploymentRateDto
                 {
                     Id = er.Id,

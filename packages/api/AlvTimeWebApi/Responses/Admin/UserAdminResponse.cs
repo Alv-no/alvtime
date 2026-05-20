@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using AlvTime.Business.Overtime;
 
 namespace AlvTimeWebApi.Responses.Admin;
 
@@ -12,6 +14,8 @@ public class UserAdminResponse
     public int? EmployeeId { get; set; }
     public string ProfilePicture { get; set; }
     public IEnumerable<UserEmploymentRateAdminResponse> EmploymentRates { get; set; }
+    public SalaryModel SalaryModel { get; set; }
+    public DateTime? LastSwitchedSalaryModel { get; set; }
 }
 
 public class UserEmploymentRateAdminResponse

@@ -25,6 +25,8 @@ public static class UserMapper
             StartDate = user.StartDate?.ToDateOnly(),
             EndDate = user.EndDate?.ToDateOnly(),
             EmployeeId = user.EmployeeId,
+            SalaryModel = user.SalaryModel,
+            LastSwitchedSalaryModel = user.LastSwitchedSalaryModel,
             EmploymentRates = user.EmploymentRates?.Select(rate => new UserEmploymentRateAdminResponse
             {
                 Id = rate.Id,
@@ -44,7 +46,8 @@ public static class UserMapper
             StartDate = user.StartDate,
             EndDate = user.EndDate,
             EmployeeId = user.EmployeeId,
-            Oid = userObjectId
+            Oid = userObjectId,
+            SalaryModel = user.SalaryModel
         };
     }
 
@@ -58,7 +61,8 @@ public static class UserMapper
             StartDate = user.StartDate,
             EndDate = user.EndDate,
             EmployeeId = user.EmployeeId,
-            Oid = userObjectId
+            Oid = userObjectId,
+            SalaryModel = user.SalaryModel
         };
     }
     
