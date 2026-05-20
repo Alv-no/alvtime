@@ -29,6 +29,7 @@ namespace AlvTime.Persistence.DatabaseModels
         [Required]
         public string Oid { get; set; }
         public SalaryModel SalaryModel { get; set; }
+        public DateTime? LastSwitchedSalaryModel { get; set; }
 
         public virtual ICollection<AccessTokens> AccessTokens { get; set; }
         public virtual ICollection<AssociatedTasks> AssociatedTasks { get; set; }
