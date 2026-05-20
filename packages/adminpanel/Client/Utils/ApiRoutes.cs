@@ -7,6 +7,7 @@ public static class ApiRoutes
     public static string UpdateEmployee(int id) => $"{EmployeeBase}/{id}";
     public static string CreateEmploymentRateForUser(int id) => $"{EmployeeBase}/{id}/employmentrates";
     public static string UpdateEmploymentRateForUser(int id, int employmentRateId) => $"{EmployeeBase}/{id}/employmentrates/{employmentRateId}";
+    public static string UpdateSalaryModel(int id) => $"{EmployeeBase}/{id}/salarymodel";
     public static string CustomersBase => "api/admin/Customers";
     public static string GetCustomerById(int id) => $"{CustomersBase}/{id}";
     public static string UpdateCustomer(int id) => $"{CustomersBase}/{id}";

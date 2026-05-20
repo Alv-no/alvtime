@@ -12,6 +12,7 @@ public class EmployeeModel
     public string ProfilePicture { get; set; }
     public IList<EmployeeEmploymentRateModel>? EmploymentRates { get; set; }
     public SalaryModel SalaryModel { get; set; }
+    public DateTime? LastSwitchedSalaryModel { get; set; }
 }
 
 public enum SalaryModel

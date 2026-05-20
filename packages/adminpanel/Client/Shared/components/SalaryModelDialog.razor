@@ -1,0 +1,67 @@
+@using Alvtime.Adminpanel.Client.Models
+@using Alvtime.Adminpanel.Client.Resources
+@using Alvtime.Adminpanel.Client.Utils
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedContentStrings> Localizer
+
+<MudDialog>
+    <DialogContent>
+        <MudSelect
+            Label="@Localizer["Common.SalaryModel"]"
+            @bind-Value="_salaryModel">
+            @foreach (var model in Enum.GetValues<SalaryModel>())
+            {
+                <MudSelectItem T="SalaryModel" Value="@model">@Localizer[$"EmployeePage.SalaryModel.{model}"]</MudSelectItem>
+            }
+        </MudSelect>
+    </DialogContent>
+    <DialogActions>
+        <MudButton
+            Color="Color.Tertiary"
+            Variant="Variant.Filled"
+            OnClick="() => Cancel()">
+            <TextAdjuster>@Localizer["Common.Cancel"]</TextAdjuster>
+        </MudButton>
+        <MudButton
+            Color="Color.Secondary"
+            Variant="Variant.Filled"
+            OnClick="() => Submit()">
+            <TextAdjuster>@Localizer["Common.Save"]</TextAdjuster>
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Inject] private HttpClient HttpClient { get; set; }
+
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
+    [Parameter] public EventCallback OnSalaryModelSubmit { get; set; }
+    [Parameter] public int EmployeeId { get; set; }
+    [Parameter] public SalaryModel CurrentSalaryModel { get; set; }
+
+    private SalaryModel _salaryModel;
+
+    protected override Task OnParametersSetAsync()
+    {
+        _salaryModel = CurrentSalaryModel;
+        return base.OnParametersSetAsync();
+    }
+
+    private async Task Submit()
+    {
+        try
+        {
+            await HttpClient.PutAsJsonAsync(ApiRoutes.UpdateSalaryModel(EmployeeId), new { salaryModel = _salaryModel });
+            await OnSalaryModelSubmit.InvokeAsync();
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (HttpRequestException)
+        {
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}

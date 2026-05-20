@@ -155,7 +155,6 @@
                             </GroupTemplate>
                         </PropertyColumn>
                         <PropertyColumn Title="@Localizer["Common.Name"]" Property="t => t.Name" Groupable="false"/>
-                        <PropertyColumn Title="@Localizer["Common.Description"]" Property="t => t.Description" Groupable="false"/>
                         <TemplateColumn Title="@Localizer["Common.Imposed"]" Groupable="false">
                             <CellTemplate>
                                 @(context.Item.Imposed ? @Localizer["Common.Yes"] : @Localizer["Common.No"])
@@ -166,10 +165,11 @@
                                 @(context.Item.Locked ? @Localizer["Common.Yes"] : @Localizer["Common.No"])
                             </CellTemplate>
                         </TemplateColumn>
-                        <PropertyColumn Title="@Localizer["Common.CompensationRate"]" Property="t => t.CompensationRate" Groupable="false"/>
+                        <PropertyColumn Title="@Localizer["Common.CompensationType"]" Property="t => MapCompensationTypeToReadableString(t.CompensationType)" Groupable="false"/>
                         <PropertyColumn
                             Title="@Localizer["Common.HourRates"]" Property="t => t.HourRateCount">
                         </PropertyColumn>
+                        <PropertyColumn Title="@Localizer["Common.Description"]" Property="t => t.Description" Groupable="false"/>
                     </Columns>
                     <PagerContent>
                         <MudDataGridPager
@@ -490,6 +490,16 @@ else
         StateHasChanged();
     }));
 
+    private string MapCompensationTypeToReadableString(CompensationType compensationType)
+    {
+        return compensationType switch
+        {
+            CompensationType.Volunteer => "Frivillig",
+            CompensationType.Internal => "Intern",
+            CompensationType.Billable => "Fakturerbar"
+        };
+    }
+
     private async Task RefreshCustomer()
     {
         if (string.IsNullOrEmpty(CustomerId) || !int.TryParse(CustomerId, out int parsedId))
@@ -514,7 +524,7 @@ else
                             Id = t.Id,
                             Name = t.Name,
                             Description = t.Description,
-                            CompensationRate = t.CompensationRate,
+                            CompensationType = t.CompensationType,
                             Imposed = t.Imposed,
                             Locked = t.Locked,
                             ProjectId = t.ProjectId,

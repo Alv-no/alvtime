@@ -183,14 +183,14 @@
     <data name="Common.HourRates.Pagination.PerPage" xml:space="preserve">
         <value>Rater per side</value>
     </data>
-    <data name="Common.CompensationRate" xml:space="preserve">
-        <value>Overtidsfaktor</value>
+    <data name="Common.CompensationType" xml:space="preserve">
+        <value>Kompensasjonstype</value>
     </data>
     <data name="Validation.Project.Required" xml:space="preserve">
         <value>Prosjekt må velges</value>
     </data>
-    <data name="Validation.CompensationRate.Required" xml:space="preserve">
-        <value>Overtidsfaktor må fylles inn</value>
+    <data name="Validation.CompensationType.Required" xml:space="preserve">
+        <value>Kompensasjonstype må fylles inn</value>
     </data>
     <data name="Validation.Task.Required" xml:space="preserve">
         <value>Timekode må velges</value>
@@ -248,5 +248,20 @@
     </data>
     <data name="Common.Search" xml:space="preserve">
         <value>Søk</value>
+    </data>
+    <data name="Common.SalaryModel" xml:space="preserve">
+        <value>Lønnsmodell</value>
+    </data>
+    <data name="Common.LastSwitchedSalaryModel" xml:space="preserve">
+        <value>Sist byttet lønnsmodell</value>
+    </data>
+    <data name="EmployeePage.SalaryModel.Static" xml:space="preserve">
+        <value>Fastlønn</value>
+    </data>
+    <data name="EmployeePage.SalaryModel.InvoiceBased" xml:space="preserve">
+        <value>Faktureringsledd</value>
+    </data>
+    <data name="EmployeePage.ChangeSalaryModel" xml:space="preserve">
+        <value>Endre lønnsmodell</value>
     </data>
 </root>

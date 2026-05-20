@@ -105,11 +105,11 @@ namespace Alvtime.Adminpanel.Client.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Overtidsfaktor.
+        ///   Looks up a localized string similar to Kompensasjonstype.
         /// </summary>
-        internal static string Common_CompensationRate {
+        internal static string Common_CompensationType {
             get {
-                return ResourceManager.GetString("Common.CompensationRate", resourceCulture);
+                return ResourceManager.GetString("Common.CompensationType", resourceCulture);
             }
         }
         
@@ -240,6 +240,15 @@ namespace Alvtime.Adminpanel.Client.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Sist byttet lønnsmodell.
+        /// </summary>
+        internal static string Common_LastSwitchedSalaryModel {
+            get {
+                return ResourceManager.GetString("Common.LastSwitchedSalaryModel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Låst.
         /// </summary>
         internal static string Common_Locked {
@@ -344,6 +353,15 @@ namespace Alvtime.Adminpanel.Client.Resources {
         internal static string Common_Rate {
             get {
                 return ResourceManager.GetString("Common.Rate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lønnsmodell.
+        /// </summary>
+        internal static string Common_SalaryModel {
+            get {
+                return ResourceManager.GetString("Common.SalaryModel", resourceCulture);
             }
         }
         
@@ -573,6 +591,15 @@ namespace Alvtime.Adminpanel.Client.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Endre lønnsmodell.
+        /// </summary>
+        internal static string EmployeePage_ChangeSalaryModel {
+            get {
+                return ResourceManager.GetString("EmployeePage.ChangeSalaryModel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Ansattdetaljer.
         /// </summary>
         internal static string EmployeePage_Details {
@@ -596,6 +623,24 @@ namespace Alvtime.Adminpanel.Client.Resources {
         internal static string EmployeePage_EditEmploymentRate {
             get {
                 return ResourceManager.GetString("EmployeePage.EditEmploymentRate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Faktureringsledd.
+        /// </summary>
+        internal static string EmployeePage_SalaryModel_InvoiceBased {
+            get {
+                return ResourceManager.GetString("EmployeePage.SalaryModel.InvoiceBased", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fastlønn.
+        /// </summary>
+        internal static string EmployeePage_SalaryModel_Static {
+            get {
+                return ResourceManager.GetString("EmployeePage.SalaryModel.Static", resourceCulture);
             }
         }
         
@@ -636,11 +681,11 @@ namespace Alvtime.Adminpanel.Client.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Overtidsfaktor må fylles inn.
+        ///   Looks up a localized string similar to Kompensasjonstype må fylles inn.
         /// </summary>
-        internal static string Validation_CompensationRate_Required {
+        internal static string Validation_CompensationType_Required {
             get {
-                return ResourceManager.GetString("Validation.CompensationRate.Required", resourceCulture);
+                return ResourceManager.GetString("Validation.CompensationType.Required", resourceCulture);
             }
         }
         

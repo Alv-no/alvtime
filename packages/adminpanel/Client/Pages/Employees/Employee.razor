@@ -67,6 +67,19 @@
                 <MudText>
                     @Localizer["Common.EmployeeId"]: @_employee.EmployeeId
                 </MudText>
+                <MudStack Row="true" AlignItems="AlignItems.Center" Class="mt-4">
+                    <MudText>
+                        @Localizer["Common.SalaryModel"]: @Localizer[$"EmployeePage.SalaryModel.{_employee.SalaryModel}"]
+                    </MudText>
+                    <MudIconButton
+                        Icon="@Icons.Material.Filled.Edit"
+                        Size="Size.Small"
+                        Color="Color.Secondary"
+                        OnClick="@ChangeSalaryModel"/>
+                </MudStack>
+                <MudText>
+                    @Localizer["Common.LastSwitchedSalaryModel"]: @(_employee.LastSwitchedSalaryModel.HasValue ? _employee.LastSwitchedSalaryModel.Value.ToString("dd.MM.yyyy") : "–")
+                </MudText>
             </MudPaper>
 
             <MudPaper Elevation="0" Class="mb-4">
@@ -202,6 +215,26 @@ else
         StateHasChanged();
     }));
     
+    private void ChangeSalaryModel()
+    {
+        if (string.IsNullOrEmpty(EmployeeId) || !int.TryParse(EmployeeId, out int parsedId))
+        {
+            return;
+        }
+
+        DialogService.ShowAsync<SalaryModelDialog>(@Localizer["EmployeePage.ChangeSalaryModel"], new DialogParameters
+            {
+                ["OnSalaryModelSubmit"] = RefreshAfterDialogAction,
+                ["EmployeeId"] = parsedId,
+                ["CurrentSalaryModel"] = _employee!.SalaryModel
+            },
+            new DialogOptions()
+            {
+                FullWidth = true,
+                MaxWidth = MaxWidth.Small
+            });
+    }
+
     private void AddNewEmploymentRate(MouseEventArgs obj)
     {
         if (string.IsNullOrEmpty(EmployeeId) || !int.TryParse(EmployeeId, out int parsedId))

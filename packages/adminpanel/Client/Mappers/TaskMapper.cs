@@ -12,7 +12,7 @@ public static class TaskMapper
             Name = task.Name,
             Description = task.Description,
             Locked = task.Locked,
-            CompensationRate = task.CompensationRate,
+            CompensationType = task.CompensationType,
             Imposed = task.Imposed
         };
     }
