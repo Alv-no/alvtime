@@ -84,4 +84,11 @@ public class UserController(UserService userService, GraphService graphService) 
             rate => Ok(rate.MapToEmploymentRateResponse()),
             errors => BadRequest(errors.ToValidationProblemDetails("Oppdatering av ansettelsesrate feilet")));
     }
+    
+    [HttpPut("users/{userId:int}/salarymodel")]
+    public async Task<ActionResult> UpdateSalaryModel(SalaryModelRequest request, int userId)
+    {
+        //TODO: Implement
+        return Ok("Updated");
+    }
 }

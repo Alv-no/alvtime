@@ -91,6 +91,7 @@ public class TaskStorage(AlvTime_dbContext context) : ITaskStorage
         existingTask.Name = task.Name;
         existingTask.Description = task.Description ?? existingTask.Description;
         existingTask.Imposed = task.Imposed;
+        existingTask.CompensationType = task.CompensationType;
 
         await context.SaveChangesAsync();
     }
