@@ -16,4 +16,12 @@ public static class TaskMapper
             Imposed = task.Imposed
         };
     }
+
+    public static string MapCompensationType(CompensationType compensationType) => compensationType switch
+    {
+        CompensationType.Volunteer => "Frivillig",
+        CompensationType.Internal => "Intern",
+        CompensationType.Billable => "Fakturerbar",
+        _ => compensationType.ToString()
+    };
 }

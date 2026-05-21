@@ -12,7 +12,7 @@ public static class UserMapper
 {
     public static User MapUserDtoToBusinessUser(UserDto dbUser)
     {
-        return new User { Id = dbUser.Id, Email = dbUser.Email, Name = dbUser.Name, StartDate = dbUser.StartDate!.Value, Oid = dbUser.Oid };
+        return new User { Id = dbUser.Id, Email = dbUser.Email, Name = dbUser.Name, StartDate = dbUser.StartDate!.Value, Oid = dbUser.Oid, SalaryModel = dbUser.SalaryModel, LastSwitchSalaryModel = dbUser.LastSwitchedSalaryModel };
     }
     
     public static UserAdminResponse MapToUserResponse(this UserDto user)

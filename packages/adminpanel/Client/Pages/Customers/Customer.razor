@@ -4,6 +4,7 @@
 @using Alvtime.Adminpanel.Client.Models
 @using Alvtime.Adminpanel.Client.Resources
 @using Alvtime.Adminpanel.Client.Shared.components
+@using Alvtime.Adminpanel.Client.Mappers
 @using Alvtime.Adminpanel.Client.Utils
 @using Microsoft.Extensions.Localization
 @inject IStringLocalizer<SharedContentStrings> Localizer
@@ -165,7 +166,7 @@
                                 @(context.Item.Locked ? @Localizer["Common.Yes"] : @Localizer["Common.No"])
                             </CellTemplate>
                         </TemplateColumn>
-                        <PropertyColumn Title="@Localizer["Common.CompensationType"]" Property="t => MapCompensationTypeToReadableString(t.CompensationType)" Groupable="false"/>
+                        <PropertyColumn Title="@Localizer["Common.CompensationType"]" Property="t => TaskMapper.MapCompensationType(t.CompensationType)" Groupable="false"/>
                         <PropertyColumn
                             Title="@Localizer["Common.HourRates"]" Property="t => t.HourRateCount">
                         </PropertyColumn>
@@ -489,16 +490,6 @@ else
         await RefreshCustomer();
         StateHasChanged();
     }));
-
-    private string MapCompensationTypeToReadableString(CompensationType compensationType)
-    {
-        return compensationType switch
-        {
-            CompensationType.Volunteer => "Frivillig",
-            CompensationType.Internal => "Intern",
-            CompensationType.Billable => "Fakturerbar"
-        };
-    }
 
     private async Task RefreshCustomer()
     {

@@ -12,4 +12,5 @@ public class User
     public DateTime? EndDate { get; set; }
     public required string Oid { get; set; }
     public SalaryModel SalaryModel { get; set; }
+    public DateTime? LastSwitchSalaryModel { get; set; }
 }

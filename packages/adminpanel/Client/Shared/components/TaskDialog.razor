@@ -87,6 +87,7 @@
 
 @code {
     [Inject] private HttpClient HttpClient { get; set; }
+    [Inject] private IDialogService DialogService { get; set; }
 
     [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
     [Parameter] public EventCallback OnTaskSubmit { get; set; }
@@ -103,6 +104,7 @@
     private bool _locked = false;
     private bool _imposed = false;
     private bool _editMode = false;
+    private CompensationType _originalCompensationType;
 
     protected override Task OnParametersSetAsync()
     {
@@ -112,6 +114,7 @@
             _name = SelectedTask.Name;
             _description = SelectedTask.Description ?? "";
             _compensationType = SelectedTask.CompensationType;
+            _originalCompensationType = SelectedTask.CompensationType;
             _locked = SelectedTask.Locked;
             _imposed = SelectedTask.Imposed;
             _editMode = true;
@@ -132,6 +135,16 @@
 
         if (_form.IsValid)
         {
+            if (_editMode && _compensationType != _originalCompensationType)
+            {
+                var confirmed = await DialogService.ShowMessageBox(
+                    "Endre kompensasjonstype?",
+                    $"Du er i ferd med å endre kompensasjonstype fra \"{TaskMapper.MapCompensationType(_originalCompensationType)}\" til \"{TaskMapper.MapCompensationType(_compensationType)}\". Dette kan ha konsekvenser dersom noen endrer timer tilbake i tid.",
+                    yesText: "Ja, endre",
+                    cancelText: "Avbryt");
+                if (confirmed != true) return;
+            }
+
             var newTask = new TaskModel
             {
                 Name = _name,

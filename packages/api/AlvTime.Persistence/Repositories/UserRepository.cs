@@ -52,6 +52,8 @@ public class UserRepository : IUserRepository
             EndDate = u.EndDate,
             EmployeeId = u.EmployeeId,
             Oid = u.Oid,
+            SalaryModel = u.SalaryModel,
+            LastSwitchedSalaryModel = u.LastSwitchedSalaryModel
         }).ToList();
         return userResponse;
     }
