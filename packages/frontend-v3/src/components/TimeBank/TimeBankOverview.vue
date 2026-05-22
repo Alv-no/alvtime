@@ -11,6 +11,9 @@
 			Kroneverdi timebank: {{ timeBankValue }}
 		</span>
 	</div>
+	<span v-if="userProfile">
+		<p>Din lønnsmodell er: {{ salaryModelText }}</p>
+	</span>
 	<div v-if="noOvertime">
 		<p>Du har ingen overtidstimer i timebanken.</p>
 	</div>
@@ -60,12 +63,29 @@ import TimeBankHistory from "./TimeBankHistory.vue";
 import ErrorBox from "../utils/ErrorBox.vue";
 import FeatherIcon from "@/components/utils/FeatherIcon.vue";
 import ModalComponent from "../utils/ModalComponent.vue";
+import { useUserStore } from "@/stores/userStore.ts";
 
 const loading = ref<boolean>(true);
 const settingsModalOpen = ref<boolean>(false);
 
 const timeBankStore = useTimeBankStore();
 const { timeBankOverview, timeBankError, timeBankSalary } = storeToRefs(timeBankStore);
+
+const userStore = useUserStore();
+const { userProfile } = storeToRefs(userStore);
+
+const salaryModelMap: Record<number, string> = {
+	0: "Fastlønn",
+	1: "Lønn med faktureringsledd",
+};
+
+const salaryModelText = computed(() => {
+	const salaryModel = userProfile.value?.salaryModel;
+
+	return salaryModel === undefined
+		? ""
+		: salaryModelMap[salaryModel] ?? "Ukjent lønnsmodell";
+});
 
 const salary = computed({
 	get: () => timeBankSalary.value,
@@ -124,6 +144,7 @@ const noOvertime = computed(() => {
 
 onMounted(async () => {
 	await timeBankStore.getTimeBankOverview();
+	await userStore.getUserProfile();
 	loading.value = false;
 });
 

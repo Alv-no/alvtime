@@ -1,0 +1,1 @@
+﻿export type UserProfile = { name: string, email: string, startDate: string, endDate?: string, salaryModel: number }

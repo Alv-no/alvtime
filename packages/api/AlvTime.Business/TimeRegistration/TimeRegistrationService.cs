@@ -104,9 +104,10 @@ public class TimeRegistrationService
                 ToDateInclusive = timeEntry.Date.Date,
                 TaskId = timeEntry.TaskId
             };
+            var timeEntryExists = await GetTimeEntry(criterias) != null;
 
-            var validationErrors = await ValidateTimeEntry(timeEntry);
-            if (validationErrors.Any())
+            var validationErrors = await ValidateTimeEntry(timeEntry, timeEntryExists);
+            if (validationErrors.Count != 0)
             {
                 if (string.IsNullOrWhiteSpace(timeEntry.Comment)) return validationErrors;
                 
@@ -124,7 +125,7 @@ public class TimeRegistrationService
                 return validationErrors;
             }
 
-            if (await GetTimeEntry(criterias) == null)
+            if (!timeEntryExists)
             {
                 await _dbContextScope.AsAtomic(async () =>
                 {
@@ -219,7 +220,7 @@ public class TimeRegistrationService
         }
     }
 
-    private async Task<List<Error>> ValidateTimeEntry(CreateTimeEntryDto timeEntry)
+    private async Task<List<Error>> ValidateTimeEntry(CreateTimeEntryDto timeEntry, bool timeEntryExists)
     {
         var timeEntryDate = timeEntry.Date.Date;
         var currentUser = await _userContext.GetCurrentUser();
@@ -238,6 +239,11 @@ public class TimeRegistrationService
         if (!usersEmploymentRateResult.IsSuccess)
         {
             return usersEmploymentRateResult.Errors;
+        }
+        
+        if (timeEntryExists && currentUser.LastSwitchSalaryModel.HasValue && currentUser.LastSwitchSalaryModel.Value > timeEntryDate)
+        {
+            return [new Error(ErrorCodes.InvalidAction, "Kan ikke oppdatere en timeføring som er før seneste lønnsendring. Ta kontakt i #fag-alvtime hvis nødvendig.")];
         }
 
         var anticipatedWorkHours =
