@@ -46,7 +46,7 @@ This is an overview of the various business rules relevant for time keeping in A
 - Cannot register or edit time on or before a payout date in a way that would increase your overtime balance on that day (retroactive overtime inflation is blocked)
 
 ## Salary models
-Alv has 2 salary models; static and invoice based. An employee is allowed to switch their salary model once a year, in June. They must have worked in Alv for at least one year to be allowed to change. So someone starting in January 2025, will not be eligible for change until June 2026.
+Alv has 2 salary models; static and invoice based. An employee is allowed to switch their salary model once a year, in June. They must have started working in Alv the previous year. So someone starting in 2025, will not be eligible for change until June 2026.
 ### Static
 - You are compensated for every hour you work as described above. Your billable overtime hours are compensated with a factor of 1.5.
 ### Invoice based
