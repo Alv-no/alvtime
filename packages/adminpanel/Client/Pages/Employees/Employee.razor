@@ -230,7 +230,7 @@ else
                 return lastSwitched.Year < today.Year - 1
                     || (lastSwitched.Year == today.Year - 1 && lastSwitched.Month <= 6);
             }
-            return _employee.StartDate.HasValue && _employee.StartDate.Value <= today.AddYears(-1);
+            return _employee.StartDate.HasValue && _employee.StartDate.Value.Year < today.Year && today.Month >= 6;
         }
     }
 

@@ -112,11 +112,11 @@ public class UserService(IUserRepository userRepository, ITimeRegistrationStorag
             var eligible = last.Year < today.Year - 1
                            || (last.Year == today.Year - 1 && last.Month <= 6);
             if (!eligible)
-                return new Error(ErrorCodes.InvalidAction, "Lønnsmodellen kan bare endres én gang per år (jan–jun).");
+                return new Error(ErrorCodes.InvalidAction, "Lønnsmodellen kan bare endres én gang per år.");
         }
-        else if (!user.StartDate.HasValue || user.StartDate.Value > today.AddYears(-1))
+        else if (!user.StartDate.HasValue || user.StartDate.Value.Year >= today.Year)
         {
-            return new Error(ErrorCodes.InvalidAction, "Ansatte må ha vært ansatt i minst ett år.");
+            return new Error(ErrorCodes.InvalidAction, "Ansatte må ha blitt ansatt foregående år.");
         }
 
         // TODO: persist salary model change

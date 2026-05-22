@@ -268,6 +268,6 @@
         <value>Lønnsmodellen kan bare endres én gang per år</value>
     </data>
     <data name="EmployeePage.SalaryModel.CannotChange.NewEmployee" xml:space="preserve">
-        <value>Ansatte må ha vært ansatt i minst ett år</value>
+        <value>Ansatte er kun valgbare for bytte av lønnsmodell fra og med året etter de startet</value>
     </data>
 </root>
