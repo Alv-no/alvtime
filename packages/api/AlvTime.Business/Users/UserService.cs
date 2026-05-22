@@ -108,9 +108,9 @@ public class UserService(IUserRepository userRepository, ITimeRegistrationStorag
 
         if (user.LastSwitchedSalaryModel.HasValue)
         {
-            var last = user.LastSwitchedSalaryModel.Value;
-            var eligible = last.Year < today.Year - 1
-                           || (last.Year == today.Year - 1 && last.Month <= 6);
+            var lastSwitch = user.LastSwitchedSalaryModel.Value;
+            var eligible = lastSwitch.Year < today.Year - 1
+                           || (lastSwitch.Year == today.Year - 1 && lastSwitch.Month <= 6);
             if (!eligible)
                 return new Error(ErrorCodes.InvalidAction, "Lønnsmodellen kan bare endres én gang per år.");
         }

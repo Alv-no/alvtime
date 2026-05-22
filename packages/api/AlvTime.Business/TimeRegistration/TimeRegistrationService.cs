@@ -241,11 +241,6 @@ public class TimeRegistrationService
             return usersEmploymentRateResult.Errors;
         }
         
-        if (timeEntryExists && currentUser.LastSwitchSalaryModel.HasValue && currentUser.LastSwitchSalaryModel.Value > timeEntryDate)
-        {
-            return [new Error(ErrorCodes.InvalidAction, "Kan ikke oppdatere en timeføring som er før seneste lønnsendring. Ta kontakt i #fag-alvtime hvis nødvendig.")];
-        }
-
         var anticipatedWorkHours =
             IsWeekend(timeEntryDate) || allRedDays.Contains(timeEntryDate)
                 ? 0M

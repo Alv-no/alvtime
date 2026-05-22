@@ -211,7 +211,7 @@ public class SalaryModelSwitchTests
     }
 
     [Fact]
-    public async System.Threading.Tasks.Task UpdateTimeEntry_BeforeSalaryModelSwitch_ReturnsError()
+    public async System.Threading.Tasks.Task UpdateTimeEntry_BeforeSalaryModelSwitch_Succeeds()
     {
         var entryDay = new DateTime(2022, 01, 10); // Monday
 
@@ -223,12 +223,35 @@ public class SalaryModelSwitchTests
         // Switch after the entry date
         await SwitchToInvoiceBased(new DateTime(2022, 01, 15));
 
-        // Attempt to update the entry that predates the switch
+        // Update the entry that predates the switch — should succeed
         var updateResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
             { new() { Date = entryDay, Value = 9M, TaskId = billableEntry.TaskId } });
 
-        Assert.True(updateResult.Errors.Any());
-        Assert.Equal(ErrorCodes.InvalidAction, updateResult.Errors.First().ErrorCode);
+        Assert.True(updateResult.IsSuccess);
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task UpdateTimeEntry_BeforeSalaryModelSwitch_UsesPreSwitchCompensationRate()
+    {
+        // Earn 2h OT @1.5 (Static) before the switch
+        var billableEntry = await CreateBillableEntry(PreSwitchDay, 9.5M);
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = billableEntry.Date, Value = billableEntry.Value, TaskId = billableEntry.TaskId } });
+
+        await SwitchToInvoiceBased(SwitchDate);
+
+        // Update the pre-switch entry — now earns 3h OT
+        var updateResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = PreSwitchDay, Value = 10.5M, TaskId = billableEntry.TaskId } });
+
+        Assert.True(updateResult.IsSuccess);
+
+        var overtime = await _timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
+            { FromDateInclusive = PreSwitchDay, ToDateInclusive = PreSwitchDay });
+
+        Assert.Single(overtime);
+        Assert.Equal(3M, overtime.First().Value);
+        Assert.Equal(CompensationRates.BillableStaticModel, overtime.First().CompensationRate);
     }
 
     [Fact]

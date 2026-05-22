@@ -73,7 +73,13 @@ public class TimeRegistrationStorage(AlvTime_dbContext context) : ITimeRegistrat
             Date = x.Date,
             Value = x.Value,
             TaskId = x.TaskId,
-            CompensationRate = CompensationRateHelper.ResolveCompensationRate(x.CompensationType, x.Imposed, x.UserNavigation.SalaryModel)
+            //If registering a time entry on a date before switching salary model, use previous salary model
+            CompensationRate = CompensationRateHelper.ResolveCompensationRate(
+                    x.CompensationType,
+                    x.Imposed,
+                    x.UserNavigation.LastSwitchedSalaryModel.HasValue && x.Date < x.UserNavigation.LastSwitchedSalaryModel.Value
+                        ? x.UserNavigation.SalaryModel == SalaryModel.InvoiceBased ? SalaryModel.Static : SalaryModel.InvoiceBased
+                        : x.UserNavigation.SalaryModel)
         });
     }
     
