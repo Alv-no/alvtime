@@ -256,6 +256,43 @@ public class InvoiceBasedSalaryModelOvertimeTests
             available.AvailableHoursAfterCompensation);
     }
 
+    [Fact]
+    public async System.Threading.Tasks.Task GetAvailableOvertime_InvoiceBasedUser_AfterFlex_ZeroBalance()
+    {
+        var monday = new DateTime(2021, 12, 13);
+        var tuesday = new DateTime(2021, 12, 14);
+
+        var billableEntry = await CreateBillableEntry(monday, 9.5M);
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = billableEntry.Date, Value = billableEntry.Value, TaskId = billableEntry.TaskId } });
+
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = tuesday, Value = 2M, TaskId = 18 } });
+
+        var available = await _timeRegistrationService.GetAvailableOvertimeHoursNow();
+
+        Assert.Equal(0M, available.AvailableHoursBeforeCompensation);
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task GetAvailableOvertime_InvoiceBasedUser_PartialFlex_CorrectRemainingBalance()
+    {
+        var monday = new DateTime(2021, 12, 13);
+        var tuesday = new DateTime(2021, 12, 14);
+
+        var billableEntry = await CreateBillableEntry(monday, 11.5M);
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = billableEntry.Date, Value = billableEntry.Value, TaskId = billableEntry.TaskId } });
+
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = tuesday, Value = 2M, TaskId = 18 } });
+
+        var available = await _timeRegistrationService.GetAvailableOvertimeHoursNow();
+
+        Assert.Equal(2M, available.AvailableHoursBeforeCompensation);
+        Assert.Equal(2M * CompensationRates.BillableInvoiceModel, available.AvailableHoursAfterCompensation);
+    }
+
     private async Task<Hours> CreateBillableEntry(DateTime date, decimal hours)
     {
         var taskId = new Random().Next(1000, 10000000);
