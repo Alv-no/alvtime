@@ -88,7 +88,7 @@ public class UserController(UserService userService, GraphService graphService) 
     [HttpPut("users/{userId:int}/salarymodel")]
     public async Task<ActionResult> UpdateSalaryModel(SalaryModelRequest request, int userId)
     {
-        //TODO: Implement
+        await userService.UpdateSalaryModel(userId, request.SalaryModel);
         return Ok("Updated");
     }
 }

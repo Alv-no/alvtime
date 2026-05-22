@@ -3,23 +3,15 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using AlvTime.Business.Overtime;
 using AlvTime.Business.TimeRegistration;
 using AlvTime.Business.Utils;
 using FluentValidation;
 
 namespace AlvTime.Business.Users;
 
-public class UserService
+public class UserService(IUserRepository userRepository, ITimeRegistrationStorage timeRegistrationStorage)
 {
-    private readonly IUserRepository _userRepository;
-    private readonly ITimeRegistrationStorage _timeRegistrationStorage;
-
-    public UserService(IUserRepository userRepository, ITimeRegistrationStorage timeRegistrationStorage)
-    {
-        _userRepository = userRepository;
-        _timeRegistrationStorage = timeRegistrationStorage;
-    }
-
     public async Task<Result<UserDto>> CreateUser(UserDto user)
     {
         var errors = new List<Error>();
@@ -34,14 +26,14 @@ public class UserService
             return errors;
         }
 
-        await _userRepository.AddUser(user);
+        await userRepository.AddUser(user);
 
         return await GetUser(user);
     }
 
     public async Task<Result<UserDto>> UpdateUser(UserDto user)
     {
-        var allUsers = await _userRepository.GetUsers(new UserQuerySearch());
+        var allUsers = await userRepository.GetUsers(new UserQuerySearch());
         
         if (allUsers.Any(u => u.Id != user.Id && 
                               (u.EmployeeId == user.EmployeeId || 
@@ -51,13 +43,13 @@ public class UserService
             return new Error(ErrorCodes.EntityAlreadyExists, "En bruker har allerede blitt tildelt det ansattnummeret, eposten eller navnet.");
         }
 
-        await _userRepository.UpdateUser(user);
+        await userRepository.UpdateUser(user);
         return user;
     }
 
     private async Task CheckForDuplicateUserDetails(UserDto userToBeCreated, List<Error> errors)
     {
-        var userWithEmail = (await _userRepository.GetUsers(new UserQuerySearch
+        var userWithEmail = (await userRepository.GetUsers(new UserQuerySearch
         {
             Email = userToBeCreated.Email,
         })).FirstOrDefault();
@@ -66,7 +58,7 @@ public class UserService
             errors.Add(new Error(ErrorCodes.EntityAlreadyExists, "Aktiv bruker med gitt epost finnes allerede."));
         }
 
-        var userWithName = (await _userRepository.GetUsers(new UserQuerySearch
+        var userWithName = (await userRepository.GetUsers(new UserQuerySearch
         {
             Name = userToBeCreated.Name,
         })).FirstOrDefault();
@@ -75,7 +67,7 @@ public class UserService
             errors.Add(new Error(ErrorCodes.EntityAlreadyExists, "Bruker med gitt navn finnes allerede."));
         }
 
-        var userWithEmployeeId = (await _userRepository.GetUsers(new UserQuerySearch
+        var userWithEmployeeId = (await userRepository.GetUsers(new UserQuerySearch
         {
             EmployeeId = userToBeCreated.EmployeeId,
         })).FirstOrDefault();
@@ -87,12 +79,12 @@ public class UserService
 
     public async Task<Result<List<UserDto>>> GetUsers(UserQuerySearch criteria)
     {
-        return (await _userRepository.GetUsersWithEmploymentRates(criteria)).ToList();
+        return (await userRepository.GetUsersWithEmploymentRates(criteria)).ToList();
     }
 
     private async Task<UserDto> GetUser(UserDto userToFetch)
     {
-        var user = (await _userRepository.GetUsersWithEmploymentRates(new UserQuerySearch
+        var user = (await userRepository.GetUsersWithEmploymentRates(new UserQuerySearch
         {
             Email = userToFetch.Email,
             Name = userToFetch.Name,
@@ -106,9 +98,34 @@ public class UserService
         return user;
     }
 
+    public async Task<Result<UserDto>> UpdateSalaryModel(int userId, SalaryModel newSalaryModel)
+    {
+        var user = await GetUserById(userId);
+        if (user is null)
+            return new Error(ErrorCodes.MissingEntity, "Bruker ble ikke funnet.");
+
+        var today = DateTime.Today;
+
+        if (user.LastSwitchedSalaryModel.HasValue)
+        {
+            var last = user.LastSwitchedSalaryModel.Value;
+            bool eligible = last.Year < today.Year - 1
+                || (last.Year == today.Year - 1 && last.Month <= 6);
+            if (!eligible)
+                return new Error(ErrorCodes.InvalidAction, "Lønnsmodellen kan bare endres én gang per år (jan–jun).");
+        }
+        else if (!user.StartDate.HasValue || user.StartDate.Value > today.AddYears(-1))
+        {
+            return new Error(ErrorCodes.InvalidAction, "Ansatte må ha vært ansatt i minst ett år.");
+        }
+
+        // TODO: persist salary model change
+        return user;
+    }
+
     public async Task<UserDto> GetUserById(int userId)
     {
-        return (await _userRepository.GetUsersWithEmploymentRates(new UserQuerySearch
+        return (await userRepository.GetUsersWithEmploymentRates(new UserQuerySearch
         {
             Id = userId
         })).FirstOrDefault();
@@ -116,7 +133,7 @@ public class UserService
 
     public async Task<Result<decimal>> GetCurrentEmploymentRateForUser(int userId, DateTime timeEntryDate)
     {
-        var rates = (await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = userId }))
+        var rates = (await userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = userId }))
             .Where(er =>
                 er.FromDateInclusive.Date <= timeEntryDate.Date && er.ToDateInclusive.Date >= timeEntryDate.Date)
             .ToList();
@@ -131,7 +148,7 @@ public class UserService
 
     public async Task<Result<EmploymentRateResponseDto>> CreateEmploymentRateForUser(EmploymentRateDto request)
     {
-        var existingEmploymentRates = await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = request.UserId });
+        var existingEmploymentRates = await userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = request.UserId });
         var errors = new List<Error>();
         await ValidateRateUpdate(request.FromDateInclusive, request.ToDateInclusive, request.UserId, existingEmploymentRates, errors);
         if (errors.Any())
@@ -139,12 +156,12 @@ public class UserService
             return errors;
         }
 
-        return await _userRepository.CreateEmploymentRateForUser(request);
+        return await userRepository.CreateEmploymentRateForUser(request);
     }
 
     public async Task<Result<EmploymentRateResponseDto>> UpdateEmploymentRateForUser(EmploymentRateDto request)
     {
-        var existingEmploymentRates = (await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = request.UserId })).Where(rate => rate.Id != request.RateId);
+        var existingEmploymentRates = (await userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = request.UserId })).Where(rate => rate.Id != request.RateId);
         var errors = new List<Error>();
         await ValidateRateUpdate(request.FromDateInclusive, request.ToDateInclusive, request.UserId, existingEmploymentRates, errors, request.RateId);
         if (errors.Any())
@@ -152,7 +169,7 @@ public class UserService
             return errors;
         }
         
-        return await _userRepository.UpdateEmploymentRateForUser(request);
+        return await userRepository.UpdateEmploymentRateForUser(request);
     }
 
     private async Task ValidateRateUpdate(DateTime fromDateInclusive, DateTime toDateInclusive, int userId, IEnumerable<EmploymentRateResponseDto> existingEmploymentRates, List<Error> errors, int? rateToUpdateId = null)
@@ -165,7 +182,7 @@ public class UserService
             errors.Add(new Error(ErrorCodes.EntityAlreadyExists, "Brukeren har allerede en stillingsprosent på valgt dato."));
         }
 
-        var userTimeEntriesInDateRange = (await _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
+        var userTimeEntriesInDateRange = (await timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
         {
             FromDateInclusive = fromDateInclusive,
             ToDateInclusive = toDateInclusive,
@@ -179,9 +196,9 @@ public class UserService
 
         if (rateToUpdateId != null)
         {
-            var existingRate = (await _userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = userId })).First(rate => rate.Id == rateToUpdateId);
+            var existingRate = (await userRepository.GetEmploymentRates(new EmploymentRateQueryFilter { UserId = userId })).First(rate => rate.Id == rateToUpdateId);
             
-            var userEntriesInDateRange = (await _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
+            var userEntriesInDateRange = (await timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
             {
                 FromDateInclusive = existingRate.FromDateInclusive,
                 ToDateInclusive = existingRate.ToDateInclusive,

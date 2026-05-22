@@ -264,4 +264,10 @@
     <data name="EmployeePage.ChangeSalaryModel" xml:space="preserve">
         <value>Endre lønnsmodell</value>
     </data>
+    <data name="EmployeePage.SalaryModel.CannotChange.TooSoon" xml:space="preserve">
+        <value>Lønnsmodellen kan bare endres én gang per år</value>
+    </data>
+    <data name="EmployeePage.SalaryModel.CannotChange.NewEmployee" xml:space="preserve">
+        <value>Ansatte må ha vært ansatt i minst ett år</value>
+    </data>
 </root>

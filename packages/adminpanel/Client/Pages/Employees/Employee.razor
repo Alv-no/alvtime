@@ -71,11 +71,14 @@
                     <MudText>
                         @Localizer["Common.SalaryModel"]: @Localizer[$"EmployeePage.SalaryModel.{_employee.SalaryModel}"]
                     </MudText>
-                    <MudIconButton
-                        Icon="@Icons.Material.Filled.Edit"
-                        Size="Size.Small"
-                        Color="Color.Secondary"
-                        OnClick="@ChangeSalaryModel"/>
+                    <MudTooltip Text="@SalaryModelChangeTooltip">
+                        <MudIconButton
+                            Icon="@Icons.Material.Filled.Edit"
+                            Size="Size.Small"
+                            Color="Color.Secondary"
+                            Disabled="@(!CanChangeSalaryModel)"
+                            OnClick="@ChangeSalaryModel"/>
+                    </MudTooltip>
                 </MudStack>
                 <MudText>
                     @Localizer["Common.LastSwitchedSalaryModel"]: @(_employee.LastSwitchedSalaryModel.HasValue ? _employee.LastSwitchedSalaryModel.Value.ToString("dd.MM.yyyy") : "–")
@@ -215,6 +218,36 @@ else
         StateHasChanged();
     }));
     
+    private bool CanChangeSalaryModel
+    {
+        get
+        {
+            if (_employee is null) return false;
+            var today = DateTime.Today;
+            if (_employee.LastSwitchedSalaryModel.HasValue)
+            {
+                var lastSwitched = _employee.LastSwitchedSalaryModel.Value;
+                return lastSwitched.Year < today.Year - 1
+                    || (lastSwitched.Year == today.Year - 1 && lastSwitched.Month <= 6);
+            }
+            return _employee.StartDate.HasValue && _employee.StartDate.Value <= today.AddYears(-1);
+        }
+    }
+
+    private string? SalaryModelChangeTooltip
+    {
+        get
+        {
+            if (_employee is null || CanChangeSalaryModel)
+                return null;
+
+            if (_employee.LastSwitchedSalaryModel.HasValue && _employee.LastSwitchedSalaryModel.Value > _employee.StartDate)
+                return Localizer["EmployeePage.SalaryModel.CannotChange.TooSoon"];
+
+            return Localizer["EmployeePage.SalaryModel.CannotChange.NewEmployee"];
+        }
+    }
+
     private void ChangeSalaryModel()
     {
         if (string.IsNullOrEmpty(EmployeeId) || !int.TryParse(EmployeeId, out int parsedId))
