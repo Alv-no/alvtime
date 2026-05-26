@@ -110,7 +110,7 @@ const overtimeSections = computed(() => {
 	const unspentOverTime = {
 		volunteer: timeBankOverview.value?.entries.filter(entry => entry.compensationRate === 0.5).reduce((acc, entry) => acc + entry.hours, 0) || 0,
 		mandatory: timeBankOverview.value?.entries.filter(entry => entry.compensationRate === 1).reduce((acc, entry) => acc + entry.hours, 0) || 0,
-		billable: timeBankOverview.value?.entries.filter(entry => entry.compensationRate === 1.5).reduce((acc, entry) => acc + entry.hours, 0) || 0,
+		billable: timeBankOverview.value?.entries.filter(entry => entry.compensationRate === 1.5 || entry.compensationRate === 1.4).reduce((acc, entry) => acc + entry.hours, 0) || 0,
 		mandatoryBillable: timeBankOverview.value?.entries.filter(entry => entry.compensationRate === 2).reduce((acc, entry) => acc + entry.hours, 0) || 0,
 	};
 
