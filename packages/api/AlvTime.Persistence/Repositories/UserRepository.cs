@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.AccessTokens;
+using AlvTime.Business.Overtime;
 using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Task = System.Threading.Tasks.Task;
@@ -194,5 +195,35 @@ public class UserRepository : IUserRepository
             FromDateInclusive = existingRate.FromDate,
             ToDateInclusive = existingRate.ToDate
         };
+    }
+
+    public async Task UpdateSalaryModel(int userId, SalaryModel newModel, DateTime switchDate)
+    {
+        var user = await _context.User.FindAsync(userId);
+        if (user == null) return;
+        user.SalaryModel = newModel;
+        user.LastSwitchedSalaryModel = switchDate;
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<SalaryModelHistoryEntry>> GetSalaryModelHistory(int userId)
+    {
+        return await _context.SalaryModelHistory
+            .Where(h => h.UserId == userId)
+            .OrderBy(h => h.SwitchDate)
+            .Select(h => new SalaryModelHistoryEntry(h.SwitchDate, h.PreviousModel, h.NewModel))
+            .ToListAsync();
+    }
+
+    public async Task AddSalaryModelHistory(int userId, SalaryModelHistoryEntry entry)
+    {
+        _context.SalaryModelHistory.Add(new SalaryModelHistory
+        {
+            UserId = userId,
+            SwitchDate = entry.SwitchDate,
+            PreviousModel = entry.PreviousModel,
+            NewModel = entry.NewModel
+        });
+        await _context.SaveChangesAsync();
     }
 }

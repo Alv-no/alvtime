@@ -24,6 +24,7 @@ public class OvertimeController(TimeRegistrationService timeRegistrationService)
         {
             AvailableHoursAfterCompensation = availableOvertime.AvailableHoursAfterCompensation,
             AvailableHoursBeforeCompensation = availableOvertime.AvailableHoursBeforeCompensation,
+            HoursUntilBankingStarts = availableOvertime.HoursUntilBankingStarts,
             Entries = availableOvertime.Entries.Select(entry => new TimeEntryResponse
             {
                 Date = entry.Date.ToDateOnly(),

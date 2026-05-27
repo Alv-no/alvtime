@@ -627,11 +627,20 @@ namespace Alvtime.Adminpanel.Client.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ansatte må ha vært ansatt i minst ett år.
+        ///   Looks up a localized string similar to Ansatte er kun valgbare for bytte av lønnsmodell fra og med året etter de startet.
         /// </summary>
         internal static string EmployeePage_SalaryModel_CannotChange_NewEmployee {
             get {
                 return ResourceManager.GetString("EmployeePage.SalaryModel.CannotChange.NewEmployee", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bytte av lønnsmodell er kun mulig i juni.
+        /// </summary>
+        internal static string EmployeePage_SalaryModel_CannotChange_NotJune {
+            get {
+                return ResourceManager.GetString("EmployeePage.SalaryModel.CannotChange.NotJune", resourceCulture);
             }
         }
         

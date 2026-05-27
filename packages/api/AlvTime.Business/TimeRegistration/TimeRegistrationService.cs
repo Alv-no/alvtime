@@ -502,17 +502,36 @@ public class TimeRegistrationService
 
         var compensatedPayouts = await CompensateForPayouts(overtimeEntries, toDateInclusive, currentUser);
         var compensatedFlexHours = await CompensateForFlexedHours(overtimeEntries, toDateInclusive, currentUser);
+        var salaryHistory = (await _userService.GetSalaryModelHistory(currentUser.Id)).ToList();
+        var compensatedFiscalYearDebt = CompensateForFiscalYearDebt(overtimeEntriesOnly, toDateInclusive, currentUser, salaryHistory);
+        overtimeEntries.AddRange(compensatedFiscalYearDebt);
 
         var availableBeforeCompRate = overtimeEntries.Sum(e => e.Hours);
         var availableAfterCompRate = overtimeEntries.Sum(e => e.Hours * e.CompensationRate);
+
+        // Cap to today so the 9999 sentinel used by the production endpoint resolves to now.
+        var asOf = toDateInclusive > DateTime.Today ? DateTime.Today : toDateInclusive;
+        var currentFyStart = GetFiscalYearStart(asOf);
+        var modelAtCurrentFy = SalaryModelHistoryHelper.GetModelAtDate(currentFyStart, salaryHistory, currentUser.SalaryModel);
+        var hoursUntilBankingStarts = 0M;
+        if (modelAtCurrentFy == SalaryModel.InvoiceBased)
+        {
+            var fyEarned = overtimeEntriesOnly
+                .Where(e => e.Date >= currentFyStart && e.Date.Date <= asOf.Date
+                    && e.CompensationRate is CompensationRates.Volunteer or CompensationRates.Internal)
+                .Sum(e => e.Hours);
+            hoursUntilBankingStarts = Math.Max(0M, 50M - fyEarned);
+        }
 
         return new AvailableOvertimeDto
         {
             UnCompensatedOvertime = overtimeEntriesOnly,
             CompensatedPayouts = compensatedPayouts,
             CompensatedFlexHours = compensatedFlexHours,
+            CompensatedFiscalYearDebt = compensatedFiscalYearDebt,
             AvailableHoursBeforeCompensation = availableBeforeCompRate,
             AvailableHoursAfterCompensation = availableAfterCompRate,
+            HoursUntilBankingStarts = hoursUntilBankingStarts,
             Entries = overtimeEntries
         };
     }
@@ -543,6 +562,75 @@ public class TimeRegistrationService
 
         return compensatedFlexHours;
     }
+
+    private List<TimeEntry> CompensateForFiscalYearDebt(
+        List<TimeEntry> earnedOvertimeEntries,
+        DateTime toDateInclusive,
+        User currentUser,
+        IReadOnlyList<SalaryModelHistoryEntry> history)
+    {
+        // Synthesize history from LastSwitchSalaryModel when no persistent history exists yet
+        if (!history.Any() && currentUser.LastSwitchSalaryModel.HasValue)
+        {
+            var prevModel = currentUser.SalaryModel == SalaryModel.InvoiceBased
+                ? SalaryModel.Static : SalaryModel.InvoiceBased;
+            history =
+            [
+                new SalaryModelHistoryEntry(
+                    GetFiscalYearStart(currentUser.LastSwitchSalaryModel.Value),
+                    prevModel,
+                    currentUser.SalaryModel)
+            ];
+        }
+
+        var everOnInvoice = currentUser.SalaryModel == SalaryModel.InvoiceBased
+                            || history.Any(h => h.NewModel == SalaryModel.InvoiceBased);
+        if (!everOnInvoice)
+            return [];
+
+        var deductions = new List<TimeEntry>();
+        var fyStart = GetFiscalYearStart(currentUser.StartDate);
+
+        while (fyStart <= toDateInclusive)
+        {
+            var modelAtFYStart = SalaryModelHistoryHelper.GetModelAtDate(fyStart, history, currentUser.SalaryModel);
+
+            if (modelAtFYStart == SalaryModel.InvoiceBased)
+            {
+                var fyEnd = fyStart.AddYears(1).AddDays(-1);
+                var scopeEnd = fyEnd < toDateInclusive ? fyEnd : toDateInclusive;
+
+                // FY-scoped only — pre-switch static hours are never drawn from.
+                var internalVolunteerOvertimeInFY = earnedOvertimeEntries
+                    .Where(e => e.Date >= fyStart && e.Date <= scopeEnd
+                        && e.CompensationRate is CompensationRates.Volunteer or CompensationRates.Internal)
+                    .ToList();
+
+                var totalHours = internalVolunteerOvertimeInFY.Sum(e => e.Hours);
+                if (totalHours <= 0M) { fyStart = fyStart.AddYears(1); continue; }
+
+                // Debt capped at earned: cannot reduce hours from outside this FY.
+                var hoursToDeduct = Math.Min(50M, totalHours);
+                var volunteerHours = internalVolunteerOvertimeInFY.Where(e => e.CompensationRate == CompensationRates.Volunteer).Sum(e => e.Hours);
+                var volunteerDeduction = Math.Min(hoursToDeduct, volunteerHours);
+                var internalDeduction = hoursToDeduct - volunteerDeduction;
+
+                if (volunteerDeduction > 0M)
+                    deductions.Add(new TimeEntry { Date = fyStart, Hours = -volunteerDeduction, CompensationRate = CompensationRates.Volunteer, Type = TimeEntryType.FiscalYearDebt });
+                if (internalDeduction > 0M)
+                    deductions.Add(new TimeEntry { Date = fyStart, Hours = -internalDeduction, CompensationRate = CompensationRates.Internal, Type = TimeEntryType.FiscalYearDebt });
+            }
+
+            fyStart = fyStart.AddYears(1);
+        }
+
+        return deductions;
+    }
+
+    private static DateTime GetFiscalYearStart(DateTime date) =>
+        date.Month >= 6
+            ? new DateTime(date.Year, 6, 1)
+            : new DateTime(date.Year - 1, 6, 1);
 
     private async Task<List<TimeEntry>> CompensateForPayouts(List<TimeEntry> overtimeEntries,
         DateTime toDateInclusive,

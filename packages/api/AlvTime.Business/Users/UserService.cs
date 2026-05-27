@@ -119,8 +119,16 @@ public class UserService(IUserRepository userRepository, ITimeRegistrationStorag
             return new Error(ErrorCodes.InvalidAction, "Ansatte må ha blitt ansatt foregående år.");
         }
 
-        // TODO: persist salary model change
-        return user;
+        var switchDate = new DateTime(today.Year, 6, 1);
+        var previousModel = user.SalaryModel;
+        await userRepository.UpdateSalaryModel(userId, newSalaryModel, switchDate);
+        await userRepository.AddSalaryModelHistory(userId, new SalaryModelHistoryEntry(switchDate, previousModel, newSalaryModel));
+        return await GetUserById(userId);
+    }
+
+    public async Task<IEnumerable<SalaryModelHistoryEntry>> GetSalaryModelHistory(int userId)
+    {
+        return await userRepository.GetSalaryModelHistory(userId);
     }
 
     public async Task<UserDto> GetUserById(int userId)

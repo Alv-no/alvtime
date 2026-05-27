@@ -280,13 +280,24 @@ public class SalaryModelSwitchTests
         dbUser.LastSwitchedSalaryModel = switchDate;
         await _context.SaveChangesAsync();
 
+        _context.SalaryModelHistory.Add(new SalaryModelHistory
+        {
+            UserId = 1,
+            SwitchDate = switchDate,
+            PreviousModel = SalaryModel.Static,
+            NewModel = SalaryModel.InvoiceBased
+        });
+        await _context.SaveChangesAsync();
+
         _userContextMock.Setup(c => c.GetCurrentUser()).Returns(
             System.Threading.Tasks.Task.FromResult(new AlvTime.Business.Users.User
             {
                 Id = 1,
                 Email = "someone@alv.no",
                 Name = "Someone",
+                StartDate = new DateTime(2020, 01, 02),
                 Oid = "12345678-1234-1234-1234-123456789012",
+                SalaryModel = SalaryModel.InvoiceBased,
                 LastSwitchSalaryModel = switchDate
             }));
     }

@@ -88,7 +88,9 @@ public class UserController(UserService userService, GraphService graphService) 
     [HttpPut("users/{userId:int}/salarymodel")]
     public async Task<ActionResult> UpdateSalaryModel(SalaryModelRequest request, int userId)
     {
-        await userService.UpdateSalaryModel(userId, request.SalaryModel);
-        return Ok("Updated");
+        var updatedSalaryModel = await userService.UpdateSalaryModel(userId, request.SalaryModel);
+        return updatedSalaryModel.Match<ActionResult>(
+            model => Ok(model),
+            errors => BadRequest(errors.ToValidationProblemDetails("Oppdatering av lønnsmodell feilet")));
     }
 }

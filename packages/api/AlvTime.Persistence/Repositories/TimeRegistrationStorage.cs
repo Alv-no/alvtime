@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AlvTime.Business.CompensationRate;
 using AlvTime.Business.Overtime;
 using AlvTime.Business.TimeRegistration;
+using AlvTime.Business.Users;
 using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Task = System.Threading.Tasks.Task;
@@ -66,6 +67,18 @@ public class TimeRegistrationStorage(AlvTime_dbContext context) : ITimeRegistrat
                 })
             .ToListAsync();
 
+        var userIds = entries.Select(e => e.User).Distinct().ToList();
+        var historyRows = await context.SalaryModelHistory
+            .Where(h => userIds.Contains(h.UserId))
+            .OrderBy(h => h.SwitchDate)
+            .ToListAsync();
+        var historyByUser = historyRows
+            .GroupBy(h => h.UserId)
+            .ToDictionary(
+                g => g.Key, IReadOnlyList<SalaryModelHistoryEntry> (g) => g
+                    .Select(h => new SalaryModelHistoryEntry(h.SwitchDate, h.PreviousModel, h.NewModel))
+                    .ToList());
+
         return entries.Select(x => new TimeEntryWithCompRateDto
         {
             Id = x.Id,
@@ -73,13 +86,12 @@ public class TimeRegistrationStorage(AlvTime_dbContext context) : ITimeRegistrat
             Date = x.Date,
             Value = x.Value,
             TaskId = x.TaskId,
-            //If registering a time entry on a date before switching salary model, use previous salary model
             CompensationRate = CompensationRateHelper.ResolveCompensationRate(
-                    x.CompensationType,
-                    x.Imposed,
-                    x.UserNavigation.LastSwitchedSalaryModel.HasValue && x.Date < x.UserNavigation.LastSwitchedSalaryModel.Value
-                        ? x.UserNavigation.SalaryModel == SalaryModel.InvoiceBased ? SalaryModel.Static : SalaryModel.InvoiceBased
-                        : x.UserNavigation.SalaryModel)
+                x.CompensationType,
+                x.Imposed,
+                historyByUser.TryGetValue(x.User, out var userHistory)
+                    ? SalaryModelHistoryHelper.GetModelAtDate(x.Date, userHistory, x.UserNavigation.SalaryModel)
+                    : x.UserNavigation.SalaryModel)
         });
     }
     

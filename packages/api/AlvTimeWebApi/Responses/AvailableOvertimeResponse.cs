@@ -6,6 +6,7 @@ namespace AlvTimeWebApi.Responses
     {
         public decimal AvailableHoursBeforeCompensation { get; set; }
         public decimal AvailableHoursAfterCompensation { get; set; }
+        public decimal HoursUntilBankingStarts { get; set; }
         public List<TimeEntryResponse> Entries { get; set; }
     }
 }

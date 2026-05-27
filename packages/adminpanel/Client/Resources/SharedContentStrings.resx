@@ -270,4 +270,7 @@
     <data name="EmployeePage.SalaryModel.CannotChange.NewEmployee" xml:space="preserve">
         <value>Ansatte er kun valgbare for bytte av lønnsmodell fra og med året etter de startet</value>
     </data>
+    <data name="EmployeePage.SalaryModel.CannotChange.NotJune" xml:space="preserve">
+        <value>Bytte av lønnsmodell er kun mulig i juni</value>
+    </data>
 </root>

@@ -6,7 +6,22 @@ This is a monorepo for various components for the Alvtime project. See README.md
 - Work through tasks one at a time. State which task you are ready to start, then wait for the go-ahead.
 - Do not batch tasks or auto-start the next task after completing one.
 - Always verify existing patterns before introducing new ones
+- Follow TDD: write the failing test first, then implement to make it pass. Never write implementation before its test.
 - Ask clarifying questions rather than assuming
+
+#### Building on /c/ filesystem
+
+The `/c/` filesystem does not update file modification timestamps on write. The .NET incremental build system uses mtimes to detect changes, so edits made to source files in `/c/` are NOT picked up by normal `dotnet build` or `dotnet test`.
+
+**Always delete the `obj/` directory of any changed project before building:**
+
+```bash
+rm -rf /c/_dev/alvtime/packages/api/AlvTime.Business/obj/
+rm -rf /c/_dev/alvtime/packages/api/Tests/obj/
+dotnet test /c/_dev/alvtime/packages/api/Tests/ -p:OutputPath=/tmp/alvbuild/ -p:UseAppHost=false
+```
+
+The `-p:OutputPath=/tmp/alvbuild/ -p:UseAppHost=false` flags are still required because `/c/` also can't create memory-mapped files needed by the app host.
 
 #### Plans
 - Make the plan extremely concise. Sacrifice grammar for the sake of concision.

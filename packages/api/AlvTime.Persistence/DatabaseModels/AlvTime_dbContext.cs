@@ -28,6 +28,7 @@ namespace AlvTime.Persistence.DatabaseModels
         public virtual DbSet<Project> Project { get; set; }
         public virtual DbSet<ProjectFavorites> ProjectFavorite { get; set; }
         public virtual DbSet<RegisteredFlex> RegisteredFlex { get; set; }
+        public virtual DbSet<SalaryModelHistory> SalaryModelHistory { get; set; }
         public virtual DbSet<Task> Task { get; set; }
         public virtual DbSet<TaskFavorites> TaskFavorites { get; set; }
         public virtual DbSet<User> User { get; set; }
@@ -238,6 +239,15 @@ namespace AlvTime.Persistence.DatabaseModels
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_RegisteredFlex_User");
+            });
+
+            modelBuilder.Entity<SalaryModelHistory>(entity =>
+            {
+                entity.HasOne(d => d.User)
+                    .WithMany()
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_SalaryModelHistory_User");
             });
 
             modelBuilder.Entity<Task>(entity =>

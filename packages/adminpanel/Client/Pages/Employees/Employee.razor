@@ -243,6 +243,10 @@ else
 
             if (_employee.LastSwitchedSalaryModel.HasValue && _employee.LastSwitchedSalaryModel.Value > _employee.StartDate)
                 return Localizer["EmployeePage.SalaryModel.CannotChange.TooSoon"];
+            
+            var today = DateTime.Today;
+            if (_employee.StartDate.HasValue && _employee.StartDate.Value.Year < today.Year && today.Month <= 5)
+                return Localizer["EmployeePage.SalaryModel.CannotChange.NotJune"];
 
             return Localizer["EmployeePage.SalaryModel.CannotChange.NewEmployee"];
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AlvTime.Business.AccessTokens;
+using AlvTime.Business.Overtime;
 
 namespace AlvTime.Business.Users
 {
@@ -16,6 +17,10 @@ namespace AlvTime.Business.Users
         Task<EmploymentRateResponseDto> CreateEmploymentRateForUser(EmploymentRateDto input);
         Task<IEnumerable<EmploymentRateResponseDto>> GetEmploymentRates(EmploymentRateQueryFilter criteria);
         Task<EmploymentRateResponseDto> UpdateEmploymentRateForUser(EmploymentRateDto request);
+
+        Task UpdateSalaryModel(int userId, SalaryModel newModel, DateTime switchDate);
+        Task<IEnumerable<SalaryModelHistoryEntry>> GetSalaryModelHistory(int userId);
+        Task AddSalaryModelHistory(int userId, SalaryModelHistoryEntry entry);
     }
 
     public class UserQuerySearch

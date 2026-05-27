@@ -52,6 +52,7 @@ Alv has 2 salary models; static and invoice based. An employee is allowed to swi
 ### Invoice based
 - Each accounting year (starting in june) you start with a bank of negative fifty (-50) internal hours (`TaskType.Internal` or `TaskType.Volunteer`). You are compensated for this by getting a higher base salary. Any internal hours you work beyond a normal workday up to 50 total hours will not be registered as overtime. After you have accumulated 50 hours of internal overtime they will starting counting towards your overtime bank as normal.
 - Billable overtime hours are compensated with a factor of 1.4.
+- Your overtime bank "resets" each fiscal year. This means that the 50 hours withdrawn from your internal/volunteer overtime hours will only be taken from hours earned within the current fiscal year. If you work less than 50 hours internal overtime, i.e. 30 hours, then only 30 hours will be taken from your bank that year when switching fiscal years so you will never have a negative balance for the previous year.
 ### Switching salary models
 The 50 internal hours you are not compensated for when using the invoice based salary model introduces some complexity. When switching from one model to another, these need to be included in your time bank.
 
