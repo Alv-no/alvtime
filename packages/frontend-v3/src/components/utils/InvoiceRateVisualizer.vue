@@ -123,6 +123,7 @@ watch(hovering, () => {
 					font-weight: 500;
 					margin: 0 0 2px;
 					padding: 0;
+					white-space: nowrap;
 				}
 	
 				.previous-invoice-rate {
