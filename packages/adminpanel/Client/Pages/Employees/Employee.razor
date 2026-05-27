@@ -222,6 +222,7 @@ else
     {
         get
         {
+            return true;
             if (_employee is null) return false;
             var today = DateTime.Today;
             if (_employee.LastSwitchedSalaryModel.HasValue)
