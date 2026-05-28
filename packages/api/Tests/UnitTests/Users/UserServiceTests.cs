@@ -13,14 +13,9 @@ namespace Tests.UnitTests.Users;
 
 public class UserServiceTests
 {
-    private readonly AlvTime_dbContext _context;
-    
-    public UserServiceTests()
-    {
-        _context = new AlvTimeDbContextBuilder()
-            .WithStaticSalaryUsers()
-            .CreateDbContext();
-    }
+    private readonly AlvTime_dbContext _context = new AlvTimeDbContextBuilder()
+        .WithStaticSalaryUsers()
+        .CreateDbContext();
 
     [Fact]
     public async Task GetUsers_NoCriteria_AllUsers()
@@ -378,10 +373,10 @@ public class UserServiceTests
 
         Assert.True(result.IsSuccess);
         var history = (await userService.GetSalaryModelHistory(1)).ToList();
-        Assert.Single(history);
-        Assert.Equal(new DateTime(2026, 6, 1), history[0].SwitchDate);
-        Assert.Equal(SalaryModel.Static, history[0].PreviousModel);
-        Assert.Equal(SalaryModel.InvoiceBased, history[0].NewModel);
+        Assert.Equal(2, history.Count);
+        Assert.Equal(new DateTime(2026, 6, 1), history[1].SwitchDate);
+        Assert.Equal(SalaryModel.Static, history[1].PreviousModel);
+        Assert.Equal(SalaryModel.InvoiceBased, history[1].NewModel);
     }
 
     [Fact]
@@ -394,8 +389,8 @@ public class UserServiceTests
 
         Assert.True(result.IsSuccess);
         var history = (await userService.GetSalaryModelHistory(1)).ToList();
-        Assert.Single(history);
-        Assert.Equal(new DateTime(2026, 6, 1), history[0].SwitchDate);
+        Assert.Equal(2, history.Count);
+        Assert.Equal(new DateTime(2026, 6, 1), history[1].SwitchDate);
     }
 
     [Fact]
@@ -408,9 +403,9 @@ public class UserServiceTests
 
         Assert.True(result.IsSuccess);
         var history = (await userService.GetSalaryModelHistory(1)).ToList();
-        Assert.Single(history);
-        Assert.Equal(new DateTime(2026, 6, 1), history[0].SwitchDate);
-        Assert.Equal(SalaryModel.InvoiceBased, history[0].NewModel);
+        Assert.Equal(2, history.Count);
+        Assert.Equal(new DateTime(2026, 6, 1), history[1].SwitchDate);
+        Assert.Equal(SalaryModel.InvoiceBased, history[1].NewModel);
     }
 
     [Fact]
@@ -443,8 +438,8 @@ public class UserServiceTests
 
         Assert.False(result.IsSuccess);
         var history = (await userService.GetSalaryModelHistory(1)).ToList();
-        Assert.Single(history);
-        Assert.Equal(SalaryModel.InvoiceBased, history[0].NewModel);
+        Assert.Equal(2, history.Count);
+        Assert.Equal(SalaryModel.InvoiceBased, history[1].NewModel);
     }
 
     [Fact]
@@ -457,8 +452,8 @@ public class UserServiceTests
         await userService.UpdateSalaryModel(1, SalaryModel.InvoiceBased);
 
         var history = (await userService.GetSalaryModelHistory(1)).ToList();
-        Assert.Single(history);
-        Assert.Equal(SalaryModel.InvoiceBased, history[0].NewModel);
+        Assert.Equal(2, history.Count);
+        Assert.Equal(SalaryModel.InvoiceBased, history[1].NewModel);
     }
 
     [Fact]
@@ -480,7 +475,7 @@ public class UserServiceTests
 
         Assert.True(result.IsSuccess);
         var history = (await userService.GetSalaryModelHistory(1)).ToList();
-        Assert.Equal(2, history.Count);
+        Assert.Equal(3, history.Count);
         var pending = history.Single(h => h.SwitchDate.Date > new DateTime(2026, 5, 28));
         Assert.Equal(SalaryModel.Static, pending.NewModel);
         Assert.Equal(SalaryModel.InvoiceBased, pending.PreviousModel);
@@ -497,7 +492,7 @@ public class UserServiceTests
 
         Assert.False(result.IsSuccess);
         var history = (await userService.GetSalaryModelHistory(1)).ToList();
-        Assert.Empty(history);
+        Assert.Single(history);
     }
 
     [Fact]
@@ -511,7 +506,7 @@ public class UserServiceTests
 
         Assert.True(result.IsSuccess);
         var history = (await userService.GetSalaryModelHistory(1)).ToList();
-        Assert.Empty(history);
+        Assert.Single(history);
     }
 
     [Fact]
@@ -584,8 +579,8 @@ public class UserServiceTests
 
         Assert.True(result.IsSuccess);
         var history = (await userService.GetSalaryModelHistory(1)).ToList();
-        Assert.Single(history);
-        Assert.Equal(new DateTime(2024, 6, 1), history[0].SwitchDate);
+        Assert.Equal(2, history.Count);
+        Assert.Equal(new DateTime(2024, 6, 1), history[1].SwitchDate);
     }
 
     private static DateAlvTime CreateClock(DateTime today)
