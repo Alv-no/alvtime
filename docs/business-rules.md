@@ -60,10 +60,10 @@ The 50 internal hours you are not compensated for when using the invoice based s
 You start with a timebank of negative 50 internal hours. Accumulating 50 overtime hours of `TaskType.Volunteer` or `TaskType.Internal` (compensation rate 0.5 and 1.0) makes these hours start counting towards your time bank.
 
 #### From static to invoice based 
-Your time bank is reduced by up to 50 hours of compensation rate 0.5 or 1.0, starting with 0.5. If you do not have 50 hours of these types available, the rest will be added to a "debt". I.e. if you have 40 internal hours available, you will have to work another 10 hours of internal over for them to start counting towards your time bank.
+You start the fiscal year (June 1.) with a debt of 50 hours of internal/volunteer type. Overtime hours of these types earned before the start of the fiscal year are not touched.
 
 #### From invoice based to static
-When you had the invoice based salary model, the 50 internal hours were baked into your salary. This means that you will not suddenly get another 50 hours added to your time bank when you switch to a static model. In fact, since you have already been paid for these hours, you will need to earn the remaining "debt", same as above.
+When you had the invoice based salary model, the 50 internal hours were baked into your salary. This means that you will not suddenly get another 50 hours added to your time bank when you switch to a static model. If you did not earn 50 hours of internal overtime in the previous fiscal year, the rest of your debt is "forgiven" and you start with a debt of 0 in the new fiscal year.
 
 
 ## Vacation
