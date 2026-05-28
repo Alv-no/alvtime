@@ -166,9 +166,8 @@ public class FiscalYearDebtTests
     [Fact]
     public async System.Threading.Tasks.Task FiscalYearDebt_DoesNotApplyToStaticModelUser()
     {
-        // Switch the DB user to static and rebuild a static-model service
-        var dbUser = _context.User.Find(1)!;
-        dbUser.SalaryModel = SalaryModel.Static;
+        // Switch the user to static (clear seeded InvoiceBased history) and rebuild a static-model service
+        _context.SalaryModelHistory.RemoveRange(_context.SalaryModelHistory);
         await _context.SaveChangesAsync();
 
         var options = Mock.Of<IOptionsMonitor<TimeEntryOptions>>(o => o.CurrentValue == new TimeEntryOptions

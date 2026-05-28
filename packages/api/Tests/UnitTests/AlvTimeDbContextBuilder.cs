@@ -316,8 +316,7 @@ namespace Tests.UnitTests
                 Name = "Someone",
                 StartDate = new DateTime(2020, 01, 02),
                 EmployeeId = 999,
-                Oid = "12345678-1234-1234-1234-123456789012",
-                SalaryModel = SalaryModel.Static
+                Oid = "12345678-1234-1234-1234-123456789012"
             });
 
             _context.User.Add(new User
@@ -327,8 +326,21 @@ namespace Tests.UnitTests
                 Name = "Someone2",
                 StartDate = DateTime.Now,
                 EmployeeId = 888,
-                Oid = "23456789-2345-2345-2345-234567890123",
-                SalaryModel = SalaryModel.Static
+                Oid = "23456789-2345-2345-2345-234567890123"
+            });
+            _context.SalaryModelHistory.Add(new SalaryModelHistory
+            {
+                UserId = 1,
+                SwitchDate = new DateTime(2020, 01, 02),
+                PreviousModel = SalaryModel.Static,
+                NewModel = SalaryModel.Static
+            });
+            _context.SalaryModelHistory.Add(new SalaryModelHistory
+            {
+                UserId = 2,
+                SwitchDate = DateTime.Now,
+                PreviousModel = SalaryModel.Static,
+                NewModel = SalaryModel.Static
             });
 
             _context.SaveChanges();
@@ -344,8 +356,15 @@ namespace Tests.UnitTests
                 Name = "Someone",
                 StartDate = new DateTime(2020, 01, 02),
                 EmployeeId = 999,
-                Oid = "12345678-1234-1234-1234-123456789012",
-                SalaryModel = SalaryModel.InvoiceBased
+                Oid = "12345678-1234-1234-1234-123456789012"
+            });
+            _context.SaveChanges();
+            _context.SalaryModelHistory.Add(new SalaryModelHistory
+            {
+                UserId = 1,
+                SwitchDate = new DateTime(2020, 01, 02),
+                PreviousModel = SalaryModel.InvoiceBased,
+                NewModel = SalaryModel.InvoiceBased
             });
             _context.SaveChanges();
             return this;

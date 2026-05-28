@@ -57,6 +57,7 @@ public class MigrationService : IMigrationService
         await SeedCustomers(context);
         await SeedProjects(context);
         await SeedUsers(context);
+        await SeedSalaryModelHistory(context);
         await SeedTasks(context);
         await SeedTaskFavorites(context);
         await SeedHourRates(context);
@@ -231,7 +232,6 @@ public class MigrationService : IMigrationService
                     EndDate = null,
                     EmployeeId = 1,
                     Oid = "12345678-1234-1234-1234-123456789012",
-                    SalaryModel = SalaryModel.Static
                 },
                 new()
                 {
@@ -241,7 +241,6 @@ public class MigrationService : IMigrationService
                     EndDate = null,
                     EmployeeId = 2,
                     Oid = "23456789-2345-2345-2345-234567890123",
-                    SalaryModel = SalaryModel.Static,
                 },
                 new()
                 {
@@ -251,7 +250,6 @@ public class MigrationService : IMigrationService
                     EndDate = null,
                     EmployeeId = 4,
                     Oid = "f21ff8d0-2d2d-42ec-8a1f-fc5ea8c9e947",
-                    SalaryModel = SalaryModel.Static,
                 },
                 new()
                 {
@@ -261,7 +259,6 @@ public class MigrationService : IMigrationService
                     EndDate = null,
                     EmployeeId = 3,
                     Oid = "e6dd42da-3cfc-4c39-aee5-6868aad184fe",
-                    SalaryModel = SalaryModel.Static,
                     EmploymentRate = new List<EmploymentRate>
                     {
                         new()
@@ -280,6 +277,48 @@ public class MigrationService : IMigrationService
                 }
             };
             await context.User.AddRangeAsync(newUsers);
+            await context.SaveChangesAsync();
+        }
+    }
+
+    private static async Task SeedSalaryModelHistory(AlvTime_dbContext context)
+    {
+        var salaryModelHistory = await context.SalaryModelHistory.ToListAsync();
+        if (!salaryModelHistory.Any())
+        {
+            var newSalaryModelHistory = new List<SalaryModelHistory>
+            {
+                new()
+                {
+                    UserId = 1,
+                    SwitchDate = new DateTime(2019, 08, 01),
+                    PreviousModel = SalaryModel.Static,
+                    NewModel = SalaryModel.Static,
+                },
+                new()
+                {
+                    UserId = 2,
+                    SwitchDate = new DateTime(2019, 09, 01),
+                    PreviousModel = SalaryModel.Static,
+                    NewModel = SalaryModel.Static,
+                },
+                new()
+                {
+                    UserId = 3,
+                    SwitchDate = new DateTime(2020, 10, 01),
+                    PreviousModel = SalaryModel.Static,
+                    NewModel = SalaryModel.Static,
+                },
+                new()
+                {
+                    UserId = 4,
+                    SwitchDate = new DateTime(2020, 11, 01),
+                    PreviousModel = SalaryModel.Static,
+                    NewModel = SalaryModel.Static,
+                },
+            };
+
+            await context.SalaryModelHistory.AddRangeAsync(newSalaryModelHistory);
             await context.SaveChangesAsync();
         }
     }

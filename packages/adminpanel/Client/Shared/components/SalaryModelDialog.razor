@@ -14,6 +14,9 @@
                 <MudSelectItem T="SalaryModel" Value="@model">@Localizer[$"EmployeePage.SalaryModel.{model}"]</MudSelectItem>
             }
         </MudSelect>
+        <MudText Class="mt-3" Typo="Typo.body2">
+            @Localizer["EmployeePage.SalaryModel.EffectiveDate"]: @ThisYearJune1.ToString("dd.MM.yyyy")
+        </MudText>
     </DialogContent>
     <DialogActions>
         <MudButton
@@ -38,12 +41,15 @@
     [Parameter] public EventCallback OnSalaryModelSubmit { get; set; }
     [Parameter] public int EmployeeId { get; set; }
     [Parameter] public SalaryModel CurrentSalaryModel { get; set; }
+    [Parameter] public PendingSalaryModelChangeModel? PendingChange { get; set; }
 
     private SalaryModel _salaryModel;
 
+    private static DateTime ThisYearJune1 => new(DateTime.Today.Year, 6, 1);
+
     protected override Task OnParametersSetAsync()
     {
-        _salaryModel = CurrentSalaryModel;
+        _salaryModel = PendingChange?.NewModel ?? CurrentSalaryModel;
         return base.OnParametersSetAsync();
     }
 

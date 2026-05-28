@@ -95,8 +95,8 @@ const transactionType = computed(() => {
 		return "Utbetaling";
 	case 2:
 		return "Flex";
-    case 3:
-      return "Årstrekk";
+	case 3:
+		return "Innbakte interntimer";
 	default:
 		return "Ukjent type";
 	}

@@ -15,7 +15,8 @@ public class UserAdminResponse
     public string ProfilePicture { get; set; }
     public IEnumerable<UserEmploymentRateAdminResponse> EmploymentRates { get; set; }
     public SalaryModel SalaryModel { get; set; }
-    public DateTime? LastSwitchedSalaryModel { get; set; }
+    public PendingSalaryModelChangeResponse PendingSalaryModelChange { get; set; }
+    public IEnumerable<SalaryModelHistoryEntryResponse> SalaryModelHistory { get; set; }
 }
 
 public class UserEmploymentRateAdminResponse
@@ -24,4 +25,17 @@ public class UserEmploymentRateAdminResponse
     public decimal RatePercentage { get; set; }
     public string FromDateInclusive { get; set; }
     public string ToDateInclusive { get; set; }
+}
+
+public class PendingSalaryModelChangeResponse
+{
+    public DateTime EffectiveDate { get; set; }
+    public SalaryModel NewModel { get; set; }
+}
+
+public class SalaryModelHistoryEntryResponse
+{
+    public DateTime SwitchDate { get; set; }
+    public SalaryModel PreviousModel { get; set; }
+    public SalaryModel NewModel { get; set; }
 }

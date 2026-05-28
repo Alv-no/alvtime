@@ -7,6 +7,7 @@ import { setLocalSalary, getLocalSalary } from "@/composables/useLocalStorage";
 type TimeBankTransaction = {
 	availableHoursBeforeCompensation: number;
 	availableHoursAfterCompensation: number;
+	hoursUntilBankingStarts: number;
 	entries: TimeBankEntry[];
 };
 

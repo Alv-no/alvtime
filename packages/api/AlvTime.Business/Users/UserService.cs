@@ -6,12 +6,15 @@ using System.Threading.Tasks;
 using AlvTime.Business.Overtime;
 using AlvTime.Business.TimeRegistration;
 using AlvTime.Business.Utils;
-using FluentValidation;
 
 namespace AlvTime.Business.Users;
 
-public class UserService(IUserRepository userRepository, ITimeRegistrationStorage timeRegistrationStorage)
+public class UserService(IUserRepository userRepository, ITimeRegistrationStorage timeRegistrationStorage, DateAlvTime dateAlvTime)
 {
+    public UserService(IUserRepository userRepository, ITimeRegistrationStorage timeRegistrationStorage)
+        : this(userRepository, timeRegistrationStorage, new DateAlvTime()) { }
+
+
     public async Task<Result<UserDto>> CreateUser(UserDto user)
     {
         var errors = new List<Error>();
@@ -104,24 +107,26 @@ public class UserService(IUserRepository userRepository, ITimeRegistrationStorag
         if (user is null)
             return new Error(ErrorCodes.MissingEntity, "Bruker ble ikke funnet.");
 
-        var today = DateTime.Today;
-
-        if (user.LastSwitchedSalaryModel.HasValue)
-        {
-            var lastSwitch = user.LastSwitchedSalaryModel.Value;
-            var eligible = lastSwitch.Year < today.Year - 1
-                           || (lastSwitch.Year == today.Year - 1 && lastSwitch.Month <= 6);
-            if (!eligible)
-                return new Error(ErrorCodes.InvalidAction, "Lønnsmodellen kan bare endres én gang per år.");
-        }
-        else if (!user.StartDate.HasValue || user.StartDate.Value.Year >= today.Year)
-        {
-            return new Error(ErrorCodes.InvalidAction, "Ansatte må ha blitt ansatt foregående år.");
-        }
-
+        var today = dateAlvTime.Now.Date;
         var switchDate = new DateTime(today.Year, 6, 1);
-        var previousModel = user.SalaryModel;
-        await userRepository.UpdateSalaryModel(userId, newSalaryModel, switchDate);
+
+        if (today.Month >= 7)
+            return new Error(ErrorCodes.InvalidAction, "Lønnsmodell kan bare endres frem til 30. juni.");
+
+        var history = (await userRepository.GetSalaryModelHistory(userId)).ToList();
+
+        if (today >= switchDate
+            && history.Any(h => h.SwitchDate.Year == today.Year && h.PreviousModel != h.NewModel))
+            return new Error(ErrorCodes.InvalidAction, "Lønnsmodellen er allerede endret i år.");
+
+        var previousModel = SalaryModelHistoryHelper.GetModelAtDate(
+            switchDate.AddDays(-1),
+            history.Where(h => h.SwitchDate.Date < switchDate).ToList());
+
+        if (newSalaryModel == previousModel)
+            return new Error(ErrorCodes.InvalidAction, "Lønnsmodellen er allerede satt til den valgte verdien.");
+
+        await userRepository.DeleteSalaryModelHistoryAfter(userId, switchDate.AddDays(-1));
         await userRepository.AddSalaryModelHistory(userId, new SalaryModelHistoryEntry(switchDate, previousModel, newSalaryModel));
         return await GetUserById(userId);
     }
@@ -131,12 +136,39 @@ public class UserService(IUserRepository userRepository, ITimeRegistrationStorag
         return await userRepository.GetSalaryModelHistory(userId);
     }
 
+    public async Task<Result<UserDto>> CancelPendingSalaryModelChange(int userId)
+    {
+        var user = await GetUserById(userId);
+        if (user is null)
+            return new Error(ErrorCodes.MissingEntity, "Bruker ble ikke funnet.");
+
+        var today = dateAlvTime.Now.Date;
+        var history = (await userRepository.GetSalaryModelHistory(userId)).ToList();
+        if (!history.Any(h => h.SwitchDate.Date > today))
+            return new Error(ErrorCodes.InvalidAction, "Det finnes ingen planlagt endring å avbryte.");
+
+        await userRepository.DeleteSalaryModelHistoryAfter(userId, today);
+        return await GetUserById(userId);
+    }
+
     public async Task<UserDto> GetUserById(int userId)
     {
-        return (await userRepository.GetUsersWithEmploymentRates(new UserQuerySearch
+        var user = (await userRepository.GetUsersWithEmploymentRates(new UserQuerySearch
         {
             Id = userId
         })).FirstOrDefault();
+        if (user is null) return null;
+
+        var today = dateAlvTime.Now.Date;
+        var history = (await userRepository.GetSalaryModelHistory(userId)).ToList();
+        var pending = history.FirstOrDefault(h => h.SwitchDate.Date > today);
+        var displayedHistory = history
+            .Where(h => h.SwitchDate.Date <= today && h.PreviousModel != h.NewModel)
+            .ToList();
+
+        user.PendingSalaryModelChange = pending is null ? null : new PendingSalaryModelChangeDto(pending.SwitchDate, pending.NewModel);
+        user.SalaryModelHistory = displayedHistory;
+        return user;
     }
 
     public async Task<Result<decimal>> GetCurrentEmploymentRateForUser(int userId, DateTime timeEntryDate)

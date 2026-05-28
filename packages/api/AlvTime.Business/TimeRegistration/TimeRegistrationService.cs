@@ -512,7 +512,7 @@ public class TimeRegistrationService
         // Cap to today so the 9999 sentinel used by the production endpoint resolves to now.
         var asOf = toDateInclusive > DateTime.Today ? DateTime.Today : toDateInclusive;
         var currentFyStart = GetFiscalYearStart(asOf);
-        var modelAtCurrentFy = SalaryModelHistoryHelper.GetModelAtDate(currentFyStart, salaryHistory, currentUser.SalaryModel);
+        var modelAtCurrentFy = SalaryModelHistoryHelper.GetModelAtDate(currentFyStart, salaryHistory);
         var hoursUntilBankingStarts = 0M;
         if (modelAtCurrentFy == SalaryModel.InvoiceBased)
         {
@@ -569,22 +569,7 @@ public class TimeRegistrationService
         User currentUser,
         IReadOnlyList<SalaryModelHistoryEntry> history)
     {
-        // Synthesize history from LastSwitchSalaryModel when no persistent history exists yet
-        if (!history.Any() && currentUser.LastSwitchSalaryModel.HasValue)
-        {
-            var prevModel = currentUser.SalaryModel == SalaryModel.InvoiceBased
-                ? SalaryModel.Static : SalaryModel.InvoiceBased;
-            history =
-            [
-                new SalaryModelHistoryEntry(
-                    GetFiscalYearStart(currentUser.LastSwitchSalaryModel.Value),
-                    prevModel,
-                    currentUser.SalaryModel)
-            ];
-        }
-
-        var everOnInvoice = currentUser.SalaryModel == SalaryModel.InvoiceBased
-                            || history.Any(h => h.NewModel == SalaryModel.InvoiceBased);
+        var everOnInvoice = history.Any(h => h.NewModel == SalaryModel.InvoiceBased);
         if (!everOnInvoice)
             return [];
 
@@ -593,7 +578,7 @@ public class TimeRegistrationService
 
         while (fyStart <= toDateInclusive)
         {
-            var modelAtFYStart = SalaryModelHistoryHelper.GetModelAtDate(fyStart, history, currentUser.SalaryModel);
+            var modelAtFYStart = SalaryModelHistoryHelper.GetModelAtDate(fyStart, history);
 
             if (modelAtFYStart == SalaryModel.InvoiceBased)
             {

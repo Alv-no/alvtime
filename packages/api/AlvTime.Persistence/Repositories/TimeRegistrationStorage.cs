@@ -51,7 +51,6 @@ public class TimeRegistrationStorage(AlvTime_dbContext context) : ITimeRegistrat
     public async Task<IEnumerable<TimeEntryWithCompRateDto>> GetTimeEntriesWithCompensationRate(TimeEntryQuerySearch criteria)
     {
         var entries = await context.Hours.AsQueryable()
-            .Include(h => h.UserNavigation)
             .Filter(criteria)
             .Join(context.Task, h => h.TaskId, t => t.Id,
                 (h, t) => new
@@ -62,8 +61,7 @@ public class TimeRegistrationStorage(AlvTime_dbContext context) : ITimeRegistrat
                     h.Value,
                     h.TaskId,
                     t.CompensationType,
-                    t.Imposed,
-                    h.UserNavigation
+                    t.Imposed
                 })
             .ToListAsync();
 
@@ -90,8 +88,8 @@ public class TimeRegistrationStorage(AlvTime_dbContext context) : ITimeRegistrat
                 x.CompensationType,
                 x.Imposed,
                 historyByUser.TryGetValue(x.User, out var userHistory)
-                    ? SalaryModelHistoryHelper.GetModelAtDate(x.Date, userHistory, x.UserNavigation.SalaryModel)
-                    : x.UserNavigation.SalaryModel)
+                    ? SalaryModelHistoryHelper.GetModelAtDate(x.Date, userHistory)
+                    : SalaryModel.Static)
         });
     }
     

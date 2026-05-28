@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.AccessTokens;
@@ -37,31 +36,20 @@ public class UserRepository : IUserRepository
 
         _context.User.Add(newUser);
         await _context.SaveChangesAsync();
+
+        _context.SalaryModelHistory.Add(new SalaryModelHistory
+        {
+            UserId = newUser.Id,
+            SwitchDate = newUser.StartDate,
+            PreviousModel = user.SalaryModel,
+            NewModel = user.SalaryModel
+        });
+        await _context.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<UserDto>> GetUsers(UserQuerySearch criteria)
     {
         var users = await _context.User.AsQueryable()
-            .Filter(criteria)
-            .ToListAsync();
-        var userResponse = users.Select(u => new UserDto
-        {
-            Email = u.Email,
-            Id = u.Id,
-            Name = u.Name,
-            StartDate = u.StartDate,
-            EndDate = u.EndDate,
-            EmployeeId = u.EmployeeId,
-            Oid = u.Oid,
-            SalaryModel = u.SalaryModel,
-            LastSwitchedSalaryModel = u.LastSwitchedSalaryModel
-        }).ToList();
-        return userResponse;
-    }
-
-    public async Task<IEnumerable<UserDto>> GetUsersWithEmploymentRates(UserQuerySearch criteria)
-    {
-        return await _context.User.AsQueryable()
             .Filter(criteria)
             .Select(u => new UserDto
             {
@@ -72,8 +60,25 @@ public class UserRepository : IUserRepository
                 EndDate = u.EndDate,
                 EmployeeId = u.EmployeeId,
                 Oid = u.Oid,
-                SalaryModel = u.SalaryModel,
-                LastSwitchedSalaryModel = u.LastSwitchedSalaryModel,
+            })
+            .ToListAsync();
+        await PopulateCurrentSalaryModel(users);
+        return users;
+    }
+
+    public async Task<IEnumerable<UserDto>> GetUsersWithEmploymentRates(UserQuerySearch criteria)
+    {
+        var users = await _context.User.AsQueryable()
+            .Filter(criteria)
+            .Select(u => new UserDto
+            {
+                Email = u.Email,
+                Id = u.Id,
+                Name = u.Name,
+                StartDate = u.StartDate,
+                EndDate = u.EndDate,
+                EmployeeId = u.EmployeeId,
+                Oid = u.Oid,
                 EmploymentRates = u.EmploymentRate.Select(er => new UserEmploymentRateDto
                 {
                     Id = er.Id,
@@ -82,6 +87,37 @@ public class UserRepository : IUserRepository
                     ToDateInclusive = er.ToDate
                 })
             }).ToListAsync();
+        await PopulateCurrentSalaryModel(users);
+        return users;
+    }
+
+    private async Task PopulateCurrentSalaryModel(IList<UserDto> users)
+    {
+        if (users.Count == 0) return;
+        var today = DateTime.Today;
+        var userIds = users.Select(u => u.Id).ToList();
+        var historyRows = await _context.SalaryModelHistory
+            .Where(h => userIds.Contains(h.UserId) && h.SwitchDate.Date <= today)
+            .OrderBy(h => h.SwitchDate)
+            .ToListAsync();
+        var historyByUser = historyRows
+            .GroupBy(h => h.UserId)
+            .ToDictionary(g => g.Key, g => g.ToList());
+
+        foreach (var user in users)
+        {
+            if (historyByUser.TryGetValue(user.Id, out var history) && history.Count > 0)
+            {
+                var entries = history
+                    .Select(h => new SalaryModelHistoryEntry(h.SwitchDate, h.PreviousModel, h.NewModel))
+                    .ToList();
+                user.SalaryModel = SalaryModelHistoryHelper.GetModelAtDate(today, entries);
+            }
+            else
+            {
+                user.SalaryModel = SalaryModel.Static;
+            }
+        }
     }
 
     public async Task UpdateUser(UserDto userToBeUpdated)
@@ -197,15 +233,6 @@ public class UserRepository : IUserRepository
         };
     }
 
-    public async Task UpdateSalaryModel(int userId, SalaryModel newModel, DateTime switchDate)
-    {
-        var user = await _context.User.FindAsync(userId);
-        if (user == null) return;
-        user.SalaryModel = newModel;
-        user.LastSwitchedSalaryModel = switchDate;
-        await _context.SaveChangesAsync();
-    }
-
     public async Task<IEnumerable<SalaryModelHistoryEntry>> GetSalaryModelHistory(int userId)
     {
         return await _context.SalaryModelHistory
@@ -224,6 +251,14 @@ public class UserRepository : IUserRepository
             PreviousModel = entry.PreviousModel,
             NewModel = entry.NewModel
         });
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteSalaryModelHistoryAfter(int userId, DateTime threshold)
+    {
+        var pending = _context.SalaryModelHistory
+            .Where(h => h.UserId == userId && h.SwitchDate > threshold);
+        _context.SalaryModelHistory.RemoveRange(pending);
         await _context.SaveChangesAsync();
     }
 }

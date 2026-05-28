@@ -93,4 +93,13 @@ public class UserController(UserService userService, GraphService graphService) 
             model => Ok(model),
             errors => BadRequest(errors.ToValidationProblemDetails("Oppdatering av lønnsmodell feilet")));
     }
+
+    [HttpDelete("users/{userId:int}/salarymodel/pending")]
+    public async Task<ActionResult> CancelPendingSalaryModelChange(int userId)
+    {
+        var result = await userService.CancelPendingSalaryModelChange(userId);
+        return result.Match<ActionResult>(
+            model => Ok(model),
+            errors => BadRequest(errors.ToValidationProblemDetails("Avbryting av planlagt lønnsmodellendring feilet")));
+    }
 }

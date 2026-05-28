@@ -18,9 +18,9 @@ namespace AlvTime.Business.Users
         Task<IEnumerable<EmploymentRateResponseDto>> GetEmploymentRates(EmploymentRateQueryFilter criteria);
         Task<EmploymentRateResponseDto> UpdateEmploymentRateForUser(EmploymentRateDto request);
 
-        Task UpdateSalaryModel(int userId, SalaryModel newModel, DateTime switchDate);
         Task<IEnumerable<SalaryModelHistoryEntry>> GetSalaryModelHistory(int userId);
         Task AddSalaryModelHistory(int userId, SalaryModelHistoryEntry entry);
+        Task DeleteSalaryModelHistoryAfter(int userId, DateTime threshold);
     }
 
     public class UserQuerySearch

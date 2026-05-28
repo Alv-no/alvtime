@@ -485,9 +485,6 @@ namespace AlvTime.Persistence.Migrations
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime");
 
-                    b.Property<DateTime?>("LastSwitchedSalaryModel")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -497,9 +494,6 @@ namespace AlvTime.Persistence.Migrations
                     b.Property<string>("Oid")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("SalaryModel")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("StartDate")
                         .ValueGeneratedOnAdd()

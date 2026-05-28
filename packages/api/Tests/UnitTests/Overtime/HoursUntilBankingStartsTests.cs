@@ -98,8 +98,7 @@ public class HoursUntilBankingStartsTests
     [Fact]
     public async System.Threading.Tasks.Task StaticUser_AlwaysReturnsZero()
     {
-        var dbUser = _context.User.Find(1)!;
-        dbUser.SalaryModel = SalaryModel.Static;
+        _context.SalaryModelHistory.RemoveRange(_context.SalaryModelHistory);
         await _context.SaveChangesAsync();
 
         var options = Mock.Of<IOptionsMonitor<TimeEntryOptions>>(o => o.CurrentValue == new TimeEntryOptions

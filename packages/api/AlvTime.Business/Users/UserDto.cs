@@ -15,7 +15,8 @@ public class UserDto
     public required string Oid { get; set; }
     public IEnumerable<UserEmploymentRateDto>? EmploymentRates { get; set; }
     public SalaryModel SalaryModel { get; set; }
-    public DateTime? LastSwitchedSalaryModel { get; set; }
+    public PendingSalaryModelChangeDto? PendingSalaryModelChange { get; set; }
+    public IReadOnlyList<SalaryModelHistoryEntry>? SalaryModelHistory { get; set; }
 }
 
 public class UserEmploymentRateDto
@@ -25,3 +26,5 @@ public class UserEmploymentRateDto
     public DateTime FromDateInclusive { get; set; }
     public DateTime ToDateInclusive { get; set; }
 }
+
+public record PendingSalaryModelChangeDto(DateTime EffectiveDate, SalaryModel NewModel);

@@ -275,11 +275,6 @@ public class SalaryModelSwitchTests
 
     private async System.Threading.Tasks.Task SwitchToInvoiceBased(DateTime switchDate)
     {
-        var dbUser = _context.User.First(u => u.Id == 1);
-        dbUser.SalaryModel = SalaryModel.InvoiceBased;
-        dbUser.LastSwitchedSalaryModel = switchDate;
-        await _context.SaveChangesAsync();
-
         _context.SalaryModelHistory.Add(new SalaryModelHistory
         {
             UserId = 1,
@@ -297,8 +292,7 @@ public class SalaryModelSwitchTests
                 Name = "Someone",
                 StartDate = new DateTime(2020, 01, 02),
                 Oid = "12345678-1234-1234-1234-123456789012",
-                SalaryModel = SalaryModel.InvoiceBased,
-                LastSwitchSalaryModel = switchDate
+                SalaryModel = SalaryModel.InvoiceBased
             }));
     }
 

@@ -165,17 +165,20 @@ public class FiscalYearDebtSwitchTests
                 Name = "Someone",
                 StartDate = new DateTime(2020, 01, 02),
                 Oid = "12345678-1234-1234-1234-123456789012",
-                SalaryModel = model,
-                LastSwitchSalaryModel = switchDate
+                SalaryModel = model
             }));
         _service = BuildService();
     }
 
     private async System.Threading.Tasks.Task SwitchToInvoiceBased()
     {
-        var dbUser = _context.User.Find(1)!;
-        dbUser.SalaryModel = SalaryModel.InvoiceBased;
-        dbUser.LastSwitchedSalaryModel = SwitchDate;
+        _context.SalaryModelHistory.Add(new SalaryModelHistory
+        {
+            UserId = 1,
+            SwitchDate = SwitchDate,
+            PreviousModel = SalaryModel.Static,
+            NewModel = SalaryModel.InvoiceBased
+        });
         await _context.SaveChangesAsync();
 
         SetMockUser(SalaryModel.InvoiceBased, SwitchDate);

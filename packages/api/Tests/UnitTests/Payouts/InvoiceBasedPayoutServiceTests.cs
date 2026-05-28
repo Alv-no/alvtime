@@ -55,7 +55,9 @@ public class InvoiceBasedPayoutServiceTests
             Id = 1,
             Email = "someone@alv.no",
             Name = "Someone",
-            Oid = "12345678-1234-1234-1234-123456789012"
+            StartDate = new DateTime(2020, 01, 02),
+            Oid = "12345678-1234-1234-1234-123456789012",
+            SalaryModel = SalaryModel.InvoiceBased
         };
         _userContextMock.Setup(context => context.GetCurrentUser()).Returns(System.Threading.Tasks.Task.FromResult(user));
 

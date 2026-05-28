@@ -7,9 +7,9 @@ namespace AlvTime.Business.Users;
 
 public static class SalaryModelHistoryHelper
 {
-    public static SalaryModel GetModelAtDate(DateTime date, IReadOnlyList<SalaryModelHistoryEntry> history, SalaryModel currentModel)
+    public static SalaryModel GetModelAtDate(DateTime date, IReadOnlyList<SalaryModelHistoryEntry> history)
     {
-        if (!history.Any()) return currentModel;
+        if (!history.Any()) return SalaryModel.Static;
         var lastSwitch = history.LastOrDefault(h => h.SwitchDate.Date <= date);
         return lastSwitch?.NewModel ?? history[0].PreviousModel;
     }

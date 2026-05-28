@@ -95,19 +95,13 @@ public class CompensationRateHistoryTests
                 Name = "Someone",
                 StartDate = new DateTime(2020, 01, 02),
                 Oid = "12345678-1234-1234-1234-123456789012",
-                SalaryModel = model,
-                LastSwitchSalaryModel = lastSwitchDate
+                SalaryModel = model
             }));
         _service = BuildService();
     }
 
     private async System.Threading.Tasks.Task ApplySwitch(DateTime switchDate, SalaryModel previousModel, SalaryModel newModel)
     {
-        var dbUser = (await _context.User.FindAsync(1))!;
-        dbUser.SalaryModel = newModel;
-        dbUser.LastSwitchedSalaryModel = switchDate;
-        await _context.SaveChangesAsync();
-
         _context.SalaryModelHistory.Add(new SalaryModelHistory
         {
             UserId = 1,

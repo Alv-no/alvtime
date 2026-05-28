@@ -50,7 +50,9 @@ public class InvoiceBasedSalaryModelOvertimeTests
             Id = 1,
             Email = "someone@alv.no",
             Name = "Someone",
-            Oid = "12345678-1234-1234-1234-123456789012"
+            StartDate = new DateTime(2020, 01, 02),
+            Oid = "12345678-1234-1234-1234-123456789012",
+            SalaryModel = SalaryModel.InvoiceBased
         };
         userContextMock.Setup(context => context.GetCurrentUser()).Returns(System.Threading.Tasks.Task.FromResult(user));
 
@@ -187,7 +189,7 @@ public class InvoiceBasedSalaryModelOvertimeTests
     }
 
     [Fact]
-    public async System.Threading.Tasks.Task GetAvailableOvertime_InvoiceBasedUser_InternalOvertime_2Point5HoursBefore2Point5HoursAfter()
+    public async System.Threading.Tasks.Task GetAvailableOvertime_InvoiceBasedUser_InternalOvertime_EatenByFiscalYearDebt()
     {
         var date = new DateTime(2021, 12, 13); // Monday
         var entry = await CreateInternalEntry(date, 10M);
@@ -196,12 +198,12 @@ public class InvoiceBasedSalaryModelOvertimeTests
 
         var available = await _timeRegistrationService.GetAvailableOvertimeHoursNow();
 
-        Assert.Equal(2.5M, available.AvailableHoursBeforeCompensation);
-        Assert.Equal(2.5M * CompensationRates.Internal, available.AvailableHoursAfterCompensation);
+        Assert.Equal(0M, available.AvailableHoursBeforeCompensation);
+        Assert.Equal(0M, available.AvailableHoursAfterCompensation);
     }
 
     [Fact]
-    public async System.Threading.Tasks.Task GetAvailableOvertime_InvoiceBasedUser_VolunteerOvertime_2Point5HoursBefore1Point25HoursAfter()
+    public async System.Threading.Tasks.Task GetAvailableOvertime_InvoiceBasedUser_VolunteerOvertime_EatenByFiscalYearDebt()
     {
         var date = new DateTime(2021, 12, 13); // Monday
         var entry = await CreateVolunteerEntry(date, 10M);
@@ -210,8 +212,8 @@ public class InvoiceBasedSalaryModelOvertimeTests
 
         var available = await _timeRegistrationService.GetAvailableOvertimeHoursNow();
 
-        Assert.Equal(2.5M, available.AvailableHoursBeforeCompensation);
-        Assert.Equal(2.5M * CompensationRates.Volunteer, available.AvailableHoursAfterCompensation);
+        Assert.Equal(0M, available.AvailableHoursBeforeCompensation);
+        Assert.Equal(0M, available.AvailableHoursAfterCompensation);
     }
 
     [Fact]
@@ -249,11 +251,9 @@ public class InvoiceBasedSalaryModelOvertimeTests
 
         var available = await _timeRegistrationService.GetAvailableOvertimeHoursNow();
 
-        // 2h @1.4 + 1h @1.0 + 1h @0.5 = 4.3 after compensation
-        Assert.Equal(4M, available.AvailableHoursBeforeCompensation);
-        Assert.Equal(
-            2M * CompensationRates.BillableInvoiceModel + 1M * CompensationRates.Internal + 1M * CompensationRates.Volunteer,
-            available.AvailableHoursAfterCompensation);
+        // Internal/Volunteer hours (1h + 1h) eaten by FY debt; Billable 2h @1.4 preserved.
+        Assert.Equal(2M, available.AvailableHoursBeforeCompensation);
+        Assert.Equal(2M * CompensationRates.BillableInvoiceModel, available.AvailableHoursAfterCompensation);
     }
 
     [Fact]
