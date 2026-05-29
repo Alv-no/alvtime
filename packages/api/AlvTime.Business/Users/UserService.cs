@@ -125,6 +125,12 @@ public class UserService(IUserRepository userRepository, ITimeRegistrationStorag
 
         if (newSalaryModel == previousModel)
             return new Error(ErrorCodes.InvalidAction, "Lønnsmodellen er allerede satt til den valgte verdien.");
+        
+        if (user.StartDate > dateAlvTime.Now)
+        {
+            switchDate = user.StartDate.Value.Date;
+            previousModel = newSalaryModel;
+        }
 
         await userRepository.DeleteSalaryModelHistoryAfter(userId, switchDate.AddDays(-1));
         await userRepository.AddSalaryModelHistory(userId, new SalaryModelHistoryEntry(switchDate, previousModel, newSalaryModel));
@@ -141,6 +147,9 @@ public class UserService(IUserRepository userRepository, ITimeRegistrationStorag
         var user = await GetUserById(userId);
         if (user is null)
             return new Error(ErrorCodes.MissingEntity, "Bruker ble ikke funnet.");
+
+        if (user.StartDate > dateAlvTime.Now)
+            return new Error(ErrorCodes.InvalidAction, "Kan ikke kansellere endring for en ansatt som ikke har startet enda.");
 
         var today = dateAlvTime.Now.Date;
         var history = (await userRepository.GetSalaryModelHistory(userId)).ToList();

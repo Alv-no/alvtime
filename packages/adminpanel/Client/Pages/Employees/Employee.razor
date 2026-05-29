@@ -93,7 +93,8 @@
                             <MudButton
                                 Variant="Variant.Text"
                                 Color="Color.Secondary"
-                                OnClick="@CancelPendingSalaryModelChange">
+                                OnClick="@CancelPendingSalaryModelChange"
+                                Disabled="@(_employee.StartDate > DateTime.Today)">
                                 @Localizer["EmployeePage.SalaryModel.Pending.Cancel"]
                             </MudButton>
                         </MudStack>
