@@ -106,7 +106,7 @@ public class TimeRegistrationService
             };
             var timeEntryExists = await GetTimeEntry(criterias) != null;
 
-            var validationErrors = await ValidateTimeEntry(timeEntry, timeEntryExists);
+            var validationErrors = await ValidateTimeEntry(timeEntry);
             if (validationErrors.Count != 0)
             {
                 if (string.IsNullOrWhiteSpace(timeEntry.Comment)) return validationErrors;
@@ -220,7 +220,7 @@ public class TimeRegistrationService
         }
     }
 
-    private async Task<List<Error>> ValidateTimeEntry(CreateTimeEntryDto timeEntry, bool timeEntryExists)
+    private async Task<List<Error>> ValidateTimeEntry(CreateTimeEntryDto timeEntry)
     {
         var timeEntryDate = timeEntry.Date.Date;
         var currentUser = await _userContext.GetCurrentUser();

@@ -20,6 +20,7 @@ namespace AlvTime.Business.Users
 
         Task<IEnumerable<SalaryModelHistoryEntry>> GetSalaryModelHistory(int userId);
         Task AddSalaryModelHistory(int userId, SalaryModelHistoryEntry entry);
+        Task UpdateSalaryModelHistory(int userId, SalaryModelHistoryEntry entry);
         Task DeleteSalaryModelHistoryAfter(int userId, DateTime threshold);
     }
 

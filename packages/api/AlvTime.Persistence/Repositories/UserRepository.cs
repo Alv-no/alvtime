@@ -254,6 +254,15 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync();
     }
 
+    public async Task UpdateSalaryModelHistory(int userId, SalaryModelHistoryEntry entry)
+    {
+        var salaryModelHistoryEntry = await _context.SalaryModelHistory
+            .FirstOrDefaultAsync(h => h.UserId == userId && h.SwitchDate == entry.SwitchDate);
+        salaryModelHistoryEntry.PreviousModel = entry.PreviousModel;
+        salaryModelHistoryEntry.NewModel = entry.NewModel;
+        await _context.SaveChangesAsync();
+    }
+
     public async Task DeleteSalaryModelHistoryAfter(int userId, DateTime threshold)
     {
         var pending = _context.SalaryModelHistory

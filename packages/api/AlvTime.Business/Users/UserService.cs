@@ -131,9 +131,18 @@ public class UserService(IUserRepository userRepository, ITimeRegistrationStorag
             switchDate = user.StartDate.Value.Date;
             previousModel = newSalaryModel;
         }
+        
+        var pendingChange = history.FirstOrDefault(h => h.SwitchDate > today);
 
-        await userRepository.DeleteSalaryModelHistoryAfter(userId, switchDate.AddDays(-1));
-        await userRepository.AddSalaryModelHistory(userId, new SalaryModelHistoryEntry(switchDate, previousModel, newSalaryModel));
+        if (pendingChange != null)
+        {
+            await userRepository.UpdateSalaryModelHistory(user.Id, pendingChange);
+        }
+        else
+        {
+            await userRepository.AddSalaryModelHistory(userId, new SalaryModelHistoryEntry(switchDate, previousModel, newSalaryModel));
+        }
+
         return await GetUserById(userId);
     }
 

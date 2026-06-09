@@ -9,7 +9,7 @@
 				&#9432;
 				<span class="tooltiptext">
 					Med lønn med faktureringsledd er de første 50 timene med interntid- og frivillig
-					overtid hvert år inkludert i lønnen din (visualisert i sort). Du må tjene disse opp før timene begynner
+					overtid hvert bankår inkludert i lønnen din (visualisert i sort). Du må tjene disse opp før timene begynner
 					å spare i timebanken. Fakturerbare timer gir deg en bonus basert på
 					faktureringsgraden din.
 				</span>
