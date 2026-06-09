@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using AlvTime.Business;
+using AlvTime.Business.Overtime;
 using AlvTime.Business.Users;
+using AlvTime.Business.Utils;
 using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;
+using Tests.UnitTests.TestUtils;
 using Xunit;
 using Task = System.Threading.Tasks.Task;
 
@@ -12,14 +13,9 @@ namespace Tests.UnitTests.Users;
 
 public class UserServiceTests
 {
-    private readonly AlvTime_dbContext _context;
-    
-    public UserServiceTests()
-    {
-        _context = new AlvTimeDbContextBuilder()
-            .WithUsers()
-            .CreateDbContext();
-    }
+    private readonly AlvTime_dbContext _context = new AlvTimeDbContextBuilder()
+        .WithStaticSalaryUsers()
+        .CreateDbContext();
 
     [Fact]
     public async Task GetUsers_NoCriteria_AllUsers()
@@ -367,8 +363,238 @@ public class UserServiceTests
         Assert.Equal(0.3M, rate.Value);
     }
 
+    [Fact]
+    public async Task UpdateSalaryModel_TodayBeforeJune1_SchedulesForThisYearJune1()
+    {
+        var clock = CreateClock(new DateTime(2026, 5, 28));
+        var userService = CreateUserService(clock);
+
+        var result = await userService.UpdateSalaryModel(1, SalaryModel.InvoiceBased);
+
+        Assert.True(result.IsSuccess);
+        var history = (await userService.GetSalaryModelHistory(1)).ToList();
+        Assert.Equal(2, history.Count);
+        Assert.Equal(new DateTime(2026, 6, 1), history[1].SwitchDate);
+        Assert.Equal(SalaryModel.Static, history[1].PreviousModel);
+        Assert.Equal(SalaryModel.InvoiceBased, history[1].NewModel);
+    }
+
+    [Fact]
+    public async Task UpdateSalaryModel_TodayOnJune1_AppliesRetroactivelyToThisYearJune1()
+    {
+        var clock = CreateClock(new DateTime(2026, 6, 1));
+        var userService = CreateUserService(clock);
+
+        var result = await userService.UpdateSalaryModel(1, SalaryModel.InvoiceBased);
+
+        Assert.True(result.IsSuccess);
+        var history = (await userService.GetSalaryModelHistory(1)).ToList();
+        Assert.Equal(2, history.Count);
+        Assert.Equal(new DateTime(2026, 6, 1), history[1].SwitchDate);
+    }
+
+    [Fact]
+    public async Task UpdateSalaryModel_TodayInJuneAndUserHasntChangedThisYear_AppliesRetroactivelyToThisYearJune1()
+    {
+        var clock = CreateClock(new DateTime(2026, 6, 15));
+        var userService = CreateUserService(clock);
+
+        var result = await userService.UpdateSalaryModel(1, SalaryModel.InvoiceBased);
+
+        Assert.True(result.IsSuccess);
+        var history = (await userService.GetSalaryModelHistory(1)).ToList();
+        Assert.Equal(2, history.Count);
+        Assert.Equal(new DateTime(2026, 6, 1), history[1].SwitchDate);
+        Assert.Equal(SalaryModel.InvoiceBased, history[1].NewModel);
+    }
+
+    [Fact]
+    public async Task UpdateSalaryModel_TodayInJulyOrLater_ReturnsError()
+    {
+        var clock = CreateClock(new DateTime(2026, 7, 1));
+        var userService = CreateUserService(clock);
+
+        var result = await userService.UpdateSalaryModel(1, SalaryModel.InvoiceBased);
+
+        Assert.False(result.IsSuccess);
+    }
+
+    [Fact]
+    public async Task UpdateSalaryModel_TodayInJuneButUserAlreadyChangedThisYear_ReturnsError()
+    {
+        _context.SalaryModelHistory.Add(new SalaryModelHistory
+        {
+            UserId = 1,
+            SwitchDate = new DateTime(2026, 6, 1),
+            PreviousModel = SalaryModel.Static,
+            NewModel = SalaryModel.InvoiceBased
+        });
+        await _context.SaveChangesAsync();
+
+        var clock = CreateClock(new DateTime(2026, 6, 15));
+        var userService = CreateUserService(clock);
+
+        var result = await userService.UpdateSalaryModel(1, SalaryModel.Static);
+
+        Assert.False(result.IsSuccess);
+        var history = (await userService.GetSalaryModelHistory(1)).ToList();
+        Assert.Equal(2, history.Count);
+        Assert.Equal(SalaryModel.InvoiceBased, history[1].NewModel);
+    }
+
+    [Fact]
+    public async Task UpdateSalaryModel_ResubmittingSamePending_NoDuplicateRow()
+    {
+        var clock = CreateClock(new DateTime(2026, 5, 28));
+        var userService = CreateUserService(clock);
+
+        await userService.UpdateSalaryModel(1, SalaryModel.InvoiceBased);
+        await userService.UpdateSalaryModel(1, SalaryModel.InvoiceBased);
+
+        var history = (await userService.GetSalaryModelHistory(1)).ToList();
+        Assert.Equal(2, history.Count);
+        Assert.Equal(SalaryModel.InvoiceBased, history[1].NewModel);
+    }
+
+    [Fact]
+    public async Task UpdateSalaryModel_UserCurrentlyOnInvoiceBased_SchedulesSwitchToStatic()
+    {
+        _context.SalaryModelHistory.Add(new SalaryModelHistory
+        {
+            UserId = 1,
+            SwitchDate = new DateTime(2024, 6, 1),
+            PreviousModel = SalaryModel.Static,
+            NewModel = SalaryModel.InvoiceBased
+        });
+        await _context.SaveChangesAsync();
+
+        var clock = CreateClock(new DateTime(2026, 5, 28));
+        var userService = CreateUserService(clock);
+
+        var result = await userService.UpdateSalaryModel(1, SalaryModel.Static);
+
+        Assert.True(result.IsSuccess);
+        var history = (await userService.GetSalaryModelHistory(1)).ToList();
+        Assert.Equal(3, history.Count);
+        var pending = history.Single(h => h.SwitchDate.Date > new DateTime(2026, 5, 28));
+        Assert.Equal(SalaryModel.Static, pending.NewModel);
+        Assert.Equal(SalaryModel.InvoiceBased, pending.PreviousModel);
+        Assert.Equal(new DateTime(2026, 6, 1), pending.SwitchDate);
+    }
+
+    [Fact]
+    public async Task UpdateSalaryModel_SameModelAsCurrent_ReturnsError()
+    {
+        var clock = CreateClock(new DateTime(2026, 5, 28));
+        var userService = CreateUserService(clock);
+
+        var result = await userService.UpdateSalaryModel(1, SalaryModel.Static);
+
+        Assert.False(result.IsSuccess);
+        var history = (await userService.GetSalaryModelHistory(1)).ToList();
+        Assert.Single(history);
+    }
+
+    [Fact]
+    public async Task CancelPendingSalaryModelChange_PendingExists_RemovesEntry()
+    {
+        var clock = CreateClock(new DateTime(2026, 5, 28));
+        var userService = CreateUserService(clock);
+        await userService.UpdateSalaryModel(1, SalaryModel.InvoiceBased);
+
+        var result = await userService.CancelPendingSalaryModelChange(1);
+
+        Assert.True(result.IsSuccess);
+        var history = (await userService.GetSalaryModelHistory(1)).ToList();
+        Assert.Single(history);
+    }
+
+    [Fact]
+    public async Task CancelPendingSalaryModelChange_NoPending_ReturnsError()
+    {
+        var clock = CreateClock(new DateTime(2026, 5, 28));
+        var userService = CreateUserService(clock);
+
+        var result = await userService.CancelPendingSalaryModelChange(1);
+
+        Assert.False(result.IsSuccess);
+    }
+
+    [Fact]
+    public async Task GetUserById_PendingExists_PopulatesPendingAndKeepsCurrentModelEffective()
+    {
+        var clock = CreateClock(new DateTime(2026, 5, 28));
+        var userService = CreateUserService(clock);
+        await userService.UpdateSalaryModel(1, SalaryModel.InvoiceBased);
+
+        var user = await userService.GetUserById(1);
+
+        Assert.NotNull(user.PendingSalaryModelChange);
+        Assert.Equal(new DateTime(2026, 6, 1), user.PendingSalaryModelChange.EffectiveDate);
+        Assert.Equal(SalaryModel.InvoiceBased, user.PendingSalaryModelChange.NewModel);
+        Assert.Equal(SalaryModel.Static, user.SalaryModel);
+        Assert.Empty(user.SalaryModelHistory);
+    }
+
+    [Fact]
+    public async Task GetUserById_PastSwitchExists_ComputesCurrentEffectiveFromHistory()
+    {
+        _context.SalaryModelHistory.Add(new SalaryModelHistory
+        {
+            UserId = 1,
+            SwitchDate = new DateTime(2024, 6, 1),
+            PreviousModel = SalaryModel.Static,
+            NewModel = SalaryModel.InvoiceBased
+        });
+        await _context.SaveChangesAsync();
+
+        var clock = CreateClock(new DateTime(2026, 5, 28));
+        var userService = CreateUserService(clock);
+
+        var user = await userService.GetUserById(1);
+
+        Assert.Equal(SalaryModel.InvoiceBased, user.SalaryModel);
+        Assert.Equal(new DateTime(2024, 6, 1), user.SalaryModelHistory[^1]!.SwitchDate);
+        Assert.Single(user.SalaryModelHistory);
+        Assert.Null(user.PendingSalaryModelChange);
+    }
+
+    [Fact]
+    public async Task CancelPendingSalaryModelChange_DoesNotTouchPastEntries()
+    {
+        _context.SalaryModelHistory.Add(new SalaryModelHistory
+        {
+            UserId = 1,
+            SwitchDate = new DateTime(2024, 6, 1),
+            PreviousModel = SalaryModel.InvoiceBased,
+            NewModel = SalaryModel.Static
+        });
+        await _context.SaveChangesAsync();
+
+        var clock = CreateClock(new DateTime(2026, 5, 28));
+        var userService = CreateUserService(clock);
+        await userService.UpdateSalaryModel(1, SalaryModel.InvoiceBased);
+
+        var result = await userService.CancelPendingSalaryModelChange(1);
+
+        Assert.True(result.IsSuccess);
+        var history = (await userService.GetSalaryModelHistory(1)).ToList();
+        Assert.Equal(2, history.Count);
+        Assert.Equal(new DateTime(2024, 6, 1), history[1].SwitchDate);
+    }
+
+    private static DateAlvTime CreateClock(DateTime today)
+    {
+        return new DateAlvTime { Provider = new TestDateAlvTimeProvider { OverriddenValue = today } };
+    }
+
     private UserService CreateUserService()
     {
         return new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context));
+    }
+
+    private UserService CreateUserService(DateAlvTime dateAlvTime)
+    {
+        return new UserService(new UserRepository(_context, dateAlvTime), new TimeRegistrationStorage(_context), dateAlvTime);
     }
 }

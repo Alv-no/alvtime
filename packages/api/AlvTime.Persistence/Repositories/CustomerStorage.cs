@@ -67,7 +67,7 @@ public class CustomerStorage : ICustomerStorage
                         Id = t.Id,
                         Name = t.Name,
                         Description = t.Description,
-                        CompensationRate = EnsureCompensationRate(t.CompensationRate),
+                        CompensationType = t.CompensationType,
                         Locked = t.Locked,
                         Imposed = t.Imposed,
                         ProjectId = p.Id, 
@@ -116,11 +116,6 @@ public class CustomerStorage : ICustomerStorage
         }
 
         return response;
-    }
-
-    private static decimal EnsureCompensationRate(IEnumerable<CompensationRate> compensationRate)
-    {
-        return compensationRate.MaxBy(cr => cr.FromDate)?.Value ?? 0.0M;
     }
 
     public async Task UpdateCustomer(CustomerDto customer)

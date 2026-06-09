@@ -136,6 +136,12 @@ const getters = {
           category.name = "Interntid";
           category.priority = 3;
           break;
+        case "1.4s":
+          category.key = "billable";
+          category.colorValue = "#00B050";
+          category.name = "Fakturerbar";
+          category.priority = 2;
+          break;
         case "1.5":
           category.key = "billable";
           category.colorValue = "#00B050";

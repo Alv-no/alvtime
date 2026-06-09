@@ -5,7 +5,7 @@
 				v-for="(section, index) in filteredSections"
 				:key="index"
 				class="title"
-				:style="{ width: `${(section.amount / total) * 100}%` }"
+				:style="sectionFlexStyle(section)"
 			>
 				{{ section.title }}
 			</div>
@@ -16,7 +16,7 @@
 				:key="index"
 				class="bar"
 				:class="section.color"
-				:style="{ width: `${(section.amount / total) * 100}%` }"
+				:style="sectionFlexStyle(section)"
 				@mouseenter="onBarEnter($event, index)"
 				@mouseleave="hoveredIndex = null"
 			>
@@ -41,6 +41,7 @@ type Section = {
 	amount: number;
 	color: string;
 	dates?: string[];
+	fixedWidth?: boolean;
 };
 
 const { sections } = defineProps<{
@@ -48,7 +49,6 @@ const { sections } = defineProps<{
 }>();
 
 const filteredSections = computed(() => sections.filter(section => section.amount > 0));
-const total = computed(() => filteredSections.value.reduce((acc, section) => acc + section.amount, 0));
 
 const hoveredIndex = ref<number | null>(null);
 const tooltipLeft = ref(0);
@@ -56,6 +56,12 @@ const tooltipLeft = ref(0);
 const hoveredSection = computed(() =>
 	hoveredIndex.value !== null ? filteredSections.value[hoveredIndex.value] : null
 );
+
+function sectionFlexStyle(section: Section) {
+	return section.fixedWidth
+		? { flex: "0 0 120px" }
+		: { flex: `${section.amount} 1 0` };
+}
 
 function onBarEnter(event: MouseEvent, index: number) {
 	if (window.innerWidth < 768) return;
@@ -116,6 +122,11 @@ function formatDate(date: string): string {
 	.red {
 		background-color: #721c24;
 		color: $background-color
+	}
+
+	.black {
+		background-color: #222;
+		color: $background-color;
 	}
 
 	.hatched-green {

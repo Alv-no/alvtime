@@ -1,4 +1,5 @@
 ﻿using System;
+using AlvTime.Business.Overtime;
 
 namespace AlvTime.Business.Users;
 
@@ -10,4 +11,5 @@ public class User
     public DateTime StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public required string Oid { get; set; }
+    public SalaryModel SalaryModel { get; set; }
 }

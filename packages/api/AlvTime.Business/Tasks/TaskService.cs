@@ -23,7 +23,7 @@ namespace AlvTime.Business.Tasks
         public async Task<Result<IEnumerable<TaskResponseDto>>> GetTasksForUser(TaskQuerySearch criteria)
         {
             var currentUser = await _userContext.GetCurrentUser();
-            var tasks = await _taskStorage.GetUsersTasks(criteria, currentUser.Id);
+            var tasks = await _taskStorage.GetUsersTasks(criteria, currentUser);
 
             return new Result<IEnumerable<TaskResponseDto>>(tasks);
         }
@@ -77,7 +77,7 @@ namespace AlvTime.Business.Tasks
                 Name = task.Name,
                 Description = task.Description,
                 Locked = task.Locked,
-                CompensationRate = task.CompensationRate,
+                CompensationType = task.CompensationType,
                 Imposed = task.Imposed
             };
         }
@@ -96,7 +96,7 @@ namespace AlvTime.Business.Tasks
                 Name = t.Name,
                 Description = t.Description,
                 Locked = t.Locked,
-                CompensationRate = t.CompensationRate,
+                CompensationType = t.CompensationType,
                 Imposed = t.Imposed
             });
         }
@@ -114,21 +114,11 @@ namespace AlvTime.Business.Tasks
                 Name = task.Name,
                 Description = task.Description,
                 Locked = task.Locked,
-                CompensationRate = task.CompensationRate,
+                CompensationType = task.CompensationType,
                 Imposed = task.Imposed
             };
         }
 
-        private async Task<TaskResponseDto> GetTaskForUser(int taskId, int userId)
-        {
-            var taskResponseDto = await _taskStorage.GetUsersTasks(new TaskQuerySearch
-            {
-                Id = taskId
-            }, userId);
-
-            return taskResponseDto.Single();
-        }
-        
         public async Task<IEnumerable<TaskResponseDto>> GetLatestTasksForUser()
         {
             var timeEntries = await _timeRegistrationService.GetTimeEntries(new TimeEntryQuerySearch

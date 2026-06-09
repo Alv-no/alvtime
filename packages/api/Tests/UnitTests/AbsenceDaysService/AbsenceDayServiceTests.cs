@@ -20,7 +20,7 @@ public class AbsenceDayStorageTests
     public AbsenceDayStorageTests()
     {
         _context = new AlvTimeDbContextBuilder()
-            .WithUsers()
+            .WithStaticSalaryUsers()
             .WithTasks()
             .WithLeaveTasks()
             .WithTimeEntries()

@@ -11,8 +11,8 @@ public class TaskAdminDto
     public string Description { get; set; }
     public bool Locked { get; set; }
     public bool Imposed { get; set; }
-    public decimal CompensationRate { get; set; }
     public int ProjectId { get; set; }
     public string ProjectName { get; set; }
+    public CompensationType CompensationType { get; set; }
     public IEnumerable<HourRateDto> HourRates { get; set; }
 }

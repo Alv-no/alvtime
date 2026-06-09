@@ -21,7 +21,7 @@ public class EmployeeStillActiveHandlerTests
         // Arrange
         var dbContext = new AlvTimeDbContextBuilder()
             .WithPersonalAccessTokens()
-            .WithUsers()
+            .WithStaticSalaryUsers()
             .CreateDbContext();
 
         var userStorage = new UserRepository(dbContext);
@@ -63,7 +63,7 @@ public class EmployeeStillActiveHandlerTests
         // Arrange
         var dbContext = new AlvTimeDbContextBuilder()
             .WithPersonalAccessTokens()
-            .WithUsers()
+            .WithStaticSalaryUsers()
             .CreateDbContext();
 
         var userStorage = new UserRepository(dbContext);

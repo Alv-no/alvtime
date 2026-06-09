@@ -84,4 +84,22 @@ public class UserController(UserService userService, GraphService graphService) 
             rate => Ok(rate.MapToEmploymentRateResponse()),
             errors => BadRequest(errors.ToValidationProblemDetails("Oppdatering av ansettelsesrate feilet")));
     }
+    
+    [HttpPut("users/{userId:int}/salarymodel")]
+    public async Task<ActionResult> UpdateSalaryModel(SalaryModelRequest request, int userId)
+    {
+        var updatedSalaryModel = await userService.UpdateSalaryModel(userId, request.SalaryModel);
+        return updatedSalaryModel.Match<ActionResult>(
+            model => Ok(model),
+            errors => BadRequest(errors.ToValidationProblemDetails("Oppdatering av lønnsmodell feilet")));
+    }
+
+    [HttpDelete("users/{userId:int}/salarymodel/pending")]
+    public async Task<ActionResult> CancelPendingSalaryModelChange(int userId)
+    {
+        var result = await userService.CancelPendingSalaryModelChange(userId);
+        return result.Match<ActionResult>(
+            model => Ok(model),
+            errors => BadRequest(errors.ToValidationProblemDetails("Avbryting av planlagt lønnsmodellendring feilet")));
+    }
 }

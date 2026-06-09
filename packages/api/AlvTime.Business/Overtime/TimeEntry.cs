@@ -6,7 +6,8 @@ public enum TimeEntryType
 {
     Overtime = 0,
     Payout = 1,
-    Flex = 2
+    Flex = 2,
+    FiscalYearDebt = 3
 }
 
 public class TimeEntry

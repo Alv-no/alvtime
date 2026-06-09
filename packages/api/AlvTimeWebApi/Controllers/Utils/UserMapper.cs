@@ -12,7 +12,7 @@ public static class UserMapper
 {
     public static User MapUserDtoToBusinessUser(UserDto dbUser)
     {
-        return new User { Id = dbUser.Id, Email = dbUser.Email, Name = dbUser.Name, StartDate = dbUser.StartDate!.Value, Oid = dbUser.Oid };
+        return new User { Id = dbUser.Id, Email = dbUser.Email, Name = dbUser.Name, StartDate = dbUser.StartDate!.Value, Oid = dbUser.Oid, SalaryModel = dbUser.SalaryModel };
     }
     
     public static UserAdminResponse MapToUserResponse(this UserDto user)
@@ -25,6 +25,18 @@ public static class UserMapper
             StartDate = user.StartDate?.ToDateOnly(),
             EndDate = user.EndDate?.ToDateOnly(),
             EmployeeId = user.EmployeeId,
+            SalaryModel = user.SalaryModel,
+            PendingSalaryModelChange = user.PendingSalaryModelChange is null ? null : new PendingSalaryModelChangeResponse
+            {
+                EffectiveDate = user.PendingSalaryModelChange.EffectiveDate,
+                NewModel = user.PendingSalaryModelChange.NewModel
+            },
+            SalaryModelHistory = user.SalaryModelHistory?.Select(h => new SalaryModelHistoryEntryResponse
+            {
+                SwitchDate = h.SwitchDate,
+                PreviousModel = h.PreviousModel,
+                NewModel = h.NewModel
+            }),
             EmploymentRates = user.EmploymentRates?.Select(rate => new UserEmploymentRateAdminResponse
             {
                 Id = rate.Id,
@@ -44,7 +56,8 @@ public static class UserMapper
             StartDate = user.StartDate,
             EndDate = user.EndDate,
             EmployeeId = user.EmployeeId,
-            Oid = userObjectId
+            Oid = userObjectId,
+            SalaryModel = user.SalaryModel
         };
     }
 
@@ -58,7 +71,8 @@ public static class UserMapper
             StartDate = user.StartDate,
             EndDate = user.EndDate,
             EmployeeId = user.EmployeeId,
-            Oid = userObjectId
+            Oid = userObjectId,
+            SalaryModel = user.SalaryModel
         };
     }
     

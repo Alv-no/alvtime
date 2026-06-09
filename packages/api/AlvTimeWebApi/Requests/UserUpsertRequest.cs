@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using AlvTime.Business.Overtime;
 
 namespace AlvTimeWebApi.Requests;
 
@@ -14,4 +15,6 @@ public class UserUpsertRequest
     public DateTime? EndDate { get; set; }
     [Required]
     public int EmployeeId { get; set; }
+
+    public SalaryModel SalaryModel { get; set; }
 }

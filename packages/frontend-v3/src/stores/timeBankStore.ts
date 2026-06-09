@@ -7,6 +7,7 @@ import { setLocalSalary, getLocalSalary } from "@/composables/useLocalStorage";
 type TimeBankTransaction = {
 	availableHoursBeforeCompensation: number;
 	availableHoursAfterCompensation: number;
+	hoursUntilBankingStarts: number;
 	entries: TimeBankEntry[];
 };
 
@@ -22,6 +23,7 @@ const TransactionType = {
 	Overtime: 0,
 	Payout: 1,
 	Flex: 2,
+	FiscalYearDebt: 3,
 } as const;
 type TransactionType = typeof TransactionType[keyof typeof TransactionType];
 

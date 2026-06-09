@@ -11,6 +11,29 @@ public class EmployeeModel
     public bool ShowDetails { get; set; }
     public string ProfilePicture { get; set; }
     public IList<EmployeeEmploymentRateModel>? EmploymentRates { get; set; }
+    public SalaryModel SalaryModel { get; set; }
+    public DateTime? LastSwitchedSalaryModel { get; set; }
+    public PendingSalaryModelChangeModel? PendingSalaryModelChange { get; set; }
+    public IList<SalaryModelHistoryEntryModel>? SalaryModelHistory { get; set; }
+}
+
+public class PendingSalaryModelChangeModel
+{
+    public DateTime EffectiveDate { get; set; }
+    public SalaryModel NewModel { get; set; }
+}
+
+public class SalaryModelHistoryEntryModel
+{
+    public DateTime SwitchDate { get; set; }
+    public SalaryModel PreviousModel { get; set; }
+    public SalaryModel NewModel { get; set; }
+}
+
+public enum SalaryModel
+{
+    Static = 0,
+    InvoiceBased = 1
 }
 
 public class EmployeeEmploymentRateModel : IEquatable<EmployeeEmploymentRateModel>

@@ -33,7 +33,7 @@ public static class CustomerMapper
                     Description = t.Description,
                     Locked = t.Locked,
                     Imposed = t.Imposed,
-                    CompensationRate = t.CompensationRate,
+                    CompensationType = t.CompensationType,
                     ProjectId = t.ProjectId,
                     ProjectName = t.ProjectName,
                     HourRates = t.HourRates.Select(hr => new HourRateAdminResponse

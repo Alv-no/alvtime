@@ -1,6 +1,20 @@
 <template v-if="!loading">
 	<div class="header-flex-container">
-		<h2>Overtidstimer</h2>
+		<h2>
+			Overtidstimer
+			<div
+				v-if="userProfile?.salaryModel === 1"
+				class="tooltip"
+			>
+				&#9432;
+				<span class="tooltiptext">
+					Med lønn med faktureringsledd er de første 50 timene med interntid- og frivillig
+					overtid hvert bankår inkludert i lønnen din (visualisert i sort). Du må tjene disse opp før timene begynner
+					å spare i timebanken. Fakturerbare timer gir deg en bonus basert på
+					faktureringsgraden din.
+				</span>
+			</div>
+		</h2>
 		<button @click="settingsModalOpen = true">
 			<FeatherIcon
 				name="settings"
@@ -11,6 +25,9 @@
 			Kroneverdi timebank: {{ timeBankValue }}
 		</span>
 	</div>
+	<span v-if="userProfile">
+		<p>Din lønnsmodell er: {{ salaryModelText }}</p>
+	</span>
 	<div v-if="noOvertime">
 		<p>Du har ingen overtidstimer i timebanken.</p>
 	</div>
@@ -60,12 +77,29 @@ import TimeBankHistory from "./TimeBankHistory.vue";
 import ErrorBox from "../utils/ErrorBox.vue";
 import FeatherIcon from "@/components/utils/FeatherIcon.vue";
 import ModalComponent from "../utils/ModalComponent.vue";
+import { useUserStore } from "@/stores/userStore.ts";
 
 const loading = ref<boolean>(true);
 const settingsModalOpen = ref<boolean>(false);
 
 const timeBankStore = useTimeBankStore();
 const { timeBankOverview, timeBankError, timeBankSalary } = storeToRefs(timeBankStore);
+
+const userStore = useUserStore();
+const { userProfile } = storeToRefs(userStore);
+
+const salaryModelMap: Record<number, string> = {
+	0: "Fastlønn",
+	1: "Lønn med faktureringsledd",
+};
+
+const salaryModelText = computed(() => {
+	const salaryModel = userProfile.value?.salaryModel;
+
+	return salaryModel === undefined
+		? ""
+		: salaryModelMap[salaryModel] ?? "Ukjent lønnsmodell";
+});
 
 const salary = computed({
 	get: () => timeBankSalary.value,
@@ -88,13 +122,20 @@ const timeBankValue = computed(() => {
 
 const overtimeSections = computed(() => {
 	const unspentOverTime = {
+		remainingDebt: timeBankOverview.value?.hoursUntilBankingStarts,
 		volunteer: timeBankOverview.value?.entries.filter(entry => entry.compensationRate === 0.5).reduce((acc, entry) => acc + entry.hours, 0) || 0,
 		mandatory: timeBankOverview.value?.entries.filter(entry => entry.compensationRate === 1).reduce((acc, entry) => acc + entry.hours, 0) || 0,
-		billable: timeBankOverview.value?.entries.filter(entry => entry.compensationRate === 1.5).reduce((acc, entry) => acc + entry.hours, 0) || 0,
+		billable: timeBankOverview.value?.entries.filter(entry => entry.compensationRate === 1.5 || entry.compensationRate === 1.4).reduce((acc, entry) => acc + entry.hours, 0) || 0,
 		mandatoryBillable: timeBankOverview.value?.entries.filter(entry => entry.compensationRate === 2).reduce((acc, entry) => acc + entry.hours, 0) || 0,
 	};
 
 	return [
+		{
+			title: "Skyldige timer",
+			amount: unspentOverTime.remainingDebt || 0,
+			color: "black",
+			fixedWidth: true,
+		},
 		{
 			title: "Frivillig",
 			amount: unspentOverTime.volunteer,
@@ -124,12 +165,43 @@ const noOvertime = computed(() => {
 
 onMounted(async () => {
 	await timeBankStore.getTimeBankOverview();
+	await userStore.getUserProfile();
 	loading.value = false;
 });
 
 </script>
 
 <style scoped lang="scss">
+.tooltip {
+	position: relative;
+	display: inline-block;
+	border-bottom: 1px dotted $primary-color;
+	cursor: pointer;
+	vertical-align: middle;
+	font-size: 0.9em;
+}
+
+.tooltiptext {
+	visibility: hidden;
+	width: 400px;
+	background-color: $primary-color;
+	color: $background-color;
+	padding: 16px;
+	border-radius: 10px;
+	position: absolute;
+	z-index: 1;
+	font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	font-size: 14px;
+	line-height: 1.65;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+
+	p { margin: 12px 0; }
+}
+
+.tooltip:hover .tooltiptext {
+	visibility: visible;
+}
+
 .header-flex-container {
 	display: flex;
 	align-items: baseline;

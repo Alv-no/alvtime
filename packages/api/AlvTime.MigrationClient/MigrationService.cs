@@ -1,4 +1,6 @@
-﻿using AlvTime.Persistence.DatabaseModels;
+﻿using AlvTime.Business.Overtime;
+using AlvTime.Business.Tasks;
+using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Task = System.Threading.Tasks.Task;
@@ -55,33 +57,11 @@ public class MigrationService : IMigrationService
         await SeedCustomers(context);
         await SeedProjects(context);
         await SeedUsers(context);
+        await SeedSalaryModelHistory(context);
         await SeedTasks(context);
         await SeedTaskFavorites(context);
         await SeedHourRates(context);
         await SeedAccessTokens(context);
-        await SeedCompensationRates(context);
-    }
-
-    private static async Task SeedCompensationRates(AlvTime_dbContext context)
-    {
-        var compensationRates = await context.CompensationRate.ToListAsync();
-        if (!compensationRates.Any())
-        {
-            var tasks = await context.Task.ToListAsync();
-            var newCompensationRates = new[] { 1.5M, 1.5M, 1.5M, 1.5M, 0.5M, 0.5M, 0.5M };
-
-            for (var i = 0; i < tasks.Count; i++)
-            {
-                await context.CompensationRate.AddAsync(new CompensationRate
-                {
-                    FromDate = new DateTime(2019, 01, 01),
-                    Value = newCompensationRates[i],
-                    TaskId = tasks[i].Id
-                });
-            }
-
-            await context.SaveChangesAsync();
-        }
     }
 
     private static async Task SeedAccessTokens(AlvTime_dbContext context)
@@ -169,6 +149,7 @@ public class MigrationService : IMigrationService
                     Locked = false,
                     Favorite = false,
                     Imposed = false,
+                    CompensationType = CompensationType.Billable
                 },
                 new()
                 {
@@ -178,6 +159,7 @@ public class MigrationService : IMigrationService
                     Locked = false,
                     Favorite = false,
                     Imposed = true,
+                    CompensationType = CompensationType.Billable
                 },
                 new()
                 {
@@ -187,6 +169,7 @@ public class MigrationService : IMigrationService
                     Locked = false,
                     Favorite = false,
                     Imposed = false,
+                    CompensationType = CompensationType.Billable
                 },
                 new()
                 {
@@ -196,6 +179,7 @@ public class MigrationService : IMigrationService
                     Locked = false,
                     Favorite = false,
                     Imposed = false,
+                    CompensationType = CompensationType.Billable
                 },
                 new()
                 {
@@ -205,6 +189,7 @@ public class MigrationService : IMigrationService
                     Locked = false,
                     Favorite = false,
                     Imposed = false,
+                    CompensationType = CompensationType.Volunteer
                 },
                 new()
                 {
@@ -214,6 +199,7 @@ public class MigrationService : IMigrationService
                     Locked = false,
                     Favorite = false,
                     Imposed = false,
+                    CompensationType = CompensationType.Internal
                 },
                 new()
                 {
@@ -223,6 +209,7 @@ public class MigrationService : IMigrationService
                     Locked = false,
                     Favorite = false,
                     Imposed = false,
+                    CompensationType = CompensationType.Internal
                 }
             };
             await context.Task.AddRangeAsync(newTasks);
@@ -244,7 +231,7 @@ public class MigrationService : IMigrationService
                     StartDate = new DateTime(2019, 08, 01),
                     EndDate = null,
                     EmployeeId = 1,
-                    Oid = "12345678-1234-1234-1234-123456789012"
+                    Oid = "12345678-1234-1234-1234-123456789012",
                 },
                 new()
                 {
@@ -253,7 +240,7 @@ public class MigrationService : IMigrationService
                     StartDate = new DateTime(2019, 09, 01),
                     EndDate = null,
                     EmployeeId = 2,
-                    Oid = "23456789-2345-2345-2345-234567890123"
+                    Oid = "23456789-2345-2345-2345-234567890123",
                 },
                 new()
                 {
@@ -262,7 +249,7 @@ public class MigrationService : IMigrationService
                     StartDate = new DateTime(2020, 10, 01),
                     EndDate = null,
                     EmployeeId = 4,
-                    Oid = "f21ff8d0-2d2d-42ec-8a1f-fc5ea8c9e947"
+                    Oid = "f21ff8d0-2d2d-42ec-8a1f-fc5ea8c9e947",
                 },
                 new()
                 {
@@ -290,6 +277,48 @@ public class MigrationService : IMigrationService
                 }
             };
             await context.User.AddRangeAsync(newUsers);
+            await context.SaveChangesAsync();
+        }
+    }
+
+    private static async Task SeedSalaryModelHistory(AlvTime_dbContext context)
+    {
+        var salaryModelHistory = await context.SalaryModelHistory.ToListAsync();
+        if (!salaryModelHistory.Any())
+        {
+            var newSalaryModelHistory = new List<SalaryModelHistory>
+            {
+                new()
+                {
+                    UserId = 1,
+                    SwitchDate = new DateTime(2019, 08, 01),
+                    PreviousModel = SalaryModel.Static,
+                    NewModel = SalaryModel.Static,
+                },
+                new()
+                {
+                    UserId = 2,
+                    SwitchDate = new DateTime(2019, 09, 01),
+                    PreviousModel = SalaryModel.Static,
+                    NewModel = SalaryModel.Static,
+                },
+                new()
+                {
+                    UserId = 3,
+                    SwitchDate = new DateTime(2020, 10, 01),
+                    PreviousModel = SalaryModel.Static,
+                    NewModel = SalaryModel.Static,
+                },
+                new()
+                {
+                    UserId = 4,
+                    SwitchDate = new DateTime(2020, 11, 01),
+                    PreviousModel = SalaryModel.Static,
+                    NewModel = SalaryModel.Static,
+                },
+            };
+
+            await context.SalaryModelHistory.AddRangeAsync(newSalaryModelHistory);
             await context.SaveChangesAsync();
         }
     }

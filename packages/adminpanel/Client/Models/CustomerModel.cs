@@ -71,7 +71,7 @@ public class TaskModel : IEquatable<TaskModel>
     public string? Description { get; set; }
     public bool Locked { get; set; }
     public bool Imposed { get; set; }
-    public decimal CompensationRate { get; set; }
+    public CompensationType CompensationType { get; set; }
     public int ProjectId { get; set; }
     public string ProjectName { get; set; }
     public IList<HourRateModel>? HourRates { get; set; }
@@ -97,9 +97,14 @@ public class TaskModel : IEquatable<TaskModel>
     {
         return Id;
     }
-
 }
 
+public enum CompensationType
+{
+    Volunteer = 0,
+    Internal = 1,
+    Billable = 2
+}
 public class HourRateModel : IEquatable<HourRateModel>
 {
     public int Id { get; set; }

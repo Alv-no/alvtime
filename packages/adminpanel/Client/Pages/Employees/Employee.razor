@@ -67,6 +67,71 @@
                 <MudText>
                     @Localizer["Common.EmployeeId"]: @_employee.EmployeeId
                 </MudText>
+                <MudStack Row="true" AlignItems="AlignItems.Center" Class="mt-4">
+                    <MudText>
+                        @Localizer["Common.SalaryModel"]: @Localizer[$"EmployeePage.SalaryModel.{_employee.SalaryModel}"]
+                    </MudText>
+                    <MudTooltip Text="@SalaryModelChangeTooltip">
+                        <MudIconButton
+                            Icon="@Icons.Material.Filled.Edit"
+                            Size="Size.Small"
+                            Color="Color.Secondary"
+                            Disabled="@(!CanChangeSalaryModel)"
+                            OnClick="@ChangeSalaryModel"/>
+                    </MudTooltip>
+                </MudStack>
+                @if (_employee.PendingSalaryModelChange is not null)
+                {
+                    <MudAlert Severity="Severity.Info" Class="mt-2" Variant="Variant.Outlined">
+                        <MudStack Row="true" AlignItems="AlignItems.Center">
+                            <MudText>
+                                @string.Format(
+                                    Localizer["EmployeePage.SalaryModel.Pending.Banner"],
+                                    Localizer[$"EmployeePage.SalaryModel.{_employee.PendingSalaryModelChange.NewModel}"],
+                                    _employee.PendingSalaryModelChange.EffectiveDate.ToString("dd.MM.yyyy"))
+                            </MudText>
+                            <MudButton
+                                Variant="Variant.Text"
+                                Color="Color.Secondary"
+                                OnClick="@CancelPendingSalaryModelChange"
+                                Disabled="@(_employee.StartDate > DateTime.Today)">
+                                @Localizer["EmployeePage.SalaryModel.Pending.Cancel"]
+                            </MudButton>
+                        </MudStack>
+                    </MudAlert>
+                }
+                @if (_employee.SalaryModelHistory is { Count: > 0 })
+                {
+                    <MudButton
+                        Variant="Variant.Text"
+                        Size="Size.Small"
+                        Class="mt-2"
+                        OnClick="@(() => _showHistory = !_showHistory)">
+                        @(_showHistory ? Localizer["EmployeePage.SalaryModel.History.Hide"] : Localizer["EmployeePage.SalaryModel.History.Show"])
+                    </MudButton>
+                    @if (_showHistory)
+                    {
+                        <MudSimpleTable Class="mt-2" Dense="true" Hover="true">
+                            <thead>
+                                <tr>
+                                    <th>@Localizer["EmployeePage.SalaryModel.History.SwitchDate"]</th>
+                                    <th>@Localizer["EmployeePage.SalaryModel.History.PreviousModel"]</th>
+                                    <th>@Localizer["EmployeePage.SalaryModel.History.NewModel"]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var entry in _employee.SalaryModelHistory)
+                                {
+                                    <tr>
+                                        <td>@entry.SwitchDate.ToString("dd.MM.yyyy")</td>
+                                        <td>@Localizer[$"EmployeePage.SalaryModel.{entry.PreviousModel}"]</td>
+                                        <td>@Localizer[$"EmployeePage.SalaryModel.{entry.NewModel}"]</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </MudSimpleTable>
+                    }
+                }
             </MudPaper>
 
             <MudPaper Elevation="0" Class="mb-4">
@@ -136,10 +201,11 @@ else
 
     private EmployeeModel? _employee;
     
-    /* All off this need to be like this, to prevent the UI to allow multiselect. Who knows why it is like that. 🤷‍♂️ */   
+    /* All off this need to be like this, to prevent the UI to allow multiselect. Who knows why it is like that. 🤷‍♂️ */
     private readonly bool _multiSelection = false;
     private HashSet<EmployeeEmploymentRateModel> _employmentRateSelectionList = [];
     private EmployeeEmploymentRateModel? _selectedEmploymentRate;
+    private bool _showHistory;
     
     protected override async Task OnInitializedAsync()
     {
@@ -202,6 +268,69 @@ else
         StateHasChanged();
     }));
     
+    private void ChangeSalaryModel()
+    {
+        if (string.IsNullOrEmpty(EmployeeId) || !int.TryParse(EmployeeId, out int parsedId))
+        {
+            return;
+        }
+
+        DialogService.ShowAsync<SalaryModelDialog>(@Localizer["EmployeePage.ChangeSalaryModel"], new DialogParameters
+            {
+                ["OnSalaryModelSubmit"] = RefreshAfterDialogAction,
+                ["EmployeeId"] = parsedId,
+                ["CurrentSalaryModel"] = _employee!.SalaryModel,
+                ["PendingChange"] = _employee.PendingSalaryModelChange
+            },
+            new DialogOptions()
+            {
+                FullWidth = true,
+                MaxWidth = MaxWidth.Small
+            });
+    }
+
+    private bool CanChangeSalaryModel
+    {
+        get
+        {
+            if (_employee is null) return false;
+            var today = DateTime.Today;
+            if (today.Month >= 7) return false;
+            var thisYearJune1 = new DateTime(today.Year, 6, 1);
+            if (today >= thisYearJune1
+                && _employee.SalaryModelHistory is not null
+                && _employee.SalaryModelHistory.Any(h =>
+                    h.SwitchDate.Year == today.Year && h.PreviousModel != h.NewModel))
+            {
+                return false;
+            }
+            return true;
+        }
+    }
+
+    private string? SalaryModelChangeTooltip
+    {
+        get
+        {
+            if (_employee is null || CanChangeSalaryModel) return null;
+            var today = DateTime.Today;
+            if (today.Month >= 7)
+                return Localizer["EmployeePage.SalaryModel.CannotChange.OutsideWindow"];
+            return Localizer["EmployeePage.SalaryModel.CannotChange.AlreadyChanged"];
+        }
+    }
+
+    private async Task CancelPendingSalaryModelChange()
+    {
+        if (string.IsNullOrEmpty(EmployeeId) || !int.TryParse(EmployeeId, out int parsedId))
+        {
+            return;
+        }
+
+        await HttpClient.DeleteAsync(ApiRoutes.CancelPendingSalaryModelChange(parsedId));
+        await RefreshEmployee();
+    }
+
     private void AddNewEmploymentRate(MouseEventArgs obj)
     {
         if (string.IsNullOrEmpty(EmployeeId) || !int.TryParse(EmployeeId, out int parsedId))

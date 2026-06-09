@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AlvTime.Business.Tasks;
 using AlvTimeWebApi.Responses.Admin;
 
 namespace AlvTimeWebApi.Responses;
@@ -10,7 +11,7 @@ public class TaskAdminResponse
     public string Description { get; set; }
     public bool Locked { get; set; }
     public bool Imposed { get; set; }
-    public decimal CompensationRate { get; set; }
+    public CompensationType CompensationType { get; set; }
     public int ProjectId { get; set; }
     public string ProjectName { get; set; }
     public IEnumerable<HourRateAdminResponse> HourRates { get; set; }

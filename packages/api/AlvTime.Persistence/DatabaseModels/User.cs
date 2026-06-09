@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using AlvTime.Business.Overtime;
 
 namespace AlvTime.Persistence.DatabaseModels
 {

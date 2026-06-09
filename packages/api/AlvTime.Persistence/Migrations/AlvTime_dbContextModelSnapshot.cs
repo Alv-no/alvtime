@@ -372,6 +372,33 @@ namespace AlvTime.Persistence.Migrations
                     b.ToTable("RegisteredFlex");
                 });
 
+            modelBuilder.Entity("AlvTime.Persistence.DatabaseModels.SalaryModelHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("NewModel")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PreviousModel")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SwitchDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("SalaryModelHistory");
+                });
+
             modelBuilder.Entity("AlvTime.Persistence.DatabaseModels.Task", b =>
                 {
                     b.Property<int>("Id")
@@ -379,6 +406,9 @@ namespace AlvTime.Persistence.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CompensationType")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -720,6 +750,17 @@ namespace AlvTime.Persistence.Migrations
                         .HasForeignKey("UserId")
                         .IsRequired()
                         .HasConstraintName("FK_RegisteredFlex_User");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("AlvTime.Persistence.DatabaseModels.SalaryModelHistory", b =>
+                {
+                    b.HasOne("AlvTime.Persistence.DatabaseModels.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .IsRequired()
+                        .HasConstraintName("FK_SalaryModelHistory_User");
 
                     b.Navigation("User");
                 });

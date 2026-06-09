@@ -10,56 +10,51 @@ using AlvTimeWebApi.Responses.Admin;
 using AlvTimeWebApi.Utils;
 using Microsoft.AspNetCore.Authorization;
 
-namespace AlvTimeWebApi.Controllers
+namespace AlvTimeWebApi.Controllers;
+
+[Route("api/user")]
+[ApiController]
+[Authorize]
+public class ProfileController(
+    IUserContext userContext,
+    IUserRepository userRepository,
+    IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
+    : Controller
 {
-    [Route("api/user")]
-    [ApiController]
-    [Authorize]
-    public class ProfileController : Controller
+    private readonly int _reportUser = timeEntryOptions.CurrentValue.ReportUser;
+
+    [HttpGet("Profile")]
+    public async Task<ActionResult<UserAdminResponse>> GetUserProfile()
     {
-        private IUserContext _userContext;
-        private readonly IUserRepository _userRepository;
-        private readonly int _reportUser;
+        var user = await userContext.GetCurrentUser();
 
-        public ProfileController(IUserContext userContext, IUserRepository userRepository, IOptionsMonitor<TimeEntryOptions> timeEntryOptions)
+        if (user == null)
         {
-            _userContext = userContext;
-            _userRepository = userRepository;
-            _reportUser = timeEntryOptions.CurrentValue.ReportUser;
+            return NotFound("User not found");
         }
 
-        [HttpGet("Profile")]
-        public async Task<ActionResult<UserAdminResponse>> GetUserProfile()
+        return Ok(new UserAdminResponse
         {
-            var user = await _userContext.GetCurrentUser();
+            Id = user.Id,
+            StartDate = user.StartDate.ToDateOnly(),
+            EndDate = user.EndDate?.ToDateOnly(),
+            Email = user.Email,
+            Name = user.Name,
+            SalaryModel = user.SalaryModel,
+        });
+    }
 
-            if (user == null)
-            {
-                return NotFound("User not found");
-            }
+    [HttpGet("UsersReport")]
+    public async Task<ActionResult<IEnumerable<UserAdminResponse>>> FetchUsersReport()
+    {
+        var user = await userContext.GetCurrentUser();
 
-            return Ok(new UserAdminResponse
-            {
-                Id = user.Id,
-                StartDate = user.StartDate.ToDateOnly(),
-                EndDate = user.EndDate?.ToDateOnly(),
-                Email = user.Email,
-                Name = user.Name
-            });
+        if (user.Id == _reportUser)
+        {
+            var users = await userRepository.GetUsers(new UserQuerySearch());
+            return Ok(users.Select(u => u.MapToUserResponse()));
         }
 
-        [HttpGet("UsersReport")]
-        public async Task<ActionResult<IEnumerable<UserAdminResponse>>> FetchUsersReport()
-        {
-            var user = await _userContext.GetCurrentUser();
-
-            if (user.Id == _reportUser)
-            {
-                var users = await _userRepository.GetUsers(new UserQuerySearch());
-                return Ok(users.Select(u => u.MapToUserResponse()));
-            }
-
-            return Unauthorized();
-        }
+        return Unauthorized();
     }
 }

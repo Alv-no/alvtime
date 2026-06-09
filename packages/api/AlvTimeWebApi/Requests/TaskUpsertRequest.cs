@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using AlvTime.Business.Tasks;
 
 namespace AlvTimeWebApi.Requests;
 
@@ -9,6 +10,6 @@ public class TaskUpsertRequest
     public string Description { get; set; }
     public bool Locked { get; set; }
     [Required]
-    public decimal CompensationRate { get; set; }
+    public CompensationType CompensationType { get; set; }
     public bool Imposed { get; set; }
 }

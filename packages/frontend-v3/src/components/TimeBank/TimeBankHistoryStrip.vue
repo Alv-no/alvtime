@@ -57,7 +57,7 @@
 					<p>{{ `${transaction.hours} timer` }}</p>
 					<p>{{ `${transaction.compensationRate * 100}%` }}</p>
 					<p class="last">
-						{{ `${transaction.hours * (timeBankTransaction.type !== 2 ? transaction.compensationRate : 1)}` }}
+						{{ (transaction.hours * (timeBankTransaction.type !== 2 ? transaction.compensationRate : 1)).toFixed(2) }}
 					</p>
 				</div>
 			</div>
@@ -95,6 +95,8 @@ const transactionType = computed(() => {
 		return "Utbetaling";
 	case 2:
 		return "Flex";
+	case 3:
+		return "Innbakte interntimer";
 	default:
 		return "Ukjent type";
 	}
@@ -111,7 +113,7 @@ const actualValue = computed(() => {
 		return totalHoursInTransaction.value;
 
 	const total = timeBankTransaction.entries.reduce((sum, entry) => sum + entry.hours * entry.compensationRate, 0);
-	return total;
+	return total.toFixed(2);
 });
 
 const isActive = computed(() => {

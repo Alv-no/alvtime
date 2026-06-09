@@ -10,6 +10,7 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AlvTime.Business.Tasks;
 using Xunit;
 using static AlvTime.Business.InvoiceRate.InvoiceStatisticsDto;
 
@@ -612,7 +613,8 @@ public class InvoiceRateServiceTest
             Id = 1,
             Description = "",
             Project = 2,
-            Name = "Print Money"
+            Name = "Print Money",
+            CompensationType = CompensationType.Billable
         });
 
         context.Task.Add(new Task
@@ -620,7 +622,8 @@ public class InvoiceRateServiceTest
             Id = 2,
             Description = "",
             Project = 1,
-            Name = "Slave Labor"
+            Name = "Slave Labor",
+            CompensationType = CompensationType.Internal
         });
 
         context.Task.Add(new Task
@@ -628,26 +631,8 @@ public class InvoiceRateServiceTest
             Id = 3,
             Description = "",
             Project = 1,
-            Name = "Make Lunch"
-        });
-
-        context.CompensationRate.Add(new CompensationRate
-        {
-            TaskId = 1,
-            Value = 1.5M,
-            FromDate = new DateTime(2019, 01, 01)
-        });
-        context.CompensationRate.Add(new CompensationRate
-        {
-            TaskId = 2,
-            Value = 1.0M,
-            FromDate = new DateTime(2019, 01, 01)
-        });
-        context.CompensationRate.Add(new CompensationRate
-        {
-            TaskId = 3,
-            Value = 0.5M,
-            FromDate = new DateTime(2019, 01, 01)
+            Name = "Make Lunch",
+            CompensationType = CompensationType.Volunteer
         });
 
         context.Task.Add(new Task
@@ -656,7 +641,8 @@ public class InvoiceRateServiceTest
             Description = "",
             Project = 9,
             Name = "PaidHoliday",
-            Locked = false
+            Locked = false,
+            CompensationType = CompensationType.Internal
         });
         context.Task.Add(new Task
         {
@@ -664,20 +650,8 @@ public class InvoiceRateServiceTest
             Description = "",
             Project = 9,
             Name = "SickDay",
-            Locked = false
-        });
-
-        context.CompensationRate.Add(new CompensationRate
-        {
-            TaskId = 10,
-            Value = 1.0M,
-            FromDate = new DateTime(2019, 01, 01)
-        });
-        context.CompensationRate.Add(new CompensationRate
-        {
-            TaskId = 11,
-            Value = 1.0M,
-            FromDate = new DateTime(2019, 01, 01)
+            Locked = false,
+            CompensationType = CompensationType.Internal
         });
 
         context.SaveChanges();

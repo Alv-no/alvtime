@@ -38,7 +38,6 @@ namespace AlvTimeWebApi
             services.AddScoped<IEconomyStorage, EconomyStorage>();
             services.AddScoped<IAccessTokenStorage, AccessTokenStorage>();
             services.AddScoped<IAssociatedTaskStorage, AssociatedTaskStorage>();
-            services.AddScoped<ICompensationRateStorage, CompensationRateStorage>();
             services.AddScoped<IRedDaysService, RedDaysService>();
             services.AddScoped<IAbsenceDaysService, AbsenceDaysService>();
             services.AddScoped<AccessTokenService>();
