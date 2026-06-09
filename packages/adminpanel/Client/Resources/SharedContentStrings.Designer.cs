@@ -627,29 +627,74 @@ namespace Alvtime.Adminpanel.Client.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ansatte er kun valgbare for bytte av lønnsmodell fra og med året etter de startet.
+        ///   Looks up a localized string similar to Lønnsmodellen er allerede endret i år.
         /// </summary>
-        internal static string EmployeePage_SalaryModel_CannotChange_NewEmployee {
+        internal static string EmployeePage_SalaryModel_CannotChange_AlreadyChanged {
             get {
-                return ResourceManager.GetString("EmployeePage.SalaryModel.CannotChange.NewEmployee", resourceCulture);
+                return ResourceManager.GetString("EmployeePage.SalaryModel.CannotChange.AlreadyChanged", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Bytte av lønnsmodell er kun mulig i juni.
+        ///   Looks up a localized string similar to Lønnsmodell kan bare endres frem til 30. juni.
         /// </summary>
-        internal static string EmployeePage_SalaryModel_CannotChange_NotJune {
+        internal static string EmployeePage_SalaryModel_CannotChange_OutsideWindow {
             get {
-                return ResourceManager.GetString("EmployeePage.SalaryModel.CannotChange.NotJune", resourceCulture);
+                return ResourceManager.GetString("EmployeePage.SalaryModel.CannotChange.OutsideWindow", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Lønnsmodellen kan bare endres én gang per år.
+        ///   Looks up a localized string similar to Gjeldende fra.
         /// </summary>
-        internal static string EmployeePage_SalaryModel_CannotChange_TooSoon {
+        internal static string EmployeePage_SalaryModel_EffectiveDate {
             get {
-                return ResourceManager.GetString("EmployeePage.SalaryModel.CannotChange.TooSoon", resourceCulture);
+                return ResourceManager.GetString("EmployeePage.SalaryModel.EffectiveDate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Skjul historikk.
+        /// </summary>
+        internal static string EmployeePage_SalaryModel_History_Hide {
+            get {
+                return ResourceManager.GetString("EmployeePage.SalaryModel.History.Hide", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Til.
+        /// </summary>
+        internal static string EmployeePage_SalaryModel_History_NewModel {
+            get {
+                return ResourceManager.GetString("EmployeePage.SalaryModel.History.NewModel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fra.
+        /// </summary>
+        internal static string EmployeePage_SalaryModel_History_PreviousModel {
+            get {
+                return ResourceManager.GetString("EmployeePage.SalaryModel.History.PreviousModel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vis historikk.
+        /// </summary>
+        internal static string EmployeePage_SalaryModel_History_Show {
+            get {
+                return ResourceManager.GetString("EmployeePage.SalaryModel.History.Show", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Byttedato.
+        /// </summary>
+        internal static string EmployeePage_SalaryModel_History_SwitchDate {
+            get {
+                return ResourceManager.GetString("EmployeePage.SalaryModel.History.SwitchDate", resourceCulture);
             }
         }
         
@@ -659,6 +704,24 @@ namespace Alvtime.Adminpanel.Client.Resources {
         internal static string EmployeePage_SalaryModel_InvoiceBased {
             get {
                 return ResourceManager.GetString("EmployeePage.SalaryModel.InvoiceBased", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Planlagt bytte til {0} gjeldende fra {1}.
+        /// </summary>
+        internal static string EmployeePage_SalaryModel_Pending_Banner {
+            get {
+                return ResourceManager.GetString("EmployeePage.SalaryModel.Pending.Banner", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Avbryt.
+        /// </summary>
+        internal static string EmployeePage_SalaryModel_Pending_Cancel {
+            get {
+                return ResourceManager.GetString("EmployeePage.SalaryModel.Pending.Cancel", resourceCulture);
             }
         }
         
@@ -812,6 +875,15 @@ namespace Alvtime.Adminpanel.Client.Resources {
         internal static string Validation_Project_Required {
             get {
                 return ResourceManager.GetString("Validation.Project.Required", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lønnsmodell må fylles inn.
+        /// </summary>
+        internal static string Validation_SalaryModel_Required {
+            get {
+                return ResourceManager.GetString("Validation.SalaryModel.Required", resourceCulture);
             }
         }
         

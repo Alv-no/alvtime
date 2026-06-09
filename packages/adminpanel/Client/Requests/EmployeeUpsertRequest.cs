@@ -1,4 +1,6 @@
-﻿namespace Alvtime.Adminpanel.Client.Requests;
+﻿using Alvtime.Adminpanel.Client.Models;
+
+namespace Alvtime.Adminpanel.Client.Requests;
 
 public class EmployeeUpsertRequest
 {
@@ -7,4 +9,5 @@ public class EmployeeUpsertRequest
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public int EmployeeId { get; set; }
+    public SalaryModel SalaryModel { get; set; }
 }

@@ -13,7 +13,8 @@ public static class EmployeeMapper
             Email = employee.Email,
             StartDate = employee.StartDate,
             EndDate = employee.EndDate,
-            EmployeeId = employee.EmployeeId
+            EmployeeId = employee.EmployeeId,
+            SalaryModel = employee.SalaryModel
         };
     }
 }
