@@ -34,6 +34,19 @@
                 Required="true"
                 RequiredError="@Localizer["Validation.Email.Required"]"
                 Validation="@(new EmailAddressAttribute() { ErrorMessage = @Localizer["Validation.Email.NotValid"] })"/>
+            <MudSelect
+                Class="mb-2"
+                ShrinkLabel="true"
+                T="SalaryModel"
+                Label="@Localizer["Common.SalaryModel"]"
+                @bind-Value="_salaryModel"
+                Required="true"
+                RequiredError="@Localizer["Validation.SalaryModel.Required"]">
+                @foreach (var model in Enum.GetValues<SalaryModel>())
+                {
+                    <MudSelectItem T="SalaryModel" Value="@model">@Localizer[$"EmployeePage.SalaryModel.{model}"]</MudSelectItem>
+                }
+            </MudSelect>
             <MudDatePicker
                 Label="@Localizer["Common.StartDate"]"
                 @bind-Date="_startDate"
@@ -78,6 +91,7 @@
     private string? _name;
     private string? _email;
     private int? _employeeId;
+    private SalaryModel _salaryModel;
     private DateTime? _startDate = DateTime.UtcNow.Date;
     private DateTime? _endDate;
 
@@ -90,6 +104,7 @@
             _employeeId = CurrentEmployeeData.EmployeeId;
             _startDate = CurrentEmployeeData.StartDate;
             _endDate = CurrentEmployeeData.EndDate;
+            _salaryModel = CurrentEmployeeData.SalaryModel;
         }
 
         return base.OnParametersSetAsync();
@@ -108,7 +123,8 @@
                 Name = _name ?? string.Empty,
                 Email = _email ?? string.Empty,
                 StartDate = _startDate,
-                EndDate = _endDate
+                EndDate = _endDate,
+                SalaryModel = _salaryModel
             };
 
             try

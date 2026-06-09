@@ -84,6 +84,9 @@
     <data name="Validation.EmployeeId.NotValid" xml:space="preserve">
         <value>Ansattnummer er ikke gyldig</value>
     </data>
+    <data name="Validation.SalaryModel.Required" xml:space="preserve">
+        <value>Lønnsmodell må fylles inn</value>
+    </data>
     <data name="Common.AppTitle" xml:space="preserve">
         <value>Alvtime adminpanel</value>
     </data>
