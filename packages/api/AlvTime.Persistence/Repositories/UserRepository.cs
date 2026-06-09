@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.AccessTokens;
 using AlvTime.Business.Overtime;
+using AlvTime.Business.Utils;
 using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Task = System.Threading.Tasks.Task;
@@ -16,10 +17,12 @@ namespace AlvTime.Persistence.Repositories;
 public class UserRepository : IUserRepository
 {
     private readonly AlvTime_dbContext _context;
+    private readonly DateAlvTime _dateAlvTime;
 
-    public UserRepository(AlvTime_dbContext context)
+    public UserRepository(AlvTime_dbContext context, DateAlvTime dateAlvTime = null)
     {
         _context = context;
+        _dateAlvTime = dateAlvTime ?? new DateAlvTime();
     }
 
     public async Task AddUser(UserDto user)
@@ -94,7 +97,7 @@ public class UserRepository : IUserRepository
     private async Task PopulateCurrentSalaryModel(IList<UserDto> users)
     {
         if (users.Count == 0) return;
-        var today = DateTime.Today;
+        var today = _dateAlvTime.Now.Date;
         var userIds = users.Select(u => u.Id).ToList();
         var historyRows = await _context.SalaryModelHistory
             .Where(h => userIds.Contains(h.UserId) && h.SwitchDate.Date <= today)

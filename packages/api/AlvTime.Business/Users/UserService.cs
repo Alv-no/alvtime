@@ -134,13 +134,14 @@ public class UserService(IUserRepository userRepository, ITimeRegistrationStorag
         
         var pendingChange = history.FirstOrDefault(h => h.SwitchDate > today);
 
-        if (pendingChange != null)
+        if (pendingChange == null)
         {
-            await userRepository.UpdateSalaryModelHistory(user.Id, pendingChange);
+            await userRepository.AddSalaryModelHistory(userId,
+                new SalaryModelHistoryEntry(switchDate, previousModel, newSalaryModel));
         }
         else
         {
-            await userRepository.AddSalaryModelHistory(userId, new SalaryModelHistoryEntry(switchDate, previousModel, newSalaryModel));
+            await userRepository.UpdateSalaryModelHistory(user.Id, pendingChange);
         }
 
         return await GetUserById(userId);

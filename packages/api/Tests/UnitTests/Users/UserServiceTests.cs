@@ -595,6 +595,6 @@ public class UserServiceTests
 
     private UserService CreateUserService(DateAlvTime dateAlvTime)
     {
-        return new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context), dateAlvTime);
+        return new UserService(new UserRepository(_context, dateAlvTime), new TimeRegistrationStorage(_context), dateAlvTime);
     }
 }
