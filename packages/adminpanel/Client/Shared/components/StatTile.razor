@@ -1,0 +1,17 @@
+@namespace Alvtime.Adminpanel.Client.Shared.Components
+
+<MudPaper Elevation="0" Class="pa-4" Style="flex: 1; min-width: 12rem;">
+    <MudText Typo="Typo.overline" Class="mud-text-secondary">@Label</MudText>
+    <MudText Typo="Typo.h4" Color="@Accent">@Value</MudText>
+    @if (!string.IsNullOrEmpty(Sub))
+    {
+        <MudText Typo="Typo.body2" Class="mud-text-secondary">@Sub</MudText>
+    }
+</MudPaper>
+
+@code {
+    [Parameter] public string Label { get; set; } = "";
+    [Parameter] public string Value { get; set; } = "";
+    [Parameter] public string? Sub { get; set; }
+    [Parameter] public Color Accent { get; set; } = Color.Default;
+}

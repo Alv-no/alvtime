@@ -53,7 +53,7 @@ public class AbsenceDayStorageTests
     {
         var timeRegistrationStorage = CreateTimeRegistrationStorage();
         var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
-        var days = await absenceService.GetAbsenceDays(1, 2020, null);
+        var days = await absenceService.GetAbsenceDays(1, null);
 
         Assert.Equal(0, days.UsedAbsenceDays);
     }
@@ -72,7 +72,7 @@ public class AbsenceDayStorageTests
             TaskId = _options.CurrentValue.SickDaysTask
         }, 1);
 
-        var days = await absenceService.GetAbsenceDays(1, 2021, null);
+        var days = await absenceService.GetAbsenceDays(1, null);
 
         Assert.Equal(3, days.UsedAbsenceDays);
 
@@ -99,7 +99,7 @@ public class AbsenceDayStorageTests
             TaskId = _options.CurrentValue.SickDaysTask
         }, 1);
 
-        var days = await absenceService.GetAbsenceDays(1, 2021, null);
+        var days = await absenceService.GetAbsenceDays(1, null);
 
         Assert.Equal(3, days.UsedAbsenceDays);
     }
@@ -135,7 +135,7 @@ public class AbsenceDayStorageTests
             TaskId = _options.CurrentValue.SickDaysTask
         }, 1);
 
-        var days = await absenceService.GetAbsenceDays(1, 2021, null);
+        var days = await absenceService.GetAbsenceDays(1, null);
 
         // We withdraw three whole days
         Assert.Equal(6, days.UsedAbsenceDays);
@@ -477,6 +477,6 @@ public class AbsenceDayStorageTests
 
     private AlvTime.Business.Absence.AbsenceDaysService CreateAbsenceDaysService(TimeRegistrationStorage storage)
     {
-        return new AlvTime.Business.Absence.AbsenceDaysService(storage, _options, _userContextMock.Object, new AbsenceStorage(_context));
+        return new AlvTime.Business.Absence.AbsenceDaysService(storage, _options, _userContextMock.Object, new AbsenceStorage(_context), new UserRepository(_context));
     }
 }

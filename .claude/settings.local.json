@@ -5,7 +5,13 @@
       "Bash(xargs cat)",
       "Bash(dotnet build *)",
       "Bash(dotnet test *)",
-      "Bash(dotnet vstest *)"
+      "Bash(dotnet vstest *)",
+      "Read(//tmp/**)",
+      "Read(//home/agent/.sdkman/**)",
+      "Read(//etc/**)",
+      "Read(//home/agent/.claude/projects/-c--dev-alvtime/memory/**)",
+      "Bash(ls MEMORY.md)",
+      "Bash(tail -3 MEMORY.md)"
     ]
   }
 }

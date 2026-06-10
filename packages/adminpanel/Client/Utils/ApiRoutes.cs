@@ -19,4 +19,7 @@ public static class ApiRoutes
     public static string CreateHourRate(int taskId) => $"api/admin/HourRates?taskId={taskId}";
     public static string UpdateHourRate(int hourRateId) => $"api/admin/HourRates/{hourRateId}";
     public static string DeleteHourRate(int hourRateId) => $"api/admin/HourRates/{hourRateId}";
+    public static string VacationOverview(int? year = null) => year.HasValue
+        ? $"api/admin/vacationOverview?currentYear={year}"
+        : "api/admin/vacationOverview";
 }

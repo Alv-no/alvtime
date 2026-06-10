@@ -1,0 +1,190 @@
+@page "/ferie"
+@using System.Globalization
+@using Alvtime.Adminpanel.Client.Models
+@using Alvtime.Adminpanel.Client.Utils
+@using Alvtime.Adminpanel.Client.ErrorHandling
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
+<PageTitle>Ferie</PageTitle>
+
+<AuthorizeView Roles="Admin" Context="auth">
+    <Authorized>
+        <MudText Typo="Typo.h2">Ferie</MudText>
+        <MudText Typo="Typo.body1" Class="mb-4 mud-text-secondary">
+            Feriedager for alle ansatte i @_year. Klikk en ansatt for detaljer.
+        </MudText>
+
+        @if (_rows is null)
+        {
+            <MudProgressLinear Indeterminate="true" Color="Color.Secondary" Class="my-4"/>
+        }
+        else
+        {
+            <MudPaper Elevation="0" Class="d-flex flex-wrap gap-8 pa-4 mb-4">
+                <VacationStat Value="@_rows.Count.ToString()" Label="ansatte i oversikten"/>
+                <VacationStat Value="@Nd(_rows.Sum(r => r.Available))" Label="feriedager tilgjengelig nå"/>
+                <VacationStat Value="@Nd(_rows.Sum(r => r.Planned))" Label="dager planlagt resten av året" Accent="Color.Tertiary"/>
+                <VacationStat Value="@_rows.Count(r => !r.HasPlannedSummer).ToString()" Label="uten planlagt sommerferie" OnClick="@ToggleNoSummerFilter" Active="@_filterNoSummer"/>
+            </MudPaper>
+
+            <MudTextField
+                Value="@_search"
+                FullWidth="true"
+                Immediate="true"
+                ValueChanged="@(new Func<string, Task>(OnFilterChanged))"
+                Placeholder="Søk etter ansatt"
+                Adornment="Adornment.Start"
+                AdornmentIcon="@Icons.Material.Filled.Search"
+                IconSize="Size.Medium"
+                Class="my-4"/>
+
+            <MudDataGrid
+                T="VacationRow"
+                Items="@Filtered"
+                Hover="true"
+                RowClick="@OnRowClick"
+                Filterable="false"
+                SortMode="SortMode.Single">
+                <Columns>
+                    <TemplateColumn Sortable="false" CellStyle="width: 56px;">
+                        <CellTemplate>
+                            <MudAvatar Color="Color.Secondary" Style="width: 38px; height: 38px;">
+                                @if (!string.IsNullOrEmpty(context.Item.ProfilePicture))
+                                {
+                                    <img src="data:image/jpeg;base64,@context.Item.ProfilePicture" alt="" style="width: 100%; height: 100%; object-fit: cover;"/>
+                                }
+                                else
+                                {
+                                    <MudText Typo="Typo.button">@TextUtilities.GetInitialsFromName(context.Item.Name, null)</MudText>
+                                }
+                            </MudAvatar>
+                        </CellTemplate>
+                    </TemplateColumn>
+                    <PropertyColumn Property="r => r.Name" Title="Navn" CellStyleFunc="@(_ => "text-align:left;")" HeaderStyle="text-align:left;" Sortable="false"/>
+                    <PropertyColumn Property="r => r.Available" Title="Tilgjengelig nå" CellStyleFunc="@(_ => "text-align:left;")" HeaderStyle="text-align:left;" Sortable="false">
+                        <CellTemplate>
+                            <span style="@(context.Item.Available <= 5 ? "color: var(--mud-palette-error); font-weight: 700;" : "font-weight: 700;")">@Nd(context.Item.Available)</span>
+                        </CellTemplate>
+                    </PropertyColumn>
+                    <PropertyColumn Property="r => r.Taken" Title="Brukt i år" CellStyleFunc="@(_ => "text-align:left;")" HeaderStyle="text-align:right;" Sortable="false">
+                        <CellTemplate>@Nd(context.Item.Taken)</CellTemplate>
+                    </PropertyColumn>
+                    <PropertyColumn Property="r => r.Planned" Title="Planlagt i år" CellStyleFunc="@(_ => "text-align:left;")" HeaderStyle="text-align:left;" Sortable="false">
+                        <CellTemplate>
+                            @if (context.Item.Planned > 0)
+                            {
+                                @Nd(context.Item.Planned)
+                            }
+                            else
+                            {
+                                <span class="mud-text-secondary">–</span>
+                            }
+                        </CellTemplate>
+                    </PropertyColumn>
+                    <PropertyColumn Property="r => r.Transferred" Title="Overført fra tidligere år" CellStyleFunc="@(_ => "text-align:lefet;")" HeaderStyle="text-align:left;" Sortable="false">
+                        <CellTemplate>@(context.Item.Transferred > 0 ? $"+{Nd(context.Item.Transferred)}" : "0")</CellTemplate>
+                    </PropertyColumn>
+                </Columns>
+            </MudDataGrid>
+        }
+    </Authorized>
+    <NotAuthorized>Du har ikke tilgang til å se dette innholdet.</NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Inject] private HttpClient HttpClient { get; set; }
+    [Inject] public HttpInterceptorService Interceptor { get; set; }
+    [Inject] private NavigationManager Navigation { get; set; }
+
+    private readonly int _year = DateTime.Now.Year;
+    private string _search = "";
+    private bool _filterNoSummer;
+    private List<VacationRow>? _rows;
+
+    private IEnumerable<VacationRow> Filtered
+    {
+        get
+        {
+            var rows = _rows ?? Enumerable.Empty<VacationRow>();
+            if (_filterNoSummer) rows = rows.Where(r => !r.HasPlannedSummer);
+            if (!string.IsNullOrWhiteSpace(_search))
+                rows = rows.Where(r => r.Name.Contains(_search, StringComparison.OrdinalIgnoreCase));
+            return rows;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Interceptor.RegisterEvent();
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            var vacationReports = await HttpClient.GetFromJsonAsync<List<VacationOverviewReportModel>>(ApiRoutes.VacationOverview());
+            var allEmployees = await HttpClient.GetFromJsonAsync<List<EmployeeModel>>(ApiRoutes.EmployeeBase);
+
+            var reports = vacationReports ?? [];
+            var employees = (allEmployees ?? []).Where(e => e.EndDate == null || e.EndDate > DateTime.Now).ToDictionary(e => e.Id);
+            reports = reports.Where(r => employees.ContainsKey(r.UserId)).ToList();
+
+            _rows = reports
+                .Where(r => r.VacationDaysDto is not null)
+                .Select(r =>
+                {
+                    var v = r.VacationDaysDto!;
+                    employees.TryGetValue(r.UserId, out var emp);
+                    return new VacationRow
+                    {
+                        UserId = r.UserId,
+                        Name = emp?.Name ?? $"#{r.UserId}",
+                        ProfilePicture = emp?.ProfilePicture,
+                        Available = v.AvailableVacationDays,
+                        Taken = v.UsedVacationDaysThisYear,
+                        Planned = v.PlannedVacationDaysThisYear,
+                        Transferred = v.AvailableVacationDaysTransferredFromLastYear,
+                        HasPlannedSummer = v.PlannedTransactions.Any(t => t.Date.Month is 6 or 7 or 8)
+                    };
+                })
+                .OrderBy(r => r.Name, StringComparer.Create(CultureInfo.GetCultureInfo("nb-NO"), true))
+                .ToList();
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+    }
+
+    private Task OnFilterChanged(string value)
+    {
+        _search = value;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private void ToggleNoSummerFilter()
+    {
+        _filterNoSummer = !_filterNoSummer;
+        StateHasChanged();
+    }
+
+    private void OnRowClick(DataGridRowClickEventArgs<VacationRow> args)
+        => Navigation.NavigateTo($"/ferie/{args.Item.UserId}");
+
+    private static string Nd(decimal n)
+        => Math.Round(n, 1).ToString("0.#", CultureInfo.GetCultureInfo("nb-NO"));
+
+    private class VacationRow
+    {
+        public int UserId { get; set; }
+        public string Name { get; set; } = "";
+        public string? ProfilePicture { get; set; }
+        public decimal Available { get; set; }
+        public decimal Taken { get; set; }
+        public decimal Planned { get; set; }
+        public decimal Transferred { get; set; }
+        public bool HasPlannedSummer { get; set; }
+    }
+}
