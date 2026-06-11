@@ -9,4 +9,5 @@ public interface IAbsenceDaysService
     Task<AbsenceDaysDto> GetAbsenceDays(int userId, DateTime? intervalStart);
     Task<VacationDaysDto> GetAllTimeVacationOverview(int currentYear);
     Task<List<VacationOverviewReport>> GetVacationOverviewForAllUsers(int currentYear);
+    Task<VacationOverviewReport> GetAllTimeVacationOverviewForSingleUser(int currentYear, int userId);
 }

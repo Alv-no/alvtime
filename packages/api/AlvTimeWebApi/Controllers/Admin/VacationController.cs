@@ -21,4 +21,14 @@ public class VacationController(IAbsenceDaysService absenceDaysService) : Contro
         }
         return await absenceDaysService.GetVacationOverviewForAllUsers(currentYear.Value);
     }
+    
+    [HttpGet("vacationOverview/{userId}")]
+    public async Task<VacationOverviewReport> FetchVacationOverview([FromRoute] int userId, [FromQuery] int? currentYear)
+    {
+        if (!currentYear.HasValue)
+        {
+            currentYear = DateTime.Now.Year;
+        }
+        return await absenceDaysService.GetAllTimeVacationOverviewForSingleUser(currentYear.Value, userId);
+    }
 }

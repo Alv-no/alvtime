@@ -123,11 +123,12 @@
     {
         try
         {
-            var vacationReports = await HttpClient.GetFromJsonAsync<List<VacationOverviewReportModel>>(ApiRoutes.VacationOverview());
-            var allEmployees = await HttpClient.GetFromJsonAsync<List<EmployeeModel>>(ApiRoutes.EmployeeBase);
-
-            var reports = vacationReports ?? [];
-            var employees = (allEmployees ?? []).Where(e => e.EndDate == null || e.EndDate > DateTime.Now).ToDictionary(e => e.Id);
+            var vacationReportsTask = HttpClient.GetFromJsonAsync<List<VacationOverviewReportModel>>(ApiRoutes.VacationOverview());
+            var allEmployeesTask = HttpClient.GetFromJsonAsync<List<EmployeeModel>>(ApiRoutes.EmployeeBase);
+            await Task.WhenAll(vacationReportsTask, allEmployeesTask);
+            
+            var reports = await vacationReportsTask ?? [];
+            var employees = (await allEmployeesTask ?? []).Where(e => e.EndDate == null || e.EndDate > DateTime.Now).ToDictionary(e => e.Id);
             reports = reports.Where(r => employees.ContainsKey(r.UserId)).ToList();
 
             _rows = reports

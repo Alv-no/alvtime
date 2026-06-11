@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using AlvTime.Business.Options;
 using AlvTime.Business.TimeRegistration;
 using AlvTime.Business.Users;
@@ -468,6 +469,90 @@ public class AbsenceDayStorageTests
         var holidayOverview = await absenceService.GetAllTimeVacationOverview(DateTime.Now.Year);
 
         Assert.Equal(25, holidayOverview.AvailableVacationDays);
+    }
+
+    [Fact]
+    public async Task GetVacationOverviewForAllUsers_ReturnsReportPerUserAndExcludesRedDays()
+    {
+        var timeRegistrationStorage = CreateTimeRegistrationStorage();
+        var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
+
+        // Vacation registered on 1st of January (red day) should not count
+        await timeRegistrationStorage.CreateTimeEntry(new CreateTimeEntryDto
+        {
+            Date = new DateTime(DateTime.Now.Year, 01, 01),
+            Value = 7.5M,
+            TaskId = _options.CurrentValue.PaidHolidayTask
+        }, 1);
+
+        var reports = await absenceService.GetVacationOverviewForAllUsers(DateTime.Now.Year);
+
+        Assert.Equal(2, reports.Count);
+        var user1Report = reports.Single(r => r.UserId == 1);
+        Assert.Equal(0, user1Report.VacationDaysDto.UsedVacationDaysThisYear);
+        Assert.Equal(0, user1Report.VacationDaysDto.PlannedVacationDaysThisYear);
+    }
+
+    [Fact]
+    public async Task GetVacationOverviewForAllUsers_WithCustomVacationOverride_MatchesSingleUserOverview()
+    {
+        _context.VacationDaysEarnedOverride.Add(new VacationDaysEarnedOverride
+        {
+            UserId = 1,
+            Year = DateTime.Now.Year - 1,
+            DaysEarned = 15
+        });
+        await _context.SaveChangesAsync();
+
+        var timeRegistrationStorage = CreateTimeRegistrationStorage();
+        var absenceService = CreateAbsenceDaysService(timeRegistrationStorage);
+
+        // Same user as user 1 in the database
+        _userContextMock.Setup(context => context.GetCurrentUser()).Returns(Task.FromResult(
+            new AlvTime.Business.Users.User
+            {
+                Id = 1,
+                Email = "someone@alv.no",
+                Name = "Someone",
+                StartDate = new DateTime(2020, 01, 02),
+                Oid = "12345678-1234-1234-1234-123456789012"
+            }));
+
+        var singleUserOverview = await absenceService.GetAllTimeVacationOverview(DateTime.Now.Year);
+        var reports = await absenceService.GetVacationOverviewForAllUsers(DateTime.Now.Year);
+        var user1Report = reports.Single(r => r.UserId == 1);
+
+        Assert.Equal(singleUserOverview.AvailableVacationDays, user1Report.VacationDaysDto.AvailableVacationDays);
+        Assert.Equal(singleUserOverview.AvailableVacationDaysTransferredFromLastYear,
+            user1Report.VacationDaysDto.AvailableVacationDaysTransferredFromLastYear);
+        Assert.Equal(singleUserOverview.UsedVacationDaysThisYear, user1Report.VacationDaysDto.UsedVacationDaysThisYear);
+        Assert.Equal(singleUserOverview.PlannedVacationDaysThisYear, user1Report.VacationDaysDto.PlannedVacationDaysThisYear);
+    }
+
+    [Fact]
+    public async Task GetAllCustomVacationEarned_ReturnsOverridesForAllUsers()
+    {
+        _context.VacationDaysEarnedOverride.Add(new VacationDaysEarnedOverride
+        {
+            UserId = 1,
+            Year = 2021,
+            DaysEarned = 15
+        });
+        _context.VacationDaysEarnedOverride.Add(new VacationDaysEarnedOverride
+        {
+            UserId = 2,
+            Year = 2022,
+            DaysEarned = 10
+        });
+        await _context.SaveChangesAsync();
+
+        var absenceStorage = new AbsenceStorage(_context);
+
+        var overrides = (await absenceStorage.GetAllCustomVacationEarned()).ToList();
+
+        Assert.Equal(2, overrides.Count);
+        Assert.Contains(overrides, o => o.UserId == 1 && o.Year == 2021 && o.DaysEarned == 15);
+        Assert.Contains(overrides, o => o.UserId == 2 && o.Year == 2022 && o.DaysEarned == 10);
     }
 
     private TimeRegistrationStorage CreateTimeRegistrationStorage()
