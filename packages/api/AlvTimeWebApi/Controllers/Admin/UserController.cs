@@ -1,6 +1,7 @@
 ﻿using AlvTime.Business.Users;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using AlvTimeWebApi.Controllers.Utils;
 using AlvTimeWebApi.Requests;
@@ -9,15 +10,17 @@ using AlvTimeWebApi.Responses.Admin;
 using AlvTimeWebApi.ErrorHandling;
 using AlvTimeWebApi.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace AlvTimeWebApi.Controllers.Admin;
 
 [Route("api/admin")]
 [ApiController]
 [Authorize(Policy = "AdminPolicy")]
-public class UserController(UserService userService, GraphService graphService) : ControllerBase
+public class UserController(UserService userService, GraphService graphService, IOutputCacheStore outputCacheStore) : ControllerBase
 {
     [HttpGet("Users")]
+    [OutputCache(PolicyName = "Expire5Min", Tags = ["users"])]
     public async Task<ActionResult<IEnumerable<UserAdminResponse>>> FetchUsers()
     {
         var result = await userService.GetUsers(new UserQuerySearch());
@@ -42,6 +45,7 @@ public class UserController(UserService userService, GraphService graphService) 
     {
         var userObjectId = await graphService.GetObjectIdByEmail(userToBeCreated.Email);
         var result = await userService.CreateUser(userToBeCreated.MapToUserDto(userObjectId));
+        await outputCacheStore.EvictByTagAsync("users", CancellationToken.None);
         return result.Match<ActionResult<UserAdminResponse>>(
             user => user.MapToUserResponse(),
             errors => BadRequest(errors.ToValidationProblemDetails("Opprettelse av bruker feilet")));
@@ -62,6 +66,7 @@ public class UserController(UserService userService, GraphService graphService) 
     public async Task<ActionResult<UserAdminResponse>> UpdateUser([FromBody] UserUpsertRequest userToBeUpdated, int userId)
     {
         var updatedUser = await userService.UpdateUser(userToBeUpdated.MapToUserDto(userId, "NA"));
+        await outputCacheStore.EvictByTagAsync("users", CancellationToken.None);
         return updatedUser.Match<ActionResult>(
             user => Ok(user.MapToUserResponse()),
             errors => BadRequest(errors.ToValidationProblemDetails("Oppdatering av bruker feilet")));
