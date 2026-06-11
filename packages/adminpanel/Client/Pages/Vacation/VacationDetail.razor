@@ -135,11 +135,6 @@
     private VacationDaysModel? _vacation;
     private List<VacationPeriod> _periods = [];
 
-    private decimal Available => _vacation?.AvailableVacationDays ?? 0;
-    private decimal Taken => _vacation?.UsedVacationDaysThisYear ?? 0;
-    private decimal Planned => _vacation?.PlannedVacationDaysThisYear ?? 0;
-    private decimal StartedWith => Available + Taken;
-
     protected override async Task OnInitializedAsync()
     {
         Interceptor.RegisterEvent();
@@ -156,12 +151,10 @@
 
         try
         {
-            var vacationTask = HttpClient.GetFromJsonAsync<List<VacationOverviewReportModel>>(ApiRoutes.VacationOverview(_year));
-            var employeeTask = HttpClient.GetFromJsonAsync<EmployeeModel>(ApiRoutes.GetEmployeeById(id));
-            await Task.WhenAll(vacationTask, employeeTask);
-
-            _employee = await employeeTask;
-            _vacation = (await vacationTask ?? []).FirstOrDefault(r => r.UserId == id)?.VacationDaysDto;
+            _employee = await HttpClient.GetFromJsonAsync<EmployeeModel>(ApiRoutes.GetEmployeeById(id));
+            
+            var vacationOverview = await HttpClient.GetFromJsonAsync<VacationOverviewReportModel>(ApiRoutes.VacationOverviewSingleUser(id, _year));
+            _vacation = vacationOverview != null ? vacationOverview.VacationDaysDto : new VacationDaysModel();
 
             if (_vacation is not null)
             {

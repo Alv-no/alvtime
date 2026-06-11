@@ -6,4 +6,5 @@ namespace AlvTime.Business.Absence;
 public interface IAbsenceStorage
 {
     Task<IEnumerable<CustomVacationOverrideOverview>> GetCustomVacationEarned(int userId);
+    Task<IEnumerable<CustomVacationOverrideOverview>> GetAllCustomVacationEarned();
 }

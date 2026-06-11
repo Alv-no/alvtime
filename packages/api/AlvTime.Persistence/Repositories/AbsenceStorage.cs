@@ -7,18 +7,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AlvTime.Persistence.Repositories;
 
-public class AbsenceStorage : IAbsenceStorage
+public class AbsenceStorage(AlvTime_dbContext context) : IAbsenceStorage
 {
-    private readonly AlvTime_dbContext _context;
-
-    public AbsenceStorage(AlvTime_dbContext context)
-    {
-        _context = context;
-    }
-    
     public async Task<IEnumerable<CustomVacationOverrideOverview>> GetCustomVacationEarned(int userId)
     {
-        return (await _context.VacationDaysEarnedOverride.Where(v => v.UserId == userId).ToListAsync()).Select(v => new CustomVacationOverrideOverview
+        return (await context.VacationDaysEarnedOverride.Where(v => v.UserId == userId).ToListAsync()).Select(v => new CustomVacationOverrideOverview
+        {
+            UserId = v.UserId,
+            Year = v.Year,
+            DaysEarned = v.DaysEarned
+        });
+    }
+
+    public async Task<IEnumerable<CustomVacationOverrideOverview>> GetAllCustomVacationEarned()
+    {
+        return (await context.VacationDaysEarnedOverride.ToListAsync()).Select(v => new CustomVacationOverrideOverview
         {
             UserId = v.UserId,
             Year = v.Year,

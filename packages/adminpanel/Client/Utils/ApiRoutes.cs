@@ -22,4 +22,7 @@ public static class ApiRoutes
     public static string VacationOverview(int? year = null) => year.HasValue
         ? $"api/admin/vacationOverview?currentYear={year}"
         : "api/admin/vacationOverview";
+    public static string VacationOverviewSingleUser(int userId, int? year = null) => year.HasValue
+        ? $"api/admin/vacationOverview/{userId}?currentYear={year}"
+        : $"api/admin/vacationOverview/{userId}";
 }
