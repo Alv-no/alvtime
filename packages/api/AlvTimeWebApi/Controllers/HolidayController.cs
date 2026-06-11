@@ -79,7 +79,7 @@ public class HolidayController : Controller
 
     [HttpGet("user/VacationOverview")]
     [Authorize]
-    public async Task<ActionResult<VacationDaysDTO>> FetchVacationOverview([FromQuery] int? year, int? month, int? day)
+    public async Task<ActionResult<VacationDaysDto>> FetchVacationOverview([FromQuery] int? year, int? month, int? day)
     {
         if (!year.HasValue)
         {
@@ -109,7 +109,7 @@ public class HolidayController : Controller
         }
         try
         {
-            var absenceDays = await _absenceDaysService.GetAbsenceDays(user.Id, year.Value, intervalStart);
+            var absenceDays = await _absenceDaysService.GetAbsenceDays(user.Id, intervalStart);
             return Ok(absenceDays);
         }
         catch (Exception e)

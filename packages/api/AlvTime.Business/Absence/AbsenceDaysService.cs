@@ -15,8 +15,8 @@ public class AbsenceDaysService : IAbsenceDaysService
     private readonly IOptionsMonitor<TimeEntryOptions> _timeEntryOptions;
     private readonly IUserContext _userContext;
     private readonly IAbsenceStorage _absenceStorage;
+    private readonly IUserRepository _userStorage;
     private const int DefaultVacationDaysAmount = 25;
-    private decimal _daysInYear = 365.2425M;
 
     // Current law says that you can take three 
     // calendar days in a row 4 times within a 12 month period
@@ -24,15 +24,16 @@ public class AbsenceDaysService : IAbsenceDaysService
     private const int SickLeaveGroupSize = 3;
 
     public AbsenceDaysService(ITimeRegistrationStorage timeRegistrationStorage,
-        IOptionsMonitor<TimeEntryOptions> timeEntryOptions, IUserContext userContext, IAbsenceStorage absenceStorage)
+        IOptionsMonitor<TimeEntryOptions> timeEntryOptions, IUserContext userContext, IAbsenceStorage absenceStorage, IUserRepository userStorage)
     {
         _timeRegistrationStorage = timeRegistrationStorage;
         _timeEntryOptions = timeEntryOptions;
         _userContext = userContext;
         _absenceStorage = absenceStorage;
+        _userStorage = userStorage;
     }
 
-    public async Task<AbsenceDaysDto> GetAbsenceDays(int userId, int year, DateTime? intervalStart)
+    public async Task<AbsenceDaysDto> GetAbsenceDays(int userId, DateTime? intervalStart)
     {
         IEnumerable<TimeEntryResponseDto> sickLeaveDays = await _timeRegistrationStorage.GetTimeEntries(
             new TimeEntryQuerySearch
@@ -109,34 +110,49 @@ public class AbsenceDaysService : IAbsenceDaysService
         return false;
     }
 
-    public async Task<VacationDaysDTO> GetAllTimeVacationOverview(int currentYear)
+    public async Task<VacationDaysDto> GetAllTimeVacationOverview(int currentYear)
     {
         var currentUser = await _userContext.GetCurrentUser();
-        var currentUserStartDate = currentUser.StartDate;
+        return await GetVacationOverviewForUser(currentUser.Id, currentUser.StartDate, currentYear);
+    }
+    
+    public async Task<List<VacationOverviewReport>> GetVacationOverviewForAllUsers(int currentYear)
+    {
+        var users = await _userStorage.GetUsers(new UserQuerySearch());
+        var reports = new List<VacationOverviewReport>();
+        foreach (var user in users.Where(u => u.StartDate.HasValue))
+        {
+            var dto = await GetVacationOverviewForUser(user.Id, user.StartDate!.Value, currentYear);
+            reports.Add(new VacationOverviewReport { UserId = user.Id, VacationDaysDto = dto });
+        }
+        return reports;
+    }
 
+    private async Task<VacationDaysDto> GetVacationOverviewForUser(int userId, DateTime userStartDate, int currentYear)
+    {
         var paidVacationEntries = await _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
         {
-            FromDateInclusive = currentUserStartDate,
+            FromDateInclusive = userStartDate,
             ToDateInclusive = new DateTime(currentYear, 12, 31),
-            UserId = currentUser.Id,
+            UserId = userId,
             TaskId = _timeEntryOptions.CurrentValue.PaidHolidayTask
         });
 
         var unpaidVacationEntries = await _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
         {
-            FromDateInclusive = currentUserStartDate,
+            FromDateInclusive = userStartDate,
             ToDateInclusive = new DateTime(currentYear, 12, 31),
-            UserId = currentUser.Id,
+            UserId = userId,
             TaskId = _timeEntryOptions.CurrentValue.UnpaidHolidayTask
         });
         var allVacationTransactions = paidVacationEntries.Concat(unpaidVacationEntries).ToList();
 
-        var numberOfYearsWorked = currentYear - currentUserStartDate.Year;
+        var numberOfYearsWorked = currentYear - userStartDate.Year;
         var yearsWorked = new List<int>();
         var allRedDays = new List<string>();
         for (var i = 0; i <= numberOfYearsWorked; i++)
         {
-            var year = currentUserStartDate.Year + i;
+            var year = userStartDate.Year + i;
             yearsWorked.Add(year);
             var redDaysInYear = new RedDays(year).Dates.Select(d => d.ToShortDateString());
             allRedDays.AddRange(redDaysInYear);
@@ -159,25 +175,27 @@ public class AbsenceDaysService : IAbsenceDaysService
 
         var usersAvailableVacationDays = 0M;
 
-        var userStartDay = currentUserStartDate.DayOfYear;
+        var userStartDay = userStartDate.DayOfYear;
 
-        var overridenVacation = (await _absenceStorage.GetCustomVacationEarned(currentUser.Id)).ToList();
+        var overridenVacation = (await _absenceStorage.GetCustomVacationEarned(userId)).ToList();
 
-        var usersAvailableVacationDaysThisYear = 0M;
+        var unusedDaysTransferredFromLastYear = 0M;
 
         foreach (var year in yearsWorked)
         {
-            if (DateTime.IsLeapYear(year))
+            var daysLastYear = 365.2425M;
+
+            if (DateTime.IsLeapYear(year - 1))
             {
-                _daysInYear = 366.2425M;
+                daysLastYear = 366.2425M;
             }
             
-            var daysEmployedLastYear = currentUserStartDate.Year == year ? 0 :
-                currentUserStartDate.Year == year - 1 ? _daysInYear - userStartDay : _daysInYear;
+            var daysEmployedLastYear = userStartDate.Year == year ? 0 :
+                userStartDate.Year == year - 1 ? daysLastYear - userStartDay : daysLastYear;
 
             var earnedDaysFromPreviousYear = overridenVacation.Any(v => v.Year == year - 1)
                 ? overridenVacation.Single(v => v.Year == year - 1).DaysEarned
-                : (int)Math.Round(daysEmployedLastYear * (DefaultVacationDaysAmount / _daysInYear));
+                : (int)Math.Round(daysEmployedLastYear * (DefaultVacationDaysAmount / daysLastYear));
 
             var spentVacationThisYear =
                 spentVacationByYear.Where(v => v.Key == year).SelectMany(v => v).Sum(v => v.Value) / 7.5M;
@@ -190,20 +208,19 @@ public class AbsenceDaysService : IAbsenceDaysService
             else
             {
                 usersAvailableVacationDays += sumVacationDaysThisYear;
-            }
-
-            if (year == currentYear)
-            {
-                usersAvailableVacationDaysThisYear = earnedDaysFromPreviousYear;
+                if (year == currentYear - 1)
+                {
+                    unusedDaysTransferredFromLastYear = usersAvailableVacationDays;
+                }
             }
         }
 
-        return new VacationDaysDTO
+        return new VacationDaysDto
         {
             PlannedVacationDaysThisYear = plannedVacationThisYear.Sum(v => v.Value) / 7.5M,
             UsedVacationDaysThisYear = usedVacationThisYear.Sum(v => v.Value) / 7.5M,
             AvailableVacationDays = usersAvailableVacationDays,
-            AvailableVacationDaysTransferredFromLastYear = Math.Max(0, usersAvailableVacationDays - usersAvailableVacationDaysThisYear),
+            AvailableVacationDaysTransferredFromLastYear = unusedDaysTransferredFromLastYear,
             PlannedTransactions = plannedVacation,
             UsedTransactions = usedVacation
         };
