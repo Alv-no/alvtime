@@ -4,14 +4,12 @@ using System.Threading.Tasks;
 using AlvTime.Business.Absence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
 
 namespace AlvTimeWebApi.Controllers.Admin;
 
 [ApiController]
 [Route("api/admin")]
 [Authorize(Roles = "Admin")]
-[OutputCache(PolicyName = "Expire5Min")]
 public class VacationController(IAbsenceDaysService absenceDaysService) : ControllerBase
 {
     [HttpGet("vacationOverview")]
