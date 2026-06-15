@@ -5,6 +5,7 @@ using AlvTime.Business.TimeRegistration;
 using AlvTime.Business.Users;
 using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
@@ -562,6 +563,6 @@ public class AbsenceDayStorageTests
 
     private AlvTime.Business.Absence.AbsenceDaysService CreateAbsenceDaysService(TimeRegistrationStorage storage)
     {
-        return new AlvTime.Business.Absence.AbsenceDaysService(storage, _options, _userContextMock.Object, new AbsenceStorage(_context), new UserRepository(_context));
+        return new AlvTime.Business.Absence.AbsenceDaysService(storage, _options, _userContextMock.Object, new AbsenceStorage(_context), new UserRepository(_context), new MemoryCache(new MemoryCacheOptions()));
     }
 }

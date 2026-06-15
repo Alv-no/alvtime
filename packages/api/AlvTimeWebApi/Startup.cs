@@ -54,10 +54,7 @@ public class Startup
         services.AddRazorPages();
         services.AddAlvtimeCorsPolicys(Configuration);
         services.ConfigureLogging(_environment);
-        services.AddOutputCache(options =>
-        {
-            options.AddPolicy("Expire5Min", builder => builder.Expire(TimeSpan.FromMinutes(5)));
-        });
+        services.AddMemoryCache();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -86,7 +83,6 @@ public class Startup
             app.UseHttpsRedirection();
         }
 
-        app.UseOutputCache();
         app.UseCsrfMiddleware();
         app.UseAuthentication();
         app.UseAuthorization();

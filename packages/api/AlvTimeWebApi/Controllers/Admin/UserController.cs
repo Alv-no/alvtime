@@ -1,7 +1,7 @@
-﻿using AlvTime.Business.Users;
+﻿using System;
+using AlvTime.Business.Users;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using AlvTimeWebApi.Controllers.Utils;
 using AlvTimeWebApi.Requests;
@@ -10,32 +10,33 @@ using AlvTimeWebApi.Responses.Admin;
 using AlvTimeWebApi.ErrorHandling;
 using AlvTimeWebApi.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace AlvTimeWebApi.Controllers.Admin;
 
 [Route("api/admin")]
 [ApiController]
 [Authorize(Policy = "AdminPolicy")]
-public class UserController(UserService userService, GraphService graphService, IOutputCacheStore outputCacheStore) : ControllerBase
+public class UserController(UserService userService, GraphService graphService, IMemoryCache cache) : ControllerBase
 {
     [HttpGet("Users")]
-    [OutputCache(PolicyName = "Expire5Min", Tags = ["users"])]
-    public async Task<ActionResult<IEnumerable<UserAdminResponse>>> FetchUsers()
+    public async Task<ActionResult<List<UserAdminResponse>>> FetchUsers()
     {
-        var result = await userService.GetUsers(new UserQuerySearch());
-
-        if (!result.IsSuccess) return BadRequest(result.Errors.ToValidationProblemDetails("Hent brukere feilet"));
+        if (cache.TryGetValue("users", out List<UserAdminResponse> userResponses)) return Ok(userResponses);
         
-        var userResponses = new List<UserAdminResponse>();
-        var users = result.Value;
+        var result = await userService.GetUsers(new UserQuerySearch());
+        if (!result.IsSuccess)
+            return BadRequest(result.Errors.ToValidationProblemDetails("Hent brukere feilet"));
 
-        foreach (var user in users)
+        userResponses = [];
+        foreach (var user in result.Value)
         {
             var response = user.MapToUserResponse();
             response.ProfilePicture = await graphService.GetProfilePictureBase64(user.Oid, user.Email);
             userResponses.Add(response);
         }
+
+        cache.Set("users", userResponses, TimeSpan.FromMinutes(15));
 
         return Ok(userResponses);
     }
@@ -45,7 +46,7 @@ public class UserController(UserService userService, GraphService graphService, 
     {
         var userObjectId = await graphService.GetObjectIdByEmail(userToBeCreated.Email);
         var result = await userService.CreateUser(userToBeCreated.MapToUserDto(userObjectId));
-        await outputCacheStore.EvictByTagAsync("users", CancellationToken.None);
+        cache.Remove("users");
         return result.Match<ActionResult<UserAdminResponse>>(
             user => user.MapToUserResponse(),
             errors => BadRequest(errors.ToValidationProblemDetails("Opprettelse av bruker feilet")));
@@ -66,7 +67,7 @@ public class UserController(UserService userService, GraphService graphService, 
     public async Task<ActionResult<UserAdminResponse>> UpdateUser([FromBody] UserUpsertRequest userToBeUpdated, int userId)
     {
         var updatedUser = await userService.UpdateUser(userToBeUpdated.MapToUserDto(userId, "NA"));
-        await outputCacheStore.EvictByTagAsync("users", CancellationToken.None);
+        cache.Remove("users");
         return updatedUser.Match<ActionResult>(
             user => Ok(user.MapToUserResponse()),
             errors => BadRequest(errors.ToValidationProblemDetails("Oppdatering av bruker feilet")));
