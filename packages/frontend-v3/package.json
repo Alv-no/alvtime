@@ -29,14 +29,14 @@
 	"devDependencies": {
 		"@types/d3": "^7.4.3",
 		"@types/feather-icons": "^4.29.4",
-		"@vitejs/plugin-vue": "^6.0.1",
+		"@vitejs/plugin-vue": "^6.0.7",
 		"@vue/tsconfig": "^0.7.0",
 		"eslint": "^9.27.0",
 		"eslint-plugin-vue": "^10.1.0",
 		"sass-embedded": "^1.89.0",
 		"typescript": "~5.8.3",
 		"typescript-eslint": "^8.32.1",
-		"vite": "^7.3.2",
+		"vite": "^8.0.16",
 		"vue-tsc": "^2.2.8"
 	}
 }
