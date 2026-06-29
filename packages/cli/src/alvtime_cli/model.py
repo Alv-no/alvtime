@@ -71,6 +71,7 @@ class TimebankEntryType(IntEnum):
     OVERTIME = 0
     PAYOUT = 1
     FLEX = 2
+    FISCAL_YEAR_DEBT = 3
 
 
 class AvailableHoursEntry(BaseModel):
