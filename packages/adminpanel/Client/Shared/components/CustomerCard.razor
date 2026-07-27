@@ -7,9 +7,9 @@
 
 <MudCard
     Elevation="2"
-    Style="width: 13rem; height: 20rem;">
+    Style="width: 13rem; height: 20rem; display: flex; flex-direction: column;">
     <MudAvatar
-        Class="align-self-center ma-4"
+        Class="align-self-center ma-2"
         Color="Color.Secondary"
         Style="width: 80px; height: 80px; ">
         @if (AvatarImageUrl is not null)
@@ -37,8 +37,8 @@
 
     </MudAvatar>
     <MudCardContent
-        Style="text-wrap: wrap; text-align: center;">
-        <MudText Typo="Typo.body1" Style="font-size: 1.5rem;">@CustomerName</MudText>
+        Style="text-wrap: wrap; text-align: center; flex: 1 1 auto; min-height: 0; overflow: hidden;">
+        <MudText Typo="Typo.body1" Style="font-size: 1.25rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">@CustomerName</MudText>
         @if (ProjectCount is not null)
         {
             var projectLabel = ProjectCount == 1 ? "Common.Project" : "Common.Projects";
@@ -48,7 +48,7 @@
             {
                 <MudText
                     Typo="Typo.body1"
-                    Class="mb-4"
+                    Class="my-2"
                     >
                         @ProjectCount @localizedLabel.ToString().ToLower()
                 </MudText>
@@ -57,7 +57,7 @@
 
         @if (!string.IsNullOrWhiteSpace(ContactPerson))
         {
-            <MudText Typo="Typo.caption">@Localizer["Common.ContactPerson"]</MudText>
+            <MudText Typo="Typo.caption" Class="mt-2">@Localizer["Common.ContactPerson"]</MudText>
             <MudText Typo="Typo.body1">@ContactPerson</MudText>
         }
 
