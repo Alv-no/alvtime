@@ -1,4 +1,5 @@
-﻿using AlvTime.Business.Customers;
+﻿using System;
+using AlvTime.Business.Customers;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,5 +52,26 @@ public class CustomerController(CustomerService customerService) : ControllerBas
         return result.Match<ActionResult<CustomerResponse>>(
             customer => Ok(customer.MapToCustomerResponse()),
             errors => BadRequest(errors.ToValidationProblemDetails("Oppdatering av kunde feilet")));
+    }
+
+    [HttpPut("Customers/Lock")]
+    public async Task<ActionResult> LockCustomers([FromQuery] DateTime toDateInclusive, [FromQuery] List<int>? customersToExclude = null)
+    {
+        await customerService.LockCustomers(toDateInclusive, customersToExclude);
+        return Ok();
+    }
+    
+    [HttpPut("Customers/Lock/{customerId:int}")]
+    public async Task<ActionResult> LockCustomer([FromQuery] DateTime toDateInclusive, [FromRoute] int? customerId = null)
+    {
+        await customerService.LockCustomers(toDateInclusive, null, customerId);
+        return Ok();
+    }
+    
+    [HttpPut("Customers/Unlock/{customerId:int?}")]
+    public async Task<ActionResult> UnlockCustomers([FromRoute] int? customerId = null)
+    {
+        await customerService.UnlockCustomers(customerId);
+        return Ok();
     }
 }

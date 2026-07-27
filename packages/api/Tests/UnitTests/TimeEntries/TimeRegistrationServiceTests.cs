@@ -275,6 +275,93 @@ public class TimeRegistrationServiceTests
         Assert.Equal("Kommentar 2", timeEntry.Comment);
     }
 
+    [Fact]
+    public async System.Threading.Tasks.Task UpsertTimeEntry_CustomerLockedAfterEntryDate_CannotRegisterHours()
+    {
+        _context.Customer.First(c => c.Id == 1).LockedTo = new DateTime(2022, 01, 31);
+        await _context.SaveChangesAsync();
+
+        var timeEntry = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 03), 7.5M, 1); //Monday
+        var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId } });
+
+        Assert.False(timeEntryResult.IsSuccess);
+        Assert.True(timeEntryResult.Errors.Any());
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task UpsertTimeEntry_CustomerLockedOnEntryDate_CannotRegisterHours()
+    {
+        _context.Customer.First(c => c.Id == 1).LockedTo = new DateTime(2022, 01, 03);
+        await _context.SaveChangesAsync();
+
+        var timeEntry = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 03), 7.5M, 1); //Monday
+        var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId } });
+
+        Assert.False(timeEntryResult.IsSuccess);
+        Assert.True(timeEntryResult.Errors.Any());
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task UpsertTimeEntry_CustomerLocked_CannotChangeExistingHours()
+    {
+        var timeEntry = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 03), 7.5M, 1); //Monday
+        var initialResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId } });
+        Assert.True(initialResult.IsSuccess);
+
+        _context.Customer.First(c => c.Id == 1).LockedTo = new DateTime(2022, 01, 31);
+        await _context.SaveChangesAsync();
+
+        var changedResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry.Date, Value = 5M, TaskId = timeEntry.TaskId } });
+
+        Assert.False(changedResult.IsSuccess);
+        Assert.True(changedResult.Errors.Any());
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task UpsertTimeEntry_CustomerLockedBeforeEntryDate_CanRegisterHours()
+    {
+        _context.Customer.First(c => c.Id == 1).LockedTo = new DateTime(2021, 12, 31);
+        await _context.SaveChangesAsync();
+
+        var timeEntry = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 03), 7.5M, 1); //Monday
+        var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId } });
+
+        Assert.True(timeEntryResult.IsSuccess);
+        Assert.False(timeEntryResult.Errors.Any());
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task UpsertTimeEntry_CustomerNotLocked_CanRegisterHours()
+    {
+        var timeEntry = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 03), 7.5M, 1); //Monday
+        var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId } });
+
+        Assert.True(timeEntryResult.IsSuccess);
+        Assert.False(timeEntryResult.Errors.Any());
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task UpsertTimeEntry_CustomerUnlockedAfterBeingLocked_CanRegisterHours()
+    {
+        _context.Customer.First(c => c.Id == 1).LockedTo = new DateTime(2022, 01, 31);
+        await _context.SaveChangesAsync();
+
+        await new CustomerStorage(_context).UnlockCustomer(1);
+
+        var timeEntry = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 03), 7.5M, 1); //Monday
+        var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId } });
+
+        Assert.True(timeEntryResult.IsSuccess);
+        Assert.False(timeEntryResult.Errors.Any());
+    }
+
     private TimeRegistrationService CreateTimeRegistrationService()
     {
         return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace AlvTime.Business.Customers
@@ -10,6 +11,8 @@ namespace AlvTime.Business.Customers
         Task<IEnumerable<CustomerAdminDto>> GetCustomersAdmin();
         Task CreateCustomer(CustomerDto customer);
         Task UpdateCustomer(CustomerDto customer);
+        Task LockCustomer(DateTime lockDate, int customerId);
+        Task UnlockCustomer(int customerId);
     }
 
     public class CustomerQuerySearch

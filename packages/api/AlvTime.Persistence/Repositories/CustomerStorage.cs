@@ -1,4 +1,5 @@
-﻿using AlvTime.Business.Customers;
+﻿using System;
+using AlvTime.Business.Customers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -131,5 +132,27 @@ public class CustomerStorage : ICustomerStorage
         existingCustomer.OrgNr = customer.OrgNr;
 
         await _context.SaveChangesAsync();
+    }
+
+    public async Task LockCustomer(DateTime lockDate, int customerId)
+    {
+        var customer = await _context.Customer.FirstOrDefaultAsync(x => x.Id == customerId);
+
+        if (customer != null)
+        {
+            customer.LockedTo = lockDate;
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public async Task UnlockCustomer(int customerId)
+    {
+        var customer = await _context.Customer.FirstOrDefaultAsync(x => x.Id == customerId);
+
+        if (customer != null)
+        {
+            customer.LockedTo = null;
+            await _context.SaveChangesAsync();
+        }
     }
 }

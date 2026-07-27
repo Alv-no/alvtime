@@ -13,47 +13,29 @@ using Microsoft.Extensions.Options;
 
 namespace AlvTime.Business.TimeRegistration;
 
-public class TimeRegistrationService
+public class TimeRegistrationService(
+    IOptionsMonitor<TimeEntryOptions> timeEntryOptions,
+    IUserContext userContext,
+    TaskUtils taskUtils,
+    ITimeRegistrationStorage timeRegistrationStorage,
+    IDbContextScope dbContextScope,
+    IPayoutStorage payoutStorage,
+    UserService userService)
 {
-    private readonly IUserContext _userContext;
-    private readonly TaskUtils _taskUtils;
-    private readonly ITimeRegistrationStorage _timeRegistrationStorage;
-    private readonly IDbContextScope _dbContextScope;
-    private readonly IPayoutStorage _payoutStorage;
-    private readonly UserService _userService;
-    private readonly int _flexTask;
-    private readonly int _paidHolidayTask;
+    private readonly int _flexTask = timeEntryOptions.CurrentValue.FlexTask;
+    private readonly int _paidHolidayTask = timeEntryOptions.CurrentValue.PaidHolidayTask;
     private const decimal HoursInWorkday = 7.5M;
 
-    public TimeRegistrationService(
-        IOptionsMonitor<TimeEntryOptions> timeEntryOptions,
-        IUserContext userContext,
-        TaskUtils taskUtils,
-        ITimeRegistrationStorage timeRegistrationStorage,
-        IDbContextScope dbContextScope,
-        IPayoutStorage payoutStorage,
-        UserService userService)
-    {
-        _userContext = userContext;
-        _taskUtils = taskUtils;
-        _timeRegistrationStorage = timeRegistrationStorage;
-        _dbContextScope = dbContextScope;
-        _payoutStorage = payoutStorage;
-        _userService = userService;
-        _flexTask = timeEntryOptions.CurrentValue.FlexTask;
-        _paidHolidayTask = timeEntryOptions.CurrentValue.PaidHolidayTask;
-    }
-    
     public async Task<IEnumerable<TimeEntryOverviewDto>> FetchTimeEntryOverview(int numberOfMonths = 3)
     {
-        var user = await _userContext.GetCurrentUser();
+        var user = await userContext.GetCurrentUser();
         var userId = user.Id;
 
         var today = DateTime.Today;
         var fromDate = new DateTime(today.Year, today.Month, 1).AddMonths(-numberOfMonths);
         var toDate = new DateTime(today.Year, today.Month, 1).AddMonths(1).AddDays(-1);
 
-        var timeEntries = await _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
+        var timeEntries = await timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
         {
             UserId = userId,
             FromDateInclusive = fromDate,
@@ -90,7 +72,7 @@ public class TimeRegistrationService
 
     public async Task<Result<IEnumerable<TimeEntryResponseDto>>> UpsertTimeEntry(IEnumerable<CreateTimeEntryDto> timeEntries)
     {
-        var currentUser = await _userContext.GetCurrentUser();
+        var currentUser = await userContext.GetCurrentUser();
         var userId = currentUser.Id;
 
         List<TimeEntryResponseDto> response = new List<TimeEntryResponseDto>();
@@ -115,11 +97,11 @@ public class TimeRegistrationService
                 var hour = await GetTimeEntry(criterias);
                 if (hour == null && timeEntry.Value == 0)
                 {
-                    await _timeRegistrationStorage.CreateTimeEntry(timeEntry, userId);
+                    await timeRegistrationStorage.CreateTimeEntry(timeEntry, userId);
                 }
                 if (hour != null)
                 {
-                    await _timeRegistrationStorage.UpdateComment(timeEntry.Comment, hour!.Id);
+                    await timeRegistrationStorage.UpdateComment(timeEntry.Comment, hour!.Id);
                 }
 
                 return validationErrors;
@@ -127,9 +109,9 @@ public class TimeRegistrationService
 
             if (!timeEntryExists)
             {
-                await _dbContextScope.AsAtomic(async () =>
+                await dbContextScope.AsAtomic(async () =>
                 {
-                    var createdTimeEntry = await _timeRegistrationStorage.CreateTimeEntry(timeEntry, userId);
+                    var createdTimeEntry = await timeRegistrationStorage.CreateTimeEntry(timeEntry, userId);
                     response.Add(createdTimeEntry);
                     var entriesOnDay = await GetEntriesWithCompRatesForUserOnDay(userId, timeEntry.Date);
                     await UpdateEarnedOvertime(entriesOnDay, userId);
@@ -139,9 +121,9 @@ public class TimeRegistrationService
             }
             else
             {
-                await _dbContextScope.AsAtomic(async () =>
+                await dbContextScope.AsAtomic(async () =>
                 {
-                    var updatedTimeEntry = await _timeRegistrationStorage.UpdateTimeEntry(timeEntry, userId);
+                    var updatedTimeEntry = await timeRegistrationStorage.UpdateTimeEntry(timeEntry, userId);
                     response.Add(updatedTimeEntry);
                     var entriesOnDay = await GetEntriesWithCompRatesForUserOnDay(userId, timeEntry.Date);
                     await UpdateEarnedOvertime(entriesOnDay, userId);
@@ -159,7 +141,7 @@ public class TimeRegistrationService
         if (entriesOnDay.Any(e => e.TaskId == _flexTask))
         {
             var date = entriesOnDay.First().Date.Date;
-            await _timeRegistrationStorage.DeleteFlexOnDate(date, userId);
+            await timeRegistrationStorage.DeleteFlexOnDate(date, userId);
             var amountToFlex = entriesOnDay.Where(e => e.TaskId == _flexTask).Sum(f => f.Value);
             var availableOvertime = await GetAvailableOvertimeHoursAtDate(date);
             var nonImposedOverTime = availableOvertime.Entries
@@ -189,7 +171,7 @@ public class TimeRegistrationService
                 }
 
                 var amountToFlexOnCompRate = Math.Min(amountToFlex, overtimeGroup.Hours);
-                await _timeRegistrationStorage.RegisterFlex(new TimeEntry
+                await timeRegistrationStorage.RegisterFlex(new TimeEntry
                 {
                     Date = date,
                     CompensationRate = overtimeGroup.CompensationRate,
@@ -203,7 +185,7 @@ public class TimeRegistrationService
 
     private async Task UpdateFutureFlex(DateTime date, int userId)
     {
-        var futureFlexEntries = (await _timeRegistrationStorage.GetFlexEntries(new TimeEntryQuerySearch
+        var futureFlexEntries = (await timeRegistrationStorage.GetFlexEntries(new TimeEntryQuerySearch
         {
             UserId = userId,
             FromDateInclusive = date.AddDays(1)
@@ -223,19 +205,24 @@ public class TimeRegistrationService
     private async Task<List<Error>> ValidateTimeEntry(CreateTimeEntryDto timeEntry)
     {
         var timeEntryDate = timeEntry.Date.Date;
-        var currentUser = await _userContext.GetCurrentUser();
-        var timeEntriesOnDate = (await _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
+        var currentUser = await userContext.GetCurrentUser();
+        var timeEntriesOnDate = (await timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
         {
             FromDateInclusive = timeEntryDate,
             ToDateInclusive = timeEntryDate,
             UserId = currentUser.Id
         })).ToDictionary(entry => entry.TaskId, entry => entry);
 
-        var latestPayoutDate = (await _payoutStorage.GetRegisteredPayouts(new PayoutQueryFilter { UserId = currentUser.Id })).Entries.MaxBy(po => po.Date)?.Date.Date;
+        if (await taskUtils.TaskIsLocked(timeEntry.TaskId, timeEntryDate))
+        {
+            return [new Error(ErrorCodes.InvalidAction, "Denne timekoden er låst. Kontakt Birgitte hvis du trenger å endre den.")];
+        }
+
+        var latestPayoutDate = (await payoutStorage.GetRegisteredPayouts(new PayoutQueryFilter { UserId = currentUser.Id })).Entries.MaxBy(po => po.Date)?.Date.Date;
 
         var allRedDays = new RedDays(timeEntryDate.Year).Dates;
 
-        var usersEmploymentRateResult = await _userService.GetCurrentEmploymentRateForUser(currentUser.Id, timeEntryDate);
+        var usersEmploymentRateResult = await userService.GetCurrentEmploymentRateForUser(currentUser.Id, timeEntryDate);
         if (!usersEmploymentRateResult.IsSuccess)
         {
             return usersEmploymentRateResult.Errors;
@@ -308,7 +295,7 @@ public class TimeRegistrationService
             }
         }
 
-        var taskGivesOvertime = await _taskUtils.TaskGivesOvertime(timeEntry.TaskId);
+        var taskGivesOvertime = await taskUtils.TaskGivesOvertime(timeEntry.TaskId);
         if (timeEntry.Value > anticipatedWorkHours && !taskGivesOvertime)
         {
             return new List<Error>
@@ -348,7 +335,7 @@ public class TimeRegistrationService
             }
         }
 
-        var previousOvertimeOnDate = await _timeRegistrationStorage.GetEarnedOvertime(new OvertimeQueryFilter
+        var previousOvertimeOnDate = await timeRegistrationStorage.GetEarnedOvertime(new OvertimeQueryFilter
         {
             UserId = currentUserId,
             FromDateInclusive = date,
@@ -364,7 +351,7 @@ public class TimeRegistrationService
 
             var newTotalOnDay = oldTotalOnDay - diffOnTask;
 
-            var futureFlex = (await _timeRegistrationStorage.GetFlexEntries(new TimeEntryQuerySearch
+            var futureFlex = (await timeRegistrationStorage.GetFlexEntries(new TimeEntryQuerySearch
             {
                 UserId = currentUserId,
                 FromDateInclusive = date,
@@ -432,7 +419,7 @@ public class TimeRegistrationService
     private async Task<List<TimeEntryWithCompRateDto>> GetEntriesWithCompRatesForUserOnDay(int userId,
         DateTime date)
     {
-        var entriesOnDay = (await _timeRegistrationStorage.GetTimeEntriesWithCompensationRate(
+        var entriesOnDay = (await timeRegistrationStorage.GetTimeEntriesWithCompensationRate(
             new TimeEntryQuerySearch
             {
                 UserId = userId,
@@ -444,20 +431,20 @@ public class TimeRegistrationService
 
     private async Task<TimeEntryResponseDto> GetTimeEntry(TimeEntryQuerySearch criterias)
     {
-        return await _timeRegistrationStorage.GetTimeEntry(criterias);
+        return await timeRegistrationStorage.GetTimeEntry(criterias);
     }
 
     public async Task<List<TimeEntryResponseDto>> GetTimeEntries(TimeEntryQuerySearch criterias)
     {
-        var currentUser = await _userContext.GetCurrentUser();
+        var currentUser = await userContext.GetCurrentUser();
         criterias.UserId = currentUser.Id;
-        return (await _timeRegistrationStorage.GetTimeEntries(criterias)).ToList();
+        return (await timeRegistrationStorage.GetTimeEntries(criterias)).ToList();
     }
 
     public async Task<List<TimeEntry>> GetFlexTimeEntries()
     {
-        var currentUser = await _userContext.GetCurrentUser();
-        var flex = (await _timeRegistrationStorage.GetFlexEntries(new TimeEntryQuerySearch
+        var currentUser = await userContext.GetCurrentUser();
+        var flex = (await timeRegistrationStorage.GetFlexEntries(new TimeEntryQuerySearch
         {
             UserId = currentUser.Id
         })).ToList();
@@ -466,9 +453,9 @@ public class TimeRegistrationService
 
     public async Task<List<EarnedOvertimeDto>> GetEarnedOvertime(OvertimeQueryFilter criterias)
     {
-        var currentUser = await _userContext.GetCurrentUser();
+        var currentUser = await userContext.GetCurrentUser();
         criterias.UserId = currentUser.Id;
-        return await _timeRegistrationStorage.GetEarnedOvertime(criterias);
+        return await timeRegistrationStorage.GetEarnedOvertime(criterias);
     }
 
     public async Task<AvailableOvertimeDto> GetAvailableOvertimeHoursNow()
@@ -478,13 +465,13 @@ public class TimeRegistrationService
 
     public async Task<AvailableOvertimeDto> GetAvailableOvertimeHoursAtDate(DateTime toDateInclusive)
     {
-        var currentUser = await _userContext.GetCurrentUser();
+        var currentUser = await userContext.GetCurrentUser();
         return await GetAvailableOvertimeHoursAtDate(toDateInclusive, currentUser);
     }
 
     public async Task<AvailableOvertimeDto> GetAvailableOvertimeHoursAtDate(DateTime toDateInclusive, User currentUser)
     {
-        var earnedOvertime = await _timeRegistrationStorage.GetEarnedOvertime(new OvertimeQueryFilter
+        var earnedOvertime = await timeRegistrationStorage.GetEarnedOvertime(new OvertimeQueryFilter
         {
             UserId = currentUser.Id,
             ToDateInclusive = toDateInclusive.Date
@@ -502,7 +489,7 @@ public class TimeRegistrationService
 
         var compensatedPayouts = await CompensateForPayouts(overtimeEntries, toDateInclusive, currentUser);
         var compensatedFlexHours = await CompensateForFlexedHours(overtimeEntries, toDateInclusive, currentUser);
-        var salaryHistory = (await _userService.GetSalaryModelHistory(currentUser.Id)).ToList();
+        var salaryHistory = (await userService.GetSalaryModelHistory(currentUser.Id)).ToList();
         var compensatedFiscalYearDebt = CompensateForFiscalYearDebt(overtimeEntriesOnly, toDateInclusive, currentUser, salaryHistory);
         overtimeEntries.AddRange(compensatedFiscalYearDebt);
 
@@ -540,10 +527,10 @@ public class TimeRegistrationService
     {
         if (currentUser is null)
         {
-            currentUser = await _userContext.GetCurrentUser();
+            currentUser = await userContext.GetCurrentUser();
         }
 
-        var flex = (await _timeRegistrationStorage.GetFlexEntries(new TimeEntryQuerySearch
+        var flex = (await timeRegistrationStorage.GetFlexEntries(new TimeEntryQuerySearch
         {
             UserId = currentUser.Id,
             FromDateInclusive = currentUser.StartDate.Date,
@@ -623,12 +610,12 @@ public class TimeRegistrationService
     {
         if (currentUser is null)
         {
-            currentUser = await _userContext.GetCurrentUser();
+            currentUser = await userContext.GetCurrentUser();
         }
 
         var compensatedPayouts = new List<TimeEntry>();
 
-        var registeredPayouts = await _payoutStorage.GetRegisteredPayouts(new PayoutQueryFilter
+        var registeredPayouts = await payoutStorage.GetRegisteredPayouts(new PayoutQueryFilter
         {
             UserId = currentUser.Id,
             ToDateInclusive = toDateInclusive.Date
@@ -658,18 +645,18 @@ public class TimeRegistrationService
     private async Task UpdateEarnedOvertime(List<TimeEntryWithCompRateDto> timeEntriesOnDay, int userId)
     {
         var timeEntryDate = timeEntriesOnDay.First().Date.Date;
-        await _timeRegistrationStorage.DeleteOvertimeOnDate(timeEntryDate, userId);
+        await timeRegistrationStorage.DeleteOvertimeOnDate(timeEntryDate, userId);
         await StoreNewOvertime(timeEntriesOnDay);
     }
 
     private async Task StoreNewOvertime(List<TimeEntryWithCompRateDto> timeEntriesOnDay)
     {
-        var currentUser = await _userContext.GetCurrentUser();
+        var currentUser = await userContext.GetCurrentUser();
 
         var timeEntryDate = timeEntriesOnDay.First().Date.Date;
         var allRedDays = new RedDays(timeEntryDate.Year).Dates;
 
-        var usersEmploymentRateResult = await _userService.GetCurrentEmploymentRateForUser(currentUser.Id, timeEntryDate);
+        var usersEmploymentRateResult = await userService.GetCurrentEmploymentRateForUser(currentUser.Id, timeEntryDate);
         if (!usersEmploymentRateResult.IsSuccess)
         {
             return;
@@ -684,7 +671,7 @@ public class TimeRegistrationService
 
         var overtimeEntries = new List<OvertimeEntry>();
 
-        var imposedTaskIds = await _taskUtils.GetAllImposedTaskIds();
+        var imposedTaskIds = await taskUtils.GetAllImposedTaskIds();
         var orderedTimeEntries = timeEntriesOnDay.Where(te => !imposedTaskIds.Contains(te.TaskId))
             .OrderByDescending(entry => entry.CompensationRate).ToList();
         var imposedTimeEntries = timeEntriesOnDay.Where(te => imposedTaskIds.Contains(te.TaskId)).ToList();
@@ -693,7 +680,7 @@ public class TimeRegistrationService
 
         foreach (var timeEntry in orderedTimeEntries)
         {
-            var taskGivesOvertime = await _taskUtils.TaskGivesOvertime(timeEntry.TaskId);
+            var taskGivesOvertime = await taskUtils.TaskGivesOvertime(timeEntry.TaskId);
             if (anticipatedWorkHours == 0 &&
                 !taskGivesOvertime) //Guard against absence overtime on red day
             {
@@ -724,7 +711,7 @@ public class TimeRegistrationService
             normalWorkHoursLeft -= timeEntry.Value;
         }
 
-        await _timeRegistrationStorage.StoreOvertime(overtimeEntries, currentUser.Id);
+        await timeRegistrationStorage.StoreOvertime(overtimeEntries, currentUser.Id);
         new Result();
     }
 
@@ -735,7 +722,7 @@ public class TimeRegistrationService
 
     public async Task RetriggerDate(DateTime date, int userId)
     {
-        var firstEntryOnDate = (await _timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
+        var firstEntryOnDate = (await timeRegistrationStorage.GetTimeEntries(new TimeEntryQuerySearch
         {
             UserId = userId,
             FromDateInclusive = date,

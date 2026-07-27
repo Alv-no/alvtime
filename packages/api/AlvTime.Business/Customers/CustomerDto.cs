@@ -1,4 +1,6 @@
-﻿namespace AlvTime.Business.Customers;
+﻿using System;
+
+namespace AlvTime.Business.Customers;
 
 public class CustomerDto
 {
@@ -9,4 +11,5 @@ public class CustomerDto
     public string ContactEmail { get; set; }
     public string ContactPhone { get; set; }
     public string OrgNr { get; set; }
+    public DateTime? LockedTo { get; set; }
 }

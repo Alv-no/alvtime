@@ -40,7 +40,8 @@ public class TaskStorage(AlvTime_dbContext context) : ITaskStorage
                         ContactEmail = x.ProjectNavigation.CustomerNavigation.ContactEmail,
                         ContactPerson = x.ProjectNavigation.CustomerNavigation.ContactPerson,
                         ContactPhone = x.ProjectNavigation.CustomerNavigation.ContactPhone,
-                        InvoiceAddress = x.ProjectNavigation.CustomerNavigation.InvoiceAddress
+                        InvoiceAddress = x.ProjectNavigation.CustomerNavigation.InvoiceAddress,
+                        LockedTo = x.ProjectNavigation.CustomerNavigation.LockedTo
                     }
                 }
             }).ToListAsync();

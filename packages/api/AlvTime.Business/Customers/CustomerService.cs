@@ -1,26 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace AlvTime.Business.Customers;
 
-public class CustomerService
+public class CustomerService(ICustomerStorage customerStorage)
 {
-    private readonly ICustomerStorage _customerStorage;
-
-    public CustomerService(ICustomerStorage customerStorage)
-    {
-        _customerStorage = customerStorage;
-    }
-    
     public async Task<Result<CustomerAdminDto>> GetCustomerDetailedById(int customerId)
     {
-        return (await _customerStorage.GetCustomerDetailedById(customerId));
+        return await customerStorage.GetCustomerDetailedById(customerId);
     }
 
     public async Task<IEnumerable<CustomerAdminDto>> GetCustomersAdmin()
     {
-        var customers = await _customerStorage.GetCustomersAdmin();
+        var customers = await customerStorage.GetCustomersAdmin();
         return customers;
     }
 
@@ -34,7 +28,7 @@ public class CustomerService
             return errors;
         }
         
-        await _customerStorage.CreateCustomer(customer);
+        await customerStorage.CreateCustomer(customer);
         return (await GetCustomer(customer.Name, customer.Id)).Single();
     }
 
@@ -48,8 +42,44 @@ public class CustomerService
             return errors;
         }
         
-        await _customerStorage.UpdateCustomer(customer);
+        await customerStorage.UpdateCustomer(customer);
         return (await GetCustomer(customer.Name, customer.Id)).Single();
+    }
+
+    public async Task LockCustomers(DateTime toDateInclusive, List<int> customersToExclude, int? customerId = null)
+    {
+        if (customerId == null)
+        {
+            var allCustomers = await customerStorage.GetCustomers(new CustomerQuerySearch());
+            var customerIds  = allCustomers.Select(x => x.Id).Where(id => !customersToExclude.Contains(id!.Value)).ToList();
+
+            foreach (var id in customerIds)
+            {
+                await customerStorage.LockCustomer(toDateInclusive, id!.Value);
+            }
+        }
+        else
+        {
+            await customerStorage.LockCustomer(toDateInclusive, customerId.Value);
+        }
+    }
+
+    public async Task UnlockCustomers(int? customerId = null)
+    {
+        if (customerId == null)
+        {
+            var allCustomers = await customerStorage.GetCustomers(new CustomerQuerySearch());
+            var customerIds  = allCustomers.Select(x => x.Id).ToList();
+
+            foreach (var id in customerIds)
+            {
+                await customerStorage.UnlockCustomer(id!.Value);
+            }
+        }
+        else
+        {
+            await customerStorage.UnlockCustomer(customerId.Value);
+        }
     }
 
     private async Task ValidateCustomer(CustomerDto customer, List<Error> errors)
@@ -68,7 +98,7 @@ public class CustomerService
 
     private async Task<IEnumerable<CustomerDto>> GetCustomer(string customerName, int? customerId)
     {
-        return (await _customerStorage.GetCustomers(new CustomerQuerySearch
+        return (await customerStorage.GetCustomers(new CustomerQuerySearch
         {
             Name = customerName,
             Id = customerId
