@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { type TimeEntry, type TimeEntryMap } from "@/types/TimeEntryTypes";
 import { debounce } from "@/utils/generalHelpers";
+import { formatDate } from "@/utils/dateHelper";
 import { useVacationStore } from "./vacationStore";
 import { useTimeBankStore } from "./timeBankStore";
 
@@ -160,6 +161,20 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 		};
 	};
 
+	// Function to get the total tracked hours for a given date across all time entries.
+	const getTotalHoursForDate = (date: Date) => {
+		const dateStr = formatDate(date);
+
+		return timeEntries.value.reduce((total, entry) => {
+			return entry.date === dateStr ? total + (entry.value || 0) : total;
+		}, 0);
+	};
+
+	// Function to get the total tracked hours for a week (or any list of dates) across all time entries.
+	const getTotalHoursForWeek = (week: Date[]) => {
+		return week.reduce((total, date) => total + getTotalHoursForDate(date), 0);
+	};
+
 	// Function to get the remaining time in the workday for a given date across all time entries.
 	const getRemainingTimeInWorkday = (date: string) => {
 		const entriesForDate = timeEntries.value.filter(entry => entry.date === date);
@@ -185,5 +200,5 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 		}
 	};
 
-	return { timeEntries, timeEntryError, invoiceRate, timeEntryPushQueue, getTimeEntries, updateTimeEntry, getRemainingTimeInWorkday };
+	return { timeEntries, timeEntryError, invoiceRate, timeEntryPushQueue, getTimeEntries, updateTimeEntry, getRemainingTimeInWorkday, getTotalHoursForDate, getTotalHoursForWeek };
 });

@@ -1,10 +1,9 @@
 <template>
 	<div class="status-bar-container">
 		<div class="column-box">
-			<div class="content-box super-index">
+			<div class="content-box">
 				<WeekSummary
 					:totalHoursThisWeek="totalHoursThisWeek"
-					:totalHoursEachDayThisWeek="totalHoursEachDayThisWeek"
 				/>
 			</div>
 			<div class="content-box flex">
@@ -39,7 +38,6 @@ import { HugeiconsIcon } from "@hugeicons/vue";
 import { MoneyBag02Icon, BeachIcon } from "@hugeicons/core-free-icons";
 import InvoiceRateVisualizer from "./utils/InvoiceRateVisualizer.vue";
 import WeekSummary from "./StatusBarComponents/WeekSummary.vue";
-import { isOnOrBefore, isOnOrAfter } from "@/utils/dateHelper";
 
 const vacationStore = useVacationStore();
 const { vacation } = storeToRefs(vacationStore);
@@ -47,35 +45,12 @@ const { vacation } = storeToRefs(vacationStore);
 const timeBankStore = useTimeBankStore();
 const { timeBankOverview } = storeToRefs(timeBankStore);
 
-const { timeEntries } = storeToRefs(useTimeEntriesStore());
+const timeEntriesStore = useTimeEntriesStore();
 
 const { currentWeek } = storeToRefs(useDateStore());
 
 const totalHoursThisWeek = computed(() => {
-	return timeEntries.value.reduce((total, entry) => {
-		const entryDate = new Date(entry.date);
-
-		if (isOnOrAfter(entryDate, currentWeek.value[0]) && isOnOrBefore(entryDate, currentWeek.value[6])) {
-			return total + entry.value;
-		}
-		return total;
-	}, 0);
-});
-
-const totalHoursEachDayThisWeek = computed(() => {
-	return currentWeek.value.map((date) => {
-		const totalForDay = timeEntries.value.reduce((total, entry) => {
-			const entryDate = new Date(entry.date);
-			if (entryDate.toDateString() === date.toDateString()) {
-				return total + entry.value;
-			}
-			return total;
-		}, 0);
-		return {
-			date: date,
-			hours: totalForDay
-		};
-	}).sort((a, b) => a.date.getTime() - b.date.getTime());
+	return timeEntriesStore.getTotalHoursForWeek(currentWeek.value);
 });
 
 onMounted(async () => {
@@ -114,10 +89,6 @@ onMounted(async () => {
 				display: flex;
 				justify-content: space-between;
 				gap: 16px;
-			}
-
-			&.super-index {
-				z-index: 10;
 			}
 		}
 	}
