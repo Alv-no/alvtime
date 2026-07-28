@@ -52,10 +52,13 @@ jobs:
           action: "upload"
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: "./packages/frontend-v3" # App source code path
+          # Pre-built by the "Install and build" step, so this points at the build output. With
+          # skip_app_build the upload is app_location itself and output_location is ignored - pointing
+          # at the package root would try to upload node_modules.
+          app_location: "./packages/frontend-v3/dist" # Built app content directory
           api_location: "" # Api source code path - optional
-          output_location: "dist" # Built app content directory - optional
-          skip_app_build: true # Built in the "Install and build" step above, from package-lock.json
+          output_location: "" # Not used when skip_app_build is true
+          skip_app_build: true
       - name: Azure Login
         if: ${{ steps.builddeploy.conclusion == 'success' }}
         uses: azure/login@v2
