@@ -38,6 +38,10 @@
 				</AlvtimeButton>
 			</div>
 		</div>
+		<DayTotalStrip
+			v-if="currentWeek.length === 7"
+			:week="currentWeek"
+		/>
 		<swiper-container
 			id="week-swiper-container"
 			ref="mySwiper"
@@ -102,6 +106,7 @@ import { getWeekNumber, getInitialWeekSlide} from "@/utils/weekHelper";
 import FeatherIcon from "@/components/utils/FeatherIcon.vue";
 import type Swiper from "swiper";
 import DayPillStrip from "./DayPillStrip.vue";
+import DayTotalStrip from "./DayTotalStrip.vue";
 import TaskStrip from "./TaskStrip.vue";
 import ProjectSorter from "./ProjectSorter.vue";
 import { HugeiconsIcon } from "@hugeicons/vue";

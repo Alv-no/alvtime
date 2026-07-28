@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { type TimeEntry, type TimeEntryMap } from "@/types/TimeEntryTypes";
 import { debounce } from "@/utils/generalHelpers";
+import { formatDate } from "@/utils/dateHelper";
 import { useVacationStore } from "./vacationStore";
 import { useTimeBankStore } from "./timeBankStore";
 
@@ -30,7 +31,6 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 	const vacationStore = useVacationStore();
 	const timeBankStore = useTimeBankStore();
 
-	// Function to fetch time entries for a given date range
 	const getTimeEntries = async (params: {fromDateInclusive: Date, toDateInclusive: Date}) => {
 		loadingTimeEntries.value = true;
 		const response = await timeService.getTimeEntries(params);
@@ -43,7 +43,6 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 		loadingTimeEntries.value = false;
 	};
 
-	// Debounced function to push time entries to the service
 	const pushTimeEntryQueue = async () => {
 		timeEntryError.value = {};
 		if (timeEntryPushQueue.value.length === 0) {
@@ -70,10 +69,8 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 		}
 	};
 
-	// Debounced function to push time entries to the service with a delay
 	const pushQueue = debounce(pushTimeEntryQueue, 1000);
 
-	// Function to update or create a time entry
 	const updateTimeEntry = async (timeEntry: TimeEntry) => {
 		const existingEntryIndex = timeEntries.value.findIndex(
 			(entry) => entry.id === timeEntry.id
@@ -101,7 +98,6 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 		pushQueue();
 	};
 
-	// Function to update time entries in the store
 	const updateTimeEntries = async (paramEntries: TimeEntry[]) => {
 		let newTimeEntriesMap = { ...timeEntriesMap.value };
 		for (const paramEntry of paramEntries) {
@@ -118,7 +114,6 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 		timeEntries.value = newTimeEntries;
 	};
 
-	// Helper function to update the time entries map with a new or existing entry
 	const updateTimeEntryMap = (timeEntriesMapLocal: TimeEntryMap, timeEntry: TimeEntry): TimeEntryMap => {
 		timeEntriesMapLocal[`${timeEntry.date}${timeEntry.id}`] = {
 			id: timeEntry.id,
@@ -129,7 +124,6 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 		return timeEntriesMapLocal;
 	};
 
-	// Helper function to update the time entries array with a new or existing entry
 	const updateArrayWith = (arr: TimeEntry[], paramEntry: TimeEntry ): TimeEntry[] => {
 		const existingEntryIndex = arr.findIndex(
 			(entry) => isMatchingEntry(entry, paramEntry)
@@ -146,12 +140,10 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 		}
 	};
 
-	// Helper function to check if two time entries match based on id and date
 	const isMatchingEntry = (entry: TimeEntry, paramEntry: TimeEntry): boolean => {
 		return (entry.id === paramEntry.id) || (entry.date === paramEntry.date && entry.taskId === paramEntry.taskId);
 	};
 
-	// Function to create a time entry object with the correct date format
 	const createTimeEntry = (timeEntry: TimeEntry): TimeEntry => {
 		return {
 			...timeEntry,
@@ -160,7 +152,18 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 		};
 	};
 
-	// Function to get the remaining time in the workday for a given date across all time entries.
+	const getTotalHoursForDate = (date: Date) => {
+		const dateStr = formatDate(date);
+
+		return timeEntries.value.reduce((total, entry) => {
+			return entry.date === dateStr ? total + (entry.value || 0) : total;
+		}, 0);
+	};
+
+	const getTotalHoursForWeek = (week: Date[]) => {
+		return week.reduce((total, date) => total + getTotalHoursForDate(date), 0);
+	};
+
 	const getRemainingTimeInWorkday = (date: string) => {
 		const entriesForDate = timeEntries.value.filter(entry => entry.date === date);
 
@@ -185,5 +188,5 @@ export const useTimeEntriesStore = defineStore("timeEntries", () => {
 		}
 	};
 
-	return { timeEntries, timeEntryError, invoiceRate, timeEntryPushQueue, getTimeEntries, updateTimeEntry, getRemainingTimeInWorkday };
+	return { timeEntries, timeEntryError, invoiceRate, timeEntryPushQueue, getTimeEntries, updateTimeEntry, getRemainingTimeInWorkday, getTotalHoursForDate, getTotalHoursForWeek };
 });
