@@ -207,8 +207,6 @@
 
     private static readonly CultureInfo Norwegian = CultureInfo.GetCultureInfo("nb-NO");
 
-    // Internal time is not invoiced, so this customer starts out excluded from the bulk lock. The admin
-    // can still tick it back in.
     private const string DefaultExcludedCustomerName = "Alv";
 
     private List<LockRow>? _rows;
@@ -375,7 +373,6 @@
         _editedLockDate = null;
     }
 
-    // Only seeded once per visit, so unticking Alv is not undone by the reload after a save.
     private void ApplyDefaultExclusion()
     {
         if (_defaultExclusionApplied) return;
@@ -399,8 +396,6 @@
     private string ExcludedRowStyle(LockRow customer, int index)
         => IsExcluded(customer.Id) ? "background-color: rgba(230, 192, 141, 0.22);" : "";
 
-    // The theme sizes buttons at 18px/600 for primary actions; the quick picks and the text link are
-    // secondary controls and need to sit closer to the body text size, as in the design.
     private const string QuickPickStyle = "font-size: 0.875rem; font-weight: 400; text-transform: none;";
     private const string LinkButtonStyle = "font-size: 0.9375rem; font-weight: 400; text-transform: none; text-decoration: underline;";
 

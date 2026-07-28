@@ -108,8 +108,6 @@ const today = computed(() => {
 		}
 	}
 
-	// Dashed border rather than another background colour, so a locked day stays distinguishable from
-	// weekends and holidays. Outlines are left to .today and .is-complete.
 	&.locked {
 		background-color: #eceae5;
 		border-style: dashed;
