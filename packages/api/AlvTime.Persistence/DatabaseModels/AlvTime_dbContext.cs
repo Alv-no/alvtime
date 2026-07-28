@@ -18,7 +18,6 @@ namespace AlvTime.Persistence.DatabaseModels
 
         public virtual DbSet<AccessTokens> AccessTokens { get; set; }
         public virtual DbSet<AssociatedTasks> AssociatedTasks { get; set; }
-        public virtual DbSet<CompensationRate> CompensationRate { get; set; }
         public virtual DbSet<Customer> Customer { get; set; }
         public virtual DbSet<EarnedOvertime> EarnedOvertime { get; set; }
         public virtual DbSet<EmploymentRate> EmploymentRate { get; set; }
@@ -75,17 +74,6 @@ namespace AlvTime.Persistence.DatabaseModels
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_AssociatedTasks_User");
-            });
-
-            modelBuilder.Entity<CompensationRate>(entity =>
-            {
-                entity.Property(e => e.Value).HasColumnType("decimal(4, 2)");
-
-                entity.HasOne(d => d.Task)
-                    .WithMany(p => p.CompensationRate)
-                    .HasForeignKey(d => d.TaskId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_CompensationRate_Task");
             });
 
             modelBuilder.Entity<Customer>(entity =>

@@ -47,7 +47,6 @@ public class CustomerStorage : ICustomerStorage
             .ThenInclude(t => t.HourRate)
             .Include(c => c.Project)
             .ThenInclude(p => p.Task)
-            .ThenInclude(t => t.CompensationRate)
             .Select(customer => new CustomerAdminDto
             {
                 Id = customer.Id,

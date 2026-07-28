@@ -34,7 +34,6 @@ public class ProjectStorage(AlvTime_dbContext context, TaskUtils taskUtils) : IP
             .Filter(criteria)
             .Include(p => p.CustomerNavigation)
             .Include(p => p.Task)
-            .ThenInclude(t => t.CompensationRate)
             .Include(p => p.ProjectFavorites)
             .Select(p => new ProjectResponseDtoV2
             {
