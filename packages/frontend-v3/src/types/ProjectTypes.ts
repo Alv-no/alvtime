@@ -9,7 +9,7 @@ export type Project = {
 
 export type Customer = {
 	name: string;
-	lockedTo: Date;
+	lockedTo: Date | null;
 }
 
 export type Task = {

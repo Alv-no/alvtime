@@ -73,12 +73,14 @@
 								/>
 								<DayPillStrip
 									:week="week"
+									:lockedTo="project.customer.lockedTo"
 								/>
 								<TaskStrip
 									v-for="task in project.tasks"
 									:key="task.id"
 									:task="task"
 									:week="week"
+									:lockedTo="project.customer.lockedTo"
 								/>
 							</template>
 						</ProjectExpandable>

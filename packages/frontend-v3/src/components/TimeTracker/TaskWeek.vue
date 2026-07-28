@@ -5,6 +5,7 @@
 			:key="`${timeEntry.taskId}-${timeEntry.date}-${timeEntry.id}`"
 			:timeEntry="timeEntry"
 			:enableComments="task.enableComments"
+			:locked="isLockedDate(lockedTo, new Date(timeEntry.date))"
 		/>
 	</div>
 </template>
@@ -15,6 +16,7 @@ import { computed } from "vue";
 import { type Task } from "@/types/ProjectTypes";
 import HourInput from "./HourInput.vue";
 import { useTimeEntriesStore } from "@/stores/timeEntriesStore";
+import { isLockedDate } from "@/utils/dateHelper";
 
 const timeEntriesStore = useTimeEntriesStore();
 const { timeEntries } = storeToRefs(timeEntriesStore);
@@ -54,9 +56,10 @@ const addMissingTaskEntriesToWeek = (entries: typeof timeEntries.value) => {
 	return result;
 };
 
-const { task, week } = defineProps<{
+const { task, week, lockedTo } = defineProps<{
 	task: Task;
 	week: Date[];
+	lockedTo: Date | null;
 }>();
 </script>
 

@@ -15,7 +15,7 @@ export const useTaskStore = defineStore("task", () => {
 		try {
 			const response = await taskService.getProjects();
 			if (response.status === 200) {
-				projects.value = removeLockedTasksAndEmptyProjects(response.data as Project[]);
+				projects.value = removeLockedTasksAndEmptyProjects(parseCustomerLockDates(response.data as Project[]));
 
 				const updatedTasks = getLocalProjects(projects.value);
 				if (!updatedTasks) {
@@ -33,6 +33,16 @@ export const useTaskStore = defineStore("task", () => {
 			console.error("Error fetching tasks:", error);
 			projects.value = [];
 		}
+	};
+
+	const parseCustomerLockDates = (projectsList: Project[]) => {
+		return projectsList.map((project) => ({
+			...project,
+			customer: {
+				...project.customer,
+				lockedTo: project.customer?.lockedTo ? new Date(project.customer.lockedTo) : null,
+			},
+		}));
 	};
 
 	const removeLockedTasksAndEmptyProjects = (projectsList: Project[]) => {

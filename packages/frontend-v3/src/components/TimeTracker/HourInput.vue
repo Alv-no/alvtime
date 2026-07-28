@@ -5,20 +5,22 @@
 			v-model="timeValue"
 			type="text"
 			class="form-control"
-			:class="{ weekend }"
+			:class="{ weekend, locked }"
+			:disabled="locked"
+			:title="locked ? 'Timene er låst. Ta kontakt med Birgitte om du trenger å endre.' : undefined"
 			@focus="onInputFocus"
 			@blur="onInputBlur"
 			@change="updateTimeEntry(timeValue)"
 		/>
 		<TrackRestOfDayButton
-			v-if="isInputActive || commentIsActive"
+			v-if="!locked && (isInputActive || commentIsActive)"
 			:currentValue="parseFloat(timeValue.replace(',', '.'))"
 			:date="timeEntry.date"
 			@track-rest-of-day="trackRestOfDay"
 		/>
 		<CommentPill v-if="comment" />
-		<TimeEntryComment 
-			v-if="(isInputActive && enableComments) || commentIsActive"
+		<TimeEntryComment
+			v-if="!locked && ((isInputActive && enableComments) || commentIsActive)"
 			v-model:isActive="commentIsActive"
 			v-model:comment="comment"
 			:timeEntry="timeEntry"
@@ -39,9 +41,10 @@ const isInputActive = ref(false);
 const commentIsActive = ref(false);
 const timeEntriesStore = useTimeEntriesStore();
 
-const { timeEntry, enableComments } = defineProps<{
+const { timeEntry, enableComments, locked } = defineProps<{
 	timeEntry: TimeEntry;
 	enableComments?: boolean;
+	locked?: boolean;
 }>();
 
 const comment = ref<string>(timeEntry.comment || "");
@@ -99,6 +102,14 @@ const onInputFocus = () => {
 
 		&.weekend {
 			background-color: #f0f0f0;
+		}
+
+		&.locked {
+			background-color: #eceae5;
+			border-style: dashed;
+			border-color: #b9b4a8;
+			color: #6c757d;
+			cursor: not-allowed;
 		}
 
 		@media screen and (max-width: 768px) {

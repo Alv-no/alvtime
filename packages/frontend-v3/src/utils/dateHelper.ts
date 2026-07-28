@@ -84,6 +84,13 @@ const isSameDay = (date1: Date, date2: Date): boolean => {
 		date1.getDate() === date2.getDate();
 };
 
+const isLockedDate = (lockedTo: Date | null | undefined, date: Date): boolean => {
+	if (!lockedTo) return false;
+	const lockedThrough = new Date(lockedTo);
+	if (Number.isNaN(lockedThrough.getTime())) return false;
+	return isOnOrBefore(date, lockedThrough);
+};
+
 const formatDate = (date: Date): string => {
 	const year = date.getFullYear();
 	let month = String(date.getMonth() + 1).padStart(2, "0");
@@ -105,6 +112,7 @@ export {
 	todayIsAfter,
 	todayIsBetween,
 	isSameDay,
+	isLockedDate,
 	formatDate,
 	dayOfWeek,
 	monthOfYear,

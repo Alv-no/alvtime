@@ -7,6 +7,7 @@
 			class="task-week"
 			:task="task"
 			:week="week"
+			:lockedTo="lockedTo"
 		/>
 	</div>
 </template>
@@ -16,9 +17,10 @@ import { computed } from "vue";
 import { type Task } from "@/types/ProjectTypes";
 import TaskWeek from "./TaskWeek.vue";
 
-const { task, week } = defineProps<{
+const { task, week, lockedTo } = defineProps<{
   task: Task;
   week: Date[];
+  lockedTo: Date | null;
 }>();
 
 const compensationRateInPercentage = computed(() => {
