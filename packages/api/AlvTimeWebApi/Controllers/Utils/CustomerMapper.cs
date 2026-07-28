@@ -21,6 +21,7 @@ public static class CustomerMapper
             ContactPhone = customer.ContactPhone,
             OrgNr = customer.OrgNr,
             ProjectCount = customer.ProjectCount,
+            LockedTo = customer.LockedTo,
             Projects = customer.Projects.Select(p => new ProjectAdminResponse
             {
                 Id = p.Id,
@@ -73,7 +74,8 @@ public static class CustomerMapper
             ContactPerson = customer.ContactPerson,
             ContactEmail = customer.ContactEmail,
             ContactPhone = customer.ContactPhone,
-            OrgNr = customer.OrgNr
+            OrgNr = customer.OrgNr,
+            LockedTo = customer.LockedTo
         };
     }
 }

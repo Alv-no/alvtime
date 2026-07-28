@@ -58,6 +58,7 @@ public class CustomerStorage : ICustomerStorage
                 ContactPhone = customer.ContactPhone,
                 OrgNr = customer.OrgNr,
                 ProjectCount = customer.Project.Count,
+                LockedTo = customer.LockedTo,
                 Projects = customer.Project.Select(p => new ProjectAdminDto
                 {
                     Id = p.Id,
@@ -101,6 +102,21 @@ public class CustomerStorage : ICustomerStorage
                 InvoiceAddress = c.InvoiceAddress,
                 OrgNr = c.OrgNr
             }).ToListAsync();
+    }
+    
+    public async Task<IEnumerable<CustomerDto>> GetActiveCustomers()
+    {
+        var timeRegistrations = await _context.Hours.Where(h => h.Date >= DateTime.Now.AddMonths(-2)).Include(h => h.Task).ThenInclude(t => t.ProjectNavigation).ThenInclude(p => p.CustomerNavigation).ToListAsync();
+
+        var customers = timeRegistrations.Select(t => t.Task).Select(t => t.ProjectNavigation)
+            .Select(p => p.CustomerNavigation).ToList();
+
+        return customers.Select(c => new CustomerDto
+        {
+            Id = c.Id,
+            Name = c.Name,
+            LockedTo = c.LockedTo
+        });
     }
 
     public async Task<IEnumerable<CustomerAdminDto>> GetCustomersAdmin()

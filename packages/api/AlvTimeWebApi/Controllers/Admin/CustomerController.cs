@@ -20,8 +20,14 @@ public class CustomerController(CustomerService customerService) : ControllerBas
     [HttpGet("Customers")]    
     public async Task<ActionResult<IEnumerable<CustomerAdminResponse>>> FetchCustomersAdmin()
     {
-        var user = HttpContext.User;
         var customers = await customerService.GetCustomersAdmin();
+        return Ok(customers.Select(c => c.MapToCustomerResponse()));
+    }
+    
+    [HttpGet("ActiveCustomers")]    
+    public async Task<ActionResult<IEnumerable<CustomerResponse>>> FetchActiveCustomers()
+    {
+        var customers = await customerService.FetchActiveCustomers();
         return Ok(customers.Select(c => c.MapToCustomerResponse()));
     }
 
@@ -55,14 +61,14 @@ public class CustomerController(CustomerService customerService) : ControllerBas
     }
 
     [HttpPut("Customers/Lock")]
-    public async Task<ActionResult> LockCustomers([FromQuery] DateTime toDateInclusive, [FromQuery] List<int>? customersToExclude = null)
+    public async Task<ActionResult> LockCustomers([FromQuery] DateTime toDateInclusive, [FromQuery] List<int> customersToExclude)
     {
         await customerService.LockCustomers(toDateInclusive, customersToExclude);
         return Ok();
     }
     
     [HttpPut("Customers/Lock/{customerId:int}")]
-    public async Task<ActionResult> LockCustomer([FromQuery] DateTime toDateInclusive, [FromRoute] int? customerId = null)
+    public async Task<ActionResult> LockCustomer([FromQuery] DateTime toDateInclusive, [FromRoute] int customerId)
     {
         await customerService.LockCustomers(toDateInclusive, null, customerId);
         return Ok();

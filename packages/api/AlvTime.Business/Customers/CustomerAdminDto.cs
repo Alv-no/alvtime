@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AlvTime.Business.Projects;
 
 namespace AlvTime.Business.Customers;
@@ -12,6 +13,7 @@ public class CustomerAdminDto
     public string ContactEmail { get; set; }
     public string ContactPhone { get; set; }
     public string OrgNr { get; set; }
+    public DateTime? LockedTo { get; set; }
     public int ProjectCount { get; set; }
     public IEnumerable<ProjectAdminDto> Projects { get; set; }
 }

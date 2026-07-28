@@ -17,6 +17,12 @@ public class CustomerService(ICustomerStorage customerStorage)
         var customers = await customerStorage.GetCustomersAdmin();
         return customers;
     }
+    
+    public async Task<IEnumerable<CustomerDto>> FetchActiveCustomers()
+    {
+        var customers = await customerStorage.GetActiveCustomers();
+        return customers;
+    }
 
     public async Task<Result<CustomerDto>> CreateCustomer(CustomerDto customer)
     {
