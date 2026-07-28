@@ -70,24 +70,6 @@ public class CustomerService(ICustomerStorage customerStorage)
         }
     }
 
-    public async Task UnlockCustomers(int? customerId = null)
-    {
-        if (customerId == null)
-        {
-            var allCustomers = await customerStorage.GetCustomers(new CustomerQuerySearch());
-            var customerIds  = allCustomers.Select(x => x.Id).ToList();
-
-            foreach (var id in customerIds)
-            {
-                await customerStorage.UnlockCustomer(id!.Value);
-            }
-        }
-        else
-        {
-            await customerStorage.UnlockCustomer(customerId.Value);
-        }
-    }
-
     private async Task ValidateCustomer(CustomerDto customer, List<Error> errors)
     {
         var customerAlreadyExists = (await GetCustomer(customer.Name, null)).Any(c => c.Id != customer.Id);

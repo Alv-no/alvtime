@@ -1,0 +1,428 @@
+@page "/timelas"
+@using System.Globalization
+@using Alvtime.Adminpanel.Client.ErrorHandling
+@using Alvtime.Adminpanel.Client.Models
+@using Alvtime.Adminpanel.Client.Requests
+@using Alvtime.Adminpanel.Client.Utils
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
+<PageTitle>Timelås</PageTitle>
+
+<AuthorizeView Roles="Admin" Context="auth">
+    <Authorized>
+        <MudText Typo="Typo.h2">Timelås</MudText>
+        <MudText Typo="Typo.body1" Class="mb-4 mud-text-secondary">
+            Lås registrerte timer etter at faktura er sendt, så de ikke kan endres i etterkant.
+        </MudText>
+
+        @if (_rows is null)
+        {
+            <MudProgressLinear Indeterminate="true" Color="Color.Secondary" Class="my-4"/>
+        }
+        else
+        {
+            <MudPaper Elevation="0" Class="pa-6 mb-8">
+                <MudText Typo="Typo.h5">Lås alle kunder</MudText>
+                <MudText Typo="Typo.body2" Class="mud-text-secondary mt-2 mb-4" Style="max-width: 40rem;">
+                    Alle timer til og med valgt dato låses for redigering. Ekskluderte kunder hoppes over og beholder
+                    sin egen låsedato.
+                </MudText>
+
+                <div class="d-flex flex-wrap align-end gap-3">
+                    <div style="width: 12rem;">
+                        <MudDatePicker
+                            Label="Lås til og med"
+                            @bind-Date="_lockDate"
+                            MaxDate="@DateTime.Today"
+                            DateFormat="dd/MM/yyyy"/>
+                    </div>
+                    <MudButton
+                        Size="Size.Small"
+                        Style="@QuickPickStyle"
+                        Color="@QuickPickColor(Today)"
+                        Variant="@QuickPickVariant(Today)"
+                        OnClick="@(() => _lockDate = Today)">
+                        I dag
+                    </MudButton>
+                    <MudButton
+                        Size="Size.Small"
+                        Style="@QuickPickStyle"
+                        Color="@QuickPickColor(EndOfPreviousMonth)"
+                        Variant="@QuickPickVariant(EndOfPreviousMonth)"
+                        OnClick="@(() => _lockDate = EndOfPreviousMonth)">
+                        Ut forrige måned
+                    </MudButton>
+                </div>
+
+                <MudDivider Class="my-4"/>
+
+                <div class="d-flex flex-wrap align-center gap-4">
+                    <MudButton
+                        Color="Color.Secondary"
+                        Variant="Variant.Filled"
+                        Disabled="@(_lockDate is null)"
+                        OnClick="@ConfirmLockAllCustomers">
+                        <TextAdjuster>Lås timer</TextAdjuster>
+                    </MudButton>
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary flex-grow-1">@LockSummary</MudText>
+                    <MudButton
+                        Size="Size.Small"
+                        Color="Color.Primary"
+                        Variant="Variant.Text"
+                        Style="@LinkButtonStyle"
+                        OnClick="@ConfirmMoveLockDateBack">
+                        Åpne opp alle igjen
+                    </MudButton>
+                </div>
+            </MudPaper>
+
+            <div class="d-flex flex-wrap justify-space-between align-end gap-4 mb-4">
+                <div>
+                    <MudText Typo="Typo.h5">Kunder</MudText>
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary mt-2">
+                        Lås eller endre låsedato for enkeltkunder. Avkryssede kunder hoppes over ved masselås.
+                    </MudText>
+                </div>
+                <MudTextField
+                    Value="@_search"
+                    Immediate="true"
+                    ValueChanged="@(new Func<string, Task>(OnSearchChanged))"
+                    Placeholder="Søk etter kunde"
+                    Adornment="Adornment.Start"
+                    AdornmentIcon="@Icons.Material.Filled.Search"
+                    IconSize="Size.Medium"
+                    Style="width: 16rem;"/>
+            </div>
+
+            <MudDataGrid
+                T="LockRow"
+                Items="@FilteredRows"
+                Hover="true"
+                Filterable="false"
+                SortMode="SortMode.None"
+                RowStyleFunc="@ExcludedRowStyle">
+                <Columns>
+                    <TemplateColumn Sortable="false" CellStyle="width: 3rem;">
+                        <CellTemplate>
+                            <MudCheckBox
+                                T="bool"
+                                Dense="true"
+                                Color="Color.Tertiary"
+                                Value="@IsExcluded(context.Item.Id)"
+                                ValueChanged="@((bool _) => ToggleExcluded(context.Item.Id))"/>
+                        </CellTemplate>
+                    </TemplateColumn>
+                    <TemplateColumn Title="Kunde" Sortable="false">
+                        <CellTemplate>
+                            <MudText Typo="Typo.body1"><b>@context.Item.Name</b></MudText>
+                            @if (IsExcluded(context.Item.Id))
+                            {
+                                <MudText Typo="Typo.caption" Class="mud-text-secondary">Ekskludert fra masselås</MudText>
+                            }
+                        </CellTemplate>
+                    </TemplateColumn>
+                    <TemplateColumn Title="Låst til og med" Sortable="false">
+                        <CellTemplate>
+                            @if (_editedCustomerId == context.Item.Id)
+                            {
+                                <div style="width: 11rem;">
+                                    <MudDatePicker
+                                        @bind-Date="_editedLockDate"
+                                        MaxDate="@DateTime.Today"
+                                        DateFormat="dd/MM/yyyy"
+                                        Margin="Margin.Dense"/>
+                                </div>
+                            }
+                            else if (context.Item.LockedTo is not null)
+                            {
+                                @LongDate(context.Item.LockedTo.Value)
+                            }
+                            else
+                            {
+                                <span class="mud-text-secondary">Ikke låst</span>
+                            }
+                        </CellTemplate>
+                    </TemplateColumn>
+                    <TemplateColumn Title="Status" Sortable="false" CellStyle="width: 7rem;">
+                        <CellTemplate>
+                            <MudChip
+                                T="string"
+                                Size="Size.Small"
+                                Variant="Variant.Filled"
+                                Color="@(context.Item.LockedTo is null ? Color.Default : Color.Secondary)">
+                                @(context.Item.LockedTo is null ? "Åpen" : "Låst")
+                            </MudChip>
+                        </CellTemplate>
+                    </TemplateColumn>
+                    <TemplateColumn Sortable="false" CellStyle="width: 15rem; text-align: right; white-space: nowrap;">
+                        <CellTemplate>
+                            @if (_editedCustomerId == context.Item.Id)
+                            {
+                                <MudButton
+                                    Size="Size.Small"
+                                    Style="@QuickPickStyle"
+                                    Color="Color.Secondary"
+                                    Variant="Variant.Filled"
+                                    Disabled="@(_editedLockDate is null)"
+                                    OnClick="@(() => SaveLockDate(context.Item))">
+                                    Lagre
+                                </MudButton>
+                                <MudButton
+                                    Size="Size.Small"
+                                    Style="@QuickPickStyle"
+                                    Variant="Variant.Outlined"
+                                    Class="ml-2"
+                                    OnClick="@CancelEdit">
+                                    Avbryt
+                                </MudButton>
+                            }
+                            else
+                            {
+                                <MudButton
+                                    Size="Size.Small"
+                                    Style="@QuickPickStyle"
+                                    Variant="Variant.Outlined"
+                                    OnClick="@(() => StartEdit(context.Item))">
+                                    @(context.Item.LockedTo is null ? "Lås til dato" : "Endre dato")
+                                </MudButton>
+                            }
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+            </MudDataGrid>
+
+            <MudText Typo="Typo.body2" Class="mud-text-secondary mt-2">
+                Viser @FilteredRows.Count() av @_rows.Count kunder — med timer registrert siste 2 måneder.
+            </MudText>
+        }
+    </Authorized>
+    <NotAuthorized>Du har ikke tilgang til å se dette innholdet.</NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Inject] private HttpClient HttpClient { get; set; } = null!;
+    [Inject] public HttpInterceptorService Interceptor { get; set; } = null!;
+    [Inject] private IDialogService DialogService { get; set; } = null!;
+    [Inject] private ISnackbar Snackbar { get; set; } = null!;
+
+    private static readonly CultureInfo Norwegian = CultureInfo.GetCultureInfo("nb-NO");
+
+    // Internal time is not invoiced, so this customer starts out excluded from the bulk lock. The admin
+    // can still tick it back in.
+    private const string DefaultExcludedCustomerName = "Alv";
+
+    private List<LockRow>? _rows;
+    private readonly HashSet<int> _excludedCustomerIds = [];
+    private bool _defaultExclusionApplied;
+    private string _search = "";
+    private DateTime? _lockDate = EndOfPreviousMonth;
+    private int? _editedCustomerId;
+    private DateTime? _editedLockDate;
+
+    private static DateTime Today => DateTime.Today;
+
+    private static DateTime EndOfPreviousMonth => new DateTime(Today.Year, Today.Month, 1).AddDays(-1);
+
+    private static DateTime EndOfPreviousQuarter => new DateTime(Today.Year, (Today.Month - 1) / 3 * 3 + 1, 1).AddDays(-1);
+
+    private IEnumerable<LockRow> FilteredRows
+    {
+        get
+        {
+            var rows = _rows ?? Enumerable.Empty<LockRow>();
+            if (!string.IsNullOrWhiteSpace(_search))
+                rows = rows.Where(r => r.Name.Contains(_search, StringComparison.OrdinalIgnoreCase));
+            return rows;
+        }
+    }
+
+    private string LockSummary => _lockDate is null
+        ? "Velg en dato."
+        : _excludedCustomerIds.Count > 0
+            ? $"Setter låsedato {LongDate(_lockDate.Value)} for alle kunder, unntatt {_excludedCustomerIds.Count} ekskluderte."
+            : $"Setter låsedato {LongDate(_lockDate.Value)} for alle kunder.";
+
+    protected override async Task OnInitializedAsync()
+    {
+        Interceptor.RegisterEvent();
+        await LoadCustomers();
+    }
+
+    private async Task LoadCustomers()
+    {
+        try
+        {
+            var customers = await HttpClient.GetFromJsonAsync<List<CustomerModel>>(ApiRoutes.ActiveCustomers) ?? [];
+
+            _rows = customers
+                .Select(c => new LockRow { Id = c.Id, Name = c.Name ?? "", LockedTo = c.LockedTo })
+                .OrderBy(r => r.Name, StringComparer.Create(Norwegian, true))
+                .ToList();
+
+            ApplyDefaultExclusion();
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+    }
+
+    private async Task ConfirmLockAllCustomers()
+    {
+        if (_lockDate is null) return;
+
+        var excludedNames = (_rows ?? [])
+            .Where(r => IsExcluded(r.Id))
+            .Select(r => r.Name)
+            .ToList();
+
+        var dialog = await DialogService.ShowAsync<LockCustomersDialog>(
+            $"Lås timer til og med {LongDate(_lockDate.Value)}?",
+            new DialogParameters
+            {
+                ["ExcludedCustomerNames"] = excludedNames
+            },
+            new DialogOptions { FullWidth = true, MaxWidth = MaxWidth.Small });
+
+        var result = await dialog.Result;
+        if (result is null || result.Canceled) return;
+
+        var lockedTo = _lockDate.Value;
+        var succeeded = await LockCustomers(lockedTo, _excludedCustomerIds.ToList());
+        if (!succeeded) return;
+
+        Snackbar.Add(excludedNames.Count > 0
+            ? $"Timene er låst til og med {LongDate(lockedTo)}. {excludedNames.Count} kunder holdes åpne."
+            : $"Timene er låst til og med {LongDate(lockedTo)}.", Severity.Success);
+    }
+
+    private async Task ConfirmMoveLockDateBack()
+    {
+        var dialog = await DialogService.ShowAsync<UnlockCustomersDialog>(
+            "Åpne opp alle igjen",
+            new DialogParameters
+            {
+                ["SuggestedLockDate"] = EndOfPreviousQuarter
+            },
+            new DialogOptions { FullWidth = true, MaxWidth = MaxWidth.Small });
+
+        var result = await dialog.Result;
+        if (result is null || result.Canceled || result.Data is not DateTime newLockDate) return;
+
+        var succeeded = await LockCustomers(newLockDate, []);
+        if (!succeeded) return;
+
+        Snackbar.Add($"Låsedatoen er flyttet til {LongDate(newLockDate)} for alle kunder.", Severity.Success);
+    }
+
+    private async Task<bool> LockCustomers(DateTime toDateInclusive, List<int> customerIdsToExclude)
+    {
+        try
+        {
+            await HttpClient.PutAsJsonAsync(ApiRoutes.LockAllCustomers, new LockCustomersRequest
+            {
+                ToDateInclusive = toDateInclusive,
+                CustomersToExclude = customerIdsToExclude
+            });
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+            return false;
+        }
+        catch (HttpResponseException)
+        {
+            return false;
+        }
+
+        await LoadCustomers();
+        return true;
+    }
+
+    private async Task SaveLockDate(LockRow customer)
+    {
+        if (_editedLockDate is null) return;
+
+        var lockedTo = _editedLockDate.Value;
+        try
+        {
+            await HttpClient.PutAsync(ApiRoutes.LockCustomer(customer.Id, lockedTo), null);
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+            return;
+        }
+        catch (HttpResponseException)
+        {
+            return;
+        }
+
+        CancelEdit();
+        await LoadCustomers();
+        Snackbar.Add($"{customer.Name} er låst til og med {LongDate(lockedTo)}.", Severity.Success);
+    }
+
+    private void StartEdit(LockRow customer)
+    {
+        _editedCustomerId = customer.Id;
+        _editedLockDate = customer.LockedTo ?? EndOfPreviousMonth;
+    }
+
+    private void CancelEdit()
+    {
+        _editedCustomerId = null;
+        _editedLockDate = null;
+    }
+
+    // Only seeded once per visit, so unticking Alv is not undone by the reload after a save.
+    private void ApplyDefaultExclusion()
+    {
+        if (_defaultExclusionApplied) return;
+        _defaultExclusionApplied = true;
+
+        var defaultExcluded = _rows?
+            .FirstOrDefault(r => r.Name.Equals(DefaultExcludedCustomerName, StringComparison.OrdinalIgnoreCase));
+
+        if (defaultExcluded is not null)
+            _excludedCustomerIds.Add(defaultExcluded.Id);
+    }
+
+    private bool IsExcluded(int customerId) => _excludedCustomerIds.Contains(customerId);
+
+    private void ToggleExcluded(int customerId)
+    {
+        if (!_excludedCustomerIds.Add(customerId))
+            _excludedCustomerIds.Remove(customerId);
+    }
+
+    private string ExcludedRowStyle(LockRow customer, int index)
+        => IsExcluded(customer.Id) ? "background-color: rgba(230, 192, 141, 0.22);" : "";
+
+    // The theme sizes buttons at 18px/600 for primary actions; the quick picks and the text link are
+    // secondary controls and need to sit closer to the body text size, as in the design.
+    private const string QuickPickStyle = "font-size: 0.875rem; font-weight: 400; text-transform: none;";
+    private const string LinkButtonStyle = "font-size: 0.9375rem; font-weight: 400; text-transform: none; text-decoration: underline;";
+
+    private bool IsQuickPicked(DateTime date) => _lockDate?.Date == date;
+
+    private Variant QuickPickVariant(DateTime date) => IsQuickPicked(date) ? Variant.Filled : Variant.Outlined;
+
+    private Color QuickPickColor(DateTime date) => IsQuickPicked(date) ? Color.Tertiary : Color.Default;
+
+    private Task OnSearchChanged(string value)
+    {
+        _search = value;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private static string LongDate(DateTime date) => date.ToString("d. MMMM yyyy", Norwegian);
+
+    private class LockRow
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public DateTime? LockedTo { get; set; }
+    }
+}

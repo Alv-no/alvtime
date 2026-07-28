@@ -1,10 +1,15 @@
 export type Project = {
 	id: string;
 	name: string;
-	customerName: string;
 	tasks: Task[];
 	open: boolean;
 	index?: number;
+	customer: Customer;
+}
+
+export type Customer = {
+	name: string;
+	lockedTo: Date;
 }
 
 export type Task = {

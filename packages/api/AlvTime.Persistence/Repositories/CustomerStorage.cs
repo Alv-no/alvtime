@@ -106,17 +106,19 @@ public class CustomerStorage : ICustomerStorage
     
     public async Task<IEnumerable<CustomerDto>> GetActiveCustomers()
     {
-        var timeRegistrations = await _context.Hours.Where(h => h.Date >= DateTime.Now.AddMonths(-2)).Include(h => h.Task).ThenInclude(t => t.ProjectNavigation).ThenInclude(p => p.CustomerNavigation).ToListAsync();
+        var registrationsFromDate = DateTime.Now.AddMonths(-2);
 
-        var customers = timeRegistrations.Select(t => t.Task).Select(t => t.ProjectNavigation)
-            .Select(p => p.CustomerNavigation).ToList();
-
-        return customers.Select(c => new CustomerDto
-        {
-            Id = c.Id,
-            Name = c.Name,
-            LockedTo = c.LockedTo
-        });
+        return await _context.Customer
+            .Where(customer => customer.Project
+                .Any(project => project.Task
+                    .Any(task => task.Hours
+                        .Any(hour => hour.Date >= registrationsFromDate))))
+            .Select(customer => new CustomerDto
+            {
+                Id = customer.Id,
+                Name = customer.Name,
+                LockedTo = customer.LockedTo
+            }).ToListAsync();
     }
 
     public async Task<IEnumerable<CustomerAdminDto>> GetCustomersAdmin()
@@ -157,17 +159,6 @@ public class CustomerStorage : ICustomerStorage
         if (customer != null)
         {
             customer.LockedTo = lockDate;
-            await _context.SaveChangesAsync();
-        }
-    }
-
-    public async Task UnlockCustomer(int customerId)
-    {
-        var customer = await _context.Customer.FirstOrDefaultAsync(x => x.Id == customerId);
-
-        if (customer != null)
-        {
-            customer.LockedTo = null;
             await _context.SaveChangesAsync();
         }
     }

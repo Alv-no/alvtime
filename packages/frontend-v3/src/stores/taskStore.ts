@@ -49,7 +49,7 @@ export const useTaskStore = defineStore("task", () => {
 	};
 
 	const toggleProjectExpandable = (projectId: string) => {
-		const project = projects.value?.find((p: Project) => `${p.name}-${p.customerName}` === projectId);
+		const project = projects.value?.find((p: Project) => `${p.name}-${p.customer.name}` === projectId);
 		if (project) {
 			project.open = !project.open;
 		}
@@ -101,7 +101,7 @@ export const useTaskStore = defineStore("task", () => {
 				},
 				{
 					name: "customerName",
-					getFn: (project: Project) => project.customerName
+					getFn: (project: Project) => project.customer.name
 				}
 			],
 			includeScore: true,

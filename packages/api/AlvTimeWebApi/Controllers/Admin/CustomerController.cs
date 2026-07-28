@@ -61,9 +61,9 @@ public class CustomerController(CustomerService customerService) : ControllerBas
     }
 
     [HttpPut("Customers/Lock")]
-    public async Task<ActionResult> LockCustomers([FromQuery] DateTime toDateInclusive, [FromQuery] List<int> customersToExclude)
+    public async Task<ActionResult> LockCustomers([FromBody] LockCustomersRequest customersToBeLocked)
     {
-        await customerService.LockCustomers(toDateInclusive, customersToExclude);
+        await customerService.LockCustomers(customersToBeLocked.ToDateInclusive, customersToBeLocked.CustomersToExclude ?? []);
         return Ok();
     }
     
@@ -71,13 +71,6 @@ public class CustomerController(CustomerService customerService) : ControllerBas
     public async Task<ActionResult> LockCustomer([FromQuery] DateTime toDateInclusive, [FromRoute] int customerId)
     {
         await customerService.LockCustomers(toDateInclusive, null, customerId);
-        return Ok();
-    }
-    
-    [HttpPut("Customers/Unlock/{customerId:int?}")]
-    public async Task<ActionResult> UnlockCustomers([FromRoute] int? customerId = null)
-    {
-        await customerService.UnlockCustomers(customerId);
         return Ok();
     }
 }

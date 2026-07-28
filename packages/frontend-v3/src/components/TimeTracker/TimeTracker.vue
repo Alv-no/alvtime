@@ -55,7 +55,7 @@
 					<div class="project-list-wrapper">
 						<ProjectExpandable
 							v-for="project in favoriteProjects"
-							:key="`${project.name}-${project.customerName}`"
+							:key="`${project.name}-${project.customer.name}`"
 							:project="project"
 						>
 							<template #header>

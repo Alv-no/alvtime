@@ -13,7 +13,6 @@ namespace AlvTime.Business.Customers
         Task CreateCustomer(CustomerDto customer);
         Task UpdateCustomer(CustomerDto customer);
         Task LockCustomer(DateTime lockDate, int customerId);
-        Task UnlockCustomer(int customerId);
     }
 
     public class CustomerQuerySearch

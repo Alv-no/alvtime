@@ -2,7 +2,7 @@ import type { Project } from "@/types/ProjectTypes";
 
 const setLocalProjects = (value: Project[]): void => {
 	const localProjects = value.map(project => ({
-		id: `${project.name}-${project.customerName}`,
+		id: `${project.name}-${project.customer.name}`,
 		open: project.open,
 	}));
 
@@ -17,7 +17,7 @@ const getLocalProjects = (projects: Project[]): Project[] | null => {
 			const localProjects = JSON.parse(item) as Project[];
 
 			return projects.map(project => {
-				const localProject = localProjects.find(lp => lp.id === `${project.name}-${project.customerName}`);
+				const localProject = localProjects.find(lp => lp.id === `${project.name}-${project.customer.name}`);
 
 				return {
 					...project,

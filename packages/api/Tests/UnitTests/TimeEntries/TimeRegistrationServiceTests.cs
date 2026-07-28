@@ -347,12 +347,12 @@ public class TimeRegistrationServiceTests
     }
 
     [Fact]
-    public async System.Threading.Tasks.Task UpsertTimeEntry_CustomerUnlockedAfterBeingLocked_CanRegisterHours()
+    public async System.Threading.Tasks.Task UpsertTimeEntry_CustomerLockDateMovedBackBeforeEntryDate_CanRegisterHours()
     {
         _context.Customer.First(c => c.Id == 1).LockedTo = new DateTime(2022, 01, 31);
         await _context.SaveChangesAsync();
 
-        await new CustomerStorage(_context).UnlockCustomer(1);
+        await new CustomerStorage(_context).LockCustomer(new DateTime(2021, 12, 31), 1);
 
         var timeEntry = CreateTimeEntryForExistingTask(new DateTime(2022, 01, 03), 7.5M, 1); //Monday
         var timeEntryResult = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
