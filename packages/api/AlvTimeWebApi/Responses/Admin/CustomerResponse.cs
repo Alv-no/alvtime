@@ -1,4 +1,6 @@
-﻿namespace AlvTimeWebApi.Responses.Admin;
+﻿using System;
+
+namespace AlvTimeWebApi.Responses.Admin;
 
 public class CustomerResponse
 {
@@ -9,4 +11,5 @@ public class CustomerResponse
     public string ContactEmail { get; set; }
     public string ContactPhone { get; set; }
     public string OrgNr { get; set; }
+    public DateTime? LockedTo { get; set; }
 }

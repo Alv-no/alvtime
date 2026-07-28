@@ -1,0 +1,57 @@
+@namespace Alvtime.Adminpanel.Client.Shared.Components
+
+<!-- The dialog content is a scroll container, which clips the date picker's popover. -->
+<style>
+    .unlock-customers-dialog .mud-dialog-content {
+        overflow: visible;
+    }
+</style>
+
+<MudDialog Class="unlock-customers-dialog">
+    <DialogContent>
+        <MudText Typo="Typo.body2" Class="mud-text-secondary mb-4">
+            Flytter låsedatoen til den datoen du velger for alle kunder. Timer etter den nye datoen blir redigerbare
+            igjen. Kunder som ikke er låst fra før får også denne låsedatoen.
+        </MudText>
+        <div style="width: 12rem;">
+            <MudDatePicker
+                Label="Ny låsedato"
+                @bind-Date="_newLockDate"
+                MaxDate="@DateTime.Today"
+                DateFormat="dd/MM/yyyy"/>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton
+            Color="Color.Tertiary"
+            Variant="Variant.Filled"
+            OnClick="@Cancel">
+            <TextAdjuster>Avbryt</TextAdjuster>
+        </MudButton>
+        <MudButton
+            Color="Color.Error"
+            Variant="Variant.Filled"
+            Disabled="@(_newLockDate is null)"
+            OnClick="@Confirm">
+            <TextAdjuster>Åpne opp</TextAdjuster>
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    [Parameter] public DateTime? SuggestedLockDate { get; set; }
+
+    private DateTime? _newLockDate;
+
+    protected override void OnParametersSet() => _newLockDate ??= SuggestedLockDate;
+
+    private void Confirm()
+    {
+        if (_newLockDate is null) return;
+        MudDialog.Close(DialogResult.Ok(_newLockDate.Value));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

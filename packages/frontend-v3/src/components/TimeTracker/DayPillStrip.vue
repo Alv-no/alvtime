@@ -4,15 +4,18 @@
 			v-for="day in week"
 			:key="day.getMilliseconds()"
 			:day="day"
+			:locked="isLockedDate(lockedTo, day)"
 		/>
 	</div>
 </template>
 
 <script setup lang="ts">
 import DayPill from "./DayPill.vue";
+import { isLockedDate } from "@/utils/dateHelper";
 
-const { week } = defineProps<{
+const { week, lockedTo } = defineProps<{
 	week: Date[];
+	lockedTo: Date | null;
 }>();
 </script>
 

@@ -20,6 +20,8 @@ namespace AlvTime.Persistence.DatabaseModels
         [MaxLength(10)]
         public string? OrgNr { get; set; }
 
+        public DateTime? LockedTo { get; set; }
+
         public virtual ICollection<Project> Project { get; set; }
     }
 }

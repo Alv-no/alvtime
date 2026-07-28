@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace AlvTimeWebApi.Responses.Admin;
 
@@ -11,6 +12,7 @@ public class CustomerAdminResponse
     public string ContactEmail { get; set; }
     public string ContactPhone { get; set; }
     public string OrgNr { get; set; }
+    public DateTime? LockedTo { get; set; }
     
     public int ProjectCount { get; set; }
     public IEnumerable<ProjectAdminResponse> Projects { get; set; }

@@ -5,7 +5,7 @@
 				{{ project.name }}
 			</p>
 			<p class="customer-name">
-				{{ project.customerName }}
+				{{ project.customer.name }}
 			</p>
 		</div>
 		<div>

@@ -15,7 +15,7 @@ export const useTaskStore = defineStore("task", () => {
 		try {
 			const response = await taskService.getProjects();
 			if (response.status === 200) {
-				projects.value = removeLockedTasksAndEmptyProjects(response.data as Project[]);
+				projects.value = removeLockedTasksAndEmptyProjects(parseCustomerLockDates(response.data as Project[]));
 
 				const updatedTasks = getLocalProjects(projects.value);
 				if (!updatedTasks) {
@@ -35,6 +35,16 @@ export const useTaskStore = defineStore("task", () => {
 		}
 	};
 
+	const parseCustomerLockDates = (projectsList: Project[]) => {
+		return projectsList.map((project) => ({
+			...project,
+			customer: {
+				...project.customer,
+				lockedTo: project.customer?.lockedTo ? new Date(project.customer.lockedTo) : null,
+			},
+		}));
+	};
+
 	const removeLockedTasksAndEmptyProjects = (projectsList: Project[]) => {
 		return projectsList
 			.map((project) => {
@@ -49,7 +59,7 @@ export const useTaskStore = defineStore("task", () => {
 	};
 
 	const toggleProjectExpandable = (projectId: string) => {
-		const project = projects.value?.find((p: Project) => `${p.name}-${p.customerName}` === projectId);
+		const project = projects.value?.find((p: Project) => `${p.name}-${p.customer.name}` === projectId);
 		if (project) {
 			project.open = !project.open;
 		}
@@ -101,7 +111,7 @@ export const useTaskStore = defineStore("task", () => {
 				},
 				{
 					name: "customerName",
-					getFn: (project: Project) => project.customerName
+					getFn: (project: Project) => project.customer.name
 				}
 			],
 			includeScore: true,

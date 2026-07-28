@@ -1,4 +1,5 @@
-﻿using AlvTime.Business.Customers;
+﻿using System;
+using AlvTime.Business.Customers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -57,6 +58,7 @@ public class CustomerStorage : ICustomerStorage
                 ContactPhone = customer.ContactPhone,
                 OrgNr = customer.OrgNr,
                 ProjectCount = customer.Project.Count,
+                LockedTo = customer.LockedTo,
                 Projects = customer.Project.Select(p => new ProjectAdminDto
                 {
                     Id = p.Id,
@@ -101,6 +103,23 @@ public class CustomerStorage : ICustomerStorage
                 OrgNr = c.OrgNr
             }).ToListAsync();
     }
+    
+    public async Task<IEnumerable<CustomerDto>> GetActiveCustomers()
+    {
+        var registrationsFromDate = DateTime.Now.AddMonths(-2);
+
+        return await _context.Customer
+            .Where(customer => customer.Project
+                .Any(project => project.Task
+                    .Any(task => task.Hours
+                        .Any(hour => hour.Date >= registrationsFromDate))))
+            .Select(customer => new CustomerDto
+            {
+                Id = customer.Id,
+                Name = customer.Name,
+                LockedTo = customer.LockedTo
+            }).ToListAsync();
+    }
 
     public async Task<IEnumerable<CustomerAdminDto>> GetCustomersAdmin()
     {
@@ -131,5 +150,16 @@ public class CustomerStorage : ICustomerStorage
         existingCustomer.OrgNr = customer.OrgNr;
 
         await _context.SaveChangesAsync();
+    }
+
+    public async Task LockCustomer(DateTime lockDate, int customerId)
+    {
+        var customer = await _context.Customer.FirstOrDefaultAsync(x => x.Id == customerId);
+
+        if (customer != null)
+        {
+            customer.LockedTo = lockDate;
+            await _context.SaveChangesAsync();
+        }
     }
 }

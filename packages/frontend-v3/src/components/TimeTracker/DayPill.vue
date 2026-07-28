@@ -1,7 +1,8 @@
 <template>
 	<div
 		class="day-pill"
-		:class="{ holiday, weekend, 'is-complete': noTimeRemainingInWorkday, today }"
+		:class="{ holiday, weekend, locked, 'is-complete': noTimeRemainingInWorkday, today }"
+		:title="locked ? 'Timene er låst. Ta kontakt med Birgitte om du trenger å endre.' : undefined"
 		@mouseover="!isMobile ? setIsHovering(true) : null"
 		@mouseleave="setIsHovering(false)"
 	>
@@ -27,8 +28,9 @@ const { holidays } = dateStore;
 
 const timeEntriesStore = useTimeEntriesStore();
 
-const { day } = defineProps<{
+const { day, locked } = defineProps<{
 	day: Date;
+	locked?: boolean;
 }>();
 
 const isMobile = window.innerWidth <= 768;
@@ -104,6 +106,13 @@ const today = computed(() => {
 				font-size: 1rem;
 			}
 		}
+	}
+
+	&.locked {
+		background-color: #eceae5;
+		border-style: dashed;
+		border-color: #b9b4a8;
+		color: #6c757d;
 	}
 
 	&.today {

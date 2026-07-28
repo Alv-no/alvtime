@@ -55,7 +55,7 @@
 					<div class="project-list-wrapper">
 						<ProjectExpandable
 							v-for="project in favoriteProjects"
-							:key="`${project.name}-${project.customerName}`"
+							:key="`${project.name}-${project.customer.name}`"
 							:project="project"
 						>
 							<template #header>
@@ -73,12 +73,14 @@
 								/>
 								<DayPillStrip
 									:week="week"
+									:lockedTo="project.customer.lockedTo"
 								/>
 								<TaskStrip
 									v-for="task in project.tasks"
 									:key="task.id"
 									:task="task"
 									:week="week"
+									:lockedTo="project.customer.lockedTo"
 								/>
 							</template>
 						</ProjectExpandable>

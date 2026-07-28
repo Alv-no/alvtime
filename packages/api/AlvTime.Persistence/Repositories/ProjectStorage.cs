@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.CompensationRate;
+using AlvTime.Business.Customers;
 using AlvTime.Business.Tasks;
 using AlvTime.Business.Utils;
 using AlvTime.Persistence.DatabaseModels;
@@ -39,7 +40,11 @@ public class ProjectStorage(AlvTime_dbContext context, TaskUtils taskUtils) : IP
             {
                 Id = p.Id,
                 Name = p.Name,
-                CustomerName = p.CustomerNavigation.Name,
+                Customer = new CustomerResponseDto
+                {
+                    Name = p.CustomerNavigation.Name,
+                    LockedTo = p.CustomerNavigation.LockedTo
+                },
                 Index = p.ProjectFavorites
                     .Where(pf => pf.UserId == user.Id && pf.ProjectId == p.Id)
                     .Select(pf => (int?)pf.Index)

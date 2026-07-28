@@ -3,11 +3,6 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vite.dev/config/
 export default defineConfig({
-	esbuild: {
-		supported: {
-		'top-level-await': true //browsers can handle top-level-await features
-		},
-	},
 	plugins: [vue(
 		{
 			template: {
@@ -33,14 +28,16 @@ export default defineConfig({
 		}
 	},
 	build: {
+		target: 'es2022', //browsers can handle top-level-await features
 		rollupOptions: {
 			output: {
-				manualChunks: {
-					vue: ['vue', 'vue-router', 'pinia'],
-					swiper: ['swiper'],
-					utils: ['axios', 'date-easter', 'fuse.js', 'sortablejs-vue3', 'feather-icons', '@hugeicons/core-free-icons', '@hugeicons/vue'],
+				manualChunks(id) {
+					if (!id.includes('/node_modules/')) return;
+					if (/\/node_modules\/(vue|vue-router|pinia|@vue)\//.test(id)) return 'vue';
+					if (id.includes('/node_modules/swiper/')) return 'swiper';
+					if (/\/node_modules\/(axios|date-easter|fuse\.js|sortablejs-vue3|feather-icons|@hugeicons)\//.test(id)) return 'utils';
 				}
 			}
-		}	
+		}
 	}
 });
