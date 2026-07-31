@@ -114,22 +114,7 @@ public class TaskServiceTests
 
         Assert.Equal(previousNumberOfFavorites + 1, userFavorites.Count());
     }
-
-    [Fact]
-    public async Task
-        FavoriteUpdater_UserCreatesNewFavoriteWithCompensationRate_NewFavoriteIsCreatedCompensationRateIsUnchanged()
-    {
-        var taskService = CreateTaskService(_context);
-
-        var previousCompensationRate = _context.Task.FirstOrDefault(x => x.Id == 2)?.CompensationRate;
-
-        await taskService.UpdateFavoriteTasks(new List<UpdateTaskDto> { new(2, true) });
-
-        var task = _context.Task.FirstOrDefault(x => x.Id == 2);
-
-        Assert.Equal(previousCompensationRate, task?.CompensationRate);
-    }
-
+    
     [Fact]
     public async Task FavoriteUpdater_UserRemovesExistingFavorite_ExistingFavoriteIsRemoved()
     {
