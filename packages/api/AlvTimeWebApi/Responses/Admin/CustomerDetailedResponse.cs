@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace AlvTimeWebApi.Responses.Admin;
 
-public class CustomerAdminResponse
+public class CustomerDetailedResponse
 {
     public int? Id { get; set; }
     public string Name { get; set; }

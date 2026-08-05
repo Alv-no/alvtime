@@ -12,4 +12,5 @@ public class CustomerResponse
     public string ContactPhone { get; set; }
     public string OrgNr { get; set; }
     public DateTime? LockedTo { get; set; }
+    public int ProjectCount { get; set; }
 }

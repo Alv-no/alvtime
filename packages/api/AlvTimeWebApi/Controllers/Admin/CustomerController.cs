@@ -18,10 +18,10 @@ namespace AlvTimeWebApi.Controllers.Admin;
 public class CustomerController(CustomerService customerService) : ControllerBase
 {
     [HttpGet("Customers")]    
-    public async Task<ActionResult<IEnumerable<CustomerAdminResponse>>> FetchCustomersAdmin()
+    public async Task<ActionResult<IEnumerable<CustomerResponse>>> FetchCustomersAdmin()
     {
         var customers = await customerService.GetCustomersAdmin();
-        return Ok(customers.Select(c => c.MapToCustomerResponse()));
+        return Ok(customers.Select(c => c.MapToSimpleCustomerResponse()));
     }
     
     [HttpGet("ActiveCustomers")]    
@@ -41,12 +41,12 @@ public class CustomerController(CustomerService customerService) : ControllerBas
     }
 
     [HttpGet("Customers/{customerId:int}")] 
-    public async Task<ActionResult<CustomerAdminResponse>> GetCustomerById(int customerId)
+    public async Task<ActionResult<CustomerDetailedResponse>> GetCustomerById(int customerId)
     {
         var result = await customerService.GetCustomerDetailedById(customerId);
-        return result.Match<ActionResult<CustomerAdminResponse>>(
+        return result.Match<ActionResult<CustomerDetailedResponse>>(
             customer => customer != null 
-                ? Ok(customer.MapToCustomerResponse())
+                ? Ok(customer.MapToDetailedCustomerResponse())
                 : NotFound(),
             errors => BadRequest(errors.ToValidationProblemDetails("Henting av kunde feilet")));
     }

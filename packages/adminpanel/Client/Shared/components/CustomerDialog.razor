@@ -15,7 +15,7 @@
             <MudTextField
                 Class="mb-2"
                 ShrinkLabel="true"
-                T="string"
+                T="string?"
                 Label="@Localizer["Common.OrgNr"]"
                 @bind-Value="_orgNr"
                 />
@@ -86,7 +86,7 @@
     private bool _success;
     private string[] _errors = { };
     private MudForm _form = new();
-    private string? _orgNr = "";
+    private string? _orgNr;
     private string? _name = "";
     private string? _invoiceAddress = "";
     private string? _contactPerson = "";

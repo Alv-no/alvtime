@@ -122,18 +122,22 @@ public class CustomerStorage : ICustomerStorage
 
     public async Task<IEnumerable<CustomerAdminDto>> GetCustomersAdmin()
     {
-        var customerIds = await _context.Customer.AsQueryable()
-            .Select(c => c.Id)
+        var customers = await _context.Customer.Include(c => c.Project).AsQueryable()
+            .Select(c => new CustomerAdminDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                InvoiceAddress = c.InvoiceAddress,
+                ContactPerson = c.ContactPerson,
+                ContactEmail = c.ContactEmail,
+                ContactPhone = c.ContactPhone,
+                OrgNr = c.OrgNr,
+                LockedTo = c.LockedTo,
+                ProjectCount = c.Project.Count
+            })
             .ToListAsync();
         
-        var response = new List<CustomerAdminDto>();
-
-        foreach (var customerId in customerIds)
-        {
-            response.Add(await GetCustomerDetailedById(customerId));;
-        }
-
-        return response;
+        return customers;
     }
 
     public async Task UpdateCustomer(CustomerDto customer)
