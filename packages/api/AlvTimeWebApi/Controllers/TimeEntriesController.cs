@@ -118,7 +118,7 @@ public class TimeEntriesController : Controller
     [HttpGet("TimeEntriesReport")]
     public async Task<ActionResult<IEnumerable<TimeEntryResponseDto>>> FetchTimeEntriesReport(DateTime fromDateInclusive, DateTime toDateInclusive)
     {
-        var user = _userContext.GetCurrentUser();
+        var user = await _userContext.GetCurrentUser();
 
         if (user.Id == _reportUser)
         {
