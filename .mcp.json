@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "roslyn": {
+      "command": "cwm-roslyn-navigator",
+      "args": ["--solution", "packages/api/AlvTimeWebApi.sln"]
+    }
+  }
+}

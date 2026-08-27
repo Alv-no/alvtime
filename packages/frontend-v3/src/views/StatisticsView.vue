@@ -156,7 +156,7 @@ const sumBillableOvertimeHours = computed(() => {
 	return timeBankOverview.value.entries
 		.filter((entry: TimeBankEntry) => {
 			const entryTime = new Date(entry.date).getTime();
-			return entry.compensationRate >= 1.5
+			return entry.compensationRate >= 1.4
         && entry.type === 0
         && entryTime >= fromDate.value.getTime()
         && entryTime <= toDate.value.getTime();
