@@ -6,6 +6,7 @@
 				<VueDatePicker
 					v-model="fromMonthInclusive"
 					monthPicker
+					:clearable="false"
 				/>
 			</div>
 			<div class="statistics-filter-item">
@@ -13,6 +14,7 @@
 				<VueDatePicker
 					v-model="toMonthInclusive"
 					monthPicker
+					:clearable="false"
 				/>
 			</div>
 			<div class="statistics-filter-item">
@@ -96,27 +98,34 @@ const STORAGE_KEYS = {
 	granularity: "statistics-granularity",
 };
 
-const getStoredMonth = (key: string, fallback: { month: number; year: number }) => {
+type MonthYear = { month: number; year: number };
+
+const isMonthYear = (value: unknown): value is MonthYear =>
+	typeof value === "object"
+	&& value !== null
+	&& typeof (value as MonthYear).month === "number"
+	&& typeof (value as MonthYear).year === "number";
+
+const getStoredMonth = (key: string, fallback: MonthYear): MonthYear => {
 	const stored = localStorage.getItem(key);
-	if (stored) {
-		try {
-			return JSON.parse(stored);
-		} catch {
-			return fallback;
-		}
+	if (!stored) return fallback;
+	try {
+		const parsed: unknown = JSON.parse(stored);
+		return isMonthYear(parsed) ? parsed : fallback;
+	} catch {
+		return fallback;
 	}
-	return fallback;
 };
 
 const loading = ref<boolean>(true);
 
-const defaultMonth = {
+const defaultMonth: MonthYear = {
 	month: new Date().getMonth(),
 	year: new Date().getFullYear()
 };
 
-const fromMonthInclusive = ref(getStoredMonth(STORAGE_KEYS.fromMonth, defaultMonth));
-const toMonthInclusive = ref(getStoredMonth(STORAGE_KEYS.toMonth, defaultMonth));
+const fromMonthInclusive = ref<MonthYear | null>(getStoredMonth(STORAGE_KEYS.fromMonth, defaultMonth));
+const toMonthInclusive = ref<MonthYear | null>(getStoredMonth(STORAGE_KEYS.toMonth, defaultMonth));
 const granularity = ref<string>(localStorage.getItem(STORAGE_KEYS.granularity) ?? "month");
 const granularityToPeriod: Record<string, 0 | 1 | 2 | 3> = {
 	day: 0,
@@ -178,11 +187,13 @@ const sumNonBillableOvertimeHours = computed(() => {
 });
 
 const fromDate = computed(() => {
-	return new Date(fromMonthInclusive.value.year, fromMonthInclusive.value.month, 1);
+	const from = fromMonthInclusive.value ?? defaultMonth;
+	return new Date(from.year, from.month, 1);
 });
 
 const toDate = computed(() => {
-	return new Date(toMonthInclusive.value.year, toMonthInclusive.value.month + 1, 0);
+	const to = toMonthInclusive.value ?? defaultMonth;
+	return new Date(to.year, to.month + 1, 0);
 });
 
 const fetchStatistics = async () => {
@@ -216,13 +227,17 @@ watch(granularity, async () => {
 	await fetchStatistics();
 });
 
-watch(fromMonthInclusive, (newVal) => {
-	localStorage.setItem(STORAGE_KEYS.fromMonth, JSON.stringify(newVal));
-}, { deep: true });
+const persistMonth = (key: string, value: MonthYear | null) => {
+	if (isMonthYear(value)) {
+		localStorage.setItem(key, JSON.stringify(value));
+	} else {
+		localStorage.removeItem(key);
+	}
+};
 
-watch(toMonthInclusive, (newVal) => {
-	localStorage.setItem(STORAGE_KEYS.toMonth, JSON.stringify(newVal));
-}, { deep: true });
+watch(fromMonthInclusive, (newVal) => persistMonth(STORAGE_KEYS.fromMonth, newVal), { deep: true });
+
+watch(toMonthInclusive, (newVal) => persistMonth(STORAGE_KEYS.toMonth, newVal), { deep: true });
 
 watch(granularity, (newVal) => {
 	localStorage.setItem(STORAGE_KEYS.granularity, newVal);
