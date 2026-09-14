@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.OpenApi;
 
 namespace AlvTimeWebApi.Authorization;
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.OpenApi;
 
 namespace AlvTimeWebApi.Authorization;
 
@@ -18,9 +18,9 @@ public class DefaultHeaderTransformer : IOpenApiOperationTransformer
             Required = true,
             Schema = new OpenApiSchema
             {
-                Type = "string"
+                Type = JsonSchemaType.String
             },
-            Example = new Microsoft.OpenApi.Any.OpenApiString("1")
+            Example = "1"
         });
 
         return Task.CompletedTask;
