@@ -458,6 +458,13 @@ public class TimeRegistrationService(
         return await timeRegistrationStorage.GetEarnedOvertime(criterias);
     }
 
+    public async Task<List<RegisteredFlexDto>> GetRegisteredFlex(OvertimeQueryFilter criterias)
+    {
+        var currentUser = await userContext.GetCurrentUser();
+        criterias.UserId = currentUser.Id;
+        return await timeRegistrationStorage.GetRegisteredFlex(criterias);
+    }
+
     public async Task<AvailableOvertimeDto> GetAvailableOvertimeHoursNow()
     {
         return await GetAvailableOvertimeHoursAtDate(DateTime.Now);

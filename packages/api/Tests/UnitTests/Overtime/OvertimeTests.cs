@@ -1410,6 +1410,62 @@ public class OvertimeTests
         Assert.Equal("Du har registrert en utbetaling som vil bli påvirket av denne timeføringen. Slett utbetalingen eller kontakt en admin for å få endret timene dine.", timeEntryResult.Errors.First().Description);
     }
 
+    [Fact]
+    public async System.Threading.Tasks.Task GetRegisteredFlex_NoFlexRegistered_NoRegisteredFlex()
+    {
+        var dateToTest = new DateTime(2021, 12, 13); //Monday
+        var timeEntry = CreateTimeEntryForExistingTask(dateToTest, 9.5M, 1);
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            {new() {Date = timeEntry.Date, Value = timeEntry.Value, TaskId = timeEntry.TaskId}});
+
+        var registeredFlex = await _timeRegistrationService.GetRegisteredFlex(new OvertimeQueryFilter
+            {FromDateInclusive = dateToTest, ToDateInclusive = dateToTest});
+
+        Assert.Empty(registeredFlex);
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task GetRegisteredFlex_Flexed2Hours_2HoursRegisteredFlex()
+    {
+        var overtimeDate = new DateTime(2021, 12, 13); //Monday
+        var timeEntry = await CreateTimeEntryWithCompensationRate(overtimeDate, 9.5M, 1.5M);
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            {new() {Date = timeEntry.entry.Date, Value = timeEntry.entry.Value, TaskId = timeEntry.taskId}});
+
+        var flexDate = new DateTime(2021, 12, 14); //Tuesday
+        var flexTimeEntry = CreateTimeEntryForExistingTask(flexDate, 2M, 18);
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            {new() {Date = flexTimeEntry.Date, Value = flexTimeEntry.Value, TaskId = flexTimeEntry.TaskId}});
+
+        var registeredFlex = await _timeRegistrationService.GetRegisteredFlex(new OvertimeQueryFilter
+            {FromDateInclusive = flexDate, ToDateInclusive = flexDate});
+
+        Assert.Single(registeredFlex);
+        Assert.Equal(2M, registeredFlex.First().Value);
+        Assert.Equal(1.5M, registeredFlex.First().CompensationRate);
+        Assert.Equal(1, registeredFlex.First().UserId);
+        Assert.Equal(flexDate, registeredFlex.First().Date);
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task GetRegisteredFlex_FlexedOutsideOfDateFilter_NoRegisteredFlex()
+    {
+        var overtimeDate = new DateTime(2021, 12, 13); //Monday
+        var timeEntry = await CreateTimeEntryWithCompensationRate(overtimeDate, 9.5M, 1.5M);
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            {new() {Date = timeEntry.entry.Date, Value = timeEntry.entry.Value, TaskId = timeEntry.taskId}});
+
+        var flexDate = new DateTime(2021, 12, 14); //Tuesday
+        var flexTimeEntry = CreateTimeEntryForExistingTask(flexDate, 2M, 18);
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            {new() {Date = flexTimeEntry.Date, Value = flexTimeEntry.Value, TaskId = flexTimeEntry.TaskId}});
+
+        var registeredFlex = await _timeRegistrationService.GetRegisteredFlex(new OvertimeQueryFilter
+            {FromDateInclusive = overtimeDate, ToDateInclusive = overtimeDate});
+
+        Assert.Empty(registeredFlex);
+    }
+
     private TimeRegistrationService CreateTimeRegistrationService()
     {
         return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
