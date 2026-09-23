@@ -96,25 +96,6 @@ public class TimeEntriesController : Controller
             errors => BadRequest(errors.ToValidationProblemDetails("Timeføring feilet. Eventuelle kommentarer har blitt oppdatert.")));
     }
         
-    [HttpGet("FlexedHours")]
-    public async Task<ActionResult<TimeEntriesResponse>> FetchFlexedHours()
-    {
-        var flexedEntries = await _timeRegistrationService.GetTimeEntries(new TimeEntryQuerySearch
-        {
-            TaskId = _timeEntryOptions.CurrentValue.FlexTask
-        });
-
-        return Ok(new TimeEntriesResponse
-        {
-            TotalHours = flexedEntries.Sum(entry => entry.Value),
-            Entries = flexedEntries.Select(entry => new GenericTimeEntryResponse()
-            {
-                Date = entry.Date.ToDateOnly(),
-                Hours = entry.Value
-            }).ToList()
-        });
-    }
-
     [HttpGet("TimeEntriesReport")]
     public async Task<ActionResult<IEnumerable<TimeEntryResponseDto>>> FetchTimeEntriesReport(DateTime fromDateInclusive, DateTime toDateInclusive)
     {
