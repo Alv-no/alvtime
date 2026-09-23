@@ -27,6 +27,21 @@ public class TimeRegistrationStorage(AlvTime_dbContext context) : ITimeRegistrat
         return entries;
     }
     
+    public async Task<List<RegisteredFlexDto>> GetRegisteredFlex(OvertimeQueryFilter criteria)
+    {
+        var flexEntries = await context.RegisteredFlex.AsQueryable()
+            .Filter(criteria)
+            .Select(entry => new RegisteredFlexDto
+            {
+                Date = entry.Date,
+                Value = entry.Value,
+                CompensationRate = entry.CompensationRate,
+                UserId = entry.UserId
+            })
+            .ToListAsync();
+        return flexEntries;
+    }
+
     public async Task RegisterFlex(TimeEntry timeEntry, int userId)
     {
         var flexEntry = new RegisteredFlex

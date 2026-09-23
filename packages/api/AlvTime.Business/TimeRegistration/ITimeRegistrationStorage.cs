@@ -19,6 +19,7 @@ namespace AlvTime.Business.TimeRegistration
         Task DeleteOvertimeOnDate(DateTime date, int userId);
         Task<List<TimeEntryWithCustomerDto>> GetTimeEntriesWithCustomer(int userId, DateTime fromDate, DateTime toDate);
         Task<IEnumerable<TimeEntry>> GetFlexEntries(TimeEntryQuerySearch criteria);
+        Task<List<RegisteredFlexDto>> GetRegisteredFlex(OvertimeQueryFilter criteria);
         Task RegisterFlex(TimeEntry timeEntry, int userId);
         Task DeleteFlexOnDate(DateTime dateTime, int userId);
         Task UpdateComment(string? comment, int hourId);

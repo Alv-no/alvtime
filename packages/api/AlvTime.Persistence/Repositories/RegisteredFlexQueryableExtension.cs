@@ -31,4 +31,26 @@ public static class RegisteredFlexQueryableExtension
 
         return query;
     }
+
+    public static IQueryable<RegisteredFlex> Filter(this IQueryable<RegisteredFlex> query, OvertimeQueryFilter criterias)
+    {
+        if (criterias.UserId != null)
+        {
+            query = query.Where(entry => entry.UserId == criterias.UserId);
+        }
+        if (criterias.FromDateInclusive != null)
+        {
+            query = query.Where(entry => entry.Date.Date >= criterias.FromDateInclusive);
+        }
+        if (criterias.ToDateInclusive != null)
+        {
+            query = query.Where(entry => entry.Date.Date <= criterias.ToDateInclusive);
+        }
+        if (criterias.CompensationRate != null)
+        {
+            query = query.Where(entry => entry.CompensationRate == criterias.CompensationRate);
+        }
+
+        return query;
+    }
 }

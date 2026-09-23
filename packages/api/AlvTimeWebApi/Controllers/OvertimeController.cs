@@ -42,4 +42,11 @@ public class OvertimeController(TimeRegistrationService timeRegistrationService)
         return await timeRegistrationService.GetEarnedOvertime(new OvertimeQueryFilter
             { FromDateInclusive = startDate, ToDateInclusive = endDate });
     }
+
+    [HttpGet("RegisteredFlex")]
+    public async Task<List<RegisteredFlexDto>> FetchRegisteredFlex(DateTime startDate, DateTime endDate)
+    {
+        return await timeRegistrationService.GetRegisteredFlex(new OvertimeQueryFilter
+            { FromDateInclusive = startDate, ToDateInclusive = endDate });
+    }
 }
