@@ -547,6 +547,38 @@ public class PayoutServiceTests
         Assert.False(payout.Active);
     }
 
+    [Fact]
+    public async System.Threading.Tasks.Task GetRegisteredPayoutsForAllUsers_TwoUsersHavePayouts_ReturnsPayoutsForBothUsers()
+    {
+        _context.PaidOvertime.Add(new PaidOvertime { User = 1, Date = new DateTime(2022, 01, 10), HoursBeforeCompRate = 10M, HoursAfterCompRate = 5M, CompensationRate = 0.5M });
+        _context.PaidOvertime.Add(new PaidOvertime { User = 2, Date = new DateTime(2022, 02, 10), HoursBeforeCompRate = 4M, HoursAfterCompRate = 4M, CompensationRate = 1M });
+        await _context.SaveChangesAsync();
+
+        var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
+        var payoutResult = await payoutService.GetRegisteredPayoutsForAllUsers(new DateTime(2022, 01, 01), new DateTime(2022, 12, 31));
+
+        Assert.True(payoutResult.IsSuccess);
+        var entries = payoutResult.Value.Entries;
+        Assert.Equal(2, entries.Count);
+        Assert.Equal(10M, entries.Single(e => e.UserId == 1).HoursBeforeCompRate);
+        Assert.Equal(4M, entries.Single(e => e.UserId == 2).HoursBeforeCompRate);
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task GetRegisteredPayoutsForAllUsers_PayoutOutsideOfDateFilter_OnlyReturnsPayoutsWithinFilter()
+    {
+        _context.PaidOvertime.Add(new PaidOvertime { User = 1, Date = new DateTime(2022, 01, 10), HoursBeforeCompRate = 10M, HoursAfterCompRate = 5M, CompensationRate = 0.5M });
+        _context.PaidOvertime.Add(new PaidOvertime { User = 2, Date = new DateTime(2022, 02, 10), HoursBeforeCompRate = 4M, HoursAfterCompRate = 4M, CompensationRate = 1M });
+        await _context.SaveChangesAsync();
+
+        var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
+        var payoutResult = await payoutService.GetRegisteredPayoutsForAllUsers(new DateTime(2022, 02, 01), new DateTime(2022, 02, 28));
+
+        Assert.True(payoutResult.IsSuccess);
+        var entry = Assert.Single(payoutResult.Value.Entries);
+        Assert.Equal(2, entry.UserId);
+    }
+
     private TimeRegistrationService CreateTimeRegistrationService(DateAlvTime dateAlvTime)
     {
         return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),

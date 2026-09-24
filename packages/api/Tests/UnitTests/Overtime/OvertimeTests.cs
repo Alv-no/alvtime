@@ -1466,6 +1466,70 @@ public class OvertimeTests
         Assert.Empty(registeredFlex);
     }
 
+    [Fact]
+    public async System.Threading.Tasks.Task GetEarnedOvertimeForAllUsers_TwoUsersHaveOvertime_ReturnsOvertimeForBothUsers()
+    {
+        var date = new DateTime(2021, 12, 13);
+        _context.EarnedOvertime.Add(new EarnedOvertime { UserId = 1, Date = date, Value = 2M, CompensationRate = 1.5M });
+        _context.EarnedOvertime.Add(new EarnedOvertime { UserId = 2, Date = date, Value = 3M, CompensationRate = 1M });
+        await _context.SaveChangesAsync();
+
+        var earnedOvertime = await _timeRegistrationService.GetEarnedOvertimeForAllUsers(new OvertimeQueryFilter
+            { FromDateInclusive = date, ToDateInclusive = date });
+
+        Assert.Equal(2, earnedOvertime.Count);
+        Assert.Equal(2M, earnedOvertime.Single(o => o.UserId == 1).Value);
+        Assert.Equal(3M, earnedOvertime.Single(o => o.UserId == 2).Value);
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task GetEarnedOvertimeForAllUsers_OvertimeOutsideOfDateFilter_OnlyReturnsOvertimeWithinFilter()
+    {
+        var dateInFilter = new DateTime(2021, 12, 13);
+        var dateOutsideFilter = new DateTime(2021, 12, 14);
+        _context.EarnedOvertime.Add(new EarnedOvertime { UserId = 1, Date = dateInFilter, Value = 2M, CompensationRate = 1.5M });
+        _context.EarnedOvertime.Add(new EarnedOvertime { UserId = 2, Date = dateOutsideFilter, Value = 3M, CompensationRate = 1M });
+        await _context.SaveChangesAsync();
+
+        var earnedOvertime = await _timeRegistrationService.GetEarnedOvertimeForAllUsers(new OvertimeQueryFilter
+            { FromDateInclusive = dateInFilter, ToDateInclusive = dateInFilter });
+
+        Assert.Single(earnedOvertime);
+        Assert.Equal(1, earnedOvertime.First().UserId);
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task GetRegisteredFlexForAllUsers_TwoUsersHaveFlex_ReturnsFlexForBothUsers()
+    {
+        var date = new DateTime(2021, 12, 14);
+        _context.RegisteredFlex.Add(new RegisteredFlex { UserId = 1, Date = date, Value = 2M, CompensationRate = 1.5M });
+        _context.RegisteredFlex.Add(new RegisteredFlex { UserId = 2, Date = date, Value = 3M, CompensationRate = 1M });
+        await _context.SaveChangesAsync();
+
+        var registeredFlex = await _timeRegistrationService.GetRegisteredFlexForAllUsers(new OvertimeQueryFilter
+            { FromDateInclusive = date, ToDateInclusive = date });
+
+        Assert.Equal(2, registeredFlex.Count);
+        Assert.Equal(2M, registeredFlex.Single(f => f.UserId == 1).Value);
+        Assert.Equal(3M, registeredFlex.Single(f => f.UserId == 2).Value);
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task GetRegisteredFlexForAllUsers_FlexOutsideOfDateFilter_OnlyReturnsFlexWithinFilter()
+    {
+        var dateInFilter = new DateTime(2021, 12, 14);
+        var dateOutsideFilter = new DateTime(2021, 12, 15);
+        _context.RegisteredFlex.Add(new RegisteredFlex { UserId = 1, Date = dateInFilter, Value = 2M, CompensationRate = 1.5M });
+        _context.RegisteredFlex.Add(new RegisteredFlex { UserId = 2, Date = dateOutsideFilter, Value = 3M, CompensationRate = 1M });
+        await _context.SaveChangesAsync();
+
+        var registeredFlex = await _timeRegistrationService.GetRegisteredFlexForAllUsers(new OvertimeQueryFilter
+            { FromDateInclusive = dateInFilter, ToDateInclusive = dateInFilter });
+
+        Assert.Single(registeredFlex);
+        Assert.Equal(1, registeredFlex.First().UserId);
+    }
+
     private TimeRegistrationService CreateTimeRegistrationService()
     {
         return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
