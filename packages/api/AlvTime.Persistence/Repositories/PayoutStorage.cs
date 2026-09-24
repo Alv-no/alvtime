@@ -49,6 +49,7 @@ public class PayoutStorage : IPayoutStorage
             Entries = payouts.Select(po => new GenericPayoutEntry
             {
                 Id = po.Id,
+                UserId = po.User,
                 Date = po.Date,
                 HoursAfterCompRate = po.HoursAfterCompRate,
                 HoursBeforeCompRate = po.HoursBeforeCompRate,
