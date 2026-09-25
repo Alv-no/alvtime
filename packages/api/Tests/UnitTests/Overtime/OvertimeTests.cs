@@ -1499,6 +1499,50 @@ public class OvertimeTests
     }
 
     [Fact]
+    public async System.Threading.Tasks.Task GetEarnedOvertimeForAllUsers_NoDates_ReturnsAllOvertime()
+    {
+        AddEarnedOvertimeOnThreeDates();
+        await _context.SaveChangesAsync();
+
+        var earnedOvertime = await _timeRegistrationService.GetEarnedOvertimeForAllUsers(new OvertimeQueryFilter());
+
+        Assert.Equal(3, earnedOvertime.Count);
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task GetEarnedOvertimeForAllUsers_OnlyStartDate_ReturnsOvertimeFromDateAndOnwards()
+    {
+        AddEarnedOvertimeOnThreeDates();
+        await _context.SaveChangesAsync();
+
+        var earnedOvertime = await _timeRegistrationService.GetEarnedOvertimeForAllUsers(new OvertimeQueryFilter
+            { FromDateInclusive = new DateTime(2021, 12, 14) });
+
+        Assert.Equal(2, earnedOvertime.Count);
+        Assert.DoesNotContain(earnedOvertime, o => o.Date == new DateTime(2021, 12, 13));
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task GetEarnedOvertimeForAllUsers_OnlyEndDate_ReturnsOvertimeUpToAndIncludingDate()
+    {
+        AddEarnedOvertimeOnThreeDates();
+        await _context.SaveChangesAsync();
+
+        var earnedOvertime = await _timeRegistrationService.GetEarnedOvertimeForAllUsers(new OvertimeQueryFilter
+            { ToDateInclusive = new DateTime(2021, 12, 14) });
+
+        Assert.Equal(2, earnedOvertime.Count);
+        Assert.DoesNotContain(earnedOvertime, o => o.Date == new DateTime(2021, 12, 15));
+    }
+
+    private void AddEarnedOvertimeOnThreeDates()
+    {
+        _context.EarnedOvertime.Add(new EarnedOvertime { UserId = 1, Date = new DateTime(2021, 12, 13), Value = 2M, CompensationRate = 1.5M });
+        _context.EarnedOvertime.Add(new EarnedOvertime { UserId = 2, Date = new DateTime(2021, 12, 14), Value = 3M, CompensationRate = 1M });
+        _context.EarnedOvertime.Add(new EarnedOvertime { UserId = 1, Date = new DateTime(2021, 12, 15), Value = 1M, CompensationRate = 0.5M });
+    }
+
+    [Fact]
     public async System.Threading.Tasks.Task GetRegisteredFlexForAllUsers_TwoUsersHaveFlex_ReturnsFlexForBothUsers()
     {
         var date = new DateTime(2021, 12, 14);
@@ -1528,6 +1572,50 @@ public class OvertimeTests
 
         Assert.Single(registeredFlex);
         Assert.Equal(1, registeredFlex.First().UserId);
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task GetRegisteredFlexForAllUsers_NoDates_ReturnsAllFlex()
+    {
+        AddRegisteredFlexOnThreeDates();
+        await _context.SaveChangesAsync();
+
+        var registeredFlex = await _timeRegistrationService.GetRegisteredFlexForAllUsers(new OvertimeQueryFilter());
+
+        Assert.Equal(3, registeredFlex.Count);
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task GetRegisteredFlexForAllUsers_OnlyStartDate_ReturnsFlexFromDateAndOnwards()
+    {
+        AddRegisteredFlexOnThreeDates();
+        await _context.SaveChangesAsync();
+
+        var registeredFlex = await _timeRegistrationService.GetRegisteredFlexForAllUsers(new OvertimeQueryFilter
+            { FromDateInclusive = new DateTime(2021, 12, 15) });
+
+        Assert.Equal(2, registeredFlex.Count);
+        Assert.DoesNotContain(registeredFlex, f => f.Date == new DateTime(2021, 12, 14));
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task GetRegisteredFlexForAllUsers_OnlyEndDate_ReturnsFlexUpToAndIncludingDate()
+    {
+        AddRegisteredFlexOnThreeDates();
+        await _context.SaveChangesAsync();
+
+        var registeredFlex = await _timeRegistrationService.GetRegisteredFlexForAllUsers(new OvertimeQueryFilter
+            { ToDateInclusive = new DateTime(2021, 12, 15) });
+
+        Assert.Equal(2, registeredFlex.Count);
+        Assert.DoesNotContain(registeredFlex, f => f.Date == new DateTime(2021, 12, 16));
+    }
+
+    private void AddRegisteredFlexOnThreeDates()
+    {
+        _context.RegisteredFlex.Add(new RegisteredFlex { UserId = 1, Date = new DateTime(2021, 12, 14), Value = 2M, CompensationRate = 1.5M });
+        _context.RegisteredFlex.Add(new RegisteredFlex { UserId = 2, Date = new DateTime(2021, 12, 15), Value = 3M, CompensationRate = 1M });
+        _context.RegisteredFlex.Add(new RegisteredFlex { UserId = 1, Date = new DateTime(2021, 12, 16), Value = 1M, CompensationRate = 0.5M });
     }
 
     private TimeRegistrationService CreateTimeRegistrationService()

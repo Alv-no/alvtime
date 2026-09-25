@@ -579,6 +579,56 @@ public class PayoutServiceTests
         Assert.Equal(2, entry.UserId);
     }
 
+    [Fact]
+    public async System.Threading.Tasks.Task GetRegisteredPayoutsForAllUsers_NoDates_ReturnsAllPayouts()
+    {
+        AddPayoutsInJanuaryFebruaryAndMarch();
+        await _context.SaveChangesAsync();
+
+        var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
+        var payoutResult = await payoutService.GetRegisteredPayoutsForAllUsers(null, null);
+
+        Assert.True(payoutResult.IsSuccess);
+        Assert.Equal(3, payoutResult.Value.Entries.Count);
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task GetRegisteredPayoutsForAllUsers_OnlyFromDate_ReturnsPayoutsFromDateAndOnwards()
+    {
+        AddPayoutsInJanuaryFebruaryAndMarch();
+        await _context.SaveChangesAsync();
+
+        var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
+        var payoutResult = await payoutService.GetRegisteredPayoutsForAllUsers(new DateTime(2022, 02, 10), null);
+
+        Assert.True(payoutResult.IsSuccess);
+        var entries = payoutResult.Value.Entries;
+        Assert.Equal(2, entries.Count);
+        Assert.DoesNotContain(entries, e => e.Date == new DateTime(2022, 01, 10));
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task GetRegisteredPayoutsForAllUsers_OnlyToDate_ReturnsPayoutsUpToAndIncludingDate()
+    {
+        AddPayoutsInJanuaryFebruaryAndMarch();
+        await _context.SaveChangesAsync();
+
+        var payoutService = CreatePayoutServiceWithoutIncompleteDaysValidation(_timeRegistrationService);
+        var payoutResult = await payoutService.GetRegisteredPayoutsForAllUsers(null, new DateTime(2022, 02, 10));
+
+        Assert.True(payoutResult.IsSuccess);
+        var entries = payoutResult.Value.Entries;
+        Assert.Equal(2, entries.Count);
+        Assert.DoesNotContain(entries, e => e.Date == new DateTime(2022, 03, 10));
+    }
+
+    private void AddPayoutsInJanuaryFebruaryAndMarch()
+    {
+        _context.PaidOvertime.Add(new PaidOvertime { User = 1, Date = new DateTime(2022, 01, 10), HoursBeforeCompRate = 10M, HoursAfterCompRate = 5M, CompensationRate = 0.5M });
+        _context.PaidOvertime.Add(new PaidOvertime { User = 2, Date = new DateTime(2022, 02, 10), HoursBeforeCompRate = 4M, HoursAfterCompRate = 4M, CompensationRate = 1M });
+        _context.PaidOvertime.Add(new PaidOvertime { User = 1, Date = new DateTime(2022, 03, 10), HoursBeforeCompRate = 2M, HoursAfterCompRate = 2M, CompensationRate = 1M });
+    }
+
     private TimeRegistrationService CreateTimeRegistrationService(DateAlvTime dateAlvTime)
     {
         return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),

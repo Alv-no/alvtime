@@ -31,7 +31,7 @@ public class PayoutService
         return await _payoutStorage.GetRegisteredPayouts(new PayoutQueryFilter { UserId = currentUser.Id });
     }
 
-    public async Task<Result<PayoutsDto>> GetRegisteredPayoutsForAllUsers(DateTime fromDate, DateTime toDate)
+    public async Task<Result<PayoutsDto>> GetRegisteredPayoutsForAllUsers(DateTime? fromDate, DateTime? toDate)
     {
         return await _payoutStorage.GetRegisteredPayouts(new PayoutQueryFilter
         {
