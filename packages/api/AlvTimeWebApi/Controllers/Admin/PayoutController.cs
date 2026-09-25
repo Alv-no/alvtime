@@ -17,7 +17,7 @@ namespace AlvTimeWebApi.Controllers.Admin;
 public class PayoutController(PayoutService payoutService) : ControllerBase
 {
     [HttpGet("Payouts")]
-    public async Task<ActionResult<List<PayoutAdminResponse>>> FetchPayoutsForAllUsers(DateTime fromDate, DateTime toDate)
+    public async Task<ActionResult<List<PayoutAdminResponse>>> FetchPayoutsForAllUsers(DateTime? fromDate, DateTime? toDate)
     {
         var result = await payoutService.GetRegisteredPayoutsForAllUsers(fromDate, toDate);
         return result.Match<ActionResult<List<PayoutAdminResponse>>>(

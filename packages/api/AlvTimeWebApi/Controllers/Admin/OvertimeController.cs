@@ -14,14 +14,14 @@ namespace AlvTimeWebApi.Controllers.Admin;
 public class OvertimeController(TimeRegistrationService timeRegistrationService) : ControllerBase
 {
     [HttpGet("EarnedOvertime")]
-    public async Task<List<EarnedOvertimeDto>> FetchEarnedOvertimeForAllUsers(DateTime startDate, DateTime endDate)
+    public async Task<List<EarnedOvertimeDto>> FetchEarnedOvertimeForAllUsers(DateTime? startDate, DateTime? endDate)
     {
         return await timeRegistrationService.GetEarnedOvertimeForAllUsers(new OvertimeQueryFilter
             { FromDateInclusive = startDate, ToDateInclusive = endDate });
     }
 
     [HttpGet("RegisteredFlex")]
-    public async Task<List<RegisteredFlexDto>> FetchRegisteredFlexForAllUsers(DateTime startDate, DateTime endDate)
+    public async Task<List<RegisteredFlexDto>> FetchRegisteredFlexForAllUsers(DateTime? startDate, DateTime? endDate)
     {
         return await timeRegistrationService.GetRegisteredFlexForAllUsers(new OvertimeQueryFilter
             { FromDateInclusive = startDate, ToDateInclusive = endDate });
