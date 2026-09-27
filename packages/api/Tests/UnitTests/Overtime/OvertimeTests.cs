@@ -1535,6 +1535,21 @@ public class OvertimeTests
         Assert.DoesNotContain(earnedOvertime, o => o.Date == new DateTime(2021, 12, 15));
     }
 
+    [Fact]
+    public async System.Threading.Tasks.Task GetEarnedOvertimeForAllUsers_OvertimeExists_ReturnsIdOfEntry()
+    {
+        var date = new DateTime(2021, 12, 13);
+        var entry = new EarnedOvertime { UserId = 1, Date = date, Value = 2M, CompensationRate = 1.5M };
+        _context.EarnedOvertime.Add(entry);
+        await _context.SaveChangesAsync();
+
+        var earnedOvertime = await _timeRegistrationService.GetEarnedOvertimeForAllUsers(new OvertimeQueryFilter
+            { FromDateInclusive = date, ToDateInclusive = date });
+
+        Assert.NotEqual(0, entry.Id);
+        Assert.Equal(entry.Id, earnedOvertime.Single().Id);
+    }
+
     private void AddEarnedOvertimeOnThreeDates()
     {
         _context.EarnedOvertime.Add(new EarnedOvertime { UserId = 1, Date = new DateTime(2021, 12, 13), Value = 2M, CompensationRate = 1.5M });
@@ -1609,6 +1624,21 @@ public class OvertimeTests
 
         Assert.Equal(2, registeredFlex.Count);
         Assert.DoesNotContain(registeredFlex, f => f.Date == new DateTime(2021, 12, 16));
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task GetRegisteredFlexForAllUsers_FlexExists_ReturnsIdOfEntry()
+    {
+        var date = new DateTime(2021, 12, 14);
+        var entry = new RegisteredFlex { UserId = 1, Date = date, Value = 2M, CompensationRate = 1.5M };
+        _context.RegisteredFlex.Add(entry);
+        await _context.SaveChangesAsync();
+
+        var registeredFlex = await _timeRegistrationService.GetRegisteredFlexForAllUsers(new OvertimeQueryFilter
+            { FromDateInclusive = date, ToDateInclusive = date });
+
+        Assert.NotEqual(0, entry.Id);
+        Assert.Equal(entry.Id, registeredFlex.Single().Id);
     }
 
     private void AddRegisteredFlexOnThreeDates()
