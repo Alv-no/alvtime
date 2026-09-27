@@ -33,6 +33,7 @@ public class TimeRegistrationStorage(AlvTime_dbContext context) : ITimeRegistrat
             .Filter(criteria)
             .Select(entry => new RegisteredFlexDto
             {
+                Id = entry.Id,
                 Date = entry.Date,
                 Value = entry.Value,
                 CompensationRate = entry.CompensationRate,
@@ -248,6 +249,7 @@ public class TimeRegistrationStorage(AlvTime_dbContext context) : ITimeRegistrat
             .Filter(criteria)
             .Select(entry => new EarnedOvertimeDto
             {
+                Id = entry.Id,
                 Date = entry.Date,
                 Value = entry.Value,
                 CompensationRate = entry.CompensationRate,
