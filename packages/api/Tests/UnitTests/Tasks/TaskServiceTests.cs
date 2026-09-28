@@ -179,6 +179,50 @@ public class TaskServiceTests
     }
 
     [Fact]
+    public async Task TaskService_CreateNewTaskWithBonus_BonusIsSaved()
+    {
+        var taskService = CreateTaskService(_context);
+
+        await taskService.CreateTask(new TaskDto
+        {
+            Name = "Bonustask", Description = "", Locked = false, Bonus = true
+        }, 1);
+
+        var task = _context.Task.Single(x => x.Name == "Bonustask");
+
+        Assert.True(task.Bonus);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task TaskService_UpdateBonus_BonusIsUpdated(bool bonus)
+    {
+        var taskService = CreateTaskService(_context);
+        var existingTask = _context.Task.Single(x => x.Id == 1);
+        existingTask.Bonus = !bonus;
+        await _context.SaveChangesAsync();
+
+        var result = await taskService.UpdateTask(new TaskDto
+            { Id = 1, Name = "ExampleTask", CompensationType = CompensationType.Billable, Bonus = bonus });
+
+        Assert.Equal(bonus, _context.Task.Single(x => x.Id == 1).Bonus);
+        Assert.Equal(bonus, result.Value.Bonus);
+    }
+
+    [Fact]
+    public async Task GetTasks_TaskHasBonus_BonusIsReturned()
+    {
+        var taskService = CreateTaskService(_context);
+        _context.Task.Single(x => x.Id == 1).Bonus = true;
+        await _context.SaveChangesAsync();
+
+        var results = await taskService.GetTasksForUser(new TaskQuerySearch { Id = 1 });
+
+        Assert.True(results.Value.Single().Bonus);
+    }
+
+    [Fact]
     public async Task ReturnLatestTasksWhenUserHasSubmittedTimeEntryOnTask()
     {
         var taskService = CreateTaskService(_context);
