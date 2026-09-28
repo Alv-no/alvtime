@@ -43,10 +43,10 @@ Formål: grunnlag for senere bonusopptjening basert på faktureringsgrad (ny lø
   - [x] 9.4 `TaskDialog.razor`: én samlet bekreftelse i edit-modus når kompensasjonstype og/eller bonus endres (utvid eksisterende `CompensationType`-dialog, melding lister endringene)
   - [x] 9.5 `Customer.razor`: mapping i `_aggregatedTasks` + Ja/Nei-kolonne
 - [x] 10. **frontend-v3** — `bonus: boolean` i `Task` (`src/types/ProjectTypes.ts`), ingen UI
-- [ ] 11. Manuell test
+- [x] 11. Manuell test
   - [x] 11.1 Migrasjon mot lokal DB: 4/7 `Bonus = 1`, rate 0 → `0`
   - [x] 11.2 Bruker-API: `user/Tasks`, `user/projects` gir `bonus` (`LastUsedTasks` tom lokalt, dekkes av `GetTasksForUser`)
-  - [ ] 11.3 Adminpanel (krever AD-login): opprett m/bonus, kolonne Ja, toggle → bekreftelse, bonus + komp.type → én samlet dialog
+  - [x] 11.3 Adminpanel (krever AD-login): opprett m/bonus, kolonne Ja, toggle → bekreftelse, bonus + komp.type → én samlet dialog
 
 ## Utenfor scope
 - Bonusberegning/opptjening
