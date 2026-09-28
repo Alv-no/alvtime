@@ -63,6 +63,12 @@
                 Label="@Localizer["Common.Imposed"]"
                 Color="Color.Secondary"
                 @bind-Value="_imposed"/>
+            <MudSwitch
+                Class="mb-2"
+                T="bool"
+                Label="@Localizer["Common.Bonus"]"
+                Color="Color.Secondary"
+                @bind-Value="_bonus"/>
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -103,6 +109,8 @@
     private CompensationType _compensationType;
     private bool _locked = false;
     private bool _imposed = false;
+    private bool _bonus = false;
+    private bool _originalBonus = false;
     private bool _editMode = false;
     private CompensationType _originalCompensationType;
 
@@ -117,6 +125,8 @@
             _originalCompensationType = SelectedTask.CompensationType;
             _locked = SelectedTask.Locked;
             _imposed = SelectedTask.Imposed;
+            _bonus = SelectedTask.Bonus;
+            _originalBonus = SelectedTask.Bonus;
             _editMode = true;
         }
         else if (Projects.Any() && _selectedProjectId == 0)
@@ -135,14 +145,27 @@
 
         if (_form.IsValid)
         {
-            if (_editMode && _compensationType != _originalCompensationType)
+            if (_editMode)
             {
-                var confirmed = await DialogService.ShowMessageBox(
-                    "Endre kompensasjonstype?",
-                    $"Du er i ferd med å endre kompensasjonstype fra \"{TaskMapper.MapCompensationType(_originalCompensationType)}\" til \"{TaskMapper.MapCompensationType(_compensationType)}\". Dette kan ha konsekvenser dersom noen endrer timer tilbake i tid.",
-                    yesText: "Ja, endre",
-                    cancelText: "Avbryt");
-                if (confirmed != true) return;
+                var changeWarnings = new List<string>();
+                if (_compensationType != _originalCompensationType)
+                {
+                    changeWarnings.Add($"Du er i ferd med å endre kompensasjonstype fra \"{TaskMapper.MapCompensationType(_originalCompensationType)}\" til \"{TaskMapper.MapCompensationType(_compensationType)}\". Dette kan ha konsekvenser dersom noen endrer timer tilbake i tid.");
+                }
+                if (_bonus != _originalBonus)
+                {
+                    changeWarnings.Add($"Du er i ferd med å {(_bonus ? "skru på" : "skru av")} \"{Localizer["Common.Bonus"]}\". Dette påvirker bonusopptjening for alle timer ført på timekoden, også tilbake i tid.");
+                }
+
+                if (changeWarnings.Count > 0)
+                {
+                    var confirmed = await DialogService.ShowMessageBox(
+                        changeWarnings.Count > 1 ? "Bekreft endringer" : "Bekreft endring",
+                        new MarkupString(string.Join("<br/><br/>", changeWarnings)),
+                        yesText: "Ja, endre",
+                        cancelText: "Avbryt");
+                    if (confirmed != true) return;
+                }
             }
 
             var newTask = new TaskModel
@@ -151,6 +174,7 @@
                 Description = _description,
                 Locked = _locked,
                 Imposed = _imposed,
+                Bonus = _bonus,
                 CompensationType = _compensationType,
             };
 
