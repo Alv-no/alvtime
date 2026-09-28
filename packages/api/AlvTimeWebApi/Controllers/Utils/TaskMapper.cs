@@ -14,7 +14,8 @@ public static class TaskMapper
             Description = taskUpsertRequest.Description ?? "",
             Locked = taskUpsertRequest.Locked,
             CompensationType = taskUpsertRequest.CompensationType,
-            Imposed = taskUpsertRequest.Imposed
+            Imposed = taskUpsertRequest.Imposed,
+            Bonus = taskUpsertRequest.Bonus
         };
     }
     
@@ -27,7 +28,8 @@ public static class TaskMapper
             Description = taskUpsertRequest.Description ?? "",
             Locked = taskUpsertRequest.Locked,
             CompensationType = taskUpsertRequest.CompensationType,
-            Imposed = taskUpsertRequest.Imposed
+            Imposed = taskUpsertRequest.Imposed,
+            Bonus = taskUpsertRequest.Bonus
         };
     }
     
@@ -40,7 +42,8 @@ public static class TaskMapper
             Description = taskDto.Description,
             Favorite = false,
             Locked = taskDto.Locked,
-            CompensationType = taskDto.CompensationType
+            CompensationType = taskDto.CompensationType,
+            Bonus = taskDto.Bonus
         };
     }
 }

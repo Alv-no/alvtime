@@ -12,4 +12,5 @@ public class TaskUpsertRequest
     [Required]
     public CompensationType CompensationType { get; set; }
     public bool Imposed { get; set; }
+    public bool Bonus { get; set; }
 }
