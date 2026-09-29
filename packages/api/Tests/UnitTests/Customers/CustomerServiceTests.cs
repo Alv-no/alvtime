@@ -101,6 +101,19 @@ public class CustomerServiceTests
         Assert.Equal(new DateTime(2026, 04, 30), activeCustomers.Single(customer => customer.Id == 1).LockedTo);
     }
 
+    [Fact]
+    public async Task GetCustomerDetailedById_TaskHasBonus_BonusIsIncluded()
+    {
+        var customerStorage = CreateCustomerService(_context);
+        _context.Project.Add(new Project { Id = 1, Name = "Project1", Customer = 1 });
+        _context.Task.Add(new AlvTime.Persistence.DatabaseModels.Task { Id = 1, Name = "Task1", Description = "", Project = 1, Bonus = true });
+        await _context.SaveChangesAsync();
+
+        var customer = await customerStorage.GetCustomerDetailedById(1);
+
+        Assert.True(customer.Projects.Single().Tasks.Single().Bonus);
+    }
+
     private void SeedCustomerWithTimeEntries(int customerId, int projectId, int taskId, params DateTime[] entryDates)
     {
         if (_context.Customer.All(customer => customer.Id != customerId))

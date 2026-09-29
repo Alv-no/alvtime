@@ -20,4 +20,5 @@ export type Task = {
 	locked: boolean;
 	compensationRate: number;
 	enableComments?: boolean;
+	bonus: boolean;
 }

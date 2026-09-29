@@ -28,6 +28,7 @@ public class TaskStorage(AlvTime_dbContext context) : ITaskStorage
                 Locked = x.Locked,
                 Favorite = false,
                 Imposed = x.Imposed,
+                Bonus = x.Bonus,
                 CompensationType = x.CompensationType,
                 Project = new ProjectResponseDto
                 {
@@ -75,6 +76,7 @@ public class TaskStorage(AlvTime_dbContext context) : ITaskStorage
             Favorite = false,
             Locked = task.Locked,
             Imposed = task.Imposed,
+            Bonus = task.Bonus,
             Name = task.Name,
             Project = projectId,
             CompensationType = task.CompensationType
@@ -92,6 +94,7 @@ public class TaskStorage(AlvTime_dbContext context) : ITaskStorage
         existingTask.Name = task.Name;
         existingTask.Description = task.Description ?? existingTask.Description;
         existingTask.Imposed = task.Imposed;
+        existingTask.Bonus = task.Bonus;
         existingTask.CompensationType = task.CompensationType;
 
         await context.SaveChangesAsync();
@@ -146,6 +149,7 @@ public class TaskStorage(AlvTime_dbContext context) : ITaskStorage
             Favorite = task.Favorite,
             Locked = task.Locked,
             Imposed = task.Imposed,
+            Bonus = task.Bonus,
             CompensationType = task.CompensationType
         };
     }

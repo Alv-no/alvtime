@@ -71,6 +71,7 @@ public class CustomerStorage : ICustomerStorage
                         CompensationType = t.CompensationType,
                         Locked = t.Locked,
                         Imposed = t.Imposed,
+                        Bonus = t.Bonus,
                         ProjectId = p.Id, 
                         ProjectName = p.Name,
                         HourRates = t.HourRate.Select(hr => new HourRateDto

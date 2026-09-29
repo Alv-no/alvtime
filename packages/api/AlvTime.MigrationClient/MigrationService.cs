@@ -149,7 +149,8 @@ public class MigrationService : IMigrationService
                     Locked = false,
                     Favorite = false,
                     Imposed = false,
-                    CompensationType = CompensationType.Billable
+                    CompensationType = CompensationType.Billable,
+                    Bonus = true
                 },
                 new()
                 {
@@ -159,7 +160,8 @@ public class MigrationService : IMigrationService
                     Locked = false,
                     Favorite = false,
                     Imposed = true,
-                    CompensationType = CompensationType.Billable
+                    CompensationType = CompensationType.Billable,
+                    Bonus = true
                 },
                 new()
                 {
@@ -169,7 +171,8 @@ public class MigrationService : IMigrationService
                     Locked = false,
                     Favorite = false,
                     Imposed = false,
-                    CompensationType = CompensationType.Billable
+                    CompensationType = CompensationType.Billable,
+                    Bonus = true
                 },
                 new()
                 {
@@ -179,7 +182,8 @@ public class MigrationService : IMigrationService
                     Locked = false,
                     Favorite = false,
                     Imposed = false,
-                    CompensationType = CompensationType.Billable
+                    CompensationType = CompensationType.Billable,
+                    Bonus = true
                 },
                 new()
                 {

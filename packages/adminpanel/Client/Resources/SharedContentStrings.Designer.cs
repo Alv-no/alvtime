@@ -85,7 +85,16 @@ namespace Alvtime.Adminpanel.Client.Resources {
                 return ResourceManager.GetString("Common.AppTitle", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Gir bonus.
+        /// </summary>
+        internal static string Common_Bonus {
+            get {
+                return ResourceManager.GetString("Common.Bonus", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Avbryt.
         /// </summary>
