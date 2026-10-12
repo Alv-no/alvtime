@@ -92,17 +92,11 @@ public class Startup
                 .Then.MoveToErrorQueue();
         });
 
-        // Without a secret webhooks are skipped, which is only allowed locally
-        var clientSecret = Configuration["Outpost:ApiKey"];
-        if (string.IsNullOrEmpty(clientSecret) && !_environment.IsDevelopment())
-        {
-            throw new InvalidOperationException("Outpost:ApiKey is not configured.");
-        }
-
+        // Without an api key webhooks are skipped (see WebhookOutboxProcessor), might wanna throw exception if api key is missing 
         services.AddHttpClient("WebhookOutpost", c =>
         {
             c.BaseAddress = new Uri(Configuration["Outpost:BaseUrl"]!);
-            c.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", clientSecret);
+            c.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", Configuration["Outpost:ApiKey"]);
 
             c.Timeout = TimeSpan.FromSeconds(15);
         });
