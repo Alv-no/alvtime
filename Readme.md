@@ -50,6 +50,7 @@ Note: For running the adminpanel - The API service requires a secret to access t
 ```
 #.env
 AZUREAD_GRAPH_CLIENT_SECRET=<secret>
+OUTPOST_APIKEY=<secret>   # optional, without it webhooks are not sent (see Webhooks below)
 ```
 
 #### b) Using a local setup
@@ -68,6 +69,23 @@ Follow the instructions in the Readme file in each of the packages and start the
 The MSSQL server doesn't compile on the new ARM processors for Mac and you will need to use docker with either `docker compose` or as a standalone container for a local setup. Both options require you to to enable Rosetta in docker. In docker Desktop, go to Settings and enable "Use Rosetta for x86/amd64 emulation on Apple Silicon" and restart docker. You can either run a single docker container with a local setup or use docker as usual.
 
 Another option is to use an SQL server in Azure, more info [here](https://github.com/Alv-no/alvtime/issues/368#issuecomment-892052356).
+
+#### Webhooks (Outpost)
+
+The API publishes webhook events (e.g. `time_entry.created`, `time_entry.updated`) through [Hookdeck Outpost](https://hookdeck.com/outpost), which handles delivery, retries and subscriber destinations. Events are written to an outbox (Wolverine) in the same transaction as the data and pushed to Outpost afterwards. See the [API readme](./packages/api/Readme.md) for event details.
+
+**Access:** We use the Outpost Free tier for now. To get access to the Outpost dashboard, ask one of the admins to invite you.
+
+**Configuration:** The API reads `Outpost:BaseUrl`, `Outpost:TenantId` and `Outpost:ApiKey`. If `Outpost:ApiKey` is not set, the API starts as normal but skips sending webhooks (a warning is logged per skipped event).
+
+- Running with `dotnet run`: store the key in user secrets
+  ```
+  dotnet user-secrets set "Outpost:ApiKey" "<secret>" --project packages/api/AlvTimeWebApi
+  ```
+- Running with Docker: add `OUTPOST_APIKEY` to the `.env` file (see above). User secrets are not available inside the container.
+- Test and production: add the secret `Outpost--ApiKey` to the Key Vault (`alvtime-kv-test` / `alvtime-kv-prod`) and restart the App Service. `--` is mapped to `:` when the API reads Key Vault.
+
+Note: each environment has its own Outpost project with its own API key, so events from local, test and production end up in separate projects. The tenant ID (`alv`) is the same in all of them.
 
 ### 3. Run Tests and build all the services
 
