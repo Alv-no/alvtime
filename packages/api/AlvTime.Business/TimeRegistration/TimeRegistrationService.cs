@@ -7,6 +7,7 @@ using AlvTime.Business.Interfaces;
 using AlvTime.Business.Options;
 using AlvTime.Business.Overtime;
 using AlvTime.Business.Payouts;
+using AlvTime.Business.TimeRegistration.Events;
 using AlvTime.Business.Users;
 using AlvTime.Business.Utils;
 using Microsoft.Extensions.Options;
