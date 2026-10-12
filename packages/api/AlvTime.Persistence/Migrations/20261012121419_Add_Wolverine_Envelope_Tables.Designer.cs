@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AlvTime.Persistence.Migrations
 {
     [DbContext(typeof(AlvTime_dbContext))]
-    [Migration("20261008121920_Add_Wolverine_Envelope_Tables")]
+    [Migration("20261012121419_Add_Wolverine_Envelope_Tables")]
     partial class Add_Wolverine_Envelope_Tables
     {
         /// <inheritdoc />
@@ -389,6 +389,9 @@ namespace AlvTime.Persistence.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Bonus")
+                        .HasColumnType("bit");
 
                     b.Property<int>("CompensationType")
                         .HasColumnType("int");
