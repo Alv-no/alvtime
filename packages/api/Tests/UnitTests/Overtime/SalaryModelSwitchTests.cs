@@ -13,6 +13,7 @@ using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;
 using Microsoft.Extensions.Options;
 using Moq;
+using Wolverine.EntityFrameworkCore;
 using Xunit;
 using Task = AlvTime.Persistence.DatabaseModels.Task;
 
@@ -25,6 +26,8 @@ public class SalaryModelSwitchTests
     private readonly Mock<IUserContext> _userContextMock;
     private readonly Mock<PayoutValidationService> _payoutValidationServiceMock;
     private readonly TimeRegistrationService _timeRegistrationService;
+    private readonly Mock<IDbContextOutbox<AlvTime_dbContext>> _outbox = new();
+
 
     // Dates used across tests — all Mondays to avoid weekend OT semantics
     private static readonly DateTime PreSwitchDay = new(2022, 01, 03);   // Monday
@@ -300,7 +303,7 @@ public class SalaryModelSwitchTests
     {
         return new TimeRegistrationService(_options, _userContextMock.Object,
             new TaskUtils(new TaskStorage(_context), _options),
-            new TimeRegistrationStorage(_context), new DbContextScope(_context),
+            new TimeRegistrationStorage(_context), new DbContextScope(_context, _outbox.Object),
             new PayoutStorage(_context, new DateAlvTime()),
             new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
     }

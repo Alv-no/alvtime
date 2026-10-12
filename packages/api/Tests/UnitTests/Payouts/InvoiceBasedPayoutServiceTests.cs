@@ -14,6 +14,7 @@ using AlvTime.Persistence.Repositories;
 using Microsoft.Extensions.Options;
 using Moq;
 using Tests.UnitTests.TestUtils;
+using Wolverine.EntityFrameworkCore;
 using Xunit;
 using Task = AlvTime.Persistence.DatabaseModels.Task;
 
@@ -27,6 +28,7 @@ public class InvoiceBasedPayoutServiceTests
     private readonly Mock<PayoutValidationService> _payoutValidationServiceMock;
     private readonly TimeRegistrationService _timeRegistrationService;
     private readonly DateAlvTime _dateAlvTime;
+    private readonly Mock<IDbContextOutbox<AlvTime_dbContext>> _outbox = new();
 
     public InvoiceBasedPayoutServiceTests()
     {
@@ -117,7 +119,7 @@ public class InvoiceBasedPayoutServiceTests
     {
         return new TimeRegistrationService(_options, _userContextMock.Object,
             new TaskUtils(new TaskStorage(_context), _options),
-            new TimeRegistrationStorage(_context), new DbContextScope(_context),
+            new TimeRegistrationStorage(_context), new DbContextScope(_context, _outbox.Object),
             new PayoutStorage(_context, dateAlvTime),
             new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
     }

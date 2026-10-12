@@ -15,6 +15,7 @@ using Moq;
 using Tests.UnitTests.TestUtils;
 using Tests.UnitTests.Utils;
 using Xunit;
+using Wolverine.EntityFrameworkCore;
 
 namespace Tests.UnitTests.Payouts;
 
@@ -26,6 +27,8 @@ public class PayoutServiceTests
     private readonly Mock<PayoutValidationService> _payoutValidationServiceMock;
     private readonly TimeRegistrationService _timeRegistrationService;
     private readonly DateAlvTime _dateAlvTime;
+    private readonly Mock<IDbContextOutbox<AlvTime_dbContext>> _outbox = new();
+
 
     public PayoutServiceTests()
     {
@@ -632,7 +635,7 @@ public class PayoutServiceTests
     private TimeRegistrationService CreateTimeRegistrationService(DateAlvTime dateAlvTime)
     {
         return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
-            new TimeRegistrationStorage(_context), new DbContextScope(_context), new PayoutStorage(_context, dateAlvTime), new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
+            new TimeRegistrationStorage(_context), new DbContextScope(_context, _outbox.Object), new PayoutStorage(_context, dateAlvTime), new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
     }
 
     private PayoutService CreatePayoutServiceWithoutIncompleteDaysValidation(TimeRegistrationService timeRegistrationService, DateAlvTime dateAlvTime = null)

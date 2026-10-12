@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Wolverine.EntityFrameworkCore;
 
 namespace AlvTime.Persistence.DatabaseModels
 {
@@ -40,6 +41,9 @@ namespace AlvTime.Persistence.DatabaseModels
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Wolverine outbox tables (schema "wolverine"): saves outgoing messages in the same transaction as entity changes
+            modelBuilder.MapWolverineEnvelopeStorage("wolverine");
+
             modelBuilder.Entity<AccessTokens>(entity =>
             {
                 entity.Property(e => e.ExpiryDate).HasColumnType("datetime");

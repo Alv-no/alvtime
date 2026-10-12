@@ -13,6 +13,7 @@ using AlvTime.Business.Users;
 using AlvTime.Business.Utils;
 using AlvTime.Persistence.Repositories;
 using Microsoft.Extensions.Options;
+using Wolverine.EntityFrameworkCore;
 
 namespace Tests.UnitTests.Tasks;
 
@@ -22,6 +23,8 @@ public class TaskServiceTests
     private readonly IOptionsMonitor<TimeEntryOptions> _options;
     private readonly Mock<IUserContext> _userContextMock;
     private readonly TimeRegistrationService _timeRegistrationService;
+    private readonly Mock<IDbContextOutbox<AlvTime_dbContext>> _outbox = new();
+
 
     public TaskServiceTests()
     {
@@ -256,7 +259,7 @@ public class TaskServiceTests
     private TimeRegistrationService CreateTimeRegistrationService()
     {
         return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
-            new TimeRegistrationStorage(_context), new DbContextScope(_context),
+            new TimeRegistrationStorage(_context), new DbContextScope(_context, _outbox.Object),
             new PayoutStorage(_context, new DateAlvTime()),
             new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
     }

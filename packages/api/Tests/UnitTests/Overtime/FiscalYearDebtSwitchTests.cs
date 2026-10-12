@@ -12,6 +12,7 @@ using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;
 using Microsoft.Extensions.Options;
 using Moq;
+using Wolverine.EntityFrameworkCore;
 using Xunit;
 using Task = AlvTime.Persistence.DatabaseModels.Task;
 
@@ -27,6 +28,8 @@ public class FiscalYearDebtSwitchTests
     private readonly Mock<IUserContext> _userContextMock;
     private readonly IOptionsMonitor<TimeEntryOptions> _options;
     private TimeRegistrationService _service;
+    private readonly Mock<IDbContextOutbox<AlvTime_dbContext>> _outbox = new();
+
 
     // User starts Static; StartDate = 2 Jan 2020
     // Pre-switch earnings are registered in FY 2022-2023 (Static period)
@@ -187,7 +190,7 @@ public class FiscalYearDebtSwitchTests
     private TimeRegistrationService BuildService() =>
         new(_options, _userContextMock.Object,
             new TaskUtils(new TaskStorage(_context), _options),
-            new TimeRegistrationStorage(_context), new DbContextScope(_context),
+            new TimeRegistrationStorage(_context), new DbContextScope(_context, _outbox.Object),
             new PayoutStorage(_context, new DateAlvTime()),
             new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
 

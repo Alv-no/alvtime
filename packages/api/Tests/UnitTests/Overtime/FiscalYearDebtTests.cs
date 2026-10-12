@@ -12,6 +12,7 @@ using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;
 using Microsoft.Extensions.Options;
 using Moq;
+using Wolverine.EntityFrameworkCore;
 using Xunit;
 using Task = AlvTime.Persistence.DatabaseModels.Task;
 
@@ -26,6 +27,8 @@ public class FiscalYearDebtTests
 {
     private readonly AlvTime_dbContext _context;
     private readonly TimeRegistrationService _timeRegistrationService;
+    private readonly Mock<IDbContextOutbox<AlvTime_dbContext>> _outbox = new();
+
 
     // Mondays inside fiscal year 2024 (June 1 2024 → May 31 2025)
     private static readonly DateTime FY2024Date = new(2024, 7, 1);
@@ -67,7 +70,7 @@ public class FiscalYearDebtTests
 
         _timeRegistrationService = new TimeRegistrationService(options, userContextMock.Object,
             new TaskUtils(new TaskStorage(_context), options),
-            new TimeRegistrationStorage(_context), new DbContextScope(_context),
+            new TimeRegistrationStorage(_context), new DbContextScope(_context, _outbox.Object),
             new PayoutStorage(_context, new DateAlvTime()),
             new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
     }
@@ -188,7 +191,7 @@ public class FiscalYearDebtTests
             }));
         var staticService = new TimeRegistrationService(options, staticContextMock.Object,
             new TaskUtils(new TaskStorage(_context), options),
-            new TimeRegistrationStorage(_context), new DbContextScope(_context),
+            new TimeRegistrationStorage(_context), new DbContextScope(_context, _outbox.Object),
             new PayoutStorage(_context, new DateAlvTime()),
             new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
 
