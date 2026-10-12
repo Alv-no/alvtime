@@ -150,6 +150,9 @@
     <data name="Common.Imposed" xml:space="preserve">
         <value>Pålagt</value>
     </data>
+    <data name="Common.Bonus" xml:space="preserve">
+        <value>Gir bonus</value>
+    </data>
     <data name="Common.Locked" xml:space="preserve">
         <value>Låst</value>
     </data>

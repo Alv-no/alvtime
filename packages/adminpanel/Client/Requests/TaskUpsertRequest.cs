@@ -9,4 +9,5 @@ public class TaskUpsertRequest
     public bool Locked { get; set; }
     public CompensationType CompensationType { get; set; }
     public bool Imposed { get; set; }
+    public bool Bonus { get; set; }
 }

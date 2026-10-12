@@ -20,6 +20,7 @@ namespace AlvTime.Persistence.DatabaseModels
         public bool Locked { get; set; }
         public bool Favorite { get; set; }
         public bool Imposed { get; set; }
+        public bool Bonus { get; set; }
         public CompensationType CompensationType { get; set; }
 
         public virtual Project ProjectNavigation { get; set; }

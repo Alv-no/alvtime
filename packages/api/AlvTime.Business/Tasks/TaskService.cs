@@ -78,7 +78,8 @@ namespace AlvTime.Business.Tasks
                 Description = task.Description,
                 Locked = task.Locked,
                 CompensationType = task.CompensationType,
-                Imposed = task.Imposed
+                Imposed = task.Imposed,
+                Bonus = task.Bonus
             };
         }
 
@@ -97,7 +98,8 @@ namespace AlvTime.Business.Tasks
                 Description = t.Description,
                 Locked = t.Locked,
                 CompensationType = t.CompensationType,
-                Imposed = t.Imposed
+                Imposed = t.Imposed,
+                Bonus = t.Bonus
             });
         }
 
@@ -115,7 +117,8 @@ namespace AlvTime.Business.Tasks
                 Description = task.Description,
                 Locked = task.Locked,
                 CompensationType = task.CompensationType,
-                Imposed = task.Imposed
+                Imposed = task.Imposed,
+                Bonus = task.Bonus
             };
         }
 

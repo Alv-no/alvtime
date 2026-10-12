@@ -21,7 +21,7 @@ public class TasksController(TaskService taskService) : ControllerBase
         var result = await taskService.GetTasksForUser(new TaskQuerySearch());
         return result.Match<ActionResult<IEnumerable<TaskResponse>>>(
             tasks => Ok(tasks.Select(task => new TaskResponse(task.Id, task.Name, task.Description, task.Favorite,
-                task.Locked, task.CompensationRate, task.Project)).ToList()),
+                task.Locked, task.CompensationRate, task.Project, task.Bonus)).ToList()),
             errors => BadRequest(errors.ToValidationProblemDetails("Hent tasks feilet med følgende feil")));
     }
 

@@ -56,6 +56,7 @@ public class ProjectStorage(AlvTime_dbContext context, TaskUtils taskUtils) : IP
                     Favorite = context.TaskFavorites.Any(fav => fav.UserId == user.Id && fav.TaskId == t.Id),
                     Locked = t.Locked,
                     Imposed = t.Imposed,
+                    Bonus = t.Bonus,
                     CompensationRate = CompensationRateHelper.ResolveCompensationRate(t.CompensationType, t.Imposed, user.SalaryModel),
                     EnableComments = context.TaskFavorites.Any(fav => fav.UserId == user.Id && fav.TaskId == t.Id && fav.EnableComments),
                     CompensationType = t.CompensationType

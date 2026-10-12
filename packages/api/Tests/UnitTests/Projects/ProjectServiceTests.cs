@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using AlvTime.Business.Options;
 using AlvTime.Business.Projects;
 using AlvTime.Business.Users;
@@ -56,6 +57,20 @@ public class ProjectServiceTests
         var created = (await projectService.CreateProject("Test", 1)).Value;
 
         Assert.Equal(1, created.Id);
+    }
+
+    [Fact]
+    public async Task GetProjectsWithTasks_TaskHasBonus_BonusIsIncluded()
+    {
+        var projectService = CreateProjectService(_context);
+        _context.Customer.Add(new Customer { Id = 1, Name = "Customer1" });
+        _context.Project.Add(new Project { Id = 1, Name = "Project1", Customer = 1 });
+        _context.Task.Add(new AlvTime.Persistence.DatabaseModels.Task { Id = 1, Name = "Task1", Description = "", Project = 1, Bonus = true });
+        await _context.SaveChangesAsync();
+
+        var projects = (await projectService.GetProjectsWithTasks(new ProjectQuerySearch())).Value;
+
+        Assert.True(projects.Single().Tasks.Single().Bonus);
     }
 
     private ProjectService CreateProjectService(AlvTime_dbContext context)

@@ -11,6 +11,7 @@ public class TaskAdminResponse
     public string Description { get; set; }
     public bool Locked { get; set; }
     public bool Imposed { get; set; }
+    public bool Bonus { get; set; }
     public CompensationType CompensationType { get; set; }
     public int ProjectId { get; set; }
     public string ProjectName { get; set; }

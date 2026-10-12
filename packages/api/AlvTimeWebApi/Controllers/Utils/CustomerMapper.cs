@@ -34,6 +34,7 @@ public static class CustomerMapper
                     Description = t.Description,
                     Locked = t.Locked,
                     Imposed = t.Imposed,
+                    Bonus = t.Bonus,
                     CompensationType = t.CompensationType,
                     ProjectId = t.ProjectId,
                     ProjectName = t.ProjectName,

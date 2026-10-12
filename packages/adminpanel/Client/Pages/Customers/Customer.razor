@@ -161,6 +161,11 @@
                                 @(context.Item.Imposed ? @Localizer["Common.Yes"] : @Localizer["Common.No"])
                             </CellTemplate>
                         </TemplateColumn>
+                        <TemplateColumn Title="@Localizer["Common.Bonus"]" Groupable="false">
+                            <CellTemplate>
+                                @(context.Item.Bonus ? @Localizer["Common.Yes"] : @Localizer["Common.No"])
+                            </CellTemplate>
+                        </TemplateColumn>
                         <TemplateColumn Title="@Localizer["Common.Locked"]" Groupable="false">
                             <CellTemplate>
                                 @(context.Item.Locked ? @Localizer["Common.Yes"] : @Localizer["Common.No"])
@@ -517,6 +522,7 @@ else
                             Description = t.Description,
                             CompensationType = t.CompensationType,
                             Imposed = t.Imposed,
+                            Bonus = t.Bonus,
                             Locked = t.Locked,
                             ProjectId = t.ProjectId,
                             ProjectName = t.ProjectName,

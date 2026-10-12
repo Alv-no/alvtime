@@ -9,5 +9,6 @@ public class TaskResponseSimple
     public string Description { get; set; }
     public bool Favorite { get; set; }
     public bool Locked { get; set; }
+    public bool Bonus { get; set; }
     public CompensationType CompensationType { get; set; }
 }
