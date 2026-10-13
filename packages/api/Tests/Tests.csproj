@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AlvTime.AlviterMigration\AlvTime.AlviterMigration.csproj" />
     <ProjectReference Include="..\AlvTime.Business\AlvTime.Business.csproj" />
     <ProjectReference Include="..\AlvTime.Persistence\AlvTime.Persistence.csproj" />
     <ProjectReference Include="..\AlvTimeWebApi\AlvTimeWebApi.csproj" />
