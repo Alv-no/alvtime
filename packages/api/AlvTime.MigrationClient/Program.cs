@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Wolverine;
-using Wolverine.Persistence.Durability;
 using Wolverine.SqlServer;
 
 var host = Host.CreateDefaultBuilder(args)
@@ -31,8 +30,3 @@ var configuration = serviceProvider.GetRequiredService<IConfiguration>();
 var connectionString = configuration.GetConnectionString("AlvTime");
 var env = serviceProvider.GetRequiredService<IHostEnvironment>();
 await migrationService.RunMigrations(connectionString ?? throw new InvalidOperationException(), shouldSeed: env.IsDevelopment());
-
-// The API runs with AutoCreate.None, so Wolverine's schema is created/updated here
-Console.WriteLine("Migrating Wolverine message storage...");
-await host.Services.GetRequiredService<IMessageStore>().Admin.MigrateAsync();
-Console.WriteLine("Wolverine message storage migrated successfully");

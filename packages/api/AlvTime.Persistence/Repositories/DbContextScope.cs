@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AlvTime.Business.Interfaces;
 using AlvTime.Persistence.DatabaseModels;
 using Wolverine.EntityFrameworkCore;
+using Wolverine.Runtime;
 using Task = System.Threading.Tasks.Task;
 
 namespace AlvTime.Persistence.Repositories
@@ -16,6 +17,13 @@ namespace AlvTime.Persistence.Repositories
         {
             _dbContext = dbContext;
             _outbox = outbox;
+
+            // One request can save several time entries, each in its own AsAtomic with its own flush.
+            // Wolverine only sends on the first flush by default, so allow it to send on every flush.
+            if (outbox is MessageContext context)
+            {
+                context.MultiFlushMode = MultiFlushMode.AllowMultiples;
+            }
         }
 
         public async Task AsAtomic(Func<Task> atomicAction)

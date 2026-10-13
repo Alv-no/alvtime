@@ -3,6 +3,7 @@ using AlvTime.Business.Tasks;
 using AlvTime.Persistence.DatabaseModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Wolverine.Persistence.Durability;
 using Task = System.Threading.Tasks.Task;
 
 namespace AlvTime.MigrationClient;
@@ -14,6 +15,13 @@ public interface IMigrationService
 
 public class MigrationService : IMigrationService
 {
+    private readonly IMessageStore _messageStore;
+
+    public MigrationService(IMessageStore messageStore)
+    {
+        _messageStore = messageStore;
+    }
+
     public async Task RunMigrations(string connectionString, bool shouldSeed)
     {
         var optionsBuilder = new DbContextOptionsBuilder<AlvTime_dbContext>()
@@ -26,6 +34,11 @@ public class MigrationService : IMigrationService
         {
             Console.WriteLine($"Migrating {context.Database.GetDbConnection().DataSource}");
             await context.Database.MigrateAsync();
+
+            // The API runs with AutoCreate.None, so Wolverine's schema is created/updated here
+            Console.WriteLine("Migrating Wolverine message storage...");
+            await _messageStore.Admin.MigrateAsync();
+
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Migrations completed successfully");
 
