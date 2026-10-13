@@ -11,6 +11,7 @@ using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;
 using Microsoft.Extensions.Options;
 using Moq;
+using Wolverine.EntityFrameworkCore;
 using Xunit;
 
 namespace Tests.UnitTests.Overtime;
@@ -22,6 +23,7 @@ public class HoursUntilBankingStartsTests
 {
     private readonly AlvTime_dbContext _context;
     private readonly TimeRegistrationService _timeRegistrationService;
+    private readonly Mock<IDbContextOutbox<AlvTime_dbContext>> _outbox = new();
 
     private static readonly DateTime FY2024Date = new(2024, 7, 1); // Monday, FY 2024-2025
 
@@ -60,7 +62,7 @@ public class HoursUntilBankingStartsTests
 
         _timeRegistrationService = new TimeRegistrationService(options, userContextMock.Object,
             new TaskUtils(new TaskStorage(_context), options),
-            new TimeRegistrationStorage(_context), new DbContextScope(_context),
+            new TimeRegistrationStorage(_context), new DbContextScope(_context, _outbox.Object),
             new PayoutStorage(_context, new DateAlvTime()),
             new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
     }
@@ -117,7 +119,7 @@ public class HoursUntilBankingStartsTests
             }));
         var staticService = new TimeRegistrationService(options, staticContextMock.Object,
             new TaskUtils(new TaskStorage(_context), options),
-            new TimeRegistrationStorage(_context), new DbContextScope(_context),
+            new TimeRegistrationStorage(_context), new DbContextScope(_context, _outbox.Object),
             new PayoutStorage(_context, new DateAlvTime()),
             new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
 

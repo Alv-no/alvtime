@@ -1,4 +1,3 @@
-using System;
 using AlvTime.Business.Options;
 using AlvTime.Common.Configuration;
 using AlvTime.Persistence.DatabaseModels;
@@ -15,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Scalar.AspNetCore;
+using System;
 
 namespace AlvTimeWebApi;
 
@@ -43,14 +43,19 @@ public class Startup
         services.AddMvc();
         services.AddAlvtimeAuthentication(Configuration, _environment);
         services.AddMicrosoftGraphClient(Configuration, _environment);
+        services.AddOutpostClient(Configuration);
+        services.AddAlvtimeWolverine(Configuration);
         services.AddScoped<GraphService>();
         services.Configure<TimeEntryOptions>(Configuration.GetSection("TimeEntryOptions"));
+        services.Configure<OutpostOptions>(Configuration.GetSection("Outpost"));
         services.AddAlvtimeAuthorization();
         services.AddOpenApi(o => 
         {
             o.AddDocumentTransformer<OpenApiLoginTransformer>();
             o.AddOperationTransformer<DefaultHeaderTransformer>();
         });
+
+
         services.AddRazorPages();
         services.AddAlvtimeCorsPolicys(Configuration);
         services.ConfigureLogging(_environment);

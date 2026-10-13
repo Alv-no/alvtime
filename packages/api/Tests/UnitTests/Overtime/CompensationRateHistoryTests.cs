@@ -11,6 +11,7 @@ using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;
 using Microsoft.Extensions.Options;
 using Moq;
+using Wolverine.EntityFrameworkCore;
 using Xunit;
 using Task = AlvTime.Persistence.DatabaseModels.Task;
 
@@ -26,6 +27,7 @@ public class CompensationRateHistoryTests
     private readonly Mock<IUserContext> _userContextMock;
     private readonly IOptionsMonitor<TimeEntryOptions> _options;
     private TimeRegistrationService _service;
+    private readonly Mock<IDbContextOutbox<AlvTime_dbContext>> _outbox = new();
 
     private static readonly DateTime PreFirstSwitchDate = new(2021, 7, 5);  // Monday, FY 2021-2022 (Static)
     private static readonly DateTime Switch1Date         = new(2022, 6, 1);  // Static → Invoice
@@ -117,7 +119,7 @@ public class CompensationRateHistoryTests
     private TimeRegistrationService BuildService() =>
         new(_options, _userContextMock.Object,
             new TaskUtils(new TaskStorage(_context), _options),
-            new TimeRegistrationStorage(_context), new DbContextScope(_context),
+            new TimeRegistrationStorage(_context), new DbContextScope(_context, _outbox.Object),
             new PayoutStorage(_context, new DateAlvTime()),
             new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
 }

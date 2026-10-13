@@ -13,6 +13,7 @@ using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;
 using Microsoft.Extensions.Options;
 using Moq;
+using Wolverine.EntityFrameworkCore;
 using Xunit;
 using Task = AlvTime.Persistence.DatabaseModels.Task;
 
@@ -22,6 +23,7 @@ public class InvoiceBasedSalaryModelOvertimeTests
 {
     private readonly AlvTime_dbContext _context;
     private readonly TimeRegistrationService _timeRegistrationService;
+    private readonly Mock<IDbContextOutbox<AlvTime_dbContext>> _outbox = new();
 
     public InvoiceBasedSalaryModelOvertimeTests()
     {
@@ -58,7 +60,7 @@ public class InvoiceBasedSalaryModelOvertimeTests
 
         _timeRegistrationService = new TimeRegistrationService(options1, userContextMock.Object,
             new TaskUtils(new TaskStorage(_context), options1),
-            new TimeRegistrationStorage(_context), new DbContextScope(_context),
+            new TimeRegistrationStorage(_context), new DbContextScope(_context, _outbox.Object),
             new PayoutStorage(_context, new DateAlvTime()),
             new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
     }

@@ -16,6 +16,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 using Task = AlvTime.Persistence.DatabaseModels.Task;
+using Wolverine.EntityFrameworkCore;
 
 namespace Tests.UnitTests.Overtime;
 
@@ -26,6 +27,8 @@ public class OvertimeTests
     private readonly Mock<IUserContext> _userContextMock;
     private readonly Mock<PayoutValidationService> _payoutValidationServiceMock;
     private readonly TimeRegistrationService _timeRegistrationService;
+    private readonly Mock<IDbContextOutbox<AlvTime_dbContext>> _outbox = new();
+
 
     public OvertimeTests()
     {
@@ -269,7 +272,7 @@ public class OvertimeTests
             .Throws(new Exception());
         mockRepo.CallBase = true;
         var timeRegistrationService = new TimeRegistrationService(_options, _userContextMock.Object,
-            CreateTaskUtils(), mockRepo.Object, new DbContextScope(sqliteContext), new PayoutStorage(sqliteContext, new DateAlvTime()), new UserService(new UserRepository(sqliteContext), new TimeRegistrationStorage(sqliteContext)));
+            CreateTaskUtils(), mockRepo.Object, new DbContextScope(sqliteContext, _outbox.Object), new PayoutStorage(sqliteContext, new DateAlvTime()), new UserService(new UserRepository(sqliteContext), new TimeRegistrationStorage(sqliteContext)));
         var dateToTest = new DateTime(2021, 12, 13); //Monday
         var timeEntry = CreateTimeEntryForExistingTask(dateToTest, 10M, 1);
         try
@@ -1651,7 +1654,7 @@ public class OvertimeTests
     private TimeRegistrationService CreateTimeRegistrationService()
     {
         return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
-            new TimeRegistrationStorage(_context), new DbContextScope(_context), new PayoutStorage(_context, new DateAlvTime()), new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
+            new TimeRegistrationStorage(_context), new DbContextScope(_context, _outbox.Object), new PayoutStorage(_context, new DateAlvTime()), new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
     }
         
     private PayoutService CreatePayoutService(TimeRegistrationService timeRegistrationService)

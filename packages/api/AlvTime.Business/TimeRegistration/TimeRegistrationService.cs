@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AlvTime.Business.Absence;
+using AlvTime.Business.Events;
 using AlvTime.Business.Interfaces;
 using AlvTime.Business.Options;
 using AlvTime.Business.Overtime;
 using AlvTime.Business.Payouts;
+using AlvTime.Business.TimeRegistration.Events;
 using AlvTime.Business.Users;
 using AlvTime.Business.Utils;
 using Microsoft.Extensions.Options;
@@ -27,7 +29,7 @@ public class TimeRegistrationService(
     private const decimal HoursInWorkday = 7.5M;
 
     public async Task<IEnumerable<TimeEntryOverviewDto>> FetchTimeEntryOverview(int numberOfMonths = 3)
-    {
+    {  
         var user = await userContext.GetCurrentUser();
         var userId = user.Id;
 
@@ -117,6 +119,10 @@ public class TimeRegistrationService(
                     await UpdateEarnedOvertime(entriesOnDay, userId);
                     await UpdateRegisteredFlex(entriesOnDay, userId);
                     await UpdateFutureFlex(entriesOnDay.First().Date, userId);
+                    
+                    var _event = new TimeEntryCreatedEvent(createdTimeEntry.Id, createdTimeEntry.User, createdTimeEntry.Date);
+                    await dbContextScope.PublishAsync(new WebhookEvent<TimeEntryCreatedEvent>(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, _event));
+
                 });
             }
             else
@@ -129,6 +135,10 @@ public class TimeRegistrationService(
                     await UpdateEarnedOvertime(entriesOnDay, userId);
                     await UpdateRegisteredFlex(entriesOnDay, userId);
                     await UpdateFutureFlex(entriesOnDay.First().Date, userId);
+
+                    var _event = new TimeEntryUpdatedEvent(updatedTimeEntry.Id, updatedTimeEntry.User, updatedTimeEntry.Date);
+                    await dbContextScope.PublishAsync(new WebhookEvent<TimeEntryUpdatedEvent>(Guid.NewGuid().ToString(), DateTimeOffset.UtcNow, _event));
+
                 });
             }
         }

@@ -9,6 +9,7 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Wolverine.EntityFrameworkCore;
 using Xunit;
 
 namespace Tests.UnitTests.Vacation;
@@ -19,6 +20,7 @@ public class VacationTests
     private readonly IOptionsMonitor<TimeEntryOptions> _options;
     private readonly Mock<IUserContext> _userContextMock;
     private readonly TimeRegistrationService _timeRegistrationService;
+    private readonly Mock<IDbContextOutbox<AlvTime_dbContext>> _outbox = new();
 
     public VacationTests()
     {
@@ -150,7 +152,7 @@ public class VacationTests
     private TimeRegistrationService CreateTimeRegistrationService()
     {
         return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
-            new TimeRegistrationStorage(_context), new DbContextScope(_context), new PayoutStorage(_context, new DateAlvTime()), new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
+            new TimeRegistrationStorage(_context), new DbContextScope(_context, _outbox.Object), new PayoutStorage(_context, new DateAlvTime()), new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
     }
 
     private TaskUtils CreateTaskUtils()

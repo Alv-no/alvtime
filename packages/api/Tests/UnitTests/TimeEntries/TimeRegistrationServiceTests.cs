@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using AlvTime.Business;
+using AlvTime.Business.Events;
 using AlvTime.Business.Options;
 using AlvTime.Business.Payouts;
 using AlvTime.Business.TimeRegistration;
+using AlvTime.Business.TimeRegistration.Events;
 using AlvTime.Business.Users;
 using AlvTime.Business.Tasks;
 using AlvTime.Business.Utils;
@@ -13,6 +15,8 @@ using AlvTime.Persistence.Repositories;
 using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
+using Wolverine;
+using Wolverine.EntityFrameworkCore;
 
 namespace Tests.UnitTests.TimeEntries;
 
@@ -23,6 +27,7 @@ public class TimeRegistrationServiceTests
     private readonly Mock<IUserContext> _userContextMock;
     private readonly TimeRegistrationService _timeRegistrationService;
     private readonly PayoutService _payoutService;
+    private readonly Mock<IDbContextOutbox<AlvTime_dbContext>> _outbox = new();
 
     public TimeRegistrationServiceTests()
     {
@@ -65,6 +70,34 @@ public class TimeRegistrationServiceTests
         payoutValidationServiceMock.CallBase = true;
         _payoutService = new PayoutService(new PayoutStorage(_context, new DateAlvTime()), _userContextMock.Object,
             _timeRegistrationService, payoutValidationServiceMock.Object);
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task UpsertTimeEntry_NewEntry_PublishesCreatedEventWithIdUserAndDate()
+    {
+        var date = new DateTime(2021, 12, 13); //Monday
+        var result = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = date, Value = 7.5M, TaskId = 1 } });
+        var created = result.Value.Single();
+
+        _outbox.Verify(o => o.PublishAsync(
+            It.Is<WebhookEvent<TimeEntryCreatedEvent>>(e => e.Data == new TimeEntryCreatedEvent(created.Id, 1, date)),
+            It.IsAny<DeliveryOptions>()), Times.Once);
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task UpsertTimeEntry_ExistingEntry_PublishesUpdatedEventWithIdUserAndDate()
+    {
+        var date = new DateTime(2021, 12, 13); //Monday
+        await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = date, Value = 7.5M, TaskId = 1 } });
+        var result = await _timeRegistrationService.UpsertTimeEntry(new List<CreateTimeEntryDto>
+            { new() { Date = date, Value = 5M, TaskId = 1 } });
+        var updated = result.Value.Single();
+
+        _outbox.Verify(o => o.PublishAsync(
+            It.Is<WebhookEvent<TimeEntryUpdatedEvent>>(e => e.Data == new TimeEntryUpdatedEvent(updated.Id, 1, date)),
+            It.IsAny<DeliveryOptions>()), Times.Once);
     }
 
     [Fact]
@@ -365,7 +398,7 @@ public class TimeRegistrationServiceTests
     private TimeRegistrationService CreateTimeRegistrationService()
     {
         return new TimeRegistrationService(_options, _userContextMock.Object, CreateTaskUtils(),
-            new TimeRegistrationStorage(_context), new DbContextScope(_context), new PayoutStorage(_context, new DateAlvTime()), new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
+            new TimeRegistrationStorage(_context), new DbContextScope(_context, _outbox.Object), new PayoutStorage(_context, new DateAlvTime()), new UserService(new UserRepository(_context), new TimeRegistrationStorage(_context)));
     }
 
     private TaskUtils CreateTaskUtils()
