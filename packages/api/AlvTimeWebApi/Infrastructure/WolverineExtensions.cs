@@ -1,6 +1,7 @@
 ﻿using AlvTime.Business.Events;
 using AlvTime.Business.TimeRegistration.Events;
 using AlvTimeWebApi.BackgroundServices;
+using JasperFx;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -25,6 +26,9 @@ namespace AlvTimeWebApi.Infrastructure
                 opts.PersistMessagesWithSqlServer(
                     connectionString,
                     "wolverine");
+
+                // The wolverine schema is created/updated by AlvTime.MigrationClient, the API never changes it
+                opts.AutoBuildMessageStorageOnStartup = AutoCreate.None;
 
                 opts.UseEntityFrameworkCoreTransactions();
                 opts.Policies.AutoApplyTransactions();
