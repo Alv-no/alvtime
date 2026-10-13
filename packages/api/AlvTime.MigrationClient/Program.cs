@@ -1,5 +1,6 @@
 ﻿using AlvTime.Common.Configuration;
 using AlvTime.MigrationClient;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -18,7 +19,13 @@ var host = Host.CreateDefaultBuilder(args)
         // Only used to let Wolverine create/update its own message storage, the host is never started
         services.AddWolverine(opts =>
         {
-            opts.PersistMessagesWithSqlServer(context.Configuration.GetConnectionString("AlvTime")!, "wolverine");
+            // Wolverine's schema diff can exceed the default 30s command timeout on small Azure SQL tiers (JasperFx/wolverine#4166)
+            var connectionString = new SqlConnectionStringBuilder(context.Configuration.GetConnectionString("AlvTime"))
+            {
+                CommandTimeout = 300
+            }.ConnectionString;
+
+            opts.PersistMessagesWithSqlServer(connectionString, "wolverine");
         });
     })
     .Build();
