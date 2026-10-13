@@ -3,15 +3,23 @@ using AlvTime.MigrationClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Wolverine;
+using Wolverine.SqlServer;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration((_, config) =>
     {
         config.CommonConfigure<Program>();
     })
-    .ConfigureServices((_, services) =>
+    .ConfigureServices((context, services) =>
     {
         services.AddTransient<IMigrationService, MigrationService>();
+
+        // Only used to let Wolverine create/update its own message storage, the host is never started
+        services.AddWolverine(opts =>
+        {
+            opts.PersistMessagesWithSqlServer(context.Configuration.GetConnectionString("AlvTime")!, "wolverine");
+        });
     })
     .Build();
 
