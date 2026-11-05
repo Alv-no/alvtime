@@ -9,7 +9,7 @@ namespace AlvTimeWebApi.Controllers.Admin;
 
 [ApiController]
 [Route("api/admin")]
-[Authorize(Roles = "Admin")]
+[Authorize(Policy = "AdminPolicy")]
 public class VacationController(IAbsenceDaysService absenceDaysService) : ControllerBase
 {
     [HttpGet("vacationOverview")]
