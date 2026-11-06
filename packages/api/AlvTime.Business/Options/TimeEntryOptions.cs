@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace AlvTime.Business.Options
 {
@@ -12,5 +13,6 @@ namespace AlvTime.Business.Options
         public int SickDaysTask { get; set; }
         public int AlvDayTask { get; set; }
         public int AbsenceProject { get; set; }
+        public List<int> AbsencePlanTasks { get; set; } = new();
     }
 }
