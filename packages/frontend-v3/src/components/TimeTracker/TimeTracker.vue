@@ -8,6 +8,7 @@
 				{{ currentWeekString }}
 			</div>
 			<div class="button-wrapper">
+				<AbsencePlannerButton />
 				<AlvtimeButton
 					@click="sortProjects"
 				>
@@ -114,6 +115,7 @@ import { SortByDown02Icon } from "@hugeicons/core-free-icons";
 import { storeToRefs } from "pinia";
 import TimeTrackerError from "./TimeTrackerError.vue";
 import AlvtimeButton from "../utils/AlvtimeButton.vue";
+import AbsencePlannerButton from "@/components/AbsencePlanner/AbsencePlannerButton.vue";
 import ProjectStats from "./ProjectStats.vue";
 
 const swiper = ref<Swiper | null>(null);
