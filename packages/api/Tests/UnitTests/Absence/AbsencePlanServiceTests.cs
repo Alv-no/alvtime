@@ -11,6 +11,7 @@ using AlvTime.Persistence.DatabaseModels;
 using AlvTime.Persistence.Repositories;
 using Microsoft.Extensions.Options;
 using Moq;
+using Wolverine.EntityFrameworkCore;
 using Xunit;
 using Task = System.Threading.Tasks.Task;
 
@@ -28,6 +29,7 @@ public class AbsencePlanServiceTests
     private readonly AlvTime_dbContext _context;
     private readonly IOptionsMonitor<TimeEntryOptions> _options;
     private readonly Mock<IUserContext> _userContextMock;
+    private readonly Mock<IDbContextOutbox<AlvTime_dbContext>> _outbox = new();
 
     public AbsencePlanServiceTests()
     {
@@ -374,7 +376,7 @@ public class AbsencePlanServiceTests
 
     private TimeRegistrationService CreateTimeRegistrationService() =>
         new(_options, _userContextMock.Object, new TaskUtils(new TaskStorage(_context), _options),
-            new TimeRegistrationStorage(_context), new DbContextScope(_context),
+            new TimeRegistrationStorage(_context), new DbContextScope(_context, _outbox.Object),
             new PayoutStorage(_context, new DateAlvTime()), CreateUserService());
 
     private UserService CreateUserService() =>

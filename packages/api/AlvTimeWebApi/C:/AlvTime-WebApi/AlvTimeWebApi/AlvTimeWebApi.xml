@@ -4,6 +4,12 @@
         <name>AlvTimeWebApi</name>
     </assembly>
     <members>
+        <member name="T:JasperFx.Generated.DiscoveredEventModels">
+            <summary>
+            Source-generated manifest of the EventModelDefinition subclasses in this assembly. Read by
+            AddDiscoveredEventModels(assembly) in place of a reflective type scan. See jasperfx#993.
+            </summary>
+        </member>
         <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Type)">
             <summary>
             Generates a documentation comment ID for a type.
