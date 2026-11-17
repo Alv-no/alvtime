@@ -68,6 +68,9 @@
 		</div>
 	</div>
 	<SectionedBar :sections="vacationSections" />
+		<div class="absence-planner-row">
+			<AbsencePlannerButton />
+		</div>
 	</div>
 </template>
 
@@ -76,6 +79,7 @@ import { onMounted, ref, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useVacationStore } from "@/stores/vacationStore";
 import SectionedBar from "./SectionedBar.vue";
+import AbsencePlannerButton from "@/components/AbsencePlanner/AbsencePlannerButton.vue";
 
 const loading = ref<boolean>(true);
 
@@ -208,6 +212,12 @@ h2 {
 
 .tooltip:hover .tooltiptext {
   visibility: visible;
+}
+
+.absence-planner-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
 }
 
 .vacation-group-labels {

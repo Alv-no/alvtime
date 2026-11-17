@@ -212,7 +212,7 @@ public class TimeRegistrationService(
         }
     }
 
-    private async Task<List<Error>> ValidateTimeEntry(CreateTimeEntryDto timeEntry)
+    public async Task<List<Error>> ValidateTimeEntry(CreateTimeEntryDto timeEntry)
     {
         var timeEntryDate = timeEntry.Date.Date;
         var currentUser = await userContext.GetCurrentUser();

@@ -52,6 +52,7 @@ const handleOverlayClick = (event: MouseEvent) => {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	z-index: 100;
 
 	.modal-content {
 		background: $background-color;
@@ -59,7 +60,8 @@ const handleOverlayClick = (event: MouseEvent) => {
 		max-height: 90%;
 		overflow-y: auto;
 		border-radius: 25px;
-		min-width: 500px;
+		min-width: min(500px, 90vw);
+		box-sizing: border-box;
 		padding: 16px;
 
 		.modal-content-header {

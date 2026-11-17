@@ -40,6 +40,7 @@ namespace AlvTimeWebApi
             services.AddScoped<IAssociatedTaskStorage, AssociatedTaskStorage>();
             services.AddScoped<IRedDaysService, RedDaysService>();
             services.AddScoped<IAbsenceDaysService, AbsenceDaysService>();
+            services.AddScoped<AbsencePlanService>();
             services.AddScoped<AccessTokenService>();
             services.AddScoped<IUserContext, UserContext>();
             services.AddScoped<IPayoutStorage, PayoutStorage>();
